@@ -166,7 +166,11 @@ const NAMESPACES = [
 		// PR #264 R1: −1 `primer.settings_hint` (one-line primer), +3 the
 		// previews switch and its iOS/Android notes, +3 the denied nudge
 		// (`off_nudge.*`): 48 − 1 + 3 + 3 = 53.
-		expected: 53,
+		// PR #264 design/UX R1: one shared `turn_on` replaces `primer.enable`
+		// and `off_nudge.turn_on` (U7), +1 `off_nudge.dismiss_label` (D6),
+		// +1 `preferences.computer_keeps_sending` (D1/U1), +1
+		// `preferences.disabled_hint` (U9): 53 + 1 − 2 + 3 = 55.
+		expected: 55,
 	},
 	{
 		name: "mobile.session",
@@ -388,7 +392,10 @@ describe("the English catalogues", () => {
 		 * notification preference keys (`preferences.*`: master, completions,
 		 * errors, Team Bridge, update note): 877 + 5 = 882. PR #264 R1:
 		 * 882 − 1 + 3 + 3 = 887 (same keys as the namespace count above). */
-		expect(total).toBe(887);
+		/* Merge of origin/main d92515ff (#263) into #264: main added no keys,
+		 * so 887 carried. PR #264 design/UX R1: 887 + 1 − 2 + 3 = 889, the
+		 * generator's own count (same keys as the namespace count above). */
+		expect(total).toBe(889);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -534,8 +541,6 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"« Effort » is the French word; the sheet's title is that one noun.",
 		"mobile.notifications.title":
 			"French spells this one the same: 'Notifications' is the platform's own word for the screen, not an English sentence left behind.",
-		"mobile.notifications.preferences.master":
-			"The master switch is labelled with the same platform word as the screen title: 'Notifications' in French too.",
 		/* French « session » is the same word as English "session": identical
 		 * bytes here are the correct translation, not a value nobody translated. */
 		"mobile.session_health.menu_title":

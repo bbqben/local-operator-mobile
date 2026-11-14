@@ -21,13 +21,18 @@ const host = vi.hoisted(() => ({
 	roles: new Map<string, string>(),
 	checked: new Map<string, boolean>(),
 	ariaChecked: new Map<string, boolean>(),
+	hints: new Map<string, string | undefined>(),
+	/** Every string a `Text` printed: what is on screen, as opposed to read. */
+	texts: [] as string[],
 }));
 
 vi.mock("react-native", () => ({
 	View: ({ children }: { children?: import("react").ReactNode }) =>
 		children ?? null,
-	Text: ({ children }: { children?: import("react").ReactNode }) =>
-		children ?? null,
+	Text: ({ children }: { children?: import("react").ReactNode }) => {
+		if (typeof children === "string") host.texts.push(children);
+		return children ?? null;
+	},
 	Switch: () => null,
 	Pressable: (props: {
 		children?: import("react").ReactNode;
@@ -36,8 +41,10 @@ vi.mock("react-native", () => ({
 		accessibilityRole?: string;
 		accessibilityState?: { checked?: boolean };
 		"aria-checked"?: boolean;
+		accessibilityHint?: string;
 	}) => {
 		host.presses.set(props.testID, props.onPress);
+		host.hints.set(props.testID, props.accessibilityHint);
 		if (props.accessibilityRole)
 			host.roles.set(props.testID, props.accessibilityRole);
 		if (props.accessibilityState?.checked !== undefined)
@@ -60,7 +67,7 @@ vi.mock("@/ui/components/segmented", () => ({
 	},
 }));
 
-const { SidebarViewControls } = await import(
+const { SidebarViewControls, SwitchRow } = await import(
 	"@/features/sessions/sidebar-view-controls"
 );
 const { arrangeSidebar, DEFAULT_SIDEBAR_VIEW } = await import(
@@ -106,6 +113,8 @@ beforeEach(() => {
 	host.roles.clear();
 	host.checked.clear();
 	host.ariaChecked.clear();
+	host.hints.clear();
+	host.texts.length = 0;
 	current = DEFAULT_SIDEBAR_VIEW;
 });
 afterEach(() => {
@@ -174,5 +183,45 @@ describe("review round 1 remediation", () => {
 		expect(host.ariaChecked.get(CONTROL.sidebarViewShowEnded)).toBe(true);
 		press(host.presses, CONTROL.sidebarViewShowEnded);
 		expect(host.ariaChecked.get(CONTROL.sidebarViewShowEnded)).toBe(false);
+	});
+});
+
+describe("PR #264 design D6 / UX U9", () => {
+	it("a screen-reader-only hint is read, never printed under the label", () => {
+		const id = "switch-with-reason";
+		act(() =>
+			root.render(
+				createElement(SwitchRow, {
+					label: "Agent finished",
+					value: true,
+					disabled: true,
+					onChange: () => {},
+					testID: id,
+					accessibilityHint: "Needs a newer Local Operator on your computer.",
+				}),
+			),
+		);
+		expect(host.hints.get(id)).toBe(
+			"Needs a newer Local Operator on your computer.",
+		);
+		expect(host.texts).toContain("Agent finished");
+		expect(host.texts.join("\n")).not.toContain("Needs a newer");
+	});
+
+	it("the visible `hint` is still the spoken hint when no override is given", () => {
+		const id = "switch-with-visible-hint";
+		act(() =>
+			root.render(
+				createElement(SwitchRow, {
+					label: "Show ended",
+					hint: "Visible hint",
+					value: true,
+					onChange: () => {},
+					testID: id,
+				}),
+			),
+		);
+		expect(host.hints.get(id)).toBe("Visible hint");
+		expect(host.texts).toContain("Visible hint");
 	});
 });

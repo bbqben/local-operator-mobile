@@ -81,6 +81,7 @@ export const SwitchRow = ({
 	onChange,
 	testID,
 	disabled = false,
+	accessibilityHint,
 }: {
 	label: string;
 	hint?: string;
@@ -88,6 +89,10 @@ export const SwitchRow = ({
 	onChange: (next: boolean) => void;
 	testID: string;
 	disabled?: boolean;
+	/** Screen-reader-only hint, for a reason already written on screen nearby
+	 *  (a disabled switch's note, PR #264 D6/U9). `hint` would print it a
+	 *  second time under the label; this is read only, and wins over `hint`. */
+	accessibilityHint?: string;
 }) => {
 	const accent = useTokenColor("accent");
 	const track = useTokenColor("border-control");
@@ -95,7 +100,7 @@ export const SwitchRow = ({
 		<Pressable
 			accessibilityRole={ROLE.switch}
 			accessibilityLabel={label}
-			accessibilityHint={hint}
+			accessibilityHint={accessibilityHint ?? hint}
 			accessibilityState={{ checked: value, disabled }}
 			disabled={disabled}
 			aria-disabled={disabled}

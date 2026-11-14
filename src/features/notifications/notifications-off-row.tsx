@@ -8,6 +8,7 @@ import {
 	watchNudge,
 } from "@/notifications/denied-nudge";
 import { readAvailability } from "@/notifications/native";
+import { pushEnableLabel } from "@/notifications/permission";
 import { CONTROL } from "@/ui/a11y";
 import { Button } from "@/ui/components/button";
 import { Card } from "@/ui/components/card";
@@ -60,7 +61,7 @@ export const NotificationsOffRow = () => {
 					</Text>
 					<View className="max-w-full shrink">
 						<Button
-							label={t("mobile.notifications.off_nudge.turn_on")}
+							label={pushEnableLabel()}
 							variant="outline"
 							size="sm"
 							testID={CONTROL.notificationsOffTurnOn}
@@ -72,6 +73,12 @@ export const NotificationsOffRow = () => {
 					<View className="max-w-full shrink">
 						<Button
 							label={t("mobile.notifications.off_nudge.dismiss")}
+							// A bare "Dismiss" at the top of the list names no
+							// object for a screen reader (design D6), as
+							// `default-on-notice.tsx` already avoids.
+							accessibilityLabel={t(
+								"mobile.notifications.off_nudge.dismiss_label",
+							)}
 							variant="quiet"
 							size="sm"
 							testID={CONTROL.notificationsOffDismiss}

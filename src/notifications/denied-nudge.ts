@@ -120,6 +120,25 @@ export const deviceNudgeRecords: NudgeRecords = createNudgeRecords(
 			: { keychainAccessible: await thisDeviceOnlyAccessibility() },
 );
 
+/**
+ * Start the 14-day snooze without spending a dismissal (PR #264 UX R1 U5).
+ *
+ * WHY. The primer's "Turn on notifications" → OS "Don't Allow" leaves no
+ * record, so the nudge was due at once and appeared seconds after the reader
+ * said no. A refusal answered in the primer is a decision just taken; the
+ * nudge's job is the reader who forgot. It counts as "seen now", so the first
+ * nudge is 14 days later and the three dismissals stay the reader's. A phone
+ * that was denied before this build never passed through here and is nudged
+ * straight away, as before.
+ */
+export async function snoozeNudge(
+	records: NudgeRecords,
+	now: number,
+): Promise<void> {
+	const record = await records.get();
+	await records.set({ v: 1, dismissals: record?.dismissals ?? 0, lastAt: now });
+}
+
 export type NudgeDeps = {
 	platform: string;
 	readAvailability: () => Promise<PushAvailability>;

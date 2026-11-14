@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Platform, Text, View } from "react-native";
+import { Linking, Platform, Text, View } from "react-native";
 import { useStore } from "zustand";
 
 import type { PushDeviceRow } from "@/contracts";
@@ -26,9 +26,9 @@ import {
 import {
 	availabilityFromHook,
 	canRequestPermission,
-	PUSH_ENABLE_LABEL,
 	type PushAvailability,
 	pushCopy,
+	pushEnableLabel,
 } from "@/notifications/permission";
 import {
 	sessionPushRegistrationStore,
@@ -49,7 +49,8 @@ import { SectionHeader } from "@/ui/components/section-header";
  *
  *  1. **The permission state**, in the app's own vocabulary
  *     (`notifications/permission.ts`), with the enable control present ONLY
- *     while the OS has not been asked. The prompt fires from the press, never
+ *     while the OS has not been asked (and, once denied, the same label
+ *     opening the OS settings instead). The prompt fires from the press, never
  *     from a mount — "requested in context, with the §2.4 copy already on
  *     screen" — and a build without the module says so instead of offering a
  *     toggle that cannot work.
@@ -69,7 +70,9 @@ import { SectionHeader } from "@/ui/components/section-header";
  *     messages". The first three ride to the computer's daemon in the register
  *     body, gated on its `push_preferences` capability (an older daemon would
  *     refuse the field and the whole registration); without it they show
- *     disabled with a note to update the computer. Team Bridge is app-only: it
+ *     disabled with a note that a newer Local Operator is needed, and an "off"
+ *     that cannot reach that computer says it keeps sending (PR #264 D1/U1).
+ *     Shown only once the OS has granted. Team Bridge is app-only: it
  *     adds or removes the hub registration. `notification-preferences.ts` has
  *     the contract and the rules.
  *  4. **Nothing promised.** Team Bridge registration IS wired: the Team
@@ -79,8 +82,9 @@ import { SectionHeader } from "@/ui/components/section-header";
  *     has the operator-owned credential steps). Delivery still depends on
  *     those credentials, which this screen cannot see, so the copy says
  *     "when Radient's push delivery is available" rather than promising an
- *     alert. Computer (relay) background alerts remain unbuilt (ADR 0006 S7),
- *     and every "on" state still says those work only while the app is open.
+ *     alert. Computer session pushes are registered by this phone
+ *     (`session-push-registration.ts`), so the permission sentence no longer
+ *     says they are off (PR #264 D2/U3).
  *
  * On the web target the permission read is the platform's `unsupported`, or —
  * for the harness only — the `lo-notifications` query value, the same
@@ -193,6 +197,31 @@ export const NotificationsSection = () => {
 		preferences,
 		radientSignedIn,
 	});
+	/* At most one note under the switches, and never both: "your computer
+	 * keeps sending" when an off choice is not reaching an older computer
+	 * (design D1 / UX U1 — the honest fallback, `preferenceView` says why a
+	 * withdrawal is not possible), else the update note while switches are
+	 * disabled. The keeps-sending line is a fact the reader acts on, so it is
+	 * one step brighter than the dim footnotes. */
+	const capabilityNote = view.computerKeepsSending ? (
+		<Text
+			className="text-body-sm text-ink-muted"
+			testID={REGION.settingsNotificationsCapabilityNote}
+		>
+			{t("mobile.notifications.preferences.computer_keeps_sending")}
+		</Text>
+	) : view.updateNote ? (
+		<Text
+			className="text-body-sm text-ink-dim"
+			testID={REGION.settingsNotificationsCapabilityNote}
+		>
+			{t("mobile.notifications.preferences.update_computer")}
+		</Text>
+	) : null;
+	/* A dimmed switch read aloud says only "dimmed"; the hint names why
+	 * (design D6 / UX U9). Screen-reader only: the note is already on screen. */
+	const disabledHint = (disabled: boolean): string | undefined =>
+		disabled ? t("mobile.notifications.preferences.disabled_hint") : undefined;
 	/* One change: stored, then re-registered AT ONCE so the daemon filters
 	 * from now on (a forced POST; the body carries `preferences` only to a
 	 * daemon that advertises them), and Team Bridge's hub registration added or
@@ -257,17 +286,29 @@ export const NotificationsSection = () => {
 			{availability !== null && canRequestPermission(availability) ? (
 				<Button
 					testID={CONTROL.settingsNotificationsEnable}
-					label={PUSH_ENABLE_LABEL}
+					label={pushEnableLabel()}
 					onPress={() => void onEnable()}
 					disabled={requesting}
 					variant="outline"
 					size="sm"
 				/>
 			) : null}
-			{/* The preference switches (operator request, 2026-11-14). Absent when
-			 *  the OS denied: the sentence above already names the system-settings
-			 *  remedy, and a switch the OS overrides would claim a control the
-			 *  reader does not have. */}
+			{/* Denied: the one way out is the OS settings page, so it gets the
+			 *  same "Turn on notifications" the nudge and the primer wear (UX R1
+			 *  U6/U7) — after the nudge's third dismissal this is the only path. */}
+			{availability === "denied" ? (
+				<Button
+					testID={CONTROL.settingsNotificationsOpenSettings}
+					label={pushEnableLabel()}
+					onPress={() => void Linking.openSettings().catch(() => undefined)}
+					variant="outline"
+					size="sm"
+				/>
+			) : null}
+			{/* The preference switches (operator request, 2026-11-14), only once
+			 *  the OS has granted (`preferenceView.show`): denied has its
+			 *  system-settings remedy, undetermined only "Turn on notifications"
+			 *  (UX R1 U4). */}
 			{view.show && preferencesHydrated ? (
 				<View testID={REGION.settingsNotificationsPreferences}>
 					<SwitchRow
@@ -282,6 +323,7 @@ export const NotificationsSection = () => {
 								label={t("mobile.notifications.preferences.completions")}
 								value={preferences.completions}
 								disabled={view.sessionDisabled}
+								accessibilityHint={disabledHint(view.sessionDisabled)}
 								onChange={(completions) => void onPreference({ completions })}
 								testID={CONTROL.settingsNotificationsCompletions}
 							/>
@@ -289,6 +331,7 @@ export const NotificationsSection = () => {
 								label={t("mobile.notifications.preferences.errors")}
 								value={preferences.errors}
 								disabled={view.sessionDisabled}
+								accessibilityHint={disabledHint(view.sessionDisabled)}
 								onChange={(errors) => void onPreference({ errors })}
 								testID={CONTROL.settingsNotificationsErrors}
 							/>
@@ -296,19 +339,34 @@ export const NotificationsSection = () => {
 								label={t("mobile.notifications.preferences.previews")}
 								value={preferences.previews}
 								disabled={view.previewsDisabled}
+								accessibilityHint={disabledHint(view.previewsDisabled)}
 								onChange={(previews) => void onPreference({ previews })}
 								testID={CONTROL.settingsNotificationsPreviews}
 							/>
+							{/* Directly under the switches it explains (UX R1 U8), then
+							 *  the kit's `mt-2` before the previews line so the two dim
+							 *  lines no longer read as one paragraph (design D3). */}
+							{capabilityNote}
 							{/* One plain line on where the text travels — the
 							 *  provider named per platform, no lecture (operator,
 							 *  2026-11-14: default on, "as easy as possible"). */}
-							<Text className="text-body-sm text-ink-dim">
+							<Text
+								className={
+									capabilityNote !== null
+										? "mt-2 text-body-sm text-ink-dim"
+										: "text-body-sm text-ink-dim"
+								}
+							>
 								{Platform.OS === "android"
 									? t("mobile.notifications.preferences.previews_note_android")
 									: t("mobile.notifications.preferences.previews_note_ios")}
 							</Text>
 						</>
-					) : null}
+					) : (
+						/* Master off: no switches to explain, only — on an older
+						 *  computer — the fact that it keeps sending (D1/U1). */
+						capabilityNote
+					)}
 					{view.teamBridge ? (
 						<SwitchRow
 							label={t("mobile.notifications.preferences.team_bridge")}
@@ -316,11 +374,6 @@ export const NotificationsSection = () => {
 							onChange={(teamBridge) => void onPreference({ teamBridge })}
 							testID={CONTROL.settingsNotificationsTeamBridge}
 						/>
-					) : null}
-					{view.updateNote ? (
-						<Text className="text-body-sm text-ink-dim">
-							{t("mobile.notifications.preferences.update_computer")}
-						</Text>
 					) : null}
 				</View>
 			) : null}

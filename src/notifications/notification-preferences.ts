@@ -317,10 +317,12 @@ export const teamBridgeWanted = (
 /**
  * What Settings → Notifications renders for the preference block.
  *
- *  - `show`: never while the OS has DENIED (the existing system-settings
- *    remedy stands in its place — a switch the OS overrides would be a lie),
- *    never where alerts are not an app capability (`unsupported`: web, a build
- *    without the module), and not before the permission read answers.
+ *  - `show`: only once the OS has GRANTED. Denied has the system-settings
+ *    remedy instead (a switch the OS overrides would be a lie); `unsupported`
+ *    (web, a build without the module) has nothing to switch; and while
+ *    undetermined (or unread) the only control is "Turn on notifications" —
+ *    an "on" switch on a phone that cannot show anything yet read as a second
+ *    control meaning the opposite (PR #264 UX R1 U4).
  *  - `capability`: what the routed daemon's LIVE list frame advertises, or
  *    `null` when unknown — no computer connected, or this route's first frame
  *    not applied yet. Unknown is not "absent": nothing is disabled and no
@@ -331,7 +333,23 @@ export const teamBridgeWanted = (
  *  - `sessionDisabled`: "Agent finished" / "Agent hit an error", disabled
  *    only when a live frame says `push_preferences` is absent.
  *    `previewsDisabled`: the same for `push_previews`. `updateNote` names the
- *    remedy whenever either is disabled.
+ *    remedy whenever either is disabled AND the switches are on screen (master
+ *    on): with them hidden it would explain nothing (UX R1 U2, design D3).
+ *  - `computerKeepsSending`: the routed computer lacks `push_preferences`
+ *    while the master or an agent-type switch is OFF — so that choice is not
+ *    reaching it and agent notifications keep arriving (design D1, UX U1). It
+ *    replaces the update note: one honest sentence, not two notes.
+ *    WHY COPY, NOT A WITHDRAWAL. The only way to take this phone off a
+ *    released daemon is `DELETE /api/push/devices/{id}` (v0.102.5 and
+ *    origin/main alike), and that is a REVOKE tombstone: `register` refuses
+ *    the row afterwards (`device_revoked`) and clearing it is machine-operator
+ *    only (`_push_operator_gate`), so turning the master back on could never
+ *    re-register. Re-registering with a junk token is not a contract either:
+ *    an empty one is refused ("token is required") and any other is forwarded
+ *    to the cloud fire-and-forget. Once the computer advertises
+ *    `push_preferences` the switches take effect and this line goes away.
+ *    Previews are not counted: an older daemon sending its default preview
+ *    is not an agent notification the reader turned off.
  *  - `types`: the session-type switches (previews included), hidden while
  *    the master switch is off.
  *  - `teamBridge`: app-only and works on any daemon, but needs a Radient
@@ -347,23 +365,27 @@ export const preferenceView = (input: {
 	sessionDisabled: boolean;
 	previewsDisabled: boolean;
 	updateNote: boolean;
+	computerKeepsSending: boolean;
 	types: boolean;
 	teamBridge: boolean;
 } => {
-	const show =
-		input.availability !== null &&
-		input.availability !== "denied" &&
-		input.availability !== "unsupported";
+	const show = input.availability === "granted";
+	const { enabled, completions, errors } = input.preferences;
 	const sessionDisabled =
 		input.capability !== null && !input.capability.preferences;
 	const previewsDisabled =
 		input.capability !== null && !input.capability.previews;
+	const types = show && enabled;
+	const computerKeepsSending =
+		show && sessionDisabled && (!enabled || !completions || !errors);
 	return {
 		show,
 		sessionDisabled,
 		previewsDisabled,
-		updateNote: show && (sessionDisabled || previewsDisabled),
-		types: show && input.preferences.enabled,
-		teamBridge: show && input.preferences.enabled && input.radientSignedIn,
+		updateNote:
+			types && (sessionDisabled || previewsDisabled) && !computerKeepsSending,
+		computerKeepsSending,
+		types,
+		teamBridge: types && input.radientSignedIn,
 	};
 };

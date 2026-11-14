@@ -410,6 +410,9 @@ export const CONTROL = {
 	notificationsOffDismiss: "notifications-off-dismiss",
 	/** Settings → Notifications' "Show conversation name and preview". */
 	settingsNotificationsPreviews: "settings-notifications-previews",
+	/** Settings → Notifications, denied: "Turn on notifications" opens this
+	 *  app's page in the OS settings (PR #264 UX R1 U6). */
+	settingsNotificationsOpenSettings: "settings-notifications-open-settings",
 	settingsAccountRoutingGroup: "settings-account-routing-group",
 	settingsAccountRoutingSave: "settings-account-routing-save",
 	settingsAccountRoutingRetry: "settings-account-routing-retry",
@@ -1505,6 +1508,9 @@ export const REGION = {
 	 *  fact), so a capture can assert which state the screen is in. */
 	settingsNotificationsRegistration: "settings-notifications-registration",
 	settingsNotificationsPreferences: "settings-notifications-preferences",
+	/** The one note under the preference switches: the update note, or the
+	 *  "your computer keeps sending" line that replaces it (PR #264 D1/U1). */
+	settingsNotificationsCapabilityNote: "settings-notifications-capability-note",
 	settingsAccountRouting: "settings-section-account-routing",
 
 	/** The refusal surfaces (`docs/ux/flows.md` § 9, C5/C6/C7). Each id names a

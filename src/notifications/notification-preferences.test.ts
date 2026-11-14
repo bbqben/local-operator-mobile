@@ -276,7 +276,14 @@ describe("what Settings shows", () => {
 		expect(view({ availability: "denied" }).show).toBe(false);
 		expect(view({ availability: "unsupported" }).show).toBe(false);
 		expect(view({ availability: null }).show).toBe(false);
-		expect(view({ availability: "undetermined" }).show).toBe(true);
+	});
+
+	it("U4: undetermined shows only the Turn on action, never switches that read as on", () => {
+		// An "on" switch on a phone that cannot show anything yet is the second
+		// control with the opposite meaning the UX round found.
+		expect(view({ availability: "undetermined" }).show).toBe(false);
+		expect(view({ availability: "unknown" }).show).toBe(false);
+		expect(view({ availability: "granted" }).show).toBe(true);
 	});
 
 	it("m1: a live frame without push_preferences disables only the session-type switches, with the update note", () => {
@@ -295,6 +302,57 @@ describe("what Settings shows", () => {
 		expect(v.updateNote).toBe(false);
 		expect(v.sessionDisabled).toBe(false);
 		expect(v.previewsDisabled).toBe(false);
+	});
+
+	it("U2/D3: the update note hides with the master switch, leaving no orphaned note", () => {
+		const v = view({
+			capability: NONE,
+			preferences: { ...all, enabled: false },
+		});
+		expect(v.types).toBe(false);
+		expect(v.updateNote).toBe(false);
+	});
+
+	it("D1/U1: master off on a computer without push_preferences says that computer keeps sending", () => {
+		const v = view({
+			capability: NONE,
+			preferences: { ...all, enabled: false },
+		});
+		expect(v.computerKeepsSending).toBe(true);
+	});
+
+	it("D1/U1: a type switched off elsewhere says so on an older computer, in place of the update note", () => {
+		for (const off of [{ completions: false }, { errors: false }]) {
+			const v = view({ capability: NONE, preferences: { ...all, ...off } });
+			expect(v.computerKeepsSending).toBe(true);
+			expect(v.updateNote).toBe(false);
+			expect(v.types).toBe(true);
+		}
+	});
+
+	it("D1/U1: no keeps-sending line where the choice takes effect, or where the computer is unknown", () => {
+		const off = { ...all, enabled: false, errors: false };
+		expect(
+			view({ capability: BOTH, preferences: off }).computerKeepsSending,
+		).toBe(false);
+		expect(
+			view({ capability: PREFS_ONLY, preferences: off }).computerKeepsSending,
+		).toBe(false);
+		expect(
+			view({ capability: null, preferences: off }).computerKeepsSending,
+		).toBe(false);
+		// Everything on: nothing is being ignored, so only the update note.
+		const on = view({ capability: NONE });
+		expect(on.computerKeepsSending).toBe(false);
+		expect(on.updateNote).toBe(true);
+	});
+
+	it("D1/U1: previews off alone is not an agent notification still arriving", () => {
+		const v = view({
+			capability: NONE,
+			preferences: { ...all, previews: false },
+		});
+		expect(v.computerKeepsSending).toBe(false);
 	});
 
 	it("m1: a stored off can be switched back on against an older daemon (QA Q1)", () => {

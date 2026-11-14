@@ -65,9 +65,12 @@ export function availabilityFromStatus(status: unknown): PushAvailability {
  *  out over APNs/FCM (since 2026-10-27). Whether a message actually arrives
  *  still depends on Radient's push credentials being configured, which the app
  *  cannot see, so the copy says "when Radient's push delivery is available"
- *  rather than promising delivery. Computer (relay) background alerts are a
- *  separate, still-unbuilt path (ADR 0006 S7), so every state that reads as
- *  "on" keeps saying those work only while the app is open. A key map rather
+ *  rather than promising delivery — and Settings no longer repeats that
+ *  caveat in the permission sentence. Computer (relay) session pushes are
+ *  registered now (`session-push-registration.ts`), so the old "not switched
+ *  on yet, only while the app is open" clause contradicted the "Agent
+ *  finished" switches right below it (PR #264 design D2, UX U3); granted says
+ *  only that notifications are on. A key map rather
  *  than a frozen string table so a locale change re-renders the copy
  *  (`src/i18n/runtime.ts`). */
 const PUSH_COPY_KEY: Readonly<Record<PushAvailability, NoParamKey>> = {
@@ -87,8 +90,10 @@ export const pushCopy = (state: PushAvailability): string =>
 export const canRequestPermission = (state: PushAvailability): boolean =>
 	state === "undetermined";
 
-/** The one label the enable control wears. */
-export const PUSH_ENABLE_LABEL = "Enable notifications";
+/** The one label every "turn notifications on" control wears — Settings, the
+ *  first-run primer and the denied nudge (PR #264 UX R1 U7: three labels for
+ *  one action read as three actions). A function so a locale change re-renders. */
+export const pushEnableLabel = (): string => t("mobile.notifications.turn_on");
 
 /**
  * The web-target test hook's vocabulary — the `lo-notifications` query value a

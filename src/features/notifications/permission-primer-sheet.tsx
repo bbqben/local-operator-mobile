@@ -9,7 +9,9 @@ import {
 	useListState,
 } from "@/features/auth/connection-provider";
 import { t } from "@/i18n";
+import { deviceNudgeRecords, snoozeNudge } from "@/notifications/denied-nudge";
 import { readAvailability, requestPermission } from "@/notifications/native";
+import { pushEnableLabel } from "@/notifications/permission";
 import {
 	acceptPrimer,
 	completedTurnObserved,
@@ -121,6 +123,7 @@ export const NotificationPermissionPrimer = () => {
 				registerSession: requestSessionPushRegistration,
 				radientSignedIn,
 				registerTeamBridge: () => registerPush().catch(() => undefined),
+				snoozeNudge: () => snoozeNudge(deviceNudgeRecords, Date.now()),
 			});
 		} finally {
 			setRequesting(false);
@@ -141,7 +144,7 @@ export const NotificationPermissionPrimer = () => {
 				<View className="gap-2">
 					<Button
 						testID={CONTROL.notificationPrimerEnable}
-						label={t("mobile.notifications.primer.enable")}
+						label={pushEnableLabel()}
 						onPress={() => void onEnable()}
 						disabled={requesting}
 					/>

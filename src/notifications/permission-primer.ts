@@ -239,18 +239,28 @@ export type AcceptDeps = {
 	radientSignedIn: boolean;
 	/** Team Bridge's `registerPush` — Radient's hub learns this phone. */
 	registerTeamBridge: () => Promise<void>;
+	/** `denied-nudge.ts`'s `snoozeNudge` on the device records: an explicit
+	 *  "Don't Allow" here must not be followed by the denied nudge (U5). */
+	snoozeNudge: () => Promise<void>;
 };
 
 /**
  * "Turn on notifications": ask the OS, then register immediately on a grant —
  * the same two entry points Settings' Allow press uses, so the phone is
  * reachable without a restart or a foreground. Nothing registers on any other
- * answer; a `denied` is final and the primer's own policy never offers again.
+ * answer; a `denied` is final, the primer's own policy never offers again, and
+ * the denied nudge is snoozed so it does not follow the refusal at once.
  */
 export async function acceptPrimer(
 	deps: AcceptDeps,
 ): Promise<PushAvailability> {
 	const permission = await deps.requestPermission();
+	if (permission === "denied") {
+		// Best effort: a keystore fault costs at most one early nudge, never
+		// the press itself.
+		await deps.snoozeNudge().catch(() => undefined);
+		return permission;
+	}
 	if (permission !== "granted") return permission;
 	deps.registerSession();
 	if (deps.radientSignedIn) await deps.registerTeamBridge();

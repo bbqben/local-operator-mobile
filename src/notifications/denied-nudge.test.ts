@@ -15,6 +15,7 @@ import {
 	NUDGE_SNOOZE_MS,
 	type NudgeDeps,
 	parseNudgeRecord,
+	snoozeNudge,
 	watchNudge,
 } from "@/notifications/denied-nudge";
 import type { PushAvailability } from "@/notifications/permission";
@@ -112,6 +113,42 @@ describe("what the row does", () => {
 		await p.settle();
 		nudge.stop();
 		expect(p.state.active).toBeUndefined();
+	});
+});
+
+describe("U5: the snooze a primer refusal records", () => {
+	it("keeps the nudge away for 14 days after Don't Allow, then it shows", async () => {
+		const p = phone("denied");
+		await snoozeNudge(p.deps.records, p.deps.now());
+		const nudge = p.watch();
+		await p.settle();
+		expect(p.shown.at(-1)).toBe(false);
+		p.state.now += NUDGE_SNOOZE_MS - 1;
+		p.state.active?.();
+		await p.settle();
+		expect(p.shown.at(-1)).toBe(false);
+		p.state.now += 1;
+		p.state.active?.();
+		await p.settle();
+		expect(p.shown.at(-1)).toBe(true);
+		nudge.stop();
+	});
+
+	it("spends no dismissal: the reader still gets all three", async () => {
+		const p = phone("denied");
+		await snoozeNudge(p.deps.records, p.deps.now());
+		expect((await p.deps.records.get())?.dismissals).toBe(0);
+	});
+
+	it("keeps dismissals already spent", async () => {
+		const p = phone("denied");
+		await p.deps.records.set({ v: 1, dismissals: 2, lastAt: 0 });
+		await snoozeNudge(p.deps.records, p.deps.now());
+		expect(await p.deps.records.get()).toEqual({
+			v: 1,
+			dismissals: 2,
+			lastAt: p.state.now,
+		});
 	});
 });
 

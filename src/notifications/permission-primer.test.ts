@@ -181,6 +181,7 @@ describe("Turn on notifications", () => {
 			registerTeamBridge: async () => {
 				order.push("team-bridge");
 			},
+			snoozeNudge: async () => {},
 		});
 		expect(result).toBe("granted");
 		expect(order).toEqual(["request", "session", "team-bridge"]);
@@ -194,6 +195,7 @@ describe("Turn on notifications", () => {
 			registerSession,
 			radientSignedIn: false,
 			registerTeamBridge,
+			snoozeNudge: async () => {},
 		});
 		expect(registerSession).toHaveBeenCalledTimes(1);
 		expect(registerTeamBridge).not.toHaveBeenCalled();
@@ -207,10 +209,42 @@ describe("Turn on notifications", () => {
 			registerSession,
 			radientSignedIn: true,
 			registerTeamBridge,
+			snoozeNudge: async () => {},
 		});
 		expect(result).toBe("denied");
 		expect(registerSession).not.toHaveBeenCalled();
 		expect(registerTeamBridge).not.toHaveBeenCalled();
+	});
+
+	it("U5: an explicit Don't Allow snoozes the denied nudge; any other answer does not", async () => {
+		const answers = ["denied", "granted", "undetermined", "unknown"] as const;
+		const snoozed: string[] = [];
+		for (const answer of answers) {
+			await acceptPrimer({
+				requestPermission: async () => answer,
+				registerSession: () => {},
+				radientSignedIn: false,
+				registerTeamBridge: async () => {},
+				snoozeNudge: async () => {
+					snoozed.push(answer);
+				},
+			});
+		}
+		expect(snoozed).toEqual(["denied"]);
+	});
+
+	it("U5: a keystore that cannot record the snooze does not fail the press", async () => {
+		await expect(
+			acceptPrimer({
+				requestPermission: async () => "denied",
+				registerSession: () => {},
+				radientSignedIn: false,
+				registerTeamBridge: async () => {},
+				snoozeNudge: async () => {
+					throw new Error("keystore");
+				},
+			}),
+		).resolves.toBe("denied");
 	});
 
 	it("a `denied` answer is never offered again, whatever follows", async () => {
@@ -221,6 +255,7 @@ describe("Turn on notifications", () => {
 			registerSession: () => {},
 			radientSignedIn: false,
 			registerTeamBridge: async () => {},
+			snoozeNudge: async () => {},
 		});
 		markPrimerMoment();
 		r.clock.now = T0 + 30 * DAY;

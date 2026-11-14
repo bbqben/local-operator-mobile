@@ -1767,7 +1767,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#263, d92515ff) into #264: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
-	src: "b8aef967f9687f8ef28ca19797fba6fbd6c5259fbff98b0944ac53093d7e5191",
+	/* PR #264 design/UX remediation round 1: the Settings preference block
+	 * (granted-only, capability note, denied "Turn on notifications"), the
+	 * SwitchRow screen-reader hint, the shared turn-on label and catalogue
+	 * copy. Re-derived once with --print; only `src` moved. */
+	src: "ea749cc4d7e267ef3fcbe6de3ee038de62b5b2240e5a2c835a614a03881ffebd",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
