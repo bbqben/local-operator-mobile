@@ -1764,6 +1764,25 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * registration): both sides' comments and src kept, so neither parent's
 	 * digest. Re-derived once with --print over the merged tree; source identity
 	 * of the merge, NOT rendered evidence. */
+	/* fix/no-terminal-refusals (M1): plain-language refusal copy and actions,
+	 * terminal commands only behind "Using a terminal?", the set-up screen's
+	 * Phone access instruction and the new `mobile.refusal` namespace (844 keys).
+	 * Re-derived with --print over the committed tree (dc89dbd7); only `src`
+	 * moved. Then the M1 scope additions (core C1 reasons/kinds, Last error on
+	 * the retry branch, Copy diagnostics, the Radient 401 split): re-derived
+	 * again over 58b41133. Then the PR #261 round-1 remediation (set-up poll,
+	 * diagnostics-only Last error, transient notice, Home's named refusal,
+	 * redaction, copy fixes in 8 locales): re-derived with --print over the
+	 * staged remediation tree. Then the round-2 remediation (no zero-delay
+	 * poll re-arm, Retry re-runs the route on a stream-raised refusal, Last
+	 * error sources and transport sub-causes, redaction cap and shapes):
+	 * re-derived with --print over the staged round-2 tree. Then the round-3
+	 * remediation (U3-1: a failed refresh keeps the route retry): re-derived
+	 * with --print over the staged round-3 tree. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* Merge of origin/main (#259, 9ef19ccd) into #261: both comment blocks
+	 * kept, re-derived once with --print over the merged tree; only `src`
+	 * moved. Source identity only, NOT rendered U-08 evidence. */
 	/* Convergence of #257 onto main 9ef19ccd (#259): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
 	/* fix/settings-signin-status-badge: the signed-out account card as a
@@ -1793,6 +1812,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * screen): both sides' comments and src kept, so neither parent's digest.
 	 * Re-derived once with --print over the merged tree; source identity of the
 	 * merge, NOT rendered evidence. */
+	/* Merge of origin/main (#258, 8ca71d54) into #261: both comment blocks
+	 * kept (the account card, pill fit and Diagnostics `reason:` row from #258;
+	 * the M1 refusal work from #261), plus the Reason row routed through Copy
+	 * diagnostics' `redact`. Re-derived once with --print over the merged tree
+	 * (dfd4dfaf); only `src` moved. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (#257, caae98bc) into #261: both comment blocks
+	 * kept (the keyed connection-failure surface from #257; the M1 refusal
+	 * work from #261, its kind-default buttons now on #257's keys and its
+	 * named-cause actions carrying #257's UR-C1 `labelDir`). Re-derived once
+	 * with --print over the merged tree (d0fc164b); only `src` moved. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* feat/sidebar-last-user-at: the session-row contract declares the relay's
 	 * `last_user_at` (local-operator #3923, v0.102.5) and the drawer's
 	 * `runningOrderMs` reads it before `created_at`. No rendered surface changed.
@@ -1806,7 +1837,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * ordered by last_user_at): both sides' comments and src kept, so neither
 	 * parent's digest. Re-derived once with --print over the merged tree; source
 	 * identity of the merge, NOT rendered evidence. */
-	src: "701a43f357cfb4b9886a6bf4eb33b03bb57a1571edb7f6b44df7ecd513b51014",
+	/* Merge of origin/main (#263, d92515ff) into #261: both comment blocks
+	 * kept (the session-row `last_user_at` contract from #263; the M1 refusal
+	 * work from #261). Re-derived once with --print over the merged tree; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* Convergence of PR #246 onto main f340368a (#261 plain-language refusals,
+	 * transient notice, diagnostics-only Last error, computers set-up poll):
+	 * both sides' comments and src kept, so neither parent's digest. The list
+	 * loop's resume hold now also holds #261's Diagnostics record, and the
+	 * notice's Retry shares the wake rule's one restart timer. Re-derived once
+	 * with --print over the merged tree; source identity, NOT rendered
+	 * evidence. */
+	src: "b89ccbd28ec001f6d0b6ab8315f6453c0f701eb3e3b7ee39f2cc17df1d1d309e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

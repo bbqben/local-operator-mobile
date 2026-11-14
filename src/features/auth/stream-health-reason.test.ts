@@ -182,7 +182,9 @@ describe("the provider carries the code from the stream to Connection", () => {
 		expect(provider).toContain(
 			'setStreamHealth("degraded"); setStreamHealthReason(reason);',
 		);
-		expect(provider).toContain("} else paintDegraded(reasonCodeOf(error));");
+		/* A block since the convergence with #261: the unheld branch also
+		 *  records Diagnostics' cause beside the paint. */
+		expect(provider).toContain("} else { paintDegraded(reasonCodeOf(error));");
 		expect(provider).toContain(
 			'setStreamHealth("offline"); setStreamHealthReason(reasonCodeOf(error));',
 		);
@@ -201,8 +203,15 @@ describe("the provider carries the code from the stream to Connection", () => {
 		expect(provider).toContain(
 			"setStreamHealth(heldHealth); setStreamHealthReason(reason);",
 		);
+		/* #261's Diagnostics cause is held and dropped with the reason. */
 		expect(provider).toContain(
-			"heldStale = false; heldReason = null; cancelHeldConnecting();",
+			"heldStale = false; heldReason = null; heldDiagnostic = null; cancelHeldConnecting();",
+		);
+		expect(provider).toContain(
+			"heldStale = true; heldReason = reasonCodeOf(error); heldDiagnostic = error;",
+		);
+		expect(provider).toContain(
+			'if (diagnostic !== null) recordDiagnostic(diagnostic, "stream");',
 		);
 	});
 	it("clears it for a new stream and on sign-out, and publishes it", () => {
@@ -240,7 +249,9 @@ describe("Settings › Diagnostics shows `reason: <code>`, monospace and copyabl
 		expect(row).toContain(
 			"diagnosticReason({ health: streamHealth, healthReason: streamHealthReason, lastError, refused: refusal !== null, })",
 		);
-		expect(row).toContain("? `reason: ${code}`");
+		/* Merge of #261: the value goes through Copy diagnostics' redaction
+		 *  (`diagnosticsReasonValue`, pinned in diagnostics-text.test.ts). */
+		expect(row).toContain("? diagnosticsReasonValue(code)");
 		expect(row).toContain("selectable");
 		expect(row).toContain("testID={CONTROL.settingsDiagnosticsReason}");
 	});
