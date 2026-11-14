@@ -1732,6 +1732,25 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * tree; only `src` moved. Source identity only. */
 	/* Merge of origin/main (#255, f8d0d8dd) into #259: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* fix/no-terminal-refusals (M1): plain-language refusal copy and actions,
+	 * terminal commands only behind "Using a terminal?", the set-up screen's
+	 * Phone access instruction and the new `mobile.refusal` namespace (844 keys).
+	 * Re-derived with --print over the committed tree (dc89dbd7); only `src`
+	 * moved. Then the M1 scope additions (core C1 reasons/kinds, Last error on
+	 * the retry branch, Copy diagnostics, the Radient 401 split): re-derived
+	 * again over 58b41133. Then the PR #261 round-1 remediation (set-up poll,
+	 * diagnostics-only Last error, transient notice, Home's named refusal,
+	 * redaction, copy fixes in 8 locales): re-derived with --print over the
+	 * staged remediation tree. Then the round-2 remediation (no zero-delay
+	 * poll re-arm, Retry re-runs the route on a stream-raised refusal, Last
+	 * error sources and transport sub-causes, redaction cap and shapes):
+	 * re-derived with --print over the staged round-2 tree. Then the round-3
+	 * remediation (U3-1: a failed refresh keeps the route retry): re-derived
+	 * with --print over the staged round-3 tree. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* Merge of origin/main (#259, 9ef19ccd) into #261: both comment blocks
+	 * kept, re-derived once with --print over the merged tree; only `src`
+	 * moved. Source identity only, NOT rendered U-08 evidence. */
 	/* Convergence of #257 onto main 9ef19ccd (#259): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
 	/* fix/settings-signin-status-badge: the signed-out account card as a
@@ -1751,6 +1770,20 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#259, 9ef19ccd) into #258: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#258, 8ca71d54) into #261: both comment blocks
+	 * kept (the account card, pill fit and Diagnostics `reason:` row from #258;
+	 * the M1 refusal work from #261), plus the Reason row routed through Copy
+	 * diagnostics' `redact`. Re-derived once with --print over the merged tree
+	 * (dfd4dfaf); only `src` moved. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#257, caae98bc) into #261: both comment blocks
+	 * kept (the keyed connection-failure surface from #257; the M1 refusal
+	 * work from #261, its kind-default buttons now on #257's keys and its
+	 * named-cause actions carrying #257's UR-C1 `labelDir`). Re-derived once
+	 * with --print over the merged tree (d0fc164b); only `src` moved. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* feat/sidebar-last-user-at: the session-row contract declares the relay's
 	 * `last_user_at` (local-operator #3923, v0.102.5) and the drawer's
 	 * `runningOrderMs` reads it before `created_at`. No rendered surface changed.
@@ -1784,7 +1817,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Convergence of #260 onto main d92515ff (#263): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
-	src: "fc25f3f2f646988b142e9c8ab332a1a164601c6e9a54a1ed31ae4842f1c1c9ab",
+	/* Merge of origin/main (#263, d92515ff) into #261: both comment blocks
+	 * kept (the session-row `last_user_at` contract from #263; the M1 refusal
+	 * work from #261). Re-derived once with --print over the merged tree; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* Convergence of #260 onto main f340368a (#261): both comment chains kept
+	 * (#261's set-up restructure with #260's keying applied to it);
+	 * re-derived last with --print over the merged tree; only `src` moved.
+	 * Source identity only, NOT rendered U-08 evidence. */
+	src: "e821add780f8c8a738344884ec497e3b4c8722a751de7fc82f204e73759c1744",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

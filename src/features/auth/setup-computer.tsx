@@ -9,6 +9,8 @@ import { Button } from "@/ui/components/button";
 import { Card } from "@/ui/components/card";
 import { CommandBlock } from "@/ui/components/command-block";
 import { Input } from "@/ui/components/input";
+import { disclosureIcon } from "@/ui/components/refusal-surface";
+import { tunnelRefusalCopy } from "./refusal";
 
 /**
  * Set up a computer — the flow that turns a signed-in account with no tunnel into
@@ -30,7 +32,17 @@ import { Input } from "@/ui/components/input";
  *     run the billing step has no other way to know it. A placeholder in a
  *     command the reader is told to run is a command that fails.
  *
- *  3. **Waiting names what was observed, never "setting up…".** The two signals
+ *  3. **No terminal unless asked for.** The reader of this screen is usually a
+ *     Radient user who has never opened a terminal: the desktop app's Phone
+ *     access block (Settings → Radient account → Phone access; the desktop has
+ *     no Settings item of that name yet, PR #261 U5) does the whole lifecycle
+ *     and shows the price first. So that instruction leads, and the commands
+ *     below sit behind "Using a terminal?", closed by default. The list behind
+ *     this screen re-fetches on focus, on return to the app, on a slow poll
+ *     while it is in front, and on "Check again" (`setup-poll.ts`), which is
+ *     what the second line promises.
+ *
+ *  4. **Waiting names what was observed, never "setting up…".** The two signals
  *     are the control-plane row (the cloud route is provisioned) and
  *     `/healthz` answering (the machine is up). `status: active` is NOT a
  *     heartbeat, so this screen never promotes it to "connected".
@@ -66,38 +78,34 @@ export function tuiCommands(): string {
 export type SetupComputerProps = {
 	/** What the console says about billing, from discovery: `eligible` and its own
 	 *  sentence. `null` before any computer is known. */
-	billing: { eligible: boolean | null; message: string | null } | null;
+	billing: {
+		active?: boolean | null;
+		eligible: boolean | null;
+		message: string | null;
+	} | null;
 	onWaitForConnector: () => void;
 	waiting: boolean;
+	/** Lists the account again now (PR #261 U2): the reader who just finished on
+	 *  the desktop needs a control outside the terminal disclosure. */
+	onCheckAgain?: () => void;
+	/** A list request is in flight (the poll's or the button's). */
+	checking?: boolean;
 };
 
-export const SetupComputer = ({
-	billing,
+/** The create and attach routes, for a reader who uses a terminal. Its own
+ *  component (rather than inline under the disclosure) so the cards keep the
+ *  nesting depth they had, and the copy inside them its line breaks: the
+ *  strings baseline records each literal's first line, and a reflow would read
+ *  as new, un-keyed copy. The tunnel id lives here because only this half
+ *  needs it. */
+const TerminalRoutes = ({
 	onWaitForConnector,
 	waiting,
-}: SetupComputerProps) => {
+}: Pick<SetupComputerProps, "onWaitForConnector" | "waiting">) => {
 	const [tunnelId, setTunnelId] = useState("");
-	const billingInactive = billing?.eligible === false;
-
 	return (
-		<View className="gap-4 pt-2">
-			<Text className="text-body text-ink">
-				{t("mobile.computers.setup.intro")}
-			</Text>
-
-			{billingInactive ? (
-				<Alert
-					severity="warning"
-					title={t("mobile.computers.setup.billing_title")}
-				>
-					{/* The console's own sentence passes through as sent: it is server
-					 *  copy this app cannot translate, and the catalogue line is only
-					 *  the fallback when the console sent none. */}
-					{billing?.message ?? t("mobile.computers.setup.billing_fallback")}
-				</Alert>
-			) : null}
-
-			{/* (a) Create — recommended, and the one that needs no console. */}
+		<>
+			{/* (a) Create — recommended for terminal users; needs no console. */}
 			<Card>
 				<View className="gap-3">
 					<Text className="text-heading text-ink">
@@ -172,6 +180,86 @@ export const SetupComputer = ({
 					/>
 				</View>
 			</Card>
+		</>
+	);
+};
+
+export const SetupComputer = ({
+	billing,
+	onWaitForConnector,
+	waiting,
+	onCheckAgain,
+	checking = false,
+}: SetupComputerProps) => {
+	const [showTerminal, setShowTerminal] = useState(false);
+	/* The 403 split's own words for the account's billing (PR #261 R5): "phone
+	 *  access" vocabulary, keyed, and the never-turned-on vs out-of-credit split
+	 *  instead of the console's one English sentence. */
+	const billingCopy =
+		billing?.active === false || billing?.eligible === false
+			? tunnelRefusalCopy(
+					{
+						billing: {
+							active: billing.active ?? null,
+							eligible: billing.eligible,
+							message: billing.message,
+						},
+						rawStatus: "",
+					},
+					"",
+				)
+			: null;
+
+	return (
+		<View className="gap-4 pt-2">
+			<Text className="text-body text-ink">
+				{t("mobile.computers.setup.intro")}
+			</Text>
+
+			{billingCopy ? (
+				<Alert severity="warning" title={billingCopy.title}>
+					{billingCopy.body ?? ""}
+				</Alert>
+			) : null}
+
+			<Card>
+				<View className="gap-2">
+					<Text className="text-body text-ink">
+						{t("mobile.computers.setup.open_settings")}
+					</Text>
+					<Text className="text-body-sm text-ink-muted">
+						{t("mobile.computers.setup.list_updates")}
+					</Text>
+					{onCheckAgain ? (
+						<Button
+							testID={CONTROL.setupCheckAgain}
+							label={t(
+								checking
+									? "mobile.computers.setup.checking"
+									: "mobile.computers.setup.check_again",
+							)}
+							variant="outline"
+							loading={checking}
+							onPress={onCheckAgain}
+						/>
+					) : null}
+				</View>
+			</Card>
+
+			<Button
+				testID={CONTROL.setupTerminalToggle}
+				label={t("mobile.refusal.terminal.toggle")}
+				variant="quiet"
+				expanded={showTerminal}
+				trailingIcon={disclosureIcon(showTerminal)}
+				onPress={() => setShowTerminal((open) => !open)}
+			/>
+			{showTerminal ? (
+				<TerminalRoutes
+					onWaitForConnector={onWaitForConnector}
+					waiting={waiting}
+				/>
+			) : null}
 
 			{/* (c) Neither — a machine Radient does not know about. */}
 			<Card>
