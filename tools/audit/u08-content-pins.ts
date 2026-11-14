@@ -1751,6 +1751,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#259, 9ef19ccd) into #258: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* feat/sidebar-last-user-at: the session-row contract declares the relay's
+	 * `last_user_at` (local-operator #3923, v0.102.5) and the drawer's
+	 * `runningOrderMs` reads it before `created_at`. No rendered surface changed.
+	 * Re-derived with --print over the working tree; only `src` moved. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#258, 8ca71d54) into #263: both comments kept,
+	 * re-derived once with --print over the merged tree. */
 	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
 	/* M3 S2b-2b (feat/i18n-m3-s2b2b, English-first): the dead ConnectorWaitPanel
@@ -1773,7 +1780,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * `src/connection/__tests__/route-validation-decisions.test.ts`, and nothing
 	 * else under `src`. Re-derived with --print over the committed tree; only
 	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
-	src: "e3972a5e239f735822c2dd5d19e0b29ff4bf0cb34d767726e5f8bb5d3af36e54",
+	/* Merge of origin/main (#257, caae98bc) into #263: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	/* Convergence of #260 onto main d92515ff (#263): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	src: "fc25f3f2f646988b142e9c8ab332a1a164601c6e9a54a1ed31ae4842f1c1c9ab",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
