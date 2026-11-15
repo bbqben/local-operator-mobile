@@ -697,7 +697,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * source carried, so neither parent's digest. Re-derived once with --print
 	 * over the final merged tree; source identity of the #246 + main fb224cfe
 	 * merge, NOT rendered evidence. */
-	app: "06cb5c133c3ca4d083dcb213292860da3891c5227f4f75d86648ff3f9ff32de4",
+	/* fix/mobile-fast-start-search: the session screen passes its image loader
+	 * to the pending rows. --print over the staged tree; source identity only. */
+	/* PR #246 converged onto main 9214ff9b (#256 instant first message,
+	 * in-place search, quieter history loading): both sides' comments and
+	 * source kept, so neither parent's digest. Re-derived once with --print
+	 * over the merged tree; source identity, NOT rendered evidence. */
+	app: "fdffae0a10afaf9073640e5e4c9a6f88bc8a1466ce541271e27ad2bcfbd849dd",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -1705,6 +1711,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * evidence. */
 	/* Merge of origin/main (#251, fb224cfe) into #252: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* fix/mobile-fast-start-search (TestFlight 906): optimistic first-send rows
+	 * and images, the in-place search pill, the quiet older-history edge and
+	 * the startup banner's removal. Re-derived once with --print over the
+	 * staged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* #256 review round 1 remediation (search Escape guard, pending bubble
+	 * alignment, startup caption, history/needs-answer polish, seeded-image
+	 * release). Re-derived once with --print over the staged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* M3 S2b-1 (feat/i18n-m3-s2b1): the own-tunnel command, verdict and
 	 * Settings-section keys (English-first, then the seven audited translations;
 	 * 812 keys in the regenerated `catalogue.gen.ts`), `Alert.bodyDir` with the
@@ -1812,6 +1826,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * screen): both sides' comments and src kept, so neither parent's digest.
 	 * Re-derived once with --print over the merged tree; source identity of the
 	 * merge, NOT rendered evidence. */
+	/* Merge of origin/main (#254, d5831603) into #256: both sides' comments
+	 * kept, re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#255, f8d0d8dd) into #256: both comments kept,
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#259, 9ef19ccd) into #256: both comments kept,
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#258, 8ca71d54) into #256: both comments kept,
+	 * re-derived once with --print over the merged tree. */
+	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#257, caae98bc) into #256: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#258, 8ca71d54) into #261: both comment blocks
 	 * kept (the account card, pill fit and Diagnostics `reason:` row from #258;
 	 * the M1 refusal work from #261), plus the Reason row routed through Copy
@@ -1848,7 +1874,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * notice's Retry shares the wake rule's one restart timer. Re-derived once
 	 * with --print over the merged tree; source identity, NOT rendered
 	 * evidence. */
-	src: "b89ccbd28ec001f6d0b6ab8315f6453c0f701eb3e3b7ee39f2cc17df1d1d309e",
+	/* Merge of origin/main (#263, d92515ff) into #256: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#261, f340368a) into #256: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	/* PR #246 converged onto main 9214ff9b (#256 instant first message,
+	 * in-place search, quieter history loading): both sides' comments and
+	 * source kept, so neither parent's digest. Re-derived once with --print
+	 * over the merged tree; source identity, NOT rendered evidence. */
+	src: "b93f6d9ba15ee3e5372f3eb53db589c4e9e3834342f8d74892cb2058ace299d3",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
