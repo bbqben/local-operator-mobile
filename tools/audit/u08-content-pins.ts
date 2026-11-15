@@ -1974,6 +1974,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#267, 0a629e65) into #269: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* PR #268 CI remediation: --print at 39c06173 admits the completion
+	 * prefetch and foreground warm-sync source changes. Only `src` moved;
+	 * source identity only, NOT new rendered U-08 proof. Instruments, historical
+	 * ORIGINAL_* hashes and thresholds are unchanged. */
+	/* Merge of origin/main (#267 0a629e65, #269 00c2b66d) into #268: both
+	 * comment chains kept; only this pin conflicted. Re-derived LAST with --print
+	 * over the merged tree; only `src` moved. Source identity only, NOT new
+	 * rendered U-08 evidence. */
 	/* PR #272: notification grouping/guidance, its catalogues and regression
 	 * tests change src identity. Re-derived with --print after the catalogue
 	 * invariant repair; this admits source bytes, NOT rendered U-08 evidence.
@@ -1981,7 +1989,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#269, 00c2b66d) into #272: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
-	src: "3e0b23ba9b30e66892d495e05c253f1708fa53208080b0e9e2f7e25d3e55928e",
+	/* Merge of origin/main (#268, eaa49a3e) into #272: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	src: "811db2f8198d29b6dd22c80ece57c4488746c6eb6ced615e5fe6adf7d5b678aa",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
