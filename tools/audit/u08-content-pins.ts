@@ -1975,10 +1975,22 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
 	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
 	 * the merged tree; only `src` moved. */
-	src: "7e2a8bb1e03bbcc6039f89d9ce0997ee3b1a2a06a4f5175ccc1e30756bf9f313",
 	/* Merge of origin/main (#267, 0a629e65) into M3 S4: preserve both
 	 * source-pin comment chains. Re-derived LAST with --print after staging;
 	 * source identity only, not rendered U-08 evidence. */
+	/* PR #269 CI admission repair: re-derived with --print after the reviewed
+	 * resume/mutation-401 changes. Source identity only, NOT new rendered U-08
+	 * evidence; no instrument, input, or historical ORIGINAL_* pin changed. */
+	/* Merge of origin/main (#267, 0a629e65) into #269: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#269, 00c2b66d) into M3 S4 (#270): both comment
+	 * chains kept; only this pin conflicted. The merged src carries both sides
+	 * (S4 catalogues + #269 resume/401 files), so it matches neither parent.
+	 * Derived from the treeDigest contract above by an independent reader over
+	 * the merge's git objects (not --print); the pin test re-checks it.
+	 * Source identity only, NOT rendered U-08 evidence. */
+	src: "cbe8c331cff278efb548c00c7be752a6410c8a189c8f03deaad54277dc267000",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

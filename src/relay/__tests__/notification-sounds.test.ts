@@ -25,6 +25,8 @@ let origin = "";
 let reported: string[] = [];
 let receivedCredential = false;
 let large = false;
+let deviceRefusalCode = "device_key_required";
+let deviceRefusalEdge = false;
 const server = createServer(async (req, res) => {
 	if (
 		req.headers.cookie !== "lop_mobile=synthetic-pair" ||
@@ -61,7 +63,19 @@ const server = createServer(async (req, res) => {
 			req.headers["x-lop-device"] !== "synthetic-install" ||
 			req.headers["x-lop-device-key"] !== "synthetic-key"
 		) {
-			res.writeHead(403).end();
+			res
+				.writeHead(401, {
+					"content-type": "application/json",
+					...(deviceRefusalEdge
+						? { "x-radient-login": "/_radient/login" }
+						: {}),
+				})
+				.end(
+					JSON.stringify({
+						code: deviceRefusalCode,
+						error: "Device key required",
+					}),
+				);
 			return;
 		}
 		receivedCredential = true;
@@ -83,10 +97,14 @@ afterAll(async () => {
 	server.closeAllConnections();
 	await new Promise<void>((resolve) => server.close(() => resolve()));
 });
-const client = (cookie = "lop_mobile=synthetic-pair") =>
+const client = (
+	cookie = "lop_mobile=synthetic-pair",
+	onResponse?: (facts: { status: number }) => void,
+) =>
 	new RelayEndpoints(
 		new RelayHttpClient({
 			baseUrl: origin,
+			onResponse,
 			auth: () => ({ cookie, origin, credentials: "omit" }),
 		}),
 	);
@@ -142,7 +160,87 @@ describe("paired tunnel sound transport", () => {
 	it("refuses an unregistered device key", async () => {
 		await expect(
 			client().noteNotificationSoundCache("synthetic-install", "wrong-key", []),
-		).rejects.toMatchObject({ status: 403 });
+		).rejects.toMatchObject({ status: 401, code: "device_key_required" });
+	});
+	it.each([
+		{ install: "synthetic-install", key: "wrong-key" },
+		{ install: "other-computer-install", key: "synthetic-key" },
+	])(
+		"keeps a device-key refusal local while healthy reads remain authenticated ($install)",
+		async ({ install, key }) => {
+			const routeFailures: number[] = [];
+			const relay = client(undefined, (facts) => {
+				if (facts.status === 401) routeFailures.push(facts.status);
+			});
+			const before = [...reported];
+			await expect(
+				relay.noteNotificationSoundCache(install, key, []),
+			).rejects.toMatchObject({ status: 401, code: "device_key_required" });
+			expect(reported).toEqual(before);
+			await expect(relay.notificationSounds()).resolves.toHaveProperty(
+				"selected",
+				"custom:selected",
+			);
+			expect(routeFailures).toEqual([]);
+		},
+	);
+	it.each([
+		{ code: "device_key_required", edge: true },
+		{ code: "authentication_required", edge: false },
+		{ code: "", edge: false },
+	])(
+		"does not suppress non-device or edge authentication: $code/$edge",
+		async ({ code, edge }) => {
+			deviceRefusalCode = code;
+			deviceRefusalEdge = edge;
+			const routeFailures: number[] = [];
+			try {
+				await expect(
+					client(undefined, (facts) => {
+						if (facts.status === 401) routeFailures.push(401);
+					}).noteNotificationSoundCache(
+						"other-computer-install",
+						"wrong-key",
+						[],
+					),
+				).rejects.toMatchObject({ status: 401 });
+				expect(routeFailures).toEqual([401]);
+			} finally {
+				deviceRefusalCode = "device_key_required";
+				deviceRefusalEdge = false;
+			}
+		},
+	);
+	it("does not exempt the same typed code without an explicit device-credential request", async () => {
+		const failures: number[] = [];
+		const http = new RelayHttpClient({
+			baseUrl: origin,
+			auth: () => ({
+				cookie: "lop_mobile=synthetic-pair",
+				origin,
+				credentials: "omit",
+			}),
+			onResponse: (facts) => {
+				failures.push(facts.status);
+			},
+		});
+		await expect(
+			http.raw({
+				method: "PUT",
+				path: "/api/notification-sounds/cached",
+				body: { shas: [] },
+			}),
+		).rejects.toMatchObject({ status: 401, code: "device_key_required" });
+		expect(failures).toEqual([401]);
+	});
+	it("still publishes a real cookie rejection to the route", async () => {
+		const routeFailures: number[] = [];
+		await expect(
+			client("", (facts) => {
+				routeFailures.push(facts.status);
+			}).noteNotificationSoundCache("synthetic-install", "wrong-key", []),
+		).rejects.toMatchObject({ status: 401 });
+		expect(routeFailures).toEqual([401]);
 	});
 	it("refuses a stale digest", async () => {
 		await expect(
