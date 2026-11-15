@@ -40,6 +40,7 @@ import {
 	foldersFrom,
 	type HomeFolders,
 	heldOn,
+	holdReadFailure,
 	homeModelRows,
 	homeStartSelection,
 	isAuthFailure,
@@ -78,6 +79,7 @@ import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import { Composer } from "@/features/session/components/composer";
 import type { ComposerControls } from "@/features/session/composer";
 import { composerCopy, pasteNothingLine } from "@/features/session/composer";
+import { heldTimer } from "@/features/session/resume-hold";
 import { deviceOnline } from "@/features/session/runtime";
 import { useHomeDictation } from "@/features/session/use-dictation";
 import { ConversationsPane } from "@/features/sessions/conversations-pane";
@@ -180,6 +182,7 @@ export default function Home({
 		coldStartSettled,
 		savedTunnel,
 		restoredAccount,
+		resumeClock,
 	} = useConnection();
 	const computers = useConnectionState((state) => state.computers);
 	const tunnelId = useConnectionState((state) => state.tunnelId);
@@ -467,6 +470,7 @@ export default function Home({
 		 *  computer change re-asks: `tunnelId` is a dependency for that reason. */
 		const computer = tunnelId;
 		let live = true;
+		let heldReask: (() => void) | null = null;
 		void active
 			.directories()
 			.then((payload) => {
@@ -487,15 +491,26 @@ export default function Home({
 			})
 			.catch((cause: unknown) => {
 				if (!live) return;
-				setDirectoriesError(foldersFailure(cause));
+				const failure = foldersFailure(cause);
+				/* A resume blip is held and re-asked once at the window's end; the
+				 *  last good folders (or the loading state) stay meanwhile. */
+				if (holdReadFailure(failure, resumeClock)) {
+					heldReask = heldTimer(resumeClock, 0, () => {
+						heldReask = null;
+						if (live) setDirectoriesAttempt((attempt) => attempt + 1);
+					});
+					return;
+				}
+				setDirectoriesError(failure);
 				setDirectoriesSettled(directoriesAttempt);
 				if (foldersPressed.current === directoriesAttempt)
 					foldersPressed.current = NO_PRESS;
 			});
 		return () => {
 			live = false;
+			heldReask?.();
 		};
-	}, [relay, tunnelId, directoriesAttempt]);
+	}, [relay, tunnelId, directoriesAttempt, resumeClock]);
 
 	/* `modelsAttempt` is the re-run trigger (see above), and is now read too: the
 	 *  settle records WHICH attempt answered, for the Retry's `loading`. */
@@ -508,6 +523,7 @@ export default function Home({
 			return;
 		}
 		let live = true;
+		let heldReask: (() => void) | null = null;
 		void active
 			.models()
 			.then((catalogue) => {
@@ -521,8 +537,16 @@ export default function Home({
 					setHeroFocus((request) => request + 1);
 				}
 			})
-			.catch(() => {
+			.catch((cause: unknown) => {
 				if (!live) return;
+				// As the folders read: a resume blip is re-asked, not shown.
+				if (holdReadFailure(foldersFailure(cause), resumeClock)) {
+					heldReask = heldTimer(resumeClock, 0, () => {
+						heldReask = null;
+						if (live) setModelsAttempt((attempt) => attempt + 1);
+					});
+					return;
+				}
 				setModelsRead("failed");
 				setModelsSettled(modelsAttempt);
 				if (modelsPressed.current === modelsAttempt)
@@ -530,8 +554,9 @@ export default function Home({
 			});
 		return () => {
 			live = false;
+			heldReask?.();
 		};
-	}, [relay, modelsAttempt]);
+	}, [relay, modelsAttempt, resumeClock]);
 
 	/* The next attempt is computed from the render's value, not inside the
 	 *  updater: an updater must stay pure (StrictMode calls it twice). */
