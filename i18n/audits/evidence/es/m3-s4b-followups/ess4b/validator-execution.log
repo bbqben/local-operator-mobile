@@ -1,0 +1,8 @@
+brief keys: 3 draft keys: 3 same set+order: true
+PASS mobile.notifications.preferences.computer_keeps_sending en [] es [] legacy false wordDiff ["computadora->máquina"] len en/es 90 100 ratio 1.11
+PASS mobile.notifications.preferences.disabled_hint en [] es [] legacy false wordDiff ["computadora.->máquina."] len en/es 46 54 ratio 1.17
+PASS mobile.notifications.preferences.update_computer en [] es [] legacy false wordDiff ["computadora.->máquina."] len en/es 83 96 ratio 1.16
+bidi control count: 0
+malformed throws: RangeError
+negative control extra placeholder detected: true | malformed brace throws: true
+RESULT PASS

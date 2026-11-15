@@ -1,8 +1,4 @@
 {
-	"mobile.signin.diagnostics": {
-		"role": "button",
-		"note": "Reveal a redacted in-memory log containing stage names and error classes only."
-	},
 	"mobile.signin.failed": {
 		"role": "status",
 		"note": "Unexpected sign-in or credential persistence failure; never show runtime messages or credentials."

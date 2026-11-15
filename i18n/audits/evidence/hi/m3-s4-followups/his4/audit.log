@@ -1,0 +1,74 @@
+$ cp /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/brief-s4.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi-v2.json /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/
+exit=0
+$ shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/brief-s4.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi-v2.json /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/*
+88022f5348abbb4d8429d770d22e300a200d1bb323eeac07d2f0ac0f5d31fb87  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/brief-s4.json
+042f62b1da1e2d31ddcc1a6d5da27a7518ebd6b297d77da63dccbeb6e0105f85  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi.json
+1ea26898585c44cf873b7b005bb451d88d55a05da3d028babe56081bdd3f153e  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi-v2.json
+88022f5348abbb4d8429d770d22e300a200d1bb323eeac07d2f0ac0f5d31fb87  /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/brief-s4.json
+1ea26898585c44cf873b7b005bb451d88d55a05da3d028babe56081bdd3f153e  /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/draft-hi-v2.json
+042f62b1da1e2d31ddcc1a6d5da27a7518ebd6b297d77da63dccbeb6e0105f85  /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/draft-hi.json
+exit=0
+$ grep -c '\[redacted\]' /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/brief-s4.json /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/draft-hi.json /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/draft-hi-v2.json || true
+/Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/brief-s4.json:0
+/Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/draft-hi.json:0
+/Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/draft-hi-v2.json:0
+exit=0
+$ grep -o 'redacted' /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/brief-s4.json | wc -l
+       1
+exit=0
+$ git show 51debe8e:src/i18n/messages.ts > /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/messages.ts; shasum -a 256 /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/messages.ts
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/messages.ts
+exit=0
+$ git show 51debe8e:src/i18n/catalogues/hi/mobile.signin.json > /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/hi.mobile.signin.json; git show 51debe8e:src/i18n/catalogues/en/mobile.signin.json > /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/en.mobile.signin.json; shasum -a 256 /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/*.mobile.signin.json
+02758ac464696c2c7d2f6f234b0f93d04ea5679fdd26610487036b5d2090aace  /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/en.mobile.signin.json
+59dc55c33790e35171c91d369de0f67ad071be1eae9b0e49849f76bb4cc847e8  /Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/in/hi.mobile.signin.json
+exit=0
+$ env -i PATH="/Users/damian/Library/Application Support/Local Operator/bin:/Users/damian/.bun/bin:/Users/damian/.local/bin:/Users/damian/.kimi-code/bin:/Users/damian/.cargo/bin:/Users/damian/.nvm/versions/node/v24.22.1/bin:/Users/damian/.pyenv/shims:/Users/damian/.pyenv/bin:/opt/homebrew/opt/python@3.14/libexec/bin:/opt/homebrew/bin:/opt/homebrew/opt/go@1.25/bin:/Users/damian/go/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/VMware Fusion.app/Contents/Public" HOME=/Users/damian/.local-operator/sessions/d91dff98db01/scratchpad/hi-s4-audit/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node --no-warnings check.mjs
+== draft-hi.json keys 1
+mobile.signin.diagnostics en.parse= {"source":"Sign-in diagnostics","params":{},"nodes":[{"type":"text","value":"Sign-in diagnostics"}]} hi.parse.argsOnly= null bidi 0 len en/hi 19 22 ratio 1.16 changed true
+merged keyset==en keyset true
+== draft-hi-v2.json keys 3
+mobile.signin.diagnostics en.parse= {"source":"Sign-in diagnostics","params":{},"nodes":[{"type":"text","value":"Sign-in diagnostics"}]} hi.parse.argsOnly= null bidi 0 len en/hi 19 22 ratio 1.16 changed true
+mobile.signin.hide_diagnostics en.parse= {"source":"Hide sign-in details","params":{},"nodes":[{"type":"text","value":"Hide sign-in details"}]} hi.parse.argsOnly= null bidi 0 len en/hi 20 29 ratio 1.45 changed true
+mobile.signin.show_diagnostics en.parse= {"source":"Show sign-in details","params":{},"nodes":[{"type":"text","value":"Show sign-in details"}]} hi.parse.argsOnly= null bidi 0 len en/hi 20 29 ratio 1.45 changed true
+merged keyset==en keyset true
+parseMessage sample {"source":"a {name} b","params":{},"nodes":[{"type":"text","value":"a "},{"type":"argument","name":"name"},{"type":"text","value":" b"}]}
+neg unclosed throws: Invalid message "साइन-इन {name": expected ',' or '}' (at offset 13)
+exit=0
+$ env -i ... node --no-warnings check2.mjs (same env as above)
+draft-hi.json mobile.signin.diagnostics en []{} hi []{} MATCH
+draft-hi-v2.json mobile.signin.diagnostics en []{} hi []{} MATCH
+draft-hi-v2.json mobile.signin.hide_diagnostics en []{} hi []{} MATCH
+draft-hi-v2.json mobile.signin.show_diagnostics en []{} hi []{} MATCH
+negative control (added {name}) en vs neg: DETECTED ["argument:name"]{}
+mismatches 0
+exit=0
+$ git grep -n -E "signin\.diagnostics|mobile\.signin\.\$\{" 51debe8e -- src ":!src/i18n/catalogues" ":!src/i18n/catalogue.gen.ts"
+exit=1 (1 = no match)
+$ git grep -n "signin.diagnostics" 51debe8e -- src/i18n/catalogue.gen.ts | wc -l
+      12
+$ git show 51debe8e:src/features/auth/sign-in-panel.tsx | sed -n 136,146p
+			state.kind === "unavailable" ? (
+				<View className="gap-2">
+					<Button
+						label={t(
+							showDiagnostics
+								? "mobile.signin.hide_diagnostics"
+								: "mobile.signin.show_diagnostics",
+						)}
+						expanded={showDiagnostics}
+						testID={CONTROL.signInDiagnostics}
+						variant="quiet"
+$ grep noun-sense निदान across hi catalogues @51debe8e
+src/i18n/catalogues/hi/mobile.settings.json:	"mobile.settings.section.diagnostics": "डायग्नॉस्टिक्स",
+src/i18n/catalogues/hi/mobile.settings.json:	"mobile.settings.diagnostics.copy": "डायग्नॉस्टिक्स कॉपी करें",
+src/i18n/catalogues/hi/mobile.settings.json:	"mobile.settings.diagnostics.copied": "डायग्नॉस्टिक्स कॉपी हो गए",
+src/i18n/catalogues/hi/mobile.signin.json:	"mobile.signin.diagnostics": "साइन-इन निदान",
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/hi/ui.providers.json | grep -c डायग्नॉस्टिक्स
+3
+$ git grep -n -i "diagnos" 51debe8e -- "i18n/glossary*" "i18n/style*" "docs/i18n*" "i18n/*.md"
+51debe8e:docs/adr/0001-framework.md:380:| App Store guideline 4.2 (Minimum Functionality) on a "remote control for your computer" app | Rejection risk at review | App carries real offline state (sessions list, cached transcripts, diagnostics) and is not a website wrapper; document the review narrative in the publishing docs |
+51debe8e:docs/adr/0002-connection-and-auth.md:399:diagnostic, not something to follow.
+51debe8e:docs/adr/0002-connection-and-auth.md:657:  (`daemon.py:3368-3386`); this surfaces as a 403, and the diagnostics screen should
+51debe8e:docs/adr/0006-push-and-ack-sync.md:73:    scoped to what each actually has: **#11** ships Connection / Appearance / Diagnostics / About,
+51debe8e:docs/architecture.md:65:  (app)/settings.tsx                  # connection, theme, diagnostics, sign out

@@ -784,7 +784,6 @@ export type CatalogueKey =
 	| "mobile.sidebar.show_ended_hint"
 	| "mobile.sidebar.time_basis"
 	| "mobile.sidebar.view_options"
-	| "mobile.signin.diagnostics"
 	| "mobile.signin.failed"
 	| "mobile.signin.hide_diagnostics"
 	| "mobile.signin.intro"
@@ -1659,7 +1658,6 @@ export type NoParamKey =
 	| "mobile.sidebar.show_ended_hint"
 	| "mobile.sidebar.time_basis"
 	| "mobile.sidebar.view_options"
-	| "mobile.signin.diagnostics"
 	| "mobile.signin.failed"
 	| "mobile.signin.hide_diagnostics"
 	| "mobile.signin.intro"
@@ -2625,7 +2623,6 @@ export type MessageParams = {
 	"mobile.sidebar.show_ended_hint": NoParams;
 	"mobile.sidebar.time_basis": NoParams;
 	"mobile.sidebar.view_options": NoParams;
-	"mobile.signin.diagnostics": NoParams;
 	"mobile.signin.failed": NoParams;
 	"mobile.signin.hide_diagnostics": NoParams;
 	"mobile.signin.intro": NoParams;
@@ -3639,7 +3636,6 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.sidebar.show_ended_hint": "Pinned and running conversations always show.",
 	"mobile.sidebar.time_basis": "Time basis",
 	"mobile.sidebar.view_options": "View options",
-	"mobile.signin.diagnostics": "Sign-in diagnostics",
 	"mobile.signin.failed": "We could not finish signing in.",
 	"mobile.signin.hide_diagnostics": "Hide sign-in details",
 	"mobile.signin.intro": "Your browser finishes the sign-in, so the app never sees your password.",
@@ -4638,7 +4634,6 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.sidebar.show_ended_hint": { role: "help", note: "One sentence under the 'Show ended sessions' switch: turning it off never hides a pinned or running conversation." },
 	"mobile.sidebar.time_basis": { role: "heading", note: "Label of the choice of which clock the sections, the row times and the order read. Desktop: ui.chat.sidebar_view.time_basis." },
 	"mobile.sidebar.view_options": { role: "button", note: "Accessible name of the small sliders icon beside the drawer's search pill, and the title of the compact sheet it opens. Mirrors the desktop's 'View options' (ui.chat.sidebar.header.view_options)." },
-	"mobile.signin.diagnostics": { role: "button", note: "Reveal a redacted in-memory log containing stage names and error classes only." },
 	"mobile.signin.failed": { role: "status", note: "Unexpected sign-in or credential persistence failure; never show runtime messages or credentials." },
 	"mobile.signin.hide_diagnostics": { role: "button", note: "Sign-in support disclosure. Human-readable stage or show/hide control; no credential, URL, token, code or state value." },
 	"mobile.signin.intro": { role: "help", note: "Reassurance line at the top of the sign-in screen: the sign-in happens in the system browser, so the app never receives the password. Keep that guarantee exactly; full stop at the end." },
@@ -4934,7 +4929,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.drawer.agents": "Agentes",
 		"mobile.chrome.drawer.open": "Abrir conversaciones",
 		"mobile.chrome.drawer.open_count": "Abrir conversaciones, {count, plural, one {# conversación nueva} other {# conversaciones nuevas}}",
-		"mobile.chrome.home.connect": "Conectar un ordenador",
+		"mobile.chrome.home.connect": "Conectar una máquina",
 		"mobile.chrome.home.connecting": "Conectando con {host}…",
 		"mobile.chrome.home.greeting": "¿En qué te gustaría trabajar?",
 		"mobile.chrome.home.reconnecting": "Reconectando con {host}…",
@@ -4967,7 +4962,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.composer_input.voice.finish": "Terminar y transcribir",
 		"mobile.composer_input.voice.mic_setup": "La entrada de voz no está configurada",
 		"mobile.composer_input.voice.mic_setup_hint": "Explica cómo activar la entrada de voz",
-		"mobile.composer_input.voice.setup_needed": "Configura la conversión de voz a texto en tu ordenador.",
+		"mobile.composer_input.voice.setup_needed": "Configura la conversión de voz a texto en tu máquina.",
 		"mobile.computers.account_help": "Inicia sesión con la cuenta propietaria. Si se eliminó, elige otra máquina.",
 		"mobile.computers.account_mismatch": "Esta máquina pertenece a otra cuenta de Radient o se ha eliminado.",
 		"mobile.computers.add": "Añadir una máquina",
@@ -4982,7 +4977,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.banner.unreadable_stale": "No se pudo leer la respuesta de Radient, así que esta lista puede estar desactualizada.",
 		"mobile.computers.billing_help": "En la consola de Radient, abre la facturación de este túnel y activa el acceso remoto.",
 		"mobile.computers.billing_inactive": "La facturación de este túnel está inactiva, así que se denegará el acceso remoto.",
-		"mobile.computers.connect_refused.generic": "El ordenador no aceptó la conexión. Tu dirección y tu contraseña siguen aquí, así que revísalas y vuelve a intentarlo.",
+		"mobile.computers.connect_refused.generic": "La máquina no aceptó la conexión. Tu dirección y tu contraseña siguen aquí, así que revísalas y vuelve a intentarlo.",
 		"mobile.computers.connect_refused.password": "El relé no aceptó esa contraseña. Revísala y vuelve a intentarlo.",
 		"mobile.computers.connect_refused.title": "No se pudo conectar",
 		"mobile.computers.connecting": "Conectando…",
@@ -5263,7 +5258,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.airy_whistle": "Silbido etéreo",
 		"mobile.notifications.channel.bubble_chord": "Acorde de burbujas",
 		"mobile.notifications.channel.bubble_pulse": "Pulso de burbuja",
-		"mobile.notifications.channel.description": "Alertas de Local Operator. La configuración de sonido de tu ordenador elige cuál de estos canales suena.",
+		"mobile.notifications.channel.description": "Alertas de Local Operator. La configuración de sonido de tu máquina elige cuál de estos canales suena.",
 		"mobile.notifications.channel.felt_marimba": "Marimba de fieltro",
 		"mobile.notifications.channel.hum_swell": "Zumbido creciente",
 		"mobile.notifications.channel.signal_handshake": "Saludo de señales",
@@ -5302,15 +5297,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Para cada mensaje directo, grupo o canal, abre el menú de la campana y elige {all}, {mentions} o {muted}.",
 		"mobile.notifications.preferences.completions": "El agente terminó",
-		"mobile.notifications.preferences.computer_keeps_sending": "Tu computadora seguirá enviando notificaciones de agentes hasta que se actualice Local Operator en ella.",
-		"mobile.notifications.preferences.disabled_hint": "Requiere un Local Operator más reciente en tu computadora.",
+		"mobile.notifications.preferences.computer_keeps_sending": "Tu máquina seguirá enviando notificaciones de agentes hasta que se actualice Local Operator en ella.",
+		"mobile.notifications.preferences.disabled_hint": "Requiere un Local Operator más reciente en tu máquina.",
 		"mobile.notifications.preferences.errors": "El agente tuvo un error",
 		"mobile.notifications.preferences.master": "Permitir notificaciones",
 		"mobile.notifications.preferences.previews": "Mostrar el nombre y la vista previa de la conversación",
 		"mobile.notifications.preferences.previews_note_android": "Se envía a través de Radient y Google para llegar a este teléfono.",
 		"mobile.notifications.preferences.previews_note_ios": "Se envía a través de Radient y Apple para llegar a este teléfono.",
 		"mobile.notifications.preferences.team_bridge": "Mensajes de Team Bridge",
-		"mobile.notifications.preferences.update_computer": "Para elegir qué notificaciones recibes se necesita un Local Operator más reciente en tu computadora.",
+		"mobile.notifications.preferences.update_computer": "Para elegir qué notificaciones recibes se necesita un Local Operator más reciente en tu máquina.",
 		"mobile.notifications.primer.body": "También cuando un agente encuentra un error.",
 		"mobile.notifications.primer.not_now": "Ahora no",
 		"mobile.notifications.primer.title": "Recibe avisos cuando tus agentes terminen",
@@ -5651,7 +5646,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "Las conversaciones fijadas y en curso siempre se muestran.",
 		"mobile.sidebar.time_basis": "Base temporal",
 		"mobile.sidebar.view_options": "Opciones de vista",
-		"mobile.signin.diagnostics": "Diagnóstico de inicio de sesión",
 		"mobile.signin.failed": "No pudimos iniciar sesión.",
 		"mobile.signin.hide_diagnostics": "Ocultar detalles del inicio de sesión",
 		"mobile.signin.intro": "Tu navegador completa el inicio de sesión, así que la app nunca ve tu contraseña.",
@@ -5745,7 +5739,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.delivery.refused": "{recipient}: No se entregó.{category, select, manipulation { (Manipulación)} personal_info { (Información personal)} abusive { (Contenido abusivo)} unsafe_content { (Contenido inseguro)} out_of_scope { (Fuera de alcance)} other {}}",
 		"mobile.team_bridge.error.http_status": "Radient ha rechazado la solicitud (HTTP {status}).",
 		"mobile.team_bridge.gate.checking": "Comprobando Team Bridge…",
-		"mobile.team_bridge.gate.connecting": "Conectando con Radient. Tu ordenador puede seguir cerrado.",
+		"mobile.team_bridge.gate.connecting": "Conectando con Radient. Tu máquina puede seguir cerrada.",
 		"mobile.team_bridge.gate.console_error": "No se pudo abrir la consola de Radient.",
 		"mobile.team_bridge.gate.loading": "Cargando Team Bridge",
 		"mobile.team_bridge.gate.manage_plan": "Gestiona tu plan en la consola de Radient",
@@ -5755,7 +5749,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.sign_in": "Iniciar sesión",
 		"mobile.team_bridge.gate.sign_in_error": "No se completó el inicio de sesión. Inténtalo de nuevo.",
 		"mobile.team_bridge.gate.signed_out": "Inicia sesión en Team Bridge",
-		"mobile.team_bridge.gate.signed_out_help": "Conecta directamente con tu equipo, incluso con el ordenador cerrado.",
+		"mobile.team_bridge.gate.signed_out_help": "Conecta directamente con tu equipo, incluso con la máquina cerrada.",
 		"mobile.team_bridge.gate.unavailable": "Team Bridge no está disponible",
 		"mobile.team_bridge.gate.unavailable_help": "No se pudo conectar con Team Bridge. Tus conversaciones no han cambiado.",
 		"mobile.team_bridge.gate.update_help": "Esta versión no puede acceder al servicio Team Bridge. Actualiza la aplicación para continuar.",
@@ -5788,7 +5782,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Vista previa · Únete para leer",
 		"mobile.team_bridge.list.quiet": "Notificaciones silenciadas",
 		"mobile.team_bridge.list.self": "tú",
-		"mobile.team_bridge.navigation.caption": "Tu organización, incluso con tu ordenador en reposo",
+		"mobile.team_bridge.navigation.caption": "Tu organización, incluso con tu máquina en reposo",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # sin leer} other {Team Bridge · # sin leer}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · cargando",
 		"mobile.team_bridge.navigation.entry_unavailable": "Team Bridge · no disponible",
@@ -6648,7 +6642,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "Les conversations épinglées et en cours restent toujours visibles.",
 		"mobile.sidebar.time_basis": "Base temporelle",
 		"mobile.sidebar.view_options": "Options d’affichage",
-		"mobile.signin.diagnostics": "Diagnostic de connexion",
 		"mobile.signin.failed": "Nous n’avons pas pu terminer la connexion.",
 		"mobile.signin.hide_diagnostics": "Masquer les détails de connexion",
 		"mobile.signin.intro": "La connexion se termine dans votre navigateur : l’app ne voit jamais votre mot de passe.",
@@ -7645,7 +7638,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "पिन की हुई और चल रही बातचीत हमेशा दिखती हैं।",
 		"mobile.sidebar.time_basis": "समय का आधार",
 		"mobile.sidebar.view_options": "दृश्य विकल्प",
-		"mobile.signin.diagnostics": "साइन-इन निदान",
 		"mobile.signin.failed": "हम साइन-इन पूरा नहीं कर सके।",
 		"mobile.signin.hide_diagnostics": "साइन-इन का विवरण छिपाएँ",
 		"mobile.signin.intro": "आपका ब्राउज़र साइन-इन पूरा करता है, इसलिए ऐप को आपका पासवर्ड कभी दिखता ही नहीं।",
@@ -8642,7 +8634,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "Закреплённые и выполняющиеся беседы показываются всегда.",
 		"mobile.sidebar.time_basis": "Отсчёт времени",
 		"mobile.sidebar.view_options": "Параметры вида",
-		"mobile.signin.diagnostics": "Диагностика входа",
 		"mobile.signin.failed": "Не удалось завершить вход.",
 		"mobile.signin.hide_diagnostics": "Скрыть сведения о входе",
 		"mobile.signin.intro": "Вход завершается в вашем браузере, поэтому приложение не видит ваш пароль.",
@@ -9639,7 +9630,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "پن شدہ اور جاری گفتگو ہمیشہ دکھائی دیتی ہیں۔",
 		"mobile.sidebar.time_basis": "وقت کی بنیاد",
 		"mobile.sidebar.view_options": "دیکھنے کے اختیارات",
-		"mobile.signin.diagnostics": "سائن اِن کی تشخیص",
 		"mobile.signin.failed": "ہم سائن ان مکمل نہیں کر سکے۔",
 		"mobile.signin.hide_diagnostics": "سائن ان کی تفصیلات چھپائیں",
 		"mobile.signin.intro": "سائن ان آپ کا براؤزر مکمل کرتا ہے، اس لیے ایپ کو آپ کا پاس ورڈ کبھی نظر نہیں آتا۔",
@@ -10636,7 +10626,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "Các cuộc trò chuyện đã ghim và đang chạy luôn hiển thị.",
 		"mobile.sidebar.time_basis": "Mốc thời gian",
 		"mobile.sidebar.view_options": "Tùy chọn hiển thị",
-		"mobile.signin.diagnostics": "Chẩn đoán đăng nhập",
 		"mobile.signin.failed": "Không thể hoàn tất đăng nhập.",
 		"mobile.signin.hide_diagnostics": "Ẩn chi tiết đăng nhập",
 		"mobile.signin.intro": "Trình duyệt của bạn hoàn tất bước đăng nhập, nên ứng dụng không bao giờ thấy mật khẩu của bạn.",
@@ -11633,7 +11622,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.show_ended_hint": "已置顶和运行中的对话始终显示。",
 		"mobile.sidebar.time_basis": "时间依据",
 		"mobile.sidebar.view_options": "视图选项",
-		"mobile.signin.diagnostics": "登录诊断",
 		"mobile.signin.failed": "无法完成登录。",
 		"mobile.signin.hide_diagnostics": "隐藏登录详情",
 		"mobile.signin.intro": "登录由你的浏览器完成，应用绝不会看到你的密码。",

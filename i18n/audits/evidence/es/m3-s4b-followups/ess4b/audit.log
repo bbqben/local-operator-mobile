@@ -1,0 +1,36 @@
+# es-s4b audit — commands actually run (session c2cd21ace088, 2026-11-15)
+$ shasum -a 256 brief-s4b.json drafts/es/draft-es.json   (in lane scratch m3s4b)
+3a9a8c2f56d8bb1e3d05a6f0b4e786d4a009b266fef81b63307b883cfb498699  brief-s4b.json
+b0150c45dd9ae866ab95aab09f0516a56d211c1c4711d8d834eaaa5782d2afea  drafts/es/draft-es.json
+$ grep -c '\[redacted\]' brief-s4b.json drafts/es/draft-es.json
+brief-s4b.json:0
+drafts/es/draft-es.json:0
+$ cat drafts/es/notes-es.md drafts/es/check.log ; python3 dump brief-s4b.json   (read translator notes/check log and brief en/context/current)
+$ git show d73b3ed2:i18n/audits/evidence/es/m3-s2c-audit-gap/README.md ; git show d73b3ed2:.../ess2cr2/report.md | grep -iE 'máquina|glossar'
+  -> S2c r2: Computer = «máquina» in all values; gender checks fem→fem.
+$ for f in es catalogues @d73b3ed2: git show | grep -iE 'computador|ordenador|m[aá]quina|equipo'
+  -> mobile.notifications.preferences.{computer_keeps_sending,disabled_hint,update_computer} shipped = brief 'current' values (computadora)
+$ git show d73b3ed2:src/i18n/catalogues/{es,en}/mobile.notifications.json | grep -E 'preferences|permission|registration.relay'
+$ cp brief/draft to /Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit; git show d73b3ed2:src/i18n/messages.ts > /Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit/src/messages.ts; echo '{"type":"module"}' > /Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit/package.json
+$ shasum -a 256 input-brief-s4b.json input-draft-es.json src/messages.ts
+3a9a8c2f56d8bb1e3d05a6f0b4e786d4a009b266fef81b63307b883cfb498699  input-brief-s4b.json
+b0150c45dd9ae866ab95aab09f0516a56d211c1c4711d8d834eaaa5782d2afea  input-draft-es.json
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  src/messages.ts
+$ node --version
+v24.22.1
+$ env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs /Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit
+brief keys: 3 draft keys: 3 same set+order: true
+PASS mobile.notifications.preferences.computer_keeps_sending en [] es [] legacy false wordDiff ["computadora->máquina"] len en/es 90 100 ratio 1.11
+PASS mobile.notifications.preferences.disabled_hint en [] es [] legacy false wordDiff ["computadora.->máquina."] len en/es 46 54 ratio 1.17
+PASS mobile.notifications.preferences.update_computer en [] es [] legacy false wordDiff ["computadora.->máquina."] len en/es 83 96 ratio 1.16
+bidi control count: 0
+malformed throws: RangeError
+negative control extra placeholder detected: true | malformed brace throws: true
+RESULT PASS
+exit=0
+$ grep -c '\[redacted\]' input-brief-s4b.json input-draft-es.json
+input-brief-s4b.json:0
+input-draft-es.json:0
+$ concat es catalogues @d73b3ed2 > es-cat-concat.txt; grep -oiE counts
+m[aá]quina: 113 / computadora: 3 (exactly the 3 brief keys) / ordenador: 7
+$ python3 NFC check on draft values -> NFC True

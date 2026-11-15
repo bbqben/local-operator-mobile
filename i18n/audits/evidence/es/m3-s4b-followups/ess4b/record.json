@@ -1,0 +1,85 @@
+{
+  "locale": "es",
+  "slice": "m3-s4b-followups",
+  "source_commit": "d73b3ed21c231cdcf1f35cdf0dd947c623370010",
+  "audit_date": "2026-11-15",
+  "inputs": {
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4b/brief-s4b.json",
+      "sha256": "3a9a8c2f56d8bb1e3d05a6f0b4e786d4a009b266fef81b63307b883cfb498699",
+      "scratch_copy": "/Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit/input-brief-s4b.json"
+    },
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4b/drafts/es/draft-es.json",
+      "sha256": "b0150c45dd9ae866ab95aab09f0516a56d211c1c4711d8d834eaaa5782d2afea",
+      "scratch_copy": "/Users/damian/.local-operator/sessions/c2cd21ace088/scratchpad/es-s4b-audit/input-draft-es.json"
+    },
+    "messages_ts": {
+      "path": "git show d73b3ed2:src/i18n/messages.ts",
+      "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+    }
+  },
+  "key_count": 3,
+  "translator_session": "a8d8fe606994",
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "c2cd21ace088",
+    "model": "anthropic/claude-opus-5-5",
+    "actual_model_source": "Initial audit, findings and first validation: anthropic/claude-opus-5-5 (Model line); final verification/provenance: openai/gpt-6.1-sol (model switch notice: provider quota)",
+    "fallback_used": true,
+    "independent_from_translator_session": true,
+    "fallback_model": "openai/gpt-6.1-sol"
+  },
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": {
+    "brief": 0,
+    "draft": 0
+  },
+  "placeholder_check": {
+    "tool": "check.mjs importing messages.ts@d73b3ed2 (node v24.22.1, env -i, NODE_OPTIONS=--max-old-space-size=256)",
+    "result": "PASS",
+    "per_key": "en params [] == es params [] for 3/3; render == source; word-level diff vs shipped = exactly 1 token (computadora->máquina) per key",
+    "negative_controls": {
+      "extra_placeholder_detected": true,
+      "malformed_brace_throws_RangeError": true
+    },
+    "bidi_controls": 0,
+    "nfc": true,
+    "length_ratio_es_over_en": [
+      1.11,
+      1.17,
+      1.16
+    ]
+  },
+  "counts": {
+    "BLOCKER": 0,
+    "MAJOR": 0,
+    "MINOR": 0,
+    "NIT": 1
+  },
+  "verdict": "passed",
+  "findings": [
+    {
+      "id": "es-S4B-N1",
+      "key": "mobile.notifications.preferences.update_computer",
+      "severity": "NIT",
+      "current": "Para elegir qué notificaciones recibes se necesita un Local Operator más reciente en tu máquina.",
+      "suggested": "Para elegir qué notificaciones recibes, se necesita un Local Operator más reciente en tu máquina.",
+      "reason": "Fronted purpose clause reads more naturally with a comma (RAE recommendation for long anteposed clauses). Pre-existing wording, unchanged by this draft; optional, non-gating."
+    }
+  ],
+  "out_of_scope_observations": [
+    "Shipped es catalogue at d73b3ed2 after this draft: 7 keys still say «ordenador» (mobile.chrome.home.connect, mobile.composer_input.voice.setup_needed, mobile.computers.connect_refused.generic, mobile.notifications.channel.description, mobile.team_bridge.gate.connecting, mobile.team_bridge.gate.signed_out_help, mobile.team_bridge.navigation.caption) vs 113 «máquina»; already listed as follow-ups in i18n/audits/evidence/es/m3-s2c-audit-gap/README.md."
+  ],
+  "artifacts": [
+    {
+      "path": "check.mjs",
+      "sha256": "20bdd9c2b8d02ff7e4dd46c59e0c8f4a151ca42c1cbb41b53a746bf812b24877"
+    },
+    {
+      "path": "validator-execution.log",
+      "sha256": "2ac9a05cfb7f767d8d6e73d2f16fb1cc20cd560da13785b0bec744303aa598c7"
+    }
+  ],
+  "retention": "Scratch handoff per read-only brief; lane owner must retain under tracked canonical evidence root and append applicable ledger; not recorded here."
+}
