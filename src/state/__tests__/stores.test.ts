@@ -462,6 +462,22 @@ describe("the list store replaces wholesale and keeps stale-but-labelled", () =>
 		expect(store.getState().capabilities.features).toEqual({ auth: 1 });
 	});
 
+	it("a warm-cache paint is not a live frame: liveFrameAt waits for the computer's own (PR #264 M1 after #246)", () => {
+		const store = createListStore();
+		const generation = store.getState().connectionGeneration;
+		store.getState().applyFrame(listFrame(), 500, generation, "cache");
+		// The paint shows rows and sets lastFrameAt, but the daemon has not spoken.
+		expect(store.getState().lastFrameAt).toBe(500);
+		expect(store.getState().liveFrameAt).toBeNull();
+		store.getState().applyFrame(listFrame(), 1_000, generation);
+		expect(store.getState().liveFrameAt).toBe(1_000);
+		// A later cache paint never moves it, and reset() nulls it for the next route.
+		store.getState().applyFrame(listFrame(), 1_500, generation, "cache");
+		expect(store.getState().liveFrameAt).toBe(1_000);
+		store.getState().reset();
+		expect(store.getState().liveFrameAt).toBeNull();
+	});
+
 	it("labels rather than clears when the stream drops", () => {
 		const store = createListStore();
 		store.getState().applyFrame(listFrame());

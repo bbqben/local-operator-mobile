@@ -4,8 +4,8 @@ import {
 	availabilityFromHook,
 	availabilityFromStatus,
 	canRequestPermission,
-	PUSH_ENABLE_LABEL,
 	pushCopy,
+	pushEnableLabel,
 } from "@/notifications/permission";
 
 /**
@@ -47,8 +47,8 @@ describe("the control's gate", () => {
 		expect(canRequestPermission("unknown")).toBe(false);
 	});
 
-	it("has one label", () => {
-		expect(PUSH_ENABLE_LABEL).toBe("Enable notifications");
+	it("U7: has one label, the same words as the primer and the nudge", () => {
+		expect(pushEnableLabel()).toBe("Turn on notifications");
 	});
 });
 
@@ -65,35 +65,20 @@ describe("the copy table", () => {
 		}
 	});
 
-	it("never promises a delivery that cannot happen", () => {
-		/* ADR 0006 §2.4's rule, applied to EVERY state that could be read as
-		 * "alerts are on". Team Bridge registration is wired now (it was not
-		 * when this table was first written), but delivery still hangs on
-		 * Radient's push credentials, so no sentence may say alerts WILL arrive;
-		 * computer alerts are still unbuilt and must keep saying so. */
+	it("D2/U3: never says computer alerts are off, under the switches that control them", () => {
+		/* The computer's session pushes are registered now (this PR), so the
+		 * old "not switched on yet … only while Local Operator is open" clause
+		 * contradicted "Agent finished" right below it. */
 		for (const state of ["granted", "denied", "undetermined"] as const) {
 			const copy = pushCopy(state).toLowerCase();
-			expect(copy).toContain("team bridge message");
-			expect(copy).toContain(
-				"alerts from your computers are not switched on yet",
-			);
+			expect(copy).not.toContain("not switched on yet");
+			expect(copy).not.toContain("only while local operator is open");
 			expect(copy).not.toContain("you will be notified");
-			expect(copy).not.toContain("receive alerts");
-			expect(copy).not.toContain("alerts arrive");
-			// The stale claim this PR removed: registration exists now.
-			expect(copy).not.toContain("for this computer yet");
 		}
-		expect(pushCopy("granted")).toContain(
-			"when Radient's push delivery is available",
-		);
 	});
 
-	it("names what works today in every state that reads as on", () => {
-		for (const state of ["granted", "denied", "undetermined"] as const) {
-			expect(pushCopy(state)).toContain(
-				"those work only while Local Operator is open",
-			);
-		}
+	it("D2: granted says notifications are on, and nothing more", () => {
+		expect(pushCopy("granted")).toBe("Notifications are on for this phone.");
 	});
 
 	it("reads unknown as a failed check, not a refusal, and names the remedy", () => {

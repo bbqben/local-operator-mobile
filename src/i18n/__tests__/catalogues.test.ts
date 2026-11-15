@@ -172,7 +172,18 @@ const NAMESPACES = [
 		// an English-only table in the Team Bridge push-readiness PR.
 		// +6: the Settings registration sentences (`computer_registration.*`),
 		// fix/session-push-register.
-		expected: 38,
+		// +5: the first-run notification primer (`primer.*`),
+		// feat/notification-onboarding (38 + 5 = 43).
+		// +5: the Settings preference switches (`preferences.*`), same branch
+		// (43 + 5 = 48).
+		// PR #264 R1: −1 `primer.settings_hint` (one-line primer), +3 the
+		// previews switch and its iOS/Android notes, +3 the denied nudge
+		// (`off_nudge.*`): 48 − 1 + 3 + 3 = 53.
+		// PR #264 design/UX R1: one shared `turn_on` replaces `primer.enable`
+		// and `off_nudge.turn_on` (U7), +1 `off_nudge.dismiss_label` (D6),
+		// +1 `preferences.computer_keeps_sending` (D1/U1), +1
+		// `preferences.disabled_hint` (U9): 53 + 1 − 2 + 3 = 55.
+		expected: 55,
 	},
 	{
 		name: "mobile.session",
@@ -429,9 +440,23 @@ describe("the English catalogues", () => {
 		 * (mobile.home, mobile.chrome, mobile.session) = 927. */
 		/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
 		 * 927 on main + 27 (S2b-2b) = 954, counted over the en JSON. */
+		/* feat/notification-onboarding: +5 mobile.notifications (the first-run
+		 * primer sheet's title, body, settings hint and its two buttons):
+		 * 872 + 5 = 877, the generator's own count. Plus the five Settings
+		 * notification preference keys (`preferences.*`: master, completions,
+		 * errors, Team Bridge, update note): 877 + 5 = 882. PR #264 R1:
+		 * 882 − 1 + 3 + 3 = 887 (same keys as the namespace count above). */
+		/* Merge of origin/main d92515ff (#263) into #264: main added no keys,
+		 * so 887 carried. PR #264 design/UX R1: 887 + 1 − 2 + 3 = 889, the
+		 * generator's own count (same keys as the namespace count above). */
+		/* Merge of origin/main (#246, c0b6a4da) into #264: 954 on main + the
+		 * branch's 17 (889 - 872) = 971, the generator's own count. */
 		/* M3 S2c audit gap: -2 mobile.computers (the unused setup.billing_title
 		 * and setup.billing_fallback) = 952, counted over the en JSON. */
-		expect(total).toBe(952);
+		/* Merge of origin/main (#265, 51debe8e) into #264: both comment chains
+		 * kept; 952 on main + the branch's 17 (889 - 872) = 969, the
+		 * generator's own count. */
+		expect(total).toBe(969);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
