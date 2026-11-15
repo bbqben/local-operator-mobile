@@ -1,0 +1,60 @@
+# audit.log es/mobile.computers/rc1 — executed 2026-11-15T11:41:28 by i18n-auditor session e6d3e83a2511 (python3 in lop eval kernel)
+$ sha256 draft /Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json = 8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068; json.loads OK, 15 keys total
+$ sha256 brief = 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec; en-proposal = 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1; notes = 42083c7c2128e9edf91af77984f6947646adde11b66abb86ef1689065d999b5e; style guide es.md = 77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e
+$ git show 0a629e65:src/i18n/catalogues/es/mobile.computers.json sha256=11473aaf0e50f1de1deeaf499e4222cbc1a79fa0e29131bc97959738b17bed65; en sha256=dd87a8dbe4826b24e5d69c57ec1576471d19121a84ce57c13df0cddfdcf05051; en context sha256=a62d5dc456b413c57651625ea9c64409131ab686362fea41b20dbb3dfca164ee; es@240e0826 sha256=84ba67d2da2c39b5b6bd201b8fbc11ddfffe167a52a91d30143c60918e3c4f47
+KEYSET brief=8 draft=8 equal=True; all present in es catalogue=True; in en catalogue=True
+mobile.computers.billing_help: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=80 en_len=87 draft_sha256=15a63d53497031ad3b03de0bf2f24649613d31979f7347109e1816d6226d7ec7 -> OK
+mobile.computers.disabled_help: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=91 en_len=89 draft_sha256=16ff68b6250d38d943384b16af2111b5247a066018f1dac7ec257d07d1c5bcb7 -> OK
+mobile.computers.harness_help: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=58 en_len=74 draft_sha256=79c141dd57d14b4ef45605fd54989806bc603a15ed8c815cca83f42b0ae56a10 -> OK
+mobile.computers.refusal.console_next: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=92 en_len=86 draft_sha256=3c8980b5e54a3beb71f36bab724ed4308854a116a754bba106324a0b3f18c2fc -> OK
+mobile.computers.refusal.open_console: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=21 en_len=24 draft_sha256=d1ed25a5534c4091c1e0116277193153f779d5504f7758c7d9daaef531db6ebb -> OK
+  WIDTH mobile.computers.refusal.open_console: 21 chars vs en context hint ~24 -> OK
+mobile.computers.route_invalid.not_radient: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=True ordenador/computadora=[] emdash_spaced=True len=108 en_len=98 draft_sha256=1379b87c94c16cc59d6356f8cf6b9fbee2da69db85b90b5a46caa3c41fc01f74 -> OK
+mobile.computers.setup.amount_note: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=['{amount}', '{command}'] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=186 en_len=158 draft_sha256=6ff506b7ef7a6f91531ed29097dfe44dabf08134b9250f997d53e56079b23428 -> OK
+mobile.computers.setup.attach_help: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=1 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=147 en_len=163 draft_sha256=49decd1f13f95ed5259d466aaac93b8f3200a75bb0fa168d5040e262a4f542ba -> OK
+SUMMARY mobile.computers: keys=8 mechanical_fail=0; redaction marker hits in group values=0 expected; repo validator `npm run -s i18n:check` NOT run (needs applying draft to the mobile working tree; read-only brief) — lane owner runs it on apply
+
+# precedent / terminology probes (executed)
+$ git -C ~/local-operator grep -n 'Radient Console' origin/main -- 'local_operator/i18n/catalogues/es/*.json'
+origin/main:local_operator/i18n/catalogues/es/wire.errors.media.json:8:  "wire.errors.media.speech_radient_credit_low": "Tu saldo de créditos de Radient es insuficiente para la voz. Añade créditos en Radient Console para continuar.",
+$ git -C ~/local-operator-ui grep -c 'plan Radient Team' origin/main -- 'src/i18n/catalogues/es/*.json'
+origin/main:src/i18n/catalogues/es/ui.agents.publication.json:3
+origin/main:src/i18n/catalogues/es/ui.agents.upload.json:1
+origin/main:src/i18n/catalogues/es/ui.hub.pages.json:2
+origin/main:src/i18n/catalogues/es/ui.hub.teams.json:2
+origin/main:src/i18n/catalogues/es/ui.settings.account.json:1
+origin/main:src/i18n/catalogues/es/ui.teamBridge.json:3
+origin/main:src/i18n/catalogues/es/ui.teamBridgeTrial.json:7
+$ git -C ~/local-operator-ui grep -n -E '"ui\.console\.(pane\.label|new)"' origin/main -- src/i18n/catalogues/es/
+origin/main:src/i18n/catalogues/es/ui.console.json:38:	"ui.console.new": "Nueva consola",
+origin/main:src/i18n/catalogues/es/ui.console.json:42:	"ui.console.pane.label": "Consola",
+$ for f in $(git -C ~/local-operator-mobile ls-tree --name-only 0a629e65f696cbd54e782f4d762d45a4d37c1b81 src/i18n/catalogues/es/); do git -C ~/local-operator-mobile show 0a629e65f696cbd54e782f4d762d45a4d37c1b81:$f | grep -i consola | grep -v -i 'consola de Radient' ; done | wc -l
+0
+$ git -C ~/local-operator-mobile show 0a629e65f696cbd54e782f4d762d45a4d37c1b81:src/i18n/catalogues/es/mobile.computers.json | grep -n -E 'Local Operator' | head -3
+20:	"mobile.computers.harness_help": "En la consola de Radient, activa Local Operator para este túnel.",
+47:	"mobile.computers.not_harness": "Esta máquina no ejecuta el harness de Local Operator.",
+133:	"mobile.computers.own_tunnel.verdict_local_network_ios": "No respondió nada en esa dirección dentro de esta red. Comprueba que la máquina no está en reposo y que ejecuta el relé. Si ambas cosas se cumplen, puede deberse al permiso de red local: permite Local Operator en Ajustes → Privacidad y seguridad → Red local y después toca “{action}”.",
+
+# glossary re-check (executed 2026-11-15T11:47:01) after core PR #4053 merge 56662d28
+$ git -C ~/local-operator rev-parse 56662d28:i18n/glossary.md -> e3cdd40c909fb4bf515fc88abf57d7a85735a8e2
+$ git -C ~/local-operator show 56662d28:i18n/glossary.md | sha256 -> 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7
+glossary rule line 24: | Radient Console | keep as-is — the full product name in every app and locale; capital `R` and `C`, with one internal ASCII space (`U+0020`) |
+
+# attach_help re-judgement (executed 2026-11-15T11:47:26) against lane-owner English (parent message; not yet in en-proposal.json)
+new_en = 'If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.'
+new_en_sha256 = ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519
+draft_has_generic_consola = True
+draft_brand_count = 1
+suggestion_brand_count = 1
+suggestion_generic_consola = False
+suggestion_placeholders = True
+suggestion_nfc = True
+-> draft keeps generic «la consola» where the source now has the locative 'there': ES-RC-01 raised MINOR -> MAJOR; group mobile.computers -> changes_requested
+
+# re-audit after translator revision (executed 2026-11-15T11:51:40)
+$ sha256 /Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json = 815e07adbb692bbdb27020de880758ea50044af5bf865e7a6dfd71741b5d3f1b (expected 815e07adbb692bbdb27020de880758ea50044af5bf865e7a6dfd71741b5d3f1b: True); previous audited draft sha256 = 8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068
+keyset: new=15 old=15 equal=True
+byte-identical (per-key sha256 vs audited draft): 14/15; changed=['mobile.computers.setup.attach_help']
+mobile.computers.setup.attach_help: value='Si creaste el túnel en Radient Console, vincúlalo con el ID que se muestra allí. Este comando es para un túnel que ya existe: no crea uno nuevo.'
+  equals auditor suggestion=True brand_count=1 consola=0 placeholders=[] article_before_brand=[] redaction_hits=0 NFC=True len=144 sha256=2e1da8c0a47312cfac3f7a4178a33c16ae6e55e2422f29b8381c690939329d34
+-> ES-RC-01 resolved; group mobile.computers -> passed (0 BLOCKER/MAJOR)

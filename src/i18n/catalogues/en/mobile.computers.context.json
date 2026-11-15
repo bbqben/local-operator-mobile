@@ -65,15 +65,15 @@
 	},
 	"mobile.computers.billing_help": {
 		"role": "help",
-		"note": "Tunnel connection failure or protected reachability. App response-contract failures stay in-app; only explicit billing/disabled/harness server refusals direct the reader to a concrete console setting. Account404 cannot distinguish another owner from a deleted record; never invent device approval. Technical class names are redacted support data, not translated."
+		"note": "Tunnel connection failure or protected reachability. App response-contract failures stay in-app; only explicit billing/disabled/harness server refusals direct the reader to a concrete console setting. Account404 cannot distinguish another owner from a deleted record; never invent device approval. Technical class names are redacted support data, not translated. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.disabled_help": {
 		"role": "help",
-		"note": "Tunnel connection failure or protected reachability. App response-contract failures stay in-app; only explicit billing/disabled/harness server refusals direct the reader to a concrete console setting. Account404 cannot distinguish another owner from a deleted record; never invent device approval. Technical class names are redacted support data, not translated."
+		"note": "Tunnel connection failure or protected reachability. App response-contract failures stay in-app; only explicit billing/disabled/harness server refusals direct the reader to a concrete console setting. Account404 cannot distinguish another owner from a deleted record; never invent device approval. Technical class names are redacted support data, not translated. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.harness_help": {
 		"role": "help",
-		"note": "Tunnel connection failure or protected reachability. App response-contract failures stay in-app; only explicit billing/disabled/harness server refusals direct the reader to a concrete console setting. Account404 cannot distinguish another owner from a deleted record; never invent device approval. Technical class names are redacted support data, not translated."
+		"note": "Tunnel connection failure or protected reachability. App response-contract failures stay in-app; only explicit billing/disabled/harness server refusals direct the reader to a concrete console setting. Account404 cannot distinguish another owner from a deleted record; never invent device approval. Technical class names are redacted support data, not translated. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.protected": {
 		"role": "status",
@@ -569,7 +569,7 @@
 	},
 	"mobile.computers.setup.amount_note": {
 		"role": "help",
-		"note": "Small note under the create commands on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. {amount} is the literal placeholder `<amount>` that appears in the command above (the reader replaces it with a price); {command} is the command `lop tunnel create`. Both are values the reader types: never translate them, keep them left-to-right. The sentence may start with {amount} in English; reorder freely."
+		"note": "Small note under the create commands on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. {amount} is the literal placeholder `<amount>` that appears in the command above (the reader replaces it with a price); {command} is the command `lop tunnel create`. Both are values the reader types: never translate them, keep them left-to-right. The sentence may start with {amount} in English; reorder freely. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.setup.tui_help": {
 		"role": "help",
@@ -593,7 +593,7 @@
 	},
 	"mobile.computers.setup.attach_help": {
 		"role": "help",
-		"note": "Help text in the attach card on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. 'Id' is the tunnel's identifier as printed in the console. The second sentence warns that the command below does not create a tunnel. Full sentences."
+		"note": "Help text in the attach card on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. 'Id' is the tunnel's identifier as printed in the console. The second sentence warns that the command below does not create a tunnel. Full sentences. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.setup.tunnel_id_label": {
 		"role": "meta",
@@ -641,7 +641,7 @@
 	},
 	"mobile.computers.route_invalid.not_radient": {
 		"role": "help",
-		"note": "Reserved reason for a Radient tunnel address the app refuses (today the app drops this reason silently and picks another route; it exists so a future surface is translated). Radient is the product name: keep it in Latin script. Full sentence(s). Case: the address is not in the form Radient's tunnels use."
+		"note": "Reserved reason for a Radient tunnel address the app refuses (today the app drops this reason silently and picks another route; it exists so a future surface is translated). Radient is the product name: keep it in Latin script. Full sentence(s). Case: the address is not in the form Radient's tunnels use. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.route_invalid.no_tunnel_id": {
 		"role": "help",
@@ -721,7 +721,7 @@
 	},
 	"mobile.computers.refusal.console_next": {
 		"role": "help",
-		"note": "Second line of the connection-failure screen (shown when a computer cannot be reached; it names a cause and a remedy, never a status code), under \"… needs attention in Radient.\": the fix is in the Radient console (a web page), and re-signing in on the phone does not help, so say so plainly. \"Radient\" is a product name: do not translate. Width: wraps freely; keep it to the sentences given."
+		"note": "Second line of the connection-failure screen (shown when a computer cannot be reached; it names a cause and a remedy, never a status code), under \"… needs attention in Radient.\": the fix is in the Radient Console (a web page), and re-signing in on the phone does not help, so say so plainly. \"Radient\" is a product name: do not translate. Width: wraps freely; keep it to the sentences given. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.refusal.password_next": {
 		"role": "help",
@@ -761,7 +761,7 @@
 	},
 	"mobile.computers.refusal.open_console": {
 		"role": "button",
-		"note": "Outline button on the connection-failure screen (shown when a computer cannot be reached; it names a cause and a remedy, never a status code) that opens the Radient console (a web page) in the system browser. \"Radient\" is a product name: do not translate. Sentence case, no final full stop. Width: a full-width button on a 320 pt phone; keep it under ~24 characters."
+		"note": "Outline button on the connection-failure screen (shown when a computer cannot be reached; it names a cause and a remedy, never a status code) that opens the Radient Console (a web page) in the system browser. \"Radient\" is a product name: do not translate. Sentence case, no final full stop. Width: a full-width button on a 320 pt phone; keep it under ~24 characters. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.computers.refusal.another_address": {
 		"role": "button",

@@ -1,0 +1,69 @@
+# audit.log — real execution log, auditor session f56acc09bfb2, 2026-11-15T18:00:16Z
+# (1) repo validator run in an extracted copy of local-operator-mobile@0a629e65 (git archive) with the 15 en/context/hi values applied: /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig
+$ date: 2026-11-15T17:49:31Z
+$ node scripts/i18n/generate.ts
+Wrote src/i18n/catalogue.gen.ts (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+(node:15933) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0
+$ node scripts/i18n/generate.ts --check
+src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+(node:16258) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0
+$ node scripts/i18n/check-strings.ts
+Error: Cannot resolve base: cannot read scripts/i18n/strings-baseline.json at origin/main
+    at main (file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/scripts/i18n/check-strings.ts:280:9)
+    at file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/scripts/i18n/check-strings.ts:374:6
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+exit=1
+$ GIT_DIR=~/local-operator-mobile/.git node scripts/i18n/check-strings.ts --base 0a629e65
+scanner sha256: base=e3755926bd4b0dc8cb6ab788336331d2c81a49b8b5624df9b93fc34cdbf0f750 head=e3755926bd4b0dc8cb6ab788336331d2c81a49b8b5624df9b93fc34cdbf0f750
+check-strings: 152 finding(s), all baselined; 0 new; verified historical debt vs 0a629e65f696
+exit=0
+
+# (2) independent mechanical checks: python3 /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/checks.py mobile.computers
+draft keys=15 en-proposal keys=15 extra=set()
+PASS mobile.computers.billing_help len=76 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: Radient कंसोल में इस टनल की बिलिंग सेटिंग खोलें और रिमोट ऐक्सेस चालू करें।
+  head: Radient Console में इस टनल की बिलिंग सेटिंग खोलें और रिमोट ऐक्सेस चालू करें।
+  en:   In the Radient Console, open this tunnel's billing settings and activate remote access.
+PASS mobile.computers.disabled_help len=83 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: Radient के अनुसार यह टनल अभी सक्रिय नहीं है। Radient कंसोल में इसकी स्थिति देखें।
+  head: Radient के अनुसार यह टनल अभी सक्रिय नहीं है। Radient Console में इसकी स्थिति देखें।
+  en:   Radient says this tunnel isn't active right now. Check its status in the Radient Console.
+PASS mobile.computers.harness_help len=59 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: Radient कंसोल में इस टनल के लिए Local Operator चालू करें।
+  head: Radient Console में इस टनल के लिए Local Operator चालू करें।
+  en:   In the Radient Console, enable the Local Operator harness for this tunnel.
+PASS mobile.computers.refusal.console_next len=85 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: इसे ठीक करने के लिए Radient कंसोल खोलें। इस फ़ोन पर साइन इन करने से यह नहीं बदलेगा।
+  head: इसे ठीक करने के लिए Radient Console खोलें। इस फ़ोन पर साइन इन करने से यह नहीं बदलेगा।
+  en:   Open the Radient Console to fix it there. Signing in on this phone will not change it.
+PASS mobile.computers.refusal.open_console len=21 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: Radient कंसोल खोलें
+  head: Radient Console खोलें
+  en:   Open the Radient Console
+PASS mobile.computers.route_invalid.not_radient len=96 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: यह Radient टनल का पता नहीं है। Radient कंसोल में इस कंप्यूटर के लिए दिखाया गया पता उपयोग करें।
+  head: यह Radient टनल का पता नहीं है। Radient Console में इस कंप्यूटर के लिए दिखाया गया पता उपयोग करें।
+  en:   That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.
+PASS mobile.computers.setup.amount_note len=182 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: {amount} वह कीमत है जो Radient कंसोल इस खाते के लिए दिखाता है — {command} इसके अलावा कोई और रकम स्वीकार नहीं करती, और टनल गाइड के चरण 1 में उस जगह का लिंक है जहाँ यह कीमत दिखती है।
+  head: {amount} वह कीमत है जो Radient Console इस खाते के लिए दिखाता है — {command} इसके अलावा कोई और रकम स्वीकार नहीं करती, और टनल गाइड के चरण 1 में उस जगह का लिंक है जहाँ यह कीमत दिखती है।
+  en:   {amount} is the price the Radient Console shows for this account — {command} refuses anything else, and step 1 of the tunnel guide links to where it is shown.
+PASS mobile.computers.setup.attach_help len=143 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: अगर आपने टनल Radient कंसोल में बनाई है, तो कंसोल में दिखने वाली आईडी से उसे जोड़ें। यह कमांड पहले से मौजूद टनल के लिए है — इससे नई टनल नहीं बनेगी।
+  head: अगर आपने टनल Radient Console में बनाई है, तो वहाँ दिखने वाली आईडी से उसे जोड़ें। यह कमांड पहले से मौजूद टनल के लिए है — इससे नई टनल नहीं बनेगी।
+  en:   If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.
+RESULT mobile.computers: 8 keys, 0 fail
+
+# HOST-LOAD HOLD NOTE (2026-11-15T18:01:08Z): a host-load hold until 20:30Z (relayed from Aida by manager) arrived AFTER the repo validator above had already run (started 2026-11-15T17:49:31Z, git-archive copy at hi-rc-audit/rig). The output above is genuine and is kept as captured. No further validator, generator, vitest, tsc or repo-copy runs were made after the hold; any re-run on the final applied catalogue is deferred to CI / a post-hold pass.
+
+# 2026-11-15T18:07:09Z: draft re-issued as sha256 6ca13b85cba127a78837f2623d7bdf4905186ea7612a7b77b29aaf87bccab738; this namespace's values verified byte-identical to the audited draft 5db3adc1 (see hi/mobile.refusal/hirc-r1/audit.log round 2). Verdict unchanged.

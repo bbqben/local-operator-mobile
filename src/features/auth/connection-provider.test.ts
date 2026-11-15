@@ -3505,7 +3505,7 @@ describe("a pick and a Refresh do not leave each other's state behind (PR #121 r
 		expect(latest.discovering).toBe(false);
 	});
 
-	it("offers Try again, not the Radient console, for a pick made offline (U5, D11)", async () => {
+	it("offers Try again, not the Radient Console, for a pick made offline (U5, D11)", async () => {
 		await signedIn({ dropCode: true });
 		const second = connectionStore.getState().computers[1];
 		if (!second) throw new Error("no second computer");

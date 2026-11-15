@@ -121,7 +121,7 @@
 	},
 	"mobile.settings.account.delete_help": {
 		"role": "help",
-		"note": "Explanation under the delete-account button: deletion happens in the browser, removes the account and its tunnels, and does not touch sessions on the user's computer. Radient is a product name; 'tunnel' is the product's word for the published route to a computer."
+		"note": "Explanation under the delete-account button: deletion happens in the browser, removes the account and its tunnels, and does not touch sessions on the user's computer. Radient is a product name; 'tunnel' is the product's word for the published route to a computer. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.settings.sign_out.title": {
 		"role": "confirm",

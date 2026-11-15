@@ -5,11 +5,11 @@
 	"mobile.refusal.balance_out.body": "Ajoutez du crédit — votre ordinateur se reconnectera tout seul. Touchez ensuite Réessayer.",
 	"mobile.refusal.suspended.title": "Radient a mis en pause l’accès depuis un téléphone à {computer}.",
 	"mobile.refusal.suspended.body": "Votre ordinateur va se reconnecter tout seul — si cela dure, ouvrez Local Operator sur cet ordinateur, puis touchez Réessayer.",
-	"mobile.refusal.console_disabled.title": "L’accès depuis un téléphone à {computer} est désactivé dans votre console Radient.",
+	"mobile.refusal.console_disabled.title": "L’accès depuis un téléphone à {computer} est désactivé dans Radient Console.",
 	"mobile.refusal.provisioning.title": "Radient est encore en train de configurer cet ordinateur.",
 	"mobile.refusal.provisioning.body": "Cela prend généralement moins d’une minute.",
 	"mobile.refusal.refused.title": "Radient n’autorise pas l’accès depuis un téléphone à {computer} pour le moment.",
-	"mobile.refusal.refused.body": "Vérifiez-le dans votre console Radient ou réessayez.",
+	"mobile.refusal.refused.body": "Vérifiez-le dans Radient Console ou réessayez.",
 	"mobile.refusal.offline.title": "{computer} est en veille ou hors ligne.",
 	"mobile.refusal.offline.body": "Réveillez-le et vérifiez que Local Operator y est ouvert.",
 	"mobile.refusal.relay_stopped.title": "Local Operator n’est pas ouvert sur {computer}.",
@@ -25,7 +25,7 @@
 	"mobile.refusal.action.how_to": "Comment l’activer",
 	"mobile.refusal.action.open_billing": "Ouvrir la facturation Radient",
 	"mobile.refusal.action.add_credit": "Ajouter du crédit",
-	"mobile.refusal.action.open_console": "Ouvrir la console Radient",
+	"mobile.refusal.action.open_console": "Ouvrir Radient Console",
 	"mobile.refusal.action.refresh_list": "Actualiser la liste",
 	"mobile.refusal.action.retry": "Réessayer",
 	"mobile.refusal.how_to.title": "Activer l’accès depuis un téléphone",
@@ -40,5 +40,5 @@
 	"mobile.refusal.computer_sign_in.body": "Ouvrez Local Operator sur cet ordinateur et connectez-vous. Se connecter sur ce téléphone ne résoudra pas le problème.",
 	"mobile.refusal.computer_attention.title": "Local Operator sur {computer} nécessite votre attention.",
 	"mobile.refusal.computer_attention.body": "Ouvrez-le sur cet ordinateur pour terminer la configuration de l’accès depuis un téléphone.",
-	"mobile.refusal.open_console.title": "L’accès depuis un téléphone à {computer} nécessite une modification dans votre console Radient."
+	"mobile.refusal.open_console.title": "L’accès depuis un téléphone à {computer} nécessite une modification dans Radient Console."
 }

@@ -1,0 +1,11 @@
+2026-11-15T12:33:51 auditor script start; draft=/Users/damian/.local-operator/sessions/2a0b42cbac53/scratchpad/draft-vi.json keys=15 set_equal_to_en_proposal=True
+2026-11-15T12:33:51 [mobile.refusal] mech mobile.refusal.action.open_console: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.refusal] mech mobile.refusal.console_disabled.title: ph_en=['{computer}'] ph_vi=['{computer}'] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.refusal] mech mobile.refusal.open_console.title: ph_en=['{computer}'] ph_vi=['{computer}'] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.refusal] mech mobile.refusal.refused.body: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 mechanical_fail_count=0
+2026-11-15T12:34:01 groups={"mobile.computers": 8, "mobile.refusal": 4, "mobile.settings": 1, "mobile.team_bridge": 2}
+2026-11-15T12:34:01 [mobile.refusal] diff mobile.refusal.action.open_console: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.refusal] diff mobile.refusal.console_disabled.title: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.refusal] diff mobile.refusal.open_console.title: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.refusal] diff mobile.refusal.refused.body: prior→draft only brand substitution=True

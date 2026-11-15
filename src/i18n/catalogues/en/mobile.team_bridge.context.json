@@ -249,7 +249,7 @@
 	},
 	"mobile.team_bridge.gate.console_error": {
 		"role": "status",
-		"note": "Team Bridge mobile UI: gate / console error. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team."
+		"note": "Team Bridge mobile UI: gate / console error. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.team_bridge.gate.loading": {
 		"role": "status",
@@ -257,7 +257,7 @@
 	},
 	"mobile.team_bridge.gate.manage_plan": {
 		"role": "help",
-		"note": "Team Bridge mobile UI: gate / manage plan. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team."
+		"note": "Team Bridge mobile UI: gate / manage plan. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team. \"Radient Console\" is the product name of Radient's hosted web console: keep it verbatim (Latin script, capital C, one ASCII space); localize only the surrounding sentence."
 	},
 	"mobile.team_bridge.gate.plan_description": {
 		"role": "help",

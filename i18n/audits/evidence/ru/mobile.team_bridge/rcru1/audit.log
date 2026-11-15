@@ -1,0 +1,37 @@
+2026-11-15T12:05:02 $ git -C /Users/damian/local-operator show 56662d28:i18n/glossary.md -> exit 0, 14891 bytes, sha256 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7
+2026-11-15T12:05:02 glossary §1 Radient Console row present: True
+2026-11-15T12:05:03 $ git -C /Users/damian/local-operator-mobile show 0a629e65:src/i18n/catalogues/ru/mobile.computers.json -> exit 0, 30282 bytes, sha256 1bdc9ce6d6ab49aa9b5e29afe1ef9ce442aa45120b944d7b1b9e2830d95e1520
+2026-11-15T12:05:03 $ git -C /Users/damian/local-operator-mobile show 0a629e65:src/i18n/catalogues/ru/mobile.refusal.json -> exit 0, 5163 bytes, sha256 581ee5c78306669a13e738e051cb04594ed005e9202f5bbe6a4949d658b4c268
+2026-11-15T12:05:03 $ git -C /Users/damian/local-operator-mobile show 0a629e65:src/i18n/catalogues/ru/mobile.settings.json -> exit 0, 7913 bytes, sha256 aaa1243bc1bef1691eaf0ec4f8db168d806a6567818a67e4e5377678e6cf3da6
+2026-11-15T12:05:03 $ git -C /Users/damian/local-operator-mobile show 0a629e65:src/i18n/catalogues/ru/mobile.team_bridge.json -> exit 0, 19585 bytes, sha256 35a88af343f67e8fbda0f47ef79fde44969cfe61035d2c40aa50cd355370bb55
+2026-11-15T12:05:03 hash draft /Users/damian/.local-operator/sessions/0efdae46218c/scratchpad/draft-ru.json 72f401e4c774663cba7ba0cfcdcb83cc32e2bb6e77a8193e48aabca12e2cf5e1
+2026-11-15T12:05:03 hash translator_notes /Users/damian/.local-operator/sessions/0efdae46218c/scratchpad/notes-ru.md 1d49db12c87d181ea16752b53f172a99721706849b0b2b14de4db37795edd9b1
+2026-11-15T12:05:03 hash brief /Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec
+2026-11-15T12:05:03 hash en_proposal /Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1
+2026-11-15T12:05:03 hash style_guide /Users/damian/local-operator/i18n/style-guides/ru.md f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5
+2026-11-15T12:05:03 hash glossary git:~/local-operator@56662d28:i18n/glossary.md 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7
+2026-11-15T12:05:03 hash ru_base_mobile.computers git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/ru/mobile.computers.json 1bdc9ce6d6ab49aa9b5e29afe1ef9ce442aa45120b944d7b1b9e2830d95e1520
+2026-11-15T12:05:03 hash ru_base_mobile.refusal git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/ru/mobile.refusal.json 581ee5c78306669a13e738e051cb04594ed005e9202f5bbe6a4949d658b4c268
+2026-11-15T12:05:03 hash ru_base_mobile.settings git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/ru/mobile.settings.json aaa1243bc1bef1691eaf0ec4f8db168d806a6567818a67e4e5377678e6cf3da6
+2026-11-15T12:05:03 hash ru_base_mobile.team_bridge git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/ru/mobile.team_bridge.json 35a88af343f67e8fbda0f47ef79fde44969cfe61035d2c40aa50cd355370bb55
+2026-11-15T12:05:03 applied ENGLISH OVERRIDE for mobile.computers.setup.attach_help (from manager brief)
+2026-11-15T12:05:03 draft JSON valid, 15 keys
+2026-11-15T12:05:03 key set == en proposal: True; extra=[] missing=[]
+2026-11-15T12:05:04 mobile.computers.billing_help: chars ru=86 old_ru=86 en=87 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.computers.disabled_help: chars ru=92 old_ru=92 en=89 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.computers.harness_help: chars ru=60 old_ru=60 en=74 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.computers.refusal.console_next: chars ru=101 old_ru=101 en=86 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.computers.refusal.open_console: chars ru=23 old_ru=23 en=24 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.computers.route_invalid.not_radient: chars ru=105 old_ru=105 en=98 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.computers.setup.amount_note: chars ru=182 old_ru=182 en=158 placeholders=['{amount}', '{command}'] -> PASS
+2026-11-15T12:05:04 mobile.computers.setup.attach_help: chars ru=165 old_ru=177 en=157 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.refusal.action.open_console: chars ru=23 old_ru=23 en=20 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.refusal.console_disabled.title: chars ru=57 old_ru=63 en=66 placeholders=['{computer}'] -> PASS
+2026-11-15T12:05:04 mobile.refusal.open_console.title: chars ru=78 old_ru=78 en=67 placeholders=['{computer}'] -> PASS
+2026-11-15T12:05:04 mobile.refusal.refused.body: chars ru=55 old_ru=55 en=47 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.settings.account.delete_help: chars ru=166 old_ru=166 en=191 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.team_bridge.gate.console_error: chars ru=35 old_ru=35 en=35 placeholders=[] -> PASS
+2026-11-15T12:05:04 mobile.team_bridge.gate.manage_plan: chars ru=36 old_ru=36 en=39 placeholders=[] -> PASS
+2026-11-15T12:05:04 mechanical failures: 0/15
+2026-11-15T12:05:04 ICU plural/select present in slice: False
+2026-11-15T12:05:54 bundle.py wrote /Users/damian/.local-operator/sessions/89755f432f12/scratchpad/ru/mobile.team_bridge/rcru1/report.md (2 keys, 0 findings)

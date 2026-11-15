@@ -1,0 +1,28 @@
+# Translation audit — vi · mobile.computers · Radient Console brand slice
+
+Audit ID: rcvi-comput · Date: 2026-11-15 · Keys: 8
+Auditor: i18n-auditor (team lopdev), session 8327197fa0aa, model anthropic/claude-opus-5-5 (no fallback observed). Translator session: 2a0b42cbac53 (independent). No MT service used.
+
+## Verdict: passed — 0 BLOCKER, 0 MAJOR, 0 MINOR, 0 NIT
+
+## Mechanical
+Placeholders identical to EN; `Radient Console` byte-exact (ASCII U+0020, capital R/C), count equal to EN per key; no residual «bảng điều khiển»; NFC; em dash spaced; key set equals en proposal. No plural/select (vi = `other` only). No repo validator applies to the flat scratch draft (mobile checkout HEAD d9b41018 has no src/i18n); checks run by auditor script — see audit.log.
+
+## Per-key
+| key | EN (proposed/override) | prior vi @0a629e65 | draft vi | judgement |
+|---|---|---|---|---|
+| `mobile.computers.billing_help` | In the Radient Console, open this tunnel's billing settings and activate remote access. | Trong bảng điều khiển Radient, mở cài đặt thanh toán của đường hầm này và bật truy cập từ xa. | Trong Radient Console, mở cài đặt thanh toán của đường hầm này và bật truy cập từ xa. | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.disabled_help` | Radient says this tunnel isn't active right now. Check its status in the Radient Console. | Radient cho biết đường hầm này hiện chưa hoạt động. Hãy kiểm tra trạng thái trong bảng điều khiển Radient. | Radient cho biết đường hầm này hiện chưa hoạt động. Hãy kiểm tra trạng thái trong Radient Console. | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.harness_help` | In the Radient Console, enable the Local Operator harness for this tunnel. | Trong bảng điều khiển Radient, bật Local Operator cho đường hầm này. | Trong Radient Console, bật Local Operator cho đường hầm này. | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.refusal.console_next` | Open the Radient Console to fix it there. Signing in on this phone will not change it. | Hãy mở bảng điều khiển Radient để khắc phục. Đăng nhập lại trên điện thoại này sẽ không giải quyết được vấn đề. | Hãy mở Radient Console để khắc phục. Đăng nhập lại trên điện thoại này sẽ không giải quyết được vấn đề. | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.refusal.open_console` | Open the Radient Console | Mở bảng điều khiển Radient | Mở Radient Console | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.route_invalid.not_radient` | That is not a Radient tunnel address. Use the address the Radient Console shows for this computer. | Đây không phải là địa chỉ đường hầm Radient. Hãy dùng địa chỉ mà bảng điều khiển Radient hiển thị cho máy tính này. | Đây không phải là địa chỉ đường hầm Radient. Hãy dùng địa chỉ mà Radient Console hiển thị cho máy tính này. | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.setup.amount_note` | {amount} is the price the Radient Console shows for this account — {command} refuses anything else, and step 1 of the tunnel guide links to where it is shown. | {amount} là mức giá mà bảng điều khiển Radient hiển thị cho tài khoản này — {command} sẽ từ chối mọi giá trị khác, và bước 1 của hướng dẫn đường hầm có liên kết tới nơi hiển thị mức giá đó. | {amount} là mức giá mà Radient Console hiển thị cho tài khoản này — {command} sẽ từ chối mọi giá trị khác, và bước 1 của hướng dẫn đường hầm có liên kết tới nơi hiển thị mức giá đó. | Only change vs prior catalogue: «bảng điều khiển Radient» → «Radient Console» (glossary §1: exact brand, no generic replacement); rest byte-identical. |
+| `mobile.computers.setup.attach_help` | If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one. | Nếu bạn đã tạo đường hầm trong bảng điều khiển Radient, hãy gắn nó bằng ID mà bảng điều khiển hiển thị. Lệnh này dành cho đường hầm đã có sẵn — nó sẽ không tạo đường hầm mới. | Nếu bạn đã tạo đường hầm trong Radient Console, hãy gắn nó bằng ID hiển thị ở đó. Lệnh này dành cho đường hầm đã có sẵn — nó sẽ không tạo đường hầm mới. | Changed beyond brand substitution — see note. Judged against ENGLISH OVERRIDE ("…by the id shown there…"). «ID hiển thị ở đó» renders "shown there"; «ở đó» has one clear antecedent (Radient Console) in the same sentence, so dropping «mà bảng điều khiển hiển thị» loses nothing. Accurate. |
+
+## Cross-group calls
+- «trong» vs «trên»: «trên» is common for web platforms, but «trong Radient Console» is idiomatic for acting inside a console, all 15 keys use «trong» consistently, and delete_help needs the contrast with «trên trình duyệt». Not a finding.
+- No width hints in slice; buttons shrink (26 → 18 chars, «Mở Radient Console»). Latin-script locale: no bidi risk.
+- Pre-existing deviations outside the brand change (console_next omits "there", adds «lại»; harness_help omits "harness"; manage_plan omits "your") are out of scope per brief non-goals and do not gate.
+
+Ledger: not written — this run's brief says no edits/commits; manager records it.

@@ -29,7 +29,7 @@
 	"mobile.settings.about.version": "Versión",
 	"mobile.settings.about.blurb": "Local Operator es de código abierto (MIT). Las sesiones de los agentes se conectan a tu relé. Los mensajes de Team Bridge y el registro de notificaciones se conectan directamente con Radient.",
 	"mobile.settings.account.delete": "Eliminar mi cuenta de Radient",
-	"mobile.settings.account.delete_help": "Puedes eliminar tu cuenta desde la consola de Radient, en el navegador — esta app no puede hacerlo por ti. Al hacerlo, se eliminan la cuenta y todos sus túneles. Las sesiones de tu máquina no se modifican.",
+	"mobile.settings.account.delete_help": "Puedes eliminar tu cuenta desde Radient Console, en el navegador — esta app no puede hacerlo por ti. Al hacerlo, se eliminan la cuenta y todos sus túneles. Las sesiones de tu máquina no se modifican.",
 	"mobile.settings.sign_out.title": "¿Cerrar sesión?",
 	"mobile.settings.sign_out.body": "Esto cierra tu sesión de acceso en el plano de control y la borra de este teléfono, por lo que el túnel deja de aceptar solicitudes de este teléfono. Tu máquina no se ve afectada.",
 	"mobile.settings.sign_out.confirm": "Cerrar sesión",

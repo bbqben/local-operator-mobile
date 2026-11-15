@@ -1,0 +1,41 @@
+# audit.log — real execution log, auditor session f56acc09bfb2, 2026-11-15T18:00:16Z
+# (1) repo validator run in an extracted copy of local-operator-mobile@0a629e65 (git archive) with the 15 en/context/hi values applied: /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig
+$ date: 2026-11-15T17:49:31Z
+$ node scripts/i18n/generate.ts
+Wrote src/i18n/catalogue.gen.ts (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+(node:15933) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0
+$ node scripts/i18n/generate.ts --check
+src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+(node:16258) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit=0
+$ node scripts/i18n/check-strings.ts
+Error: Cannot resolve base: cannot read scripts/i18n/strings-baseline.json at origin/main
+    at main (file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/scripts/i18n/check-strings.ts:280:9)
+    at file:///Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/rig/scripts/i18n/check-strings.ts:374:6
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+exit=1
+$ GIT_DIR=~/local-operator-mobile/.git node scripts/i18n/check-strings.ts --base 0a629e65
+scanner sha256: base=e3755926bd4b0dc8cb6ab788336331d2c81a49b8b5624df9b93fc34cdbf0f750 head=e3755926bd4b0dc8cb6ab788336331d2c81a49b8b5624df9b93fc34cdbf0f750
+check-strings: 152 finding(s), all baselined; 0 new; verified historical debt vs 0a629e65f696
+exit=0
+
+# (2) independent mechanical checks: python3 /Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi-rc-audit/checks.py mobile.settings
+draft keys=15 en-proposal keys=15 extra=set()
+PASS mobile.settings.account.delete_help len=206 {'placeholders_equal': True, 'nfc': True, 'no_zwj_zwnj': True, 'brand_count_eq_en': True, 'brand_ascii_space': True, 'no_devanagari_console': True, 'no_bare_Console': True, 'latin_digits': True, 'final_punct_matches': True}
+  base: आपका खाता ब्राउज़र में Radient कंसोल से हटाया जाता है — यह ऐप आपकी ओर से ऐसा नहीं कर सकता। खाता हटाने पर खाता और उस पर मौजूद हर टनल मिट जाती है। आपके कंप्यूटर पर मौजूद सत्रों में कोई बदलाव नहीं किया जाता।
+  head: आपका खाता ब्राउज़र में Radient Console से हटाया जाता है — यह ऐप आपकी ओर से ऐसा नहीं कर सकता। खाता हटाने पर खाता और उस पर मौजूद हर टनल मिट जाती है। आपके कंप्यूटर पर मौजूद सत्रों में कोई बदलाव नहीं किया जाता।
+  en:   Deleting your account happens in the Radient Console, in the browser — this app cannot do it for you. It deletes the account and every tunnel on it. Sessions on your computer are not touched.
+RESULT mobile.settings: 1 keys, 0 fail
+
+# HOST-LOAD HOLD NOTE (2026-11-15T18:01:08Z): a host-load hold until 20:30Z (relayed from Aida by manager) arrived AFTER the repo validator above had already run (started 2026-11-15T17:49:31Z, git-archive copy at hi-rc-audit/rig). The output above is genuine and is kept as captured. No further validator, generator, vitest, tsc or repo-copy runs were made after the hold; any re-run on the final applied catalogue is deferred to CI / a post-hold pass.
+
+# 2026-11-15T18:07:09Z: draft re-issued as sha256 6ca13b85cba127a78837f2623d7bdf4905186ea7612a7b77b29aaf87bccab738; this namespace's values verified byte-identical to the audited draft 5db3adc1 (see hi/mobile.refusal/hirc-r1/audit.log round 2). Verdict unchanged.

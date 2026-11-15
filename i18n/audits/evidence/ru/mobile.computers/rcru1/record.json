@@ -1,0 +1,86 @@
+{
+ "locale": "ru",
+ "namespace": "mobile.computers",
+ "audit_id": "rcru1",
+ "audit_date": "2026-11-15",
+ "key_count": 8,
+ "keys": [
+  "mobile.computers.billing_help",
+  "mobile.computers.disabled_help",
+  "mobile.computers.harness_help",
+  "mobile.computers.refusal.console_next",
+  "mobile.computers.refusal.open_console",
+  "mobile.computers.route_invalid.not_radient",
+  "mobile.computers.setup.amount_note",
+  "mobile.computers.setup.attach_help"
+ ],
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "89755f432f12",
+  "model": "anthropic/claude-opus-5-5",
+  "fallback": null,
+  "independent_from_translator_session": "0efdae46218c",
+  "actual_model_source": "harness system prompt \"Model:\" line for this session; no fallback notice observed"
+ },
+ "english_override": {
+  "key": "mobile.computers.setup.attach_help",
+  "text": "If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.",
+  "source": "manager brief"
+ },
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/0efdae46218c/scratchpad/draft-ru.json",
+   "sha256": "72f401e4c774663cba7ba0cfcdcb83cc32e2bb6e77a8193e48aabca12e2cf5e1"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/0efdae46218c/scratchpad/notes-ru.md",
+   "sha256": "1d49db12c87d181ea16752b53f172a99721706849b0b2b14de4db37795edd9b1"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+   "sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+  },
+  "en_proposal": {
+   "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+   "sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+  },
+  "glossary": {
+   "path": "git:~/local-operator@56662d28:i18n/glossary.md",
+   "sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+  },
+  "style_guide": {
+   "path": "/Users/damian/local-operator/i18n/style-guides/ru.md",
+   "sha256": "f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5"
+  },
+  "ru_base_mobile.computers": {
+   "path": "git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/ru/mobile.computers.json",
+   "sha256": "1bdc9ce6d6ab49aa9b5e29afe1ef9ce442aa45120b944d7b1b9e2830d95e1520"
+  }
+ },
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "39c2f8fd0eb183b52e128b0f5d48e0d9524eb20617155f9fc8d82db862fd1bb6"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "92ea545ed9b8221978e2b4e0855d36cd78f164095af52c9daaf5f47060352a65",
+   "kind": "execution_log"
+  },
+  "check_script": {
+   "path": "/Users/damian/.local-operator/sessions/89755f432f12/scratchpad/work/mech.py",
+   "sha256": "771d02874ff8944122f69d14f5d58e8496045016cda4734df1e45a4eb49b0ef3"
+  }
+ },
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "RU-C-N1",
+   "RU-C-N2",
+   "RU-C-N3"
+  ]
+ },
+ "ledger": "not written — brief: no edits, no commits; manager records the row on landing",
+ "mt_service_used": false
+}

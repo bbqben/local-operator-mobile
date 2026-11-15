@@ -1,0 +1,19 @@
+2026-11-15T12:33:51 auditor script start; draft=/Users/damian/.local-operator/sessions/2a0b42cbac53/scratchpad/draft-vi.json keys=15 set_equal_to_en_proposal=True
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.billing_help: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.disabled_help: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.harness_help: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.refusal.console_next: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.refusal.open_console: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.route_invalid.not_radient: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.setup.amount_note: ph_en=['{amount}', '{command}'] ph_vi=['{amount}', '{command}'] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 [mobile.computers] mech mobile.computers.setup.attach_help: ph_en=[] ph_vi=[] brand_en=1 brand_vi=1 fail=[]
+2026-11-15T12:33:51 mechanical_fail_count=0
+2026-11-15T12:34:01 groups={"mobile.computers": 8, "mobile.refusal": 4, "mobile.settings": 1, "mobile.team_bridge": 2}
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.billing_help: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.disabled_help: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.harness_help: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.refusal.console_next: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.refusal.open_console: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.route_invalid.not_radient: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.setup.amount_note: prior→draft only brand substitution=True
+2026-11-15T12:34:01 [mobile.computers] diff mobile.computers.setup.attach_help: prior→draft only brand substitution=False
