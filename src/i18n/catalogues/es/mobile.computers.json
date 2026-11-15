@@ -138,8 +138,6 @@
 	"mobile.computers.own_tunnel.password_slot_empty": "Este teléfono no tiene ninguna contraseña del relé guardada. Introduce la contraseña de esta máquina, pruébala y guárdala.",
 	"mobile.computers.own_tunnel.password_slot_this": "La contraseña del relé guardada en este teléfono es de esta dirección. Pruébala y guárdala.",
 	"mobile.computers.setup.intro": "Esta app controla las sesiones de tu propia máquina, así que esa máquina tiene que ejecutar un conector y no entrar en reposo. Tu código no sale de ella.",
-	"mobile.computers.setup.billing_title": "El acceso remoto no está activo",
-	"mobile.computers.setup.billing_fallback": "Radient indica que esta cuenta aún no puede iniciar un túnel. Revisa la facturación en la consola de Radient y vuelve a intentarlo.",
 	"mobile.computers.setup.create_title": "Crear uno en la máquina",
 	"mobile.computers.setup.create_help": "En una terminal de la máquina que quieres controlar:",
 	"mobile.computers.setup.terminal_label": "Terminal",

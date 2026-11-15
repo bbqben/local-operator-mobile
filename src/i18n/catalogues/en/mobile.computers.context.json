@@ -555,14 +555,6 @@
 		"role": "help",
 		"note": "Opening paragraph on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Explains why the computer must run a connector (a small background program that keeps the tunnel open) and stay awake, and reassures that code never leaves it. Full sentences."
 	},
-	"mobile.computers.setup.billing_title": {
-		"role": "heading",
-		"note": "Title of a warning box on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Shown when Radient says this account cannot start a tunnel (billing not active). Short, no final full stop."
-	},
-	"mobile.computers.setup.billing_fallback": {
-		"role": "help",
-		"note": "Body of the \"Remote access is not active\" warning on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Only shown when the Radient console sent no sentence of its own (its sentence, in English, is shown instead when present). 'The console' is the Radient web console. Full sentences."
-	},
 	"mobile.computers.setup.create_title": {
 		"role": "heading",
 		"note": "Card heading on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. First of three routes: create a new tunnel by running commands on the computer itself. 'One' is a tunnel. Short, no final full stop."

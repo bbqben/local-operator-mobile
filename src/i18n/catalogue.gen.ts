@@ -249,8 +249,6 @@ export type CatalogueKey =
 	| "mobile.computers.setup.attach_help"
 	| "mobile.computers.setup.attach_label"
 	| "mobile.computers.setup.attach_title"
-	| "mobile.computers.setup.billing_fallback"
-	| "mobile.computers.setup.billing_title"
 	| "mobile.computers.setup.check_again"
 	| "mobile.computers.setup.checking"
 	| "mobile.computers.setup.create_help"
@@ -1168,8 +1166,6 @@ export type NoParamKey =
 	| "mobile.computers.setup.attach_help"
 	| "mobile.computers.setup.attach_label"
 	| "mobile.computers.setup.attach_title"
-	| "mobile.computers.setup.billing_fallback"
-	| "mobile.computers.setup.billing_title"
 	| "mobile.computers.setup.check_again"
 	| "mobile.computers.setup.checking"
 	| "mobile.computers.setup.create_help"
@@ -2017,8 +2013,6 @@ export type MessageParams = {
 	"mobile.computers.setup.attach_help": NoParams;
 	"mobile.computers.setup.attach_label": NoParams;
 	"mobile.computers.setup.attach_title": NoParams;
-	"mobile.computers.setup.billing_fallback": NoParams;
-	"mobile.computers.setup.billing_title": NoParams;
 	"mobile.computers.setup.check_again": NoParams;
 	"mobile.computers.setup.checking": NoParams;
 	"mobile.computers.setup.create_help": NoParams;
@@ -2990,8 +2984,6 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.computers.setup.attach_help": "If you created the tunnel in the Radient console, attach it by the id the console shows. This command is for a tunnel that already exists — it will not create one.",
 	"mobile.computers.setup.attach_label": "Attach",
 	"mobile.computers.setup.attach_title": "Attach one that already exists",
-	"mobile.computers.setup.billing_fallback": "Radient says this account cannot start a tunnel yet. Check billing in the console, then try again.",
-	"mobile.computers.setup.billing_title": "Remote access is not active",
 	"mobile.computers.setup.check_again": "Check again",
 	"mobile.computers.setup.checking": "Checking…",
 	"mobile.computers.setup.create_help": "In a terminal on the computer you want to control:",
@@ -3948,8 +3940,6 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.computers.setup.attach_help": { role: "help", note: "Help text in the attach card on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. 'Id' is the tunnel's identifier as printed in the console. The second sentence warns that the command below does not create a tunnel. Full sentences." },
 	"mobile.computers.setup.attach_label": { role: "meta", note: "Small upper-case label at the top of the copyable attach command block on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. A verb or noun naming the action of connecting an existing tunnel. One word; it is also read in the copy button's accessibility hint." },
 	"mobile.computers.setup.attach_title": { role: "heading", note: "Card heading on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Second route: connect a tunnel the reader already created in the Radient console. 'One' is a tunnel. No final full stop." },
-	"mobile.computers.setup.billing_fallback": { role: "help", note: "Body of the \"Remote access is not active\" warning on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Only shown when the Radient console sent no sentence of its own (its sentence, in English, is shown instead when present). 'The console' is the Radient web console. Full sentences." },
-	"mobile.computers.setup.billing_title": { role: "heading", note: "Title of a warning box on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Shown when Radient says this account cannot start a tunnel (billing not active). Short, no final full stop." },
 	"mobile.computers.setup.check_again": { role: "button", note: "Button on the 'Set up a computer' screen. Lists the account's computers again right now, for a reader who just finished phone-access set-up on their computer." },
 	"mobile.computers.setup.checking": { role: "status", note: "Replaces the 'Check again' button label while the phone asks Radient for the account's computers." },
 	"mobile.computers.setup.create_help": { role: "help", note: "Lead-in line above a block of terminal commands on the \"Set up a computer\" screen (Computers → add a computer through Radient, the hosted service that publishes a tunnel to the reader's own computer). Radient is the product name: keep it in Latin script. Ends with a colon because the commands follow directly below; use your language's lead-in punctuation." },
@@ -4920,8 +4910,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "Si creaste el túnel en la consola de Radient, vincúlalo con el ID que muestra la consola. Este comando es para un túnel que ya existe: no crea uno nuevo.",
 		"mobile.computers.setup.attach_label": "Vincular",
 		"mobile.computers.setup.attach_title": "Vincular uno que ya existe",
-		"mobile.computers.setup.billing_fallback": "Radient indica que esta cuenta aún no puede iniciar un túnel. Revisa la facturación en la consola de Radient y vuelve a intentarlo.",
-		"mobile.computers.setup.billing_title": "El acceso remoto no está activo",
 		"mobile.computers.setup.check_again": "Comprobar de nuevo",
 		"mobile.computers.setup.checking": "Comprobando…",
 		"mobile.computers.setup.create_help": "En una terminal de la máquina que quieres controlar:",
@@ -5876,8 +5864,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "Si vous avez créé le tunnel dans la console Radient, associez-le à l’aide de l’identifiant qu’elle affiche. Cette commande est réservée à un tunnel existant — elle n’en crée pas.",
 		"mobile.computers.setup.attach_label": "Associer",
 		"mobile.computers.setup.attach_title": "Associer un tunnel existant",
-		"mobile.computers.setup.billing_fallback": "Radient indique que ce compte ne peut pas encore démarrer de tunnel. Vérifiez la facturation dans la console, puis réessayez.",
-		"mobile.computers.setup.billing_title": "L’accès à distance n’est pas actif",
 		"mobile.computers.setup.check_again": "Vérifier à nouveau",
 		"mobile.computers.setup.checking": "Vérification…",
 		"mobile.computers.setup.create_help": "Dans un terminal, sur l’ordinateur que vous voulez piloter :",
@@ -6832,8 +6818,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "अगर आपने टनल Radient कंसोल में बनाई है, तो कंसोल में दिखने वाली आईडी से उसे जोड़ें। यह कमांड पहले से मौजूद टनल के लिए है — इससे नई टनल नहीं बनेगी।",
 		"mobile.computers.setup.attach_label": "जोड़ें",
 		"mobile.computers.setup.attach_title": "मौजूदा टनल जोड़ें",
-		"mobile.computers.setup.billing_fallback": "Radient के अनुसार यह खाता अभी टनल शुरू नहीं कर सकता। कंसोल में बिलिंग जाँचें, फिर दोबारा कोशिश करें।",
-		"mobile.computers.setup.billing_title": "रिमोट ऐक्सेस सक्रिय नहीं है",
 		"mobile.computers.setup.check_again": "फिर से जाँचें",
 		"mobile.computers.setup.checking": "जाँच हो रही है…",
 		"mobile.computers.setup.create_help": "जिस कंप्यूटर को आप नियंत्रित करना चाहते हैं, उसके टर्मिनल में:",
@@ -7788,8 +7772,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "Если вы создали туннель в консоли Radient, подключите его по идентификатору, который показывает консоль. Эта команда только для уже существующего туннеля — новый она не создаст.",
 		"mobile.computers.setup.attach_label": "Подключение",
 		"mobile.computers.setup.attach_title": "Подключить существующий туннель",
-		"mobile.computers.setup.billing_fallback": "По данным Radient, этот аккаунт пока не может запустить туннель. Проверьте оплату в консоли Radient и попробуйте снова.",
-		"mobile.computers.setup.billing_title": "Удалённый доступ неактивен",
 		"mobile.computers.setup.check_again": "Проверить снова",
 		"mobile.computers.setup.checking": "Проверка…",
 		"mobile.computers.setup.create_help": "В терминале на компьютере, которым хотите управлять:",
@@ -8744,8 +8726,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "اگر آپ نے ٹنل Radient کنسول میں بنائی تھی، تو کنسول میں دکھائی گئی آئی ڈی سے اسے جوڑیں۔ یہ کمانڈ پہلے سے موجود ٹنل کے لیے ہے — یہ نئی ٹنل نہیں بنائے گی۔",
 		"mobile.computers.setup.attach_label": "جوڑیں",
 		"mobile.computers.setup.attach_title": "پہلے سے موجود ٹنل جوڑیں",
-		"mobile.computers.setup.billing_fallback": "یہ اکاؤنٹ ابھی ٹنل شروع نہیں کر سکتا — Radient نے یہی بتایا ہے۔ Radient کنسول میں بلنگ جانچیں، پھر دوبارہ کوشش کریں۔",
-		"mobile.computers.setup.billing_title": "ریموٹ رسائی فعال نہیں ہے",
 		"mobile.computers.setup.check_again": "دوبارہ جانچیں",
 		"mobile.computers.setup.checking": "جانچ جاری ہے…",
 		"mobile.computers.setup.create_help": "جس کمپیوٹر کو آپ کنٹرول کرنا چاہتے ہیں، اس کے ٹرمینل میں:",
@@ -9700,8 +9680,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "Nếu bạn đã tạo đường hầm trong bảng điều khiển Radient, hãy gắn nó bằng ID mà bảng điều khiển hiển thị. Lệnh này dành cho đường hầm đã có sẵn — nó sẽ không tạo đường hầm mới.",
 		"mobile.computers.setup.attach_label": "Gắn",
 		"mobile.computers.setup.attach_title": "Gắn đường hầm có sẵn",
-		"mobile.computers.setup.billing_fallback": "Radient cho biết tài khoản này chưa thể khởi tạo đường hầm. Hãy kiểm tra thanh toán trong bảng điều khiển Radient rồi thử lại.",
-		"mobile.computers.setup.billing_title": "Truy cập từ xa chưa hoạt động",
 		"mobile.computers.setup.check_again": "Kiểm tra lại",
 		"mobile.computers.setup.checking": "Đang kiểm tra…",
 		"mobile.computers.setup.create_help": "Trong terminal trên máy tính bạn muốn điều khiển:",
@@ -10656,8 +10634,6 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.computers.setup.attach_help": "如果你是在Radient控制台中创建的隧道，请使用控制台显示的ID关联它。此命令仅适用于已存在的隧道——它不会新建隧道。",
 		"mobile.computers.setup.attach_label": "关联",
 		"mobile.computers.setup.attach_title": "关联已有隧道",
-		"mobile.computers.setup.billing_fallback": "Radient表示此账户暂时无法启动隧道。请在控制台中检查账单，然后重试。",
-		"mobile.computers.setup.billing_title": "远程访问未启用",
 		"mobile.computers.setup.check_again": "重新检查",
 		"mobile.computers.setup.checking": "正在检查……",
 		"mobile.computers.setup.create_help": "在你要控制的电脑上打开终端，运行：",
