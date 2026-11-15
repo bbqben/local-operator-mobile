@@ -204,7 +204,7 @@ describe("Retry and keyed labels after the #257 merge", () => {
 			onOpenConsole: () => {},
 			onUseAnotherAddress: () => {},
 		});
-		expect(html).toContain(">Open the Radient console<");
+		expect(html).toContain(">Open the Radient Console<");
 		expect(html).toContain(">Use another address<");
 	});
 

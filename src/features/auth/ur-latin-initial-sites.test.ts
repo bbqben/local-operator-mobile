@@ -272,7 +272,7 @@ describe("Q-02: every Latin-initial ur value in the computers and sign-in namesp
 		);
 	});
 
-	it("RefusalSurface: the Open Radient console button passes labelDir={composedDir}", () => {
+	it("RefusalSurface: the Open Radient Console button passes labelDir={composedDir}", () => {
 		/* M3 S2b-2a ur audit UR-C1: the ur label `Radient کنسول کھولیں` opens with
 		 * the Latin product name, so without a stated base `dir="auto"` lays the
 		 * button label LTR on an RTL page. Same opt-in as the sign-in button above;
@@ -329,7 +329,7 @@ describe("Q-02: every Latin-initial ur value in the computers and sign-in namesp
 			});
 
 		for (const kind of ["console", "tunnel-gone"] as const) {
-			it(`${kind}: the Open Radient console label, headline and next line carry dir=rtl`, () => {
+			it(`${kind}: the Open Radient Console label, headline and next line carry dir=rtl`, () => {
 				const label = renderFor(
 					"mobile.computers.refusal.open_console",
 					{},

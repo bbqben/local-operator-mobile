@@ -1,0 +1,77 @@
+{
+  "locale": "ur",
+  "namespace": "mobile.settings",
+  "audit_id": "rc-s1",
+  "audit_date": "2026-11-15",
+  "key_count": 1,
+  "keys": [
+    "mobile.settings.account.delete_help"
+  ],
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "05d8cefe0aae",
+    "model": "anthropic/claude-opus-5-5",
+    "fallback": null,
+    "actual_model_source": "session system prompt 'Model: anthropic/claude-opus-5-5'; no fallback observed",
+    "independent_from_translator_session": true
+  },
+  "translator_session": "2f307f615240",
+  "input_hashes": {
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/2f307f615240/scratchpad/draft-ur.json",
+      "sha256": "101ee5885f3baff261bc96b73d25422b168095f75d6db0bcb69aa697f73d8197"
+    },
+    "translator_notes": {
+      "path": "/Users/damian/.local-operator/sessions/2f307f615240/scratchpad/notes-ur.md",
+      "sha256": "0b2646672c781eb66a56789951ddc4228b0aacb79d45450bb8940a28c57a9b26"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+      "sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+    },
+    "en_proposal": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+      "sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+    },
+    "glossary": {
+      "path": "git:local-operator@56662d28:i18n/glossary.md",
+      "sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/ur.md",
+      "sha256": "c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60",
+      "last_commit": "4981010c6fb68d2b1f02e08b7cd58a06965e8c33"
+    },
+    "en_override_attach_help": {
+      "text": "If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.",
+      "sha256": "ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519"
+    },
+    "base_ur_catalogue": {
+      "path": "git:local-operator-mobile@0a629e65:src/i18n/catalogues/ur/mobile.settings.json",
+      "sha256": "cbdf1c939a3d47f5e920a837edbe22ba338e21e26ec5c41a90b318919c12a15b"
+    }
+  },
+  "validator_run": false,
+  "validator_not_run_reason": "host-load hold until 20:30Z (Aida, relayed by manager)",
+  "artifacts": {
+    "report.md": {
+      "path": "ur/mobile.settings/rc-s1/report.md",
+      "sha256": "9312a7bfa427efadfd3692cd8f60748f51c8425006789fd58f020562cdaa06e5"
+    },
+    "audit.log": {
+      "path": "ur/mobile.settings/rc-s1/audit.log",
+      "sha256": "5cd3e26c93cab228a25cdba8be5b788f08a465ebccd0448a032b99ead9a304f0"
+    }
+  },
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [],
+    "findings_severity": {}
+  },
+  "audit_notes_not_execution_log": "report.md",
+  "execution_log": "audit.log",
+  "native_rtl_proof": "out of scope; unverified",
+  "ledger_recorded": false,
+  "tracked": false
+}

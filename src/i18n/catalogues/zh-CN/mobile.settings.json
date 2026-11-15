@@ -29,7 +29,7 @@
 	"mobile.settings.about.version": "版本",
 	"mobile.settings.about.blurb": "Local Operator是开源软件（MIT）。智能体会话连接到你的中继。Team Bridge消息和通知注册直接连接到Radient。",
 	"mobile.settings.account.delete": "删除我的Radient账户",
-	"mobile.settings.account.delete_help": "删除账户需在浏览器中的Radient控制台操作，本应用无法代为删除。此操作会删除账户及其所有隧道，不会影响电脑上的会话。",
+	"mobile.settings.account.delete_help": "删除账户需在浏览器中通过Radient Console操作，本应用无法代为删除。此操作会删除账户及其所有隧道，不会影响电脑上的会话。",
 	"mobile.settings.sign_out.title": "退出登录？",
 	"mobile.settings.sign_out.body": "这会结束控制平面上的登录会话，并清除此手机上保存的登录信息，隧道将不再接受此手机的请求。不会影响你的电脑。",
 	"mobile.settings.sign_out.confirm": "退出登录",

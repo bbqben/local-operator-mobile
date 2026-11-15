@@ -1,0 +1,11 @@
+{
+	"record": "record.json",
+	"audit_id": "rc1",
+	"auditor_session": "e6d3e83a2511",
+	"model": "anthropic/claude-opus-5-5",
+	"companions": {
+		"record.json": "ed4e91e7fd15c97fd142440e68e24b13b26bee661f7fea3fdc535b2147f2c05f",
+		"report.md": "4ea373e9e213fb7d6fe055f02974f963f0935cac1fd07963cbeb39dfd6df5e6f",
+		"audit.log": "ac376b180c5370db25a0492a19e6134dfba7e6cb61e1dbc344477f63d2b9484c"
+	}
+}

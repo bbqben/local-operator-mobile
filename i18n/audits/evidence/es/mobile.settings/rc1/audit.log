@@ -1,0 +1,33 @@
+# audit.log es/mobile.settings/rc1 — executed 2026-11-15T11:41:31 by i18n-auditor session e6d3e83a2511 (python3 in lop eval kernel)
+$ sha256 draft /Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json = 8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068; json.loads OK, 15 keys total
+$ sha256 brief = 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec; en-proposal = 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1; notes = 42083c7c2128e9edf91af77984f6947646adde11b66abb86ef1689065d999b5e; style guide es.md = 77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e
+$ git show 0a629e65:src/i18n/catalogues/es/mobile.settings.json sha256=03d6b4dd63f55ec9130ad456a2073242245eccc5e8c36a0ad2c3d7cc4a9c79ce; en sha256=2921d033eaad0782a0234f78824a074b782124cbe6425202dc39e813a61ab730; en context sha256=7168b0f934e140b55a2cf5db9f90b33326b3c799a326bcd42c81b1d953086bc4; es@240e0826 sha256=03d6b4dd63f55ec9130ad456a2073242245eccc5e8c36a0ad2c3d7cc4a9c79ce
+KEYSET brief=1 draft=1 equal=True; all present in es catalogue=True; in en catalogue=True
+mobile.settings.account.delete_help: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=True ordenador/computadora=[] emdash_spaced=True len=199 en_len=191 draft_sha256=e3ac1e9a8924cf6b8a09c9c46ffbf244df7ad5d5f6b299d90cde43c9f11323ae -> OK
+SUMMARY mobile.settings: keys=1 mechanical_fail=0; redaction marker hits in group values=0 expected; repo validator `npm run -s i18n:check` NOT run (needs applying draft to the mobile working tree; read-only brief) — lane owner runs it on apply
+
+# precedent / terminology probes (executed)
+$ git -C ~/local-operator grep -n 'Radient Console' origin/main -- 'local_operator/i18n/catalogues/es/*.json'
+origin/main:local_operator/i18n/catalogues/es/wire.errors.media.json:8:  "wire.errors.media.speech_radient_credit_low": "Tu saldo de créditos de Radient es insuficiente para la voz. Añade créditos en Radient Console para continuar.",
+$ git -C ~/local-operator-ui grep -c 'plan Radient Team' origin/main -- 'src/i18n/catalogues/es/*.json'
+origin/main:src/i18n/catalogues/es/ui.agents.publication.json:3
+origin/main:src/i18n/catalogues/es/ui.agents.upload.json:1
+origin/main:src/i18n/catalogues/es/ui.hub.pages.json:2
+origin/main:src/i18n/catalogues/es/ui.hub.teams.json:2
+origin/main:src/i18n/catalogues/es/ui.settings.account.json:1
+origin/main:src/i18n/catalogues/es/ui.teamBridge.json:3
+origin/main:src/i18n/catalogues/es/ui.teamBridgeTrial.json:7
+$ git -C ~/local-operator-ui grep -n -E '"ui\.console\.(pane\.label|new)"' origin/main -- src/i18n/catalogues/es/
+origin/main:src/i18n/catalogues/es/ui.console.json:38:	"ui.console.new": "Nueva consola",
+origin/main:src/i18n/catalogues/es/ui.console.json:42:	"ui.console.pane.label": "Consola",
+$ for f in $(git -C ~/local-operator-mobile ls-tree --name-only 0a629e65f696cbd54e782f4d762d45a4d37c1b81 src/i18n/catalogues/es/); do git -C ~/local-operator-mobile show 0a629e65f696cbd54e782f4d762d45a4d37c1b81:$f | grep -i consola | grep -v -i 'consola de Radient' ; done | wc -l
+0
+$ git -C ~/local-operator-mobile show 0a629e65f696cbd54e782f4d762d45a4d37c1b81:src/i18n/catalogues/es/mobile.computers.json | grep -n -E 'Local Operator' | head -3
+20:	"mobile.computers.harness_help": "En la consola de Radient, activa Local Operator para este túnel.",
+47:	"mobile.computers.not_harness": "Esta máquina no ejecuta el harness de Local Operator.",
+133:	"mobile.computers.own_tunnel.verdict_local_network_ios": "No respondió nada en esa dirección dentro de esta red. Comprueba que la máquina no está en reposo y que ejecuta el relé. Si ambas cosas se cumplen, puede deberse al permiso de red local: permite Local Operator en Ajustes → Privacidad y seguridad → Red local y después toca “{action}”.",
+
+# glossary re-check (executed 2026-11-15T11:47:01) after core PR #4053 merge 56662d28
+$ git -C ~/local-operator rev-parse 56662d28:i18n/glossary.md -> e3cdd40c909fb4bf515fc88abf57d7a85735a8e2
+$ git -C ~/local-operator show 56662d28:i18n/glossary.md | sha256 -> 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7
+glossary rule line 24: | Radient Console | keep as-is — the full product name in every app and locale; capital `R` and `C`, with one internal ASCII space (`U+0020`) |

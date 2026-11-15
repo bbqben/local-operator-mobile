@@ -1,0 +1,88 @@
+{
+	"schema": 1,
+	"audit_id": "zhrc-set",
+	"audit_kind": "brand_slice_translation_audit",
+	"locale": "zh-CN",
+	"namespace": "mobile.settings",
+	"slice": "mobile Radient Console brand slice (15 keys total; this bundle covers this namespace)",
+	"audit_date": "2026-11-15",
+	"key_count": {
+		"en": 1,
+		"target": 1
+	},
+	"keys": [
+		"mobile.settings.account.delete_help"
+	],
+	"auditor": {
+		"agent": "i18n-auditor",
+		"session": "892a29d53eba",
+		"model": "anthropic/claude-opus-5-5",
+		"actual_model_source": "session system-prompt header (Model: anthropic/claude-opus-5-5); no role pin, no fallback used or attempted",
+		"fallback": null,
+		"independent_from_translator_session": true
+	},
+	"translator": {
+		"session": "5a50d6607347"
+	},
+	"input_hashes": {
+		"draft": {
+			"path": "/Users/damian/.local-operator/sessions/5a50d6607347/scratchpad/draft-zh-CN.json",
+			"sha256": "e81c22873482cde52d96e854e4b4fde8c99cc5725bb489e19057496d131a0492"
+		},
+		"translator_notes": {
+			"path": "/Users/damian/.local-operator/sessions/5a50d6607347/scratchpad/notes-zh-CN.md",
+			"sha256": "0d7eb5a8ced7a32fee9dfb8f84cd70b8ee6156ac05813ac34b969adaab2f3ca9"
+		},
+		"brief": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+			"sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+		},
+		"en_proposal": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+			"sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+		},
+		"en_attach_help_override": {
+			"path": "manager task brief (ENGLISH OVERRIDE text)",
+			"sha256": "ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519"
+		},
+		"glossary": {
+			"path": "~/local-operator@56662d28:i18n/glossary.md",
+			"sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+		},
+		"style_guide": {
+			"path": "~/local-operator@633c9bbd:i18n/style-guides/zh-CN.md",
+			"sha256": "615a126a8dbff72c52875a56aa80728f8af858764ef4974e1f74192589b830b6"
+		},
+		"zh_current:mobile.settings": {
+			"path": "~/local-operator-mobile@0a629e65:src/i18n/catalogues/zh-CN/mobile.settings.json",
+			"sha256": "95d17b214581030f12502e4ff841afafc96879adb052e16eb5be739df6cd7098"
+		},
+		"en_context:mobile.settings": {
+			"path": "~/local-operator-mobile@0a629e65:src/i18n/catalogues/en/mobile.settings.context.json",
+			"sha256": "7168b0f934e140b55a2cf5db9f90b33326b3c799a326bcd42c81b1d953086bc4"
+		}
+	},
+	"artifacts": {
+		"report.md": "e89dd08a9b69441141bce9d6586a7edc1cb0750807ff95360f9a5016014a3c45",
+		"audit.log": "1f161e0291171c3baa6730725a8aa93ca514c9ffffe6000397b2e74c39a5adc1",
+		"record.json": "self"
+	},
+	"audit_log_kind": "actual execution log (stdout of audit_zhcn_rc.py, run once 2026-11-15; shared across the four namespace bundles)",
+	"current_report_verdict": {
+		"status": "passed",
+		"unresolved_blocker_major_count": 0,
+		"severity_counts": {
+			"BLOCKER": 0,
+			"MAJOR": 0,
+			"MINOR": 0,
+			"NIT": 0
+		},
+		"finding_ids": []
+	},
+	"ledger": "not written — task brief: no edits, no commits",
+	"not_claimed": [
+		"rendered-frame check",
+		"native human review",
+		"ledger row"
+	]
+}

@@ -2038,7 +2038,19 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (#271 remote-session view + #270 S4 catalogues), so it matches neither
 	 * parent. Re-derived with --print over the merged tree (run twice, stable).
 	 * Source identity only, NOT new rendered U-08 evidence. */
-	src: "1ff961182808aa17f0d2a4174e570f1264cb808fa94a6625b0f3c8aa85415e0c",
+	/* Radient Console brand slice: 15 audited keys in all 8 locales (exact
+	 * product name, glossary rule), their generated projection and the 6
+	 * tests pinning the English text. Derived LAST from the treeDigest
+	 * contract by an independent reader over the staged tree's git objects
+	 * (not --print); the same reader reproduced the previous pin from the
+	 * base tree as a control. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (#273, c7821fc7) into #271: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides
+	 * (#271 remote-session view + #273 Radient Console copy), so it matches
+	 * neither parent. Re-derived with --print over the merged tree (run twice,
+	 * stable). Source identity only, NOT new rendered U-08 evidence. */
+	src: "c4df74ae1185272165d7ea77772c937f4742966418a35a94c4533999a52347bc",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

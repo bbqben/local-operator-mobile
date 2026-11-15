@@ -1,0 +1,72 @@
+{
+ "locale": "ru",
+ "namespace": "mobile.team_bridge",
+ "audit_id": "rcru1",
+ "audit_date": "2026-11-15",
+ "key_count": 2,
+ "keys": [
+  "mobile.team_bridge.gate.console_error",
+  "mobile.team_bridge.gate.manage_plan"
+ ],
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "89755f432f12",
+  "model": "anthropic/claude-opus-5-5",
+  "fallback": null,
+  "independent_from_translator_session": "0efdae46218c",
+  "actual_model_source": "harness system prompt \"Model:\" line for this session; no fallback notice observed"
+ },
+ "english_override": null,
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/0efdae46218c/scratchpad/draft-ru.json",
+   "sha256": "72f401e4c774663cba7ba0cfcdcb83cc32e2bb6e77a8193e48aabca12e2cf5e1"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/0efdae46218c/scratchpad/notes-ru.md",
+   "sha256": "1d49db12c87d181ea16752b53f172a99721706849b0b2b14de4db37795edd9b1"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+   "sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+  },
+  "en_proposal": {
+   "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+   "sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+  },
+  "glossary": {
+   "path": "git:~/local-operator@56662d28:i18n/glossary.md",
+   "sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+  },
+  "style_guide": {
+   "path": "/Users/damian/local-operator/i18n/style-guides/ru.md",
+   "sha256": "f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5"
+  },
+  "ru_base_mobile.team_bridge": {
+   "path": "git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/ru/mobile.team_bridge.json",
+   "sha256": "35a88af343f67e8fbda0f47ef79fde44969cfe61035d2c40aa50cd355370bb55"
+  }
+ },
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "5b4716649706d1b9e13e02ad2b58cdddf060676d01f3c73accfcd1881a0af386"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "aa6ff7bc4a911dedfe92f6e3b1c5980ff0d43de6ce27c51a9c044ea5a804e7cc",
+   "kind": "execution_log"
+  },
+  "check_script": {
+   "path": "/Users/damian/.local-operator/sessions/89755f432f12/scratchpad/work/mech.py",
+   "sha256": "771d02874ff8944122f69d14f5d58e8496045016cda4734df1e45a4eb49b0ef3"
+  }
+ },
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "ledger": "not written — brief: no edits, no commits; manager records the row on landing",
+ "mt_service_used": false
+}

@@ -1,0 +1,154 @@
+# audit.log — execution log, fr Radient Console slice, group mobile.team_bridge, audit frrc1t
+# auditor session 346298b3099b; generated 2026-11-15T16:39:27Z; every block below is a command actually run and its captured output
+
+$ python3 tools/fr_checks.py team_bridge   # sha256 of inputs, key set, placeholders, markup, brand count, residual console noun, article/possessive, quotes, NFC, U+202F, em dash, redaction-marker scan, delta vs current
+sha256 67dec846a15ce76375ac5ec569ea0a00728e083c04c0e9f82641b1bfde610da2 /Users/damian/.local-operator/sessions/286d1946e740/scratchpad/draft-fr.json
+sha256 f6a868f4532d3254dceb22b7d79cd6e86ba4ca3645f730c96eb6d2c8a74b2f9f /Users/damian/.local-operator/sessions/286d1946e740/scratchpad/notes-fr.md
+sha256 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec /Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json
+sha256 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1 /Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json
+sha256 ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226 /Users/damian/local-operator/i18n/style-guides/fr.md
+group team_bridge catalogue src/i18n/catalogues/fr/mobile.team_bridge.json keys 2
+draft keys total 15 == brief keys True
+--- mobile.team_bridge.gate.console_error
+  draft sha256 117fa3b2c857c3aea7eaaceb59525458cffeaf1f60d3244c3601972f97606e6a len 36
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : Could not open the Radient Console.
+  CUR: Impossible d’ouvrir la console Radient.
+  NEW: Impossible d’ouvrir Radient Console.
+--- mobile.team_bridge.gate.manage_plan
+  draft sha256 5cbdd459a0013e02da033f45ec944b2fe84c7b1010e061217a9ed2f52903ad27 len 40
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : Manage your plan in the Radient Console
+  CUR: Gérez votre forfait dans la console Radient
+  NEW: Gérez votre forfait dans Radient Console
+RESULT team_bridge fails 0
+
+$ cat tools/fr_checks.py | shasum -a 256
+a94aac073902b4df09ffb4b70f63481379572cb853465848de3a168d7302383d  tools/fr_checks.py
+
+$ tools/validator.sh + regenerate/--check (repo validator scripts/i18n/generate.ts on git-archive copy of local-operator-mobile@0a629e65, all 15 draft keys applied; run once for the slice, log reproduced in each group bundle)
+== control: unmodified archive
+src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+(node:76291) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/346298b3099b/scratchpad/mobile-0a629e65/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/.local-operator/sessions/346298b3099b/scratchpad/mobile-0a629e65/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit 0
+applied 8 keys to mobile.computers total keys 192
+applied 4 keys to mobile.refusal total keys 42
+applied 1 keys to mobile.settings total keys 80
+applied 2 keys to mobile.team_bridge total keys 159
+== draft applied
+/Users/damian/.local-operator/sessions/346298b3099b/scratchpad/mobile-0a629e65/src/i18n/catalogue.gen.ts is stale; run `node scripts/i18n/generate.ts`
+exit 1
+== regenerate in archive copy (draft applied)
+Wrote src/i18n/catalogue.gen.ts (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+exit 0
+== --check after regenerate
+src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+exit 0
+
+$ consistency scan (fr catalogues @0a629e65 with draft applied; en context width hints)
+== fr catalogue scan after applying draft: residual console/Radient mentions outside slice
+"mobile.computers.section.not_connected": "Sur votre compte Radient, non connectés"
+"mobile.computers.account_mismatch": "Cet ordinateur appartient à un autre compte Radient ou a été supprimé."
+"mobile.computers.transport.radient": "Radient"
+"mobile.computers.wait.listing": "En attendant que Radient liste votre ordinateur…"
+"mobile.computers.wait.tunnel_status": "Radient dispose du tunnel — {status}."
+"mobile.computers.paths.radient_title": "Se connecter avec Radient"
+"mobile.computers.paths.radient_body": "Nécessite un compte Radient. Radient gère le tunnel pour vous et vous fournit une URL privée et authentifiée : il n’y a donc rien à configurer sur ce téléphone, et aucun mot de passe de relais à conserver."
+"mobile.computers.paths.own_body": "Le parcours avancé : vous publiez vous-même votre ordinateur via un tunnel que vous exploitez, puis vous collez l’adresse de ce tunnel ici. Aucun compte Radient n’est nécessaire à aucun moment, et vous gardez le mot de passe."
+"mobile.computers.banner.unreachable_stale": "Impossible de joindre Radient : cette liste n’est peut-être plus à jour."
+"mobile.computers.banner.unreachable_empty": "Impossible de joindre Radient pour lister vos ordinateurs. Vérifiez la connexion de cet appareil."
+"mobile.computers.banner.unreadable_stale": "La réponse de Radient est illisible : cette liste n’est peut-être plus à jour."
+"mobile.computers.banner.unreadable_empty": "La réponse de Radient est illisible : impossible de lister vos ordinateurs."
+"mobile.computers.own_tunnel.intro": "Rien de tout cela ne nécessite de compte Radient. Vous publiez le relais sur votre propre ordinateur via un tunnel que vous contrôlez, et l’app s’y connecte à l’adresse que vous collez ci-dessous."
+"mobile.computers.setup.address_help": "Si votre relais est joignable à une URL que vous connaissez déjà, connectez-vous-y avec le mot de passe propre au relais. C’est la marche à suivre pour une machine qui n’utilise pas du tout Radient."
+"mobile.computers.setup.open_settings": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone → Configurer l’accès depuis un téléphone."
+"mobile.computers.hint.radient_unreachable": "Impossible de joindre Radient pour le moment"
+"mobile.computers.refusal.console_title": "{subject} nécessite une intervention dans Radient."
+"mobile.computers.refusal.sign_in_title": "Votre session Radient a expiré. Reconnectez-vous pour accéder à {subject}."
+"mobile.computers.refusal.tunnel_gone_next": "Créez un nouveau tunnel dans Radient, puis ajoutez cet ordinateur."
+"mobile.notifications.preferences.previews_note_android": "Transmis via Radient et Google jusqu’à ce téléphone."
+"mobile.notifications.preferences.previews_note_ios": "Transmis via Radient et Apple jusqu’à ce téléphone."
+"mobile.refusal.phone_access_off.title": "L’accès depuis un téléphone n’est pas encore activé pour votre compte Radient."
+"mobile.refusal.balance_out.title": "Votre solde Radient est épuisé."
+"mobile.refusal.suspended.title": "Radient a mis en pause l’accès depuis un téléphone à {computer}."
+"mobile.refusal.provisioning.title": "Radient est encore en train de configurer cet ordinateur."
+"mobile.refusal.refused.title": "Radient n’autorise pas l’accès depuis un téléphone à {computer} pour le moment."
+"mobile.refusal.tunnel_gone.body": "Activez-le dans Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone."
+"mobile.refusal.radient_unreachable.title": "Radient ne répond pas pour le moment."
+"mobile.refusal.action.open_billing": "Ouvrir la facturation Radient"
+"mobile.refusal.how_to.body": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone et choisissez « Configurer l’accès depuis un téléphone ». Le prix s’affiche d’abord, avant toute activation."
+"mobile.refusal.wait_network.title": "{computer} ne parvient pas à joindre Radient pour le moment."
+"mobile.refusal.computer_sign_in.title": "Local Operator sur {computer} a besoin que vous vous reconnectiez à Radient."
+"mobile.settings.about.blurb": "Local Operator est open source (MIT). Les sessions d’agents se connectent à votre relais. Les messages Team Bridge et l’inscription aux notifications se connectent directement à Radient."
+"mobile.settings.account.delete": "Supprimer mon compte Radient"
+"mobile.settings.diagnostics.route_radient": "Tunnel Radient"
+"mobile.settings.account.not_signed_in": "Non connecté à Radient"
+"mobile.settings.account.route_radient": "Via votre tunnel Radient"
+"mobile.settings.account.signed_in_radient": "Connecté avec Radient"
+"mobile.settings.sign_in_confirm.title": "Se connecter avec Radient ?"
+"mobile.settings.sign_in_confirm.body": "Cela met d’abord fin à votre connexion actuelle. Si vous interrompez la connexion à Radient avant la fin, vous devrez vous reconnecter à votre ordinateur."
+"mobile.signin.start": "Se connecter avec Radient"
+"mobile.signin.panel.unavailable": "Cette version de l’app ne peut pas terminer une connexion Radient."
+"mobile.signin.panel.unavailable_detail": "La connexion avec Radient nécessite un écouteur local ({module}), absent de cette version."
+"mobile.team_bridge.attachment.refused": "Radient ne peut pas accepter cette image. Retirez-la."
+"mobile.team_bridge.error.http_status": "Radient a refusé la requête (HTTP {status})."
+"mobile.team_bridge.gate.connecting": "Connexion à Radient. Votre ordinateur peut rester fermé."
+"mobile.team_bridge.gate.plan_required": "Team Bridge nécessite un forfait Radient Team"
+== Local Operator article usage in fr
+   2 y": "Ouvrez Local Operator
+   2 eur, ouvrez Local Operator
+   2 ed.title": "Local Operator
+   2  récente de Local Operator
+   1 érifiez que Local Operator
+   1 z-le depuis Local Operator
+   1 vez-le dans Local Operator
+   1 ut.blurb": "Local Operator
+   1 ure, ouvrez Local Operator
+   1 ttez à jour Local Operator
+   1 s la TUI de Local Operator
+   1 orted": "Le Local Operator
+== en context maxCells for slice keys
+mobile.computers.billing_help {'role': 'help'}
+mobile.computers.disabled_help {'role': 'help'}
+mobile.computers.harness_help {'role': 'help'}
+mobile.computers.setup.amount_note {'role': 'help'}
+mobile.computers.setup.attach_help {'role': 'help'}
+mobile.computers.route_invalid.not_radient {'role': 'help'}
+mobile.computers.refusal.console_next {'role': 'help'}
+mobile.computers.refusal.open_console {'role': 'button'}
+mobile.refusal.console_disabled.title {'role': 'heading'}
+mobile.refusal.refused.body {'role': 'help'}
+mobile.refusal.action.open_console {'role': 'button'}
+mobile.refusal.open_console.title {'role': 'heading'}
+mobile.team_bridge.gate.console_error {'role': 'status'}
+mobile.team_bridge.gate.manage_plan {'role': 'help'}
+mobile.settings.account.delete_help {'role': 'help'}

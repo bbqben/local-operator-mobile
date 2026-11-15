@@ -499,7 +499,7 @@ describe("copy promises no retry the phone does not make (PR #261 D1/U1/D4)", ()
 			copyOf(503, JSON.stringify({ detail: "d", reason: "tunnel_disabled" }))
 				?.title,
 		).toBe(
-			"Phone access for Studio Mac is turned off in your Radient console.",
+			"Phone access for Studio Mac is turned off in your Radient Console.",
 		);
 	});
 	it("asleep allows for Local Operator not running (U8)", () => {

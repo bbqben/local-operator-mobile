@@ -1,0 +1,81 @@
+{
+  "audit_id": "hirc-c1",
+  "locale": "hi",
+  "namespace": "mobile.computers",
+  "slice": "mobile Radient Console brand (15 keys total)",
+  "audit_date": "2026-11-15",
+  "key_count": 8,
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "f56acc09bfb2",
+    "model": "anthropic/claude-opus-5-5",
+    "fallback": null,
+    "actual_model_source": "session system prompt \"Model: anthropic/claude-opus-5-5\"; no fallback incident observed",
+    "independent_from_translator_session": true
+  },
+  "translator_session": "38593fddf9a8",
+  "input_hashes": {
+    "draft_hi": {
+      "path": "/Users/damian/.local-operator/sessions/38593fddf9a8/scratchpad/draft-hi.json",
+      "sha256": "5db3adc13b96f319e1fea53c1ef43a828ffe66e90111c1e1467f225b65cdcfc7"
+    },
+    "translator_notes": {
+      "path": "/Users/damian/.local-operator/sessions/38593fddf9a8/scratchpad/notes-hi.md",
+      "sha256": "6892c3a510870fa5f802a4ef4c50382ccbdd2114b74399f348c304975d422e36"
+    },
+    "en": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+      "sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1",
+      "note": "proposed_en per key; attach_help uses the manager ENGLISH OVERRIDE below"
+    },
+    "en_override_attach_help": {
+      "text": "If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.",
+      "sha256": "ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519"
+    },
+    "context": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json#keys[].proposed_context",
+      "sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+      "sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+    },
+    "glossary": {
+      "path": "local-operator@56662d28:i18n/glossary.md",
+      "sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/hi.md (working tree, read-only)",
+      "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+    },
+    "target_base": {
+      "path": "local-operator-mobile@0a629e65:src/i18n/catalogues/hi/mobile.computers.json",
+      "sha256": "da541345ddebca04828b461257f54221c075302222ca4f7db46cac9ab89645c7"
+    }
+  },
+  "artifacts": {
+    "report.md": {
+      "path": "/Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi/mobile.computers/hirc-c1/report.md",
+      "sha256": "c5a3c24057cef81f47d2c9e8ef84842ffc1f50922cf507bb3d9a912feb06cfbe"
+    },
+    "audit.log": {
+      "path": "/Users/damian/.local-operator/sessions/f56acc09bfb2/scratchpad/hi/mobile.computers/hirc-c1/audit.log",
+      "sha256": "34f73c0ce49a41796e515f1eeecb0cb7993bbbc993f233706541c707d3bd731d"
+    }
+  },
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "mt_service_used": false,
+  "ledger": "not written — task says no edits/commits; proposed ledger note in report to manager",
+  "audit_notes_not_execution_log": "report.md is judgement; audit.log is captured command output",
+  "host_load_hold": "Hold to 20:30Z received after the validator had already run at 17:49:31Z; no heavy runs after it. Validator re-run deferred to CI/post-hold.",
+  "later_draft_note": {
+    "date": "2026-11-15",
+    "draft_sha256": "6ca13b85cba127a78837f2623d7bdf4905186ea7612a7b77b29aaf87bccab738",
+    "this_namespace_values_byte_identical": true,
+    "verdict_unchanged": true
+  }
+}

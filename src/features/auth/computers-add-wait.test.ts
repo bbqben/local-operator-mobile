@@ -355,7 +355,7 @@ describe("adding a computer over a populated list finds the new one (R3-M1/U17)"
 });
 
 describe("a console-side refusal on Computers offers the console (QA round 3, Q7)", () => {
-	it("passes Open the Radient console, as Settings does", async () => {
+	it("passes Open the Radient Console, as Settings does", async () => {
 		host.params = {};
 		host.refusal = { kind: "console", subject: "Old Mac" };
 		await render();

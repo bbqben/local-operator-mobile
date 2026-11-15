@@ -1,0 +1,161 @@
+{
+	"schema": 1,
+	"audit_id": "frrc1c",
+	"audit_kind": "delta_translation_audit",
+	"locale": "fr",
+	"namespace": "mobile.computers (Radient Console brand slice, 8 of 15 keys)",
+	"audit_date": "2026-11-15",
+	"key_count": {
+		"en": 8,
+		"target": 8
+	},
+	"keys": [
+		"mobile.computers.billing_help",
+		"mobile.computers.disabled_help",
+		"mobile.computers.harness_help",
+		"mobile.computers.refusal.console_next",
+		"mobile.computers.refusal.open_console",
+		"mobile.computers.route_invalid.not_radient",
+		"mobile.computers.setup.amount_note",
+		"mobile.computers.setup.attach_help"
+	],
+	"auditor": {
+		"agent": "i18n-auditor",
+		"session": "346298b3099b",
+		"model": "anthropic/claude-opus-5-5",
+		"actual_model_source": "session runtime model stated by the harness system prompt for this session; no fallback observed, no role/model pin change",
+		"fallback": null,
+		"independent_from_translator_session": true
+	},
+	"translator": {
+		"agent": "i18n-translator",
+		"session": "286d1946e740"
+	},
+	"base_ref": "0a629e65f696cbd54e782f4d762d45a4d37c1b81",
+	"input_hashes": {
+		"draft": {
+			"path": "/Users/damian/.local-operator/sessions/286d1946e740/scratchpad/draft-fr.json",
+			"sha256": "67dec846a15ce76375ac5ec569ea0a00728e083c04c0e9f82641b1bfde610da2"
+		},
+		"translator_notes": {
+			"path": "/Users/damian/.local-operator/sessions/286d1946e740/scratchpad/notes-fr.md",
+			"sha256": "f6a868f4532d3254dceb22b7d79cd6e86ba4ca3645f730c96eb6d2c8a74b2f9f"
+		},
+		"brief_with_en_context": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+			"sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+		},
+		"en": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+			"sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+		},
+		"style_guide": {
+			"path": "~/local-operator/i18n/style-guides/fr.md",
+			"sha256": "ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226",
+			"last_commit": "4981010c6fb68d2b1f02e08b7cd58a06965e8c33"
+		},
+		"per_key": {
+			"mobile.computers.billing_help": {
+				"en_proposed_sha256": "83e55568be4e1cbf90c114aa569c6aa7e4f3b6dc168935b550485e91f29d099d",
+				"en_context_proposed_sha256": "52f80e67f6ab872bcee79dc777171e4d8b62095a0be025a76cece17640b010f3",
+				"fr_current_sha256": "f0b95ce5194169bba6312a1b8b91dbb87691edfb570738e0879f2bd917393d6f",
+				"fr_draft_sha256": "1d25d0deee829aca15dc8303fb6756fadbdfce79df1fcf984e83e3f2b39259d5"
+			},
+			"mobile.computers.disabled_help": {
+				"en_proposed_sha256": "cacbcba1484c6ea871d7555168d41d45a4660012a71e93b51ce71a2cd0740300",
+				"en_context_proposed_sha256": "52f80e67f6ab872bcee79dc777171e4d8b62095a0be025a76cece17640b010f3",
+				"fr_current_sha256": "cdc9c89b6dd7d8056176e03aead424588f193bc61fe4b64c346ea9864f084c6d",
+				"fr_draft_sha256": "800ff0cb04bf192aaef3219ec7be061990ec130e57c8f718a7663fe96638234d"
+			},
+			"mobile.computers.harness_help": {
+				"en_proposed_sha256": "5ad61841943781834b5ef08f7ab64cc439b45bc11c00273b61d69014c2e05103",
+				"en_context_proposed_sha256": "52f80e67f6ab872bcee79dc777171e4d8b62095a0be025a76cece17640b010f3",
+				"fr_current_sha256": "0de3cccc8a3602826c35d8f034121a0c72e032b97895f6182fc47c91552da2ee",
+				"fr_draft_sha256": "50b5e56c1660ccfc604e81a7461cb6b3f0da34d35736f951a13e77ca9355e072"
+			},
+			"mobile.computers.refusal.console_next": {
+				"en_proposed_sha256": "1bcc276c093fccd0c874038d5f1c410c2a07d4603740865893c91a6232fe3519",
+				"en_context_proposed_sha256": "4740e7793bcaadfcae53c93b9b54a07eed44b62304fe6691e43bbc27d7847990",
+				"fr_current_sha256": "da3a3f33847929fff6370f6b56dc735096eabc97dbbc68fd502174d1f9f31386",
+				"fr_draft_sha256": "ce76d01eaf018a5fc1c8771068b287afa761452ad3b23d4bb5f528350f668715"
+			},
+			"mobile.computers.refusal.open_console": {
+				"en_proposed_sha256": "e91942f6d7b00afab9cd4b8e6a2867c995976e5817416e71fe1736a622a9686e",
+				"en_context_proposed_sha256": "bc19af5727d20549f9600f2d0f8f6f3d18924dd066c160f1c55e36b74a6ec5bd",
+				"fr_current_sha256": "f8d4f92a5b8e7bfc0bf4682bb5900a7f825d42b17d5a4c5591211ff996bdd3ea",
+				"fr_draft_sha256": "93a6e0403c12ecbe9602204b13b6cf5008766ccd0e50aa686649bb3d998c5721"
+			},
+			"mobile.computers.route_invalid.not_radient": {
+				"en_proposed_sha256": "58d3574eeb1fc1d24a640e55b1aefd0de4929ec11401bcbd07c009be5d573c8a",
+				"en_context_proposed_sha256": "7e41acb4d0a1033a7fddd0e8679a973117c773306527df932280774d44e4ed63",
+				"fr_current_sha256": "cee65bf09c7ebd6956607c9b2e79bba57ddad30c3da844e43cefe663405e7b10",
+				"fr_draft_sha256": "fced8a83f79272a379a8536e04f3c954512cff151715bcf6739f7f6fd6d1102b"
+			},
+			"mobile.computers.setup.amount_note": {
+				"en_proposed_sha256": "61160c119a283b8d28649662ab27b2bb1cef0454e3677684260983aebd0625b7",
+				"en_context_proposed_sha256": "a641d8dc594382d48a542d5e39a77b8156062056403577fccb4fcc4b97d51bfc",
+				"fr_current_sha256": "127039571f8904402cb4c5a583698584e8ed7133fa3ff89eed1f86a2906f9a8f",
+				"fr_draft_sha256": "70d7846846addd3a31043565140b5f76e2c8b23ccbbaa46eab7848817415aaa5"
+			},
+			"mobile.computers.setup.attach_help": {
+				"en_proposed_sha256": "5ae8b4ec34575fb4837c98ed07453927277d7b8667449ed1abc72648629e2109",
+				"en_context_proposed_sha256": "ad9eae7b5d40170f48eb4f408c8190096c69494164d91c3e5b25f69f3b5c1b6c",
+				"fr_current_sha256": "7db86663a0fba3a6618988529e4d79ae4eab65de688b80892b77c34fbba8bfc7",
+				"fr_draft_sha256": "333f5c64495874606540825477318d56b25e3c6ad60a7d8adb3d6ac187202404",
+				"en_current_audited_sha256": "ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519"
+			}
+		}
+	},
+	"artifacts": {
+		"report.md": "0006335393a0757b20d938171dce7bb4523d1695a08f0a46c3eac4f27b49e6c9",
+		"audit.log": "1f575e3be8581dbbea65c99d693ffe95ba6f17d4d84fa102f1c05194b2eea7b1",
+		"tools/attach_r2.py (scratchpad, not in bundle)": "1e307375e29e5ccc01b2be34d1b70385da2d6fe0247c413296211e9d54da9da2"
+	},
+	"current_report_verdict": {
+		"status": "passed",
+		"unresolved_blocker_major_count": 0,
+		"severity_counts": {
+			"BLOCKER": 0,
+			"MAJOR": 0,
+			"MINOR": 0,
+			"NIT": 0
+		},
+		"finding_ids": []
+	},
+	"audit_notes_not_execution_log": "report.md is auditor judgement; audit.log is the captured execution log of the checks and repo validator run.",
+	"original_lost_evidence": null,
+	"provenance_note": "Bundle written in auditor scratchpad for the lane owner to commit verbatim; nothing committed, no draft edits, no writes to local-operator-mobile (validator ran on a git-archive copy).",
+	"history": [
+		{
+			"rev": 2,
+			"date": "2026-11-15",
+			"kind": "addendum_en_revision",
+			"key": "mobile.computers.setup.attach_help",
+			"reason": "lane owner revised EN to drop generic back-reference per canonical glossary local-operator 56662d28 (PR #4053)",
+			"inputs": {
+				"en_revised": {
+					"value": "If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.",
+					"sha256": "ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519",
+					"source": "lane owner instruction (manager relay), not yet in en-proposal.json"
+				},
+				"en_superseded_sha256": "5ae8b4ec34575fb4837c98ed07453927277d7b8667449ed1abc72648629e2109",
+				"glossary": {
+					"path": "local-operator@56662d28:i18n/glossary.md",
+					"sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+				},
+				"draft": {
+					"sha256": "67dec846a15ce76375ac5ec569ea0a00728e083c04c0e9f82641b1bfde610da2",
+					"value_sha256": "333f5c64495874606540825477318d56b25e3c6ad60a7d8adb3d6ac187202404",
+					"changed": false
+				}
+			},
+			"result": "no finding; fr « qui y est affiché » = EN “shown there”; group verdict unchanged (passed)",
+			"auditor": {
+				"agent": "i18n-auditor",
+				"session": "346298b3099b",
+				"model": "anthropic/claude-opus-5-5",
+				"fallback": null
+			}
+		}
+	]
+}

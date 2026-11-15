@@ -1,0 +1,116 @@
+{
+	"schema": 1,
+	"audit_id": "rc1",
+	"audit_kind": "initial_translation_audit",
+	"locale": "es",
+	"namespace": "mobile.refusal",
+	"slice": "mobile Radient Console brand slice (15 keys total; this group 4)",
+	"audit_date": "2026-11-15",
+	"key_count": {
+		"en": 4,
+		"target": 4
+	},
+	"keys": [
+		"mobile.refusal.action.open_console",
+		"mobile.refusal.console_disabled.title",
+		"mobile.refusal.open_console.title",
+		"mobile.refusal.refused.body"
+	],
+	"auditor": {
+		"agent": "i18n-auditor",
+		"session": "e6d3e83a2511",
+		"model": "anthropic/claude-opus-5-5",
+		"actual_model_source": "session system-prompt model header (anthropic/claude-opus-5-5); no fallback used; no role/default pin changed",
+		"fallback": null,
+		"independent_from_translator_session": true
+	},
+	"translator": {
+		"agent": "i18n-translator",
+		"session": "cf7c1f3dd00f"
+	},
+	"base_refs": {
+		"values_ref": "0a629e65f696cbd54e782f4d762d45a4d37c1b81",
+		"rebase_ref_pr270_head": "240e08266d6ba9fcb9d23eaed7068345995803ae"
+	},
+	"input_hashes": {
+		"draft": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json",
+			"sha256": "8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068"
+		},
+		"translator_notes": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/notes-es.md",
+			"sha256": "42083c7c2128e9edf91af77984f6947646adde11b66abb86ef1689065d999b5e"
+		},
+		"brief": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+			"sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+		},
+		"en_proposal": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+			"sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+		},
+		"style_guide": {
+			"path": "~/local-operator/i18n/style-guides/es.md",
+			"sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+		},
+		"en": {
+			"path": "0a629e65:src/i18n/catalogues/en/mobile.refusal.json",
+			"sha256": "cb226414bcdec74f902816d2c2a9ffe26cbc3193dd23b8ad7a3f4b2c789c4f75"
+		},
+		"context": {
+			"path": "0a629e65:src/i18n/catalogues/en/mobile.refusal.context.json",
+			"sha256": "e42f1cd6b76b1c9a4eff338ef94f7fed2dc60d2847f9d983e88b820646a01276"
+		},
+		"es_current": {
+			"path": "0a629e65:src/i18n/catalogues/es/mobile.refusal.json",
+			"sha256": "41ec475fb9fae228312a0a12c2a3a1672e95f5f48df8c5dfd80e460ca05af0fb"
+		},
+		"es_at_pr270_head": {
+			"path": "240e0826:src/i18n/catalogues/es/mobile.refusal.json",
+			"sha256": "41ec475fb9fae228312a0a12c2a3a1672e95f5f48df8c5dfd80e460ca05af0fb"
+		},
+		"draft_values_sha256": {
+			"mobile.refusal.action.open_console": "d1ed25a5534c4091c1e0116277193153f779d5504f7758c7d9daaef531db6ebb",
+			"mobile.refusal.console_disabled.title": "130fea73846b59e9d48cb5d0ce587a542293ae0f9860ba73b338b1e0942f61bf",
+			"mobile.refusal.open_console.title": "9c1362a072cc0263f78490bb6a1a09fa0d1d03ccae6786a8a674b93e432d212b",
+			"mobile.refusal.refused.body": "97cdda27d2a1897be7daf7299eecece8d0b9f9ebd7ae6d702159238ac712cf7d"
+		},
+		"glossary": {
+			"path": "56662d28:i18n/glossary.md (damianvtran/local-operator, PR #4053)",
+			"git_blob": "e3cdd40c909fb4bf515fc88abf57d7a85735a8e2",
+			"sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+		}
+	},
+	"checks_executed": {
+		"keyset_equal_brief": true,
+		"placeholders_identical": true,
+		"brand_exactly_once_per_key": true,
+		"article_or_possessive_before_brand": 0,
+		"redaction_marker_hits": 0,
+		"only_brand_phrase_changed": true,
+		"nfc": true,
+		"repo_validator_i18n_check": "not run — read-only audit; lane owner runs on apply"
+	},
+	"artifacts": {
+		"report.md": "c0c92a6ba07fd0ab12137add7012f040577cf7379207c14ce0e9ab636aa2da74",
+		"audit.log": "d3034e8a45652d440e99d92217fb624dcca2155246610871466ab617ebd92a33"
+	},
+	"audit_notes_not_execution_log": "report.md is reasoning; audit.log is the actual executed check output",
+	"current_report_verdict": {
+		"status": "passed",
+		"unresolved_blocker_major_count": 0,
+		"severity_counts": {
+			"BLOCKER": 0,
+			"MAJOR": 0,
+			"MINOR": 0,
+			"NIT": 0
+		},
+		"finding_ids": []
+	},
+	"supersession": null,
+	"glossary_conflict_check": {
+		"result": "no conflict",
+		"verdict_changed": false,
+		"checked_at": "2026-11-15T11:47:01"
+	}
+}

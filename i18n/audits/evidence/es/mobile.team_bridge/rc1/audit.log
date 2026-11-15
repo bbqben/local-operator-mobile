@@ -1,0 +1,34 @@
+# audit.log es/mobile.team_bridge/rc1 — executed 2026-11-15T11:41:32 by i18n-auditor session e6d3e83a2511 (python3 in lop eval kernel)
+$ sha256 draft /Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json = 8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068; json.loads OK, 15 keys total
+$ sha256 brief = 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec; en-proposal = 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1; notes = 42083c7c2128e9edf91af77984f6947646adde11b66abb86ef1689065d999b5e; style guide es.md = 77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e
+$ git show 0a629e65:src/i18n/catalogues/es/mobile.team_bridge.json sha256=fa3c42a9032f0189862688cf74ebc1863b7fd5a0c2288f942fec12f111a86d6d; en sha256=975b39985818d74c874bce2e438dbd6203ffc3c3de9d5c45e53ded65e648460e; en context sha256=c4cfa875457a9ccc864739890e679687b0fda7ef1612e8ac5970973a0a89d4ba; es@240e0826 sha256=c3d8c166bedccb1f4c30bb45a8b378d553d0c8d82b726c5343f028f40264dfe3
+KEYSET brief=2 draft=2 equal=True; all present in es catalogue=True; in en catalogue=True
+mobile.team_bridge.gate.console_error: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=33 en_len=35 draft_sha256=cae8c3960dd0b47da98f21d23d3c5d66907acc8a46e8408aaa797ec5572a8dbb -> OK
+mobile.team_bridge.gate.manage_plan: cur_hash_match(brief,0a629e65,240e0826)=True placeholders=[] ph_match_en&cur=True brand_count=1 other_consola=0 article_before_brand=[] redaction_hits=0 only_brand_phrase_changed=True NFC=True máquina=False ordenador/computadora=[] emdash_spaced=True len=35 en_len=39 draft_sha256=415a6dc1700ca466b1d6a49240b44053edd90beda054b1190b1e573f1089ed9b -> OK
+SUMMARY mobile.team_bridge: keys=2 mechanical_fail=0; redaction marker hits in group values=0 expected; repo validator `npm run -s i18n:check` NOT run (needs applying draft to the mobile working tree; read-only brief) — lane owner runs it on apply
+
+# precedent / terminology probes (executed)
+$ git -C ~/local-operator grep -n 'Radient Console' origin/main -- 'local_operator/i18n/catalogues/es/*.json'
+origin/main:local_operator/i18n/catalogues/es/wire.errors.media.json:8:  "wire.errors.media.speech_radient_credit_low": "Tu saldo de créditos de Radient es insuficiente para la voz. Añade créditos en Radient Console para continuar.",
+$ git -C ~/local-operator-ui grep -c 'plan Radient Team' origin/main -- 'src/i18n/catalogues/es/*.json'
+origin/main:src/i18n/catalogues/es/ui.agents.publication.json:3
+origin/main:src/i18n/catalogues/es/ui.agents.upload.json:1
+origin/main:src/i18n/catalogues/es/ui.hub.pages.json:2
+origin/main:src/i18n/catalogues/es/ui.hub.teams.json:2
+origin/main:src/i18n/catalogues/es/ui.settings.account.json:1
+origin/main:src/i18n/catalogues/es/ui.teamBridge.json:3
+origin/main:src/i18n/catalogues/es/ui.teamBridgeTrial.json:7
+$ git -C ~/local-operator-ui grep -n -E '"ui\.console\.(pane\.label|new)"' origin/main -- src/i18n/catalogues/es/
+origin/main:src/i18n/catalogues/es/ui.console.json:38:	"ui.console.new": "Nueva consola",
+origin/main:src/i18n/catalogues/es/ui.console.json:42:	"ui.console.pane.label": "Consola",
+$ for f in $(git -C ~/local-operator-mobile ls-tree --name-only 0a629e65f696cbd54e782f4d762d45a4d37c1b81 src/i18n/catalogues/es/); do git -C ~/local-operator-mobile show 0a629e65f696cbd54e782f4d762d45a4d37c1b81:$f | grep -i consola | grep -v -i 'consola de Radient' ; done | wc -l
+0
+$ git -C ~/local-operator-mobile show 0a629e65f696cbd54e782f4d762d45a4d37c1b81:src/i18n/catalogues/es/mobile.computers.json | grep -n -E 'Local Operator' | head -3
+20:	"mobile.computers.harness_help": "En la consola de Radient, activa Local Operator para este túnel.",
+47:	"mobile.computers.not_harness": "Esta máquina no ejecuta el harness de Local Operator.",
+133:	"mobile.computers.own_tunnel.verdict_local_network_ios": "No respondió nada en esa dirección dentro de esta red. Comprueba que la máquina no está en reposo y que ejecuta el relé. Si ambas cosas se cumplen, puede deberse al permiso de red local: permite Local Operator en Ajustes → Privacidad y seguridad → Red local y después toca “{action}”.",
+
+# glossary re-check (executed 2026-11-15T11:47:01) after core PR #4053 merge 56662d28
+$ git -C ~/local-operator rev-parse 56662d28:i18n/glossary.md -> e3cdd40c909fb4bf515fc88abf57d7a85735a8e2
+$ git -C ~/local-operator show 56662d28:i18n/glossary.md | sha256 -> 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7
+glossary rule line 24: | Radient Console | keep as-is — the full product name in every app and locale; capital `R` and `C`, with one internal ASCII space (`U+0020`) |
