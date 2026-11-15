@@ -21,7 +21,10 @@ const SOURCE_KEY = /["'](mobile\.account_routing\.[a-z_]+)["']/g;
 const SEGMENT = /<Segmented\b([\s\S]*?)\/>/g;
 const BUTTON = /<Button\b([\s\S]*?)\/>/g;
 const BACKEND_LABEL = /\blabel\s*=\s*\{row\.label\}/;
-const SOURCE_LABEL = /\blabel\s*=\s*\{\s*copy\s*\(/;
+/* The section renders chrome through the catalogue (`t(`), never the English
+ * table: rendering `accountRoutingCopy()` showed every locale English (M3 S5). */
+const SOURCE_LABEL = /\blabel\s*=\s*\{\s*t\s*\(/;
+const ENGLISH_TABLE_IMPORT = /from\s*["']\.\/account-routing-copy["']/;
 const CONTROL_ID = /\btestID\s*=\s*\{CONTROL\.([a-zA-Z0-9_]+)\}/;
 
 /** Deliberately feature-scoped lexical guard, NOT a general TSX parser or
@@ -36,6 +39,8 @@ function assertFeatureCopy(input: string) {
 	if (RAW_TEXT.test(source) || RAW_TEXT_EXPRESSION.test(source))
 		throw new Error("raw JSX copy");
 	if (LITERAL_LABEL.test(source)) throw new Error("literal accessible copy");
+	if (ENGLISH_TABLE_IMPORT.test(source))
+		throw new Error("UI renders the English source table");
 	const seen = new Set(
 		[...source.matchAll(SOURCE_KEY)].map((match) => {
 			const key = match[1];
@@ -98,15 +103,15 @@ describe("finite account-routing English SOURCE seam", () => {
 			"missing key",
 			(source: string) =>
 				source.replace(
-					'copy("mobile.account_routing.title")',
-					'copy("mobile.account_routing.typo")',
+					't("mobile.account_routing.title")',
+					't("mobile.account_routing.typo")',
 				),
 		],
 		[
 			"raw JSX",
 			(source: string) =>
 				source.replace(
-					'{copy("mobile.account_routing.loading")}',
+					'{t("mobile.account_routing.loading")}',
 					"Untracked English loading",
 				),
 		],
@@ -114,7 +119,7 @@ describe("finite account-routing English SOURCE seam", () => {
 			"quoted JSX expression",
 			(source: string) =>
 				source.replace(
-					'{copy("mobile.account_routing.loading")}',
+					'{t("mobile.account_routing.loading")}',
 					'{"Untracked status"}',
 				),
 		],
@@ -122,8 +127,16 @@ describe("finite account-routing English SOURCE seam", () => {
 			"plain template JSX expression",
 			(source: string) =>
 				source.replace(
-					'{copy("mobile.account_routing.loading")}',
+					'{t("mobile.account_routing.loading")}',
 					"{`Untracked status`}",
+				),
+		],
+		[
+			"English source table import",
+			(source: string) =>
+				source.replace(
+					'import { t } from "@/i18n";',
+					'import { t } from "@/i18n";\nimport { accountRoutingCopy } from "./account-routing-copy";',
 				),
 		],
 		[
@@ -163,9 +176,9 @@ describe("finite account-routing English SOURCE seam", () => {
 		const saveFailure = componentSource.slice(
 			componentSource.indexOf('save === "error" || save === "rejected"'),
 		);
-		expect(readFailure).toContain('copy("mobile.account_routing.retry")');
-		expect(readFailure).not.toContain('copy("mobile.account_routing.reload")');
-		expect(saveFailure).toContain('copy("mobile.account_routing.reload")');
+		expect(readFailure).toContain('t("mobile.account_routing.retry")');
+		expect(readFailure).not.toContain('t("mobile.account_routing.reload")');
+		expect(saveFailure).toContain('t("mobile.account_routing.reload")');
 		expect(accountRoutingCopy("mobile.account_routing.reload")).toBe(
 			"Reload policy",
 		);
