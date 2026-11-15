@@ -18,6 +18,10 @@ import { useComposedDir, useIsRTL } from "@/ui/direction";
 import { LARGE_TEXT_SCALE } from "@/ui/text-scale";
 import { useTextScale } from "@/ui/text-scale-provider";
 import { NAV_CARD_MIN_HEIGHT, navCardClasses } from "@/ui/variants";
+import {
+	settingsAccountInitialsSource,
+	settingsAccountTitle,
+} from "./account-title";
 
 /**
  * Settings' account card: who this phone is signed in as, and — when it is NOT
@@ -36,9 +40,11 @@ import { NAV_CARD_MIN_HEIGHT, navCardClasses } from "@/ui/variants";
  * held Radient tokens every request path reads — and nothing else. The title,
  * the avatar's name and the button all derive from it, so the card cannot say
  * "Not signed in" to a signed-in reader (the pre-existing wrong title, which is
- * also what Sherman saw). Before `coldStartSettled` the tokens may simply not be
- * restored yet, so the card stays inert rather than offer a sign-in that would
- * throw a restoring grant away.
+ * also what Sherman saw). PR #262 now writes `accountLabel` (the grant's email,
+ * else its name); it only NAMES the signed-in account (`account-title.ts`) and
+ * never decides signed-in-ness. Before `coldStartSettled` the tokens may simply
+ * not be restored yet, so the card stays inert rather than offer a sign-in that
+ * would throw a restoring grant away.
  *
  * THE FLOW is Welcome's, not a fork: the provider's `signInWithRadient` (which
  * opens the usual computer, `openUsualComputer`), landed through
@@ -108,11 +114,7 @@ export function AccountCard() {
 		if (landing.navigate) router.replace(landing.destination);
 	}, [landing.navigate, landing.destination, router]);
 
-	const signedInTitle =
-		accountLabel ?? t("mobile.settings.account.signed_in_radient");
-	const title = radientSignedIn
-		? signedInTitle
-		: t("mobile.settings.account.not_signed_in");
+	const title = settingsAccountTitle(radientSignedIn, accountLabel);
 
 	/* A COLUMN above `LARGE_TEXT_SCALE`, not a `flex-wrap` — wrapping does
 	 *  nothing here, because the text beside the avatar is `flex-1` and will
@@ -125,9 +127,9 @@ export function AccountCard() {
 		>
 			<Avatar
 				initials={initialsOf(
-					accountLabel ??
-						computers[0]?.name ??
-						t("mobile.settings.account.app_name"),
+					accountLabel !== null
+						? settingsAccountInitialsSource(accountLabel)
+						: (computers[0]?.name ?? t("mobile.settings.account.app_name")),
 				)}
 				size="md"
 				accessibilityLabel={

@@ -1931,7 +1931,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept. The list store's `liveFrameAt` (set by a frame from the computer,
 	 * not by #246's warm-cache paint) gates push registration, so M1 holds.
 	 * Re-derived once with --print over the merged tree; only `src` moved. */
-	src: "20ceaf7d5eed38eecd8c526f29e38cf0b7fe12d10f18991f7e3de3cefd21ebc0",
+	/* PR #262 (fix/radient-account-label) merged with main c0b6a4da: the Radient
+	 * route admits with the grant's account label, #258's AccountCard titles
+	 * itself through `account-title.ts`, and the Diagnostics Last error row goes
+	 * through `redact`. Re-derived once with --print; only `src` moved. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#262, 81b5df9d) into #264: both comment chains
+	 * kept. #262's provider hunk only adds the Radient label reader to
+	 * routeAdmission; the warm-cache `applyFrame(..., "cache")` call and the
+	 * list-store paths are untouched. Re-derived once with --print over the
+	 * merged tree; only `src` moved. */
+	src: "ee578b0779f801101b520b80ecfedfd68d5dc17ac7eef529d54f2ae2d5bdb56e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

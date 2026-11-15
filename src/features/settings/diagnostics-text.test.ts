@@ -346,3 +346,93 @@ describe("Diagnostics Reason row goes through the same redaction", () => {
 		expect(settings).not.toMatch(/`reason: \$\{/);
 	});
 });
+
+/* The Last error row's `value` expression, from its label to the row's close. */
+const LAST_ERROR_ROW =
+	/label=\{t\("mobile\.settings\.diagnostics\.last_error"\)\}([\s\S]*?)\/>/;
+/* The pre-fix shape: the summary rendered as it came. */
+const RAW_SUMMARY = /\?\s*diagnosticError\.summary/;
+
+/* PR #261 QA O1, carried in by PR #262: the on-screen "Last error" row showed
+ *  `diagnosticError.summary` raw while Copy diagnostics redacted the same value.
+ *  The summary is "kind status reason" and the reason is the relay's or the
+ *  gateway's own words, so a token can ride in it. Settings cannot be imported
+ *  in Node (its styling stack), so — as for the Reason row above — the screen
+ *  half is pinned over the source and the value half driven through the same
+ *  `redact` the row now calls, on summaries built by the real `RelayError`. */
+describe("Diagnostics Last error row goes through the same redaction", () => {
+	const SETTINGS = readFileSync(
+		fileURLToPath(new URL("./settings.tsx", import.meta.url)),
+		"utf8",
+	);
+	/* What the row renders for an error, as the screen composes it. */
+	const shown = (error: RelayError) => redact(error.summary);
+	/* Fabricated at run time: 61 lowercase hex characters. */
+	const HEX_61 = `a${"0f".repeat(30)}`;
+	const URL_TOKEN = `tok${"Z".repeat(20)}`;
+	const BEARER_TOKEN = `bear${"Y".repeat(20)}`;
+
+	it("Settings renders the row's error through `redact`, never raw", () => {
+		const row = LAST_ERROR_ROW.exec(SETTINGS)?.[1];
+		expect(row).toBeDefined();
+		expect(row).toContain("? redact(diagnosticError.summary)");
+		expect(row).not.toMatch(RAW_SUMMARY);
+	});
+
+	it("a URL token, a Bearer token and a 61-character hex run are redacted on screen", () => {
+		const cases: Array<[RelayError, string]> = [
+			[
+				new RelayError("rejected", "x", {
+					status: 401,
+					reasonRaw: `https://relay.example.com/v1/x?token=${URL_TOKEN}`,
+				}),
+				URL_TOKEN,
+			],
+			[
+				new RelayError("rejected", "x", {
+					status: 401,
+					reasonRaw: `Bearer ${BEARER_TOKEN}`,
+				}),
+				BEARER_TOKEN,
+			],
+			[
+				new RelayError("gateway-refused", "x", {
+					status: 503,
+					reasonRaw: HEX_61,
+				}),
+				HEX_61,
+			],
+		];
+		for (const [error, secret] of cases) {
+			/* The negative control: the raw summary carries it. */
+			expect(error.summary).toContain(secret);
+			expect(shown(error)).not.toContain(secret);
+			expect(shown(error)).toContain("[redacted]");
+			/* And the screen now agrees with what Copy diagnostics copies. */
+			expect(
+				diagnosticsText({
+					route: null,
+					computerName: null,
+					stream: "degraded",
+					lastError: error.summary,
+					version: "1.2.3",
+					platform: "ios",
+				}),
+			).toContain(`Last error: ${shown(error)}`);
+		}
+	});
+
+	it("leaves an ordinary error summary as it is", () => {
+		for (const error of [
+			new RelayError("gateway-refused", "x", {
+				status: 503,
+				reasonRaw: "server_unavailable",
+			}),
+			new RelayError("transport", "x", {
+				transportCause: "refused",
+			}),
+			new RelayError("computer-offline", "x", { status: 503 }),
+		])
+			expect(shown(error)).toBe(error.summary);
+	});
+});
