@@ -1984,7 +1984,28 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#269, 00c2b66d) into #271: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
-	src: "bf73c4b880f7d7179f320cb9618c8e7563aaffb565b473c22a72f3a560f31e94",
+	/* PR #268 CI remediation: --print at 39c06173 admits the completion
+	 * prefetch and foreground warm-sync source changes. Only `src` moved;
+	 * source identity only, NOT new rendered U-08 proof. Instruments, historical
+	 * ORIGINAL_* hashes and thresholds are unchanged. */
+	/* Merge of origin/main (#267 0a629e65, #269 00c2b66d) into #268: both
+	 * comment chains kept; only this pin conflicted. Re-derived LAST with --print
+	 * over the merged tree; only `src` moved. Source identity only, NOT new
+	 * rendered U-08 evidence. */
+	/* PR #272: notification grouping/guidance, its catalogues and regression
+	 * tests change src identity. Re-derived with --print after the catalogue
+	 * invariant repair; this admits source bytes, NOT rendered U-08 evidence.
+	 * Historical ORIGINAL_* incident identities remain untouched. */
+	/* Merge of origin/main (#269, 00c2b66d) into #272: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#268, eaa49a3e) into #272: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#268 eaa49a3e, #272 b190244f) into #271: both
+	 * comment chains retained; only this pin conflicted. Re-derived with --print
+	 * over the merged tree. Source identity only, NOT new rendered U-08 evidence. */
+	src: "960f0a37bf1595f71559074e073e2ed26cc79d43fbee48819d1076e7206b4d1a",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

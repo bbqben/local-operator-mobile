@@ -132,6 +132,8 @@ import {
 } from "@/state/connection-store";
 import { createListStore, type ListSnapshot } from "@/state/list-store";
 import type { WarmScope } from "@/state/warm-cache";
+import { warmSync } from "@/state/warm-sync";
+import { relayWarmSyncScope } from "@/state/warm-sync-relay";
 import { retireTeamBridgeDevice } from "@/team-bridge/retirement";
 import {
 	customRouteAuthentication,
@@ -646,6 +648,7 @@ export const ConnectionProvider = ({
 	const streamKickRef = useRef<(() => void) | null>(null);
 
 	const clientRef = useRef<ReturnType<typeof createRelayClient> | null>(null);
+	const unregisterWarmSync = useRef<(() => void) | null>(null);
 	const streamRef = useRef<RelayStream | null>(null);
 	const configRef = useRef<ConfigStreamHandle | null>(null);
 	/** The list loop in force: `wake` is the resume owner's handle on it and
@@ -763,6 +766,8 @@ export const ConnectionProvider = ({
 			agentAvatarCache.clear();
 			streamRef.current?.stop();
 			configRef.current?.stop();
+			unregisterWarmSync.current?.();
+			unregisterWarmSync.current = null;
 			clientRef.current = null;
 			void nativeCredentialRetirement.retire(
 				managerRef.current,
@@ -1463,6 +1468,8 @@ export const ConnectionProvider = ({
 			revocationOwnerRef.current = null;
 			stopStream();
 			stopConfig();
+			unregisterWarmSync.current?.();
+			unregisterWarmSync.current = null;
 			clientRef.current = null;
 			void nativeCredentialRetirement.retire(
 				managerRef.current,
@@ -1570,6 +1577,29 @@ export const ConnectionProvider = ({
 				tokensRef.current?.account_id ?? null,
 			);
 			liveAdmissionRef.current = admission;
+			unregisterWarmSync.current?.();
+			const cacheScope = warmScope;
+			const accountId = tokensRef.current?.account_id ?? null;
+			// Only an admitted route can prefetch. The authenticated handle resolver
+			// proves the selected relay owns the conversation; an opaque push computer
+			// handle is NOT a registry id. Route retirement aborts every prefetch.
+			if (cacheScope) {
+				unregisterWarmSync.current = warmSync.register(
+					relayWarmSyncScope({
+						client,
+						scope: cacheScope,
+						cache: warmCache,
+						isActive: () =>
+							admission.isCurrent() &&
+							startupAuthorizationLifecycle.isCurrent(
+								admission.authorizationRevision,
+							) &&
+							clientRef.current === client &&
+							warmScope === cacheScope &&
+							(tokensRef.current?.account_id ?? null) === accountId,
+					}),
+				);
+			}
 			startStream(client, admission);
 			startConfig(client);
 			/* Startup authorization is admitted by the AUTHENTICATED ROUTE, not by the
@@ -1951,6 +1981,8 @@ export const ConnectionProvider = ({
 		cancelledRef.current = true;
 		stopStream();
 		stopConfig();
+		unregisterWarmSync.current?.();
+		unregisterWarmSync.current = null;
 		clientRef.current = null;
 		/* Through the accessor, not the ref: the epoch must end with the grant so an
 		 *  in-flight hub refresh cannot republish it, and `radientSignedIn` re-renders. */
@@ -2521,6 +2553,8 @@ export const ConnectionProvider = ({
 		setBusy(true);
 		stopStream();
 		stopConfig();
+		unregisterWarmSync.current?.();
+		unregisterWarmSync.current = null;
 		clientRef.current = null;
 		connectionStore.getState().endRoute();
 		managerRef.current = null;
@@ -2598,6 +2632,8 @@ export const ConnectionProvider = ({
 		 * captured route so a slow response cannot leave requests enabled. */
 		if (active?.mode === "custom") {
 			const privacy = verifiedRetirement(retireAuthorization());
+			unregisterWarmSync.current?.();
+			unregisterWarmSync.current = null;
 			clientRef.current = null;
 			connectionStore.getState().endRoute();
 			stopStream();

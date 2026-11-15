@@ -155,6 +155,22 @@
 		"role": "status",
 		"note": "Settings › Notifications, the state sentence when this app build or platform has no notification support (e.g. web). States a fact; offers no action."
 	},
+	"mobile.notifications.preferences.agent_heading": {
+		"role": "heading",
+		"note": "Settings notification subsection, separate from the global master and Team Bridge."
+	},
+	"mobile.notifications.preferences.agent_note": {
+		"role": "help",
+		"note": "Both refers to Agent finished and Agent hit an error. The global master must remain enabled to keep Team Bridge."
+	},
+	"mobile.notifications.preferences.bridge_heading": {
+		"role": "heading",
+		"note": "Product name, subsection heading."
+	},
+	"mobile.notifications.preferences.bridge_note": {
+		"role": "help",
+		"note": "Directions to existing per-conversation notification controls for DMs, groups and channels; use the same option names as the Team Bridge bell menu."
+	},
 	"mobile.notifications.preferences.completions": {
 		"role": "button",
 		"note": "Settings › Notifications, a switch row: notify when an AI agent on the computer finishes its turn. Short, past tense."

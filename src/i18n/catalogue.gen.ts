@@ -430,6 +430,10 @@ export type CatalogueKey =
 	| "mobile.notifications.permission.undetermined"
 	| "mobile.notifications.permission.unknown"
 	| "mobile.notifications.permission.unsupported"
+	| "mobile.notifications.preferences.agent_heading"
+	| "mobile.notifications.preferences.agent_note"
+	| "mobile.notifications.preferences.bridge_heading"
+	| "mobile.notifications.preferences.bridge_note"
 	| "mobile.notifications.preferences.completions"
 	| "mobile.notifications.preferences.computer_keeps_sending"
 	| "mobile.notifications.preferences.disabled_hint"
@@ -1374,6 +1378,9 @@ export type NoParamKey =
 	| "mobile.notifications.permission.undetermined"
 	| "mobile.notifications.permission.unknown"
 	| "mobile.notifications.permission.unsupported"
+	| "mobile.notifications.preferences.agent_heading"
+	| "mobile.notifications.preferences.agent_note"
+	| "mobile.notifications.preferences.bridge_heading"
 	| "mobile.notifications.preferences.completions"
 	| "mobile.notifications.preferences.computer_keeps_sending"
 	| "mobile.notifications.preferences.disabled_hint"
@@ -2264,6 +2271,10 @@ export type MessageParams = {
 	"mobile.notifications.permission.undetermined": NoParams;
 	"mobile.notifications.permission.unknown": NoParams;
 	"mobile.notifications.permission.unsupported": NoParams;
+	"mobile.notifications.preferences.agent_heading": NoParams;
+	"mobile.notifications.preferences.agent_note": NoParams;
+	"mobile.notifications.preferences.bridge_heading": NoParams;
+	"mobile.notifications.preferences.bridge_note": { all: string | number; mentions: string | number; muted: string | number };
 	"mobile.notifications.preferences.completions": NoParams;
 	"mobile.notifications.preferences.computer_keeps_sending": NoParams;
 	"mobile.notifications.preferences.disabled_hint": NoParams;
@@ -3274,6 +3285,10 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.permission.undetermined": "Notifications are not on for this phone yet.",
 	"mobile.notifications.permission.unknown": "Notifications could not be checked on this phone. This is not a refusal — reopen Settings to check again.",
 	"mobile.notifications.permission.unsupported": "This build does not include notifications.",
+	"mobile.notifications.preferences.agent_heading": "Agent notifications",
+	"mobile.notifications.preferences.agent_note": "Turn off both agent types to keep only Team Bridge notifications.",
+	"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+	"mobile.notifications.preferences.bridge_note": "For each DM, group or channel, open its bell menu and choose {all}, {mentions} or {muted}.",
 	"mobile.notifications.preferences.completions": "Agent finished",
 	"mobile.notifications.preferences.computer_keeps_sending": "Your computer will keep sending agent notifications until Local Operator is updated on it.",
 	"mobile.notifications.preferences.disabled_hint": "Needs a newer Local Operator on your computer.",
@@ -4269,6 +4284,10 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.permission.undetermined": { role: "status", note: "Settings › Notifications, the state sentence before the phone has been asked for permission; the 'Turn on notifications' button follows it. A plain statement, no instruction." },
 	"mobile.notifications.permission.unknown": { role: "status", note: "Settings › Notifications, the state sentence when the permission read failed. Must read as 'could not check', never as a refusal, and name the remedy (reopen Settings)." },
 	"mobile.notifications.permission.unsupported": { role: "status", note: "Settings › Notifications, the state sentence when this app build or platform has no notification support (e.g. web). States a fact; offers no action." },
+	"mobile.notifications.preferences.agent_heading": { role: "heading", note: "Settings notification subsection, separate from the global master and Team Bridge." },
+	"mobile.notifications.preferences.agent_note": { role: "help", note: "Both refers to Agent finished and Agent hit an error. The global master must remain enabled to keep Team Bridge." },
+	"mobile.notifications.preferences.bridge_heading": { role: "heading", note: "Product name, subsection heading." },
+	"mobile.notifications.preferences.bridge_note": { role: "help", note: "Directions to existing per-conversation notification controls for DMs, groups and channels; use the same option names as the Team Bridge bell menu." },
 	"mobile.notifications.preferences.completions": { role: "button", note: "Settings › Notifications, a switch row: notify when an AI agent on the computer finishes its turn. Short, past tense." },
 	"mobile.notifications.preferences.computer_keeps_sending": { role: "help", note: "Settings › Notifications, when the reader turned notifications (or one kind) off but the connected computer runs an older Local Operator that cannot honour it: that computer keeps sending agent notifications until it is updated. Plain and honest; Local Operator is a brand." },
 	"mobile.notifications.preferences.disabled_hint": { role: "help", note: "Screen-reader hint on a dimmed notification switch, saying why it cannot be changed. Not shown on screen. Local Operator is a brand." },
@@ -5278,6 +5297,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "Las notificaciones aún no están activadas en este teléfono.",
 		"mobile.notifications.permission.unknown": "No se pudieron comprobar las notificaciones en este teléfono. No es un rechazo: vuelve a abrir Ajustes para comprobarlo de nuevo.",
 		"mobile.notifications.permission.unsupported": "Esta compilación no incluye notificaciones.",
+		"mobile.notifications.preferences.agent_heading": "Notificaciones del agente",
+		"mobile.notifications.preferences.agent_note": "Desactiva ambos tipos del agente para recibir solo notificaciones de Team Bridge.",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "Para cada mensaje directo, grupo o canal, abre el menú de la campana y elige {all}, {mentions} o {muted}.",
 		"mobile.notifications.preferences.completions": "El agente terminó",
 		"mobile.notifications.preferences.computer_keeps_sending": "Tu computadora seguirá enviando notificaciones de agentes hasta que se actualice Local Operator en ella.",
 		"mobile.notifications.preferences.disabled_hint": "Requiere un Local Operator más reciente en tu computadora.",
@@ -6271,6 +6294,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "Les notifications ne sont pas encore activées sur ce téléphone.",
 		"mobile.notifications.permission.unknown": "Impossible de vérifier les notifications sur ce téléphone. Ce n'est pas un refus : rouvrez les Réglages pour vérifier à nouveau.",
 		"mobile.notifications.permission.unsupported": "Cette version n'inclut pas les notifications.",
+		"mobile.notifications.preferences.agent_heading": "Notifications des agents",
+		"mobile.notifications.preferences.agent_note": "Désactivez les deux types de notifications des agents pour ne garder que celles de Team Bridge.",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "Pour chaque message privé, groupe ou canal, ouvrez le menu de la cloche et choisissez {all}, {mentions} ou {muted}.",
 		"mobile.notifications.preferences.completions": "L'agent a terminé",
 		"mobile.notifications.preferences.computer_keeps_sending": "Votre ordinateur continuera d'envoyer les notifications des agents jusqu'à la mise à jour de Local Operator sur celui-ci.",
 		"mobile.notifications.preferences.disabled_hint": "Nécessite une version plus récente de Local Operator sur votre ordinateur.",
@@ -7264,6 +7291,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "इस फ़ोन पर सूचनाएँ अभी चालू नहीं हैं।",
 		"mobile.notifications.permission.unknown": "इस फ़ोन पर सूचनाओं की जाँच नहीं हो सकी। यह इनकार नहीं है — फिर से जाँचने के लिए सेटिंग्स दोबारा खोलें।",
 		"mobile.notifications.permission.unsupported": "इस बिल्ड में सूचनाएँ शामिल नहीं हैं।",
+		"mobile.notifications.preferences.agent_heading": "एजेंट की सूचनाएँ",
+		"mobile.notifications.preferences.agent_note": "केवल Team Bridge की सूचनाएँ पाने के लिए एजेंट की दोनों तरह की सूचनाएँ बंद करें।",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "हर सीधे संदेश, समूह या चैनल में घंटी का मेन्यू खोलें और {all}, {mentions} या {muted} चुनें।",
 		"mobile.notifications.preferences.completions": "एजेंट ने काम पूरा किया",
 		"mobile.notifications.preferences.computer_keeps_sending": "जब तक आपके कंप्यूटर पर Local Operator अपडेट नहीं होता, वह एजेंट की सूचनाएँ भेजता रहेगा।",
 		"mobile.notifications.preferences.disabled_hint": "आपके कंप्यूटर पर Local Operator का नया संस्करण चाहिए।",
@@ -8257,6 +8288,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "Уведомления на этом телефоне пока не включены.",
 		"mobile.notifications.permission.unknown": "Не удалось проверить уведомления на этом телефоне. Это не отказ — откройте Настройки снова, чтобы проверить ещё раз.",
 		"mobile.notifications.permission.unsupported": "Эта сборка не поддерживает уведомления.",
+		"mobile.notifications.preferences.agent_heading": "Уведомления агентов",
+		"mobile.notifications.preferences.agent_note": "Отключите оба типа уведомлений агентов, чтобы получать только уведомления Team Bridge.",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "В каждом личном чате, группе или канале откройте меню колокольчика и выберите «{all}», «{mentions}» или «{muted}».",
 		"mobile.notifications.preferences.completions": "Агент закончил",
 		"mobile.notifications.preferences.computer_keeps_sending": "Компьютер будет присылать уведомления агентов, пока на нём не обновят Local Operator.",
 		"mobile.notifications.preferences.disabled_hint": "Нужна более новая версия Local Operator на компьютере.",
@@ -9250,6 +9285,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "اس فون پر اطلاعات ابھی آن نہیں ہیں۔",
 		"mobile.notifications.permission.unknown": "اس فون پر اطلاعات کی جانچ نہیں ہو سکی۔ یہ انکار نہیں ہے — دوبارہ جانچنے کے لیے سیٹنگز پھر سے کھولیں۔",
 		"mobile.notifications.permission.unsupported": "اس بلڈ میں اطلاعات شامل نہیں ہیں۔",
+		"mobile.notifications.preferences.agent_heading": "ایجنٹ کی اطلاعات",
+		"mobile.notifications.preferences.agent_note": "صرف Team Bridge کی اطلاعات حاصل کرنے کے لیے ایجنٹ کی دونوں قسم کی اطلاعات بند کریں۔",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "ہر نجی پیغام، گروپ یا چینل میں گھنٹی کا مینو کھولیں اور {all}، {mentions} یا {muted} منتخب کریں۔",
 		"mobile.notifications.preferences.completions": "ایجنٹ نے کام مکمل کیا",
 		"mobile.notifications.preferences.computer_keeps_sending": "جب تک آپ کے کمپیوٹر پر Local Operator اپ ڈیٹ نہیں ہوتا، وہ ایجنٹ کی اطلاعات بھیجتا رہے گا۔",
 		"mobile.notifications.preferences.disabled_hint": "آپ کے کمپیوٹر پر Local Operator کا نیا ورژن درکار ہے۔",
@@ -10243,6 +10282,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "Thông báo chưa được bật trên điện thoại này.",
 		"mobile.notifications.permission.unknown": "Không thể kiểm tra thông báo trên điện thoại này. Đây không phải là từ chối — hãy mở lại Cài đặt để kiểm tra lần nữa.",
 		"mobile.notifications.permission.unsupported": "Bản dựng này không có thông báo.",
+		"mobile.notifications.preferences.agent_heading": "Thông báo tác nhân",
+		"mobile.notifications.preferences.agent_note": "Tắt cả hai loại thông báo tác nhân để chỉ giữ thông báo Team Bridge.",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "Với mỗi tin nhắn riêng, nhóm hoặc kênh, mở menu chuông và chọn {all}, {mentions} hoặc {muted}.",
 		"mobile.notifications.preferences.completions": "Agent đã hoàn tất",
 		"mobile.notifications.preferences.computer_keeps_sending": "Máy tính của bạn sẽ vẫn gửi thông báo của agent cho đến khi Local Operator trên máy được cập nhật.",
 		"mobile.notifications.preferences.disabled_hint": "Cần phiên bản Local Operator mới hơn trên máy tính của bạn.",
@@ -11236,6 +11279,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.permission.undetermined": "此手机的通知尚未开启。",
 		"mobile.notifications.permission.unknown": "无法检查此手机上的通知。这不是拒绝——请重新打开设置再检查一次。",
 		"mobile.notifications.permission.unsupported": "此版本不包含通知功能。",
+		"mobile.notifications.preferences.agent_heading": "智能体通知",
+		"mobile.notifications.preferences.agent_note": "关闭两种智能体通知，即可仅保留 Team Bridge 通知。",
+		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
+		"mobile.notifications.preferences.bridge_note": "在各私聊、群组或频道中，打开铃铛菜单，选择{all}、{mentions}或{muted}。",
 		"mobile.notifications.preferences.completions": "智能体已完成",
 		"mobile.notifications.preferences.computer_keeps_sending": "在你的电脑上更新 Local Operator 之前，它会继续发送智能体通知。",
 		"mobile.notifications.preferences.disabled_hint": "你的电脑需要更新版本的 Local Operator。",

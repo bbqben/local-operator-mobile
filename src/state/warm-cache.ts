@@ -192,8 +192,12 @@ export function createWarmCache(
 		kind: IndexEntry["kind"],
 		source: object,
 		value: () => string,
+		isCurrent: () => boolean = () => true,
 	) {
 		return serial(async () => {
+			// A push seed can wait behind another save. Re-check route ownership
+			// when it reaches the write, not just when its frame was received.
+			if (!isCurrent()) return false;
 			if (savedFrom.get(key) === source) return true;
 			const serialized = value();
 			const bytes = measure(key, serialized);
@@ -291,15 +295,22 @@ export function createWarmCache(
 			scope: WarmScope,
 			sessionId: string,
 			projection: SessionProjection,
+			isCurrent?: () => boolean,
 		): Promise<boolean> {
-			return put(sessionKey(scope, sessionId), "session", projection, () => {
-				const { version: _version, ...rest } = projection;
-				return JSON.stringify({
-					schema: SCHEMA,
-					savedAt: now(),
-					projection: rest,
-				});
-			}).catch((cause) => {
+			return put(
+				sessionKey(scope, sessionId),
+				"session",
+				projection,
+				() => {
+					const { version: _version, ...rest } = projection;
+					return JSON.stringify({
+						schema: SCHEMA,
+						savedAt: now(),
+						projection: rest,
+					});
+				},
+				isCurrent,
+			).catch((cause) => {
 				warn("[warm-cache] a conversation could not be saved", cause);
 				return false;
 			});

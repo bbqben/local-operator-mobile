@@ -185,7 +185,9 @@ const NAMESPACES = [
 		// and `off_nudge.turn_on` (U7), +1 `off_nudge.dismiss_label` (D6),
 		// +1 `preferences.computer_keeps_sending` (D1/U1), +1
 		// `preferences.disabled_hint` (U9): 53 + 1 − 2 + 3 = 55.
-		expected: 55,
+		// PR #272: +4 the agent/Bridge group headings and their guidance;
+		// count the authored notification catalogue, not only rendered switches.
+		expected: 59,
 	},
 	{
 		name: "mobile.session",
@@ -471,7 +473,12 @@ describe("the English catalogues", () => {
 		 * generator's own count. */
 		/* PR #271: + 22 mobile.remote_sessions (new namespace) = 991,
 		 * the generator's own count. */
-		expect(total).toBe(991);
+		/* PR #272: +4 mobile.notifications group headings/guidance = 973,
+		 * independently counted over the authored English JSON (969 + 4). */
+		/* Merge of origin/main (#268 eaa49a3e, #272 b190244f) into #271: both
+		 * comment chains kept; #268 added no keys; 973 on main + the branch's 22
+		 * mobile.remote_sessions = 995, recounted over the merged en JSON. */
+		expect(total).toBe(995);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -579,6 +586,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Notifications is the French platform label too, matching the existing notifications screen title.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -642,6 +651,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Placeholder-only identity template `{agent} ({owner})`: both arguments are current display names, which are never translated; the parentheses contain no prose.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -663,6 +674,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Local Operator is the product name, kept in Latin script in every locale (glossary: never translated); audited as required in the M2 expression-literal wave.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		...PROJECT_NAME_EXAMPLE,
@@ -683,6 +696,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Placeholder-only identity template `{agent} ({owner})`: both arguments are current display names, which are never translated; the parentheses contain no prose.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -711,6 +726,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Placeholder-only identity template `{agent} ({owner})`: both arguments are current display names, which are never translated; the parentheses contain no prose.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -740,6 +757,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Placeholder-only identity template `{agent} ({owner})`: both arguments are current display names, which are never translated; the parentheses contain no prose.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -768,6 +787,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Placeholder-only identity template `{agent} ({owner})`: both arguments are current display names, which are never translated; the parentheses contain no prose.",
 		"mobile.team_bridge.title":
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
+		"mobile.notifications.preferences.bridge_heading":
+			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		...PROJECT_NAME_EXAMPLE,

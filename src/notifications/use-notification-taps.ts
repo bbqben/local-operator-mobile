@@ -13,8 +13,10 @@ import { useEffect } from "react";
 import { noteConversationPush } from "@/features/deep-links/pending";
 import {
 	ensureAndroidSoundChannels,
+	subscribeConversationPushesReceived,
 	subscribeNotificationTaps,
 } from "@/notifications/native";
+import { warmSync } from "@/state/warm-sync";
 import { useCustomSoundPrefetch } from "./use-custom-sound-prefetch";
 import { useSessionPushRegistration } from "./use-session-push-registration";
 
@@ -26,11 +28,17 @@ export const useNotificationTapRouting = (): void => {
 	useEffect(() => {
 		let cancelled = false;
 		let unsubscribe: (() => void) | null = null;
+		let unsubscribeReceived: (() => void) | null = null;
 		/* The Android sound channels are created at app start, before any delivery could
 		 * name it (ADR 0006 §5's FCM requirement). Failure is silent by design —
 		 * see `ensureAndroidSoundChannels`. */
 		void ensureAndroidSoundChannels();
 		void (async () => {
+			const received = await subscribeConversationPushesReceived((push) => {
+				void warmSync.received(push.conversation);
+			});
+			if (cancelled) received();
+			else unsubscribeReceived = received;
 			const teardown = await subscribeNotificationTaps(noteConversationPush);
 			if (cancelled) {
 				teardown();
@@ -41,6 +49,7 @@ export const useNotificationTapRouting = (): void => {
 		return () => {
 			cancelled = true;
 			unsubscribe?.();
+			unsubscribeReceived?.();
 		};
 	}, []);
 };

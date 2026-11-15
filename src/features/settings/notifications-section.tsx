@@ -38,6 +38,7 @@ import { sessionPushStatusCopy } from "@/notifications/session-push-status";
 import { requestSessionPushRegistration } from "@/notifications/use-session-push-registration";
 import { isRelayMissing } from "@/relay";
 import { useTeamBridge } from "@/team-bridge/provider";
+import { teamBridgeFixture } from "@/testing/team-bridge-fixture";
 import { CONTROL, REGION } from "@/ui/a11y";
 import { Button } from "@/ui/components/button";
 import { SectionHeader } from "@/ui/components/section-header";
@@ -195,7 +196,10 @@ export const NotificationsSection = () => {
 		availability,
 		capability,
 		preferences,
-		radientSignedIn,
+		// The existing loopback-only web fixture owns its synthetic hub identity,
+		// not an OAuth grant. Let the settings capture show that same identity;
+		// normal web and native builds cannot enter this fixture path.
+		radientSignedIn: radientSignedIn || teamBridgeFixture()?.token != null,
 	});
 	/* At most one note under the switches, and never both: "your computer
 	 * keeps sending" when an off choice is not reaching an older computer
@@ -319,6 +323,16 @@ export const NotificationsSection = () => {
 					/>
 					{view.types ? (
 						<>
+							{/* Keep the global gate separate from the agent categories: both
+							 * can be off without unregistering Team Bridge on this phone. */}
+							<View className="mt-3 gap-1">
+								<SectionHeader
+									label={t("mobile.notifications.preferences.agent_heading")}
+								/>
+								<Text className="text-body-sm text-ink-dim">
+									{t("mobile.notifications.preferences.agent_note")}
+								</Text>
+							</View>
 							<SwitchRow
 								label={t("mobile.notifications.preferences.completions")}
 								value={preferences.completions}
@@ -368,12 +382,24 @@ export const NotificationsSection = () => {
 						capabilityNote
 					)}
 					{view.teamBridge ? (
-						<SwitchRow
-							label={t("mobile.notifications.preferences.team_bridge")}
-							value={preferences.teamBridge}
-							onChange={(teamBridge) => void onPreference({ teamBridge })}
-							testID={CONTROL.settingsNotificationsTeamBridge}
-						/>
+						<View className="mt-4 gap-1">
+							<SectionHeader
+								label={t("mobile.notifications.preferences.bridge_heading")}
+							/>
+							<SwitchRow
+								label={t("mobile.notifications.preferences.team_bridge")}
+								value={preferences.teamBridge}
+								onChange={(teamBridge) => void onPreference({ teamBridge })}
+								testID={CONTROL.settingsNotificationsTeamBridge}
+							/>
+							<Text className="text-body-sm text-ink-dim">
+								{t("mobile.notifications.preferences.bridge_note", {
+									all: t("mobile.team_bridge.thread.notify_all"),
+									mentions: t("mobile.team_bridge.thread.notify_mentions"),
+									muted: t("mobile.team_bridge.thread.notify_mute"),
+								})}
+							</Text>
+						</View>
 					) : null}
 				</View>
 			) : null}
