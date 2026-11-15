@@ -64,6 +64,11 @@ vi.mock("@/notifications/install-id", () => ({
 }));
 
 import {
+	DEFAULT_NOTIFICATION_PREFERENCES,
+	teamBridgeWanted,
+	wirePreferences,
+} from "@/notifications/notification-preferences";
+import {
 	registerSessionPushDevice,
 	resetSessionPushRegistrationMemory,
 } from "@/notifications/session-push-registration";
@@ -211,6 +216,34 @@ const relay = () =>
 const attempt = { routeKey: "custom:loopback", force: true };
 
 describe("POST /api/push/register against the daemon contract", () => {
+	it.each([
+		{ enabled: true, completions: false, errors: false, teamBridge: true },
+		{ enabled: true, completions: false, errors: true, teamBridge: true },
+		{ enabled: true, completions: true, errors: false, teamBridge: true },
+		{ enabled: true, completions: true, errors: true, teamBridge: false },
+		{ enabled: false, completions: true, errors: true, teamBridge: true },
+	])(
+		"registers independent agent/Bridge choices on the socket: %j",
+		async (choices) => {
+			mode = "preferences";
+			const preferences = { ...DEFAULT_NOTIFICATION_PREFERENCES, ...choices };
+			const result = await registerSessionPushDevice(relay(), {
+				...attempt,
+				preferences: async () =>
+					wirePreferences(preferences, { preferences: true, previews: false }),
+			});
+			expect(result.outcome).toBe("registered");
+			expect(seen[0]?.body.preferences).toEqual({
+				enabled: choices.enabled,
+				completions: choices.completions,
+				errors: choices.errors,
+			});
+			// Bridge's independent hub registry is not part of the daemon body.
+			expect(teamBridgeWanted(preferences)).toBe(
+				choices.enabled && choices.teamBridge,
+			);
+		},
+	);
 	it("the app's body is accepted by the daemon's validation, on the daemon's route", async () => {
 		const result = await registerSessionPushDevice(relay(), attempt);
 		expect(result.outcome).toBe("registered");
