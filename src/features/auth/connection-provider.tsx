@@ -2551,7 +2551,15 @@ export const ConnectionProvider = ({
 	]);
 
 	const retry = useCallback(async () => {
-		const pending = retryRef.current;
+		// A response hook can raise a refusal without a stream error ever
+		// installing retryRef (for example while SSE remains healthy). A list
+		// read cannot clear that refusal or renew the route's credentials; use
+		// the existing admission action, fenced by beginRoute, once per tap.
+		const pending =
+			retryRef.current ??
+			(connectionStore.getState().surface === "password"
+				? routeRetryRef.current
+				: null);
 		if (pending) {
 			await pending();
 			return;
