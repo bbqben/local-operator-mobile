@@ -30,6 +30,7 @@ import { TransientNotice } from "@/features/auth/transient-notice";
 import {
 	diagnosticsReasonValue,
 	diagnosticsText,
+	redact,
 } from "@/features/settings/diagnostics-text";
 import { t } from "@/i18n";
 import type { ThemeMode } from "@/state/theme-preference";
@@ -659,10 +660,16 @@ export default function Settings() {
 						label={t("mobile.settings.diagnostics.last_error")}
 						/* The diagnostics-only record (PR #261 R1/U3): a retrying or
 						 *  stalled stream's cause as well as a terminal one, so "Not
-						 *  answering" is never next to "None". */
+						 *  answering" is never next to "None".
+						 *  Through Copy diagnostics' `redact` (PR #261 QA O1): the
+						 *  summary is "kind status reason", and the reason is whatever
+						 *  the relay or gateway sent — a URL with a query token, a
+						 *  `Bearer …` header or an opaque secret can ride in it. Copy
+						 *  diagnostics already redacted this value; the row showed it
+						 *  raw, on a screen people screenshot and select from. */
 						value={
 							diagnosticError
-								? diagnosticError.summary
+								? redact(diagnosticError.summary)
 								: t("mobile.settings.diagnostics.none")
 						}
 					/>
