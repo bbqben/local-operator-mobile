@@ -83,8 +83,9 @@ export interface RelayHttpOptions {
 	/** Injected for tests and for `expo/fetch` on a platform where the global
 	 *  fetch cannot stream. Defaults to the global. */
 	fetchImpl?: typeof globalThis.fetch;
-	/** Called with every response's headers, including failures. The tunnel route
-	 *  uses this to persist a transparently-refreshed `__Host-radient-*` pair. */
+	/** Route-level response observer, including authentication failures. A typed
+	 *  device-key refusal on a deviceCredential request stays operation-local;
+	 *  callers still receive its thrown RelayError with status/code intact. */
 	onResponse?: (facts: RelayResponseFactsWithHeaders) => void | Promise<void>;
 	/** Per-request deadline. `0` disables it (a stream needs its own budget). */
 	timeoutMs?: number;
@@ -111,6 +112,9 @@ export interface RelayRequest {
 	/** Absolute URL for the owner API (`api.radienthq.com`), which is not the
 	 *  relay and does not share its base. */
 	absoluteUrl?: string;
+	/** This endpoint additionally authenticates a device record. Only its typed
+	 * device_key_required refusal is local; cookie/edge failures remain global. */
+	deviceCredential?: true;
 	/** Extra headers for the rare route that needs them (the owner API's bearer). */
 	headers?: Record<string, string>;
 	/** No timeout at all: used by an SSE open, whose deadline is the stream's. */
@@ -367,7 +371,15 @@ export class RelayHttpClient {
 		}
 
 		const facts = responseFacts(response);
-		await this.onResponse?.(facts);
+		// Only this endpoint's non-edge 401 needs its typed body before deciding
+		// whether it invalidates the route. All other response hooks retain their
+		// immediate timing (including real edge expiry and revocation failures).
+		const inspectDeviceRefusal =
+			request.deviceCredential &&
+			response.status === 401 &&
+			!facts.header("x-radient-login") &&
+			!request.accept?.includes(response.status);
+		if (!inspectDeviceRefusal) await this.onResponse?.(facts);
 
 		const release = async () => {
 			/* Called when the caller is finished with this response — after the body is
@@ -411,10 +423,17 @@ export class RelayHttpClient {
 				bodyText = "";
 			}
 			await release();
-			throw relayErrorFromResponse(
+			const error = relayErrorFromResponse(
 				{ ...facts, text: bodyText },
 				`${this.diagnostic} ${request.method} ${redactPath(request.path)}`,
 			);
+			// The sound-cache report can reject THIS device's key after the relay
+			// cookie has passed admission. Keep that refusal on the operation: it
+			// must still throw, but must not quarantine a healthy session route.
+			// An absent/unreadable code or the edge's login marker is never exempt.
+			if (inspectDeviceRefusal && error.code !== "device_key_required")
+				await this.onResponse?.(facts);
+			throw error;
 		}
 
 		/* The stream's body is the long-lived part: from here on its deadline is
