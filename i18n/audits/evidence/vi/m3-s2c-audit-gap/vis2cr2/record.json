@@ -1,0 +1,178 @@
+{
+ "locale": "vi",
+ "slice": "m3-s2c-audit-gap",
+ "round": 2,
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "audit_date": "2026-11-14",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/vi/draft-vi.json",
+   "sha256": "aacf5a5e9a785c2f2868e059fcfda722dc2e438fe2fca3ce078d14e0907dc90c"
+  },
+  "round1_record": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/record.json",
+   "sha256": "c45d73ac47a897736a71021c44dc2e2b3f1ce40d9347191a0340d5b9db7458ef"
+  },
+  "round1_report": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/report.md",
+   "sha256": "c30de68666edb05753c5ce26cf69c49da67766db72b5e76c24decb02a913eda9"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/vi/notes-vi.md",
+   "sha256": "cddda7170ce5b8634f904a5459f1fe360877813f985bc1adb7d44c62dcef2de3"
+  },
+  "messages_ts": {
+   "source": "git show 9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "desktop_reference": "local-operator-ui origin/main e612221450 (no fetch)"
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "ef29a5921e99",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "system prompt 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "translator_session": "c0230879f401",
+  "independent_from_round1_session": true,
+  "round1_session": "50f759c57419"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable). Inputs copied to own scratchpad, sha256 re-verified (audit.log).",
+ "redaction_marker_hits": 0,
+ "bidi_control_count": 0,
+ "placeholder_check": {
+  "tool": "repo src/i18n/messages.ts parseMessage @9214ff9b via node, env -i, NODE_OPTIONS=--max-old-space-size=256",
+  "keys_checked": 66,
+  "draft_keys": 13,
+  "unknown_keys": 0,
+  "draft_noop_keys": 0,
+  "mismatches": 0,
+  "keys_with_params": 13,
+  "negative_controls": [
+   "dropping {computer} from tunnel_gone.title -> detected mismatch",
+   "'Bad {computer' -> parser threw"
+  ]
+ },
+ "round1_resolution": [
+  {
+   "id": "vi-GAP-1",
+   "status": "resolved",
+   "note": "feature name now 'Truy cập từ điện thoại' = desktop ui.providers.phone.heading"
+  },
+  {
+   "id": "vi-GAP-2",
+   "status": "resolved",
+   "note": "'Quyền' dropped"
+  },
+  {
+   "id": "vi-GAP-3",
+   "status": "resolved",
+   "note": "'Quyền' dropped; 'vào {computer}' kept"
+  },
+  {
+   "id": "vi-GAP-4",
+   "status": "resolved",
+   "note": "term fixed + natural 'kiểm tra xem … đã bật chưa'"
+  },
+  {
+   "id": "vi-GAP-5",
+   "status": "resolved",
+   "note": "identical pattern to desktop ui.providers.phone.stopped"
+  },
+  {
+   "id": "vi-GAP-6",
+   "status": "resolved",
+   "note": "= desktop ui.chat.composer.suggestion.phone_access 'Bật truy cập từ điện thoại'"
+  },
+  {
+   "id": "vi-GAP-7",
+   "status": "resolved",
+   "note": "term fixed; 'vào {computer}' now matches console_disabled.title (same en); 'của bạn' restored"
+  },
+  {
+   "id": "vi-GAP-8",
+   "status": "resolved",
+   "note": "'nạp thêm tín dụng' = desktop low_credits_dialog.get_more_credits"
+  },
+  {
+   "id": "vi-GAP-9",
+   "status": "resolved",
+   "note": "'Nạp tín dụng' = desktop ui.providers.phone.action.add_credit"
+  },
+  {
+   "id": "vi-GAP-10",
+   "status": "resolved_with_variation_accepted",
+   "note": "doubled 'trước' removed. Kept 'bất cứ thứ gì' over R1's 'bất cứ tính năng nào': sound — en says 'anything', and desktop ui.providers.phone.consent shows activation sets up a subscription, reserves an address and starts a connector, so 'tính năng' would narrow the meaning. Reads naturally."
+  },
+  {
+   "id": "vi-GAP-11",
+   "status": "resolved",
+   "note": "'bật tính năng này trong' names the antecedent"
+  },
+  {
+   "id": "vi-GAP-12",
+   "status": "resolved",
+   "note": "'hiện không chạy' also matches shipped mobile.computers.refusal wording"
+  },
+  {
+   "id": "vi-GAP-13",
+   "status": "resolved",
+   "note": "past-negative calque removed"
+  },
+  {
+   "id": "vi-GAP-14",
+   "status": "rejection_sound",
+   "note": "R1 itself recommended keep; 'Sao chép thông tin chẩn đoán' is byte-identical to desktop ui.providers.phone.action.copy_diagnostics (same en 'Copy diagnostics'), so per the desktop-reference rule it is correct; full-size outline Button wraps rather than clips. Narrow-phone render is design/QA's, not catalogue."
+  }
+ ],
+ "scope_check": "draft changes exactly the 13 keys flagged GAP-1..13; no unflagged key changed; GAP-14 no-op",
+ "final_set": {
+  "path": "/Users/damian/.local-operator/sessions/ef29a5921e99/scratchpad/vi-gap-r2/final-vi.json",
+  "sha256": "1d1a52d75e548de5093e8a3de23c5a32facbc2df4a77b06607642b50f747c419",
+  "keys": 66
+ },
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 0,
+  "NIT": 0,
+  "round1_blocker_major_unresolved": 0
+ },
+ "verdict": "passed",
+ "findings": [],
+ "observations_non_gating": [
+  {
+   "id": "vi-R2-O1",
+   "note": "Pre-existing, out of slice: mobile vi says 'bảng điều khiển Radient' (12 occurrences across mobile.computers/refusal/settings/team_bridge) while desktop vi says 'Radient Console' (e.g. ui.providers.phone.action.open_console 'Mở Radient Console'). Internally consistent per app; aligning is an app-wide terminology decision, not a fix for these 4 keys alone (would split mobile)."
+  }
+ ],
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "audit_notes_not_execution_log": "report.md is notes; audit.log is the execution log",
+ "artifacts": {
+  "report.md": {
+   "path": "/Users/damian/.local-operator/sessions/ef29a5921e99/scratchpad/vi-gap-r2/report.md",
+   "sha256": "e2355a7de2648871c38ebcdf985482ddb8a37492e484a6d7036c752002e676a9"
+  },
+  "audit.log": {
+   "path": "/Users/damian/.local-operator/sessions/ef29a5921e99/scratchpad/vi-gap-r2/audit.log",
+   "sha256": "f9933a900e0dcf335efae2a7dd7dac03404b79e643d9749baac328a62983f84a"
+  },
+  "final-vi.json": {
+   "path": "/Users/damian/.local-operator/sessions/ef29a5921e99/scratchpad/vi-gap-r2/final-vi.json",
+   "sha256": "1d1a52d75e548de5093e8a3de23c5a32facbc2df4a77b06607642b50f747c419"
+  },
+  "check.mjs": {
+   "path": "/Users/damian/.local-operator/sessions/ef29a5921e99/scratchpad/vi-gap-r2/check.mjs",
+   "sha256": "397d96fc8e15f8e81b67ae381ac9bd0cd517a7883ee3e16b00f656e644bc912e"
+  }
+ }
+}

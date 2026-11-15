@@ -1912,16 +1912,23 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * over the merged tree; source identity, NOT rendered evidence. */
 	/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
+	/* M3 S2c audit gap: 118 audited catalogue values in 7 locales and the two
+	 * unused setup.billing_* keys dropped; re-derived last with --print; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* PR #246 converged onto main 95adf190 (#260 i18n M3 S2b-2b): both sides'
 	 * comments and source kept, so neither parent's digest. Re-derived once
 	 * with --print over the merged tree; source identity, NOT rendered
 	 * evidence. */
+	/* Convergence of #265 (M3 S2c) onto main c0b6a4da (#246 background sync): both
+	 * comment chains kept; src re-derived once with --print over the merged tree. */
 	/* PR #262 (fix/radient-account-label) merged with main c0b6a4da: the Radient
 	 * route admits with the grant's account label, #258's AccountCard titles
 	 * itself through `account-title.ts`, and the Diagnostics Last error row goes
 	 * through `redact`. Re-derived once with --print; only `src` moved. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "2f6a15348c6c1dfc8a9a3ab69e58f2cc2bd3cfa81d5478f81b40f2c4abde9075",
+	/* Convergence of #265 (M3 S2c) onto main 81b5df9d (#262 Radient account label):
+	 * both comment chains kept; src re-derived once with --print over the merged tree. */
+	src: "ef41df80311c75198df77b0d73c949f1b57d24dfba6adf7417bf1b38c0aa34b1",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

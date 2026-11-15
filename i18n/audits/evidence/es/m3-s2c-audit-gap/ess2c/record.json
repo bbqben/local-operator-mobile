@@ -1,0 +1,166 @@
+{
+  "locale": "es",
+  "slice": "m3-s2c-audit-gap",
+  "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+  "key_count": 66,
+  "brief": {
+    "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+    "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5",
+    "scratch_copy": "/Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/brief-gap.json",
+    "scratch_copy_sha256_equal": true
+  },
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "37fe02cf811a",
+    "model": "anthropic/claude-opus-5-5",
+    "fallback_used": false,
+    "independent_from_translator_session": true,
+    "actual_model_source": "system prompt 'Model:' line"
+  },
+  "audit_date": "2026-11-14",
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": 0,
+  "placeholder_check": {
+    "keys": 66,
+    "mismatches": 0,
+    "parser": "src/i18n/messages.ts@9214ff9b sha256 c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0",
+    "plural_args": 0,
+    "cldr_categories": "n/a (no plural in batch)"
+  },
+  "phone_access_name": {
+    "desktop_reference": "local-operator-ui origin/main e6122214 ui.providers.phone.heading = 'Acceso desde el teléfono'; action.set_up = 'Configurar el acceso desde el teléfono'",
+    "batch_keys_naming_feature": 12,
+    "matching": 12,
+    "divergent": []
+  },
+  "counts": {
+    "BLOCKER": 0,
+    "MAJOR": 1,
+    "MINOR": 4,
+    "NIT": 2
+  },
+  "verdict": "failed",
+  "current_report_verdict": {
+    "status": "failed",
+    "unresolved_blocker_major_count": 1,
+    "finding_ids": [
+      "es-GAP-1",
+      "es-GAP-2",
+      "es-GAP-3",
+      "es-GAP-4",
+      "es-GAP-5",
+      "es-GAP-6",
+      "es-GAP-7"
+    ]
+  },
+  "findings": [
+    {
+      "id": "es-GAP-1",
+      "key": "mobile.computers.setup.open_settings, mobile.refusal.phone_access_off.body, mobile.refusal.balance_out.body, mobile.refusal.suspended.body, mobile.refusal.provisioning.title, mobile.refusal.how_to.body, mobile.refusal.terminal.label, mobile.settings.sign_in_confirm.body",
+      "severity": "MAJOR",
+      "current": "mobile.computers.setup.open_settings: En tu computadora, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono → Configurar el acceso desde el teléfono.; mobile.refusal.phone_access_off.body: Actívalo desde Local Operator en tu computadora.; mobile.refusal.balance_out.body: Añade saldo; tu computadora se volverá a conectar sola. Luego toca Reintentar.; mobile.refusal.suspended.body: Tu computadora se volverá a conectar sola; si esto continúa, abre Local Operator en ella y luego toca Reintentar.; mobile.refusal.provisioning.title: Radient todavía está preparando esta computadora.; mobile.refusal.how_to.body: En tu computadora, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono y elige Configurar el acceso desde el teléfono. Primero verás el precio, antes de que se active nada.; mobile.refusal.terminal.label: En esa computadora; mobile.settings.sign_in_confirm.body: Esto cierra primero tu conexión actual. Si no terminas de iniciar sesión, tendrás que volver a conectarte a tu computadora.",
+      "suggested": "mobile.computers.setup.open_settings: En tu máquina, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono → Configurar el acceso desde el teléfono.; mobile.refusal.phone_access_off.body: Actívalo desde Local Operator en tu máquina.; mobile.refusal.balance_out.body: Añade saldo; tu máquina se volverá a conectar sola. Luego toca Reintentar.; mobile.refusal.suspended.body: Tu máquina se volverá a conectar sola; si esto continúa, abre Local Operator en ella y luego toca Reintentar.; mobile.refusal.provisioning.title: Radient todavía está preparando esta máquina.; mobile.refusal.how_to.body: En tu máquina, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono y elige Configurar el acceso desde el teléfono. Primero verás el precio, antes de que se active nada.; mobile.refusal.terminal.label: En esa máquina; mobile.settings.sign_in_confirm.body: Esto cierra primero tu conexión actual. Si no terminas de iniciar sesión, tendrás que volver a conectarte a tu máquina.",
+      "reason": "'computadora' (LatAm-marked; style guide es.md 'Neutral Spanish: avoid region-marked words') appears in 0 core es and 0 desktop es strings and diverges from the mobile house term 'máquina' (87 occ. in mobile es; mobile.computers.title.set_up = 'Añade una máquina', fallback_name = 'tu máquina'; ruling recorded in es/m3-s1-signin-computers/ess1r1/report.md). setup.open_settings renders under the 'Añade una máquina' title on the same view (computers-view.ts:130/150), so the reader sees two names for one object. Gender is unchanged (both feminine), so the swap is word-only."
+    },
+    {
+      "id": "es-GAP-2",
+      "key": "mobile.notifications.computer_registration.failed, mobile.notifications.computer_registration.no_token, mobile.notifications.computer_registration.refused, mobile.notifications.computer_registration.registered, mobile.notifications.computer_registration.registering, mobile.notifications.computer_registration.relay_missing",
+      "severity": "MINOR",
+      "current": "mobile.notifications.computer_registration.failed: No se pudo registrar este teléfono para recibir alertas de este ordenador. Se volverá a intentar cuando vuelvas a abrir la app.; mobile.notifications.computer_registration.no_token: Este teléfono aún no tiene una dirección push, así que este ordenador no puede enviarle alertas. Vuelve a abrir la app para intentarlo de nuevo.; mobile.notifications.computer_registration.refused: Este ordenador ha desactivado las alertas para este teléfono. Seguirán desactivadas hasta que se vuelvan a permitir en el ordenador.; mobile.notifications.computer_registration.registered: Este teléfono está registrado para recibir alertas de este ordenador.; mobile.notifications.computer_registration.registering: Registrando este teléfono para recibir alertas de este ordenador.; mobile.notifications.computer_registration.relay_missing: Este ordenador necesita una actualización de Local Operator para poder enviar alertas a este teléfono.",
+      "suggested": "mobile.notifications.computer_registration.failed: No se pudo registrar este teléfono para recibir alertas de esta máquina. Se volverá a intentar cuando vuelvas a abrir la app.; mobile.notifications.computer_registration.no_token: Este teléfono aún no tiene una dirección push, así que esta máquina no puede enviarle alertas. Vuelve a abrir la app para intentarlo de nuevo.; mobile.notifications.computer_registration.refused: Esta máquina ha desactivado las alertas para este teléfono. Seguirán desactivadas hasta que se vuelvan a permitir en la máquina.; mobile.notifications.computer_registration.registered: Este teléfono está registrado para recibir alertas de esta máquina.; mobile.notifications.computer_registration.registering: Registrando este teléfono para recibir alertas de esta máquina.; mobile.notifications.computer_registration.relay_missing: Esta máquina necesita una actualización de Local Operator para poder enviar alertas a este teléfono.",
+      "reason": "Same batch names the computer a second way: 'ordenador' (Peninsular-marked). Less jarring than GAP-1 because core es (50) and desktop es (25) attest it, but mobile's house term is 'máquina' and the refusal half of this batch says 'computadora'. Align on 'máquina' (note gender: este→esta, el→la)."
+    },
+    {
+      "id": "es-GAP-3",
+      "key": "mobile.refusal.offline.body",
+      "severity": "MINOR",
+      "current": "Actívala y asegúrate de que Local Operator esté abierto en ella.",
+      "suggested": "Reactiva la máquina y asegúrate de que Local Operator esté abierto en ella.",
+      "reason": "Feminine 'Actívala…en ella' refers to a noun the screen never shows: the headline subject is {computer} (a reader-given name, e.g. 'MacBook de Ana' → masculine, or an address). Naming the noun fixes agreement; 'reactivar' is the standard es verb for waking from 'reposo' (the headline's word), 'activar' reads as 'enable'."
+    },
+    {
+      "id": "es-GAP-4",
+      "key": "mobile.refusal.wait_network.body",
+      "severity": "MINOR",
+      "current": "Se volverá a conectar sola cuando recupere la red.",
+      "suggested": "Se volverá a conectar automáticamente cuando recupere la red.",
+      "reason": "'sola' (feminine) agrees with an implied 'computadora', but the headline subject is {computer}, a free name that may be masculine. 'automáticamente' is gender-free and keeps the meaning."
+    },
+    {
+      "id": "es-GAP-5",
+      "key": "mobile.refusal.relay_wait.body",
+      "severity": "MINOR",
+      "current": "Vuelve a intentarlo en un momento.",
+      "suggested": "Inténtalo de nuevo en un momento.",
+      "reason": "Same en source 'Try again in a moment.' as mobile.refusal.radient_unreachable.body, which ships 'Inténtalo de nuevo en un momento.' (and copy_failed ships 'Inténtalo de nuevo'). One source, one rendering on one refusal surface."
+    },
+    {
+      "id": "es-GAP-6",
+      "key": "mobile.refusal.how_to.body",
+      "severity": "NIT",
+      "current": "En tu computadora, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono y elige Configurar el acceso desde el teléfono. Primero verás el precio, antes de que se active nada.",
+      "suggested": "En tu máquina, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono y elige “Configurar el acceso desde el teléfono”. Verás el precio antes de que se active nada.",
+      "reason": "Unquoted button label runs into the sentence ('elige Configurar el acceso…' reads as an instruction); “…” is already used for labels in mobile es. 'Primero … antes de' is redundant. Label itself matches desktop ui.providers.phone.action.set_up."
+    },
+    {
+      "id": "es-GAP-7",
+      "key": "mobile.refusal.action.add_credit, mobile.refusal.balance_out.body",
+      "severity": "NIT",
+      "current": "Añadir saldo / Añade saldo; tu computadora se volverá a conectar sola. Luego toca Reintentar.",
+      "suggested": "Añadir crédito / Añade crédito; tu máquina se volverá a conectar sola. Luego toca Reintentar.",
+      "reason": "Core es phone-access copy for the same action says 'Añade crédito' (mobile.setup.action_add_credit, tunnel.status.billing_lapsed.detail). 'Añadir saldo' is idiomatic, so NIT only: cross-surface alignment."
+    }
+  ],
+  "pass_keys": [
+    "mobile.computers.setup.list_updates",
+    "mobile.computers.setup.check_again",
+    "mobile.computers.setup.checking",
+    "mobile.computers.hint.radient_unreachable",
+    "mobile.settings.diagnostics.tunnel",
+    "mobile.settings.diagnostics.address",
+    "mobile.settings.diagnostics.copy",
+    "mobile.refusal.phone_access_off.title",
+    "mobile.refusal.balance_out.title",
+    "mobile.refusal.suspended.title",
+    "mobile.refusal.console_disabled.title",
+    "mobile.refusal.provisioning.body",
+    "mobile.refusal.refused.title",
+    "mobile.refusal.refused.body",
+    "mobile.refusal.offline.title",
+    "mobile.refusal.relay_stopped.title",
+    "mobile.refusal.relay_stopped.body",
+    "mobile.refusal.relay_refused.title",
+    "mobile.refusal.relay_refused.body",
+    "mobile.refusal.tunnel_gone.title",
+    "mobile.refusal.tunnel_gone.body",
+    "mobile.refusal.radient_unreachable.title",
+    "mobile.refusal.radient_unreachable.body",
+    "mobile.refusal.relay_wait.title",
+    "mobile.refusal.action.how_to",
+    "mobile.refusal.action.open_billing",
+    "mobile.refusal.action.open_console",
+    "mobile.refusal.action.refresh_list",
+    "mobile.refusal.action.retry",
+    "mobile.refusal.how_to.title",
+    "mobile.refusal.terminal.toggle",
+    "mobile.refusal.wait_network.title",
+    "mobile.refusal.wait_reconnect.title",
+    "mobile.refusal.wait_reconnect.body",
+    "mobile.refusal.computer_sign_in.title",
+    "mobile.refusal.computer_sign_in.body",
+    "mobile.refusal.computer_attention.title",
+    "mobile.refusal.computer_attention.body",
+    "mobile.refusal.open_console.title",
+    "mobile.settings.diagnostics.reason",
+    "mobile.settings.account.signed_in_radient",
+    "mobile.settings.sign_in_confirm.title",
+    "mobile.settings.sign_in_confirm.confirm",
+    "mobile.chrome.clear_search",
+    "mobile.home.transcript.needs_answer",
+    "mobile.session.pending_echo.not_confirmed_plain",
+    "mobile.settings.diagnostics.copied",
+    "mobile.settings.diagnostics.copy_failed"
+  ],
+  "rtl": "n/a",
+  "audit_notes_not_execution_log": "report.md is notes; audit.log lists commands actually run with outputs"
+}

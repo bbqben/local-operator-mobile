@@ -1,0 +1,1257 @@
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/ur/draft-ur.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ur/record.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ur/report.md
+[exit 0]
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+a107e8d2f2a7ed7bcbda67e5215894573c8db5bcb57e35db5f157f5c5c47c6a0  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/ur/draft-ur.json
+e59ccc092f48552d718cb737b26bbc729fcbadf9aff760e4980830601e9d086e  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ur/record.json
+7b56b638b31d6290abddbf7e8059a4c56d59df26ccf17eabfb7e3d1a870a88e0  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ur/report.md
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git rev-parse 9214ff9b; git ls-tree -r --name-only 9214ff9b | grep -iE '(^|/)ur[./]|/ur/|style|glossary' | head -50
+[exit 0]
+9214ff9b43c58256c49f48a8c2858f9c186d35c8
+i18n/audits/evidence/ur/NOTE-paths.md
+i18n/audits/evidence/ur/m2-expression-literals/final.json
+i18n/audits/evidence/ur/m2-expression-literals/reaudit-shipped-3af477ee.md
+i18n/audits/evidence/ur/m2-expression-literals/round1-A.md
+i18n/audits/evidence/ur/m2-expression-literals/round1-B.md
+i18n/audits/evidence/ur/m2-expression-literals/round2.md
+i18n/audits/evidence/ur/m2-expression-literals/translator-v2-changes.md
+i18n/audits/evidence/ur/m2-expression-literals/translator-v3-changes.md
+i18n/audits/evidence/ur/m3-s1-signin-computers/draft-ur-s1.json
+i18n/audits/evidence/ur/m3-s1-signin-computers/notes-ur-s1.md
+i18n/audits/evidence/ur/m3-s1-signin-computers/urs1r1/audit.log
+i18n/audits/evidence/ur/m3-s1-signin-computers/urs1r1/receipt.json
+i18n/audits/evidence/ur/m3-s1-signin-computers/urs1r1/record.json
+i18n/audits/evidence/ur/m3-s1-signin-computers/urs1r1/report.md
+i18n/audits/evidence/ur/m3-s2a-signin-computers/README.md
+i18n/audits/evidence/ur/m3-s2a-signin-computers/urs2a1/audit.log
+i18n/audits/evidence/ur/m3-s2a-signin-computers/urs2a1/record.json
+i18n/audits/evidence/ur/m3-s2a-signin-computers/urs2a1/report.md
+i18n/audits/evidence/ur/m3-s2a-signin-computers/urs2a2/audit.log
+i18n/audits/evidence/ur/m3-s2a-signin-computers/urs2a2/record.json
+i18n/audits/evidence/ur/m3-s2a-signin-computers/urs2a2/report.md
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/README.md
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1/audit.log
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1/record.json
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1/report.md
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1r2/audit.log
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1r2/record.json
+i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1r2/report.md
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/README.md
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/urs2b2a/audit.log
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/urs2b2a/record.json
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/urs2b2a/report.md
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/urs2b2ar2/audit.log
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/urs2b2ar2/record.json
+i18n/audits/evidence/ur/m3-s2b2a-computers-refusal/urs2b2ar2/report.md
+i18n/audits/evidence/ur/mobile.account_routing/ur30a4/audit.log
+i18n/audits/evidence/ur/mobile.account_routing/ur30a4/record.json
+i18n/audits/evidence/ur/mobile.account_routing/ur30a4/report.md
+i18n/audits/evidence/ur/mobile.account_routing/ur30a4r2/audit.log
+i18n/audits/evidence/ur/mobile.account_routing/ur30a4r2/record.json
+i18n/audits/evidence/ur/mobile.account_routing/ur30a4r2/report.md
+i18n/audits/evidence/ur/mobile.chrome/ur1107c1/audit.log
+i18n/audits/evidence/ur/mobile.chrome/ur1107c1/record.json
+i18n/audits/evidence/ur/mobile.chrome/ur1107c1/report.md
+i18n/audits/evidence/ur/mobile.common/lib-common-ur-r1/audit.log
+i18n/audits/evidence/ur/mobile.common/lib-common-ur-r1/record.json
+i18n/audits/evidence/ur/mobile.common/lib-common-ur-r1/report.md
+i18n/audits/evidence/ur/mobile.common/ur1111m1r2/audit.log
+i18n/audits/evidence/ur/mobile.common/ur1111m1r2/record.json
+i18n/audits/evidence/ur/mobile.common/ur1111m1r2/report.md
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git ls-tree -r --name-only 9214ff9b | grep -vE '^i18n/audits/' | grep -E '(^|/)ur(\.json|\.md|/)|i18n/style|glossary' 
+[exit 0]
+src/i18n/catalogues/ur/mobile.account_routing.json
+src/i18n/catalogues/ur/mobile.agent_avatar.json
+src/i18n/catalogues/ur/mobile.chrome.json
+src/i18n/catalogues/ur/mobile.common.json
+src/i18n/catalogues/ur/mobile.composer_input.json
+src/i18n/catalogues/ur/mobile.computers.json
+src/i18n/catalogues/ur/mobile.home.json
+src/i18n/catalogues/ur/mobile.library.json
+src/i18n/catalogues/ur/mobile.notifications.json
+src/i18n/catalogues/ur/mobile.oauth.json
+src/i18n/catalogues/ur/mobile.projects.json
+src/i18n/catalogues/ur/mobile.refusal.json
+src/i18n/catalogues/ur/mobile.schedules.json
+src/i18n/catalogues/ur/mobile.session.json
+src/i18n/catalogues/ur/mobile.session_health.json
+src/i18n/catalogues/ur/mobile.settings.json
+src/i18n/catalogues/ur/mobile.sidebar.json
+src/i18n/catalogues/ur/mobile.signin.json
+src/i18n/catalogues/ur/mobile.team_bridge.context.json
+src/i18n/catalogues/ur/mobile.team_bridge.json
+src/i18n/catalogues/ur/relay.chrome.json
+src/i18n/catalogues/ur/relay.composer.json
+src/i18n/catalogues/ur/relay.health.json
+src/i18n/catalogues/ur/relay.transcript.json
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git ls-tree -r --name-only 9214ff9b | grep -E 'ur\.md|style-guide|glossary|messages\.ts$' | grep -v audits/evidence
+[exit 0]
+src/i18n/messages.ts
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git ls-tree -r --name-only 9214ff9b | grep -iE 'style|gloss|i18n/[^/]*\.md' | grep -v audits/evidence | head; ls ~/local-operator-ui/i18n 2>/dev/null | head -30
+[exit 0]
+allowlist.json
+audits
+baseline.json
+context-allowance.json
+coverage-allowance.json
+languages.json
+ledger.json
+receipts
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) shasum -a 256 ~/local-operator/i18n/style-guides/ur.md ~/local-operator/i18n/glossary.md; grep -n -iE 'quot|arrow|→|←|punctuat|۔|bidi|digit' ~/local-operator/i18n/style-guides/ur.md | head -40
+[exit 0]
+c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60  /Users/damian/local-operator/i18n/style-guides/ur.md
+0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8  /Users/damian/local-operator/i18n/glossary.md
+5:RTL & bidi section before translating a single string.
+23:  Urdu punctuation or reorder them.
+32:- session → سیشن (software loanword; نشست means a meeting — do not use it)
+33:- wake → بیداری for the noun label; verb forms inside sentences ("10 بجے
+36:- tool trace → ٹریس · transcript → ٹرانسکرپٹ
+37:- approvals → منظوریاں (singular منظوری) · schedule → شیڈول
+38:- relay → ریلے · workspace → ورک اسپیس
+44:  where it reads naturally; otherwise inflect (فائل → فائلیں).
+46:## Numbers, dates, digits
+48:- Latin digits in v1 (§2.8) — Urdu digits (۱۲۳) are deferred and recorded
+53:## RTL & bidi
+56:  FSI/PDI isolation (zero width) — **do not insert manual bidi control
+62:  bidi-capable terminals (iTerm2 3.7+), legible-but-unordered elsewhere;
+72:- Arabic-script text measures ≈ one cell per character (measured: 14→14);
+89:## Punctuation & typography
+91:- Urdu punctuation: ۔ full stop, ، comma, ؟ question mark, ؛ semicolon,
+92:  quotes “ ”. Do not use Hindi (।) or Arabic-only signs.
+93:- Latin punctuation stays Latin inside code spans, flags and numbers
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) sed -n 1,100p ~/local-operator/i18n/style-guides/ur.md
+[exit 0]
+# Style guide — Urdu (`ur`) — the RTL locale
+
+Read with `i18n/glossary.md`; everything here is ur-specific and binding for
+translators and the auditor. This locale carries the RTL pass — read the
+RTL & bidi section before translating a single string.
+
+## Formality & tone
+
+- Address: **آپ** — recorded decision: the standard polite address in Urdu
+  software; "تم" (intimate) and "تو" (blunt) never appear in product copy,
+  however terse the string.
+- Terse; natural Urdu — not Hindi-ised (use Urdu vocabulary: ترتیبات،
+  استعمال، محفوظ کریں) and not over-Persianised (everyday educated register).
+- Commands use the respectful imperative: "محفوظ کریں", "دوبارہ کوشش کریں",
+  "منسوخ کریں".
+- "براہ کرم" only where the English says "please"; no "!"; no padding
+  honorifics.
+
+## Product-name policy
+
+- Keep Latin as-is, untransliterated: `lop`, commands, `--flags`, paths,
+  config keys, product names, tool names (glossary §1). Never wrap them in
+  Urdu punctuation or reorder them.
+- Kept-Latin acronyms stay half-width and undeclined: API, CLI, TUI, JSON,
+  YAML, HTTP, URL.
+- Settled loanwords take Urdu script: سیشن، ٹوکن، فائل، ریموٹ، ورک اسپیس.
+- Prefer the settled Urdu term where one exists: ترتیبات (settings), محفوظ
+  کریں (save), استعمال (usage).
+
+## Locale calls (ur)
+
+- session → سیشن (software loanword; نشست means a meeting — do not use it)
+- wake → بیداری for the noun label; verb forms inside sentences ("10 بجے
+  جاگے گا"). The wave that first translates `wake` strings records the final
+  call here if it diverges.
+- tool trace → ٹریس · transcript → ٹرانسکرپٹ
+- approvals → منظوریاں (singular منظوری) · schedule → شیڈول
+- relay → ریلے · workspace → ورک اسپیس
+
+## Plurals
+
+- Categories: `one` / `other`. Example: `{count, plural, one {# فائل} other {# فائلیں}}`
+- Some English loanwords stay invariant in the plural (سیشن) — acceptable
+  where it reads naturally; otherwise inflect (فائل → فائلیں).
+
+## Numbers, dates, digits
+
+- Latin digits in v1 (§2.8) — Urdu digits (۱۲۳) are deferred and recorded
+  here as revisitable without code.
+- Never hand-written — the formatter renders "1,234.5" and dates
+  "10 اکتوبر، 2026"; am/pm suffix per the formatter.
+
+## RTL & bidi
+
+- Storage is logical order. The render layer wraps each translated string in
+  FSI/PDI isolation (zero width) — **do not insert manual bidi control
+  characters (RLM/LRM/FSI/PDI) into translations**; they are double-applied.
+- LTR islands: code spans, paths, commands, diffs and terminal output stay
+  byte-identical Latin; a string that is mostly an LTR token keeps the
+  source's order.
+- TUI stance: layout stays LTR, `ur` ships best-effort — correct on
+  bidi-capable terminals (iTerm2 3.7+), legible-but-unordered elsewhere;
+  documented on the locale picker row. This is a known degraded stance, not a
+  translation defect — never "fix" a string to compensate.
+- Web/Electron/RN mirror fully (`dir=rtl`, logical properties); the strings
+  are the same ones.
+- Fonts: Nastaliq (Noto Nastaliq / DecoType) — the TUI inherits the user's
+  terminal font; glyph shaping is the terminal's job, not the copy's.
+
+## Width rules
+
+- Arabic-script text measures ≈ one cell per character (measured: 14→14);
+  FSI/PDI cost 0 cells. Keep within `maxCells`; prefer short.
+- Budgets: `maxCells` from the en sidecar; pinned: PERSIST_HINT 42/43 cells,
+  tip pool 59, `/help` ≈ 55.
+- Recorded width exception: relay.health.reconnecting reads «پھر منسلک ہو رہا»
+  — the consistent «دوبارہ منسلک ہو رہا» (relay.chrome.link.*) is 19 cells
+  against the 16-cell cap; «پھر» before a verb reads "again", and dropping
+  «ہے» matches the sibling «جواب نہیں دے رہا». Revisit only with a budget
+  change.
+- Recorded width exception: `cli.services_status` in this wave:
+  `serve_linger_required` reads 89, `restart_supervision_limit` 81 and
+  `unsupervised_unknown` 80 cells with `rich.cells.cell_len` against the 80/78
+  status budget. Recorded rather than shortened: the LTR islands (`loginctl
+  enable-linger`, `lop services restart`) stay byte-identical and cannot be
+  abbreviated; the 80-cell break lands inside the interpolated install command,
+  which is a renderer concern, not a wording one.
+
+## Punctuation & typography
+
+- Urdu punctuation: ۔ full stop, ، comma, ؟ question mark, ؛ semicolon,
+  quotes “ ”. Do not use Hindi (।) or Arabic-only signs.
+- Latin punctuation stays Latin inside code spans, flags and numbers
+  ("1,234.5"); code spans/flags/paths stay byte-identical.
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git ls-tree -r --name-only 9214ff9b src/i18n/catalogues/ur/
+[exit 0]
+src/i18n/catalogues/ur/mobile.account_routing.json
+src/i18n/catalogues/ur/mobile.agent_avatar.json
+src/i18n/catalogues/ur/mobile.chrome.json
+src/i18n/catalogues/ur/mobile.common.json
+src/i18n/catalogues/ur/mobile.composer_input.json
+src/i18n/catalogues/ur/mobile.computers.json
+src/i18n/catalogues/ur/mobile.home.json
+src/i18n/catalogues/ur/mobile.library.json
+src/i18n/catalogues/ur/mobile.notifications.json
+src/i18n/catalogues/ur/mobile.oauth.json
+src/i18n/catalogues/ur/mobile.projects.json
+src/i18n/catalogues/ur/mobile.refusal.json
+src/i18n/catalogues/ur/mobile.schedules.json
+src/i18n/catalogues/ur/mobile.session.json
+src/i18n/catalogues/ur/mobile.session_health.json
+src/i18n/catalogues/ur/mobile.settings.json
+src/i18n/catalogues/ur/mobile.sidebar.json
+src/i18n/catalogues/ur/mobile.signin.json
+src/i18n/catalogues/ur/mobile.team_bridge.context.json
+src/i18n/catalogues/ur/mobile.team_bridge.json
+src/i18n/catalogues/ur/relay.chrome.json
+src/i18n/catalogues/ur/relay.composer.json
+src/i18n/catalogues/ur/relay.health.json
+src/i18n/catalogues/ur/relay.transcript.json
+
+
+# eval: scan of ALL shipped ur mobile catalogues @9214ff9b (24 files, 1121 keys) with draft applied
+{
+ "arrow_right": [],
+ "arrow_left": [
+  "mobile.computers.own_tunnel.verdict_local_network_ios",
+  "mobile.computers.setup.open_settings",
+  "mobile.refusal.tunnel_gone.body",
+  "mobile.refusal.how_to.body"
+ ],
+ "other_arrows": [
+  [
+   "mobile.session.region.end",
+   "↑"
+  ],
+  [
+   "mobile.session.region.below_labels",
+   "↓"
+  ],
+  [
+   "mobile.session.region.more_below",
+   "↓"
+  ]
+ ],
+ "ascii_arrow": [],
+ "bidi": [
+  "mobile.computers.own_tunnel.insecure_allow",
+  "mobile.computers.own_tunnel.insecure_allowed",
+  "mobile.computers.own_tunnel.insecure_off_help",
+  "mobile.computers.own_tunnel.unencrypted_body"
+ ],
+ "rev_quote": [],
+ "quote_keys": [
+  "mobile.common.copy_command_hint",
+  "mobile.computers.own_tunnel.verdict_local_network_ios",
+  "mobile.computers.own_tunnel.verdict_local_network",
+  "mobile.computers.setup.open_settings",
+  "mobile.home.options.fixed",
+  "mobile.projects.delete_body",
+  "mobile.projects.remove_milestone_body",
+  "mobile.projects.write_receipt",
+  "mobile.refusal.balance_out.body",
+  "mobile.refusal.suspended.body",
+  "mobile.refusal.relay_stopped.body",
+  "mobile.refusal.relay_refused.body",
+  "mobile.refusal.how_to.body",
+  "relay.health.ended_detail",
+  "relay.health.ended_send_failed"
+ ],
+ "other_quotes": [
+  [
+   "mobile.team_bridge.list.chief_role.note",
+   "Team Bridge mobile UI: list / chief role. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Chief of staff is the user’s coordinating agent role, not a human job posting."
+  ],
+  [
+   "mobile.team_bridge.list.chiefs.note",
+   "Team Bridge mobile UI: list / chiefs. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Chief of staff is the user’s coordinating agent role, not a human job posting."
+  ]
+ ]
+}
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git show 9214ff9b:src/i18n/__tests__/bidi-controls.test.ts | grep -n -iE 'insecure|unencrypted|allow|own_tunnel|http' | head
+[exit 0]
+8: * in `ur`, four own-tunnel keys wrap the literal `http://` / `https://` scheme in
+10: * reorders the token to `//:http` (ur round-2 audit), and mobile `src/i18n` has
+16: * `http://` / `https://` and a PDI immediately after it. Scope is `ur` only, as
+18: * the checker would see a violation. `own_tunnel.insecure_hint` names `http` too
+19: * but is deliberately NOT a fifth key: its bare `http` has no `://` to reorder, so
+20: * a copy change that gives it `http://` must add it here (with its isolate).
+28:	"mobile.computers.own_tunnel.insecure_allow",
+29:	"mobile.computers.own_tunnel.insecure_allowed",
+30:	"mobile.computers.own_tunnel.insecure_off_help",
+31:	"mobile.computers.own_tunnel.unencrypted_body",
+
+
+$ (cwd=/Users/damian/local-operator-ui) git rev-parse origin/main; git ls-tree -r --name-only origin/main | grep -E '/ur[./]' | head -40
+[exit 0]
+e6122214503b9fc52841e119c060eabb7650391b
+i18n/audit-evidence/census-five-key-second/ur/ur-census-second.execution.log
+i18n/audit-evidence/census-five-key-second/ur/ur-second-audit.mjs
+i18n/audits/evidence/ur/renderer-blind-spots/bb046f370680/findings.jsonl
+i18n/audits/evidence/ur/renderer-blind-spots/bb046f370680/receipt.json
+i18n/audits/evidence/ur/renderer-blind-spots/bb046f370680/verdict.txt
+i18n/audits/evidence/ur/ui.agentMessages.settings/cosh-cos-hold-20261022/record.json
+i18n/audits/evidence/ur/ui.agentMessages.settings/pr1819-typing-r1-ur-81c927283b69/record.json
+i18n/audits/evidence/ur/ui.agentMessages.settings/teambridge-pr1442-audit-dedc59c2f981/record.json
+i18n/audits/evidence/ur/ui.agentMessages/teambridge-pr1442-audit-a6cc260da02b/record.json
+i18n/audits/evidence/ur/ui.agentMessages/teambridge-pr1442-audit-dedc59c2f981/record.json
+i18n/audits/evidence/ur/ui.agents.avatar/agent-avatar-picture-20261030/record.json
+i18n/audits/evidence/ur/ui.agents.avatar/agent-avatar-picture-r2-20261030/record.json
+i18n/audits/evidence/ur/ui.agents.config/lit2-ur-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.config/lit2-ur-r2-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.config/waveb-delta-20261027/record.json
+i18n/audits/evidence/ur/ui.agents.descriptions/7964ce9a3364-agents2-ur/findings.md
+i18n/audits/evidence/ur/ui.agents.descriptions/7964ce9a3364-agents2-ur/receipt.json
+i18n/audits/evidence/ur/ui.agents.descriptions/7964ce9a3364-agents2-ur/record.json
+i18n/audits/evidence/ur/ui.agents.descriptions/7964ce9a3364-agents2-ur/verdict.txt
+i18n/audits/evidence/ur/ui.agents.detail.install/7964ce9a3364-agents2-ur/findings.md
+i18n/audits/evidence/ur/ui.agents.detail.install/7964ce9a3364-agents2-ur/receipt.json
+i18n/audits/evidence/ur/ui.agents.detail.install/7964ce9a3364-agents2-ur/record.json
+i18n/audits/evidence/ur/ui.agents.detail.install/7964ce9a3364-agents2-ur/verdict.txt
+i18n/audits/evidence/ur/ui.agents.detail/lit2-ur-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.detail/lit2-ur-r2-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.pages/f5d2e59e5dfe-s7a-ur/record.json
+i18n/audits/evidence/ur/ui.agents.pages/lit2-ur-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.pages/lit2-ur-r2-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.routing/d9e91e52ae99-agents3-ur/receipt.json
+i18n/audits/evidence/ur/ui.agents.routing/d9e91e52ae99-agents3-ur/verdict.txt
+i18n/audits/evidence/ur/ui.agents.settings/profile-picture-20261030/record.json
+i18n/audits/evidence/ur/ui.agents.settings/profile-picture-save-error-20261030/record.json
+i18n/audits/evidence/ur/ui.agents.upload/2cf1ea7b5fd-s2a-ur-e05de8251ff7/record.json
+i18n/audits/evidence/ur/ui.agents.upload/2cf1ea7b5fd-s2a-ur-e05de8251ff7/report.md
+i18n/audits/evidence/ur/ui.agents.upload/2cf1ea7b5fd-s2a-ur-e05de8251ff7/scan.json
+i18n/audits/evidence/ur/ui.agents.upload/lit2-ur-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.upload/lit2-ur-r2-20261026/record.json
+i18n/audits/evidence/ur/ui.agents.upload/ur-upload-74af897140ba/bidi-ur-upload.py
+i18n/audits/evidence/ur/ui.agents.upload/ur-upload-74af897140ba/record.json
+i18n/audits/evidence/ur/ui.agents.upload/ur-upload-74af897140ba/render-ur-upload.mjs
+
+
+$ (cwd=/Users/damian/local-operator-ui) git ls-tree -r --name-only origin/main | grep -vE 'audit' | grep -E '(^|/)ur(/|\.json)' | head -60
+[exit 0]
+src/i18n/catalogues/ur/ui.agentMessages.json
+src/i18n/catalogues/ur/ui.agentMessages.settings.json
+src/i18n/catalogues/ur/ui.agents.avatar.json
+src/i18n/catalogues/ur/ui.agents.config.json
+src/i18n/catalogues/ur/ui.agents.descriptions.json
+src/i18n/catalogues/ur/ui.agents.detail.install.json
+src/i18n/catalogues/ur/ui.agents.detail.json
+src/i18n/catalogues/ur/ui.agents.detail.origin.json
+src/i18n/catalogues/ur/ui.agents.detail.read_state.json
+src/i18n/catalogues/ur/ui.agents.dialogs.json
+src/i18n/catalogues/ur/ui.agents.json
+src/i18n/catalogues/ur/ui.agents.models.json
+src/i18n/catalogues/ur/ui.agents.navigation.json
+src/i18n/catalogues/ur/ui.agents.pages.json
+src/i18n/catalogues/ur/ui.agents.proposals.context.json
+src/i18n/catalogues/ur/ui.agents.proposals.json
+src/i18n/catalogues/ur/ui.agents.publication.json
+src/i18n/catalogues/ur/ui.agents.refusals.json
+src/i18n/catalogues/ur/ui.agents.routing.json
+src/i18n/catalogues/ur/ui.agents.settings.json
+src/i18n/catalogues/ur/ui.agents.skills.json
+src/i18n/catalogues/ur/ui.agents.starters.json
+src/i18n/catalogues/ur/ui.agents.teams.json
+src/i18n/catalogues/ur/ui.agents.upload.json
+src/i18n/catalogues/ur/ui.browser.chrome.json
+src/i18n/catalogues/ur/ui.browser.errors.json
+src/i18n/catalogues/ur/ui.browser.extensions.json
+src/i18n/catalogues/ur/ui.browser.json
+src/i18n/catalogues/ur/ui.browser.media_access.json
+src/i18n/catalogues/ur/ui.browser.media_permission.json
+src/i18n/catalogues/ur/ui.canvas.json
+src/i18n/catalogues/ur/ui.chat.analytics.json
+src/i18n/catalogues/ur/ui.chat.approval.json
+src/i18n/catalogues/ur/ui.chat.aside.json
+src/i18n/catalogues/ur/ui.chat.ask_answer.json
+src/i18n/catalogues/ur/ui.chat.ask_command.json
+src/i18n/catalogues/ur/ui.chat.ask_panel.json
+src/i18n/catalogues/ur/ui.chat.ask_queue.json
+src/i18n/catalogues/ur/ui.chat.asks.json
+src/i18n/catalogues/ur/ui.chat.attachment_refusal.json
+src/i18n/catalogues/ur/ui.chat.attachments.json
+src/i18n/catalogues/ur/ui.chat.bridgeReceipt.json
+src/i18n/catalogues/ur/ui.chat.canonical.json
+src/i18n/catalogues/ur/ui.chat.commentary_actions.json
+src/i18n/catalogues/ur/ui.chat.composer.json
+src/i18n/catalogues/ur/ui.chat.composer_media.json
+src/i18n/catalogues/ur/ui.chat.composer_notes.json
+src/i18n/catalogues/ur/ui.chat.credential_notice.json
+src/i18n/catalogues/ur/ui.chat.device.json
+src/i18n/catalogues/ur/ui.chat.device_move.json
+src/i18n/catalogues/ur/ui.chat.dialogs.json
+src/i18n/catalogues/ur/ui.chat.directory.json
+src/i18n/catalogues/ur/ui.chat.draft_target.json
+src/i18n/catalogues/ur/ui.chat.fast_mode.json
+src/i18n/catalogues/ur/ui.chat.header.json
+src/i18n/catalogues/ur/ui.chat.header_menu.json
+src/i18n/catalogues/ur/ui.chat.interrupt.json
+src/i18n/catalogues/ur/ui.chat.json
+src/i18n/catalogues/ur/ui.chat.live_updates.json
+src/i18n/catalogues/ur/ui.chat.message_budget.json
+
+
+$ (cwd=/Users/damian/local-operator-ui) git ls-tree -r --name-only origin/main src/i18n/catalogues/ur/ src/i18n/catalogues/en/
+[exit 0]
+src/i18n/catalogues/en/ui.agentMessages.context.json
+src/i18n/catalogues/en/ui.agentMessages.json
+src/i18n/catalogues/en/ui.agentMessages.settings.context.json
+src/i18n/catalogues/en/ui.agentMessages.settings.json
+src/i18n/catalogues/en/ui.agents.avatar.context.json
+src/i18n/catalogues/en/ui.agents.avatar.json
+src/i18n/catalogues/en/ui.agents.config.context.json
+src/i18n/catalogues/en/ui.agents.config.json
+src/i18n/catalogues/en/ui.agents.descriptions.context.json
+src/i18n/catalogues/en/ui.agents.descriptions.json
+src/i18n/catalogues/en/ui.agents.detail.context.json
+src/i18n/catalogues/en/ui.agents.detail.install.context.json
+src/i18n/catalogues/en/ui.agents.detail.install.json
+src/i18n/catalogues/en/ui.agents.detail.json
+src/i18n/catalogues/en/ui.agents.detail.origin.context.json
+src/i18n/catalogues/en/ui.agents.detail.origin.json
+src/i18n/catalogues/en/ui.agents.detail.read_state.context.json
+src/i18n/catalogues/en/ui.agents.detail.read_state.json
+src/i18n/catalogues/en/ui.agents.dialogs.context.json
+src/i18n/catalogues/en/ui.agents.dialogs.json
+src/i18n/catalogues/en/ui.agents.json
+src/i18n/catalogues/en/ui.agents.models.context.json
+src/i18n/catalogues/en/ui.agents.models.json
+src/i18n/catalogues/en/ui.agents.navigation.context.json
+src/i18n/catalogues/en/ui.agents.navigation.json
+src/i18n/catalogues/en/ui.agents.pages.context.json
+src/i18n/catalogues/en/ui.agents.pages.json
+src/i18n/catalogues/en/ui.agents.proposals.context.json
+src/i18n/catalogues/en/ui.agents.proposals.json
+src/i18n/catalogues/en/ui.agents.publication.context.json
+src/i18n/catalogues/en/ui.agents.publication.json
+src/i18n/catalogues/en/ui.agents.refusals.context.json
+src/i18n/catalogues/en/ui.agents.refusals.json
+src/i18n/catalogues/en/ui.agents.routing.context.json
+src/i18n/catalogues/en/ui.agents.routing.json
+src/i18n/catalogues/en/ui.agents.settings.context.json
+src/i18n/catalogues/en/ui.agents.settings.json
+src/i18n/catalogues/en/ui.agents.skills.context.json
+src/i18n/catalogues/en/ui.agents.skills.json
+src/i18n/catalogues/en/ui.agents.starters.context.json
+src/i18n/catalogues/en/ui.agents.starters.json
+src/i18n/catalogues/en/ui.agents.teams.context.json
+src/i18n/catalogues/en/ui.agents.teams.json
+src/i18n/catalogues/en/ui.agents.upload.context.json
+src/i18n/catalogues/en/ui.agents.upload.json
+src/i18n/catalogues/en/ui.browser.chrome.context.json
+src/i18n/catalogues/en/ui.browser.chrome.json
+src/i18n/catalogues/en/ui.browser.context.json
+src/i18n/catalogues/en/ui.browser.errors.context.json
+src/i18n/catalogues/en/ui.browser.errors.json
+src/i18n/catalogues/en/ui.browser.extensions.context.json
+src/i18n/catalogues/en/ui.browser.extensions.json
+src/i18n/catalogues/en/ui.browser.json
+src/i18n/catalogues/en/ui.browser.media_access.context.json
+src/i18n/catalogues/en/ui.browser.media_access.json
+src/i18n/catalogues/en/ui.browser.media_permission.context.json
+src/i18n/catalogues/en/ui.browser.media_permission.json
+src/i18n/catalogues/en/ui.canvas.context.json
+src/i18n/catalogues/en/ui.canvas.json
+src/i18n/catalogues/en/ui.chat.analytics.context.json
+src/i18n/catalogues/en/ui.chat.analytics.json
+src/i18n/catalogues/en/ui.chat.approval.context.json
+src/i18n/catalogues/en/ui.chat.approval.json
+src/i18n/catalogues/en/ui.chat.aside.context.json
+src/i18n/catalogues/en/ui.chat.aside.json
+src/i18n/catalogues/en/ui.chat.ask_answer.context.json
+src/i18n/catalogues/en/ui.chat.ask_answer.json
+src/i18n/catalogues/en/ui.chat.ask_command.context.json
+src/i18n/catalogues/en/ui.chat.ask_command.json
+src/i18n/catalogues/en/ui.chat.ask_panel.context.json
+src/i18n/catalogues/en/ui.chat.ask_panel.json
+src/i18n/catalogues/en/ui.chat.ask_queue.context.json
+src/i18n/catalogues/en/ui.chat.ask_queue.json
+src/i18n/catalogues/en/ui.chat.asks.context.json
+src/i18n/catalogues/en/ui.chat.asks.json
+src/i18n/catalogues/en/ui.chat.attachment_refusal.context.json
+src/i18n/catalogues/en/ui.chat.attachment_refusal.json
+src/i18n/catalogues/en/ui.chat.attachments.context.json
+src/i18n/catalogues/en/ui.chat.attachments.json
+src/i18n/catalogues/en/ui.chat.bridgeReceipt.context.json
+src/i18n/catalogues/en/ui.chat.bridgeReceipt.json
+src/i18n/catalogues/en/ui.chat.canonical.context.json
+src/i18n/catalogues/en/ui.chat.canonical.json
+src/i18n/catalogues/en/ui.chat.commentary_actions.context.json
+src/i18n/catalogues/en/ui.chat.commentary_actions.json
+src/i18n/catalogues/en/ui.chat.composer.context.json
+src/i18n/catalogues/en/ui.chat.composer.json
+src/i18n/catalogues/en/ui.chat.composer_media.context.json
+src/i18n/catalogues/en/ui.chat.composer_media.json
+src/i18n/catalogues/en/ui.chat.composer_notes.context.json
+src/i18n/catalogues/en/ui.chat.composer_notes.json
+src/i18n/catalogues/en/ui.chat.context.json
+src/i18n/catalogues/en/ui.chat.credential_notice.context.json
+src/i18n/catalogues/en/ui.chat.credential_notice.json
+src/i18n/catalogues/en/ui.chat.device.context.json
+src/i18n/catalogues/en/ui.chat.device.json
+src/i18n/catalogues/en/ui.chat.device_move.context.json
+src/i18n/catalogues/en/ui.chat.device_move.json
+src/i18n/catalogues/en/ui.chat.dialogs.context.json
+src/i18n/catalogues/en/ui.chat.dialogs.json
+src/i18n/catalogues/en/ui.chat.directory.context.json
+src/i18n/catalogues/en/ui.chat.directory.json
+src/i18n/catalogues/en/ui.chat.draft_target.context.json
+src/i18n/catalogues/en/ui.chat.draft_target.json
+src/i18n/catalogues/en/ui.chat.fast_mode.context.json
+src/i18n/catalogues/en/ui.chat.fast_mode.json
+src/i18n/catalogues/en/ui.chat.header.context.json
+src/i18n/catalogues/en/ui.chat.header.json
+src/i18n/catalogues/en/ui.chat.header_menu.context.json
+src/i18n/catalogues/en/ui.chat.header_menu.json
+src/i18n/catalogues/en/ui.chat.interrupt.context.json
+src/i18n/catalogues/en/ui.chat.interrupt.json
+src/i18n/catalogues/en/ui.chat.json
+src/i18n/catalogues/en/ui.chat.live_updates.context.json
+src/i18n/catalogues/en/ui.chat.live_updates.json
+src/i18n/catalogues/en/ui.chat.message_budget.context.json
+src/i18n/catalogues/en/ui.chat.message_budget.json
+src/i18n/catalogues/en/ui.chat.move_cwd.context.json
+src/i18n/catalogues/en/ui.chat.move_cwd.json
+src/i18n/catalogues/en/ui.chat.page_chrome.context.json
+src/i18n/catalogues/en/ui.chat.page_chrome.json
+src/i18n/catalogues/en/ui.chat.pickers.context.json
+src/i18n/catalogues/en/ui.chat.pickers.json
+src/i18n/catalogues/en/ui.chat.quota_resend.context.json
+src/i18n/catalogues/en/ui.chat.quota_resend.json
+src/i18n/catalogues/en/ui.chat.radient_session.context.json
+src/i18n/catalogues/en/ui.chat.radient_session.json
+src/i18n/catalogues/en/ui.chat.read_ack.context.json
+src/i18n/catalogues/en/ui.chat.read_ack.json
+src/i18n/catalogues/en/ui.chat.response_actions.context.json
+src/i18n/catalogues/en/ui.chat.response_actions.json
+src/i18n/catalogues/en/ui.chat.run_controls.context.json
+src/i18n/catalogues/en/ui.chat.run_controls.json
+src/i18n/catalogues/en/ui.chat.run_details.context.json
+src/i18n/catalogues/en/ui.chat.run_details.json
+src/i18n/catalogues/en/ui.chat.session_readout.context.json
+src/i18n/catalogues/en/ui.chat.session_readout.json
+src/i18n/catalogues/en/ui.chat.session_spend.context.json
+src/i18n/catalogues/en/ui.chat.session_spend.json
+src/i18n/catalogues/en/ui.chat.settings_intents.context.json
+src/i18n/catalogues/en/ui.chat.settings_intents.json
+src/i18n/catalogues/en/ui.chat.sidebar.context.json
+src/i18n/catalogues/en/ui.chat.sidebar.json
+src/i18n/catalogues/en/ui.chat.sidebar.row.bg.context.json
+src/i18n/catalogues/en/ui.chat.sidebar.row.bg.json
+src/i18n/catalogues/en/ui.chat.sidebar_notes.context.json
+src/i18n/catalogues/en/ui.chat.sidebar_notes.json
+src/i18n/catalogues/en/ui.chat.sidebar_view.context.json
+src/i18n/catalogues/en/ui.chat.sidebar_view.json
+src/i18n/catalogues/en/ui.chat.slash.context.json
+src/i18n/catalogues/en/ui.chat.slash.json
+src/i18n/catalogues/en/ui.chat.status.context.json
+src/i18n/catalogues/en/ui.chat.status.json
+src/i18n/catalogues/en/ui.chat.tag_dialogs.context.json
+src/i18n/catalogues/en/ui.chat.tag_dialogs.json
+src/i18n/catalogues/en/ui.chat.tag_groups.context.json
+src/i18n/catalogues/en/ui.chat.tag_groups.json
+src/i18n/catalogues/en/ui.chat.tag_mode.context.json
+src/i18n/catalogues/en/ui.chat.tag_mode.json
+src/i18n/catalogues/en/ui.chat.tags.context.json
+src/i18n/catalogues/en/ui.chat.tags.json
+src/i18n/catalogues/en/ui.chat.thread_search.context.json
+src/i18n/catalogues/en/ui.chat.thread_search.json
+src/i18n/catalogues/en/ui.chat.trace.context.json
+src/i18n/catalogues/en/ui.chat.trace.json
+src/i18n/catalogues/en/ui.chat.transcript_copy.context.json
+src/i18n/catalogues/en/ui.chat.transcript_copy.json
+src/i18n/catalogues/en/ui.chat.usage_reset.context.json
+src/i18n/catalogues/en/ui.chat.usage_reset.json
+src/i18n/catalogues/en/ui.chat.user_turn.context.json
+src/i18n/catalogues/en/ui.chat.user_turn.json
+src/i18n/catalogues/en/ui.code_review.context.json
+src/i18n/catalogues/en/ui.code_review.json
+src/i18n/catalogues/en/ui.command_palette.context.json
+src/i18n/catalogues/en/ui.command_palette.json
+src/i18n/catalogues/en/ui.common.account.context.json
+src/i18n/catalogues/en/ui.common.account.json
+src/i18n/catalogues/en/ui.common.actions.context.json
+src/i18n/catalogues/en/ui.common.actions.json
+src/i18n/catalogues/en/ui.common.connection.context.json
+src/i18n/catalogues/en/ui.common.connection.json
+src/i18n/catalogues/en/ui.common.editing.context.json
+src/i18n/catalogues/en/ui.common.editing.json
+src/i18n/catalogues/en/ui.common.errors.context.json
+src/i18n/catalogues/en/ui.common.errors.json
+src/i18n/catalogues/en/ui.common.file_actions.context.json
+src/i18n/catalogues/en/ui.common.file_actions.json
+src/i18n/catalogues/en/ui.common.forms.context.json
+src/i18n/catalogues/en/ui.common.forms.json
+src/i18n/catalogues/en/ui.common.layout.context.json
+src/i18n/catalogues/en/ui.common.layout.json
+src/i18n/catalogues/en/ui.common.loading.context.json
+src/i18n/catalogues/en/ui.common.loading.json
+src/i18n/catalogues/en/ui.common.models.context.json
+src/i18n/catalogues/en/ui.common.models.json
+src/i18n/catalogues/en/ui.common.speech.context.json
+src/i18n/catalogues/en/ui.common.speech.json
+src/i18n/catalogues/en/ui.common.time.context.json
+src/i18n/catalogues/en/ui.common.time.json
+src/i18n/catalogues/en/ui.common.updates.context.json
+src/i18n/catalogues/en/ui.common.updates.json
+src/i18n/catalogues/en/ui.common.viewer.context.json
+src/i18n/catalogues/en/ui.common.viewer.json
+src/i18n/catalogues/en/ui.console.context.json
+src/i18n/catalogues/en/ui.console.errors.context.json
+src/i18n/catalogues/en/ui.console.errors.json
+src/i18n/catalogues/en/ui.console.json
+src/i18n/catalogues/en/ui.hub.adoption.context.json
+src/i18n/catalogues/en/ui.hub.adoption.json
+src/i18n/catalogues/en/ui.hub.card.context.json
+src/i18n/catalogues/en/ui.hub.card.json
+src/i18n/catalogues/en/ui.hub.comments.context.json
+src/i18n/catalogues/en/ui.hub.comments.json
+src/i18n/catalogues/en/ui.hub.context.json
+src/i18n/catalogues/en/ui.hub.detail.context.json
+src/i18n/catalogues/en/ui.hub.detail.json
+src/i18n/catalogues/en/ui.hub.json
+src/i18n/catalogues/en/ui.hub.pages.context.json
+src/i18n/catalogues/en/ui.hub.pages.json
+src/i18n/catalogues/en/ui.hub.taxonomy.context.json
+src/i18n/catalogues/en/ui.hub.taxonomy.json
+src/i18n/catalogues/en/ui.hub.teams.context.json
+src/i18n/catalogues/en/ui.hub.teams.json
+src/i18n/catalogues/en/ui.hub.updates.context.json
+src/i18n/catalogues/en/ui.hub.updates.json
+src/i18n/catalogues/en/ui.hub.viewer.context.json
+src/i18n/catalogues/en/ui.hub.viewer.json
+src/i18n/catalogues/en/ui.installer.context.json
+src/i18n/catalogues/en/ui.installer.json
+src/i18n/catalogues/en/ui.installer.setup_cause.context.json
+src/i18n/catalogues/en/ui.installer.setup_cause.json
+src/i18n/catalogues/en/ui.library.context.json
+src/i18n/catalogues/en/ui.library.errors.context.json
+src/i18n/catalogues/en/ui.library.errors.json
+src/i18n/catalogues/en/ui.library.json
+src/i18n/catalogues/en/ui.mesh.context.json
+src/i18n/catalogues/en/ui.mesh.errors.context.json
+src/i18n/catalogues/en/ui.mesh.errors.json
+src/i18n/catalogues/en/ui.mesh.json
+src/i18n/catalogues/en/ui.miniView.context.json
+src/i18n/catalogues/en/ui.miniView.json
+src/i18n/catalogues/en/ui.music.context.json
+src/i18n/catalogues/en/ui.music.job_status.context.json
+src/i18n/catalogues/en/ui.music.job_status.json
+src/i18n/catalogues/en/ui.music.json
+src/i18n/catalogues/en/ui.nativeBadge.context.json
+src/i18n/catalogues/en/ui.nativeBadge.json
+src/i18n/catalogues/en/ui.notices.context.json
+src/i18n/catalogues/en/ui.notices.json
+src/i18n/catalogues/en/ui.notifications.bulk.context.json
+src/i18n/catalogues/en/ui.notifications.bulk.json
+src/i18n/catalogues/en/ui.notifications.bulk_updates.context.json
+src/i18n/catalogues/en/ui.notifications.bulk_updates.json
+src/i18n/catalogues/en/ui.notifications.context.json
+src/i18n/catalogues/en/ui.notifications.json
+src/i18n/catalogues/en/ui.notifications.operation.context.json
+src/i18n/catalogues/en/ui.notifications.operation.json
+src/i18n/catalogues/en/ui.onboarding.context.json
+src/i18n/catalogues/en/ui.onboarding.json
+src/i18n/catalogues/en/ui.onboarding.tour.context.json
+src/i18n/catalogues/en/ui.onboarding.tour.json
+src/i18n/catalogues/en/ui.ownerAudit.context.json
+src/i18n/catalogues/en/ui.ownerAudit.json
+src/i18n/catalogues/en/ui.phone_pairing.context.json
+src/i18n/catalogues/en/ui.phone_pairing.json
+src/i18n/catalogues/en/ui.presence.context.json
+src/i18n/catalogues/en/ui.presence.json
+src/i18n/catalogues/en/ui.projects.context.json
+src/i18n/catalogues/en/ui.projects.json
+src/i18n/catalogues/en/ui.providers.context.json
+src/i18n/catalogues/en/ui.providers.json
+src/i18n/catalogues/en/ui.schedules.context.json
+src/i18n/catalogues/en/ui.schedules.errors.context.json
+src/i18n/catalogues/en/ui.schedules.errors.json
+src/i18n/catalogues/en/ui.schedules.json
+src/i18n/catalogues/en/ui.settings.account.context.json
+src/i18n/catalogues/en/ui.settings.account.json
+src/i18n/catalogues/en/ui.settings.appearance.context.json
+src/i18n/catalogues/en/ui.settings.appearance.editor.context.json
+src/i18n/catalogues/en/ui.settings.appearance.editor.json
+src/i18n/catalogues/en/ui.settings.appearance.json
+src/i18n/catalogues/en/ui.settings.appearance.window_glass.context.json
+src/i18n/catalogues/en/ui.settings.appearance.window_glass.json
+src/i18n/catalogues/en/ui.settings.configuration.context.json
+src/i18n/catalogues/en/ui.settings.configuration.json
+src/i18n/catalogues/en/ui.settings.context.json
+src/i18n/catalogues/en/ui.settings.imports.context.json
+src/i18n/catalogues/en/ui.settings.imports.json
+src/i18n/catalogues/en/ui.settings.integrations.context.json
+src/i18n/catalogues/en/ui.settings.integrations.json
+src/i18n/catalogues/en/ui.settings.json
+src/i18n/catalogues/en/ui.settings.model.context.json
+src/i18n/catalogues/en/ui.settings.model.default_effort.context.json
+src/i18n/catalogues/en/ui.settings.model.default_effort.json
+src/i18n/catalogues/en/ui.settings.model.json
+src/i18n/catalogues/en/ui.settings.model.provider_callout.context.json
+src/i18n/catalogues/en/ui.settings.model.provider_callout.json
+src/i18n/catalogues/en/ui.settings.navigation.context.json
+src/i18n/catalogues/en/ui.settings.navigation.json
+src/i18n/catalogues/en/ui.settings.notifications.context.json
+src/i18n/catalogues/en/ui.settings.notifications.json
+src/i18n/catalogues/en/ui.settings.search.context.json
+src/i18n/catalogues/en/ui.settings.search.json
+src/i18n/catalogues/en/ui.settings.shortcuts.context.json
+src/i18n/catalogues/en/ui.settings.shortcuts.json
+src/i18n/catalogues/en/ui.settings.speech.context.json
+src/i18n/catalogues/en/ui.settings.speech.json
+src/i18n/catalogues/en/ui.settings.updates.context.json
+src/i18n/catalogues/en/ui.settings.updates.json
+src/i18n/catalogues/en/ui.shared.unified_diff.context.json
+src/i18n/catalogues/en/ui.shared.unified_diff.json
+src/i18n/catalogues/en/ui.shell.context.json
+src/i18n/catalogues/en/ui.shell.json
+src/i18n/catalogues/en/ui.shell.menubar.context.json
+src/i18n/catalogues/en/ui.shell.menubar.json
+src/i18n/catalogues/en/ui.shell.rail.context.json
+src/i18n/catalogues/en/ui.shell.rail.json
+src/i18n/catalogues/en/ui.teamBridge.archive.context.json
+src/i18n/catalogues/en/ui.teamBridge.archive.json
+src/i18n/catalogues/en/ui.teamBridge.context.json
+src/i18n/catalogues/en/ui.teamBridge.json
+src/i18n/catalogues/en/ui.teamBridge.leave.context.json
+src/i18n/catalogues/en/ui.teamBridge.leave.json
+src/i18n/catalogues/en/ui.teamBridge.threadRow.context.json
+src/i18n/catalogues/en/ui.teamBridge.threadRow.json
+src/i18n/catalogues/en/ui.teamBridgeTrial.context.json
+src/i18n/catalogues/en/ui.teamBridgeTrial.json
+src/i18n/catalogues/en/ui.updates.panel.context.json
+src/i18n/catalogues/en/ui.updates.panel.json
+src/i18n/catalogues/en/ui.updates.service.context.json
+src/i18n/catalogues/en/ui.updates.service.json
+src/i18n/catalogues/en/ui.updates.status.context.json
+src/i18n/catalogues/en/ui.updates.status.json
+src/i18n/catalogues/ur/ui.agentMessages.json
+src/i18n/catalogues/ur/ui.agentMessages.settings.json
+src/i18n/catalogues/ur/ui.agents.avatar.json
+src/i18n/catalogues/ur/ui.agents.config.json
+src/i18n/catalogues/ur/ui.agents.descriptions.json
+src/i18n/catalogues/ur/ui.agents.detail.install.json
+src/i18n/catalogues/ur/ui.agents.detail.json
+src/i18n/catalogues/ur/ui.agents.detail.origin.json
+src/i18n/catalogues/ur/ui.agents.detail.read_state.json
+src/i18n/catalogues/ur/ui.agents.dialogs.json
+src/i18n/catalogues/ur/ui.agents.json
+src/i18n/catalogues/ur/ui.agents.models.json
+src/i18n/catalogues/ur/ui.agents.navigation.json
+src/i18n/catalogues/ur/ui.agents.pages.json
+src/i18n/catalogues/ur/ui.agents.proposals.context.json
+src/i18n/catalogues/ur/ui.agents.proposals.json
+src/i18n/catalogues/ur/ui.agents.publication.json
+src/i18n/catalogues/ur/ui.agents.refusals.json
+src/i18n/catalogues/ur/ui.agents.routing.json
+src/i18n/catalogues/ur/ui.agents.settings.json
+src/i18n/catalogues/ur/ui.agents.skills.json
+src/i18n/catalogues/ur/ui.agents.starters.json
+src/i18n/catalogues/ur/ui.agents.teams.json
+src/i18n/catalogues/ur/ui.agents.upload.json
+src/i18n/catalogues/ur/ui.browser.chrome.json
+src/i18n/catalogues/ur/ui.browser.errors.json
+src/i18n/catalogues/ur/ui.browser.extensions.json
+src/i18n/catalogues/ur/ui.browser.json
+src/i18n/catalogues/ur/ui.browser.media_access.json
+src/i18n/catalogues/ur/ui.browser.media_permission.json
+src/i18n/catalogues/ur/ui.canvas.json
+src/i18n/catalogues/ur/ui.chat.analytics.json
+src/i18n/catalogues/ur/ui.chat.approval.json
+src/i18n/catalogues/ur/ui.chat.aside.json
+src/i18n/catalogues/ur/ui.chat.ask_answer.json
+src/i18n/catalogues/ur/ui.chat.ask_command.json
+src/i18n/catalogues/ur/ui.chat.ask_panel.json
+src/i18n/catalogues/ur/ui.chat.ask_queue.json
+src/i18n/catalogues/ur/ui.chat.asks.json
+src/i18n/catalogues/ur/ui.chat.attachment_refusal.json
+src/i18n/catalogues/ur/ui.chat.attachments.json
+src/i18n/catalogues/ur/ui.chat.bridgeReceipt.json
+src/i18n/catalogues/ur/ui.chat.canonical.json
+src/i18n/catalogues/ur/ui.chat.commentary_actions.json
+src/i18n/catalogues/ur/ui.chat.composer.json
+src/i18n/catalogues/ur/ui.chat.composer_media.json
+src/i18n/catalogues/ur/ui.chat.composer_notes.json
+src/i18n/catalogues/ur/ui.chat.credential_notice.json
+src/i18n/catalogues/ur/ui.chat.device.json
+src/i18n/catalogues/ur/ui.chat.device_move.json
+src/i18n/catalogues/ur/ui.chat.dialogs.json
+src/i18n/catalogues/ur/ui.chat.directory.json
+src/i18n/catalogues/ur/ui.chat.draft_target.json
+src/i18n/catalogues/ur/ui.chat.fast_mode.json
+src/i18n/catalogues/ur/ui.chat.header.json
+src/i18n/catalogues/ur/ui.chat.header_menu.json
+src/i18n/catalogues/ur/ui.chat.interrupt.json
+src/i18n/catalogues/ur/ui.chat.json
+src/i18n/catalogues/ur/ui.chat.live_updates.json
+src/i18n/catalogues/ur/ui.chat.message_budget.json
+src/i18n/catalogues/ur/ui.chat.move_cwd.json
+src/i18n/catalogues/ur/ui.chat.page_chrome.json
+src/i18n/catalogues/ur/ui.chat.pickers.json
+src/i18n/catalogues/ur/ui.chat.quota_resend.json
+src/i18n/catalogues/ur/ui.chat.radient_session.json
+src/i18n/catalogues/ur/ui.chat.read_ack.json
+src/i18n/catalogues/ur/ui.chat.response_actions.json
+src/i18n/catalogues/ur/ui.chat.run_controls.json
+src/i18n/catalogues/ur/ui.chat.run_details.json
+src/i18n/catalogues/ur/ui.chat.session_readout.json
+src/i18n/catalogues/ur/ui.chat.session_spend.json
+src/i18n/catalogues/ur/ui.chat.settings_intents.json
+src/i18n/catalogues/ur/ui.chat.sidebar.context.json
+src/i18n/catalogues/ur/ui.chat.sidebar.json
+src/i18n/catalogues/ur/ui.chat.sidebar.row.bg.json
+src/i18n/catalogues/ur/ui.chat.sidebar_notes.json
+src/i18n/catalogues/ur/ui.chat.sidebar_view.json
+src/i18n/catalogues/ur/ui.chat.slash.json
+src/i18n/catalogues/ur/ui.chat.status.json
+src/i18n/catalogues/ur/ui.chat.tag_dialogs.json
+src/i18n/catalogues/ur/ui.chat.tag_groups.json
+src/i18n/catalogues/ur/ui.chat.tag_mode.json
+src/i18n/catalogues/ur/ui.chat.tags.json
+src/i18n/catalogues/ur/ui.chat.thread_search.json
+src/i18n/catalogues/ur/ui.chat.trace.json
+src/i18n/catalogues/ur/ui.chat.transcript_copy.json
+src/i18n/catalogues/ur/ui.chat.usage_reset.json
+src/i18n/catalogues/ur/ui.chat.user_turn.json
+src/i18n/catalogues/ur/ui.code_review.json
+src/i18n/catalogues/ur/ui.command_palette.json
+src/i18n/catalogues/ur/ui.common.account.json
+src/i18n/catalogues/ur/ui.common.actions.json
+src/i18n/catalogues/ur/ui.common.connection.json
+src/i18n/catalogues/ur/ui.common.editing.json
+src/i18n/catalogues/ur/ui.common.errors.json
+src/i18n/catalogues/ur/ui.common.file_actions.json
+src/i18n/catalogues/ur/ui.common.forms.json
+src/i18n/catalogues/ur/ui.common.layout.json
+src/i18n/catalogues/ur/ui.common.loading.json
+src/i18n/catalogues/ur/ui.common.models.json
+src/i18n/catalogues/ur/ui.common.speech.json
+src/i18n/catalogues/ur/ui.common.time.json
+src/i18n/catalogues/ur/ui.common.updates.json
+src/i18n/catalogues/ur/ui.common.viewer.json
+src/i18n/catalogues/ur/ui.console.errors.json
+src/i18n/catalogues/ur/ui.console.json
+src/i18n/catalogues/ur/ui.hub.adoption.json
+src/i18n/catalogues/ur/ui.hub.card.json
+src/i18n/catalogues/ur/ui.hub.comments.json
+src/i18n/catalogues/ur/ui.hub.detail.json
+src/i18n/catalogues/ur/ui.hub.json
+src/i18n/catalogues/ur/ui.hub.pages.json
+src/i18n/catalogues/ur/ui.hub.taxonomy.json
+src/i18n/catalogues/ur/ui.hub.teams.json
+src/i18n/catalogues/ur/ui.hub.updates.json
+src/i18n/catalogues/ur/ui.hub.viewer.json
+src/i18n/catalogues/ur/ui.installer.json
+src/i18n/catalogues/ur/ui.installer.setup_cause.json
+src/i18n/catalogues/ur/ui.library.errors.json
+src/i18n/catalogues/ur/ui.library.json
+src/i18n/catalogues/ur/ui.mesh.errors.json
+src/i18n/catalogues/ur/ui.mesh.json
+src/i18n/catalogues/ur/ui.miniView.json
+src/i18n/catalogues/ur/ui.music.job_status.json
+src/i18n/catalogues/ur/ui.music.json
+src/i18n/catalogues/ur/ui.nativeBadge.json
+src/i18n/catalogues/ur/ui.notices.json
+src/i18n/catalogues/ur/ui.notifications.bulk.json
+src/i18n/catalogues/ur/ui.notifications.bulk_updates.json
+src/i18n/catalogues/ur/ui.notifications.json
+src/i18n/catalogues/ur/ui.notifications.operation.json
+src/i18n/catalogues/ur/ui.onboarding.json
+src/i18n/catalogues/ur/ui.onboarding.tour.json
+src/i18n/catalogues/ur/ui.ownerAudit.json
+src/i18n/catalogues/ur/ui.phone_pairing.json
+src/i18n/catalogues/ur/ui.presence.json
+src/i18n/catalogues/ur/ui.projects.json
+src/i18n/catalogues/ur/ui.providers.json
+src/i18n/catalogues/ur/ui.schedules.errors.json
+src/i18n/catalogues/ur/ui.schedules.json
+src/i18n/catalogues/ur/ui.settings.account.json
+src/i18n/catalogues/ur/ui.settings.appearance.editor.json
+src/i18n/catalogues/ur/ui.settings.appearance.json
+src/i18n/catalogues/ur/ui.settings.appearance.window_glass.json
+src/i18n/catalogues/ur/ui.settings.configuration.json
+src/i18n/catalogues/ur/ui.settings.imports.json
+src/i18n/catalogues/ur/ui.settings.integrations.json
+src/i18n/catalogues/ur/ui.settings.json
+src/i18n/catalogues/ur/ui.settings.model.default_effort.json
+src/i18n/catalogues/ur/ui.settings.model.json
+src/i18n/catalogues/ur/ui.settings.model.provider_callout.json
+src/i18n/catalogues/ur/ui.settings.navigation.json
+src/i18n/catalogues/ur/ui.settings.notifications.json
+src/i18n/catalogues/ur/ui.settings.search.json
+src/i18n/catalogues/ur/ui.settings.shortcuts.json
+src/i18n/catalogues/ur/ui.settings.speech.json
+src/i18n/catalogues/ur/ui.settings.updates.json
+src/i18n/catalogues/ur/ui.shared.unified_diff.context.json
+src/i18n/catalogues/ur/ui.shared.unified_diff.json
+src/i18n/catalogues/ur/ui.shell.json
+src/i18n/catalogues/ur/ui.shell.menubar.json
+src/i18n/catalogues/ur/ui.shell.rail.json
+src/i18n/catalogues/ur/ui.teamBridge.archive.json
+src/i18n/catalogues/ur/ui.teamBridge.json
+src/i18n/catalogues/ur/ui.teamBridge.leave.json
+src/i18n/catalogues/ur/ui.teamBridge.threadRow.json
+src/i18n/catalogues/ur/ui.teamBridgeTrial.json
+src/i18n/catalogues/ur/ui.updates.panel.json
+src/i18n/catalogues/ur/ui.updates.service.json
+src/i18n/catalogues/ur/ui.updates.status.json
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git ls-tree -r --name-only 9214ff9b src/i18n/catalogues/en/
+[exit 0]
+src/i18n/catalogues/en/mobile.account_routing.context.json
+src/i18n/catalogues/en/mobile.account_routing.json
+src/i18n/catalogues/en/mobile.agent_avatar.context.json
+src/i18n/catalogues/en/mobile.agent_avatar.json
+src/i18n/catalogues/en/mobile.chrome.context.json
+src/i18n/catalogues/en/mobile.chrome.json
+src/i18n/catalogues/en/mobile.common.context.json
+src/i18n/catalogues/en/mobile.common.json
+src/i18n/catalogues/en/mobile.composer_input.context.json
+src/i18n/catalogues/en/mobile.composer_input.json
+src/i18n/catalogues/en/mobile.computers.context.json
+src/i18n/catalogues/en/mobile.computers.json
+src/i18n/catalogues/en/mobile.home.context.json
+src/i18n/catalogues/en/mobile.home.json
+src/i18n/catalogues/en/mobile.library.context.json
+src/i18n/catalogues/en/mobile.library.json
+src/i18n/catalogues/en/mobile.notifications.context.json
+src/i18n/catalogues/en/mobile.notifications.json
+src/i18n/catalogues/en/mobile.oauth.context.json
+src/i18n/catalogues/en/mobile.oauth.json
+src/i18n/catalogues/en/mobile.projects.context.json
+src/i18n/catalogues/en/mobile.projects.json
+src/i18n/catalogues/en/mobile.refusal.context.json
+src/i18n/catalogues/en/mobile.refusal.json
+src/i18n/catalogues/en/mobile.schedules.context.json
+src/i18n/catalogues/en/mobile.schedules.json
+src/i18n/catalogues/en/mobile.session.context.json
+src/i18n/catalogues/en/mobile.session.json
+src/i18n/catalogues/en/mobile.session_health.context.json
+src/i18n/catalogues/en/mobile.session_health.json
+src/i18n/catalogues/en/mobile.settings.context.json
+src/i18n/catalogues/en/mobile.settings.json
+src/i18n/catalogues/en/mobile.sidebar.context.json
+src/i18n/catalogues/en/mobile.sidebar.json
+src/i18n/catalogues/en/mobile.signin.context.json
+src/i18n/catalogues/en/mobile.signin.json
+src/i18n/catalogues/en/mobile.team_bridge.context.json
+src/i18n/catalogues/en/mobile.team_bridge.json
+src/i18n/catalogues/en/relay.chrome.context.json
+src/i18n/catalogues/en/relay.chrome.json
+src/i18n/catalogues/en/relay.composer.context.json
+src/i18n/catalogues/en/relay.composer.json
+src/i18n/catalogues/en/relay.health.context.json
+src/i18n/catalogues/en/relay.health.json
+src/i18n/catalogues/en/relay.transcript.context.json
+src/i18n/catalogues/en/relay.transcript.json
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git show 9214ff9b:src/i18n/messages.ts | grep -nE '^export' ; git show 9214ff9b:src/i18n/messages.ts | head -40; git show 9214ff9b:src/i18n/messages.ts | shasum -a 256; node --version
+[exit 0]
+56:export type MessageArgumentKind = "text" | "plural" | "select";
+58:export type MessageArguments = Readonly<Record<string, string | number>>;
+75:export interface ParsedMessage {
+126:export function pluralCategory(locale: string, count: number): string {
+133:export function parseMessage(source: string): ParsedMessage {
+409:export function formatMessage(
+/**
+ * The ICU message subset this client renders, and the ONE parser that defines it.
+ *
+ * WHY A SUBSET RATHER THAN A LIBRARY. The app carries no message-formatting
+ * dependency and this slice is not allowed to add one (`package.json` has no
+ * `intl-messageformat`, and dependencies are not free on a phone bundle or in a
+ * programme that must audit every byte it ships). So the grammar that the
+ * catalogues actually use is implemented here, once, and the same parser is what
+ * the key generator reads when it derives a message's parameter list — a
+ * message that does not parse fails generation, so an invalid catalogue cannot
+ * be committed.
+ *
+ * SUPPORTED — the whole surface of the four `mobile.*` namespaces:
+ *
+ * - plain placeholders: `{name}`
+ * - `{count, plural, one {…} other {…}}`, with `#` for the formatted number and
+ *   explicit `=N` branches; any CLDR category key is accepted (a locale whose
+ *   rules produce `few`/`many` may add those branches without a code change)
+ * - `{kind, select, wakes {…} other {…}}`
+ * - nesting: a `select` inside a `plural` (and vice versa) renders recursively;
+ *   `#` always means the innermost enclosing plural's count, as ICU specifies
+ * - apostrophes: a lone `'` is a literal character (`doesn't`). The ICU quoting
+ *   forms `''`, `'{`, `'}` (and `'#` inside a plural) are REJECTED at parse time
+ *   rather than rendered differently from what a translator meant by them
+ *
+ * NOT SUPPORTED — stated so nobody assumes otherwise:
+ *
+ * - argument formats other than `plural` and `select`: no `number`, `date`,
+ *   `time`, `duration`, `list`, `spellout` or `selectordinal`
+ * - `offset:` in a plural
+ * - ICU apostrophe quoting (`''` and `'{literal}'`); `{` and `}` always delimit,
+ *   and a message that tries to quote them fails to parse (see above)
+ * - locale number formatting: `#` and plain numeric arguments render through
+ *   `String(n)`, so there are no grouping separators, no localized digits and no
+ *   decimal-separator choice. A locale that needs those needs this renderer
+ *   extended (or a real formatter) — it does not silently get them.
+ * - message selection by platform, gender or any variable that is not an
+ *   explicit argument
+ *
+ * FAILURE MODES. A malformed message throws `RangeError` at parse time. A
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  -
+v24.22.1
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git show 9214ff9b:src/i18n/messages.ts | sed -n 56,135p
+[exit 0]
+export type MessageArgumentKind = "text" | "plural" | "select";
+
+export type MessageArguments = Readonly<Record<string, string | number>>;
+
+type MessageNode =
+	| { readonly type: "text"; readonly value: string }
+	| { readonly type: "argument"; readonly name: string }
+	| { readonly type: "number" }
+	| {
+			readonly type: "plural";
+			readonly name: string;
+			readonly options: ReadonlyMap<string, readonly MessageNode[]>;
+	  }
+	| {
+			readonly type: "select";
+			readonly name: string;
+			readonly options: ReadonlyMap<string, readonly MessageNode[]>;
+	  };
+
+export interface ParsedMessage {
+	/** The source text, so an error can quote the message that failed. */
+	readonly source: string;
+	/** Every placeholder the message uses, with how it is used. */
+	readonly params: ReadonlyMap<string, MessageArgumentKind>;
+	readonly nodes: readonly MessageNode[];
+}
+
+const IDENTIFIER = /[A-Za-z][A-Za-z0-9_]*/y;
+const INTEGER = /-?\d+/y;
+/** Non-global, so `.test()` never mutates `lastIndex` — hoisted for the same
+ *  reason the kit's own modules hoist their regexes. */
+const WHITESPACE = /\s/;
+
+/** Parsed messages, keyed by source text. Catalogues are static strings, so the
+ *  cache is bounded by the catalogue's size and every screen render after the
+ *  first is a map lookup. */
+const PARSED = new Map<string, ParsedMessage>();
+
+/** The English plural table, used when `Intl.PluralRules` is unavailable. */
+function englishPluralCategory(count: number): string {
+	return Number.isInteger(count) && count === 1 ? "one" : "other";
+}
+
+const PLURAL_RULES = new Map<string, Intl.PluralRules | null>();
+
+function pluralRulesFor(locale: string): Intl.PluralRules | null {
+	const cached = PLURAL_RULES.get(locale);
+	if (cached !== undefined) return cached;
+	let rules: Intl.PluralRules | null = null;
+	if (typeof Intl !== "undefined" && typeof Intl.PluralRules === "function") {
+		try {
+			rules = new Intl.PluralRules(locale);
+		} catch {
+			/* An unparseable tag is not a reason to fail a render that has a
+			 * perfectly good English fallback table; the caller's locale source
+			 * normalizes tags before they arrive here. */
+			rules = null;
+		}
+	}
+	PLURAL_RULES.set(locale, rules);
+	return rules;
+}
+
+/**
+ * The CLDR plural category for `count` in `locale`.
+ *
+ * Exported because the direction resolver and the fallback rules are the two
+ * locale-sensitive decisions in this slice, and both are worth asserting on
+ * their own rather than only through a rendered sentence.
+ */
+export function pluralCategory(locale: string, count: number): string {
+	const rules = pluralRulesFor(locale);
+	if (rules !== null) return rules.select(count);
+	return englishPluralCategory(count);
+}
+
+/** Parse (and cache) one message. Throws `RangeError` on a malformed message. */
+export function parseMessage(source: string): ParsedMessage {
+	const cached = PARSED.get(source);
+	if (cached !== undefined) return cached;
+
+
+$ (cwd=/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a) git show 9214ff9b:src/i18n/messages.ts > /Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts; grep -n '^import' /Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts; shasum -a 256 /Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts
+[exit 0]
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  /Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts
+
+
+$ (cwd=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2) shasum -a 256 messages.ts check.mts final-66.json negative-control.json
+[exit 0]
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+d6d1406618e73ab41e9b2359bb2fb06460665b07c34ed66e9da7176d3bad842e  check.mts
+c603903e4c7ef7ba5c4579abf92d105be09c28a8ea951cda5f0062850bdf5fe2  final-66.json
+bd9dcefe9cfd7bd9d6b33cffc43ce9127b36188c93ad3b57d2b4d22221666f2d  negative-control.json
+
+
+$ (cwd=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2) env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mts final-66.json
+[exit 0]
+{"keys":66,"parse_errors":0,"mismatches":0}
+
+[stderr] (node:38618) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+$ (cwd=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2) env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mts negative-control.json
+[exit 0]
+MISMATCH mobile.refusal.refused.title [["computer","text"]] [["komputer","text"]]
+UR PARSE ERR mobile.refusal.wait_reconnect.title RangeError: Invalid message "{computer دوبارہ منسلک ہو رہا ہے۔": expected ',' or '}' (at offset 10)
+{"keys":66,"parse_errors":1,"mismatches":1}
+
+[stderr] (node:38623) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+$ (cwd=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2) shasum -a 256 check.mts
+[exit 0]
+77ea95a775c7563b82bb081eabc365a0f3026942be2d0ad423aff2689d9206be  check.mts
+
+
+$ (cwd=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2) env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mts final-66.json 2>/dev/null
+[exit 0]
+checked=66 parse_errors=0 mismatches=0
+
+
+$ (cwd=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2) env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mts negative-control.json 2>/dev/null
+[exit 0]
+MISMATCH mobile.refusal.refused.title [["computer","text"]] [["komputer","text"]]
+UR PARSE ERR mobile.refusal.wait_reconnect.title RangeError: Invalid message "{computer دوبارہ منسلک ہو رہا ہے۔": expected ',' or '}' (at offset 10)
+checked=66 parse_errors=1 mismatches=1
+
+
+# eval: RTL/punct scan of final 66 (shipped @9214ff9b + draft)
+{
+ "first_strong": {
+  "AL": 48,
+  "L": 7,
+  "PLACEHOLDER": 11
+ },
+ "L_initial": [
+  "mobile.refusal.suspended.title",
+  "mobile.refusal.provisioning.title",
+  "mobile.refusal.refused.title",
+  "mobile.refusal.radient_unreachable.title",
+  "mobile.refusal.action.open_billing",
+  "mobile.refusal.action.open_console",
+  "mobile.settings.account.signed_in_radient"
+ ],
+ "changed_first_strong": {
+  "mobile.refusal.suspended.title": "L",
+  "mobile.computers.setup.checking": "AL",
+  "mobile.settings.diagnostics.copy": "AL",
+  "mobile.settings.diagnostics.copy_failed": "AL",
+  "mobile.refusal.refused.title": "L",
+  "mobile.refusal.wait_network.body": "AL",
+  "mobile.computers.setup.open_settings": "AL",
+  "mobile.refusal.suspended.body": "AL",
+  "mobile.refusal.wait_reconnect.title": "PLACEHOLDER",
+  "mobile.settings.diagnostics.copied": "AL",
+  "mobile.refusal.relay_stopped.body": "AL",
+  "mobile.refusal.balance_out.body": "AL",
+  "mobile.refusal.how_to.body": "AL",
+  "mobile.refusal.tunnel_gone.body": "AL",
+  "mobile.computers.setup.check_again": "AL",
+  "mobile.refusal.relay_refused.body": "AL"
+ },
+ "bidi_controls_66": [],
+ "non_nfc": [],
+ "arabic_digits": [],
+ "ascii_punct_end": [],
+ "hindi_danda": [],
+ "u2190_props": [
+  "ON",
+  0
+ ],
+ "u201c_props": [
+  "ON",
+  0
+ ],
+ "changed_endings": {
+  "mobile.refusal.suspended.title": "۔",
+  "mobile.computers.setup.checking": "…",
+  "mobile.settings.diagnostics.copy": "ں",
+  "mobile.settings.diagnostics.copy_failed": "۔",
+  "mobile.refusal.refused.title": "۔",
+  "mobile.refusal.wait_network.body": "۔",
+  "mobile.computers.setup.open_settings": "۔",
+  "mobile.refusal.suspended.body": "۔",
+  "mobile.refusal.wait_reconnect.title": "۔",
+  "mobile.settings.diagnostics.copied": "ں",
+  "mobile.refusal.relay_stopped.body": "۔",
+  "mobile.refusal.balance_out.body": "۔",
+  "mobile.refusal.how_to.body": "۔",
+  "mobile.refusal.tunnel_gone.body": "۔",
+  "mobile.computers.setup.check_again": "ں",
+  "mobile.refusal.relay_refused.body": "۔"
+ },
+ "redaction_marker_hits": 0,
+ "draft_keys_eq_flagged": true,
+ "draft_json_valid": true
+}
+
+# report.md and record.json written by eval (no command output)

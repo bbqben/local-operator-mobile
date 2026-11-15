@@ -1,0 +1,178 @@
+{
+ "locale": "zh-CN",
+ "slice": "m3-s2c-audit-gap",
+ "round": 2,
+ "audit_date": "2026-11-14",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/zh-CN/draft-zh-CN.json",
+   "sha256": "c41ad98ff0061f17873886322ebb0498015f2ae7a7cd674db6359aed7feb13eb"
+  },
+  "round1_record": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/zh-CN/record.json",
+   "sha256": "35f82d55aa274dd7ecd809e4bc752b40b85c91b165b76d8138e79461f662fecc"
+  },
+  "round1_report": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/zh-CN/report.md",
+   "sha256": "df045613b02cd0f963bcf0fa315a3084feed56a4736dc6f6a83afce5b253a581"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/zh-CN/notes-zh-CN.md",
+   "sha256": "a5487e8fee6f69a879cf2f55dfcc508d1eac7fc0c33b060e9c26b36fc97cb232"
+  },
+  "style_guide": {
+   "ref": "~/local-operator origin/main:i18n/style-guides/zh-CN.md (git show, no fetch)"
+  },
+  "desktop_ref": "~/local-operator-ui origin/main e612221450 (git show, no fetch)",
+  "messages_ts": {
+   "ref": "9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  }
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "ee8652d4b9ec",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session header 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "independent_from_round1_session": true,
+  "translator_session": "61bbc0d54f8c",
+  "round1_session": "d37012778437"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "no_mt_service_used": true,
+ "redaction_marker_hits": {
+  "brief": 0,
+  "draft": 0
+ },
+ "scope_check": {
+  "draft_keys": 36,
+  "draft_keys_outside_brief": 0,
+  "draft_keys_not_flagged_in_round1": 0,
+  "non_whitespace_changes": 13,
+  "non_whitespace_changes_unjustified": 0,
+  "note": "tunnel_gone.body restructure justified in notes (GAP-1 fusion); accepted."
+ },
+ "placeholder_check": {
+  "tool": "repo parseMessage (9214ff9b messages.ts), node v24.22.1 type-strip, env -i, isolated HOME, heap 256",
+  "final_keys": 66,
+  "match": 66,
+  "mismatch": 0,
+  "keys_with_params": 13,
+  "negative_controls": [
+   "{computer}->{computr} rename detected (sig differs)",
+   "'{computer处于休眠状态' threw RangeError"
+  ]
+ },
+ "consistency_check": {
+  "han_latin_space_runs": 0,
+  "bidi_or_format_chars": 0,
+  "single_ellipsis": 0,
+  "ascii_punct_adjacent_han": 0,
+  "identical_en_divergent_zh_within_66": 0,
+  "quoted_labels": {
+   "重试": "== mobile.refusal.action.retry",
+   "设置手机访问": "== desktop ui.providers.phone.action.set_up"
+  },
+  "menu_path": "设置 → Radient账户 → 手机访问 == desktop ui.settings.page.title / settings_sidebar.radient_account / ui.providers.phone.heading",
+  "cross_namespace_note": "how_to.title 开通手机访问 vs out-of-batch mobile.home.suggestion.phone_access 开启手机访问 — unchanged by draft, round-1 accepted 开通/开启 split; not raised."
+ },
+ "rtl": "n/a",
+ "judgements": {
+  "GAP-10_rejection": "sound",
+  "relay_stopped_body_extra_qing": "accepted",
+  "tunnel_gone_body_rewording": "accepted — meaning preserved, colon-led path is idiomatic, avoids 手机访问中开启 fusion, 开启 matches re-enable verb"
+ },
+ "round1_resolution": [
+  {
+   "id": "zh-CN-GAP-1",
+   "status": "resolved",
+   "note": "31/31 keys de-spaced; 0 Han–space–Latin/placeholder runs left in the 66 final values; spaces around → kept per round-1 suggestion."
+  },
+  {
+   "id": "zh-CN-GAP-2",
+   "status": "resolved",
+   "note": "正在检查……"
+  },
+  {
+   "id": "zh-CN-GAP-3",
+   "status": "resolved",
+   "note": "重新检查 == desktop ui.providers.phone.action.check_again (local-operator-ui origin/main e612221450)."
+  },
+  {
+   "id": "zh-CN-GAP-4",
+   "status": "resolved",
+   "note": "休眠; 睡眠 absent from final set."
+  },
+  {
+   "id": "zh-CN-GAP-5",
+   "status": "resolved_with_new_minor",
+   "note": "它上面 calque gone; new wording uses 这台电脑 — see zh-CN-GAP-R2-1."
+  },
+  {
+   "id": "zh-CN-GAP-6",
+   "status": "resolved",
+   "note": "4/4 → 轻点; 0 点按 in final 66 (点按 survives out-of-batch in mobile.composer_input.paste.denied, pre-existing, not gating)."
+  },
+  {
+   "id": "zh-CN-GAP-7",
+   "status": "resolved",
+   "note": "此手机 in both; 这部手机 absent. computer_sign_in.body rewording 并不能解决问题 accurate."
+  },
+  {
+   "id": "zh-CN-GAP-8",
+   "status": "resolved",
+   "note": "Both 'Try again in a moment.' batch values = 请稍后重试。"
+  },
+  {
+   "id": "zh-CN-GAP-9",
+   "status": "resolved",
+   "note": "需要你处理"
+  },
+  {
+   "id": "zh-CN-GAP-10",
+   "status": "rejection_accepted",
+   "note": "Verified: all 72 shipped zh-CN mobile values containing 请 have English without 'please' — the house pattern is uniform; dropping 请 here would split it. relay_stopped.body gaining 请 aligns it with suspended/relay_refused/computer_attention bodies. Style-guide line now lags practice (lane owner may amend; not a translation defect)."
+  }
+ ],
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 1,
+  "NIT": 1
+ },
+ "verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "zh-CN-GAP-R2-1",
+   "zh-CN-GAP-R2-2"
+  ]
+ },
+ "findings": [
+  {
+   "id": "zh-CN-GAP-R2-1",
+   "severity": "MINOR",
+   "key": "mobile.refusal.offline.body",
+   "introduced_by_draft": true,
+   "current": "请唤醒这台电脑，并确认已在电脑上打开Local Operator。",
+   "suggested": "请唤醒那台电脑，并确认其上已打开Local Operator。",
+   "reason": "Reader is on the phone; the computer is remote. Shipped analogue mobile.computers.refusal.offline_next = 请唤醒那台电脑, and sibling refusal bodies use 那台电脑 (relay_refused, computer_sign_in, computer_attention). 这台 here is proximal deixis; 电脑 also repeats twice in one short sentence. Meaning is still clear (title names {computer}), so not gating."
+  },
+  {
+   "id": "zh-CN-GAP-R2-2",
+   "severity": "NIT",
+   "key": "mobile.refusal.relay_stopped.body",
+   "current": "请在电脑上打开它，然后轻点“重试”。",
+   "suggested": "请在那台电脑上打开它，然后轻点“重试”。",
+   "reason": "English 'there' is rendered 在那台电脑上 in relay_refused.body, computer_sign_in.body and computer_attention.body; only this value says 在电脑上. Pre-existing wording, touched by the draft for 请/轻点."
+  }
+ ],
+ "ledger": "not written — brief directs output to auditor scratch; lane owner records ledger row"
+}

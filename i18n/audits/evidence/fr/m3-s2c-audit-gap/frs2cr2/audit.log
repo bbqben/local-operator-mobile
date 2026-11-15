@@ -1,0 +1,130 @@
+$ cp /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/draft-fr.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/notes-fr.md /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/fr/record.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/fr/report.md /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/ && shasum -a 256 /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/*
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/brief-gap.json
+7c73ad99d3d27494cb9432b74a77e4d7e09d255082b5c7aacf45d1f978320d6b  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/draft-fr.json
+91f109db87e98fb7a9cfb08393c8eba96f44e7c46cffe48a35cdf34ceb12f27c  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/notes-fr.md
+92708299cbfccd0d50d0e255783fb746d1fe4aded56fd6d85e75dedcba929350  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/record.json
+77a9eeecd4675c59b702453ba95e5507c799843e256898f59181da0cdbf62297  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/report.md
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/messages.ts > /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/messages.ts && shasum -a 256 /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/messages.ts
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/messages.ts
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/catalogues/en/mobile.home.json > /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/en-mobile.home.json && git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/catalogues/fr/mobile.home.json > /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/fr-mobile.home.json && shasum -a 256 /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/*mobile.home.json
+111c6450ce2fb4c9f96912bc888e316c85870167f42b30fd24a33faccef1ab7a  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/en-mobile.home.json
+09b80bb9e01680f97d60d0e77761156d15305589bc7e17b20d29d7b7d063a913  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/fr-mobile.home.json
+exit=0
+
+$ env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a/node_modules/.bin/tsx /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/check.ts /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2
+OK mobile.refusal.phone_access_off.title []
+OK mobile.refusal.suspended.title [["computer","text"]]
+OK mobile.refusal.suspended.body []
+OK mobile.refusal.console_disabled.title [["computer","text"]]
+OK mobile.refusal.refused.title [["computer","text"]]
+OK mobile.refusal.refused.body []
+OK mobile.refusal.tunnel_gone.title [["computer","text"]]
+OK mobile.refusal.how_to.title []
+OK mobile.refusal.how_to.body []
+OK mobile.refusal.terminal.toggle []
+OK mobile.settings.sign_in_confirm.title []
+OK mobile.settings.sign_in_confirm.body []
+OK mobile.notifications.computer_registration.relay_missing []
+OK mobile.home.suggestion.phone_access []
+NEG-CONTROL CAUGHT [["ordinateur","text"]]
+NEG-CONTROL-2 CAUGHT RangeError: Invalid message "Accès {computer": expected ',' or '}' (at offset 15
+keys=67 draft_keys=14 errors=0 bidi=0 straight_apos=0
+chip_len 25 25 alt_verb_len 35 desktop_chip_len 25
+exit=0
+
+$ grep -c -E 'REDACTED|\[redacted|<redacted' in/brief-gap.json in/draft-fr.json in/notes-fr.md in/record.json in/report.md
+in/brief-gap.json:0
+in/draft-fr.json:0
+in/notes-fr.md:0
+in/record.json:0
+in/report.md:0
+exit=1
+
+$ python3 -c 'import json;d=json.load(open("in/fr-mobile.home.json"));dr=json.load(open("in/draft-fr.json"));d.update({k:v for k,v in dr.items() if k in d});[print(len(v),k,v) for k,v in d.items() if "suggestion" in k]'
+23 mobile.home.suggestion.last_turn Montrez le dernier tour
+21 mobile.home.suggestion.linear_mcp Configurez Linear MCP
+25 mobile.home.suggestion.phone_access Accès depuis un téléphone
+16 mobile.home.suggestion.review_repo Examinez ce repo
+25 mobile.home.suggestion.team_of_agents Créez une équipe d’agents
+24 mobile.home.suggestion.wake_summary Réveillez-moi et résumez
+exit=0
+
+$ git -C ~/local-operator-ui rev-parse origin/main && git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/fr/ui.chat.composer.json | grep suggestion.phone_access && git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/fr/ui.providers.json | grep -E 'phone\.(heading|stopped|action\.set_up)"'
+e6122214503b9fc52841e119c060eabb7650391b
+	"ui.chat.composer.suggestion.phone_access": "Activez l’accès téléphone",
+	"ui.providers.phone.action.set_up": "Configurer l’accès depuis un téléphone",
+	"ui.providers.phone.heading": "Accès depuis un téléphone",
+	"ui.providers.phone.stopped": "L’accès depuis un téléphone est désactivé sur cet ordinateur.",
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/features/home/home-copy.ts | sed -n '91,93p;143,144p;163,168p'
+export const SUGGESTION_CHAR_BUDGET: Readonly<Record<ShippedLocale, number>> = {
+	en: 24,
+	fr: 31,
+	"mobile.home.suggestion.phone_access",
+	"mobile.home.suggestion.team_of_agents",
+ * `suggestions` renders the pool's head while the draft is empty; `connect`
+ * fills the slot with the one move that changes a no-route state; and `none`
+ * is review B1's fix: the slot empties while a draft is held — spec decision
+ * 6, "suggestions render only while the draft is empty" (§3.5 `draft exists` →
+ * "suggestions hidden"), because a suggestion's tap REPLACES the field's text
+ * and a chip that overwrites typed text is a data-loss control (P-4).
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/features/home/home-copy.test.ts | sed -n '140,147p'
+		it(`${locale}: every suggestion fits its one-line row`, () => {
+			for (const key of HOME_SUGGESTION_KEYS) {
+				const rendered = renderFor(key, {}, locale);
+				expect(rendered.trim().length).toBeGreaterThan(0);
+				expect(rendered.length).toBeLessThanOrEqual(
+					suggestionCharBudget(locale),
+				);
+			}
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a grep -n -E 'suspendu|en pause' 9214ff9b -- 'src/i18n/catalogues/fr/*.json'
+9214ff9b:src/i18n/catalogues/fr/mobile.computers.json:66:	"mobile.computers.status.suspended": "suspendu",
+9214ff9b:src/i18n/catalogues/fr/mobile.projects.json:28:	"mobile.projects.status.paused": "en pause",
+9214ff9b:src/i18n/catalogues/fr/mobile.refusal.json:6:	"mobile.refusal.suspended.title": "Radient a suspendu l’accès depuis le téléphone à {computer}.",
+9214ff9b:src/i18n/catalogues/fr/mobile.session.json:12:	"mobile.session.highlights.sound_pause": "Mettre {title} en pause",
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a grep -n -E 'slot\.rows|rows\.map|onPickSuggestion|onSuggestion' 9214ff9b -- src | grep -v test | head -8
+9214ff9b:src/features/home/home-pickers.tsx:169:			{rows.map((row, index) => {
+9214ff9b:src/features/home/home-splash.tsx:213:			? slot.rows.slice(0, 2)
+9214ff9b:src/features/home/home-splash.tsx:335:							{rows.map((label) => (
+9214ff9b:src/features/library/library-model.ts:582:): LibraryAsset[] => rows.map((row) => updates.get(row.id) ?? row);
+9214ff9b:src/features/projects/projects.tsx:237:							{section.rows.map((project) => (
+9214ff9b:src/features/schedules/schedules.tsx:400:				{rows.map((row) => (
+9214ff9b:src/features/schedules/schedules.tsx:490:				{rows.map((row) => (
+9214ff9b:src/features/session/components/markdown.tsx:589:							{rows.map((row, rowIndex) => (
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/features/home/home-splash.tsx | sed -n '330,350p'
+							 *  shrink-wrapped column would shrink the rows' 44 pt targets
+							 *  to their labels. */
+							className="mt-6 gap-2 self-stretch"
+							testID={SURFACE.homeSuggestions}
+						>
+							{rows.map((label) => (
+								<SuggestionRow
+									key={label}
+									label={label}
+									largeText={effectiveScale > LARGE_TEXT_SCALE}
+									onPress={() => onPick(label)}
+								/>
+							))}
+						</View>
+					) : null}
+				</View>
+			</ScrollView>
+		</View>
+	);
+};
+
+exit=0
+

@@ -138,8 +138,6 @@
 	"mobile.computers.own_tunnel.password_slot_empty": "На этом телефоне не сохранён пароль ретранслятора. Введите пароль этого компьютера, проверьте его и сохраните.",
 	"mobile.computers.own_tunnel.password_slot_this": "Сохранённый на телефоне пароль ретранслятора относится к этому адресу. Проверьте его и сохраните.",
 	"mobile.computers.setup.intro": "Приложение управляет сессиями на вашем собственном компьютере, поэтому на нём должен работать коннектор, а сам компьютер не должен уходить в спящий режим. Ваш код остаётся на нём.",
-	"mobile.computers.setup.billing_title": "Удалённый доступ неактивен",
-	"mobile.computers.setup.billing_fallback": "По данным Radient, этот аккаунт пока не может запустить туннель. Проверьте оплату в консоли Radient и попробуйте снова.",
 	"mobile.computers.setup.create_title": "Создать туннель на компьютере",
 	"mobile.computers.setup.create_help": "В терминале на компьютере, которым хотите управлять:",
 	"mobile.computers.setup.terminal_label": "Терминал",

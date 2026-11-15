@@ -1,0 +1,214 @@
+{
+ "locale": "vi",
+ "slice": "m3-s2c-audit-gap",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "key_count": 66,
+ "brief": {
+  "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+  "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5",
+  "scratch_copy": "/Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/brief-gap.json",
+  "scratch_copy_sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5",
+  "copy_reason": "node reads from own scratchpad; no guardrail refusal occurred"
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "50f759c57419",
+  "model": "anthropic/claude-opus-5-5",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "actual_model_source": "system prompt 'Model:' line"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": 0,
+ "placeholder_check": {
+  "keys": 66,
+  "mismatches": [],
+  "parser": "src/i18n/messages.ts@9214ff9b sha256 c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0",
+  "plural_args": 0,
+  "cldr_vi": "{other}; not exercised"
+ },
+ "desktop_reference": {
+  "repo": "local-operator-ui",
+  "ref": "origin/main e6122214503b9fc52841e119c060eabb7650391b",
+  "feature": "Truy cập từ điện thoại",
+  "set_up_button": "Thiết lập truy cập từ điện thoại",
+  "settings": "Cài đặt",
+  "radient_account": "Tài khoản Radient"
+ },
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 7,
+  "MINOR": 3,
+  "NIT": 4
+ },
+ "verdict": "failed",
+ "findings": [
+  {
+   "id": "vi-GAP-1",
+   "key": "mobile.refusal.phone_access_off.title",
+   "severity": "MAJOR",
+   "current": "Quyền truy cập từ điện thoại chưa được bật cho tài khoản Radient của bạn.",
+   "suggested": "Truy cập từ điện thoại chưa được bật cho tài khoản Radient của bạn.",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature."
+  },
+  {
+   "id": "vi-GAP-2",
+   "key": "mobile.refusal.suspended.title",
+   "severity": "MAJOR",
+   "current": "Radient đã tạm dừng quyền truy cập từ điện thoại vào {computer}.",
+   "suggested": "Radient đã tạm dừng truy cập từ điện thoại vào {computer}.",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature."
+  },
+  {
+   "id": "vi-GAP-3",
+   "key": "mobile.refusal.console_disabled.title",
+   "severity": "MAJOR",
+   "current": "Quyền truy cập từ điện thoại vào {computer} đang tắt trong bảng điều khiển Radient của bạn.",
+   "suggested": "Truy cập từ điện thoại vào {computer} đang tắt trong bảng điều khiển Radient của bạn.",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature."
+  },
+  {
+   "id": "vi-GAP-4",
+   "key": "mobile.refusal.relay_refused.body",
+   "severity": "MAJOR",
+   "current": "Hãy mở Local Operator trên máy đó, kiểm tra rằng quyền truy cập từ điện thoại đang bật, rồi nhấn Thử lại.",
+   "suggested": "Hãy mở Local Operator trên máy đó, kiểm tra xem truy cập từ điện thoại đã bật chưa, rồi nhấn Thử lại.",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature. Also 'kiểm tra rằng … đang bật' is a calque of 'check that'; Vietnamese uses 'kiểm tra xem … đã … chưa'."
+  },
+  {
+   "id": "vi-GAP-5",
+   "key": "mobile.refusal.tunnel_gone.title",
+   "severity": "MAJOR",
+   "current": "Quyền truy cập từ điện thoại đang tắt trên {computer}.",
+   "suggested": "Truy cập từ điện thoại đang tắt trên {computer}.",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature. Desktop ships the same sentence as 'Truy cập từ điện thoại đang tắt trên máy tính này.' (ui.providers.phone.stopped). The very next line (tunnel_gone.body) shows the bare menu label, so the mismatch is visible on one screen."
+  },
+  {
+   "id": "vi-GAP-6",
+   "key": "mobile.refusal.how_to.title",
+   "severity": "MAJOR",
+   "current": "Bật quyền truy cập từ điện thoại",
+   "suggested": "Bật truy cập từ điện thoại",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature. Its body (how_to.body) uses the bare term, so title and body name the feature differently on one sheet."
+  },
+  {
+   "id": "vi-GAP-7",
+   "key": "mobile.refusal.open_console.title",
+   "severity": "MAJOR",
+   "current": "Quyền truy cập từ điện thoại tới {computer} cần được thay đổi trong bảng điều khiển Radient.",
+   "suggested": "Truy cập từ điện thoại vào {computer} cần được điều chỉnh trong bảng điều khiển Radient của bạn.",
+   "reason": "Desktop names the feature 'Truy cập từ điện thoại' (ui.providers.phone.heading; also .stopped, .set_up, composer suggestion 'Bật truy cập từ điện thoại'); no desktop vi string uses 'Quyền truy cập từ điện thoại', and this batch itself uses the bare term in 5 other keys (computers.setup.open_settings, refused.title, tunnel_gone.body, how_to.body, computer_attention.body). 'Quyền truy cập' = 'access permission', which also reads like an OS permission rather than the named feature. Also identical English 'Phone access for {computer}' is 'vào {computer}' in console_disabled.title but 'tới {computer}' here, and 'your' (của bạn) is dropped."
+  },
+  {
+   "id": "vi-GAP-8",
+   "key": "mobile.refusal.balance_out.body",
+   "severity": "MINOR",
+   "current": "Hãy nạp thêm tiền — máy tính của bạn sẽ tự kết nối lại. Sau đó nhấn Thử lại.",
+   "suggested": "Hãy nạp thêm tín dụng — máy tính của bạn sẽ tự kết nối lại. Sau đó nhấn Thử lại.",
+   "reason": "Desktop vi renders Radient 'credit' as 'tín dụng' with verb 'nạp' (ui.common.account.top_up 'Nạp tín dụng…', low_credits_dialog 'Nạp thêm tín dụng'). 'nạp thêm tiền' is natural but diverges from the cross-app term for the same balance."
+  },
+  {
+   "id": "vi-GAP-9",
+   "key": "mobile.refusal.action.add_credit",
+   "severity": "MINOR",
+   "current": "Nạp tiền",
+   "suggested": "Nạp tín dụng",
+   "reason": "Same as previous: desktop button for the same action reads 'Nạp tín dụng…'/'Nạp thêm tín dụng'. 'Nạp tiền' (top up money) diverges. Length still fine (12 vs 10 chars)."
+  },
+  {
+   "id": "vi-GAP-10",
+   "key": "mobile.refusal.how_to.body",
+   "severity": "MINOR",
+   "current": "Trên máy tính, mở Local Operator → Cài đặt → Tài khoản Radient → Truy cập từ điện thoại rồi chọn Thiết lập truy cập từ điện thoại. Bạn sẽ thấy giá trước, trước khi bất cứ thứ gì được bật.",
+   "suggested": "Trên máy tính, mở Local Operator → Cài đặt → Tài khoản Radient → Truy cập từ điện thoại rồi chọn Thiết lập truy cập từ điện thoại. Bạn sẽ thấy giá trước khi bất cứ tính năng nào được bật.",
+   "reason": "'Bạn sẽ thấy giá trước, trước khi…' doubles 'trước' — a literal rendering of 'first, before'; reads clumsy. Menu path and 'Thiết lập truy cập từ điện thoại' match the shipped desktop control (ui.providers.phone.action.set_up) — keep."
+  },
+  {
+   "id": "vi-GAP-11",
+   "key": "mobile.refusal.phone_access_off.body",
+   "severity": "NIT",
+   "current": "Hãy bật nó từ Local Operator trên máy tính của bạn.",
+   "suggested": "Hãy bật tính năng này trong Local Operator trên máy tính của bạn.",
+   "reason": "'bật nó' with 'nó' for an abstract feature reads translated; name the antecedent."
+  },
+  {
+   "id": "vi-GAP-12",
+   "key": "mobile.refusal.relay_stopped.title",
+   "severity": "NIT",
+   "current": "Local Operator không chạy trên {computer}.",
+   "suggested": "Local Operator hiện không chạy trên {computer}.",
+   "reason": "'không chạy' can read as 'does not run (at all)'; en is the current state 'isn't running'."
+  },
+  {
+   "id": "vi-GAP-13",
+   "key": "mobile.refusal.relay_refused.title",
+   "severity": "NIT",
+   "current": "Local Operator trên {computer} đã không chấp nhận điện thoại này.",
+   "suggested": "Local Operator trên {computer} không chấp nhận điện thoại này.",
+   "reason": "'đã không chấp nhận' is a past-negative calque; plain 'không chấp nhận' is the natural form."
+  },
+  {
+   "id": "vi-GAP-14",
+   "key": "mobile.settings.diagnostics.copy",
+   "severity": "NIT",
+   "current": "Sao chép thông tin chẩn đoán",
+   "suggested": "(keep) Sao chép thông tin chẩn đoán — and Đã sao chép thông tin chẩn đoán for .copied",
+   "reason": "Length ratio 1.75x (copy) / 1.72x (copied) > 1.6x flag. Call site settings.tsx:687 is a full-size outline Button (not sm), so overflow risk is low; confirm on a narrow-phone render. Shorter 'Sao chép chẩn đoán' is less natural."
+  }
+ ],
+ "pass_keys": [
+  "mobile.computers.setup.open_settings",
+  "mobile.computers.setup.list_updates",
+  "mobile.computers.setup.check_again",
+  "mobile.computers.setup.checking",
+  "mobile.computers.hint.radient_unreachable",
+  "mobile.settings.diagnostics.tunnel",
+  "mobile.settings.diagnostics.address",
+  "mobile.refusal.balance_out.title",
+  "mobile.refusal.suspended.body",
+  "mobile.refusal.provisioning.title",
+  "mobile.refusal.provisioning.body",
+  "mobile.refusal.refused.title",
+  "mobile.refusal.refused.body",
+  "mobile.refusal.offline.title",
+  "mobile.refusal.offline.body",
+  "mobile.refusal.relay_stopped.body",
+  "mobile.refusal.tunnel_gone.body",
+  "mobile.refusal.radient_unreachable.title",
+  "mobile.refusal.radient_unreachable.body",
+  "mobile.refusal.relay_wait.title",
+  "mobile.refusal.relay_wait.body",
+  "mobile.refusal.action.how_to",
+  "mobile.refusal.action.open_billing",
+  "mobile.refusal.action.open_console",
+  "mobile.refusal.action.refresh_list",
+  "mobile.refusal.action.retry",
+  "mobile.refusal.terminal.toggle",
+  "mobile.refusal.terminal.label",
+  "mobile.refusal.wait_network.title",
+  "mobile.refusal.wait_network.body",
+  "mobile.refusal.wait_reconnect.title",
+  "mobile.refusal.wait_reconnect.body",
+  "mobile.refusal.computer_sign_in.title",
+  "mobile.refusal.computer_sign_in.body",
+  "mobile.refusal.computer_attention.title",
+  "mobile.refusal.computer_attention.body",
+  "mobile.settings.diagnostics.reason",
+  "mobile.settings.account.signed_in_radient",
+  "mobile.settings.sign_in_confirm.title",
+  "mobile.settings.sign_in_confirm.body",
+  "mobile.settings.sign_in_confirm.confirm",
+  "mobile.notifications.computer_registration.failed",
+  "mobile.notifications.computer_registration.no_token",
+  "mobile.notifications.computer_registration.refused",
+  "mobile.notifications.computer_registration.registered",
+  "mobile.notifications.computer_registration.registering",
+  "mobile.notifications.computer_registration.relay_missing",
+  "mobile.chrome.clear_search",
+  "mobile.home.transcript.needs_answer",
+  "mobile.session.pending_echo.not_confirmed_plain",
+  "mobile.settings.diagnostics.copy_failed"
+ ],
+ "rtl": "n/a",
+ "audit_notes_not_execution_log": "report.md is notes; audit.log lists the commands actually run"
+}

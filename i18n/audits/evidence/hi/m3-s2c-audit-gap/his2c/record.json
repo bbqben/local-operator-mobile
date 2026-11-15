@@ -1,0 +1,175 @@
+{
+ "locale": "hi",
+ "slice": "m3-s2c-audit-gap",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "key_count": 66,
+ "audit_date": "2026-11-15",
+ "brief": {
+  "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+  "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5",
+  "working_copy": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "copy_note": "Copied to own scratchpad at start (precaution); hashes identical. A later logging wrapper naming the lane path was refused by guardrail dangerous-delete (nothing run); all node/python checks read the own copy."
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "team": "lopdev",
+  "session": "b61aea064bef",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "system prompt 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "references": {
+  "mobile": "local-operator-mobile @ 9214ff9b (git show, read-only worktree .worktrees/i18n-m3-s2a)",
+  "desktop": "local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b (ui.providers.phone.*, ui.settings.page.title, ui.settings.navigation.settings_sidebar.radient_account; no fetch)",
+  "style_guide": "local-operator origin/main 05c4e25026900e20930e28dc0af44b8c65cb28c4 i18n/style-guides/hi.md, i18n/glossary.md (no row for these terms)"
+ },
+ "redaction_marker_hits": 0,
+ "placeholder_check": {
+  "tool": "repo src/i18n/messages.ts @9214ff9b (parseMessage/formatMessage, node 24, heap 256MB, isolated HOME)",
+  "messages_ts_sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0",
+  "script": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/check.mjs",
+   "sha256": "a3a67212980151cce48e4cdc34b7bd7c90c7223a0635ab0bd6872ed3d239e8dd"
+  },
+  "keys": 66,
+  "mismatches": [],
+  "parse_errors": 0,
+  "plural_keys": 0,
+  "cldr_hi": "one(0,1)/other — no plural in batch",
+  "computer_renders": 39
+ },
+ "label_check": {
+  "desktop_menu_path": "सेटिंग्स → Radient खाता → फ़ोन एक्सेस → फ़ोन एक्सेस सेट करें — matches desktop ui.settings.page.title / settings_sidebar.radient_account / ui.providers.phone.heading / ui.providers.phone.action.set_up in open_settings, how_to.body, tunnel_gone.body",
+  "feature_name": "फ़ोन एक्सेस in all 13 occurrences = desktop heading and mobile.home.suggestion.phone_access",
+  "quoted_labels": "4× “फिर से कोशिश करें” = mobile.refusal.action.retry (the Retry button refusal.ts:197-200 renders)",
+  "identical_en_identical_hi": "radient_unreachable.body = relay_wait.body; add_credit/open_console = desktop values"
+ },
+ "fit": {
+  "over_1_6x": [
+   [
+    "mobile.computers.setup.checking",
+    1.67
+   ],
+   [
+    "mobile.refusal.action.retry",
+    3.4
+   ],
+   [
+    "mobile.settings.sign_in_confirm.confirm",
+    1.71
+   ]
+  ],
+  "assessment": "no overflow finding: refusal actions are full-width stacked Buttons (refusal-surface.tsx:380 column gap-2); Checking… replaces a full-size button; confirm dialog button 12 chars"
+ },
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 3,
+  "NIT": 3
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "hi-GAP-1",
+   "hi-GAP-2",
+   "hi-GAP-3",
+   "hi-GAP-4",
+   "hi-GAP-5",
+   "hi-GAP-6"
+  ]
+ },
+ "findings": [
+  {
+   "id": "hi-GAP-1",
+   "key": "mobile.settings.diagnostics.copy; mobile.settings.diagnostics.copied",
+   "severity": "MINOR",
+   "current": "डायग्नोस्टिक्स कॉपी करें / डायग्नोस्टिक्स कॉपी हो गए",
+   "suggested": "डायग्नॉस्टिक्स कॉपी करें / डायग्नॉस्टिक्स कॉपी हो गए (desktop spelling); and align out-of-batch mobile.settings.section.diagnostics (निदान) to डायग्नॉस्टिक्स, or both to निदान",
+   "reason": "Same English 'Diagnostics' renders three ways: section header above this button ships निदान (mobile.settings.section.diagnostics), the button says डायग्नोस्टिक्स, desktop ui.providers.phone.action.copy_diagnostics says डायग्नॉस्टिक्स (ॉ, as in कॉपी/ऑफ़लाइन). Understandable, but a helper comparing screens sees different words."
+  },
+  {
+   "id": "hi-GAP-2",
+   "key": "mobile.refusal.computer_attention.title",
+   "severity": "MINOR",
+   "current": "{computer} पर Local Operator पर ध्यान देने की ज़रूरत है।",
+   "suggested": "{computer} पर चल रहे Local Operator को आपके ध्यान की ज़रूरत है।",
+   "reason": "Two पर in a row ('on X on Local Operator attention is needed') reads clumsily; the second पर makes Local Operator the location rather than the thing needing attention. Renders fine with a name, a URL or the English fallback."
+  },
+  {
+   "id": "hi-GAP-3",
+   "key": "mobile.refusal.suspended.title",
+   "severity": "MINOR",
+   "current": "Radient ने {computer} के लिए फ़ोन एक्सेस रोक दिया है।",
+   "suggested": "Radient ने {computer} के लिए फ़ोन एक्सेस कुछ समय के लिए रोक दिया है।",
+   "reason": "Context: a momentary pause that clears on its own. रोक दिया है alone reads as 'stopped/blocked', which is closer to the disabled/refused causes; the body only partly offsets this."
+  },
+  {
+   "id": "hi-GAP-4",
+   "key": "mobile.refusal.balance_out.title",
+   "severity": "NIT",
+   "current": "आपका Radient बैलेंस खत्म हो गया है।",
+   "suggested": "आपका Radient बैलेंस ख़त्म हो गया है।",
+   "reason": "Style guide hi.md: 'Keep nukta consistently'; the catalogue writes ख़ुद, आख़िरी with nukta."
+  },
+  {
+   "id": "hi-GAP-5",
+   "key": "mobile.settings.diagnostics.address",
+   "severity": "NIT",
+   "current": "टनल पता",
+   "suggested": "टनल का पता",
+   "reason": "Bare noun-noun compound is terse; desktop's parallel label is फ़ोन का पता (ui.providers.phone.address_label)."
+  },
+  {
+   "id": "hi-GAP-6",
+   "key": "mobile.refusal.suspended.body",
+   "severity": "NIT",
+   "current": "… — अगर ऐसा बना रहे, तो उस पर Local Operator खोलें, …",
+   "suggested": "… — अगर ऐसा ही बना रहे, तो उस पर Local Operator खोलें, …",
+   "reason": "'अगर ऐसा बना रहे' is slightly unidiomatic for 'if this lasts'; ही (or 'अगर यह स्थिति बनी रहे') makes it natural."
+  }
+ ],
+ "code_findings_outside_catalogue_verdict": [
+  {
+   "id": "hi-GAP-X1",
+   "severity": "MAJOR",
+   "scope": "code, all non-en locales (not a hi catalogue value)",
+   "key": "{computer} argument of 13 mobile.refusal.*.title keys",
+   "where": "src/features/auth/connection-provider.tsx:2588 and :2623 at 9214ff9b (also :2586 'Radient')",
+   "current": "subject fallback is the hard-coded English literal \"Your computer\" → hi renders e.g. 'Your computer पर Local Operator नहीं चल रहा है।'",
+   "suggested": "Localize the fallback via a catalogue key. For hi use the bare noun कंप्यूटर (consonant-final masculine: identical in direct and oblique singular), NOT आपका कंप्यूटर (breaks 9 postposition titles: 'आपका कंप्यूटर पर…') nor the existing oblique mobile.computers.added.fallback_name आपके कंप्यूटर (breaks the 4 subject titles offline/relay_wait/wait_network/wait_reconnect: 'आपके कंप्यूटर स्लीप में है').",
+   "reason": "Rendered all 13 {computer} titles with the repo's formatMessage for 'Damian का MacBook', 'Your computer', 'आपका कंप्यूटर' (check.out). Catalogue templates are grammatical for names/URLs/Latin text; the defect is the untranslated code literal and the case trap any single translated fallback would hit."
+  }
+ ],
+ "pass_keys_count": 59,
+ "rtl": "n/a",
+ "audit_notes_not_execution_log": "report.md is reasoning; audit.log is the execution log",
+ "artifacts": {
+  "report.md": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/report.md",
+   "sha256": "b70e7946089d0319feaaad03544a16c0d3e011c11b16c93aaf552b49fe360d4b"
+  },
+  "audit.log": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/audit.log",
+   "sha256": "906d9251b38d68a56547e38d7029e501a2c928d0bfa4b73bd712ad2ec002bac9"
+  },
+  "check.out": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/check.out",
+   "sha256": "1f1e9905cd1d42f8a3f60a461cc9698a2cf6a6341deaaf9dd971a041c7923fbe"
+  },
+  "check.mjs": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/check.mjs",
+   "sha256": "a3a67212980151cce48e4cdc34b7bd7c90c7223a0635ab0bd6872ed3d239e8dd"
+  },
+  "scan.py": {
+   "path": "/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/scan.py",
+   "sha256": "307d99d0fc0933cf430cf992c3b1c989d2dec42e7c0b9df8b0b3d8d0520ad0d0"
+  }
+ }
+}

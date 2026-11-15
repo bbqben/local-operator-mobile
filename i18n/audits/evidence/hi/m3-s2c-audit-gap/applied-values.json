@@ -1,0 +1,41 @@
+{
+	"locale": "hi",
+	"slice": "m3-s2c-audit-gap",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "ff2bab4316698f1ae380b88f6c83da4f1e8cc183d619920a57d63466c92e40fb",
+	"key_count": 8,
+	"values": {
+		"mobile.settings.section.diagnostics": {
+			"file": "src/i18n/catalogues/hi/mobile.settings.json",
+			"value": "डायग्नॉस्टिक्स"
+		},
+		"mobile.settings.diagnostics.copy": {
+			"file": "src/i18n/catalogues/hi/mobile.settings.json",
+			"value": "डायग्नॉस्टिक्स कॉपी करें"
+		},
+		"mobile.settings.diagnostics.copied": {
+			"file": "src/i18n/catalogues/hi/mobile.settings.json",
+			"value": "डायग्नॉस्टिक्स कॉपी हो गए"
+		},
+		"mobile.refusal.computer_attention.title": {
+			"file": "src/i18n/catalogues/hi/mobile.refusal.json",
+			"value": "{computer} पर Local Operator को आपके ध्यान की ज़रूरत है।"
+		},
+		"mobile.refusal.suspended.title": {
+			"file": "src/i18n/catalogues/hi/mobile.refusal.json",
+			"value": "Radient ने फ़िलहाल {computer} के लिए फ़ोन एक्सेस रोक दिया है।"
+		},
+		"mobile.refusal.balance_out.title": {
+			"file": "src/i18n/catalogues/hi/mobile.refusal.json",
+			"value": "आपका Radient बैलेंस ख़त्म हो गया है।"
+		},
+		"mobile.settings.diagnostics.address": {
+			"file": "src/i18n/catalogues/hi/mobile.settings.json",
+			"value": "टनल का पता"
+		},
+		"mobile.refusal.suspended.body": {
+			"file": "src/i18n/catalogues/hi/mobile.refusal.json",
+			"value": "आपका कंप्यूटर अपने आप फिर से जुड़ जाएगा — अगर ऐसा ही बना रहे, तो उस पर Local Operator खोलें, फिर “फिर से कोशिश करें” पर टैप करें।"
+		}
+	}
+}

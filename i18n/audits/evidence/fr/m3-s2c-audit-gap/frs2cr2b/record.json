@@ -1,0 +1,181 @@
+{
+ "locale": "fr",
+ "slice": "m3-s2c-audit-gap",
+ "round": "2b",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "audit_date": "2026-11-14",
+ "supersedes_verdict_of": {
+  "path": "/Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/record.json",
+  "sha256": "417cb1cbff6b2a7294fd4709f6b3ac96bef1deb6530ca3a581bebec2638261ef",
+  "verdict": "failed",
+  "finding_ids": [
+   "fr-R2-1"
+  ]
+ },
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft_v1": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/draft-fr.json",
+   "sha256": "7c73ad99d3d27494cb9432b74a77e4d7e09d255082b5c7aacf45d1f978320d6b"
+  },
+  "draft_v2": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/draft-fr-v2.json",
+   "sha256": "26d45acf6684e1709b408cec7a6451c01365f6dc1c0641774bb0c7ca7771d317"
+  },
+  "notes_v2": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/notes-fr.md",
+   "sha256": "b6ea59ae325b2b1313bf0ce72e2d05bc9aafa02158d7af53d63868490006ec98"
+  },
+  "translator_check_v2_log": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/check-v2.log",
+   "sha256": "211c0db69ec2f5ae24c187b8ba606966d94d279e9ea0856628764b2bf94511cc",
+   "note": "translator's log, read but not relied on; own run in audit-r2b.log"
+  },
+  "round1_record": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/fr/record.json",
+   "sha256": "92708299cbfccd0d50d0e255783fb746d1fe4aded56fd6d85e75dedcba929350"
+  },
+  "messages_ts": {
+   "path": "git show 9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "desktop_ref": "local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b src/i18n/catalogues/fr/ui.chat.composer.json"
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "b27f79fca9d4",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "independent_from_round1_session": true,
+  "translator_session": "70879ee98b8d",
+  "round1_session": "796f6be72d5f"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": 0,
+ "delta_check": {
+  "v1_to_v2_changed_keys": [
+   "mobile.home.suggestion.phone_access"
+  ],
+  "key_sets_equal": true,
+  "draft_key_count": 14,
+  "chip_value": "Activez l’accès téléphone",
+  "byte_identical_to_desktop_chip": true,
+  "utf8_hex": "4163746976657a206ce28099616363c3a8732074c3a96cc3a970686f6e65",
+  "chip_length_utf16": 25,
+  "budget": "SUGGESTION_CHAR_BUDGET.fr = 31 (home-copy.ts@9214ff9b l.93)",
+  "pool_max_fr": 25
+ },
+ "placeholder_check": {
+  "tool": "messages.ts parseMessage via tsx, env -i, NODE_OPTIONS=--max-old-space-size=256",
+  "final_set_values": 67,
+  "parse_errors": 0,
+  "mismatches": 0,
+  "negative_controls": [
+   "{computer}->{ordinateur} CAUGHT",
+   "unterminated brace RangeError CAUGHT"
+  ],
+  "bidi_controls": 0,
+  "straight_apostrophes": 0
+ },
+ "round1_resolution": [
+  {
+   "id": "fr-GAP-1",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-2",
+   "status": "resolved",
+   "note": "name fixed; « mis en pause » matches context (brief pause, billing fine)."
+  },
+  {
+   "id": "fr-GAP-3",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-4",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-5",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-6",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-7",
+   "status": "resolved",
+   "note": "label quoted « … »; = desktop ui.providers.phone.action.set_up."
+  },
+  {
+   "id": "fr-GAP-8",
+   "status": "resolved",
+   "note": "’ ×2; « connexion à Radient » disambiguates; meaning preserved."
+  },
+  {
+   "id": "fr-GAP-9",
+   "status": "resolved",
+   "note": "U+202F before ?."
+  },
+  {
+   "id": "fr-GAP-10",
+   "status": "resolved",
+   "note": "U+202F before ?."
+  },
+  {
+   "id": "fr-GAP-11",
+   "status": "resolved",
+   "note": "« sur cet ordinateur »; Réessayer = action.retry."
+  },
+  {
+   "id": "fr-GAP-12",
+   "status": "resolved",
+   "note": "actor fixed, meaning intact."
+  },
+  {
+   "id": "fr-GAP-13",
+   "status": "resolved",
+   "note": "comma dropped."
+  }
+ ],
+ "round2_resolution": [
+  {
+   "id": "fr-R2-1",
+   "status": "resolved",
+   "note": "v2 chip « Activez l’accès téléphone »: verb restored, byte-identical to desktop chip, 25 ≤ 31."
+  }
+ ],
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 0,
+  "NIT": 0
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "observations_not_findings": [
+  "mobile.computers.status.suspended « suspendu » vs refusal « mis en pause » mirrors en split; en context notes disagree on billing — source-copy question.",
+  "Pre-existing mixed U+0020/U+202F before ; : ? and straight ' in mobile.notifications.permission.* outside batch; not gating."
+ ],
+ "artifacts": {
+  "report": "report-r2b.md",
+  "log": "audit-r2b.log"
+ },
+ "audit_notes_not_execution_log": "report-r2b.md is notes; audit-r2b.log is the execution log of commands actually run."
+}

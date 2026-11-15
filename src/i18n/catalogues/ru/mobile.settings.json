@@ -61,7 +61,7 @@
 	"mobile.settings.account.app_name": "Local Operator",
 	"mobile.settings.account.signed_in_radient": "Вход через Radient выполнен",
 	"mobile.settings.sign_in_confirm.title": "Войти через Radient?",
-	"mobile.settings.sign_in_confirm.body": "Сначала текущее подключение будет завершено. Если вы не завершите вход, придётся снова подключиться к компьютеру.",
+	"mobile.settings.sign_in_confirm.body": "Сначала текущее подключение будет завершено. Если прервать вход, придётся снова подключиться к компьютеру.",
 	"mobile.settings.sign_in_confirm.confirm": "Войти",
 	"mobile.settings.own_tunnel.not_saved": "Пароль не сохранён, поэтому приложение запрашивает его при каждом запуске.",
 	"mobile.settings.own_tunnel.kept_secure": "Адрес и пароль хранятся в защищённом хранилище этого телефона.",
@@ -78,5 +78,5 @@
 	"mobile.settings.diagnostics.address": "Адрес туннеля",
 	"mobile.settings.diagnostics.copy": "Копировать диагностику",
 	"mobile.settings.diagnostics.copied": "Диагностика скопирована",
-	"mobile.settings.diagnostics.copy_failed": "Не удалось скопировать. Попробуйте ещё раз."
+	"mobile.settings.diagnostics.copy_failed": "Не скопировано — повторите"
 }

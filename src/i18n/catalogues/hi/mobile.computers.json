@@ -138,8 +138,6 @@
 	"mobile.computers.own_tunnel.password_slot_empty": "इस फ़ोन पर कोई रिले पासवर्ड सहेजा नहीं गया है। इस कंप्यूटर का पासवर्ड डालें, उसे जाँचें, फिर सहेजें।",
 	"mobile.computers.own_tunnel.password_slot_this": "इस फ़ोन पर सहेजा गया रिले पासवर्ड इसी पते का है। उसे जाँचें, फिर सहेजें।",
 	"mobile.computers.setup.intro": "यह ऐप आपके अपने कंप्यूटर पर सत्र चलाता है, इसलिए उस कंप्यूटर पर कनेक्टर चलता रहना चाहिए और उसे स्लीप में नहीं जाना चाहिए। आपका कोड उसी कंप्यूटर पर रहता है।",
-	"mobile.computers.setup.billing_title": "रिमोट ऐक्सेस सक्रिय नहीं है",
-	"mobile.computers.setup.billing_fallback": "Radient के अनुसार यह खाता अभी टनल शुरू नहीं कर सकता। कंसोल में बिलिंग जाँचें, फिर दोबारा कोशिश करें।",
 	"mobile.computers.setup.create_title": "कंप्यूटर पर नई टनल बनाएँ",
 	"mobile.computers.setup.create_help": "जिस कंप्यूटर को आप नियंत्रित करना चाहते हैं, उसके टर्मिनल में:",
 	"mobile.computers.setup.terminal_label": "टर्मिनल",

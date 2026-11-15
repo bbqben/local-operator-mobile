@@ -153,7 +153,7 @@ const NAMESPACES = [
 		 * "Couldn't connect" with its generic and wrong-password bodies, the
 		 * secure-storage refusal, "Connected, but not saved" with its body with and
 		 * without a code, and Continue). */
-		expected: 194, // Convergence of #260 onto main f340368a (#261): both comment chains kept; main's 167 + 27 (S2b-2b) = 194, counted over the en JSON; Convergence of #260 onto main caae98bc (#257): 138 + 24 (S2b-2a) + 27 (S2b-2b) = 189; Merge of origin/main (#257, caae98bc) into #261: main's 162 + the branch's 5 (143 - 138) = 167; M3 S2b-2b +27: the set-up-a-computer screen (17), refused-address reasons (9), "Your computer" refusal subject (1) (138 + 27 = 165); PR #261 round-1 remediation +2: set-up's "Check again" and its "Checking…" state (141 + 2 = 143); M1 scope additions +1: the switcher's "Can't reach Radient right now" hint (140 + 1 = 141); M1 no-terminal +2: set-up's Settings → Phone access line and its "list updates by itself" line (138 + 2 = 140); M3 S2b-2a +24: the connection-failure (refusal) surface: 9 headlines, 9 next lines, wait line, 5 buttons (138 + 24 = 162); M3 S2b-1 +27: own-tunnel command labels/notes and tunnel rule (11), verdict sentences (12), offline remedy (1), password-slot explanations (3) (111 + 27 = 138); M3 S2a +36: Computers titles (2), discovery banners (4), "Your own tunnel" screen (30) (75 + 36 = 111); M3 S1 +30 (17 + 13 sweep: status/reach badges, row a11y, billing, Try now, Remove; 45 + 30 = 75); +17: computers list/remove/paths/wait lines (45 + 17 = 62); earlier: +6: the add-a-computer wait panel's keyed lines (app/ scan); +4: the wait panel's remaining expression literals (host/answering lines, fallback name, connected-to line)
+		expected: 192, // M3 S2c audit gap -2: the unused setup.billing_title / setup.billing_fallback dropped (194 - 2 = 192), counted over the en JSON; Convergence of #260 onto main f340368a (#261): both comment chains kept; main's 167 + 27 (S2b-2b) = 194, counted over the en JSON; Convergence of #260 onto main caae98bc (#257): 138 + 24 (S2b-2a) + 27 (S2b-2b) = 189; Merge of origin/main (#257, caae98bc) into #261: main's 162 + the branch's 5 (143 - 138) = 167; M3 S2b-2b +27: the set-up-a-computer screen (17), refused-address reasons (9), "Your computer" refusal subject (1) (138 + 27 = 165); PR #261 round-1 remediation +2: set-up's "Check again" and its "Checking…" state (141 + 2 = 143); M1 scope additions +1: the switcher's "Can't reach Radient right now" hint (140 + 1 = 141); M1 no-terminal +2: set-up's Settings → Phone access line and its "list updates by itself" line (138 + 2 = 140); M3 S2b-2a +24: the connection-failure (refusal) surface: 9 headlines, 9 next lines, wait line, 5 buttons (138 + 24 = 162); M3 S2b-1 +27: own-tunnel command labels/notes and tunnel rule (11), verdict sentences (12), offline remedy (1), password-slot explanations (3) (111 + 27 = 138); M3 S2a +36: Computers titles (2), discovery banners (4), "Your own tunnel" screen (30) (75 + 36 = 111); M3 S1 +30 (17 + 13 sweep: status/reach badges, row a11y, billing, Try now, Remove; 45 + 30 = 75); +17: computers list/remove/paths/wait lines (45 + 17 = 62); earlier: +6: the add-a-computer wait panel's keyed lines (app/ scan); +4: the wait panel's remaining expression literals (host/answering lines, fallback name, connected-to line)
 	},
 	{
 		name: "mobile.refusal",
@@ -429,7 +429,9 @@ describe("the English catalogues", () => {
 		 * (mobile.home, mobile.chrome, mobile.session) = 927. */
 		/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
 		 * 927 on main + 27 (S2b-2b) = 954, counted over the en JSON. */
-		expect(total).toBe(954);
+		/* M3 S2c audit gap: -2 mobile.computers (the unused setup.billing_title
+		 * and setup.billing_fallback) = 952, counted over the en JSON. */
+		expect(total).toBe(952);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

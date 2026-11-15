@@ -1,0 +1,45 @@
+# audit.log — ru, m3-s2c-audit-gap — i18n-auditor session df512b3fe891 (anthropic/claude-opus-5-5, no fallback) — 2026-11-14
+# Every command below was actually run in this session; outputs abbreviated, exit codes kept.
+
+$ shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  (matches brief) exit=0
+$ grep -c '\[redacted\]' /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+0
+$ cp <brief> $SCRATCH/ru-gap/brief-gap.json && shasum -a 256 ru-gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  (same sha; local copy used for node/python — no guardrail refusal occurred, copy made pre-emptively)
+$ python3: json.load(brief) -> dict keys [source_commit, note, keys]; len(keys)=66; source_commit 9214ff9b43c58256c49f48a8c2858f9c186d35c8
+# Route: ordinary git/scratch reads. read_public_copy NOT used (core refuses mobile catalogue paths; context sidecars are nested JSON, not routable).
+
+$ git -C ~/local-operator-ui log -1 --format='%H %cs' origin/main      (no fetch)
+e6122214503b9fc52841e119c060eabb7650391b 2026-11-14 exit=0
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/{en,ru}/ui.providers.json > scratch; (also ui.settings, ui.settings.navigation, ui.settings.account, ui.common.account)
+desktop labels (en | ru):
+  ui.settings.page.title                              Settings | Настройки
+  ui.settings.navigation.settings_sidebar.radient_account  Radient account | Учётная запись Radient
+  ui.providers.phone.heading                          Phone access | Доступ с телефона
+  ui.providers.phone.action.set_up                    Set up phone access | Настроить доступ с телефона
+  ui.providers.phone.action.copy_diagnostics          Copy diagnostics | Копировать диагностику
+  ui.providers.phone.action.open_console              Open Radient console | Открыть консоль Radient
+  ui.providers.phone.outcome.billing_*                Billing: … | Оплата: …
+exit=0  (one earlier `git grep ... origin/main` over the whole tree was killed by the 512 MB memory cap, exit=-9; replaced by targeted git show)
+
+$ cd ~/local-operator-mobile/.worktrees/i18n-m3-s2a && git show 9214ff9b:<each src/i18n/catalogues/{ru,en}/*.json> > scratch/mob/ ; git show 9214ff9b:src/i18n/messages.ts > scratch/mob/messages.ts
+24 ru catalogue files extracted, exit=0. Worktree untouched (git status --porcelain shows 1 pre-existing entry not created by this audit; HEAD 8d45bab7).
+$ grep counts over mobile ru catalogues: аккаунт* 19 vs Учётная запись 3 (+1 учётной записи); оповещени* 8 for en 'alerts' (all mobile.notifications), уведомлени* for 'notifications'; «Повторить» = mobile.refusal.action.retry and 6 other Retry keys; доступ с телефона in all phone-access prose (+ mobile.home.suggestion.phone_access)
+$ git show 9214ff9b:src/features/auth/connection-provider.tsx | sed -n 2578,2630p
+  const subject = chosen ? chosen.name : route === null ? "Radient" : route.mode === "radient" ? "Your computer" : route.baseUrl;   (and 2619-2623 same, transient)
+$ git show 9214ff9b:src/features/auth/refusal.ts | sed -n 240,310p   -> copyFor(cause, subject); t("mobile.refusal.*.title", { computer: subject })
+$ git show 9214ff9b:src/features/settings/settings.tsx | sed -n 670,705p -> Button label switches copy / copied / copy_failed; no labelLines
+$ git show 9214ff9b:src/ui/components/button.tsx | grep labelLines -> numberOfLines={labelLines} (undefined => wraps)
+
+$ env -i PATH="$PATH" HOME=$SCRATCH/ru-gap/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mts
+checked=66 mismatches=0 plural_args=0
+Local Operator не запущен на Your computer.
+exit=0  (first run printed the same via JSON.stringify; the harness masked that line in display, so the print was changed to plain text and re-run; node also warned MODULE_TYPELESS_PACKAGE_JSON, harmless)
+$ env -i ... node neg.mts      (harness negative controls)
+negative_control_detects_mismatch=true
+malformed_rejected=true
+exit=0
+$ python3 length/identity scan (button/meta/status ratios ru/en): max button ratio 1.80 mobile.refusal.action.retry (Повторить, 9 chars — glossary term, no risk); status copy_failed 1.72 (43 vs 25); no ru value identical to en
+$ python3 typography scan: no '...', no straight double quotes, no double spaces, no space-before-punctuation, no ' - '; U+2026 in mobile.computers.setup.checking; bidi controls (U+200E/F, 202A-E, 2066-9): none (check.mts)
+RTL: n/a (ru)

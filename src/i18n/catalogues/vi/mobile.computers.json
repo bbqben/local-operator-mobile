@@ -138,8 +138,6 @@
 	"mobile.computers.own_tunnel.password_slot_empty": "Điện thoại này chưa lưu mật khẩu chuyển tiếp nào. Hãy nhập mật khẩu của máy tính này, kiểm tra, rồi lưu.",
 	"mobile.computers.own_tunnel.password_slot_this": "Mật khẩu chuyển tiếp đã lưu trên điện thoại này là của địa chỉ này. Hãy kiểm tra, rồi lưu.",
 	"mobile.computers.setup.intro": "Ứng dụng này điều khiển các phiên trên chính máy tính của bạn, nên máy tính đó cần chạy trình kết nối và luôn thức. Mã nguồn của bạn không rời khỏi máy đó.",
-	"mobile.computers.setup.billing_title": "Truy cập từ xa chưa hoạt động",
-	"mobile.computers.setup.billing_fallback": "Radient cho biết tài khoản này chưa thể khởi tạo đường hầm. Hãy kiểm tra thanh toán trong bảng điều khiển Radient rồi thử lại.",
 	"mobile.computers.setup.create_title": "Tạo đường hầm trên máy tính",
 	"mobile.computers.setup.create_help": "Trong terminal trên máy tính bạn muốn điều khiển:",
 	"mobile.computers.setup.terminal_label": "Terminal",

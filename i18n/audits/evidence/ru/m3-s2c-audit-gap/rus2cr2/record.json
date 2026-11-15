@@ -1,0 +1,115 @@
+{
+  "locale": "ru",
+  "slice": "m3-s2c-audit-gap",
+  "round": 2,
+  "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+  "audit_date": "2026-11-14",
+  "inputs": {
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+      "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+    },
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/ru/draft-ru.json",
+      "sha256": "42030448ac68393b464cee2b45d0fd25d0021fee6a2162201cfa7c155993dda3"
+    },
+    "round1_record": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ru/record.json",
+      "sha256": "c0f006c89c61bf2fb0be092f04993f58fe0ea9f45a31deb12d493827fff294c5"
+    },
+    "messages_ts": {
+      "path": "git show 9214ff9b:src/i18n/messages.ts",
+      "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+    },
+    "final_ru_derived": {
+      "path": "final-ru.json",
+      "sha256": "3a96743467a4795fb9722efd549475b6c710ef86e4e6f4800ae73a060e6a5906"
+    }
+  },
+  "input_copies_note": "inputs copied to own scratchpad; sha256 of copies identical to originals",
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "3a8c49e648fe",
+    "model": "anthropic/claude-opus-5-5",
+    "actual_model_source": "system prompt Model: line",
+    "fallback_used": false,
+    "independent_from_translator_session": true,
+    "independent_from_round1_session": true,
+    "translator_session": "c12ae2da7082",
+    "round1_session": "df512b3fe891"
+  },
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": 0,
+  "placeholder_check": {
+    "parser": "repo src/i18n/messages.ts @9214ff9b via node v24.22.1 (env -i, NODE_OPTIONS=--max-old-space-size=256)",
+    "keys": 66,
+    "mismatches": 0,
+    "negative_controls": {
+      "injected_mismatch_detected": true,
+      "malformed_rejected": "RangeError"
+    },
+    "plural_select": "none; CLDR n/a"
+  },
+  "computer_slot_check": {
+    "keys_with_computer": 13,
+    "all_nominative": true,
+    "rendered_subjects": [
+      "Домашний ноутбук",
+      "Ваш компьютер",
+      "192.168.1.24",
+      "MacBook Pro",
+      "https://10.0.0.5:8443"
+    ]
+  },
+  "round1_resolution": [
+    {
+      "id": "ru-GAP-1",
+      "status": "resolved",
+      "note": "9 titles → «{computer}: …»; nominative verified by render (name, «Ваш компьютер», IP, URL); refused.title calque fixed"
+    },
+    {
+      "id": "ru-GAP-2",
+      "status": "resolved",
+      "note": "«Не скопировано — повторите», 26 chars vs 43; fits next to 22-char resting label"
+    },
+    {
+      "id": "ru-GAP-3",
+      "status": "resolved",
+      "note": "matches radient_unreachable.body (same en)"
+    },
+    {
+      "id": "ru-GAP-4",
+      "status": "resolved",
+      "note": "«{computer} спит или не в сети.» nominative subject, present tense"
+    },
+    {
+      "id": "ru-GAP-5",
+      "status": "resolved",
+      "note": "«Если прервать вход» removes repeat"
+    }
+  ],
+  "counts": {
+    "keys_total": 66,
+    "draft_keys": 13,
+    "draft_keys_outside_round1_findings": 0,
+    "blocker": 0,
+    "major": 0,
+    "minor": 0,
+    "nit": 0
+  },
+  "verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "findings": [],
+  "observations_not_counted": [
+    "no-route subject 'Radient' yields redundant refused.title in en and ru alike (source-side)",
+    "round-1 ru-GAP-X1 hard-coded 'Your computer' fallback still a code issue; ru titles now case-safe either way"
+  ],
+  "artifacts": {
+    "report": "report.md",
+    "audit_log": "audit.log",
+    "check_script": "check.mts"
+  }
+}

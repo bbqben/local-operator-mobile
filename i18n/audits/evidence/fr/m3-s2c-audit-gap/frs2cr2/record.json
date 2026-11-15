@@ -1,0 +1,173 @@
+{
+ "locale": "fr",
+ "slice": "m3-s2c-audit-gap",
+ "round": 2,
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "audit_date": "2026-11-14",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/draft-fr.json",
+   "sha256": "7c73ad99d3d27494cb9432b74a77e4d7e09d255082b5c7aacf45d1f978320d6b"
+  },
+  "draft_notes": {
+   "path": "…/m3gap/drafts/fr/notes-fr.md",
+   "sha256": "91f109db87e98fb7a9cfb08393c8eba96f44e7c46cffe48a35cdf34ceb12f27c"
+  },
+  "round1_record": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/fr/record.json",
+   "sha256": "92708299cbfccd0d50d0e255783fb746d1fe4aded56fd6d85e75dedcba929350"
+  },
+  "round1_report": {
+   "path": "…/m3gap/audits/fr/report.md",
+   "sha256": "77a9eeecd4675c59b702453ba95e5507c799843e256898f59181da0cdbf62297"
+  },
+  "messages_ts": {
+   "ref": "9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "en_mobile_home": {
+   "ref": "9214ff9b:src/i18n/catalogues/en/mobile.home.json",
+   "sha256": "111c6450ce2fb4c9f96912bc888e316c85870167f42b30fd24a33faccef1ab7a"
+  },
+  "fr_mobile_home": {
+   "ref": "9214ff9b:src/i18n/catalogues/fr/mobile.home.json",
+   "sha256": "09b80bb9e01680f97d60d0e77761156d15305589bc7e17b20d29d7b7d063a913"
+  },
+  "desktop_ref": "local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b (no fetch)"
+ },
+ "inputs_copied_to_own_scratch": "yes — copied to fr-gap-r2/in/ and sha256 re-verified (audit.log); node read the copies",
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "b27f79fca9d4",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "independent_from_round1_session": true,
+  "translator_session": "70879ee98b8d",
+  "round1_session": "796f6be72d5f"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": 0,
+ "placeholder_check": {
+  "parser": "9214ff9b:src/i18n/messages.ts parseMessage via tsx, env -i, NODE_OPTIONS=--max-old-space-size=256",
+  "keys_checked": 67,
+  "draft_keys": 14,
+  "errors": 0,
+  "bidi_controls": 0,
+  "straight_apostrophes": 0,
+  "negative_controls": [
+   "{computer}->{ordinateur} in suspended.title: CAUGHT",
+   "unterminated 'Accès {computer': RangeError CAUGHT"
+  ]
+ },
+ "scope_check": "draft = 13 round-1 keys (all changed) + 1 extra (mobile.home.suggestion.phone_access, requested by manager, justified in notes-fr.md); nothing else",
+ "round1_resolution": [
+  {
+   "id": "fr-GAP-1",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-2",
+   "status": "resolved",
+   "note": "name fixed; « mis en pause » matches context (brief pause, billing fine)."
+  },
+  {
+   "id": "fr-GAP-3",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-4",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-5",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-6",
+   "status": "resolved",
+   "note": "« depuis un téléphone » = desktop ui.providers.phone.heading; value matches round-1 suggestion exactly."
+  },
+  {
+   "id": "fr-GAP-7",
+   "status": "resolved",
+   "note": "label quoted « … »; = desktop ui.providers.phone.action.set_up."
+  },
+  {
+   "id": "fr-GAP-8",
+   "status": "resolved",
+   "note": "’ ×2; « connexion à Radient » disambiguates; meaning preserved."
+  },
+  {
+   "id": "fr-GAP-9",
+   "status": "resolved",
+   "note": "U+202F before ?."
+  },
+  {
+   "id": "fr-GAP-10",
+   "status": "resolved",
+   "note": "U+202F before ?."
+  },
+  {
+   "id": "fr-GAP-11",
+   "status": "resolved",
+   "note": "« sur cet ordinateur »; Réessayer = action.retry."
+  },
+  {
+   "id": "fr-GAP-12",
+   "status": "resolved",
+   "note": "actor fixed, meaning intact."
+  },
+  {
+   "id": "fr-GAP-13",
+   "status": "resolved",
+   "note": "comma dropped."
+  }
+ ],
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 1,
+  "MINOR": 0,
+  "NIT": 0
+ },
+ "verdict": "failed",
+ "current_report_verdict": {
+  "status": "changes_requested",
+  "unresolved_blocker_major_count": 1,
+  "finding_ids": [
+   "fr-R2-1"
+  ]
+ },
+ "findings": [
+  {
+   "id": "fr-R2-1",
+   "severity": "MAJOR",
+   "key": "mobile.home.suggestion.phone_access",
+   "introduced_by_draft": true,
+   "current": "Accès depuis un téléphone",
+   "en": "Turn on phone access",
+   "problem": "Drops the action. The chip is the pinned head of HOME_SUGGESTION_KEYS (always shown first), and tapping it stages its label in the composer as the prompt (home-splash.tsx onPress={() => onPick(label)}; home-copy.ts: 'a suggestion's tap REPLACES the field's text'). A bare noun phrase sent to the agent no longer asks it to turn anything on (it reads as 'tell me about phone access'), and the chip reads like a section heading next to five imperative siblings (Créez/Montrez/Configurez/Examinez/Réveillez-moi). Omission of the verb in an actionable control = accuracy + register defect.",
+   "test_limit": "SUGGESTION_CHAR_BUDGET.fr = 31 UTF-16 chars (home-copy.ts@9214ff9b l.93), asserted by home-copy.test.ts 'every suggestion fits its one-line row' (rendered.length <= budget). 31 is derived (24 x median fr/en ratio 1.30), not pixel-measured like es/ru/vi (32).",
+   "suggested": "Activez l’accès téléphone (25 chars, passes the test) — byte-identical to the desktop's own chip ui.chat.composer.suggestion.phone_access on local-operator-ui origin/main e612221450, so the same chip reads the same on both clients and the verb survives. The reference name « Accès depuis un téléphone » stays on headings/menu paths, where the desktop also uses it; the desktop itself uses the short form on this chip. If the full name is required on the chip, the only route is a code change: « Activez l’accès depuis un téléphone » (35) plus SUGGESTION_CHAR_BUDGET.fr raised to ≥35 with a measured width at 320 pt — out of translation scope."
+  }
+ ],
+ "observations_not_findings": [
+  "mobile.computers.status.suspended badge stays « suspendu » while refusal.suspended.title says « mis en pause »: mirrors the en split (badge 'suspended' vs headline 'paused'); the two en context notes disagree on billing — source-side question, not a fr defect.",
+  "Outside this batch, shipped fr catalogues still mix U+0020 and U+202F before ; : ? and keep straight ' in mobile.notifications.permission.* — pre-existing, not gating."
+ ],
+ "artifacts": {
+  "report": "report.md",
+  "log": "audit.log",
+  "check_script": "check.ts"
+ },
+ "audit_notes_not_execution_log": "report.md is notes; audit.log holds the commands actually run and their output."
+}
