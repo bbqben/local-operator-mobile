@@ -1,0 +1,98 @@
+# vi-gap-r2 audit.log — auditor i18n-auditor session ef29a5921e99 model anthropic/claude-opus-5-5 (no fallback); 2026-11-15T01:48:53Z
+$ shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/vi/draft-vi.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/record.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/report.md
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+aacf5a5e9a785c2f2868e059fcfda722dc2e438fe2fca3ce078d14e0907dc90c  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/vi/draft-vi.json
+c45d73ac47a897736a71021c44dc2e2b3f1ce40d9347191a0340d5b9db7458ef  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/record.json
+c30de68666edb05753c5ce26cf69c49da67766db72b5e76c24decb02a913eda9  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/report.md
+exit=0
+
+$ cp /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/vi/draft-vi.json . && cp /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/vi/record.json r1-record.json && shasum -a 256 brief-gap.json draft-vi.json r1-record.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+aacf5a5e9a785c2f2868e059fcfda722dc2e438fe2fca3ce078d14e0907dc90c  draft-vi.json
+c45d73ac47a897736a71021c44dc2e2b3f1ce40d9347191a0340d5b9db7458ef  r1-record.json
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/messages.ts > messages.ts && shasum -a 256 messages.ts
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+exit=0
+
+$ env -i PATH="$PATH" HOME=$PWD/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs 2>/dev/null
+{"total":66,"draftKeys":13,"unknown":[],"unchangedInDraft":[],"mismatches":[],"withParams":13,"neg":"detected mismatch","neg2":"threw: Invalid message \"Bad {computer\": expected ',' or '}' (at offset 13)"}
+exit=0
+
+$ shasum -a 256 final-vi.json
+1d1a52d75e548de5093e8a3de23c5a32facbc2df4a77b06607642b50f747c419  final-vi.json
+exit=0
+
+$ perl -CSD -ne '$c++ while /[\x{200E}\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{061C}]/g; END{print "bidi=",$c//0,"\n"}' final-vi.json draft-vi.json
+bidi=0
+exit=0
+
+$ grep -c -i -E 'REDACT|\[redacted' brief-gap.json draft-vi.json
+brief-gap.json:0
+draft-vi.json:0
+exit=1
+
+$ python3 -c "import json;f=json.load(open('final-vi.json'));import re;print({p:[k for k,v in f.items() if re.search(p,v)] for p in ['Quyền truy cập','tiền','tới \\{']})"
+<string>:1: SyntaxWarning: "\{" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\{"? A raw string is also an option.
+{'Quyền truy cập': [], 'tiền': [], 'tới \\{': []}
+exit=0
+
+$ git -C ~/local-operator-ui rev-parse --short origin/main
+e612221450
+exit=0
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/vi/ui.providers.json | grep -E 'phone\.(heading|stopped|action\.(set_up|add_credit|open_console|copy_diagnostics))"'
+	"ui.providers.phone.action.set_up": "Thiết lập truy cập từ điện thoại",
+	"ui.providers.phone.heading": "Truy cập từ điện thoại",
+	"ui.providers.phone.action.add_credit": "Nạp tín dụng",
+	"ui.providers.phone.action.open_console": "Mở Radient Console",
+	"ui.providers.phone.action.copy_diagnostics": "Sao chép thông tin chẩn đoán",
+	"ui.providers.phone.stopped": "Truy cập từ điện thoại đang tắt trên máy tính này.",
+exit=0
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/vi/ui.chat.composer.json | grep suggestion.phone_access
+	"ui.chat.composer.suggestion.phone_access": "Bật truy cập từ điện thoại",
+exit=0
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/vi/ui.common.account.json | grep -E 'top_up"|get_more_credits'
+	"ui.common.account.low_credits_dialog.get_more_credits": "Nạp thêm tín dụng",
+	"ui.common.account.top_up": "Nạp tín dụng trong Radient Console",
+	"ui.common.account.out_unknown_top_up": "Nếu không, hãy nạp tín dụng trong Radient Console.",
+exit=0
+
+$ cd /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a && for f in $(git ls-tree --name-only 9214ff9b src/i18n/catalogues/vi/); do git show 9214ff9b:$f | grep -c 'bảng điều khiển Radient' | sed "s|^|$(basename $f): |"; done
+mobile.account_routing.json: 0
+mobile.agent_avatar.json: 0
+mobile.chrome.json: 0
+mobile.common.json: 0
+mobile.composer_input.json: 0
+mobile.computers.json: 5
+mobile.home.json: 0
+mobile.library.json: 0
+mobile.notifications.json: 0
+mobile.oauth.json: 0
+mobile.projects.json: 0
+mobile.refusal.json: 4
+mobile.schedules.json: 0
+mobile.session.json: 0
+mobile.session_health.json: 0
+mobile.settings.json: 1
+mobile.sidebar.json: 0
+mobile.signin.json: 0
+mobile.team_bridge.context.json: 0
+mobile.team_bridge.json: 2
+relay.chrome.json: 0
+relay.composer.json: 0
+relay.health.json: 0
+relay.transcript.json: 0
+exit=0
+
+# note: grep -c exit=1 above means zero matches (0 redaction markers), not an error.
+$ python3 consistency.py  # identical-en groups, end punctuation parity, phone-term keys
+identical-en groups: [('Try again in a moment.', ['Hãy thử lại sau giây lát.', 'Hãy thử lại sau giây lát.'])]
+phone-access-for pair: Truy cập từ điện thoại vào {computer} đang tắt trong bảng điều khiển Radient của bạn. | Truy cập từ điện thoại vào {computer} cần được điều chỉnh trong bảng điều khiển Radient của bạn.
+endpunct diff: []
+phone-term keys: 12
+len ratio >1.6: [('mobile.settings.diagnostics.copy', 1.75), ('mobile.settings.diagnostics.copied', 1.72)]
+exit=0

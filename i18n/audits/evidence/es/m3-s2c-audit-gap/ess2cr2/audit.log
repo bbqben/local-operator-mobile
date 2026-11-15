@@ -1,0 +1,71 @@
+# audit.log — es m3-s2c-audit-gap round 2, auditor session 00bdf32c5ccb (anthropic/claude-opus-5-5)
+# Commands actually run (re-verification commands run via subprocess at log time; node placeholder check output captured at run).
+
+$ git show 9214ff9b:src/i18n/messages.ts
+[exit 0]
+/**
+ * The ICU message subset this client renders, and the ONE parser that defines it.
+ *
+ * WHY A SUBSET RATHER THAN A LIBRARY. The app carries no me
+...[file body written to work/messages.ts]
+
+$ cd /Users/damian/.local-operator/sessions/00bdf32c5ccb/scratchpad/es-gap-r2/work && env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/00bdf32c5ccb/scratchpad/es-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs
+[exit 0]
+{
+ "ok": 66,
+ "withArgs": 13,
+ "bad": [
+  "__neg_drop en=[computer,text] es=[]",
+  "__neg_rename en=[computer,text] es=[equipo,text]",
+  "__neg_malformed THROW Invalid message \"{computer x\": expected ',' or '}' (at offset 10)"
+ ]
+}
+(node:58593) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/00bdf32c5ccb/scratchpad/es-gap-r2/work/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+$ [eval] final-set mechanical scan (bidi/redaction/spacing/quotes/end-punct/NFC/term)
+{"bidi": [], "redaction_brief": 0, "redaction_draft": 0, "double_space": [], "straight_quote": [], "end_punct_mismatch": [], "nfc": [], "computadora_ordenador_in_final": [], "json_valid_keys_in_draft": 18, "extra_keys": []}
+
+$ shasum -a 256 brief-gap.json drafts/es/draft-es.json drafts/es/notes-es.md audits/es/record.json audits/es/report.md
+[exit 0]
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+df6cb5a5537fc97849013b0dd4707955d66ba446d3a61465c84d1fe91ed6f6c2  drafts/es/draft-es.json
+b67210daec9c78fe8e516bc22564bb48ab5908ad782b58907bd1e3ea96e7ed01  drafts/es/notes-es.md
+2752516bb264408435e53c1f5a1ca19b058f24202e7dd3a3195105597128544f  audits/es/record.json
+330f71a0330aa264b9133685be321211006299282310824c9431d78440e12102  audits/es/report.md
+
+
+$ git rev-parse 9214ff9b
+[exit 0]
+9214ff9b43c58256c49f48a8c2858f9c186d35c8
+
+
+$ git -C ~/local-operator-ui rev-parse origin/main && git -C ~/local-operator-ui grep -nE 'phone\.action\.(add_credit|set_up)"|providers\.phone\.heading"|settings_page\.add_credits"' origin/main -- 'src/i18n/catalogues/es/*'
+[exit 0]
+e6122214503b9fc52841e119c060eabb7650391b
+origin/main:src/i18n/catalogues/es/ui.providers.json:10:	"ui.providers.phone.action.set_up": "Configurar el acceso desde el teléfono",
+origin/main:src/i18n/catalogues/es/ui.providers.json:18:	"ui.providers.phone.heading": "Acceso desde el teléfono",
+origin/main:src/i18n/catalogues/es/ui.providers.json:40:	"ui.providers.phone.action.add_credit": "Añadir crédito",
+origin/main:src/i18n/catalogues/es/ui.settings.account.json:22:	"ui.settings.account.settings_page.add_credits": "Añadir crédito",
+
+
+$ git -C ~/local-operator grep -nE 'Añade crédito' origin/main -- 'local_operator/i18n/catalogues/es/mobile.setup.json' 'local_operator/i18n/catalogues/es/tunnel.status.json'
+[exit 0]
+origin/main:local_operator/i18n/catalogues/es/mobile.setup.json:6:  "mobile.setup.balance": "Añade crédito tú mismo en https://console.radienthq.com/dashboard/tunnels; la configuración nunca compra crédito. Después, reinténtalo.",
+origin/main:local_operator/i18n/catalogues/es/mobile.setup.json:94:  "mobile.setup.action_add_credit": "Añade crédito en la consola de Radient: {url}",
+origin/main:local_operator/i18n/catalogues/es/tunnel.status.json:4:  "tunnel.status.billing_lapsed.detail": "Se agotó tu saldo de Radient, así que el acceso telefónico está en pausa. Añade crédito en {url}; se reconectará automáticamente en cuanto se restablezca el saldo.",
+
+
+$ git -C ~/local-operator show origin/main:i18n/style-guides/es.md | sed -n '11,13p;147,148p'
+[exit 0]
+- Neutral Spanish: avoid region-marked words — use "archivo" (not "fichero");
+  for a phone, "teléfono" reads everywhere ("celular" and "móvil" each mark a
+  region) — prefer wording that reads the same in Madrid and Mexico City.
+- Quotes: “ ” (angled « » only if an editorial register is ever needed);
+  em dash " — " with spaces; ellipsis ….
+
+
+$ [eval] shipped-catalogue scan: 1121 es keys from 9214ff9b src/i18n/catalogues/es/*.json; brief es values == shipped: 66/66 (mismatch=[]); out-of-scope computadora/ordenador keys: ["mobile.chrome.home.connect", "mobile.composer_input.voice.setup_needed", "mobile.computers.connect_refused.generic", "mobile.notifications.channel.description", "mobile.notifications.permission.denied", "mobile.notifications.permission.granted", "mobile.notifications.permission.undetermined", "mobile.team_bridge.gate.connecting", "mobile.team_bridge.gate.signed_out_help", "mobile.team_bridge.navigation.caption"]

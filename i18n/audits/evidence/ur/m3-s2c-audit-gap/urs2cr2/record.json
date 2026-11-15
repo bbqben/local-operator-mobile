@@ -1,0 +1,295 @@
+{
+ "locale": "ur",
+ "slice": "m3-s2c-audit-gap",
+ "round": 2,
+ "audit_date": "2026-11-14",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/ur/draft-ur.json",
+   "sha256": "a107e8d2f2a7ed7bcbda67e5215894573c8db5bcb57e35db5f157f5c5c47c6a0"
+  },
+  "round1_record": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ur/record.json",
+   "sha256": "e59ccc092f48552d718cb737b26bbc729fcbadf9aff760e4980830601e9d086e"
+  },
+  "round1_report": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/ur/report.md",
+   "sha256": "7b56b638b31d6290abddbf7e8059a4c56d59df26ccf17eabfb7e3d1a870a88e0"
+  },
+  "messages_ts": {
+   "path": "9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/ur.md",
+   "sha256": "c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "desktop_reference": "~/local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b (no fetch)"
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "team": "lopdev",
+  "session": "2e68665fe1be",
+  "model": "anthropic/claude-opus-5-5",
+  "fallback_used": false,
+  "actual_model_source": "session system prompt 'Model:' line; no fallback observed",
+  "independent_from_translator_session": true,
+  "independent_from_round1_session": true,
+  "translator_session": "4ccb027fe9ed",
+  "round1_session": "6ce4c67b2038"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": 0,
+ "placeholder_check": {
+  "keys": 66,
+  "parser": "repo messages.ts @9214ff9b copied to own scratch (sha256 verified), node v24.22.1, env -i, heap 256",
+  "parse_errors": 0,
+  "mismatches": 0,
+  "negative_control": "negative-control.json: {computer}->{komputer} in refused.title => MISMATCH; unclosed brace in wait_reconnect.title => RangeError; checker reported parse_errors=1 mismatches=1",
+  "plural_or_select_keys": 0
+ },
+ "scope_check": {
+  "draft_keys": 16,
+  "draft_keys_equal_round1_flagged_keys": true,
+  "keys_added_or_dropped": 0
+ },
+ "manager_rule_arrows": {
+  "scope": "ALL 24 shipped ur mobile catalogue files @9214ff9b (1121 keys) with draft applied",
+  "U+2192_hits": 0,
+  "U+2190_keys": [
+   "mobile.computers.own_tunnel.verdict_local_network_ios",
+   "mobile.computers.setup.open_settings",
+   "mobile.refusal.tunnel_gone.body",
+   "mobile.refusal.how_to.body"
+  ],
+  "ascii_arrow_hits": 0,
+  "other_arrows": "↑/↓ in mobile.session.region.* (scroll-direction hints, not menu paths; vertical arrows have no RTL issue)",
+  "result": "confirmed"
+ },
+ "rtl": {
+  "first_strong": {
+   "AL": 48,
+   "L": 7,
+   "PLACEHOLDER": 11
+  },
+  "L_initial": [
+   "mobile.refusal.suspended.title",
+   "mobile.refusal.provisioning.title",
+   "mobile.refusal.refused.title",
+   "mobile.refusal.radient_unreachable.title",
+   "mobile.refusal.action.open_billing",
+   "mobile.refusal.action.open_console",
+   "mobile.settings.account.signed_in_radient"
+  ],
+  "changed_first_strong": {
+   "mobile.refusal.suspended.title": "L",
+   "mobile.computers.setup.checking": "AL",
+   "mobile.settings.diagnostics.copy": "AL",
+   "mobile.settings.diagnostics.copy_failed": "AL",
+   "mobile.refusal.refused.title": "L",
+   "mobile.refusal.wait_network.body": "AL",
+   "mobile.computers.setup.open_settings": "AL",
+   "mobile.refusal.suspended.body": "AL",
+   "mobile.refusal.wait_reconnect.title": "PLACEHOLDER",
+   "mobile.settings.diagnostics.copied": "AL",
+   "mobile.refusal.relay_stopped.body": "AL",
+   "mobile.refusal.balance_out.body": "AL",
+   "mobile.refusal.how_to.body": "AL",
+   "mobile.refusal.tunnel_gone.body": "AL",
+   "mobile.computers.setup.check_again": "AL",
+   "mobile.refusal.relay_refused.body": "AL"
+  },
+  "bidi_controls_66": [],
+  "non_nfc": [],
+  "arabic_digits": [],
+  "ascii_punct_end": [],
+  "hindi_danda": [],
+  "u2190_props": [
+   "ON",
+   0
+  ],
+  "u201c_props": [
+   "ON",
+   0
+  ],
+  "changed_endings": {
+   "mobile.refusal.suspended.title": "۔",
+   "mobile.computers.setup.checking": "…",
+   "mobile.settings.diagnostics.copy": "ں",
+   "mobile.settings.diagnostics.copy_failed": "۔",
+   "mobile.refusal.refused.title": "۔",
+   "mobile.refusal.wait_network.body": "۔",
+   "mobile.computers.setup.open_settings": "۔",
+   "mobile.refusal.suspended.body": "۔",
+   "mobile.refusal.wait_reconnect.title": "۔",
+   "mobile.settings.diagnostics.copied": "ں",
+   "mobile.refusal.relay_stopped.body": "۔",
+   "mobile.refusal.balance_out.body": "۔",
+   "mobile.refusal.how_to.body": "۔",
+   "mobile.refusal.tunnel_gone.body": "۔",
+   "mobile.computers.setup.check_again": "ں",
+   "mobile.refusal.relay_refused.body": "۔"
+  },
+  "redaction_marker_hits": 0,
+  "draft_keys_eq_flagged": true,
+  "draft_json_valid": true,
+  "quotes": "15 quoting keys across ur mobile catalogues all “…” (U+201C first); 0 reversed",
+  "bidi_controls_full_catalogue": "4 own_tunnel keys carry FSI/PDI around http(s):// — sanctioned allowlist in src/i18n/__tests__/bidi-controls.test.ts; none in the 66"
+ },
+ "glossary_check": {
+  "desktop_labels_matched": {
+   "ترتیبات": "ui.settings.page.title",
+   "Radient اکاؤنٹ": "ui.settings.navigation.settings_sidebar.radient_account",
+   "فون کی رسائی": "ui.providers.phone.heading",
+   "فون کی رسائی ترتیب دیں": "ui.providers.phone.action.set_up",
+   "دوبارہ جانچیں": "ui.providers.phone.action.check_again",
+   "جانچ جاری ہے…": "ui.mesh.mesh_page.checking",
+   "دوبارہ کوشش کریں": "ui.common.actions.retry = mobile.refusal.action.retry"
+  }
+ },
+ "round1_resolution": [
+  {
+   "id": "ur-GAP-1",
+   "severity": "MAJOR",
+   "status": "resolved",
+   "note": "→ replaced by ← (U+2190, ON, not mirrored; resolves R in RTL, points reading-forward); desktop label quoted “فون کی رسائی ترتیب دیں” = ui.providers.phone.action.set_up."
+  },
+  {
+   "id": "ur-GAP-2",
+   "severity": "MAJOR",
+   "status": "resolved",
+   "note": "3× ←; labels = desktop ترتیبات / Radient اکاؤنٹ / فون کی رسائی."
+  },
+  {
+   "id": "ur-GAP-3",
+   "severity": "MAJOR",
+   "status": "resolved",
+   "note": "3× ←; Set up label quoted; price-first sentence unchanged and accurate."
+  },
+  {
+   "id": "ur-GAP-4",
+   "severity": "MINOR",
+   "status": "resolved",
+   "note": "4 bodies now “دوبارہ کوشش کریں” (U+201C…U+201D), = mobile.refusal.action.retry; all 15 quoting keys in ur mobile catalogues now use the same order."
+  },
+  {
+   "id": "ur-GAP-5",
+   "severity": "MINOR",
+   "status": "resolved",
+   "note": "دوبارہ جانچیں / جانچ جاری ہے… = desktop ui.providers.phone.action.check_again, ui.mesh.mesh_page.checking."
+  },
+  {
+   "id": "ur-GAP-6",
+   "severity": "MINOR",
+   "status": "resolved",
+   "note": "عارضی طور پر روک دی ہے carries 'paused'."
+  },
+  {
+   "id": "ur-GAP-7",
+   "severity": "MINOR",
+   "status": "resolved",
+   "note": "اس وقت removes the 'not yet' implication."
+  },
+  {
+   "id": "ur-GAP-8",
+   "severity": "NIT",
+   "status": "resolved",
+   "note": "اس کا نیٹ ورک = its (the computer's) network."
+  },
+  {
+   "id": "ur-GAP-9",
+   "severity": "NIT",
+   "status": "resolved",
+   "note": "تشخیصی معلومات (desktop term); کاپی kept as mobile's verb; ہو گئیں agrees with fem. pl. معلومات."
+  },
+  {
+   "id": "ur-GAP-10",
+   "severity": "NIT",
+   "status": "resolved (adjusted)",
+   "note": "ہو سکیں instead of suggested ہو سکی: sound, follows GAP-9's fem. pl. subject and matches desktop ui.providers.phone.diagnostics_failed."
+  },
+  {
+   "id": "ur-GAP-11",
+   "severity": "NIT",
+   "status": "resolved",
+   "note": "دوبارہ منسلک ہو رہا ہے; the same verb carried to the three 'reconnects by itself' bodies already being edited — justified, no extra key touched."
+  }
+ ],
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 0,
+  "NIT": 1
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "ur-R2-N1"
+  ]
+ },
+ "findings": [
+  {
+   "id": "ur-R2-N1",
+   "severity": "NIT",
+   "keys": [
+    "mobile.computers.setup.open_settings",
+    "mobile.refusal.how_to.body"
+   ],
+   "current": "open_settings: «Local Operator کھولیں اور ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی میں “…” منتخب کریں» · how_to.body: «Local Operator ← ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی کھولیں اور “…” منتخب کریں»",
+   "problem": "Identical English lead ('open Local Operator → Settings → Radient account → Phone access') rendered in two sentence shapes. Both correct, natural and ←-consistent; a reader who sees both screens meets two shapes.",
+   "suggestion": "Optional, no change required for this round; if either is touched later, align on the open_settings shape (path as location + میں)."
+  }
+ ],
+ "out_of_slice_observations": [
+  {
+   "key": "mobile.home.suggestion.phone_access",
+   "note": "Pre-existing, outside the 66: 'Turn on phone access' reads «فون رسائی آن کریں» while the glossary term and mobile.refusal.how_to.title read «فون کی رسائی آن کریں». Not gating; for a later ur mobile.home pass."
+  },
+  {
+   "key": "desktop ui.phone_pairing.popup.*_where",
+   "note": "Desktop ur still uses → in RTL paths (translator's note; not re-verified in this lane, outside mobile)."
+  }
+ ],
+ "code_items_out_of_slice": [
+  "ur-GAP-C1",
+  "ur-GAP-C2"
+ ],
+ "artifacts": {
+  "report.md": {
+   "path": "/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/report.md",
+   "sha256": "9fa1b494d7cd6badda86e1c4d7ca865c5fae76b6a035497be87f4062e7c4ba3d"
+  },
+  "audit.log": {
+   "path": "/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/audit.log",
+   "sha256": "15e7b50a44ce5967bd89f0f9776d0ac930c8fc8ebb72e535484fa6e2f811890d"
+  },
+  "final-66.json": {
+   "path": "/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/final-66.json",
+   "sha256": "c603903e4c7ef7ba5c4579abf92d105be09c28a8ea951cda5f0062850bdf5fe2"
+  },
+  "negative-control.json": {
+   "path": "/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/negative-control.json",
+   "sha256": "bd9dcefe9cfd7bd9d6b33cffc43ce9127b36188c93ad3b57d2b4d22221666f2d"
+  },
+  "check.mts": {
+   "path": "/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/check.mts",
+   "sha256": "77ea95a775c7563b82bb081eabc365a0f3026942be2d0ad423aff2689d9206be"
+  },
+  "messages.ts": {
+   "path": "/Users/damian/.local-operator/sessions/2e68665fe1be/scratchpad/ur-gap-r2/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is reasoning; audit.log holds the commands actually run and their output."
+}

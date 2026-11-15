@@ -1,0 +1,65 @@
+# audit.log — hi m3-s2c round 2, session db7521df8c9d. Commands actually run, with actual output (abridged only where marked).
+
+$ cd ~/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap; shasum -a 256 brief-gap.json drafts/hi/draft-hi.json audits/hi/record.json audits/hi/report.md
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+ff2bab4316698f1ae380b88f6c83da4f1e8cc183d619920a57d63466c92e40fb  drafts/hi/draft-hi.json
+d1e297eec3e9c5741e8d94fc848d31804332085b27f8910ca7bd9d2a501255c2  audits/hi/record.json
+b70e7946089d0319feaaad03544a16c0d3e011c11b16c93aaf552b49fe360d4b  audits/hi/report.md
+
+# (first copy attempt via `mv` was refused by the dangerous-delete guardrail; redone with cp to literal paths)
+$ cp <lane>/brief-gap.json, drafts/hi/draft-hi.json, audits/hi/record.json (→ round1-record.json); git -C ~/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:{src/i18n/messages.ts, src/i18n/catalogues/en/mobile.settings.json, src/i18n/catalogues/hi/mobile.settings.json}; shasum -a 256 …
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+ff2bab4316698f1ae380b88f6c83da4f1e8cc183d619920a57d63466c92e40fb  draft-hi.json
+d1e297eec3e9c5741e8d94fc848d31804332085b27f8910ca7bd9d2a501255c2  round1-record.json
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+2921d033eaad0782a0234f78824a074b782124cbe6425202dc39e813a61ab730  en_mobile.settings.json
+15ff157b2e36f5eec7efae960b129c8e7084025de9fc711e2d1e93b44cce259d  hi_mobile.settings.json
+
+$ env -i PATH="$PATH" HOME=<scratch>/hi-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs   (full output in check.out)
+RENDER mobile.refusal.computer_attention.title | Damian का MacBook पर Local Operator को आपके ध्यान की ज़रूरत है।
+RENDER mobile.refusal.computer_attention.title | studio.local पर Local Operator को आपके ध्यान की ज़रूरत है।
+RENDER mobile.refusal.computer_attention.title | Your computer पर Local Operator को आपके ध्यान की ज़रूरत है।
+RENDER mobile.refusal.suspended.title | Radient ने फ़िलहाल Damian का MacBook के लिए फ़ोन एक्सेस रोक दिया है।
+RENDER mobile.refusal.suspended.title | Radient ने फ़िलहाल studio.local के लिए फ़ोन एक्सेस रोक दिया है।
+RENDER mobile.refusal.suspended.title | Radient ने फ़िलहाल Your computer के लिए फ़ोन एक्सेस रोक दिया है।
+plural hi 0/1/2: one one other
+{
+ "batch_keys": 66,
+ "draft_keys": 8,
+ "final_keys": 67,
+ "extra_keys": [
+  "mobile.settings.section.diagnostics"
+ ],
+ "mismatches": [],
+ "parse_errors": [],
+ "unchanged_in_draft": [],
+ "bidi": 0,
+ "redaction_marker_hits": 0,
+ "same_as_en": [],
+ "negative_controls": {
+  "renamed_placeholder": {
+   "good": "computer",
+   "bad": "computr",
+   "detected": true
+  },
+  "unbalanced_brace": "rejected: Invalid message \"{computer पर\": expected ',' or '}' (at offset 10)"
+ }
+}
+
+$ git show 9214ff9b:src/i18n/catalogues/hi/*.json | grep 'खत्म|ख़त्म|डायग्न|निदान|फ़िलहाल|ध्यान'   (shipped, pre-draft)
+mobile.computers.json:148 "mobile.computers.refusal.console_title": "{subject} को Radient में आपके ध्यान की ज़रूरत है।"
+mobile.refusal.json:4 balance_out.title "…खत्म…"; :41 computer_attention.title "…पर ध्यान देने की ज़रूरत है।"
+mobile.schedules.json:33 "{total} में से {broken} को ध्यान चाहिए"
+mobile.settings.json:39 section.diagnostics "निदान"; :79/:80 "डायग्नोस्टिक्स …"
+mobile.signin.json:2 "mobile.signin.diagnostics": "साइन-इन निदान"
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/hi/*.json | grep 'डायग्न|निदान'   (origin/main e612221450, no fetch)
+ui.chat.canonical.json:287/288 नेटवर्क का निदान कर रहा है / किया   (verb sense)
+ui.chat.pickers.json:450 session_diagnostics_region "सत्र डायग्नोस्टिक्स क्षेत्र"
+ui.providers.json:44 "डायग्नॉस्टिक्स कॉपी करें"; :50 "डायग्नॉस्टिक्स कॉपी नहीं हो सके। फिर से कोशिश करें।"; :56 "डायग्नॉस्टिक्स कॉपी हो रहे हैं…"
+ui.providers.json:12 address_label "फ़ोन का पता"
+
+$ git show 9214ff9b:src/features/settings/settings.tsx | sed -n 610,640p
+… <SectionHeader label={t("mobile.settings.section.diagnostics")} /> (line 618, inside <View className="gap-2">) …
+
+$ git -C ~/local-operator show origin/main:i18n/style-guides/hi.md   (read; relevant: "Keep nukta consistently", "keep the living English loan")

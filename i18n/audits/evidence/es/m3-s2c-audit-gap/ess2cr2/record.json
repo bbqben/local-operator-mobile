@@ -1,0 +1,148 @@
+{
+  "locale": "es",
+  "slice": "m3-s2c-audit-gap",
+  "round": 2,
+  "audit_date": "2026-11-14",
+  "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+  "inputs": {
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+      "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+    },
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/es/draft-es.json",
+      "sha256": "df6cb5a5537fc97849013b0dd4707955d66ba446d3a61465c84d1fe91ed6f6c2"
+    },
+    "translator_notes": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/es/notes-es.md",
+      "sha256": "b67210daec9c78fe8e516bc22564bb48ab5908ad782b58907bd1e3ea96e7ed01"
+    },
+    "round1_record": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/es/record.json",
+      "sha256": "2752516bb264408435e53c1f5a1ca19b058f24202e7dd3a3195105597128544f"
+    },
+    "round1_report": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/es/report.md",
+      "sha256": "330f71a0330aa264b9133685be321211006299282310824c9431d78440e12102"
+    },
+    "messages_ts": {
+      "path": "9214ff9b:src/i18n/messages.ts (copied to work/messages.ts)",
+      "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+    },
+    "references": {
+      "desktop": "local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b",
+      "core_style_guide": "local-operator origin/main 05c4e250 i18n/style-guides/es.md"
+    }
+  },
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "00bdf32c5ccb",
+    "model": "anthropic/claude-opus-5-5",
+    "actual_model_source": "session system prompt 'Model:' line",
+    "fallback_used": false,
+    "independent_from_translator_session": true,
+    "independent_from_round1_session": true,
+    "translator_session": "442191ede748",
+    "round1_session": "37fe02cf811a"
+  },
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": {
+    "brief": 0,
+    "draft": 0
+  },
+  "placeholder_check": {
+    "parser": "9214ff9b src/i18n/messages.ts parseMessage (node v24.22.1, type-strip, env -i, NODE_OPTIONS=--max-old-space-size=256)",
+    "keys": 66,
+    "identical": 66,
+    "with_args": 13,
+    "negative_controls": {
+      "dropped_placeholder": "detected",
+      "renamed_placeholder": "detected",
+      "malformed": "threw RangeError"
+    }
+  },
+  "draft_scope": {
+    "changed_keys": 18,
+    "extra_keys": 0,
+    "unflagged_changes": 0,
+    "diff": "word-level diff shows only flagged edits"
+  },
+  "final_set_scan": {
+    "keys": 66,
+    "bidi_controls": 0,
+    "computadora_or_ordenador": 0,
+    "straight_quotes": 0,
+    "double_space": 0,
+    "end_punct_mismatch_vs_en": 0,
+    "non_nfc": 0,
+    "brief_equals_shipped_9214ff9b": "66/66"
+  },
+  "round1_resolution": [
+    {
+      "id": "es-GAP-1",
+      "status": "resolved",
+      "note": "8/8 keys computadora→máquina, word-only diff; gender fem→fem, 'sola'/'en ella' still agree."
+    },
+    {
+      "id": "es-GAP-2",
+      "status": "resolved",
+      "note": "6/6 keys ordenador→máquina; este→esta ×5, Este→Esta ×2, el→la ×1; no masculine residue."
+    },
+    {
+      "id": "es-GAP-3",
+      "status": "resolved",
+      "note": "'Reactiva la máquina … en ella': noun named, agreement independent of {computer}; 'reactivar' sound for wake-from-sleep; style-guide 'wake→despertar' row is the scheduled-wakes feature, translator's distinction accepted."
+    },
+    {
+      "id": "es-GAP-4",
+      "status": "resolved",
+      "note": "'sola'→'automáticamente', gender-free."
+    },
+    {
+      "id": "es-GAP-5",
+      "status": "resolved",
+      "note": "relay_wait.body == radient_unreachable.body == 'Inténtalo de nuevo en un momento.'"
+    },
+    {
+      "id": "es-GAP-6",
+      "status": "resolved",
+      "note": "Label quoted with “ ” (es style guide §Punctuation); matches desktop ui.providers.phone.action.set_up; redundant 'Primero' dropped."
+    },
+    {
+      "id": "es-GAP-7",
+      "status": "resolved",
+      "note": "'Añadir crédito' (infinitive label) / 'Añade crédito' (prose). Desktop ui.providers.phone.action.add_credit and ui.settings.account.settings_page.add_credits = 'Añadir crédito' verified on local-operator-ui origin/main e6122214; core es mobile.setup.* says 'Añade crédito'. balance_out.title keeps 'saldo' (balance) correctly."
+    }
+  ],
+  "counts": {
+    "BLOCKER": 0,
+    "MAJOR": 0,
+    "MINOR": 0,
+    "NIT": 0
+  },
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "findings": [],
+  "out_of_scope_observations": [
+    {
+      "keys": [
+        "mobile.chrome.home.connect",
+        "mobile.composer_input.voice.setup_needed",
+        "mobile.computers.connect_refused.generic",
+        "mobile.notifications.channel.description",
+        "mobile.notifications.permission.denied",
+        "mobile.notifications.permission.granted",
+        "mobile.notifications.permission.undetermined",
+        "mobile.team_bridge.gate.connecting",
+        "mobile.team_bridge.gate.signed_out_help",
+        "mobile.team_bridge.navigation.caption"
+      ],
+      "note": "Outside the 66-key batch, mobile es still names the computer 'ordenador'/'computadoras' (incl. home button mobile.chrome.home.connect). Not gating here; candidate for a follow-on consistency slice per translator glossary proposal computer→máquina."
+    }
+  ],
+  "audit_notes_not_execution_log": "report.md is reasoning; audit.log holds commands actually run with their output."
+}

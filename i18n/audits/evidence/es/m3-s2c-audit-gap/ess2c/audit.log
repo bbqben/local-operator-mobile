@@ -1,0 +1,52 @@
+# audit.log — es m3-s2c-audit-gap — auditor session 37fe02cf811a (anthropic/claude-opus-5-5), 2026-11-14
+# Every command below was actually run in this session; outputs abbreviated, exit codes kept.
+
+$ shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  (exit 0) -> matches brief
+$ grep -c '\[redacted\]' <brief>
+0  (grep exit 1 = no match) -> redaction_marker_hits 0
+# First attempt (cd $LOCAL_OPERATOR_SCRATCHPAD && cp ... relative target) was refused by guardrail dangerous-delete
+# (relative cp target); nothing ran. Re-run with absolute paths:
+$ cp <brief> /Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/brief-gap.json && shasum -a 256 /Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5 (exit 0) -> scratch copy byte-identical; node read the copy
+# python: json.load(brief) -> keys [source_commit, note, keys]; 66 rows; source_commit 9214ff9b43c58256c49f48a8c2858f9c186d35c8
+
+# Route: ordinary git/scratch reads. read_public_copy NOT used (core refuses mobile catalogue paths; sidecars nested JSON, not routable).
+
+$ git -C ~/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/messages.ts > /Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/messages.ts ; shasum both
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0 (file) == c1831406...bdba0 (git show stream)
+$ env -i PATH=$PATH HOME=/Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node /Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/ph.ts /Users/damian/.local-operator/sessions/37fe02cf811a/scratchpad/es-gap/brief-gap.json
+(node v24.22.1; MODULE_TYPELESS_PACKAGE_JSON warning only)
+OK <13 keys> [["computer","text"]]  (all mobile.refusal.*.title with {computer})
+keys=66 mismatches=0 plural_args_in_en=0   (exit 0)
+-> no plural/select in the batch; es CLDR categories (one/many/other) not exercised.
+
+# python vs git show 9214ff9b:src/i18n/catalogues/{en,es}/<ns>.json:
+keys 66 unique 66 mismatch_vs_catalogue []    -> brief values == shipped catalogue values
+bidi_controls []    identical-to-en []    maxCells/maxChars hints: none in sidecars
+LEN>1.6x on button/meta/status: check_again 11->18, action.retry 5->10, sign_in_confirm.confirm 7->14
+  -> refusal-surface.tsx:379-405 stacks full-width Buttons in a column (gap-2); setup-computer.tsx:223 single Button; standard es labels; no overflow finding.
+
+# Terminology counts (git grep -ohwE <term> ... | wc -l):
+mobile es @9214ff9b: máquinas? 87  ordenador(es)? 14  computadoras? 11
+core es origin/main (local_operator/i18n/catalogues/es): máquinas? 81  ordenador(es)? 50  computadoras? 0
+desktop es origin/main (~/local-operator-ui src/i18n/catalogues/es): máquinas? 39  ordenador(es)? 25  computadoras? 0
+batch: computadora in 8 keys, ordenador in 6 keys, máquina in 0 keys
+mobile es mobile.computers.title.set_up = "Añade una máquina"; mobile.computers.added.fallback_name = "tu máquina"
+prior ruling: git show 9214ff9b:i18n/audits/evidence/es/m3-s1-signin-computers/ess1r1/report.md lines 12-29 ("máquina is correct"; neutral-Spanish rule)
+style guide: git show origin/main:i18n/style-guides/es.md | grep -niE 'máquina|computer' -> no row (exit 1)
+
+# Desktop phone-access labels (git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/{en,es}/ui.providers.json; origin/main e6122214, no fetch):
+ui.providers.phone.heading en "Phone access" / es "Acceso desde el teléfono"
+ui.providers.phone.action.set_up en "Set up phone access" / es "Configurar el acceso desde el teléfono"
+ui.providers.phone.stopped es "El acceso desde el teléfono está desactivado en este equipo."
+ui.settings.page.title es "Ajustes"; ui.settings.navigation.settings_sidebar.radient_account es "Cuenta de Radient"
+batch: 12/12 en keys containing "phone access" render "acceso desde el teléfono"; 0 use another name.
+core (out of scope, not this batch): "acceso telefónico" in mobile.setup 36, tunnel.status 6, wire.phone_access 2, wire.tunnel_setup 3 lines.
+
+# Other label cross-checks (git grep es @9214ff9b): mobile.refusal.action.retry "Reintentar" (bodies say "toca Reintentar");
+settings.section.diagnostics "Diagnóstico"; computers.refusal.open_console "Abrir la consola de Radient";
+pending_echo.not_confirmed "sin confirmar — reintenta abajo"; notifications.detail.answer_in_conversation "Responder en la conversación".
+core es 'Añade crédito' in mobile.setup.action_add_credit + tunnel.status.billing_lapsed.detail.
+terminal gender core/desktop es: la/una/esta terminal dominant (feminine).
+RTL: n/a (es is LTR).

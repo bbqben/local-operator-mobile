@@ -1,0 +1,136 @@
+{
+  "locale": "zh-CN",
+  "slice": "m3-s2c-audit-gap",
+  "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+  "key_count": 66,
+  "audit_date": "2026-11-14",
+  "brief": {
+    "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+    "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5",
+    "own_scratch_copy": "/Users/damian/.local-operator/sessions/d37012778437/scratchpad/zh-CN-gap/brief-gap.json",
+    "own_copy_sha256_equal": true
+  },
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "d37012778437",
+    "model": "anthropic/claude-opus-5-5",
+    "actual_model_source": "session system-prompt 'Model:' line",
+    "fallback_used": false,
+    "independent_from_translator_session": true
+  },
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": 0,
+  "references": {
+    "desktop_ui": "~/local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b (no fetch): ui.providers.phone.heading=手机访问, action.set_up=设置手机访问, action.check_again=重新检查, ui.settings.page.title=设置, settings_sidebar.radient_account=Radient账户; PhoneAccessBlock mounted in radient-account-section.tsx",
+    "style_guide": "~/local-operator origin/main i18n/style-guides/zh-CN.md + i18n/glossary.md",
+    "parser": "9214ff9b:src/i18n/messages.ts sha256 c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "placeholder_check": {
+    "keys": 66,
+    "mismatches": 0,
+    "parse_errors": 0,
+    "plural_keys": 0,
+    "cldr": "zh-CN other-only; no plural/select in slice, not exercised",
+    "negative_controls": "3 malformed inputs threw; renamed placeholder detected"
+  },
+  "phone_access_naming": {
+    "batch_occurrences_手机访问": 14,
+    "other_names": 0,
+    "quoted_labels": [
+      "设置手机访问 = desktop ui.providers.phone.action.set_up",
+      "重试 = mobile.refusal.action.retry (rendered by refusal.ts:199)"
+    ],
+    "menu_paths": "设置 → Radient账户 → 手机访问 (→ 设置手机访问) match desktop zh-CN controls byte-for-byte"
+  },
+  "counts": {
+    "BLOCKER": 0,
+    "MAJOR": 0,
+    "MINOR": 5,
+    "NIT": 5
+  },
+  "verdict": "passed",
+  "findings": [
+    {
+      "id": "zh-CN-GAP-1",
+      "key": "31 keys (list in report; e.g. mobile.refusal.action.open_console, mobile.refusal.phone_access_off.title, mobile.settings.diagnostics.tunnel)",
+      "severity": "MINOR",
+      "current": "打开 Radient 控制台 / 你的 Radient 账户尚未开通手机访问。 / 隧道 ID",
+      "suggested": "打开Radient控制台 / 你的Radient账户尚未开通手机访问。 / 隧道ID (drop every space between Han and Latin/placeholder runs; keep spaces around → in menu paths)",
+      "reason": "zh-CN style guide (binding): no space between Chinese and Latin/digit runs. 31/66 values space them (all #261 refusal/computers keys; #258/#259 values do not), and action.open_console now reads differently from the same label in mobile.computers.refusal.open_console and desktop ui.providers.phone.action.open_console (both 打开Radient控制台)."
+    },
+    {
+      "id": "zh-CN-GAP-2",
+      "key": "mobile.computers.setup.checking",
+      "severity": "MINOR",
+      "current": "正在检查…",
+      "suggested": "正在检查……",
+      "reason": "Style guide + recorded manager ruling (m3-s1 notes): ellipsis ships as …… (two marks). Only single-… value in the batch."
+    },
+    {
+      "id": "zh-CN-GAP-3",
+      "key": "mobile.computers.setup.check_again",
+      "severity": "MINOR",
+      "current": "再次检查",
+      "suggested": "重新检查",
+      "reason": "Same action and English as the desktop control ui.providers.phone.action.check_again = 重新检查, which the reader has just used on the computer for the same set-up flow; align the two apps."
+    },
+    {
+      "id": "zh-CN-GAP-4",
+      "key": "mobile.refusal.offline.title",
+      "severity": "MINOR",
+      "current": "{computer} 处于睡眠状态或已离线。",
+      "suggested": "{computer}处于休眠状态或已离线。",
+      "reason": "Shipped zh-CN mobile says 休眠 for a sleeping computer (3 values, e.g. own_tunnel.step_computer_help); 睡眠 appears nowhere else. One term for one state."
+    },
+    {
+      "id": "zh-CN-GAP-5",
+      "key": "mobile.refusal.offline.body",
+      "severity": "MINOR",
+      "current": "请唤醒它，并确认它上面已打开 Local Operator。",
+      "suggested": "请唤醒这台电脑，并确认其上已打开Local Operator。",
+      "reason": "它上面 is a spoken-register calque of 'on it' and repeats 它; product copy reads 其上 / 电脑上."
+    },
+    {
+      "id": "zh-CN-GAP-6",
+      "key": "balance_out.body, suspended.body, relay_stopped.body, relay_refused.body",
+      "severity": "NIT",
+      "current": "点按“重试”",
+      "suggested": "轻点“重试”",
+      "reason": "Tap verb: catalogue already uses 轻点 (iOS term) and the batch adds a third variant mix; 4 batch values use 点按. Pick one house verb."
+    },
+    {
+      "id": "zh-CN-GAP-7",
+      "key": "mobile.refusal.relay_refused.title, mobile.refusal.computer_sign_in.body",
+      "severity": "NIT",
+      "current": "这部手机",
+      "suggested": "此手机",
+      "reason": "Catalogue uses 此手机 22x (and 6x in this batch); 这部手机 only here."
+    },
+    {
+      "id": "zh-CN-GAP-8",
+      "key": "mobile.refusal.radient_unreachable.body vs mobile.refusal.relay_wait.body",
+      "severity": "NIT",
+      "current": "请稍后再试。 / 请稍后重试。",
+      "suggested": "one wording for both (e.g. 请稍后重试。)",
+      "reason": "Identical English 'Try again in a moment.' rendered two ways in one namespace."
+    },
+    {
+      "id": "zh-CN-GAP-9",
+      "key": "mobile.refusal.computer_attention.title",
+      "severity": "NIT",
+      "current": "{computer} 上的 Local Operator 需要处理。",
+      "suggested": "{computer}上的Local Operator需要你处理。",
+      "reason": "需要处理 alone reads as 'needs processing'; the reader is the one who must act."
+    },
+    {
+      "id": "zh-CN-GAP-10",
+      "key": "12 values with 请 (refusal bodies, copy_failed)",
+      "severity": "NIT",
+      "current": "请在 Radient 控制台中查看，或重试。 etc.",
+      "suggested": "drop 请 where English has no 'please' (e.g. 在Radient控制台中查看，或重试。) — or record a house exception for blocking refusal screens",
+      "reason": "Style guide: 请 only where English says please; prior audit ZHS2B1-04 raised the same register point. Batch is internally inconsistent (relay_stopped.body has none)."
+    }
+  ],
+  "rtl": "n/a",
+  "ledger": "not written: brief makes this audit read-only on the repo and directs output to auditor scratchpad; lane owner records it"
+}

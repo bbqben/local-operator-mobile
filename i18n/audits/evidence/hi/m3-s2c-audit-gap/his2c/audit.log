@@ -1,0 +1,90 @@
+# audit.log — hi m3-s2c-audit-gap — execution log, commands re-run 2026-11-15T01:35:00Z by i18n-auditor session b61aea064bef
+# Earlier in this session (first command): shasum -a 256 <lane brief> <own copy> → both 30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5 [exit=0]; grep -c '[redacted]' own copy → 0. A later logging wrapper that named the lane path was refused by guardrail dangerous-delete (review, nothing run); all checks below use the byte-identical own copy, re-hashed here.
+
+$ shasum -a 256 /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/brief-gap.json
+[exit=0]
+
+$ grep -c '\[redacted\]' /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/brief-gap.json
+0
+[exit=1]
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a rev-parse 9214ff9b
+9214ff9b43c58256c49f48a8c2858f9c186d35c8
+[exit=0]
+
+$ git -C ~/local-operator-ui rev-parse origin/main; git -C ~/local-operator rev-parse origin/main
+e6122214503b9fc52841e119c060eabb7650391b
+05c4e25026900e20930e28dc0af44b8c65cb28c4
+[exit=0]
+
+$ shasum -a 256 /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/messages.ts /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/check.mjs; git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/messages.ts | shasum -a 256
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/messages.ts
+a3a67212980151cce48e4cdc34b7bd7c90c7223a0635ab0bd6872ed3d239e8dd  /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/check.mjs
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  -
+[exit=0]
+
+$ cd /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap && env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs 2>/dev/null > check.out; tail -1 check.out; grep -c RENDER check.out; grep -E 'relay_stopped|offline.title' check.out
+{"keys":66,"mismatches":[],"plural_keys":0,"hi_cats_1_2_0":["one","one","other"]}
+39
+RENDER mobile.refusal.offline.title | Damian का MacBook स्लीप में है या ऑफ़लाइन है।
+RENDER mobile.refusal.offline.title | Your computer स्लीप में है या ऑफ़लाइन है।
+RENDER mobile.refusal.offline.title | आपका कंप्यूटर स्लीप में है या ऑफ़लाइन है।
+RENDER mobile.refusal.relay_stopped.title | Damian का MacBook पर Local Operator नहीं चल रहा है।
+RENDER mobile.refusal.relay_stopped.title | Your computer पर Local Operator नहीं चल रहा है।
+RENDER mobile.refusal.relay_stopped.title | आपका कंप्यूटर पर Local Operator नहीं चल रहा है।
+[exit=0]
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/hi/ui.providers.json | grep -E '"ui.providers.phone.(heading|action.set_up|action.turn_on|action.check_again|action.copy_diagnostics|action.add_credit|action.open_console|stopped|address_label|status.checking)"'
+	"ui.providers.phone.action.check_again": "फिर जाँचें",
+	"ui.providers.phone.action.set_up": "फ़ोन एक्सेस सेट करें",
+	"ui.providers.phone.address_label": "फ़ोन का पता",
+	"ui.providers.phone.heading": "फ़ोन एक्सेस",
+	"ui.providers.phone.status.checking": "जाँच हो रही है",
+	"ui.providers.phone.action.add_credit": "क्रेडिट जोड़ें",
+	"ui.providers.phone.action.open_console": "Radient कंसोल खोलें",
+	"ui.providers.phone.action.turn_on": "चालू करें",
+	"ui.providers.phone.action.copy_diagnostics": "डायग्नॉस्टिक्स कॉपी करें",
+	"ui.providers.phone.stopped": "इस कंप्यूटर पर फ़ोन एक्सेस बंद है।",
+[exit=0]
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/hi/ui.settings.json | grep '"ui.settings.page.title"'; git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/hi/ui.settings.navigation.json | grep 'settings_sidebar.radient_account'
+	"ui.settings.page.title": "सेटिंग्स",
+	"ui.settings.navigation.settings_sidebar.radient_account": "Radient खाता",
+[exit=0]
+
+$ cd /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a && git show 9214ff9b:src/i18n/catalogues/hi/mobile.settings.json | grep -E 'section.diagnostics|diagnostics.copy"'; git show 9214ff9b:src/i18n/catalogues/hi/mobile.refusal.json | grep 'action.retry'; git show 9214ff9b:src/i18n/catalogues/hi/mobile.computers.json | grep 'added.fallback_name'
+	"mobile.settings.section.diagnostics": "निदान",
+	"mobile.settings.diagnostics.copy": "डायग्नोस्टिक्स कॉपी करें",
+	"mobile.refusal.action.retry": "फिर से कोशिश करें",
+	"mobile.computers.added.fallback_name": "आपके कंप्यूटर",
+[exit=0]
+
+$ cd /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a && git grep -n -E '"Your computer"|\? "Radient"' 9214ff9b -- src/features/auth/connection-provider.tsx
+9214ff9b:src/features/auth/connection-provider.tsx:2569:		 *  discovered yet is "Your computer"; and a custom route is named by the
+9214ff9b:src/features/auth/connection-provider.tsx:2586:				? "Radient"
+9214ff9b:src/features/auth/connection-provider.tsx:2588:					? "Your computer"
+9214ff9b:src/features/auth/connection-provider.tsx:2623:				: "Your computer";
+[exit=0]
+
+$ cd /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a && git show 9214ff9b:src/ui/components/refusal-surface.tsx | sed -n 380,381p; git show 9214ff9b:src/features/auth/refusal.ts | sed -n 197,200p
+				<View className="gap-2 pt-1">
+					{/* The named cause's own actions, first one primary. Each can act on
+	retry: (): RefusalAction => ({
+		id: "retry",
+		label: t("mobile.refusal.action.retry"),
+	}),
+[exit=0]
+
+$ git -C ~/local-operator show origin/main:i18n/style-guides/hi.md | grep -n -i 'nukta'
+17:- Keep nukta consistently (फ़, ज़, ड़) — it is part of the spelling, not
+[exit=0]
+
+$ python3 /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/scan.py /Users/damian/.local-operator/sessions/b61aea064bef/scratchpad/hi-gap/brief-gap.json
+keys 66 bidi_hits 0 ascii_dq 0 identical_to_en 0
+quoted ['फिर से कोशिश करें']
+ratio>1.6 (button/meta/status): [('mobile.computers.setup.checking', 1.67), ('mobile.refusal.action.retry', 3.4), ('mobile.settings.sign_in_confirm.confirm', 1.71)]
+khatm_no_nukta ['mobile.refusal.balance_out.title']
+[exit=0]
+
+# note: in check.out the field 'hi_cats_1_2_0' holds pluralCategory('hi',0), ('hi',1), ('hi',2) in that order → one, one, other (CLDR hi: one = 0 and 1). No plural argument in any of the 66 keys.

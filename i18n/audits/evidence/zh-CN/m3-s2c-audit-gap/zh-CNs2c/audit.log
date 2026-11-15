@@ -1,0 +1,72 @@
+$ shasum -a 256 <lane brief-gap.json> ; cp to own scratch ; shasum -a 256 brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+exit=0
+$ grep -c "\[redacted\]" brief-gap.json
+0
+exit=1 (1 = no match, count 0)
+$ git -C <ref worktree> rev-parse 9214ff9b ; git status --porcelain | wc -l
+9214ff9b43c58256c49f48a8c2858f9c186d35c8
+exit=0
+$ git show 9214ff9b:src/i18n/messages.ts > messages.ts ; shasum
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+d016286b3331c04da1c49f4672e6689c6ac2eb444a8925c8588b54b74e5e6819  check.mjs
+0406f764aa511ae69ddc2e347d1319c3a897f15a687920a57e251a95030a2f3b  stats.py
+$ env -i PATH=... HOME=<scratch>/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs
+# NOTE: first run of check.mjs used a wrong signature accessor (p.arguments) and compared empty sets; the renamed-placeholder negative control caught it (differs from en: false). Fixed to p.params; output below is the fixed run.
+{"keys":66,"parse_errors":[],"mismatches":[],"plural_keys":0,"sample_sig":"[[\"computer\",\"text\"]]"}
+NEGCTL threw "{computer 的" Invalid message "{computer 的": expected ',' or '}' (at offset 10)
+NEGCTL threw "{computer}}" Invalid message "{computer}}": unexpected '}' (at offset 10)
+NEGCTL threw "'{computer}'" Invalid message "'{computer}'": ICU apostrophe quoting ('{) is not supported; a lone ' is already literal (at offset 0)
+NEGCTL renamed-placeholder sig [["computr","text"]] differs from en: true
+exit=0
+$ python3 stats.py
+keys 66 unique 66 brief==shipped True
+CJK-Latin spaced values: 31
+ASCII punct next to Han: 0
+bidi/format chars: 0
+en-identical: []
+single-…: ['mobile.computers.setup.checking']
+button/meta/status >1.6x (cells/en chars): []
+手机访问 occurrences in batch: 14 ; other names (手机连接/移动访问/远程访问) in batch: 0
+quoted labels in batch: ['设置手机访问', '重试'] retry key: 重试
+catalogue(excl batch) 休眠 3 | batch 0
+catalogue(excl batch) 睡眠 0 | batch 1
+catalogue(excl batch) 此手机 22 | batch 6
+catalogue(excl batch) 这部手机 0 | batch 2
+catalogue(excl batch) 轻点 3 | batch 0
+catalogue(excl batch) 点按 2 | batch 4
+catalogue(excl batch) 点击 2 | batch 0
+mobile.computers.refusal.open_console = 打开Radient控制台 | batch action.open_console = 打开 Radient 控制台
+exit=0
+$ git -C ~/local-operator-ui rev-parse origin/main  (no fetch)
+e6122214503b9fc52841e119c060eabb7650391b
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/zh-CN/ui.providers.json | grep phone.(heading|action.set_up|action.check_again|action.turn_on|action.open_console|action.add_credit|action.copy_diagnostics|status.checking)
+	"ui.providers.phone.action.check_again": "重新检查",
+	"ui.providers.phone.action.set_up": "设置手机访问",
+	"ui.providers.phone.heading": "手机访问",
+	"ui.providers.phone.status.checking": "正在检查",
+	"ui.providers.phone.action.add_credit": "充值",
+	"ui.providers.phone.action.open_console": "打开Radient控制台",
+	"ui.providers.phone.action.turn_on": "开启",
+	"ui.providers.phone.action.copy_diagnostics": "复制诊断信息",
+$ settings/radient-account labels (zh-CN)
+	"ui.settings.page.title": "设置",
+	"ui.settings.navigation.settings_sidebar.radient_account": "Radient账户",
+$ desktop mount path: radient-account-section.tsx mounts PhoneAccessBlock; set_up button label
+origin/main:src/renderer/src/features/providers/phone-access-block.tsx:536:					: t("ui.providers.phone.action.set_up")}
+origin/main:src/renderer/src/features/providers/phone-access-block.tsx:942:export const PhoneAccessBlock: FC<PhoneAccessBlockProps> = ({
+origin/main:src/renderer/src/features/settings/components/radient-account-section.tsx:12:import { PhoneAccessBlock } from "@features/providers/phone-access-block";
+origin/main:src/renderer/src/features/settings/components/radient-account-section.tsx:179:					<PhoneAccessBlock
+$ git -C ~/local-operator show origin/main:i18n/style-guides/zh-CN.md | grep -nE "No space|Ellipsis|请"
+15:- No 啦 / 哦 / 呀 particles, no ！ in status copy. "请" only where the English
+66:- Ellipsis is …… (two marks), not "...".
+67:- No space inserted between Chinese text and Latin/digit runs (width
+$ git grep -n refusal.action.(retry|how_to)|refusal.how_to.title|computers.setup.check_again 9214ff9b -- src (excl catalogues/keys.gen)
+9214ff9b:src/features/auth/refusal.ts:199:		label: t("mobile.refusal.action.retry"),
+9214ff9b:src/features/auth/refusal.ts:207:		label: t("mobile.refusal.action.how_to"),
+9214ff9b:src/features/auth/setup-computer.tsx:227:									? "mobile.computers.setup.checking"
+9214ff9b:src/features/auth/setup-computer.tsx:228:									: "mobile.computers.setup.check_again",
+9214ff9b:src/features/auth/transient-notice.tsx:33:				label: t("mobile.refusal.action.retry"),
+9214ff9b:src/ui/components/refusal-surface.tsx:522:					title={t("mobile.refusal.how_to.title")}
+exit=0

@@ -1,0 +1,313 @@
+{
+ "locale": "ur",
+ "slice": "m3-s2c-audit-gap",
+ "namespace": "m3-s2c-audit-gap (66 keys: mobile.refusal 42, mobile.computers 5, mobile.settings 10, mobile.notifications 6, chrome/home/session 3)",
+ "audit_date": "2026-11-14",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "key_count": 66,
+ "brief": {
+  "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+  "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "team": "lopdev",
+  "session": "6ce4c67b2038",
+  "model": "anthropic/claude-opus-5-5",
+  "fallback_used": false,
+  "actual_model_source": "session system prompt 'Model:' line; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": 0,
+ "input_hashes": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "messages_ts": {
+   "path": "9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/ur.md",
+   "sha256": "c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "en_context_and_ur_values": "carried inside the brief (frozen; hash above)",
+  "desktop_reference": "~/local-operator-ui origin/main e6122214503b9fc52841e119c060eabb7650391b"
+ },
+ "tools": {
+  "tools/check.mts": "d09a3b7bc07c3aad7d7772fa47b5e4df212caf7772247dc290b5a7a371ae26ee",
+  "tools/scan.py": "ed4459e57f5eff94bac40481da3dc60891723a48cc20a1aed8d6455164f5c5b5",
+  "tools/build_record.py": "a000daef757b9d9609781c5fd2d54b3fe79d251ea9cf36187976a339ef9edd81"
+ },
+ "placeholder_check": {
+  "keys": 66,
+  "parser": "repo messages.ts @9214ff9b via node (heap 256)",
+  "parse_errors": 0,
+  "mismatches": 0,
+  "plural_or_select_keys": 0,
+  "ur_cldr_categories": [
+   "one",
+   "other"
+  ],
+  "negative_control": "tampered copy detected rename + unclosed brace"
+ },
+ "glossary_check": {
+  "desktop_labels_matched": [
+   "ترتیبات",
+   "Radient اکاؤنٹ",
+   "فون کی رسائی",
+   "فون کی رسائی ترتیب دیں",
+   "کریڈٹ شامل کریں",
+   "Radient کنسول کھولیں"
+  ],
+  "retry_label_in_prose": "4/4 bodies quote دوبارہ کوشش کریں = mobile.refusal.action.retry",
+  "product_names_latin": true,
+  "english_identical": []
+ },
+ "overflow": {
+  "flags": [
+   "setup.checking 9->16 (status replacing button; suggested 14)",
+   "refusal.action.retry 5->16 (style-guide mandated term; no finding)",
+   "sign_in_confirm.confirm 7->12 (dialog button; matches mobile.signin.start; no finding)"
+  ]
+ },
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 3,
+  "MINOR": 4,
+  "NIT": 4
+ },
+ "code_items_count": 2,
+ "verdict": "failed",
+ "current_report_verdict": {
+  "status": "changes_requested",
+  "unresolved_blocker_major_count": 3,
+  "finding_ids": [
+   "ur-GAP-1",
+   "ur-GAP-2",
+   "ur-GAP-3",
+   "ur-GAP-4",
+   "ur-GAP-5",
+   "ur-GAP-6",
+   "ur-GAP-7",
+   "ur-GAP-8",
+   "ur-GAP-9",
+   "ur-GAP-10",
+   "ur-GAP-11",
+   "ur-GAP-C1",
+   "ur-GAP-C2"
+  ]
+ },
+ "findings": [
+  {
+   "id": "ur-GAP-1",
+   "key": "mobile.computers.setup.open_settings",
+   "severity": "MAJOR",
+   "current": "اپنے کمپیوٹر پر Local Operator کھولیں اور ترتیبات → Radient اکاؤنٹ → فون کی رسائی → فون کی رسائی ترتیب دیں منتخب کریں۔",
+   "suggested": "اپنے کمپیوٹر پر Local Operator کھولیں اور ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی میں “فون کی رسائی ترتیب دیں” منتخب کریں۔",
+   "reason": "U+2192 is bidi ON, not mirrored: in this RTL paragraph every → resolves R and points right, back at the previous item, so the menu path reads backwards. Same class as URS2B1-02 (MAJOR); mobile ur already ships ← (verdict_local_network_ios). The unquoted button label run-on 'فون کی رسائی → فون کی رسائی ترتیب دیں منتخب کریں' also parses badly; quote the desktop button label."
+  },
+  {
+   "id": "ur-GAP-2",
+   "key": "mobile.refusal.tunnel_gone.body",
+   "severity": "MAJOR",
+   "current": "اسے Local Operator → ترتیبات → Radient اکاؤنٹ → فون کی رسائی میں آن کریں۔",
+   "suggested": "اسے Local Operator ← ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی میں آن کریں۔",
+   "reason": "Same arrow defect as ur-GAP-1: three U+2192 resolve R in the RTL paragraph and point backwards along the path. Labels themselves match the desktop ur catalogue (ترتیبات / Radient اکاؤنٹ / فون کی رسائی)."
+  },
+  {
+   "id": "ur-GAP-3",
+   "key": "mobile.refusal.how_to.body",
+   "severity": "MAJOR",
+   "current": "اپنے کمپیوٹر پر Local Operator → ترتیبات → Radient اکاؤنٹ → فون کی رسائی کھولیں اور فون کی رسائی ترتیب دیں منتخب کریں۔ کچھ بھی آن ہونے سے پہلے آپ کو قیمت دکھائی جائے گی۔",
+   "suggested": "اپنے کمپیوٹر پر Local Operator ← ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی کھولیں اور “فون کی رسائی ترتیب دیں” منتخب کریں۔ کچھ بھی آن ہونے سے پہلے آپ کو قیمت دکھائی جائے گی۔",
+   "reason": "Same arrow defect (3× U+2192 pointing backwards in RTL). Also quote the button label so 'اور فون کی رسائی ترتیب دیں منتخب کریں' does not read as 'and set up phone access, choose'. Price-first sentence is accurate."
+  },
+  {
+   "id": "ur-GAP-4",
+   "key": "mobile.refusal.balance_out.body, mobile.refusal.suspended.body, mobile.refusal.relay_stopped.body, mobile.refusal.relay_refused.body",
+   "severity": "MINOR",
+   "current": "… پھر ”دوبارہ کوشش کریں“ پر ٹیپ کریں۔ (×4)",
+   "suggested": "Replace ”دوبارہ کوشش کریں“ with “دوبارہ کوشش کریں” in all four values (label itself correct: equals mobile.refusal.action.retry).",
+   "reason": "Quote order reversed (U+201D first). ur.md 'Punctuation': quotes “ ”; all 12 other quoted labels in the mobile ur catalogues use “…”. Typographic inconsistency only; meaning unaffected."
+  },
+  {
+   "id": "ur-GAP-5",
+   "key": "mobile.computers.setup.check_again, mobile.computers.setup.checking",
+   "severity": "MINOR",
+   "current": "دوبارہ دیکھیں · دیکھا جا رہا ہے…",
+   "suggested": "check_again: دوبارہ جانچیں · checking: جانچ جاری ہے…",
+   "reason": "'دوبارہ دیکھیں' (look again) / 'دیکھا جا رہا ہے…' (is being looked at — awkward impersonal passive for a status) diverge from the desktop's own labels for the same control family (ui.providers.phone.action.check_again دوبارہ جانچیں, status.checking جانچ جاری ہے) and mobile's 31 uses of جانچ. Suggested status is 14 chars vs 16 now."
+  },
+  {
+   "id": "ur-GAP-6",
+   "key": "mobile.refusal.suspended.title",
+   "severity": "MINOR",
+   "current": "Radient نے {computer} کے لیے فون کی رسائی روک دی ہے۔",
+   "suggested": "Radient نے {computer} کے لیے فون کی رسائی عارضی طور پر روک دی ہے۔",
+   "reason": "'روک دی ہے' reads as stopped/blocked; English 'paused' and the context ('for a moment… normally clears on its own') need the temporary sense, otherwise it overlaps console_disabled/tunnel_gone."
+  },
+  {
+   "id": "ur-GAP-7",
+   "key": "mobile.refusal.refused.title",
+   "severity": "MINOR",
+   "current": "Radient نے ابھی {computer} تک فون کی رسائی کی اجازت نہیں دی۔",
+   "suggested": "Radient نے اس وقت {computer} تک فون کی رسائی کی اجازت نہیں دی۔",
+   "reason": "With a past negative, 'ابھی … نہیں دی' reads as 'has not yet allowed' — implying approval is pending. Source means a refusal right now; 'اس وقت' keeps that without the 'yet' promise."
+  },
+  {
+   "id": "ur-GAP-8",
+   "key": "mobile.refusal.wait_network.body",
+   "severity": "NIT",
+   "current": "نیٹ ورک بحال ہوتے ہی یہ خود بخود دوبارہ جڑ جائے گا۔",
+   "suggested": "اس کا نیٹ ورک بحال ہوتے ہی یہ خود بخود دوبارہ جڑ جائے گا۔",
+   "reason": "Source says 'its network' (the computer's); bare 'نیٹ ورک' lets a phone reader think of their own network."
+  },
+  {
+   "id": "ur-GAP-9",
+   "key": "mobile.settings.diagnostics.copy, mobile.settings.diagnostics.copied",
+   "severity": "NIT",
+   "current": "تشخیص کاپی کریں · تشخیص کاپی ہو گئی",
+   "suggested": "copy: تشخیصی معلومات کاپی کریں · copied: تشخیصی معلومات کاپی ہو گئیں",
+   "reason": "'تشخیص' alone means 'diagnosis'; desktop says تشخیصی معلومات. Optional: the section heading is تشخیص, and the longer button (24 chars) costs width."
+  },
+  {
+   "id": "ur-GAP-10",
+   "key": "mobile.settings.diagnostics.copy_failed",
+   "severity": "NIT",
+   "current": "کاپی نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+   "suggested": "کاپی نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+   "reason": "Gender agreement: sibling 'تشخیص کاپی ہو گئی' is feminine; 'ہو سکا' is masculine."
+  },
+  {
+   "id": "ur-GAP-11",
+   "key": "mobile.refusal.wait_reconnect.title",
+   "severity": "NIT",
+   "current": "{computer} دوبارہ جڑ رہا ہے۔",
+   "suggested": "{computer} دوبارہ منسلک ہو رہا ہے۔",
+   "reason": "House term for reconnect is منسلک/رابطہ (26 non-gap uses; relay.health.reconnecting, chrome.home.reconnecting). 'جڑ' is idiomatic too; align only if cheap. Same verb in balance_out/suspended/wait_network bodies."
+  }
+ ],
+ "code_items": [
+  {
+   "id": "ur-GAP-C1",
+   "kind": "CODE",
+   "file": "src/features/auth/transient-notice.tsx:27-31 + src/ui/components/alert.tsx (title <Text>)",
+   "keys": [
+    "mobile.refusal.radient_unreachable.title",
+    "mobile.refusal.relay_wait.title",
+    "mobile.refusal.wait_network.title",
+    "mobile.refusal.wait_reconnect.title"
+   ],
+   "problem": "TransientNotice passes bodyDir={composedDir} but the Alert title has no direction prop, so RN-web dir=auto lays these titles out LTR when they open with Latin: radient_unreachable.title always ('Radient ابھی…'), the other three whenever {computer} is a Latin name or the 'Your computer' fallback. Reasoned from source; no frame captured.",
+   "fix": "Add titleDir to Alert (mirror bodyDir) and pass composedDir from TransientNotice; add these keys to the Latin-initial site test. Copy-side stopgap for radient_unreachable.title only: 'اس وقت Radient جواب نہیں دے رہا۔'."
+  },
+  {
+   "id": "ur-GAP-C2",
+   "kind": "CODE",
+   "file": "src/features/auth/connection-provider.tsx:2588 (pre-existing) and :2623 (added e64edd28, PR #261)",
+   "keys": "all 11 {computer} titles",
+   "problem": "{computer} receives the English literal 'Your computer' (and 'Radient' at :2588 when no route) in every locale, so ur shows e.g. 'Your computer پر Local Operator کو توجہ کی ضرورت ہے۔' — an English leak no catalogue value can fix; the sidecars sanction the literal.",
+   "fix": "Resolve the fallback subject through a catalogue key (e.g. a mobile.refusal.subject.your_computer), not a literal."
+  }
+ ],
+ "pass_keys": [
+  "mobile.chrome.clear_search",
+  "mobile.computers.hint.radient_unreachable",
+  "mobile.computers.setup.list_updates",
+  "mobile.home.transcript.needs_answer",
+  "mobile.notifications.computer_registration.failed",
+  "mobile.notifications.computer_registration.no_token",
+  "mobile.notifications.computer_registration.refused",
+  "mobile.notifications.computer_registration.registered",
+  "mobile.notifications.computer_registration.registering",
+  "mobile.notifications.computer_registration.relay_missing",
+  "mobile.refusal.action.add_credit",
+  "mobile.refusal.action.how_to",
+  "mobile.refusal.action.open_billing",
+  "mobile.refusal.action.open_console",
+  "mobile.refusal.action.refresh_list",
+  "mobile.refusal.action.retry",
+  "mobile.refusal.balance_out.title",
+  "mobile.refusal.computer_attention.body",
+  "mobile.refusal.computer_attention.title",
+  "mobile.refusal.computer_sign_in.body",
+  "mobile.refusal.computer_sign_in.title",
+  "mobile.refusal.console_disabled.title",
+  "mobile.refusal.how_to.title",
+  "mobile.refusal.offline.body",
+  "mobile.refusal.offline.title",
+  "mobile.refusal.open_console.title",
+  "mobile.refusal.phone_access_off.body",
+  "mobile.refusal.phone_access_off.title",
+  "mobile.refusal.provisioning.body",
+  "mobile.refusal.provisioning.title",
+  "mobile.refusal.radient_unreachable.body",
+  "mobile.refusal.radient_unreachable.title",
+  "mobile.refusal.refused.body",
+  "mobile.refusal.relay_refused.title",
+  "mobile.refusal.relay_stopped.title",
+  "mobile.refusal.relay_wait.body",
+  "mobile.refusal.relay_wait.title",
+  "mobile.refusal.terminal.label",
+  "mobile.refusal.terminal.toggle",
+  "mobile.refusal.tunnel_gone.title",
+  "mobile.refusal.wait_network.title",
+  "mobile.refusal.wait_reconnect.body",
+  "mobile.session.pending_echo.not_confirmed_plain",
+  "mobile.settings.account.signed_in_radient",
+  "mobile.settings.diagnostics.address",
+  "mobile.settings.diagnostics.reason",
+  "mobile.settings.diagnostics.tunnel",
+  "mobile.settings.sign_in_confirm.body",
+  "mobile.settings.sign_in_confirm.confirm",
+  "mobile.settings.sign_in_confirm.title"
+ ],
+ "rtl": {
+  "bidi_controls": 0,
+  "digits": "Latin only",
+  "first_strong": {
+   "AL": 48,
+   "L": 7,
+   "PLACEHOLDER": 11
+  },
+  "latin_initial": [
+   "mobile.refusal.suspended.title",
+   "mobile.refusal.provisioning.title",
+   "mobile.refusal.refused.title",
+   "mobile.refusal.radient_unreachable.title",
+   "mobile.refusal.action.open_billing",
+   "mobile.refusal.action.open_console",
+   "mobile.settings.account.signed_in_radient"
+  ],
+  "placeholder_initial": [
+   "console_disabled",
+   "offline",
+   "relay_stopped",
+   "relay_refused",
+   "tunnel_gone",
+   "relay_wait",
+   "wait_network",
+   "wait_reconnect",
+   "computer_sign_in",
+   "computer_attention",
+   "open_console"
+  ],
+  "render_sites": {
+   "refusal-surface headline/body/actions": "composedDir spread / labelDir — OK",
+   "account-card title": "composedDir — OK",
+   "transient-notice Alert title": "NO dir — ur-GAP-C1"
+  },
+  "arrows": "3 keys use U+2192 (ON, not mirrored) → backwards in RTL: ur-GAP-1..3; use U+2190 as verdict_local_network_ios does",
+  "quotes": "4 keys reversed ”…“: ur-GAP-4",
+  "method": "unicodedata + UBA reasoning; no rendered RTL frame captured in this lane"
+ },
+ "artifacts_note": "report.md and audit.log in the same directory; hashes reported to manager",
+ "audit_notes_not_execution_log": "report.md is analysis; audit.log is the execution log"
+}

@@ -1,0 +1,100 @@
+{
+ "locale": "zh-CN",
+ "slice": "m3-s2c-audit-gap",
+ "round": "2b",
+ "audit_date": "2026-11-14",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft_v1": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/zh-CN/draft-zh-CN.json",
+   "sha256": "c41ad98ff0061f17873886322ebb0498015f2ae7a7cd674db6359aed7feb13eb"
+  },
+  "draft_v2": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/zh-CN/draft-zh-CN-v2.json",
+   "sha256": "3cd14eed0642a19711ac0d88a6812447471b808cac66949fc671666aeaae1035"
+  },
+  "round2_record": {
+   "path": "/Users/damian/.local-operator/sessions/ee8652d4b9ec/scratchpad/zh-CN-gap-r2/record.json",
+   "sha256": "d3729280e0b92ff18e1f806d2239b02d90478c46122bc38d2a82d69b3d07b7c2"
+  },
+  "messages_ts": {
+   "ref": "9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  }
+ },
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "ee8652d4b9ec",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session header 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "independent_from_round1_session": true,
+  "translator_session": "61bbc0d54f8c",
+  "round1_session": "d37012778437"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "no_mt_service_used": true,
+ "redaction_marker_hits": {
+  "draft_v2": 0
+ },
+ "delta_check": {
+  "keys_v1": 36,
+  "keys_v2": 36,
+  "key_set_changed": false,
+  "changed_keys": [
+   "mobile.refusal.offline.body",
+   "mobile.refusal.relay_stopped.body"
+  ],
+  "other_keys_byte_identical": 34
+ },
+ "placeholder_check": {
+  "tool": "repo parseMessage, node v24.22.1 type-strip, env -i, isolated HOME, heap 256",
+  "final_keys": 66,
+  "match": 66,
+  "mismatch": 0,
+  "keys_with_params": 13,
+  "negative_controls": [
+   "{computer}->{computr} rename detected",
+   "'{computer处于休眠状态' threw RangeError"
+  ]
+ },
+ "consistency_check": {
+  "han_latin_space_runs": 0,
+  "bidi_or_format_chars": 0,
+  "single_ellipsis": 0,
+  "ascii_punct_adjacent_han": 0,
+  "identical_en_divergent_zh_within_66": 0,
+  "deixis": "remote-computer 'it/there' refusal bodies all 那台电脑 (offline, relay_stopped, relay_refused, computer_sign_in, computer_attention); remaining 这台电脑 values all translate English 'this computer'"
+ },
+ "round2_resolution": [
+  {
+   "id": "zh-CN-GAP-R2-1",
+   "status": "resolved",
+   "note": "v2 = suggested wording 请唤醒那台电脑，并确认其上已打开Local Operator。"
+  },
+  {
+   "id": "zh-CN-GAP-R2-2",
+   "status": "resolved",
+   "note": "v2 = suggested wording 请在那台电脑上打开它，然后轻点“重试”。"
+  }
+ ],
+ "round1_resolution": "carried from record.json (round 2): GAP-1..9 resolved, GAP-10 rejection accepted; unchanged keys byte-identical in v2",
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 0,
+  "NIT": 0
+ },
+ "verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "ledger": "not written — lane owner records ledger row"
+}
