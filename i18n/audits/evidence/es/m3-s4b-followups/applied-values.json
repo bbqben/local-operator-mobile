@@ -1,0 +1,21 @@
+{
+	"locale": "es",
+	"slice": "m3-s4b-followups",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this slice changed)",
+	"draft_sha256": "b0150c45dd9ae866ab95aab09f0516a56d211c1c4711d8d834eaaa5782d2afea",
+	"key_count": 3,
+	"values": {
+		"mobile.notifications.preferences.computer_keeps_sending": {
+			"file": "src/i18n/catalogues/es/mobile.notifications.json",
+			"value": "Tu máquina seguirá enviando notificaciones de agentes hasta que se actualice Local Operator en ella."
+		},
+		"mobile.notifications.preferences.disabled_hint": {
+			"file": "src/i18n/catalogues/es/mobile.notifications.json",
+			"value": "Requiere un Local Operator más reciente en tu máquina."
+		},
+		"mobile.notifications.preferences.update_computer": {
+			"file": "src/i18n/catalogues/es/mobile.notifications.json",
+			"value": "Para elegir qué notificaciones recibes se necesita un Local Operator más reciente en tu máquina."
+		}
+	}
+}

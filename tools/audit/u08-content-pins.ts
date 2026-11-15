@@ -252,6 +252,9 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 // Recomputed with --print at the staged #106 integration: attachment localization,
 // hardened byte reads and exact-lock image-manipulator dependency. Identity only;
 // rendered and real-path evidence is recorded separately, not inferred from hashes.
+// M3 S4b: src identity rederived with --print after staging all evidence.
+// Only three audited Spanish notification help values and their generated projection
+// changed; this does not claim new U-08 rendered or native evidence.
 export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #246: --print from bebded4b admits the semantic warm hydration,
 	 * resume, catalogue and cached interaction changes in app/src. Source
@@ -1962,7 +1965,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * `mobile.signin.diagnostics` key dropped from every catalogue, the
 	 * regenerated catalogue and its count test. Re-derived LAST with --print;
 	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
-	src: "dbd732fe874327d041c264e80e3482e6576d150ad5a0a3439d36ffd058378ba9",
+	src: "ea1a023a02d3764321564cf68bf5fa8a2fa4d1e5a7df6014358abbfb15728f60",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
