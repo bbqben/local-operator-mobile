@@ -1962,7 +1962,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
 	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
 	 * the merged tree; only `src` moved. */
-	src: "9008f2eb8b72a0644cf48496fddd3187d36f06c98d17ba9794683a2663eff086",
+	/* PR #269 CI admission repair: re-derived with --print after the reviewed
+	 * resume/mutation-401 changes. Source identity only, NOT new rendered U-08
+	 * evidence; no instrument, input, or historical ORIGINAL_* pin changed. */
+	src: "baafd46362769888f590c854cdf766f424cdb6e4508e9f22471d927138d4ccf8",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
