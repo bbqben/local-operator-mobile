@@ -274,7 +274,6 @@ export const CONTROL = {
 	 * controls on one screen must not share an identifier (Maestro's `id:` matching
 	 * would pick arbitrarily), and `e2e/maestro/**` addresses the flow vocabulary
 	 * declared above. --- */
-	setupUseThisComputer: "setup-use-this-computer",
 	computersRetryAction: "computers-retry-action",
 	settingsThemeGroup: "settings-theme-group",
 	/** The Appearance row that opens the Theme picker; its value names the
@@ -416,10 +415,27 @@ export const CONTROL = {
 	settingsAccountRoutingGroup: "settings-account-routing-group",
 	settingsAccountRoutingSave: "settings-account-routing-save",
 	settingsAccountRoutingRetry: "settings-account-routing-retry",
+	/** Diagnostics: copies the section as redacted plain text for a helper. */
+	settingsCopyDiagnostics: "settings-copy-diagnostics",
 	refusalSignIn: "refusal-sign-in",
 	refusalDetailsToggle: "connection-details-toggle",
 	refusalRetry: "refusal-retry",
 	refusalAnotherAddress: "refusal-another-address",
+	/** "Using a terminal?" — the ONE place a refusal shows a command. */
+	refusalTerminalToggle: "refusal-terminal-toggle",
+	/** The plain-copy actions (`RefusalCopy.actions`), one id each. */
+	refusalHowTo: "refusal-how-to",
+	refusalOpenBilling: "refusal-open-billing",
+	refusalAddCredit: "refusal-add-credit",
+	refusalRefreshList: "refusal-refresh-list",
+	refusalActionRetry: "refusal-action-retry",
+	/** The "How to turn it on" help sheet. */
+	refusalHowToSheet: "refusal-how-to-sheet",
+	/** Set-up screen: "Using a terminal?", which reveals the create/attach
+	 *  commands that used to be the screen's first instruction. */
+	setupTerminalToggle: "setup-terminal-toggle",
+	/** "Check again" on the empty-account set-up path (PR #261 U2). */
+	setupCheckAgain: "setup-check-again",
 	/* --- the controls this slice's screens render, named one by one. A screen with
 	 * two controls cannot share an identifier: Maestro's `id:` matching would pick one
 	 * arbitrarily and the failure would read as a flaky flow. --- */
@@ -588,6 +604,8 @@ export const CONTROL = {
 	homeFoldersBanner: "home-folders-banner",
 	homeFoldersRetry: "home-folders-retry",
 	homeFoldersSignIn: "home-folders-sign-in",
+	/** Retry on the transient connection notice (PR #261 Q3). */
+	transientRetry: "transient-retry",
 	/** The home's model-list failure and its own retry: a read that failed used to be
 	 *  swallowed into an empty catalogue, which read as "connected, no model". */
 	homeModelsBanner: "home-models-banner",
@@ -616,6 +634,8 @@ export const CONTROL = {
 	sidebarNewChat: "sidebar-new-chat",
 	sidebarSearch: "sidebar-search",
 	sidebarSearchField: "sidebar-search-field",
+	/** The `×` inside the search pill; present only while the field has text. */
+	sidebarSearchClear: "sidebar-search-clear",
 	sidebarClose: "sidebar-close",
 	/** The drawer's quiet "View options" icon (TestFlight 906) and the compact
 	 *  sheet's controls. The Settings section's twins are `settingsSidebar*`:
@@ -831,6 +851,15 @@ export const SURFACE = {
 	sessionStatusSheet: "session-status-sheet",
 	startupPending: "startup-pending",
 	startupTranscript: "startup-transcript",
+	/** The one-line "needs your answer" row above a just-started conversation;
+	 *  present only while the projection is pending (idle shows no row). */
+	startupNeedsAnswer: "startup-needs-answer",
+	/** The optimistic rows + working line under a just-sent first message. */
+	startupPendingTail: "startup-pending-tail",
+	/** The pre-session scroller that holds that tail before the start returns. */
+	startupPreview: "startup-preview",
+	/** The working line inside the startup tail. */
+	startupWorkingLine: "startup-working-line",
 	/** The Schedules screen's loading skeleton (S17). Its own id because the
 	 *  loading state must be distinguishable from the empty state — and on a
 	 *  320 pt phone the two frames once came out byte-identical on the
@@ -947,6 +976,8 @@ export const SURFACE = {
 	sessionTranscript: "session-transcript",
 	sessionComposer: "session-composer",
 	homeRecovery: "home-recovery",
+	/** The non-blocking notice for a wait the computer named (PR #261 Q3). */
+	transientNotice: "transient-notice",
 	homeRecoveryAction: "home-recovery-action",
 	homeRecoveryDetails: "home-recovery-details",
 	/** The panels + working line, bounded and internally scrolling in short landscape

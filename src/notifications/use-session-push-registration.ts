@@ -43,10 +43,13 @@
  * without them is declarative: it RESETS the device to all-on — the reader's
  * mute lost on every cold start and computer switch, with pushes leaking in
  * the gap. So the effect does not start (no forced POST, no foreground or
- * token trigger, no `activeTrigger`) until `lastFrameAt !== null`, then POSTs
+ * token trigger, no `activeTrigger`) until `liveFrameAt !== null`, then POSTs
  * ONCE with the capability it now knows; an older daemon's first frame simply
  * lacks it and the POST omits the field. A Settings press before the frame is
  * a no-op: the held effect-start registers with the stored choice anyway.
+ * `liveFrameAt`, not `lastFrameAt`: since PR #246 the route's first paint can
+ * be the warm cache, which sets `lastFrameAt` and the LAST session's
+ * capabilities from disk; only a frame from the computer itself counts.
  *
  * Gated on a LIVE route the same way `use-custom-sound-prefetch` is (`live`,
  * `degraded`, `re-minting`): a POST to a route that is still connecting would
@@ -130,7 +133,7 @@ export const useSessionPushRegistration = (): void => {
 	/** The capability key the running effect last registered with. */
 	const registeredKey = useRef<string | null>(null);
 	// This route generation's first list frame has applied (M1, header).
-	const framed = useListState((s) => s.lastFrameAt !== null);
+	const framed = useListState((s) => s.liveFrameAt !== null);
 	const revision = useConnectionState((s) => s.revision);
 	const routeKey = route ? sessionPushRouteKey(route) : null;
 	// biome-ignore lint/correctness/useExhaustiveDependencies: capabilityKey is recorded at start only; a later change is the edge effect's re-POST, not a restart

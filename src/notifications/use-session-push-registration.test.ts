@@ -96,8 +96,11 @@ const seam = vi.hoisted(() => ({
 	removeToken: vi.fn(),
 	relayIdentities: new Set<unknown>(),
 	capabilities: {} as Record<string, unknown>,
-	/** The list store's `lastFrameAt`: `null` until this route generation's
-	 *  first list frame has applied (`listStore.reset()` nulls it). */
+	/** The list store's `liveFrameAt`: `null` until this route generation's
+	 *  first frame FROM THE COMPUTER has applied (`listStore.reset()` nulls it). */
+	liveFrameAt: 1 as number | null,
+	/** The list store's `lastFrameAt`, which a warm-cache paint also sets
+	 *  (PR #246); the hook must not read it as "the daemon has answered". */
 	lastFrameAt: 1 as number | null,
 	/** The keystore read of the stored preferences fails (locked keychain). */
 	readFails: false,
@@ -143,7 +146,11 @@ vi.mock("@/features/auth/connection-provider", () => ({
 	useConnectionState: (select: (s: object) => unknown) =>
 		select({ route: seam.route, phase: seam.phase, revision: seam.revision }),
 	useListState: (select: (s: object) => unknown) =>
-		select({ capabilities: seam.capabilities, lastFrameAt: seam.lastFrameAt }),
+		select({
+			capabilities: seam.capabilities,
+			lastFrameAt: seam.lastFrameAt,
+			liveFrameAt: seam.liveFrameAt,
+		}),
 }));
 // The real gate and wire shape; only the keystore read is a seam.
 vi.mock("@/notifications/notification-preferences", async (importActual) => {
@@ -232,6 +239,7 @@ beforeEach(() => {
 	seam.rotate = undefined;
 	seam.relayIdentities.clear();
 	seam.capabilities = {};
+	seam.liveFrameAt = 1;
 	seam.lastFrameAt = 1;
 	seam.readFails = false;
 	resetNotificationPreferences();
@@ -539,6 +547,7 @@ describe("PR #264 R1 M1: registration waits for the route's first list frame", (
 
 	it("cold start, stored enabled:false, a supported daemon: no POST before the frame, then ONE POST carrying the mute", async () => {
 		stored({ enabled: false });
+		seam.liveFrameAt = null;
 		seam.lastFrameAt = null;
 		render();
 		await settle();
@@ -549,6 +558,7 @@ describe("PR #264 R1 M1: registration waits for the route's first list frame", (
 		await settle();
 		expect(seam.register).not.toHaveBeenCalled();
 		// The first frame applies, carrying the capability.
+		seam.liveFrameAt = 1_000;
 		seam.lastFrameAt = 1_000;
 		seam.capabilities = PREFS;
 		render();
@@ -566,10 +576,12 @@ describe("PR #264 R1 M1: registration waits for the route's first list frame", (
 
 	it("an unsupported daemon: the first frame has no capability, and the one POST omits the field", async () => {
 		stored({ enabled: false });
+		seam.liveFrameAt = null;
 		seam.lastFrameAt = null;
 		render();
 		await settle();
 		expect(seam.register).not.toHaveBeenCalled();
+		seam.liveFrameAt = 1_000;
 		seam.lastFrameAt = 1_000;
 		render();
 		await vi.waitFor(() => expect(seam.recorded).toHaveBeenCalledTimes(1));
@@ -578,7 +590,34 @@ describe("PR #264 R1 M1: registration waits for the route's first list frame", (
 		expect(bodies()[0]).not.toHaveProperty("preferences");
 	});
 
-	it("a computer switch: the new route waits for ITS first frame (reset() nulls lastFrameAt)", async () => {
+	it("merge of #246: a warm-cache paint (lastFrameAt and stale capabilities from disk) is not the first frame; no POST until the computer's own", async () => {
+		stored({ enabled: false });
+		// startRoute reset the store; the warm cache then paints the LAST
+		// session's frame, saved before this daemon gained push_preferences.
+		seam.liveFrameAt = null;
+		seam.lastFrameAt = 500;
+		seam.capabilities = {};
+		render();
+		seam.foreground?.("active");
+		requestSessionPushRegistration();
+		await settle();
+		expect(seam.register).not.toHaveBeenCalled();
+		// The computer's own first frame applies, carrying the capability.
+		seam.liveFrameAt = 1_000;
+		seam.lastFrameAt = 1_000;
+		seam.capabilities = PREFS;
+		render();
+		await vi.waitFor(() => expect(seam.recorded).toHaveBeenCalledTimes(1));
+		await settle();
+		expect(seam.register).toHaveBeenCalledTimes(1);
+		expect(bodies()[0]?.preferences).toEqual({
+			enabled: false,
+			completions: true,
+			errors: true,
+		});
+	});
+
+	it("a computer switch: the new route waits for ITS first frame (reset() nulls liveFrameAt)", async () => {
 		stored({ enabled: false });
 		seam.capabilities = PREFS;
 		render();
@@ -586,11 +625,13 @@ describe("PR #264 R1 M1: registration waits for the route's first list frame", (
 		// startRoute for B: the list store is reset before the route goes live.
 		seam.route = { mode: "custom", baseUrl: "http://192.0.2.10:7777" };
 		seam.revision = 2;
+		seam.liveFrameAt = null;
 		seam.lastFrameAt = null;
 		seam.capabilities = {};
 		render();
 		await settle();
 		expect(seam.register).toHaveBeenCalledTimes(1);
+		seam.liveFrameAt = 2_000;
 		seam.lastFrameAt = 2_000;
 		seam.capabilities = PREFS;
 		render();

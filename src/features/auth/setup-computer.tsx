@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Text, View } from "react-native";
 
 import { useConnectorWait } from "@/features/auth/connector-wait";
+import { t } from "@/i18n";
 import { CONTROL } from "@/ui/a11y";
 import { Alert } from "@/ui/components/alert";
 import { Button } from "@/ui/components/button";
 import { Card } from "@/ui/components/card";
 import { CommandBlock } from "@/ui/components/command-block";
 import { Input } from "@/ui/components/input";
-import { Shimmer } from "@/ui/components/shimmer";
+import { disclosureIcon } from "@/ui/components/refusal-surface";
+import { tunnelRefusalCopy } from "./refusal";
 
 /**
  * Set up a computer — the flow that turns a signed-in account with no tunnel into
@@ -30,7 +32,17 @@ import { Shimmer } from "@/ui/components/shimmer";
  *     run the billing step has no other way to know it. A placeholder in a
  *     command the reader is told to run is a command that fails.
  *
- *  3. **Waiting names what was observed, never "setting up…".** The two signals
+ *  3. **No terminal unless asked for.** The reader of this screen is usually a
+ *     Radient user who has never opened a terminal: the desktop app's Phone
+ *     access block (Settings → Radient account → Phone access; the desktop has
+ *     no Settings item of that name yet, PR #261 U5) does the whole lifecycle
+ *     and shows the price first. So that instruction leads, and the commands
+ *     below sit behind "Using a terminal?", closed by default. The list behind
+ *     this screen re-fetches on focus, on return to the app, on a slow poll
+ *     while it is in front, and on "Check again" (`setup-poll.ts`), which is
+ *     what the second line promises.
+ *
+ *  4. **Waiting names what was observed, never "setting up…".** The two signals
  *     are the control-plane row (the cloud route is provisioned) and
  *     `/healthz` answering (the machine is up). `status: active` is NOT a
  *     heartbeat, so this screen never promotes it to "connected".
@@ -54,75 +66,88 @@ export function createCommands(): string {
 	].join("\n");
 }
 
-/** The TUI alternative: the same lifecycle in two commands. */
+/** The TUI alternative: the same lifecycle in two commands. The amount is the
+ *  same placeholder as in `createCommands`, for the same reason. The branch that
+ *  once filled in a quoted price was dead (its amount was a constant `null`), and
+ *  as a conditional it read to the i18n scanner as copy: the commands are values
+ *  the reader types, never translated. */
 export function tuiCommands(): string {
-	const amount = null as string | null;
-	return [
-		"/mobile billing",
-		amount ? `/mobile enable ${amount}` : "/mobile enable <amount>",
-	].join("\n");
+	return ["/mobile billing", "/mobile enable <amount>"].join("\n");
 }
 
 export type SetupComputerProps = {
 	/** What the console says about billing, from discovery: `eligible` and its own
 	 *  sentence. `null` before any computer is known. */
-	billing: { eligible: boolean | null; message: string | null } | null;
+	billing: {
+		active?: boolean | null;
+		eligible: boolean | null;
+		message: string | null;
+	} | null;
 	onWaitForConnector: () => void;
 	waiting: boolean;
+	/** Lists the account again now (PR #261 U2): the reader who just finished on
+	 *  the desktop needs a control outside the terminal disclosure. */
+	onCheckAgain?: () => void;
+	/** A list request is in flight (the poll's or the button's). */
+	checking?: boolean;
 };
 
-export const SetupComputer = ({
-	billing,
+/** The create and attach routes, for a reader who uses a terminal. Its own
+ *  component (rather than inline under the disclosure) so the cards keep the
+ *  nesting depth they had, and the copy inside them its line breaks: the
+ *  strings baseline records each literal's first line, and a reflow would read
+ *  as new, un-keyed copy. The tunnel id lives here because only this half
+ *  needs it. */
+const TerminalRoutes = ({
 	onWaitForConnector,
 	waiting,
-}: SetupComputerProps) => {
+}: Pick<SetupComputerProps, "onWaitForConnector" | "waiting">) => {
 	const [tunnelId, setTunnelId] = useState("");
-	const billingInactive = billing?.eligible === false;
-
 	return (
-		<View className="gap-4 pt-2">
-			<Text className="text-body text-ink">
-				This app drives the sessions on your own computer, so that computer has
-				to run a connector and stay awake. Your code stays on it.
-			</Text>
-
-			{billingInactive ? (
-				<Alert severity="warning" title="Remote access is not active">
-					{billing?.message ??
-						"Radient says this account cannot start a tunnel yet. Check billing in the console, then try again."}
-				</Alert>
-			) : null}
-
-			{/* (a) Create — recommended, and the one that needs no console. */}
+		<>
+			{/* (a) Create — recommended for terminal users; needs no console. */}
 			<Card>
 				<View className="gap-3">
 					<Text className="text-heading text-ink">
-						Create one on the computer
+						{t("mobile.computers.setup.create_title")}
 					</Text>
 					<Text className="text-body-sm text-ink-muted">
-						In a terminal on the computer you want to control:
+						{t("mobile.computers.setup.create_help")}
 					</Text>
 					<CommandBlock
 						id="terminal"
-						label="Terminal"
+						label={t("mobile.computers.setup.terminal_label")}
 						command={createCommands()}
 					/>
 					{/* The amount is a placeholder and the copy says where the real one
 					 *  is: this app no longer reads the quoted price (the merged client
 					 *  surfaces eligibility, not the amount), and inventing a number is
-					 *  the one thing the guide forbids on this step. */}
+					 *  the one thing the guide forbids on this step. The placeholder and
+					 *  the command are values, never copy: a translator must not
+					 *  translate what the reader types (the backticks the English used
+					 *  to wear are gone for the same reason — the catalogue carries
+					 *  prose, the values carry the code). */}
 					<Text className="text-body-sm text-ink-dim">
-						`&lt;amount&gt;` is the price the Radient console shows for this
-						account — `lop tunnel create` refuses anything else, and step 1 of
-						the tunnel guide links to where it is shown.
+						{t("mobile.computers.setup.amount_note", {
+							amount: "<amount>",
+							command: "lop tunnel create",
+						})}
 					</Text>
 					<Text className="text-body-sm text-ink-muted">
-						Or in the Local Operator TUI, in two commands:
+						{t("mobile.computers.setup.tui_help")}
 					</Text>
-					<CommandBlock id="tui" label="TUI" command={tuiCommands()} />
+					<CommandBlock
+						id="tui"
+						label={t("mobile.computers.setup.tui_label")}
+						command={tuiCommands()}
+					/>
 					<Button
 						testID={CONTROL.setupCreateTunnel}
-						label={waiting ? "Watching for it" : "I've run it — connect it"}
+						label={
+							waiting
+								? t("mobile.computers.setup.watching")
+								: t("mobile.computers.setup.ran_it")
+						}
 						onPress={onWaitForConnector}
 						loading={waiting}
 					/>
@@ -133,87 +158,120 @@ export const SetupComputer = ({
 			<Card>
 				<View className="gap-3">
 					<Text className="text-heading text-ink">
-						Attach one that already exists
+						{t("mobile.computers.setup.attach_title")}
 					</Text>
 					<Text className="text-body-sm text-ink-muted">
-						If you created the tunnel in the Radient console, attach it by the
-						id the console shows. This command is for a tunnel that already
-						exists — it will not create one.
+						{t("mobile.computers.setup.attach_help")}
 					</Text>
 					<Input
 						testID={CONTROL.setupTunnelId}
-						label="Tunnel id"
+						label={t("mobile.computers.setup.tunnel_id_label")}
 						value={tunnelId}
 						onChangeText={setTunnelId}
+						/* An identifier's SHAPE, not copy: tunnel ids are Latin in
+						 *  every locale, so the example stays as the console prints it. */
 						placeholder="0123…-lop"
 						autoCapitalize="none"
 					/>
 					<CommandBlock
 						id="attach"
-						label="Attach"
+						label={t("mobile.computers.setup.attach_label")}
 						command={`lop tunnel connect ${tunnelId.trim() || "<tunnel-id>"}`}
 					/>
 				</View>
 			</Card>
+		</>
+	);
+};
+
+export const SetupComputer = ({
+	billing,
+	onWaitForConnector,
+	waiting,
+	onCheckAgain,
+	checking = false,
+}: SetupComputerProps) => {
+	const [showTerminal, setShowTerminal] = useState(false);
+	/* The 403 split's own words for the account's billing (PR #261 R5): "phone
+	 *  access" vocabulary, keyed, and the never-turned-on vs out-of-credit split
+	 *  instead of the console's one English sentence. */
+	const billingCopy =
+		billing?.active === false || billing?.eligible === false
+			? tunnelRefusalCopy(
+					{
+						billing: {
+							active: billing.active ?? null,
+							eligible: billing.eligible,
+							message: billing.message,
+						},
+						rawStatus: "",
+					},
+					"",
+				)
+			: null;
+
+	return (
+		<View className="gap-4 pt-2">
+			<Text className="text-body text-ink">
+				{t("mobile.computers.setup.intro")}
+			</Text>
+
+			{billingCopy ? (
+				<Alert severity="warning" title={billingCopy.title}>
+					{billingCopy.body ?? ""}
+				</Alert>
+			) : null}
+
+			<Card>
+				<View className="gap-2">
+					<Text className="text-body text-ink">
+						{t("mobile.computers.setup.open_settings")}
+					</Text>
+					<Text className="text-body-sm text-ink-muted">
+						{t("mobile.computers.setup.list_updates")}
+					</Text>
+					{onCheckAgain ? (
+						<Button
+							testID={CONTROL.setupCheckAgain}
+							label={t(
+								checking
+									? "mobile.computers.setup.checking"
+									: "mobile.computers.setup.check_again",
+							)}
+							variant="outline"
+							loading={checking}
+							onPress={onCheckAgain}
+						/>
+					) : null}
+				</View>
+			</Card>
+
+			<Button
+				testID={CONTROL.setupTerminalToggle}
+				label={t("mobile.refusal.terminal.toggle")}
+				variant="quiet"
+				expanded={showTerminal}
+				trailingIcon={disclosureIcon(showTerminal)}
+				onPress={() => setShowTerminal((open) => !open)}
+			/>
+			{showTerminal ? (
+				<TerminalRoutes
+					onWaitForConnector={onWaitForConnector}
+					waiting={waiting}
+				/>
+			) : null}
 
 			{/* (c) Neither — a machine Radient does not know about. */}
 			<Card>
 				<View className="gap-3">
-					<Text className="text-heading text-ink">Use an address instead</Text>
+					<Text className="text-heading text-ink">
+						{t("mobile.computers.setup.address_title")}
+					</Text>
 					<Text className="text-body-sm text-ink-muted">
-						If your relay is reachable at a URL you already know, connect to it
-						with the relay's own password. This is the route for a machine that
-						is not on Radient at all.
+						{t("mobile.computers.setup.address_help")}
 					</Text>
 				</View>
 			</Card>
-		</View>
-	);
-};
-
-/** The wait panel (W1—W5). It is separate from the three routes above because it
- *  REPLACES them while it runs: offering the commands again while a connector is
- *  coming up is how a reader creates two tunnels. */
-export const ConnectorWaitPanel = ({
-	hostname,
-	status,
-	onUse,
-}: {
-	hostname: string | null;
-	status: string | null;
-	onUse: (() => void) | null;
-}) => {
-	if (status === null) {
-		return (
-			<View className="gap-2 rounded-sm border border-hairline bg-surface p-4">
-				<Shimmer active>
-					<Text className="text-body text-ink">
-						Waiting for Radient to list your computer…
-					</Text>
-				</Shimmer>
-				<Text className="text-body-sm text-ink-dim">
-					Nothing has appeared yet. Nothing to do on this screen.
-				</Text>
-			</View>
-		);
-	}
-	return (
-		<View className="gap-2 rounded-sm border border-hairline bg-surface p-4">
-			<Text className="text-body text-ink">
-				Radient has the tunnel — {status === "active" ? "provisioned" : status}.
-			</Text>
-			<Text className="text-body-sm text-ink-dim">
-				{hostname
-					? `Waiting for ${hostname.split("-")[0]}-lop to answer. The cloud route existing is not the same as your computer being up.`
-					: "Waiting for your computer to answer."}
-			</Text>
-			{onUse ? (
-				<Button
-					label="Use this computer"
-					onPress={onUse}
-					testID={CONTROL.setupUseThisComputer}
-				/>
-			) : null}
 		</View>
 	);
 };
