@@ -1813,17 +1813,47 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#258, 8ca71d54) into #263: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* M3 S2b-2b (feat/i18n-m3-s2b2b, English-first): the dead ConnectorWaitPanel
+	 * deleted, the set-up-a-computer screen keyed, `profile.ts` returning
+	 * refused-address codes mapped to keys in `tunnel-verdict.ts`, the
+	 * "Your computer" refusal subject keyed, and their tests (839 en keys; no
+	 * `catalogue.gen.ts` regeneration yet). Re-derived last with --print over
+	 * the committed tree (cd053eff); only `src` moved. Source identity only,
+	 * NOT rendered U-08 evidence. */
+	/* M3 S2b-2b integration: the six LTR locales' and ur's 27 audited values
+	 * (setup.*, route_invalid.*, your_computer), the regenerated
+	 * `catalogue.gen.ts` (839 keys), and the ur whole-namespace premise listing
+	 * the single-token `setup.tui_label`. Re-derived last with --print over the
+	 * committed tree (10530706); only `src` moved. Source identity
+	 * only, NOT rendered U-08 evidence. */
+	/* Convergence of #260 onto main caae98bc (#257) + round-1 remediation (D2,
+	 * Q-02, identical-by-design TUI/Terminal): both comment chains kept;
+	 * re-derived once with --print over the committed tree. */
+	/* CI remediation of #260 (d90f49d7): one new test file,
+	 * `src/connection/__tests__/route-validation-decisions.test.ts`, and nothing
+	 * else under `src`. Re-derived with --print over the committed tree; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#257, caae98bc) into #263: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
+	/* Convergence of #260 onto main d92515ff (#263): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#263, d92515ff) into #261: both comment blocks
 	 * kept (the session-row `last_user_at` contract from #263; the M1 refusal
 	 * work from #261). Re-derived once with --print over the merged tree; only
 	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* Convergence of #260 onto main f340368a (#261): both comment chains kept
+	 * (#261's set-up restructure with #260's keying applied to it);
+	 * re-derived last with --print over the merged tree; only `src` moved.
+	 * Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#263, d92515ff) into #256: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#261, f340368a) into #256: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
-	src: "d6e42e3548214595044a78e684bfa1498de8b6e1632d1d464e422630825b21d7",
+	/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	src: "24188d42e9e6714c3c97d44124ac2f3991022f2cb22bc2b07b52dc2dc435d62d",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
