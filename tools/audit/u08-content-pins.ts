@@ -1982,7 +1982,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * comment chains kept; only this pin conflicted. Re-derived LAST with --print
 	 * over the merged tree; only `src` moved. Source identity only, NOT new
 	 * rendered U-08 evidence. */
-	src: "a88976ef35f4185ecc63b8b5f0a64ed96b2d6ee24837031f605370033a75af38",
+	/* PR #272: notification grouping/guidance, its catalogues and regression
+	 * tests change src identity. Re-derived with --print after the catalogue
+	 * invariant repair; this admits source bytes, NOT rendered U-08 evidence.
+	 * Historical ORIGINAL_* incident identities remain untouched. */
+	/* Merge of origin/main (#269, 00c2b66d) into #272: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#268, eaa49a3e) into #272: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	src: "811db2f8198d29b6dd22c80ece57c4488746c6eb6ced615e5fe6adf7d5b678aa",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
