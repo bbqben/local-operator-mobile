@@ -164,7 +164,7 @@
 	"mobile.computers.route_invalid.not_radient": "Esa no es una dirección de túnel de Radient. Usa la dirección que muestra la consola de Radient para esta máquina.",
 	"mobile.computers.route_invalid.no_tunnel_id": "Este túnel no tiene ID, así que no se puede renovar su sesión. Vuelve a buscar tus máquinas.",
 	"mobile.computers.your_computer": "Tu máquina",
-	"mobile.computers.setup.open_settings": "En tu computadora, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono → Configurar el acceso desde el teléfono.",
+	"mobile.computers.setup.open_settings": "En tu máquina, abre Local Operator → Ajustes → Cuenta de Radient → Acceso desde el teléfono → Configurar el acceso desde el teléfono.",
 	"mobile.computers.setup.list_updates": "Vuelve aquí cuando termines; esta lista se actualiza sola.",
 	"mobile.computers.setup.check_again": "Comprobar de nuevo",
 	"mobile.computers.setup.checking": "Comprobando…",
