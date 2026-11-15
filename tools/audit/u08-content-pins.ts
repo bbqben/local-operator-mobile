@@ -1853,7 +1853,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
-	src: "24188d42e9e6714c3c97d44124ac2f3991022f2cb22bc2b07b52dc2dc435d62d",
+	/* M3 S2c audit gap: 118 audited catalogue values in 7 locales and the two
+	 * unused setup.billing_* keys dropped; re-derived last with --print; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	src: "894aff86a10fd9378ff85bd47f314f62fe9eb589c7308e5b1c632aed4cf00ebb",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
