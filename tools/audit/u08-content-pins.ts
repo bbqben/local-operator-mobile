@@ -1952,6 +1952,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept. #265 touches only i18n catalogues, their audit evidence, the
 	 * generated catalogue and its test. Re-derived once with --print over
 	 * the merged tree; only `src` moved. */
+	/* M3 S5: the Account routing section renders `t()` instead of the English
+	 * oracle table (+ its render test, comments). Re-derived once with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#264, 25e9fb2e) into M3 S5 (account routing via
+	 * t()): both comment chains kept; only this pin conflicted. Re-derived LAST
+	 * with --print over the merged tree; only `src` moved. */
 	/* M3 S3 (fix/i18n-m3-s3-transient-subject): the transient notice names an
 	 * unnamed computer through the catalogue (`failureSubject`) and its title
 	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
@@ -1962,7 +1968,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
 	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
 	 * the merged tree; only `src` moved. */
-	src: "9008f2eb8b72a0644cf48496fddd3187d36f06c98d17ba9794683a2663eff086",
+	src: "77abcea5b57e0626a1872afcdf412d583a02227fa7f80c6090d35340d8685401",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
