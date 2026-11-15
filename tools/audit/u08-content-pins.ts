@@ -1928,7 +1928,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * identity only, NOT rendered U-08 evidence. */
 	/* Convergence of #265 (M3 S2c) onto main 81b5df9d (#262 Radient account label):
 	 * both comment chains kept; src re-derived once with --print over the merged tree. */
-	src: "ef41df80311c75198df77b0d73c949f1b57d24dfba6adf7417bf1b38c0aa34b1",
+	/* M3 S5: the Account routing section renders `t()` instead of the English
+	 * oracle table (+ its render test, comments). Re-derived once with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	src: "d6f712579c4a0813caa0b314ce1bd8b42b4c25ec23b53d56cf58e38e7492728e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

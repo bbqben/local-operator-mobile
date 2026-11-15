@@ -1,23 +1,29 @@
-/** Feature-scoped SOURCE fallback, not a native translation/audit framework.
+/** The account-routing ENGLISH SOURCE table — an oracle, not the UI's renderer.
  *
- * Native main has no qualified catalogue runtime. Keep finite, stable keys and
- * per-key translator context now; a future qualified renderer can replace this
- * seam without inventing a phone language preference. These are OUR chrome
- * keys, not a claim to consume core wire descriptors: account-routing-v1 sends
- * label/help/choice/error TEXT only. Those values must remain backend-owned.
- * No policy choices, defaults or routing decisions belong in this table.
+ * WHO READS IT. Two consumers, neither of them a screen:
+ *  - `scripts/ci/account-routing-ios-proof.ts` / `account-routing-proof-flows.ts`
+ *    drive the app in English and match visible text against `.source`; and
+ *  - `catalogues.test.ts` asserts this table equals the English catalogue
+ *    (`src/i18n/catalogues/en/mobile.account_routing.json`) key for key, so the
+ *    oracle cannot drift from what an English reader sees.
+ * The Settings section (`account-routing-section.tsx`) renders the SAME keys
+ * through `t()` from `@/i18n`, i.e. the active locale's catalogue. It used to
+ * call `accountRoutingCopy()` here, which showed every locale English (M3 S5);
+ * `account-routing-section.test.tsx` now renders it in ur/fr and fails on any
+ * English source string. Do not import this module from UI code.
  *
- * WHY THIS FILE DOES NOT CALL `t()` WHILE THE OTHER THREE COPY MODULES DO.
- * `scripts/ci/account-routing-ios-proof.ts` is a plain-`node` entry point — its
- * command is pinned by `account-routing-proof.test.ts` — and it statically
- * imports this module. Node's ESM resolver cannot follow the extensionless
- * relative imports `src/` is written with (bundler resolution), so any import
- * added here breaks that entry before a single line of it runs. The table
- * therefore stays local, and `src/i18n/catalogues/en/mobile.account_routing.*`
- * carries the same messages for the runtime; `catalogues.test.ts` asserts the two
- * agree key for key, so the duplication is machine-checked rather than a second
- * source of truth. Once that entry loads through a resolver preload, this module
- * can call `t()` and the table can go.
+ * WHY IT STAYS DEPENDENCY-FREE (NO `t()`, NO `@/i18n`). The proof entries are
+ * plain-`node` scripts (the iOS proof's command is pinned by
+ * `account-routing-proof.test.ts`) that statically import this module. Node's ESM
+ * resolver cannot follow the extensionless relative imports `src/` is written
+ * with (bundler resolution), so any import added here breaks those entries
+ * before a single line runs. `copy-resolution.test.ts` pins it as English on
+ * purpose for the same reason.
+ *
+ * These are OUR chrome keys, not a claim to consume core wire descriptors:
+ * account-routing-v1 sends label/help/choice/error TEXT only, and those values
+ * remain backend-owned. No policy choices, defaults or routing decisions belong
+ * in this table. `context` and `role` mirror the translator notes.
  */
 export const ACCOUNT_ROUTING_SOURCE_LOCALE = "en" as const;
 export const ACCOUNT_ROUTING_COPY = {
