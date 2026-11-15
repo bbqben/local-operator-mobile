@@ -5,13 +5,14 @@ import { useStore } from "zustand";
 import {
 	useConnection,
 	useConnectionState,
+	useLocaleFrame,
 } from "@/features/auth/connection-provider";
+import { t } from "@/i18n";
 import type { RelayEndpoints } from "@/relay";
 import { accountRoutingChoiceId, CONTROL, REGION } from "@/ui/a11y";
 import { Button } from "@/ui/components/button";
 import { SectionHeader } from "@/ui/components/section-header";
 import { Segmented } from "@/ui/components/segmented";
-import { accountRoutingCopy as copy } from "./account-routing-copy";
 import { createAccountRoutingEditor } from "./account-routing-state";
 
 /** Capture the immutable selected-route client, not a dynamic relay() getter.
@@ -19,6 +20,12 @@ import { createAccountRoutingEditor } from "./account-routing-state";
  * old computer's value until an effect runs. Disconnect unmounts this editor,
  * so reconnecting with even the same client cannot reuse a saved confirmation.
  * Backend labels/help/choices/errors are TEXT; only our chrome is keyed here.
+ * That chrome renders through `t()` (the active catalogue), NOT the English
+ * `ACCOUNT_ROUTING_COPY` table: the table is the plain-`node` native proof's
+ * English oracle, and rendering it here showed every locale English (M3 S5).
+ * `t()` reads the locale per call; `AccountRoutingSection` subscribes to the
+ * language frame so a switch while Settings is open repaints this copy without
+ * depending on some unrelated state moving first.
  */
 const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 	const editor = useMemo(() => createAccountRoutingEditor(client), [client]);
@@ -30,14 +37,14 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 	if (read.kind === "loading")
 		return (
 			<Text className="text-body-sm text-ink-muted">
-				{copy("mobile.account_routing.loading")}
+				{t("mobile.account_routing.loading")}
 			</Text>
 		);
 	if (read.kind !== "ready")
 		return (
 			<View className="gap-2">
 				<Text className="text-body-sm text-ink-muted">
-					{copy(
+					{t(
 						read.kind === "unsupported"
 							? "mobile.account_routing.unavailable"
 							: "mobile.account_routing.load_error",
@@ -48,7 +55,7 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 				) : null}
 				<Button
 					testID={CONTROL.settingsAccountRoutingRetry}
-					label={copy("mobile.account_routing.retry")}
+					label={t("mobile.account_routing.retry")}
 					variant="outline"
 					size="sm"
 					onPress={() => void editor.reload()}
@@ -83,7 +90,7 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 			) : null}
 			<Button
 				testID={CONTROL.settingsAccountRoutingSave}
-				label={copy(
+				label={t(
 					save === "pending"
 						? "mobile.account_routing.saving"
 						: "mobile.account_routing.save",
@@ -96,12 +103,12 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 					accessibilityLiveRegion="polite"
 					className="text-body-sm text-ink-muted"
 				>
-					{copy("mobile.account_routing.saved")}
+					{t("mobile.account_routing.saved")}
 				</Text>
 			) : null}
 			{save === "idle" && draft !== row.value ? (
 				<Text className="text-body-sm text-ink-muted">
-					{copy("mobile.account_routing.unsaved")}
+					{t("mobile.account_routing.unsaved")}
 				</Text>
 			) : null}
 			{save === "error" || save === "rejected" ? (
@@ -110,7 +117,7 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 						accessibilityLiveRegion="polite"
 						className="text-body-sm text-ink-muted"
 					>
-						{copy(
+						{t(
 							save === "rejected"
 								? "mobile.account_routing.rejected"
 								: "mobile.account_routing.error",
@@ -121,7 +128,7 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 					) : null}
 					<Button
 						testID={CONTROL.settingsAccountRoutingRetry}
-						label={copy("mobile.account_routing.reload")}
+						label={t("mobile.account_routing.reload")}
 						variant="outline"
 						size="sm"
 						onPress={() => void editor.reload()}
@@ -134,6 +141,10 @@ const AccountRoutingEditor = ({ client }: { client: RelayEndpoints }) => {
 
 /** The phone owns connection selection, never the computer's routing policy. */
 export const AccountRoutingSection = () => {
+	/* Subscription only (as `DirectionRoot`/`workspace-drawer` do): the frame
+	 * re-renders this section and its editor child, whose `t()` calls then read
+	 * the new locale. */
+	useLocaleFrame();
 	const { relay, streamHealth } = useConnection();
 	const phase = useConnectionState((state) => state.phase);
 	const route = useConnectionState((state) => state.route);
@@ -146,13 +157,13 @@ export const AccountRoutingSection = () => {
 			: null;
 	return (
 		<View className="gap-2" testID={REGION.settingsAccountRouting}>
-			<SectionHeader label={copy("mobile.account_routing.title")} />
+			<SectionHeader label={t("mobile.account_routing.title")} />
 			<Text className="text-body-sm text-ink-muted">
-				{copy("mobile.account_routing.scope")}
+				{t("mobile.account_routing.scope")}
 			</Text>
 			{client === null ? (
 				<Text className="text-body-sm text-ink-muted">
-					{copy("mobile.account_routing.disconnected")}
+					{t("mobile.account_routing.disconnected")}
 				</Text>
 			) : (
 				<AccountRoutingEditor client={client} />

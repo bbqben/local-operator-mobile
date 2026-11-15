@@ -23,8 +23,10 @@
  *    module that the English catalogue does NOT already own. Those files exist to
  *    hold copy, so a sentence there that neither comes from `t()` nor appears in a
  *    catalogue is a key that was never added. A literal the catalogue DOES own is
- *    a deliberate mirror (see `account-routing-copy.ts`, which cannot import the
- *    runtime), and `catalogues.test.ts` binds it to the catalogue key for key.
+ *    a deliberate mirror (see `account-routing-copy.ts`, the native proof's
+ *    English oracle, which cannot import the runtime; the UI renders the same
+ *    keys through `t()`), and `catalogues.test.ts` binds it to the catalogue key
+ *    for key.
  *
  * 4. `expression-literal` — a string or template literal that is the value of a
  *    conditional (`cond ? "a" : "b"`), the right side of `??`, or a function
