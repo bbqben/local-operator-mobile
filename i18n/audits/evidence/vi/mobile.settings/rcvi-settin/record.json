@@ -1,0 +1,65 @@
+{
+  "record_kind": "translation_audit",
+  "audit_id": "rcvi-settin",
+  "locale": "vi",
+  "namespace": "mobile.settings",
+  "audit_date": "2026-11-15",
+  "key_count": 1,
+  "keys": [
+    "mobile.settings.account.delete_help"
+  ],
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "8327197fa0aa",
+    "model": "anthropic/claude-opus-5-5",
+    "fallback": null,
+    "actual_model_source": "Model line of this session system prompt; no fallback incident observed",
+    "independent_from_translator_session": true
+  },
+  "translator_session": "2a0b42cbac53",
+  "english_override": null,
+  "input_hashes": {
+    "draft_vi": {
+      "path": "/Users/damian/.local-operator/sessions/2a0b42cbac53/scratchpad/draft-vi.json",
+      "sha256": "16751c2b9bfa557f71f588a90b35386ec918fec213589f70becc6856b40dd675"
+    },
+    "translation_brief": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+      "sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+    },
+    "en_proposal": {
+      "path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+      "sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+    },
+    "glossary": {
+      "path": "git:~/local-operator@56662d28:i18n/glossary.md",
+      "sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/vi.md (worktree clean; last commit 4981010c)",
+      "sha256": "e4901497ed553e2b2ae4a2660bf776adb787b89e11d7eb0f8d08f3da4b227888"
+    },
+    "prior_vi_catalogue": {
+      "path": "git:~/local-operator-mobile@0a629e65:src/i18n/catalogues/vi/mobile.settings.json",
+      "sha256": "e56dfd5de2e52bc5dedb61f8319534f57f814ae4e802a6caf3bb51ea83de43e2"
+    }
+  },
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "audit_notes_not_execution_log": "report.md = judgements; audit.log = execution log of the auditor check script (audit_vi.py)",
+  "no_mt_service_used": true,
+  "ledger_written": false,
+  "artifacts": {
+    "report.md": {
+      "path": "/Users/damian/.local-operator/sessions/8327197fa0aa/scratchpad/vi/mobile.settings/rcvi-settin/report.md",
+      "sha256": "cd8a0cbd6d41deafc6da449dc9915abad1fb4387763e26df79d2d1e5a17ac800"
+    },
+    "audit.log": {
+      "path": "/Users/damian/.local-operator/sessions/8327197fa0aa/scratchpad/vi/mobile.settings/rcvi-settin/audit.log",
+      "sha256": "01f51885241b5de2f950002de17a2725b6efafe8d3321fb037699cae90942465"
+    }
+  }
+}

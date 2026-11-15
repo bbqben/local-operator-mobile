@@ -2020,7 +2020,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * neither parent. Derived from the treeDigest contract above by an
 	 * independent reader over the merge's git objects (not --print); the pin
 	 * test re-checks it. Source identity only, NOT rendered U-08 evidence. */
-	src: "cfa57f96ba5d7d282edcea869a31eaa860bbc7384aceb78f1cc4c6e60639c0b0",
+	/* Radient Console brand slice: 15 audited keys in all 8 locales (exact
+	 * product name, glossary rule), their generated projection and the 6
+	 * tests pinning the English text. Derived LAST from the treeDigest
+	 * contract by an independent reader over the staged tree's git objects
+	 * (not --print); the same reader reproduced the previous pin from the
+	 * base tree as a control. Source identity only, NOT rendered U-08
+	 * evidence. */
+	src: "4d812c779e1676f3dafde7ec1a4f6067200f6ea7caa868b8ccdf94f1b2ea3c7a",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

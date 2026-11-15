@@ -29,7 +29,7 @@
 	"mobile.settings.about.version": "Version",
 	"mobile.settings.about.blurb": "Local Operator is open source (MIT). Agent sessions connect to your relay. Team Bridge messages and notification registration connect directly to Radient.",
 	"mobile.settings.account.delete": "Delete my Radient account",
-	"mobile.settings.account.delete_help": "Deleting your account happens in the Radient console, in the browser — this app cannot do it for you. It deletes the account and every tunnel on it. Sessions on your computer are not touched.",
+	"mobile.settings.account.delete_help": "Deleting your account happens in the Radient Console, in the browser — this app cannot do it for you. It deletes the account and every tunnel on it. Sessions on your computer are not touched.",
 	"mobile.settings.sign_out.title": "Sign out?",
 	"mobile.settings.sign_out.body": "This ends the session with the control plane as well as forgetting it here, so the tunnel stops accepting requests from this phone. Your computer is not touched.",
 	"mobile.settings.sign_out.confirm": "Sign out",

@@ -1,0 +1,110 @@
+{
+	"schema": 1,
+	"audit_id": "rc1",
+	"audit_kind": "initial_translation_audit",
+	"locale": "es",
+	"namespace": "mobile.settings",
+	"slice": "mobile Radient Console brand slice (15 keys total; this group 1)",
+	"audit_date": "2026-11-15",
+	"key_count": {
+		"en": 1,
+		"target": 1
+	},
+	"keys": [
+		"mobile.settings.account.delete_help"
+	],
+	"auditor": {
+		"agent": "i18n-auditor",
+		"session": "e6d3e83a2511",
+		"model": "anthropic/claude-opus-5-5",
+		"actual_model_source": "session system-prompt model header (anthropic/claude-opus-5-5); no fallback used; no role/default pin changed",
+		"fallback": null,
+		"independent_from_translator_session": true
+	},
+	"translator": {
+		"agent": "i18n-translator",
+		"session": "cf7c1f3dd00f"
+	},
+	"base_refs": {
+		"values_ref": "0a629e65f696cbd54e782f4d762d45a4d37c1b81",
+		"rebase_ref_pr270_head": "240e08266d6ba9fcb9d23eaed7068345995803ae"
+	},
+	"input_hashes": {
+		"draft": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json",
+			"sha256": "8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068"
+		},
+		"translator_notes": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/notes-es.md",
+			"sha256": "42083c7c2128e9edf91af77984f6947646adde11b66abb86ef1689065d999b5e"
+		},
+		"brief": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+			"sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+		},
+		"en_proposal": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+			"sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+		},
+		"style_guide": {
+			"path": "~/local-operator/i18n/style-guides/es.md",
+			"sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+		},
+		"en": {
+			"path": "0a629e65:src/i18n/catalogues/en/mobile.settings.json",
+			"sha256": "2921d033eaad0782a0234f78824a074b782124cbe6425202dc39e813a61ab730"
+		},
+		"context": {
+			"path": "0a629e65:src/i18n/catalogues/en/mobile.settings.context.json",
+			"sha256": "7168b0f934e140b55a2cf5db9f90b33326b3c799a326bcd42c81b1d953086bc4"
+		},
+		"es_current": {
+			"path": "0a629e65:src/i18n/catalogues/es/mobile.settings.json",
+			"sha256": "03d6b4dd63f55ec9130ad456a2073242245eccc5e8c36a0ad2c3d7cc4a9c79ce"
+		},
+		"es_at_pr270_head": {
+			"path": "240e0826:src/i18n/catalogues/es/mobile.settings.json",
+			"sha256": "03d6b4dd63f55ec9130ad456a2073242245eccc5e8c36a0ad2c3d7cc4a9c79ce"
+		},
+		"draft_values_sha256": {
+			"mobile.settings.account.delete_help": "e3ac1e9a8924cf6b8a09c9c46ffbf244df7ad5d5f6b299d90cde43c9f11323ae"
+		},
+		"glossary": {
+			"path": "56662d28:i18n/glossary.md (damianvtran/local-operator, PR #4053)",
+			"git_blob": "e3cdd40c909fb4bf515fc88abf57d7a85735a8e2",
+			"sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+		}
+	},
+	"checks_executed": {
+		"keyset_equal_brief": true,
+		"placeholders_identical": true,
+		"brand_exactly_once_per_key": true,
+		"article_or_possessive_before_brand": 0,
+		"redaction_marker_hits": 0,
+		"only_brand_phrase_changed": true,
+		"nfc": true,
+		"repo_validator_i18n_check": "not run — read-only audit; lane owner runs on apply"
+	},
+	"artifacts": {
+		"report.md": "4ea373e9e213fb7d6fe055f02974f963f0935cac1fd07963cbeb39dfd6df5e6f",
+		"audit.log": "ac376b180c5370db25a0492a19e6134dfba7e6cb61e1dbc344477f63d2b9484c"
+	},
+	"audit_notes_not_execution_log": "report.md is reasoning; audit.log is the actual executed check output",
+	"current_report_verdict": {
+		"status": "passed",
+		"unresolved_blocker_major_count": 0,
+		"severity_counts": {
+			"BLOCKER": 0,
+			"MAJOR": 0,
+			"MINOR": 0,
+			"NIT": 0
+		},
+		"finding_ids": []
+	},
+	"supersession": null,
+	"glossary_conflict_check": {
+		"result": "no conflict",
+		"verdict_changed": false,
+		"checked_at": "2026-11-15T11:47:01"
+	}
+}

@@ -5,11 +5,11 @@
 	"mobile.refusal.balance_out.body": "Пополните баланс — компьютер переподключится сам. Затем нажмите «Повторить».",
 	"mobile.refusal.suspended.title": "{computer}: Radient приостановил доступ с телефона.",
 	"mobile.refusal.suspended.body": "Компьютер переподключится сам — если это затянется, откройте на нём Local Operator, затем нажмите «Повторить».",
-	"mobile.refusal.console_disabled.title": "{computer}: доступ с телефона отключён в вашей консоли Radient.",
+	"mobile.refusal.console_disabled.title": "{computer}: доступ с телефона отключён в Radient Console.",
 	"mobile.refusal.provisioning.title": "Radient ещё настраивает этот компьютер.",
 	"mobile.refusal.provisioning.body": "Обычно это занимает меньше минуты.",
 	"mobile.refusal.refused.title": "{computer}: Radient пока не разрешает доступ с телефона.",
-	"mobile.refusal.refused.body": "Проверьте это в консоли Radient или попробуйте ещё раз.",
+	"mobile.refusal.refused.body": "Проверьте это в Radient Console или попробуйте ещё раз.",
 	"mobile.refusal.offline.title": "{computer} спит или не в сети.",
 	"mobile.refusal.offline.body": "Выведите его из сна и проверьте, что на нём открыт Local Operator.",
 	"mobile.refusal.relay_stopped.title": "{computer}: Local Operator не запущен.",
@@ -25,7 +25,7 @@
 	"mobile.refusal.action.how_to": "Как включить",
 	"mobile.refusal.action.open_billing": "Открыть оплату Radient",
 	"mobile.refusal.action.add_credit": "Пополнить баланс",
-	"mobile.refusal.action.open_console": "Открыть консоль Radient",
+	"mobile.refusal.action.open_console": "Открыть Radient Console",
 	"mobile.refusal.action.refresh_list": "Обновить список",
 	"mobile.refusal.action.retry": "Повторить",
 	"mobile.refusal.how_to.title": "Включение доступа с телефона",
@@ -40,5 +40,5 @@
 	"mobile.refusal.computer_sign_in.body": "Откройте там Local Operator и войдите. Вход на этом телефоне не поможет.",
 	"mobile.refusal.computer_attention.title": "{computer}: Local Operator требует внимания.",
 	"mobile.refusal.computer_attention.body": "Откройте его там, чтобы завершить настройку доступа с телефона.",
-	"mobile.refusal.open_console.title": "{computer}: для доступа с телефона нужно изменить настройку в консоли Radient."
+	"mobile.refusal.open_console.title": "{computer}: для доступа с телефона нужно изменить настройку в Radient Console."
 }

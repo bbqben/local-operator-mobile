@@ -5,11 +5,11 @@
 	"mobile.refusal.balance_out.body": "کریڈٹ شامل کریں — آپ کا کمپیوٹر خود بخود دوبارہ منسلک ہو جائے گا۔ پھر “دوبارہ کوشش کریں” پر ٹیپ کریں۔",
 	"mobile.refusal.suspended.title": "Radient نے {computer} کے لیے فون کی رسائی عارضی طور پر روک دی ہے۔",
 	"mobile.refusal.suspended.body": "آپ کا کمپیوٹر خود بخود دوبارہ منسلک ہو جائے گا — اگر یہ برقرار رہے تو اس پر Local Operator کھولیں، پھر “دوبارہ کوشش کریں” پر ٹیپ کریں۔",
-	"mobile.refusal.console_disabled.title": "{computer} کے لیے فون کی رسائی آپ کے Radient کنسول میں بند ہے۔",
+	"mobile.refusal.console_disabled.title": "{computer} کے لیے فون کی رسائی Radient Console میں بند ہے۔",
 	"mobile.refusal.provisioning.title": "Radient ابھی اس کمپیوٹر کو سیٹ اپ کر رہا ہے۔",
 	"mobile.refusal.provisioning.body": "اس میں عام طور پر ایک منٹ سے کم لگتا ہے۔",
 	"mobile.refusal.refused.title": "Radient نے اس وقت {computer} تک فون کی رسائی کی اجازت نہیں دی۔",
-	"mobile.refusal.refused.body": "اسے اپنے Radient کنسول میں چیک کریں، یا دوبارہ کوشش کریں۔",
+	"mobile.refusal.refused.body": "اسے Radient Console میں چیک کریں، یا دوبارہ کوشش کریں۔",
 	"mobile.refusal.offline.title": "{computer} سلیپ میں ہے یا آف لائن ہے۔",
 	"mobile.refusal.offline.body": "اسے جگائیں اور یقینی بنائیں کہ اس پر Local Operator کھلا ہے۔",
 	"mobile.refusal.relay_stopped.title": "{computer} پر Local Operator نہیں چل رہا۔",
@@ -25,7 +25,7 @@
 	"mobile.refusal.action.how_to": "اسے کیسے آن کریں",
 	"mobile.refusal.action.open_billing": "Radient بلنگ کھولیں",
 	"mobile.refusal.action.add_credit": "کریڈٹ شامل کریں",
-	"mobile.refusal.action.open_console": "Radient کنسول کھولیں",
+	"mobile.refusal.action.open_console": "Radient Console کھولیں",
 	"mobile.refusal.action.refresh_list": "فہرست تازہ کریں",
 	"mobile.refusal.action.retry": "دوبارہ کوشش کریں",
 	"mobile.refusal.how_to.title": "فون کی رسائی آن کریں",
@@ -40,5 +40,5 @@
 	"mobile.refusal.computer_sign_in.body": "وہاں Local Operator کھولیں اور سائن ان کریں۔ اس فون پر سائن ان کرنے سے یہ ٹھیک نہیں ہوگا۔",
 	"mobile.refusal.computer_attention.title": "{computer} پر Local Operator کو توجہ کی ضرورت ہے۔",
 	"mobile.refusal.computer_attention.body": "فون کی رسائی کا سیٹ اپ مکمل کرنے کے لیے اسے وہاں کھولیں۔",
-	"mobile.refusal.open_console.title": "{computer} کی فون کی رسائی کے لیے آپ کے Radient کنسول میں ایک تبدیلی ضروری ہے۔"
+	"mobile.refusal.open_console.title": "{computer} کی فون کی رسائی کے لیے Radient Console میں ایک تبدیلی ضروری ہے۔"
 }

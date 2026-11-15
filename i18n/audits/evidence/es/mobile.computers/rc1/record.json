@@ -1,0 +1,162 @@
+{
+	"schema": 1,
+	"audit_id": "rc1",
+	"audit_kind": "initial_translation_audit",
+	"locale": "es",
+	"namespace": "mobile.computers",
+	"slice": "mobile Radient Console brand slice (15 keys total; this group 8)",
+	"audit_date": "2026-11-15",
+	"key_count": {
+		"en": 8,
+		"target": 8
+	},
+	"keys": [
+		"mobile.computers.billing_help",
+		"mobile.computers.disabled_help",
+		"mobile.computers.harness_help",
+		"mobile.computers.refusal.console_next",
+		"mobile.computers.refusal.open_console",
+		"mobile.computers.route_invalid.not_radient",
+		"mobile.computers.setup.amount_note",
+		"mobile.computers.setup.attach_help"
+	],
+	"auditor": {
+		"agent": "i18n-auditor",
+		"session": "e6d3e83a2511",
+		"model": "anthropic/claude-opus-5-5",
+		"actual_model_source": "session system-prompt model header (anthropic/claude-opus-5-5); no fallback used; no role/default pin changed",
+		"fallback": null,
+		"independent_from_translator_session": true
+	},
+	"translator": {
+		"agent": "i18n-translator",
+		"session": "cf7c1f3dd00f"
+	},
+	"base_refs": {
+		"values_ref": "0a629e65f696cbd54e782f4d762d45a4d37c1b81",
+		"rebase_ref_pr270_head": "240e08266d6ba9fcb9d23eaed7068345995803ae"
+	},
+	"input_hashes": {
+		"draft": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json",
+			"sha256": "815e07adbb692bbdb27020de880758ea50044af5bf865e7a6dfd71741b5d3f1b"
+		},
+		"translator_notes": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/notes-es.md",
+			"sha256": "42083c7c2128e9edf91af77984f6947646adde11b66abb86ef1689065d999b5e"
+		},
+		"brief": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+			"sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+		},
+		"en_proposal": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+			"sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+		},
+		"style_guide": {
+			"path": "~/local-operator/i18n/style-guides/es.md",
+			"sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+		},
+		"en": {
+			"path": "0a629e65:src/i18n/catalogues/en/mobile.computers.json",
+			"sha256": "dd87a8dbe4826b24e5d69c57ec1576471d19121a84ce57c13df0cddfdcf05051"
+		},
+		"context": {
+			"path": "0a629e65:src/i18n/catalogues/en/mobile.computers.context.json",
+			"sha256": "a62d5dc456b413c57651625ea9c64409131ab686362fea41b20dbb3dfca164ee"
+		},
+		"es_current": {
+			"path": "0a629e65:src/i18n/catalogues/es/mobile.computers.json",
+			"sha256": "11473aaf0e50f1de1deeaf499e4222cbc1a79fa0e29131bc97959738b17bed65"
+		},
+		"es_at_pr270_head": {
+			"path": "240e0826:src/i18n/catalogues/es/mobile.computers.json",
+			"sha256": "84ba67d2da2c39b5b6bd201b8fbc11ddfffe167a52a91d30143c60918e3c4f47"
+		},
+		"draft_values_sha256": {
+			"mobile.computers.billing_help": "15a63d53497031ad3b03de0bf2f24649613d31979f7347109e1816d6226d7ec7",
+			"mobile.computers.disabled_help": "16ff68b6250d38d943384b16af2111b5247a066018f1dac7ec257d07d1c5bcb7",
+			"mobile.computers.harness_help": "79c141dd57d14b4ef45605fd54989806bc603a15ed8c815cca83f42b0ae56a10",
+			"mobile.computers.refusal.console_next": "3c8980b5e54a3beb71f36bab724ed4308854a116a754bba106324a0b3f18c2fc",
+			"mobile.computers.refusal.open_console": "d1ed25a5534c4091c1e0116277193153f779d5504f7758c7d9daaef531db6ebb",
+			"mobile.computers.route_invalid.not_radient": "1379b87c94c16cc59d6356f8cf6b9fbee2da69db85b90b5a46caa3c41fc01f74",
+			"mobile.computers.setup.amount_note": "6ff506b7ef7a6f91531ed29097dfe44dabf08134b9250f997d53e56079b23428",
+			"mobile.computers.setup.attach_help": "2e1da8c0a47312cfac3f7a4178a33c16ae6e55e2422f29b8381c690939329d34"
+		},
+		"glossary": {
+			"path": "56662d28:i18n/glossary.md (damianvtran/local-operator, PR #4053)",
+			"git_blob": "e3cdd40c909fb4bf515fc88abf57d7a85735a8e2",
+			"sha256": "5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7"
+		},
+		"en_override_attach_help": {
+			"source": "lane-owner decision relayed by manager (parent message), supersedes en-proposal.json for this key only",
+			"key": "mobile.computers.setup.attach_help",
+			"text": "If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.",
+			"sha256": "ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519"
+		},
+		"draft_audited_initially": {
+			"path": "/Users/damian/.local-operator/sessions/cf7c1f3dd00f/scratchpad/draft-es.json",
+			"sha256": "8eb7925cda0641a7fa92ec2d2c7668686edd2db4595497c4992b344868cd7068"
+		}
+	},
+	"checks_executed": {
+		"keyset_equal_brief": true,
+		"placeholders_identical": true,
+		"brand_exactly_once_per_key": true,
+		"article_or_possessive_before_brand": 0,
+		"redaction_marker_hits": 0,
+		"only_brand_phrase_changed": true,
+		"nfc": true,
+		"repo_validator_i18n_check": "not run — read-only audit; lane owner runs on apply"
+	},
+	"artifacts": {
+		"report.md": "cc8f401e2c8cce7e8ec88afd02ba77d1fc89ce8111b0b10b5bfa75c445ad88a7",
+		"audit.log": "5a36fe76e8b280c14c2d7385f79cc85c53bb11d72ba95de8c051d67520bc335d"
+	},
+	"audit_notes_not_execution_log": "report.md is reasoning; audit.log is the actual executed check output",
+	"current_report_verdict": {
+		"status": "passed",
+		"unresolved_blocker_major_count": 0,
+		"severity_counts": {
+			"BLOCKER": 0,
+			"MAJOR": 0,
+			"MINOR": 0,
+			"NIT": 0
+		},
+		"finding_ids": [
+			"ES-RC-01"
+		],
+		"history": [
+			{
+				"at": "2026-11-15 initial",
+				"status": "passed",
+				"ES-RC-01": "MINOR"
+			},
+			{
+				"at": "2026-11-15T11:47:26",
+				"status": "changes_requested",
+				"ES-RC-01": "MAJOR",
+				"reason": "source English for attach_help changed to locative 'there'; generic «la consola» ruled a glossary violation"
+			},
+			{
+				"at": "2026-11-15T11:51:40",
+				"status": "passed",
+				"ES-RC-01": "resolved",
+				"draft_sha256": "815e07adbb692bbdb27020de880758ea50044af5bf865e7a6dfd71741b5d3f1b",
+				"reason": "translator revised attach_help to «…el ID que se muestra allí»; 14 other values byte-identical"
+			}
+		],
+		"resolved_finding_ids": [
+			"ES-RC-01"
+		]
+	},
+	"supersession": null,
+	"glossary_conflict_check": {
+		"result": "no conflict",
+		"verdict_changed": false,
+		"checked_at": "2026-11-15T11:47:01"
+	},
+	"suggested_fix": {
+		"mobile.computers.setup.attach_help": "Si creaste el túnel en Radient Console, vincúlalo con el ID que se muestra allí. Este comando es para un túnel que ya existe: no crea uno nuevo."
+	}
+}

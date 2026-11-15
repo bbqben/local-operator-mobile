@@ -1,0 +1,72 @@
+# audit.log — zh-CN Radient Console slice — i18n-auditor session 892a29d53eba — started 2026-11-15T12:09:54-05:00
+$ json.load draft-zh-CN.json -> valid JSON, 15 keys
+check: zh-CN value at mobile 0a629e65 == brief.current (+sha256): 15/15
+check: draft keyset == brief keyset: True; per namespace: mobile.computers=8, mobile.refusal=4, mobile.settings=1, mobile.team_bridge=2
+  mobile.computers.billing_help: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=37 cells=59
+  mobile.computers.disabled_help: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=46 cells=70
+  mobile.computers.harness_help: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=39 cells=49
+  mobile.computers.refusal.console_next: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=42 cells=69
+  mobile.computers.refusal.open_console: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=17 cells=19
+  mobile.computers.route_invalid.not_radient: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=43 cells=64
+  mobile.computers.setup.amount_note: placeholders=OK ['{amount}', '{command}'] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=70 cells=105
+  mobile.computers.setup.attach_help: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=64 cells=109
+  mobile.refusal.action.open_console: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=17 cells=19
+  mobile.refusal.console_disabled.title: placeholders=OK ['{computer}'] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=36 cells=47
+  mobile.refusal.open_console.title: placeholders=OK ['{computer}'] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=39 cells=53
+  mobile.refusal.refused.body: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=25 cells=35
+  mobile.settings.account.delete_help: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=66 cells=117
+  mobile.team_bridge.gate.console_error: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=20 cells=25
+  mobile.team_bridge.gate.manage_plan: placeholders=OK [] brand=1/en1 控制台=0 cjk-latin-space=[] non-ascii-ws=[] halfwidth-punct-after-cjk=[] NFC=True chars=21 cells=27
+mechanical per-key failures: 0/15
+overlay zh-CN/mobile.computers.json: 8 changed lines (line count 194->194)
+overlay en/mobile.computers.json: 8 changed lines (line count 194->194)
+overlay zh-CN/mobile.refusal.json: 4 changed lines (line count 44->44)
+overlay en/mobile.refusal.json: 4 changed lines (line count 44->44)
+overlay zh-CN/mobile.settings.json: 1 changed lines (line count 82->82)
+overlay en/mobile.settings.json: 1 changed lines (line count 82->82)
+overlay zh-CN/mobile.team_bridge.json: 2 changed lines (line count 161->161)
+overlay en/mobile.team_bridge.json: 2 changed lines (line count 161->161)
+$ node scripts/i18n/generate.ts   # cwd = scratch git-archive of mobile 0a629e65 + overlay; exit=0
+    Wrote src/i18n/catalogue.gen.ts (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+$ node scripts/i18n/generate.ts --check   # cwd = scratch git-archive of mobile 0a629e65 + overlay; exit=0
+    src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+zh-CN catalogues JSON-valid after overlay: True
+  ref mobile.computers.setup.attach_title: 'Attach one that already exists' -> '关联已有隧道'
+  ref mobile.computers.setup.attach_label: 'Attach' -> '关联'
+  ref mobile.team_bridge.gate.plan_required: 'Team Bridge requires a Radient Team plan' -> 'Team Bridge 需要 Radient Team 套餐'
+  ref mobile.computers.not_harness: 'This computer is not running the Local Operator harness.' -> '这台电脑未运行Local Operator。'
+  ref mobile.refusal.computer_sign_in.body: "Open Local Operator there and sign in. Signing in on this phone won't fix it." -> '请在那台电脑上打开Local Operator并登录。在此手机上登录并不能解决问题。'
+  ref mobile.notifications.permission.denied: 'Notifications are turned off for this app in system settings. Turn them on there.' -> '此应用的通知已在系统设置中关闭。请在那里开启。'
+  ref mobile.signin.panel.waiting_help: 'Finish signing in there, then come back to this app.' -> '在那里完成登录，然后回到此应用。'
+  values containing 控制台 (whole zh-CN set): []
+  values containing 其中: ['mobile.computers.setup.attach_help']
+input hashes:
+  draft: e81c22873482cde52d96e854e4b4fde8c99cc5725bb489e19057496d131a0492  (/Users/damian/.local-operator/sessions/5a50d6607347/scratchpad/draft-zh-CN.json)
+  translator_notes: 0d7eb5a8ced7a32fee9dfb8f84cd70b8ee6156ac05813ac34b969adaab2f3ca9  (/Users/damian/.local-operator/sessions/5a50d6607347/scratchpad/notes-zh-CN.md)
+  brief: 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec  (/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json)
+  en_proposal: 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1  (/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json)
+  en_attach_help_override: ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519  (manager task brief (ENGLISH OVERRIDE text))
+  glossary: 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7  (~/local-operator@56662d28:i18n/glossary.md)
+  style_guide: 615a126a8dbff72c52875a56aa80728f8af858764ef4974e1f74192589b830b6  (~/local-operator@633c9bbd:i18n/style-guides/zh-CN.md)
+  zh_current:mobile.computers: 53437718e116f46777a50b539e48cc2a5f35b78aabb03dd085634e86cc07b2e6  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/zh-CN/mobile.computers.json)
+  en_context:mobile.computers: a62d5dc456b413c57651625ea9c64409131ab686362fea41b20dbb3dfca164ee  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/en/mobile.computers.context.json)
+  zh_current:mobile.refusal: e6dcce491c4b48911769e2b0e1cb6bc807999db239f6229f146f940456575f5c  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/zh-CN/mobile.refusal.json)
+  en_context:mobile.refusal: e42f1cd6b76b1c9a4eff338ef94f7fed2dc60d2847f9d983e88b820646a01276  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/en/mobile.refusal.context.json)
+  zh_current:mobile.settings: 95d17b214581030f12502e4ff841afafc96879adb052e16eb5be739df6cd7098  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/zh-CN/mobile.settings.json)
+  en_context:mobile.settings: 7168b0f934e140b55a2cf5db9f90b33326b3c799a326bcd42c81b1d953086bc4  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/en/mobile.settings.context.json)
+  zh_current:mobile.team_bridge: 0ef535a179a91315cad24c3b693a9c26a957142d782ce657a8ef4082897e26ac  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/zh-CN/mobile.team_bridge.json)
+  en_context:mobile.team_bridge: c4cfa875457a9ccc864739890e679687b0fda7ef1612e8ac5970973a0a89d4ba  (~/local-operator-mobile@0a629e65:src/i18n/catalogues/en/mobile.team_bridge.context.json)
+# finished 2026-11-15T12:11:50-05:00
+
+# ---- round 2 (actual output of the rc2 re-check script) ----
+# rc2 re-check 2026-11-15T13:06:53-05:00
+new draft sha256 56755005ae75ff54482778c026beb0e9eef85d23fa2bcffa6dc832f8425ddb55
+keys 15
+old values reconstructed from the 4 round-1 report.md key lists: 15
+keyset equal True
+keys differing from audited draft e81c2287: ['mobile.computers.setup.attach_help']
+other 14 values byte-identical (UTF-8) to audited values
+old: 如果你是在Radient Console中创建的隧道，请使用其中显示的ID关联它。此命令仅适用于已存在的隧道——它不会新建隧道。
+new: 如果你是在Radient Console中创建的隧道，请使用那里显示的ID关联它。此命令仅适用于已存在的隧道——它不会新建隧道。
+equals ZRC-01 suggestion: True
+brand count 1 控制台 0 其中 0 placeholders [] cjk-latin-space [] NFC True 请 count 1

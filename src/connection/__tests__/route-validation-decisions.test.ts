@@ -48,7 +48,7 @@ const BASE_REASON_TO_CODE: Readonly<Record<string, RouteInvalidCode>> = {
 		"http-public",
 	"This address is unencrypted, so the relay password crosses the network in the clear. Turn on the insecure-connection switch to continue.":
 		"insecure-off",
-	"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.":
+	"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.":
 		"not-radient",
 	"This tunnel has no id, so its session cannot be re-minted. Re-run discovery.":
 		"no-tunnel-id",
@@ -1529,7 +1529,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1538,7 +1538,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1547,7 +1547,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1556,7 +1556,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1565,7 +1565,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1574,7 +1574,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1583,7 +1583,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1592,7 +1592,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1601,7 +1601,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1610,7 +1610,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1619,7 +1619,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1628,7 +1628,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1637,7 +1637,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1646,7 +1646,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1655,7 +1655,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1664,7 +1664,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1673,7 +1673,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1682,7 +1682,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1691,7 +1691,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1700,7 +1700,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1709,7 +1709,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1718,7 +1718,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1727,7 +1727,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1736,7 +1736,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1745,7 +1745,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1754,7 +1754,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1763,7 +1763,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1772,7 +1772,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1781,7 +1781,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1790,7 +1790,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1799,7 +1799,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 	[
@@ -1808,7 +1808,7 @@ const RADIENT: ReadonlyArray<readonly [string, string, Base]> = [
 		{
 			ok: false,
 			reason:
-				"That is not a Radient tunnel address. Use the address the Radient console shows for this computer.",
+				"That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.",
 		},
 	],
 ];

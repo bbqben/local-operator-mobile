@@ -1,0 +1,84 @@
+{
+	"schema": 1,
+	"audit_id": "frrc1t",
+	"audit_kind": "delta_translation_audit",
+	"locale": "fr",
+	"namespace": "mobile.team_bridge (Radient Console brand slice, 2 of 15 keys)",
+	"audit_date": "2026-11-15",
+	"key_count": {
+		"en": 2,
+		"target": 2
+	},
+	"keys": [
+		"mobile.team_bridge.gate.console_error",
+		"mobile.team_bridge.gate.manage_plan"
+	],
+	"auditor": {
+		"agent": "i18n-auditor",
+		"session": "346298b3099b",
+		"model": "anthropic/claude-opus-5-5",
+		"actual_model_source": "session runtime model stated by the harness system prompt for this session; no fallback observed, no role/model pin change",
+		"fallback": null,
+		"independent_from_translator_session": true
+	},
+	"translator": {
+		"agent": "i18n-translator",
+		"session": "286d1946e740"
+	},
+	"base_ref": "0a629e65f696cbd54e782f4d762d45a4d37c1b81",
+	"input_hashes": {
+		"draft": {
+			"path": "/Users/damian/.local-operator/sessions/286d1946e740/scratchpad/draft-fr.json",
+			"sha256": "67dec846a15ce76375ac5ec569ea0a00728e083c04c0e9f82641b1bfde610da2"
+		},
+		"translator_notes": {
+			"path": "/Users/damian/.local-operator/sessions/286d1946e740/scratchpad/notes-fr.md",
+			"sha256": "f6a868f4532d3254dceb22b7d79cd6e86ba4ca3645f730c96eb6d2c8a74b2f9f"
+		},
+		"brief_with_en_context": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json",
+			"sha256": "85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec"
+		},
+		"en": {
+			"path": "/Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json",
+			"sha256": "16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1"
+		},
+		"style_guide": {
+			"path": "~/local-operator/i18n/style-guides/fr.md",
+			"sha256": "ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226",
+			"last_commit": "4981010c6fb68d2b1f02e08b7cd58a06965e8c33"
+		},
+		"per_key": {
+			"mobile.team_bridge.gate.console_error": {
+				"en_proposed_sha256": "544be709c1a9677a6ebaf3b349c9baf39b234767751934da7917351b9a572b79",
+				"en_context_proposed_sha256": "ef11e5718c3c739a5f919ead3828b053705d6ea7750dcee9e03b9a0bcd5676ce",
+				"fr_current_sha256": "4648396df02771da5665514c0b3a3a206eae3e8810af3b3018867fa82b169818",
+				"fr_draft_sha256": "117fa3b2c857c3aea7eaaceb59525458cffeaf1f60d3244c3601972f97606e6a"
+			},
+			"mobile.team_bridge.gate.manage_plan": {
+				"en_proposed_sha256": "321d462f00ea094c9744f82b3ccfea9615630381cc75889a2abf5a6d27a0d157",
+				"en_context_proposed_sha256": "5adc5735fbd0788b77811fdd0194eec68b40d6603b0b9e9162edb12012c43e74",
+				"fr_current_sha256": "abbd1bf46df9382a94e9c4aa79edb0fc299acee33e23878d63c88b9fa4250db3",
+				"fr_draft_sha256": "5cbdd459a0013e02da033f45ec944b2fe84c7b1010e061217a9ed2f52903ad27"
+			}
+		}
+	},
+	"artifacts": {
+		"report.md": "755bd5d38469724978fc0dfc5f38753d7ab1b04490acc2a80a17be8a8a956da4",
+		"audit.log": "de8a19c5638ba390f514b5f34f00a17e6647444e02054066c38fc4f0c2ec84f0"
+	},
+	"current_report_verdict": {
+		"status": "passed",
+		"unresolved_blocker_major_count": 0,
+		"severity_counts": {
+			"BLOCKER": 0,
+			"MAJOR": 0,
+			"MINOR": 0,
+			"NIT": 0
+		},
+		"finding_ids": []
+	},
+	"audit_notes_not_execution_log": "report.md is auditor judgement; audit.log is the captured execution log of the checks and repo validator run.",
+	"original_lost_evidence": null,
+	"provenance_note": "Bundle written in auditor scratchpad for the lane owner to commit verbatim; nothing committed, no draft edits, no writes to local-operator-mobile (validator ran on a git-archive copy)."
+}

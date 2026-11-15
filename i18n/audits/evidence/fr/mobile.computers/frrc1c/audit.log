@@ -1,0 +1,286 @@
+# audit.log — execution log, fr Radient Console slice, group mobile.computers, audit frrc1c
+# auditor session 346298b3099b; generated 2026-11-15T16:39:11Z; every block below is a command actually run and its captured output
+
+$ python3 tools/fr_checks.py computers   # sha256 of inputs, key set, placeholders, markup, brand count, residual console noun, article/possessive, quotes, NFC, U+202F, em dash, redaction-marker scan, delta vs current
+sha256 67dec846a15ce76375ac5ec569ea0a00728e083c04c0e9f82641b1bfde610da2 /Users/damian/.local-operator/sessions/286d1946e740/scratchpad/draft-fr.json
+sha256 f6a868f4532d3254dceb22b7d79cd6e86ba4ca3645f730c96eb6d2c8a74b2f9f /Users/damian/.local-operator/sessions/286d1946e740/scratchpad/notes-fr.md
+sha256 85888934b97c47b61be96983192d6685dccf2af028c238bc6c404f4f60b75cec /Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/translation-brief.json
+sha256 16067361fcc056d8bd6d5f6eefdafa4ccb8bad1acc20c749d0366144449141e1 /Users/damian/.local-operator/sessions/5f2077e3b473/scratchpad/mobile-radient-console-prep/en-proposal.json
+sha256 ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226 /Users/damian/local-operator/i18n/style-guides/fr.md
+group computers catalogue src/i18n/catalogues/fr/mobile.computers.json keys 8
+draft keys total 15 == brief keys True
+--- mobile.computers.billing_help
+  draft sha256 1d25d0deee829aca15dc8303fb6756fadbdfce79df1fcf984e83e3f2b39259d5 len 87
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : In the Radient Console, open this tunnel's billing settings and activate remote access.
+  CUR: Dans la console Radient, ouvrez la facturation de ce tunnel et activez l’accès à distance.
+  NEW: Dans Radient Console, ouvrez la facturation de ce tunnel et activez l’accès à distance.
+--- mobile.computers.disabled_help
+  draft sha256 800ff0cb04bf192aaef3219ec7be061990ec130e57c8f718a7663fe96638234d len 101
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : Radient says this tunnel isn't active right now. Check its status in the Radient Console.
+  CUR: Radient indique que ce tunnel n’est pas actif pour le moment. Vérifiez son état dans la console Radient.
+  NEW: Radient indique que ce tunnel n’est pas actif pour le moment. Vérifiez son état dans Radient Console.
+--- mobile.computers.harness_help
+  draft sha256 50b5e56c1660ccfc604e81a7461cb6b3f0da34d35736f951a13e77ca9355e072 len 60
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : In the Radient Console, enable the Local Operator harness for this tunnel.
+  CUR: Dans la console Radient, activez Local Operator pour ce tunnel.
+  NEW: Dans Radient Console, activez Local Operator pour ce tunnel.
+--- mobile.computers.refusal.console_next
+  draft sha256 ce76d01eaf018a5fc1c8771068b287afa761452ad3b23d4bb5f528350f668715 len 100
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : Open the Radient Console to fix it there. Signing in on this phone will not change it.
+  CUR: Ouvrez la console Radient pour y régler le problème. Se reconnecter sur ce téléphone n’y changera rien.
+  NEW: Ouvrez Radient Console pour y régler le problème. Se reconnecter sur ce téléphone n’y changera rien.
+--- mobile.computers.refusal.open_console
+  draft sha256 93a6e0403c12ecbe9602204b13b6cf5008766ccd0e50aa686649bb3d998c5721 len 22
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : Open the Radient Console
+  CUR: Ouvrir la console Radient
+  NEW: Ouvrir Radient Console
+--- mobile.computers.route_invalid.not_radient
+  draft sha256 fced8a83f79272a379a8536e04f3c954512cff151715bcf6739f7f6fd6d1102b len 113
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : That is not a Radient tunnel address. Use the address the Radient Console shows for this computer.
+  CUR: Ce n’est pas une adresse de tunnel Radient. Utilisez l’adresse affichée dans la console Radient pour cet ordinateur.
+  NEW: Ce n’est pas une adresse de tunnel Radient. Utilisez l’adresse affichée dans Radient Console pour cet ordinateur.
+--- mobile.computers.setup.amount_note
+  draft sha256 70d7846846addd3a31043565140b5f76e2c8b23ccbbaa46eab7848817415aaa5 len 172
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders ['{amount}', '{command}']
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: mechanical swap only
+  EN : {amount} is the price the Radient Console shows for this account — {command} refuses anything else, and step 1 of the tunnel guide links to where it is shown.
+  CUR: {amount} correspond au prix affiché dans la console Radient pour ce compte — {command} refuse toute autre valeur, et l’étape 1 du guide des tunnels indique où trouver ce prix.
+  NEW: {amount} correspond au prix affiché dans Radient Console pour ce compte — {command} refuse toute autre valeur, et l’étape 1 du guide des tunnels indique où trouver ce prix.
+--- mobile.computers.setup.attach_help
+  draft sha256 333f5c64495874606540825477318d56b25e3c6ad60a7d8adb3d6ac187202404 len 177
+PASS en proposed matches en-proposal + hash
+PASS brief fr current == catalogue@0a629e65 + hash
+PASS brief en current == en catalogue@0a629e65
+PASS placeholders []
+PASS no markup/code/URL in en or fr
+PASS brand exactly once (fr 1, en 1)
+PASS no residual generic/partial console noun
+PASS no article/possessive on brand
+PASS no straight quotes/apostrophes
+PASS NFC
+PASS U+202F before : ; ! ? (none present or correct)
+PASS em dash spaced
+PASS redaction-marker hits 0
+  delta-vs-current: EXTRA CHANGE: 'Si vous avez créé le tunnel dans la console Radient, associez-le à l’aide de l’identifiant qu’elle affiche. Cette commande est réservée à un tunnel existant — elle n’en crée pas.' -> 'Si vous avez créé le tunnel dans Radient Console, associez-le à l’aide de l’identifiant qui y est affiché. Cette commande est réservée à un tunnel existant — elle n’en crée pas.'
+  EN : If you created the tunnel in the Radient Console, attach it by the id the console shows. This command is for a tunnel that already exists — it will not create one.
+  CUR: Si vous avez créé le tunnel dans la console Radient, associez-le à l’aide de l’identifiant qu’elle affiche. Cette commande est réservée à un tunnel existant — elle n’en crée pas.
+  NEW: Si vous avez créé le tunnel dans Radient Console, associez-le à l’aide de l’identifiant qui y est affiché. Cette commande est réservée à un tunnel existant — elle n’en crée pas.
+RESULT computers fails 0
+
+$ cat tools/fr_checks.py | shasum -a 256
+a94aac073902b4df09ffb4b70f63481379572cb853465848de3a168d7302383d  tools/fr_checks.py
+
+$ tools/validator.sh + regenerate/--check (repo validator scripts/i18n/generate.ts on git-archive copy of local-operator-mobile@0a629e65, all 15 draft keys applied; run once for the slice, log reproduced in each group bundle)
+== control: unmodified archive
+src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+(node:76291) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/346298b3099b/scratchpad/mobile-0a629e65/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/.local-operator/sessions/346298b3099b/scratchpad/mobile-0a629e65/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+exit 0
+applied 8 keys to mobile.computers total keys 192
+applied 4 keys to mobile.refusal total keys 42
+applied 1 keys to mobile.settings total keys 80
+applied 2 keys to mobile.team_bridge total keys 159
+== draft applied
+/Users/damian/.local-operator/sessions/346298b3099b/scratchpad/mobile-0a629e65/src/i18n/catalogue.gen.ts is stale; run `node scripts/i18n/generate.ts`
+exit 1
+== regenerate in archive copy (draft applied)
+Wrote src/i18n/catalogue.gen.ts (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+exit 0
+== --check after regenerate
+src/i18n/catalogue.gen.ts is current (969 keys, 23 namespaces, argument types from en, es, fr, hi, ru, ur, vi, zh-CN)
+exit 0
+
+$ consistency scan (fr catalogues @0a629e65 with draft applied; en context width hints)
+== fr catalogue scan after applying draft: residual console/Radient mentions outside slice
+"mobile.computers.section.not_connected": "Sur votre compte Radient, non connectés"
+"mobile.computers.account_mismatch": "Cet ordinateur appartient à un autre compte Radient ou a été supprimé."
+"mobile.computers.transport.radient": "Radient"
+"mobile.computers.wait.listing": "En attendant que Radient liste votre ordinateur…"
+"mobile.computers.wait.tunnel_status": "Radient dispose du tunnel — {status}."
+"mobile.computers.paths.radient_title": "Se connecter avec Radient"
+"mobile.computers.paths.radient_body": "Nécessite un compte Radient. Radient gère le tunnel pour vous et vous fournit une URL privée et authentifiée : il n’y a donc rien à configurer sur ce téléphone, et aucun mot de passe de relais à conserver."
+"mobile.computers.paths.own_body": "Le parcours avancé : vous publiez vous-même votre ordinateur via un tunnel que vous exploitez, puis vous collez l’adresse de ce tunnel ici. Aucun compte Radient n’est nécessaire à aucun moment, et vous gardez le mot de passe."
+"mobile.computers.banner.unreachable_stale": "Impossible de joindre Radient : cette liste n’est peut-être plus à jour."
+"mobile.computers.banner.unreachable_empty": "Impossible de joindre Radient pour lister vos ordinateurs. Vérifiez la connexion de cet appareil."
+"mobile.computers.banner.unreadable_stale": "La réponse de Radient est illisible : cette liste n’est peut-être plus à jour."
+"mobile.computers.banner.unreadable_empty": "La réponse de Radient est illisible : impossible de lister vos ordinateurs."
+"mobile.computers.own_tunnel.intro": "Rien de tout cela ne nécessite de compte Radient. Vous publiez le relais sur votre propre ordinateur via un tunnel que vous contrôlez, et l’app s’y connecte à l’adresse que vous collez ci-dessous."
+"mobile.computers.setup.address_help": "Si votre relais est joignable à une URL que vous connaissez déjà, connectez-vous-y avec le mot de passe propre au relais. C’est la marche à suivre pour une machine qui n’utilise pas du tout Radient."
+"mobile.computers.setup.open_settings": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone → Configurer l’accès depuis un téléphone."
+"mobile.computers.hint.radient_unreachable": "Impossible de joindre Radient pour le moment"
+"mobile.computers.refusal.console_title": "{subject} nécessite une intervention dans Radient."
+"mobile.computers.refusal.sign_in_title": "Votre session Radient a expiré. Reconnectez-vous pour accéder à {subject}."
+"mobile.computers.refusal.tunnel_gone_next": "Créez un nouveau tunnel dans Radient, puis ajoutez cet ordinateur."
+"mobile.notifications.preferences.previews_note_android": "Transmis via Radient et Google jusqu’à ce téléphone."
+"mobile.notifications.preferences.previews_note_ios": "Transmis via Radient et Apple jusqu’à ce téléphone."
+"mobile.refusal.phone_access_off.title": "L’accès depuis un téléphone n’est pas encore activé pour votre compte Radient."
+"mobile.refusal.balance_out.title": "Votre solde Radient est épuisé."
+"mobile.refusal.suspended.title": "Radient a mis en pause l’accès depuis un téléphone à {computer}."
+"mobile.refusal.provisioning.title": "Radient est encore en train de configurer cet ordinateur."
+"mobile.refusal.refused.title": "Radient n’autorise pas l’accès depuis un téléphone à {computer} pour le moment."
+"mobile.refusal.tunnel_gone.body": "Activez-le dans Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone."
+"mobile.refusal.radient_unreachable.title": "Radient ne répond pas pour le moment."
+"mobile.refusal.action.open_billing": "Ouvrir la facturation Radient"
+"mobile.refusal.how_to.body": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone et choisissez « Configurer l’accès depuis un téléphone ». Le prix s’affiche d’abord, avant toute activation."
+"mobile.refusal.wait_network.title": "{computer} ne parvient pas à joindre Radient pour le moment."
+"mobile.refusal.computer_sign_in.title": "Local Operator sur {computer} a besoin que vous vous reconnectiez à Radient."
+"mobile.settings.about.blurb": "Local Operator est open source (MIT). Les sessions d’agents se connectent à votre relais. Les messages Team Bridge et l’inscription aux notifications se connectent directement à Radient."
+"mobile.settings.account.delete": "Supprimer mon compte Radient"
+"mobile.settings.diagnostics.route_radient": "Tunnel Radient"
+"mobile.settings.account.not_signed_in": "Non connecté à Radient"
+"mobile.settings.account.route_radient": "Via votre tunnel Radient"
+"mobile.settings.account.signed_in_radient": "Connecté avec Radient"
+"mobile.settings.sign_in_confirm.title": "Se connecter avec Radient ?"
+"mobile.settings.sign_in_confirm.body": "Cela met d’abord fin à votre connexion actuelle. Si vous interrompez la connexion à Radient avant la fin, vous devrez vous reconnecter à votre ordinateur."
+"mobile.signin.start": "Se connecter avec Radient"
+"mobile.signin.panel.unavailable": "Cette version de l’app ne peut pas terminer une connexion Radient."
+"mobile.signin.panel.unavailable_detail": "La connexion avec Radient nécessite un écouteur local ({module}), absent de cette version."
+"mobile.team_bridge.attachment.refused": "Radient ne peut pas accepter cette image. Retirez-la."
+"mobile.team_bridge.error.http_status": "Radient a refusé la requête (HTTP {status})."
+"mobile.team_bridge.gate.connecting": "Connexion à Radient. Votre ordinateur peut rester fermé."
+"mobile.team_bridge.gate.plan_required": "Team Bridge nécessite un forfait Radient Team"
+== Local Operator article usage in fr
+   2 y": "Ouvrez Local Operator
+   2 eur, ouvrez Local Operator
+   2 ed.title": "Local Operator
+   2  récente de Local Operator
+   1 érifiez que Local Operator
+   1 z-le depuis Local Operator
+   1 vez-le dans Local Operator
+   1 ut.blurb": "Local Operator
+   1 ure, ouvrez Local Operator
+   1 ttez à jour Local Operator
+   1 s la TUI de Local Operator
+   1 orted": "Le Local Operator
+== en context maxCells for slice keys
+mobile.computers.billing_help {'role': 'help'}
+mobile.computers.disabled_help {'role': 'help'}
+mobile.computers.harness_help {'role': 'help'}
+mobile.computers.setup.amount_note {'role': 'help'}
+mobile.computers.setup.attach_help {'role': 'help'}
+mobile.computers.route_invalid.not_radient {'role': 'help'}
+mobile.computers.refusal.console_next {'role': 'help'}
+mobile.computers.refusal.open_console {'role': 'button'}
+mobile.refusal.console_disabled.title {'role': 'heading'}
+mobile.refusal.refused.body {'role': 'help'}
+mobile.refusal.action.open_console {'role': 'button'}
+mobile.refusal.open_console.title {'role': 'heading'}
+mobile.team_bridge.gate.console_error {'role': 'status'}
+mobile.team_bridge.gate.manage_plan {'role': 'help'}
+mobile.settings.account.delete_help {'role': 'help'}
+
+# ---- addendum r2 2026-11-15T18:08:54Z: attach_help re-judged against revised EN (lane owner, glossary 56662d28)
+$ python3 tools/attach_r2.py
+draft file sha256 67dec846a15ce76375ac5ec569ea0a00728e083c04c0e9f82641b1bfde610da2
+new EN sha256 ec33d7534f5487f944c4c5167891b6237e830d7f25206d8e63c2d6c7068bd519 len 157
+fr value sha256 333f5c64495874606540825477318d56b25e3c6ad60a7d8adb3d6ac187202404
+glossary@56662d28 sha256 5de3929198c3f603ce14bf75fb992c0f5c7a1952c440b496386977f8c636fcc7
+glossary brand row present: True
+PASS placeholders equal (none)
+PASS brand once in EN and fr
+PASS EN has no generic back-reference "the console"
+PASS fr has no residual generic/partial console noun
+PASS fr back-reference is locative pronoun y (= EN "there")
+PASS fr keeps both sentences (existing-tunnel-only clause)
+EN : If you created the tunnel in the Radient Console, attach it by the id shown there. This command is for a tunnel that already exists — it will not create one.
+FR : Si vous avez créé le tunnel dans Radient Console, associez-le à l’aide de l’identifiant qui y est affiché. Cette commande est réservée à un tunnel existant — elle n’en crée pas.
+$ shasum -a 256 tools/attach_r2.py
+1e307375e29e5ccc01b2be34d1b70385da2d6fe0247c413296211e9d54da9da2

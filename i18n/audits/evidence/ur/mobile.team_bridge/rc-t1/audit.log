@@ -1,0 +1,7 @@
+2026-11-15T18:03:34Z audit.log — ACTUAL execution log, session 05d8cefe0aae (i18n-auditor). Distinct from report.md (audit notes, not execution).
+2026-11-15T18:03:34Z Repo validator NOT run: host-load hold until 20:30Z (from Aida via manager) forbids tsc/builds/generator/vitest/multi-file test runs. Only lightweight Python/JSON checks and git show reads were done.
+2026-11-15T18:03:34Z EXEC python: json.load(draft) OK; 2 keys in namespace; draft key set == brief key set (15/15, none added/dropped).
+2026-11-15T18:03:34Z EXEC python check mobile.team_bridge.gate.console_error: placeholders_match_en=True brand_count(ur,en)=(1, 1) residual_کنسول=False bidi_controls=False latin_punct_outside_brand=False hindi_danda=False first_strong=L ends_with_brand=False len=29 width_hint=[]
+2026-11-15T18:03:34Z EXEC python check mobile.team_bridge.gate.manage_plan: placeholders_match_en=True brand_count(ur,en)=(1, 1) residual_کنسول=False bidi_controls=False latin_punct_outside_brand=False hindi_danda=False first_strong=L ends_with_brand=False len=39 width_hint=[]
+2026-11-15T18:03:34Z EXEC git show 0a629e65 (local-operator-mobile): base ur values == brief 'current' for all keys: True. Render sites read: refusal-surface.tsx, gate.tsx, direction.tsx, refusal.ts, button.tsx.
+2026-11-15T18:03:34Z EXEC sha256 of inputs (see record.json input_hashes).
