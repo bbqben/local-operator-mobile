@@ -1,0 +1,9 @@
+{
+	"locale": "hi",
+	"slice": "m3-s4-followups",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": null,
+	"key_count": 0,
+	"values": {},
+	"note": "The one audited key, mobile.signin.diagnostics, was removed from every catalogue as dead (no call site); its audited value was never shipped."
+}

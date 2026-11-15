@@ -252,6 +252,9 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 // Recomputed with --print at the staged #106 integration: attachment localization,
 // hardened byte reads and exact-lock image-manipulator dependency. Identity only;
 // rendered and real-path evidence is recorded separately, not inferred from hashes.
+// M3 S4b: src identity rederived with --print after staging all evidence.
+// Only three audited Spanish notification help values and their generated projection
+// changed; this does not claim new U-08 rendered or native evidence.
 export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #246: --print from bebded4b admits the semantic warm hydration,
 	 * resume, catalogue and cached interaction changes in app/src. Source
@@ -1958,6 +1961,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into M3 S5 (account routing via
 	 * t()): both comment chains kept; only this pin conflicted. Re-derived LAST
 	 * with --print over the merged tree; only `src` moved. */
+	/* M3 S4: 7 es catalogue values (computer → «máquina»), the dead
+	 * `mobile.signin.diagnostics` key dropped from every catalogue, the
+	 * regenerated catalogue and its count test. Re-derived LAST with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* M3 S3 (fix/i18n-m3-s3-transient-subject): the transient notice names an
 	 * unnamed computer through the catalogue (`failureSubject`) and its title
 	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
@@ -1968,12 +1975,21 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
 	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
 	 * the merged tree; only `src` moved. */
+	/* Merge of origin/main (#267, 0a629e65) into M3 S4: preserve both
+	 * source-pin comment chains. Re-derived LAST with --print after staging;
+	 * source identity only, not rendered U-08 evidence. */
 	/* PR #269 CI admission repair: re-derived with --print after the reviewed
 	 * resume/mutation-401 changes. Source identity only, NOT new rendered U-08
 	 * evidence; no instrument, input, or historical ORIGINAL_* pin changed. */
 	/* Merge of origin/main (#267, 0a629e65) into #269: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#269, 00c2b66d) into M3 S4 (#270): both comment
+	 * chains kept; only this pin conflicted. The merged src carries both sides
+	 * (S4 catalogues + #269 resume/401 files), so it matches neither parent.
+	 * Derived from the treeDigest contract above by an independent reader over
+	 * the merge's git objects (not --print); the pin test re-checks it.
+	 * Source identity only, NOT rendered U-08 evidence. */
 	/* PR #268 CI remediation: --print at 39c06173 admits the completion
 	 * prefetch and foreground warm-sync source changes. Only `src` moved;
 	 * source identity only, NOT new rendered U-08 proof. Instruments, historical
@@ -1982,6 +1998,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * comment chains kept; only this pin conflicted. Re-derived LAST with --print
 	 * over the merged tree; only `src` moved. Source identity only, NOT new
 	 * rendered U-08 evidence. */
+	/* Merge of origin/main (#268, eaa49a3e) into M3 S4 (#270): both comment
+	 * chains kept; only this pin conflicted. The merged src carries both sides
+	 * (S4 catalogues + #268 completion-prefetch/warm-sync files), so it matches
+	 * neither parent. Derived from the treeDigest contract above by an
+	 * independent reader over the merge's git objects (not --print); the pin
+	 * test re-checks it. Source identity only, NOT rendered U-08 evidence. */
 	/* PR #272: notification grouping/guidance, its catalogues and regression
 	 * tests change src identity. Re-derived with --print after the catalogue
 	 * invariant repair; this admits source bytes, NOT rendered U-08 evidence.
@@ -1992,7 +2014,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#268, eaa49a3e) into #272: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
-	src: "811db2f8198d29b6dd22c80ece57c4488746c6eb6ced615e5fe6adf7d5b678aa",
+	/* Merge of origin/main (#272, b190244f) into M3 S4 (#270): both comment
+	 * chains kept; only this pin conflicted. The merged src carries both sides
+	 * (S4 catalogues + #272 notification grouping/guidance), so it matches
+	 * neither parent. Derived from the treeDigest contract above by an
+	 * independent reader over the merge's git objects (not --print); the pin
+	 * test re-checks it. Source identity only, NOT rendered U-08 evidence. */
+	src: "cfa57f96ba5d7d282edcea869a31eaa860bbc7384aceb78f1cc4c6e60639c0b0",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
