@@ -134,6 +134,20 @@ describe("remote session route admission", () => {
 		expect(host.mounts).toBe(1);
 		expect(host.unmounts).toBe(1);
 	});
+	it("does not treat cached capabilities from a previous daemon as live admission", async () => {
+		host.state.capabilities = capabilitiesSchema.parse({
+			remote_sessions: baseline,
+		});
+		host.state.liveFrameAt = null;
+		await paint();
+		expect(host.mounts).toBe(0);
+		expect(host.texts.join(" ")).toContain("Checking this computer");
+		host.state.capabilities = capabilitiesSchema.parse({});
+		host.state.liveFrameAt = 2;
+		await paint();
+		expect(host.mounts).toBe(0);
+		expect(host.texts.join(" ")).toContain("Update Local Operator");
+	});
 	it("does not gate local conversations", async () => {
 		await paint(false);
 		expect(host.mounts).toBe(1);

@@ -24,7 +24,8 @@ The connected relay advertises the complete baseline in its sessions list:
 ```
 
 An absent, partial, unavailable, or unknown-version capability does not mount
-remote readers or a composer. The screen explains that remote operation support
+remote readers or a composer. Admission requires a live list frame: cached flags
+from a previous daemon cannot claim that the current relay supports the routes. The screen explains that remote operation support
 requires an updated relay. A pending/offline capability read is not an empty
 conversation. Once admitted, the screen stays mounted through peer failures so
 loaded messages and unsent drafts survive.

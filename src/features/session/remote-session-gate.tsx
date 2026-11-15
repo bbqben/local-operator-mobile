@@ -43,7 +43,10 @@ export function RemoteSessionGate({
 			);
 		}
 	};
-	if (remoteSessionsAvailable(capabilities)) admitted.current = true;
+	// Cached flags describe the previous daemon, not this one's support. A fresh
+	// listing must admit the viewer (the same boundary used by push registration).
+	if (liveFrameAt !== null && remoteSessionsAvailable(capabilities))
+		admitted.current = true;
 	if (!remote || admitted.current) return children;
 	const pending = liveFrameAt === null;
 	return (
