@@ -59,6 +59,9 @@ vi.mock("@/ui/components/sheet", () => ({ Sheet: () => null }));
 vi.mock("@/ui/components/command-block", () => ({ CommandBlock: () => null }));
 
 const STARTS_LATIN = /^[A-Za-z]/;
+/* The transient-notice title fixture (M3 S3, ur-C1) with and without titleDir. */
+const RTL_STUDIO_MAC = /dir="rtl"[^>]*>Studio Mac/;
+const AUTO_STUDIO_MAC = /dir="auto"[^>]*>Studio Mac/;
 const ICU_SLOT = /\{[^}]*\}/g;
 const FIRST_LETTER = /\p{L}/u;
 const ARABIC_SCRIPT = /\p{Script=Arabic}/u;
@@ -495,6 +498,37 @@ describe("M3 S2b-1 (ur audit): the offline verdict with a relay detail opens wit
 		const without = render(h(Alert, { severity: "error", children }), "rtl");
 		expect(without).not.toContain('dir="rtl"');
 		expect(without).toContain('dir="auto"');
+	});
+
+	it("Alert: titleDir reaches the title Text as an explicit dir; omitted, the title keeps the inferred base", () => {
+		/* M3 S3, ur-C1: the transient notice's TITLE is the Latin-initial run
+		 * (`{computer}` is a Latin name, or "Radient …"), so the title needs the
+		 * same opt-in the body has. */
+		const title = "Studio Mac دوبارہ جڑ رہا ہے۔";
+		const children = "body";
+		const withDir = render(
+			h(Alert, {
+				severity: "warning",
+				title,
+				titleDir: { dir: "rtl" },
+				children,
+			}),
+			"rtl",
+		);
+		expect(withDir).toMatch(RTL_STUDIO_MAC);
+		const without = render(
+			h(Alert, { severity: "warning", title, children }),
+			"rtl",
+		);
+		expect(without).not.toContain('dir="rtl"');
+		expect(without).toMatch(AUTO_STUDIO_MAC);
+	});
+
+	it("transient-notice.tsx: the notice states the page direction on its title and body", () => {
+		const source = read("./transient-notice.tsx").replace(/\s+/g, "");
+		expect(source).toContain("constcomposedDir=useComposedDir();");
+		expect(source).toContain("titleDir={composedDir}");
+		expect(source).toContain("bodyDir={composedDir}");
 	});
 
 	/**

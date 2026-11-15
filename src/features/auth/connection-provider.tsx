@@ -143,6 +143,7 @@ import { createRadientAccess } from "./radient-access";
 import { adoptableSession, carryOutRestore } from "./radient-restore";
 import { beginRadientSignIn, type SignInState } from "./radient-sign-in";
 import {
+	failureSubject,
 	type RefusalCopy,
 	type RefusalView,
 	radientUnauthorizedSurface,
@@ -2924,13 +2925,8 @@ export const ConnectionProvider = ({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` is a TRIGGER: `t()` reads the locale live, so it must re-run the memo (see above)
 	const refusal = useMemo<RefusalView | null>(() => {
 		if (!surface || surface === "none") return null;
-		/* What the refusal's sentence calls the thing that failed. A known computer
-		 *  is named by the reader's own name for it; a Radient route with none
-		 *  discovered yet is "Your computer"; and a custom route is named by the
-		 *  ADDRESS the reader typed, because "The relay" as a subject collided with the
-		 *  `relay-stopped` headline that already says "The relay" — the frame read
-		 *  "The relay is not running on The relay." A bare address is the one name
-		 *  this app is certain the reader recognises." */
+		/* What the refusal's sentence calls the thing that failed: `failureSubject`
+		 *  (refusal.ts) carries the rules, shared with the transient notice below. */
 		/* The computer is the CHOSEN one, matched by tunnel id — never `computers[0]`.
 		 *  The list now outlives a route start, so the first row is just whichever
 		 *  computer Radient listed first: a refusal for the second computer named the
@@ -2940,13 +2936,11 @@ export const ConnectionProvider = ({
 		 *  restore that could not reach Radient, or a grant Radient refused — since a
 		 *  custom route always exists before it can fail. "That address" named an
 		 *  address the reader never typed (design round 1, D3). */
-		const subject = chosen
-			? chosen.name
-			: route === null
-				? "Radient"
-				: route.mode === "radient"
-					? t("mobile.computers.your_computer")
-					: route.baseUrl;
+		const subject = failureSubject({
+			computer: chosen,
+			route,
+			noRoute: "Radient",
+		});
 		return refusalFromError({
 			error: lastError,
 			surface,
@@ -2974,17 +2968,30 @@ export const ConnectionProvider = ({
 
 	/* The transient notice (Q3): only while no refusal shows — a refusal is the
 	 *  louder, terminal fact — and only for a cause the computer named. */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` is a TRIGGER: `t()` reads the locale live (the subject's catalogue fallback and `transientCopy`'s sentences), so it must re-run the memo
 	const transient = useMemo<RefusalCopy | null>(() => {
 		if (surface && surface !== "none") return null;
 		if (!diagnosticError?.error) return null;
 		const chosen = computers.find((computer) => computer.tunnelId === tunnelId);
-		const subject = chosen
-			? chosen.name
-			: route?.mode === "custom"
-				? route.baseUrl
-				: "Your computer";
+		/* The catalogue's fallback name, not an English literal: the notice's
+		 *  sentence is translated, and the old literal read "Your computer पर …" in
+		 *  every locale (M3 S3; PR #265 auditors ur-GAP-C2, ru X1, hi X1, es). With
+		 *  no route the notice still names the reader's computer, not "Radient". */
+		const subject = failureSubject({
+			computer: chosen,
+			route,
+			noRoute: t("mobile.computers.your_computer"),
+		});
 		return transientCopy(diagnosticError.error, subject);
-	}, [computers, diagnosticError, route, surface, tunnelId]);
+	}, [
+		computers,
+		diagnosticError,
+		route,
+		surface,
+		tunnelId,
+		// Read by no line above: it is the re-run trigger for the `t()` calls.
+		language,
+	]);
 	const retryTransient = useCallback(() => streamKickRef.current?.(), []);
 
 	const connectCustomQuiet = useCallback(

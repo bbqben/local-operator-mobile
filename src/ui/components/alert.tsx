@@ -30,6 +30,13 @@ export type AlertProps = {
 	severity: "error" | "warning" | "info" | "success";
 	/** Optional short lead-in, in the severity's colour. */
 	title?: string;
+	/** The title's base direction, for a composed title whose first strong run is
+	 *  not the page's script — e.g. the transient notice's Urdu title that opens
+	 *  with a Latin computer name or "Radient", which react-native-web's
+	 *  `dir="auto"` would lay out LTR on an RTL page (M3 S3, auditor ur-C1). Opt-in
+	 *  exactly like `bodyDir`: omitted, the title keeps the inferred base and every
+	 *  other alert is unchanged. */
+	titleDir?: ComposedDirProps;
 	children: string;
 	/** The body's base direction, for a composed body whose first strong run is
 	 *  not the page's script — e.g. an Urdu verdict that opens with a Latin relay
@@ -52,6 +59,7 @@ export type AlertProps = {
 export const Alert = ({
 	severity,
 	title,
+	titleDir = {},
 	children,
 	bodyDir = {},
 	action,
@@ -70,8 +78,9 @@ export const Alert = ({
 	const placed = alertActionClasses(layout);
 	/* Widened to `object` for the reason `Button` gives: `dir` is a
 	 * react-native-web prop that React Native's `TextProps` does not declare.
-	 * On native it is a `writingDirection` style instead, so the body `Text`
-	 * keeps no `style` of its own. */
+	 * On native it is a `writingDirection` style instead, so the title and body
+	 * `Text`s keep no `style` of their own. */
+	const titleWeb: object = titleDir;
 	const bodyWeb: object = bodyDir;
 	return (
 		<View
@@ -106,6 +115,7 @@ export const Alert = ({
 					{title ? (
 						<Text
 							className={`text-body-sm font-semibold ${alertWordClasses(tone)}`}
+							{...titleWeb}
 						>
 							{title}
 						</Text>
