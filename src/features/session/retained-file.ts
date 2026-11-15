@@ -61,7 +61,9 @@ export async function saveRetainedFile(
 			anchor.click();
 		} finally {
 			anchor.remove();
-			URL.revokeObjectURL(url);
+			// Revoked on a LATER task: Safari and Firefox can drop a download whose
+			// object URL is revoked in the same task as the click (review R1-3).
+			setTimeout(() => URL.revokeObjectURL(url), 0);
 		}
 		return true;
 	}
@@ -86,11 +88,17 @@ export async function saveRetainedFile(
 	const { Share } = await import("react-native");
 	const directory = new Directory(Paths.cache, `retained-${randomUUID()}`);
 	directory.create({ intermediates: true });
-	const cached = new File(directory, filename);
-	cached.create({ intermediates: true });
-	cached.write(bytes);
-	// iOS's standard share sheet provides Save to Files without another native
-	// dependency. Only our retained cache bytes leave the app, never credentials.
-	const result = await Share.share({ url: cached.uri, title: filename });
-	return result.action === Share.sharedAction;
+	try {
+		const cached = new File(directory, filename);
+		cached.create({ intermediates: true });
+		cached.write(bytes);
+		// iOS's standard share sheet provides Save to Files without another native
+		// dependency. Only our retained cache bytes leave the app, never credentials.
+		const result = await Share.share({ url: cached.uri, title: filename });
+		return result.action === Share.sharedAction;
+	} finally {
+		// The sheet has finished with the URL once `share` resolves; a plaintext
+		// copy must not linger in the cache until iOS purges it (review R1-2).
+		directory.delete();
+	}
 }

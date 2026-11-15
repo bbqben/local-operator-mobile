@@ -45,6 +45,12 @@ never receives an owner control key, peer URL, or arbitrary attachment path.
 
 Typed prompt/steer and inline images use the existing command UUID/envelope
 lifecycle unchanged. The native client does not send `expand_skills=true`.
+Every other session control (Stop, approval/ask answers, the slash palette and
+typed `/commands`, model/effort pickers, Resume) is offered for a remote
+conversation only when its op is in `supported_command_ops`
+(`src/features/session/remote-controls.ts`); otherwise it is withheld and one
+sentence names the owner computer as the place it works. The relay's own
+`409 remote_unsupported` remains the backstop, not the UI's gate.
 Only the relay's recorded image/file/video references are readable. Historical
 DocumentContent rows may carry sparse `files` references:
 
@@ -57,10 +63,12 @@ The index is a content-block index, **not** the array position. Save fetches
 the admitted relay client. This contract applies to local and remote retained
 files; neither reads the original path. The web target downloads an opaque Blob
 and revokes its URL. iOS copies authenticated bytes into a uniquely named private
-cache directory and offers the system share/Save to Files sheet. Android writes
-those bytes only to a user-selected Storage Access Framework destination.
-Permission failures remain visible; no placeholder file is saved. A photo
-picked from Files is still an inline **image**, not a document upload.
+cache directory, offers the system share/Save to Files sheet, and deletes that
+directory once the sheet resolves. Android writes those bytes only to a
+user-selected Storage Access Framework destination. Save errors (a failed read
+or write) remain visible on the file card; a declined Android folder picker is
+the reader's own cancel and saves nothing, silently. No placeholder file is
+saved. A photo picked from Files is still an inline **image**, not a document upload.
 
 Remote generated supplement files, Highlights and supplement previews are not
 supported: those bytes may depend on a different owner cwd and have no retained

@@ -3805,6 +3805,28 @@ export function buildScenarios(fix: FixtureCorpus): ScenarioRegistry {
 	);
 
 	add(
+		"remote-conversation-approval",
+		"A remote-owned conversation stopped on a pending approval with its turn running. The v1 relay forwards only prompt/steer, so the phone must show the wait with no Approve/Deny and no Stop, and name the owner (PR #271 R1-1/U2).",
+		[],
+		() => {
+			const projection = structuredClone(approvalFrame);
+			projection.conversation_name = "Remote deploy check";
+			return {
+				projections: { [projection.session_id]: projection },
+				rowOverridesById: {
+					[projection.session_id]: {
+						locality: "remote",
+						owner_device: "synthetic-owner",
+						owner_device_name: "Studio computer",
+						reachable: true,
+					},
+				},
+				remoteSessions: true,
+			};
+		},
+	);
+
+	add(
 		"mesh-rows",
 		"Another device's sessions: a busy reachable one, an unreachable one, and an old-build row whose clocks are the no-claim zeros — appended below the local row, and only for a client that asked `include_peers`.",
 		["S15/mesh-remote", "S15/mesh-unreachable", "S15/move-pick"],

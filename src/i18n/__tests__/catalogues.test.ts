@@ -36,6 +36,8 @@ import projectsContext from "@/i18n/catalogues/en/mobile.projects.context.json";
 import projects from "@/i18n/catalogues/en/mobile.projects.json";
 import refusalContext from "@/i18n/catalogues/en/mobile.refusal.context.json";
 import refusal from "@/i18n/catalogues/en/mobile.refusal.json";
+import remoteSessionsContext from "@/i18n/catalogues/en/mobile.remote_sessions.context.json";
+import remoteSessions from "@/i18n/catalogues/en/mobile.remote_sessions.json";
 import schedulesContext from "@/i18n/catalogues/en/mobile.schedules.context.json";
 import schedules from "@/i18n/catalogues/en/mobile.schedules.json";
 import sessionContext from "@/i18n/catalogues/en/mobile.session.context.json";
@@ -271,6 +273,17 @@ const NAMESPACES = [
 		context: relayChromeContext,
 		expected: 20,
 	},
+	{
+		name: "mobile.remote_sessions",
+		messages: remoteSessions,
+		context: remoteSessionsContext,
+		/* PR #271 (remote conversations): the admission gate, per-operation
+		 *  remote refusals, retained-file save and the retained-only notice (12),
+		 *  plus round-1 remediation (10): the gate's own sentence, the header's
+		 *  owner subtitle, the owner-only control line, five owner-aware health
+		 *  sentences, the Save button's name and the row's long-press hint. */
+		expected: 22,
+	},
 ] as const;
 
 describe("the English catalogues", () => {
@@ -456,7 +469,9 @@ describe("the English catalogues", () => {
 		/* Merge of origin/main (#265, 51debe8e) into #264: both comment chains
 		 * kept; 952 on main + the branch's 17 (889 - 872) = 969, the
 		 * generator's own count. */
-		expect(total).toBe(969);
+		/* PR #271: + 22 mobile.remote_sessions (new namespace) = 991,
+		 * the generator's own count. */
+		expect(total).toBe(991);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

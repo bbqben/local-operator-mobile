@@ -68,11 +68,14 @@ import {
 	WorkingLine,
 } from "@/features/session/components/working-line";
 import { isRouteRefused } from "@/features/session/connection-view";
-import { headerHealth } from "@/features/session/health";
-import { headerSubtitle } from "@/features/session/health-copy";
+import { headerHealth, healthDetailKey } from "@/features/session/health";
+import {
+	headerSubtitle,
+	remoteHealthDetail,
+} from "@/features/session/health-copy";
 import { useKeyboardFrame } from "@/features/session/keyboard-frame";
 import { rosterNeedsAttention } from "@/features/session/panels";
-import { pendingView } from "@/features/session/pending";
+import { type PendingView, pendingView } from "@/features/session/pending";
 import { usePendingEchoes } from "@/features/session/pending-echo";
 import { collapsePendingTranscript } from "@/features/session/pending-layout";
 import {
@@ -85,6 +88,12 @@ import {
 	type RecoveryFacts,
 	recoveryBudget,
 } from "@/features/session/recovery-budget";
+import {
+	remoteChip,
+	remoteOwnerOnlyCopy,
+	remotePendingView,
+	sessionControlPolicy,
+} from "@/features/session/remote-controls";
 import { RemoteSessionGate } from "@/features/session/remote-session-gate";
 import { sessionChipLabels } from "@/features/session/session-chips";
 import { sessionFactsFrom } from "@/features/session/state-marker";
@@ -96,10 +105,14 @@ import { draftSlashQuery, useComposer } from "@/features/session/use-composer";
 import { useFind } from "@/features/session/use-find";
 import { useSessionRuntime } from "@/features/session/use-session";
 import {
+	remoteConversationOf,
 	sessionCapabilities,
 	sessionSupplementClient,
 } from "@/features/sessions/session-navigation";
-import { isRemoteRow } from "@/features/sessions/session-projection";
+import {
+	isRemoteRow,
+	remoteDeviceLabel,
+} from "@/features/sessions/session-projection";
 import { canAssignSessionTags } from "@/features/sessions/tags";
 import { SessionTagsSheet } from "@/features/sessions/tags-sheet";
 import { WorkspaceDrawerButton } from "@/features/sessions/workspace-drawer";
@@ -198,9 +211,10 @@ export default function SessionRoute() {
 }
 
 function Session() {
-	const { id, remote } = useLocalSearchParams<{
+	const { id, remote, owner } = useLocalSearchParams<{
 		id: string;
 		remote?: string;
+		owner?: string;
 	}>();
 	const sessionId = typeof id === "string" ? id : "";
 	/* The header's tags come from the LIST frame, not the projection: the tag pair
@@ -239,12 +253,28 @@ function Session() {
 	/* The relay's capability block, off the same list frame the screen already reads
 	 * below. Declared before the composer because the composer's mic gate needs it. */
 	const relayCapabilities = useListState((state) => state.capabilities);
-	const remoteConversation =
-		remote === "1" || (listRow !== undefined && isRemoteRow(listRow));
+	/* The live row wins over the route's `remote=1` once it exists, so a
+	 *  conversation recalled to this computer while open stops being treated as
+	 *  remote without a re-navigation (review round 1, R1-6). */
+	const remoteConversation = remoteConversationOf(listRow, remote);
 	const capabilities = useMemo(
 		() => sessionCapabilities(relayCapabilities, remoteConversation),
 		[relayCapabilities, remoteConversation],
 	);
+	/* Which controls this conversation may offer: everything for a local one; for
+	 *  a remote one only the ops the relay forwards (`remote-controls.ts`, review
+	 *  round 1 R1-1/U2). Read from the RAW relay block — `sessionCapabilities`
+	 *  only strips STT. */
+	const controlPolicy = useMemo(
+		() => sessionControlPolicy(relayCapabilities, remoteConversation),
+		[relayCapabilities, remoteConversation],
+	);
+	/* DISPLAY-ONLY owner name for the header and the honest boundary copy. It is
+	 *  never passed to a transport; every request stays on the session-id route the
+	 *  relay resolves and authorizes (review round 1, D1/U1). */
+	const ownerLabel = remoteConversation
+		? remoteDeviceLabel(listRow ?? { owner_device: owner })
+		: null;
 	/* Whether the header may offer the assignment sheet at all: a LOCAL
 	 *  conversation whose relay advertises the routes. It is computed once so the
 	 *  header's presence and its press cannot disagree (review round 2, U8). The
@@ -267,7 +297,25 @@ function Session() {
 		ended: headerHealth(runtime.projection, runtime.link) === "ended",
 		capabilities,
 		editor: provisionalEditor,
+		/* A typed `/command` in a remote conversation whose relay does not forward
+		 *  `slash` is refused here with the honest sentence instead of being sent
+		 *  for a guaranteed `409 remote_unsupported`. */
+		slashRefusal:
+			ownerLabel !== null && !controlPolicy.allows("slash")
+				? remoteOwnerOnlyCopy(ownerLabel)
+				: null,
 	});
+	/* Stop is withheld when the relay does not forward `abort`: every Stop on this
+	 *  screen (composer ■, pinned line, image-gen Cancel) reads this one gate. */
+	const stopAllowed = controlPolicy.allows("abort");
+	const composerControls = useMemo(
+		() =>
+			stopAllowed
+				? composer.controls
+				: { ...composer.controls, stopVisible: false },
+		[composer.controls, stopAllowed],
+	);
+	const asksAnswerable = controlPolicy.allows("ask_respond");
 	/* What the reader just sent and the transcript does not carry yet, resolved by
 	 *  command id against the rows (`pending-echo.ts`). */
 	const pendingEchoes = usePendingEchoes(sessionId, runtime.entries);
@@ -326,7 +374,10 @@ function Session() {
 		dictating: composer.voice.phase !== "idle",
 		otherSheetOpen: modelsOpen || effortOpen,
 	});
-	const asksOpen = asksSheet.visible;
+	/* The asks sheet auto-opens on a conversation opened with questions waiting;
+	 *  a remote relay that forwards no ask op must not open a sheet of answer
+	 *  controls (R1-1/U2). */
+	const asksOpen = asksSheet.visible && asksAnswerable;
 
 	/* The list frame's rows: names for the sheet's foreign-ask rows, which the
 	 *  aggregate route deliberately does not carry. */
@@ -373,7 +424,9 @@ function Session() {
 	/* The slash sheet's visibility — read by the ack gate (an open slash sheet
 	 *  holds the screen, R2-2) as well as by the sheet itself, so it is
 	 *  declared above both readers. */
-	const slash = draftSlashQuery(composer.draft);
+	const slash = controlPolicy.allows("slash")
+		? draftSlashQuery(composer.draft)
+		: null;
 
 	/* The read receipt: fires only when the completion's END is genuinely on
 	 *  screen while the app is foregrounded on this session (ADR 0006 §1.3).
@@ -461,13 +514,33 @@ function Session() {
 	 *  effort, while the row still names what it last ran (TestFlight 578;
 	 *  `session-chips.ts` carries the whole rule, including why an ended
 	 *  session's chips are shown but disabled). */
-	const chipLabels = sessionChipLabels({
+	const sessionChips = sessionChipLabels({
 		projection,
 		row: listRow ?? null,
 		models: runtime.models,
 		connection: chipConnection,
 		ended: headerHealth(projection, runtime.link) === "ended",
 	});
+	/* A remote conversation keeps its model/effort VALUE visible but disabled
+	 *  when the relay does not forward `set_model`/`set_effort` (R1-1/U2). */
+	const chipLabels =
+		ownerLabel === null
+			? sessionChips
+			: {
+					model: remoteChip(
+						sessionChips.model,
+						controlPolicy.allows("set_model"),
+						ownerLabel,
+					),
+					effort:
+						sessionChips.effort === null
+							? null
+							: remoteChip(
+									sessionChips.effort,
+									controlPolicy.allows("set_effort"),
+									ownerLabel,
+								),
+				};
 
 	/* The strip exists when it has something true to say: a context read, or a
 	 * roster. Not before — an empty band on every session is noise, and a band
@@ -551,26 +624,41 @@ function Session() {
 	const health = headerHealth(projection, runtime.link);
 	const ended = health === "ended";
 	const resume = useResume(sessionId, ended);
+	/* Resume is a connected-computer route with no remote form in v1; offered only
+	 *  when the relay advertises it for this conversation (always, for local). */
+	const resumeOffered = ended && controlPolicy.allows("resume");
+	/* A remote approval/ask whose answer op is not forwarded keeps its card but
+	 *  loses its controls, with one sentence naming where to answer (R1-1/U2). */
+	const remotePendingViewFor = useCallback(
+		(view: PendingView) =>
+			ownerLabel === null
+				? view
+				: remotePendingView(view, controlPolicy, ownerLabel),
+		[controlPolicy, ownerLabel],
+	);
 
 	const pendingViewProps = useMemo(
 		() =>
 			pending === null
 				? null
-				: pendingView({
-						pending,
-						sessionKind: projection?.kind ?? "",
-						ended: projection?.ended === true,
-						pendingCount: projection?.pending_count ?? 1,
-						// The computer's name is not known on this route (the route profile is
-						// the connection layer's, and a hostname is not a name a reader uses), so
-						// the risk sentence falls back to the working directory, which is the
-						// more useful of the two for "where will this run".
-						computerLabel: "",
-						/* The row's cwd backs a durable fold's empty one (TestFlight
-						 *  578: the drawer named the folder the screen did not). */
-						cwd: projection?.cwd || listRow?.cwd || "",
-					}),
+				: remotePendingViewFor(
+						pendingView({
+							pending,
+							sessionKind: projection?.kind ?? "",
+							ended: projection?.ended === true,
+							pendingCount: projection?.pending_count ?? 1,
+							// The computer's name is not known on this route (the route profile is
+							// the connection layer's, and a hostname is not a name a reader uses), so
+							// the risk sentence falls back to the working directory, which is the
+							// more useful of the two for "where will this run".
+							computerLabel: "",
+							/* The row's cwd backs a durable fold's empty one (TestFlight
+							 *  578: the drawer named the folder the screen did not). */
+							cwd: projection?.cwd || listRow?.cwd || "",
+						}),
+					),
 		[
+			remotePendingViewFor,
 			pending,
 			projection?.kind,
 			projection?.ended,
@@ -929,7 +1017,7 @@ function Session() {
 					   gate is closed the card hides the control rather than offering
 					   a dead one. */
 					onCancelTurn={
-						composer.controls.stopVisible ? composer.stop : undefined
+						composerControls.stopVisible ? composer.stop : undefined
 					}
 					anchorId={attentionRecord(runtime.projection)?.anchor_id ?? null}
 					onAnchorVisible={setCompletionVisible}
@@ -1288,13 +1376,27 @@ function Session() {
 									 *  header never says Working while a send mints a prompt. */
 									working: runtime.streaming,
 									waiting: pending !== null,
+									/* A remote conversation names its owner beside the state
+									 *  (D1/U1): a deep link or notification otherwise gives no
+									 *  hint that a steer runs on another computer. */
+									owner: ownerLabel,
 								})
+					}
+					/* The sheet's "where is this running" sentence must name the
+					 *  owner for a remote conversation, never "your computer" (U1). */
+					detail={
+						health === null || ownerLabel === null
+							? undefined
+							: remoteHealthDetail(
+									healthDetailKey(health, projection),
+									ownerLabel,
+								)
 					}
 					sheetOpen={healthSheetOpen}
 					onSheetOpenChange={setHealthSheetOpen}
 					controlRef={healthControlRef}
 				>
-					{ended ? <ResumeBlock resume={resume} /> : null}
+					{resumeOffered ? <ResumeBlock resume={resume} /> : null}
 				</SessionHealthControl>
 			}
 			stackedActionsBeside
@@ -1307,7 +1409,7 @@ function Session() {
 					findInMenu={viewportWidth < FIND_FOLD_WIDTH}
 					onFind={find.open}
 					onTags={tagsAssignable ? () => setTagsOpen(true) : undefined}
-					ended={ended}
+					ended={resumeOffered}
 					menuOpen={sessionMenuOpen}
 					onMenuOpenChange={setSessionMenuOpen}
 					resumeBusy={resume.busy}
@@ -1570,7 +1672,13 @@ function Session() {
 												)
 											: undefined
 								}
-								busy={composer.sending}
+								/* A withheld remote answer (`terminalOnly` via
+								 *  `remotePendingView`) also disables the ask options, so no
+								 *  radio looks selectable with no Submit beneath it. */
+								busy={
+									composer.sending ||
+									(remoteConversation && pendingViewProps.terminalOnly)
+								}
 								error={composer.error}
 								onApprove={(remember) =>
 									composer.answerApproval(
@@ -1641,7 +1749,7 @@ function Session() {
 						{activityLineHost ? (
 							<PinnedWorkingLine
 								line={pinned}
-								onStop={composer.stop}
+								onStop={stopAllowed ? composer.stop : undefined}
 								stopping={composer.stopping}
 								gapBelow={outstandingAsks(projection?.asks).length > 0}
 								trailing={lineCountsElement}
@@ -1655,7 +1763,9 @@ function Session() {
 							/>
 						) : null}
 						<AskBar
-							asks={projection?.asks}
+							/* Withheld when the relay forwards no ask op: the bar's only
+							 *  act is opening a sheet of answer controls (R1-1/U2). */
+							asks={asksAnswerable ? projection?.asks : undefined}
 							onOpen={asksSheet.open}
 							barRef={asksSheet.barRef}
 						/>
@@ -1693,7 +1803,7 @@ function Session() {
 								: null
 						}
 						testID={SURFACE.sessionComposer}
-						controls={composer.controls}
+						controls={composerControls}
 						draft={composer.draft}
 						onDraftChange={composer.setDraft}
 						images={composer.images}
@@ -1742,6 +1852,7 @@ function Session() {
 						/* Any ask, waiting or timed out: a lapsed-only queue paints no
 						 *  ask bar (build 753), so this row is its door to Dismiss. */
 						questions={(() => {
+							if (!asksAnswerable) return null;
 							const label = askBarLabel(projection?.asks);
 							return label === null
 								? null

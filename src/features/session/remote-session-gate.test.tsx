@@ -16,6 +16,7 @@ const host = vi.hoisted(() => ({
 	back: vi.fn(),
 	mounts: 0,
 	unmounts: 0,
+	backButtons: [] as string[],
 }));
 vi.mock("expo-router", () => ({ useRouter: () => ({ back: host.back }) }));
 vi.mock("react-native-safe-area-context", () => ({
@@ -47,6 +48,20 @@ vi.mock("@/ui/components/button", () => ({
 	}) => {
 		host.presses.set(testID, onPress);
 		return label;
+	},
+}));
+/* The gate's Back is the kit's one back control (design D2), not a text Button. */
+vi.mock("@/ui/components/back-button", () => ({
+	BackButton: ({
+		testID,
+		onPress,
+	}: {
+		testID: string;
+		onPress: () => void;
+	}) => {
+		host.presses.set(testID, onPress);
+		host.backButtons.push(testID);
+		return null;
 	},
 }));
 const { RemoteSessionGate } = await import("./remote-session-gate");
@@ -109,13 +124,19 @@ describe("remote session route admission", () => {
 	it("does not mount readers/composer against an older relay; back and refresh are real controls", async () => {
 		await paint();
 		expect(host.mounts).toBe(0);
-		expect(host.texts.join(" ")).toContain("Update Local Operator");
+		expect(host.texts.join(" ")).toContain(
+			"Opening remote conversations needs a newer Local Operator",
+		);
 		await act(async () => {
 			host.presses.get("remote-session-retry")?.();
 		});
 		expect(host.refreshList).toHaveBeenCalledTimes(1);
 		host.presses.get("remote-session-back")?.();
 		expect(host.back).toHaveBeenCalledTimes(1);
+		expect(host.backButtons).toContain("remote-session-back");
+		/* D3: the gate names what the reader did (opened a conversation), not
+		 *  an "operation" — that sentence is for per-operation refusals. */
+		expect(host.texts.join(" ")).not.toContain("remote operation");
 	});
 	it("distinguishes pending capabilities and offline failures from an empty transcript", async () => {
 		host.state.liveFrameAt = null;
@@ -152,7 +173,9 @@ describe("remote session route admission", () => {
 		host.state.liveFrameAt = 2;
 		await paint();
 		expect(host.mounts).toBe(0);
-		expect(host.texts.join(" ")).toContain("Update Local Operator");
+		expect(host.texts.join(" ")).toContain(
+			"Opening remote conversations needs a newer Local Operator",
+		);
 	});
 	it("does not gate local conversations", async () => {
 		await paint(false);

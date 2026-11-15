@@ -7,7 +7,20 @@ import {
 } from "@/features/session/retained-file";
 import { t } from "@/i18n";
 import { type ImageBytes, isRelayError } from "@/relay";
+import { transcriptFileId, transcriptFileSaveId } from "@/ui/a11y";
 import { Button } from "@/ui/components/button";
+
+/** The card's inline error. A genuine sign-in failure is already handled by the
+ * phone's global auth path (it drops live state and asks to sign in again); the
+ * card says only that the save failed rather than echoing the relay's raw,
+ * untranslated `authentication required` (QA Q1). Operation-local remote errors
+ * (peer 403, unsupported) keep their catalogue sentence via `displayableMessage`. */
+export const fileSaveError = (cause: unknown): string =>
+	isRelayError(cause) &&
+	cause.kind !== "relay-unauthorized" &&
+	cause.kind !== "radiant-login-required"
+		? cause.displayableMessage
+		: t("mobile.remote_sessions.file_save_failed");
 
 export function TranscriptFiles({
 	entryId,
@@ -52,11 +65,7 @@ function RetainedFileRow({
 				saveRetainedFile(bytes, name, mime, Platform.OS),
 			);
 		} catch (cause) {
-			setError(
-				isRelayError(cause)
-					? cause.displayableMessage
-					: t("mobile.remote_sessions.file_save_failed"),
-			);
+			setError(fileSaveError(cause));
 		} finally {
 			setSaving(false);
 		}
@@ -64,7 +73,7 @@ function RetainedFileRow({
 	return (
 		<View
 			className="gap-1 rounded-sm border border-hairline bg-elevated p-3"
-			testID={`transcript-file-${entryId}-${file.index}`}
+			testID={transcriptFileId(entryId, file.index)}
 		>
 			<Text className="text-body text-ink" numberOfLines={2}>
 				{file.filename}
@@ -76,9 +85,14 @@ function RetainedFileRow({
 						? t("mobile.remote_sessions.file_saving")
 						: t("mobile.common.save")
 				}
+				/* Several files in one turn must not read "Save, Save, Save" to a
+				 *  screen reader (D4/U6): the name carries the file. */
+				accessibilityLabel={t("mobile.remote_sessions.file_save_label", {
+					name: file.filename,
+				})}
 				disabled={saving}
 				variant="outline"
-				testID={`transcript-file-save-${entryId}-${file.index}`}
+				testID={transcriptFileSaveId(entryId, file.index)}
 				onPress={() => {
 					void save();
 				}}

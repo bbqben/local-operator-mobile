@@ -86,6 +86,10 @@ describe("sparse retained document references", () => {
 			"application/octet-stream",
 		);
 		expect(anchor.click).toHaveBeenCalledTimes(1);
+		/* R1-3: revoked on a later task — Safari/Firefox can drop a download
+		 *  whose URL is revoked in the click's own task. */
+		expect(revokeObjectURL).not.toHaveBeenCalled();
+		await new Promise((resolve) => setTimeout(resolve, 0));
 		expect(revokeObjectURL).toHaveBeenCalledWith(anchor.href);
 	});
 });

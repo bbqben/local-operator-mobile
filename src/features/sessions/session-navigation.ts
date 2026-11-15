@@ -12,6 +12,15 @@ export const sessionLocation = (session: SessionSummary): string => {
 	return `${path}?${query}`;
 };
 
+/** Whether the open conversation is remote. The live list row wins once it
+ * exists — a conversation recalled to this computer while open must stop being
+ * treated as remote (review R1-6) — and the route's `remote=1` covers a peer
+ * that dropped out of the listing. */
+export const remoteConversationOf = (
+	row: SessionSummary | undefined,
+	routeRemote: string | undefined,
+): boolean => (row !== undefined ? isRemoteRow(row) : routeRemote === "1");
+
 /** Dictation uploads audio to the CONNECTED computer. A remote conversation
  * cannot claim that as its owner's audio support or carry its local input_path
  * to the peer. Omitting STT hides both record and misleading local setup UI;

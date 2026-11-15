@@ -1,7 +1,7 @@
 {
 	"mobile.remote_sessions.title": "Remote conversation",
 	"mobile.remote_sessions.loading": "Checking this computer’s remote-session support…",
-	"mobile.remote_sessions.unsupported": "This remote operation is not supported. Update Local Operator on the connected computer and the owner computer to get the latest remote-session features.",
+	"mobile.remote_sessions.unsupported": "This action isn’t available in remote conversations yet. Use it on the owner computer.",
 	"mobile.remote_sessions.unreachable": "The owner computer is not reachable. Check that it is online, then try again.",
 	"mobile.remote_sessions.forbidden": "This mesh connection does not allow this operation. Ask the owner to grant the required access.",
 	"mobile.remote_sessions.owner_unresolved": "The relay cannot confirm which computer owns this conversation. Refresh the sessions list and try again.",
@@ -10,5 +10,15 @@
 	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate.",
 	"mobile.remote_sessions.file_saving": "Saving file…",
 	"mobile.remote_sessions.file_save_failed": "Could not save this file. Try again.",
-	"mobile.remote_sessions.retained_only": "Remote sessions support retained document attachments, not Highlights or generated-file previews."
+	"mobile.remote_sessions.retained_only": "Files the agent created can’t be previewed in remote conversations yet. Attached documents can be saved.",
+	"mobile.remote_sessions.gate_unsupported": "Opening remote conversations needs a newer Local Operator on this computer and on the owner computer. Update both, then try again.",
+	"mobile.remote_sessions.subtitle_owner": "{state} · On {owner}",
+	"mobile.remote_sessions.owner_only": "Approvals, Stop, model changes and slash commands work only on {owner} for now.",
+	"mobile.remote_sessions.health_live": "Running on {owner} — messages reach it through your connected computer right away.",
+	"mobile.remote_sessions.health_reconnecting": "This phone lost its connection and keeps trying. The conversation may still be running on {owner}; sending may fail until the connection is back.",
+	"mobile.remote_sessions.health_dropped": "This conversation on {owner} can’t be reached right now, and the connection keeps trying. Until it can, a send fails straight away and your text stays in the message box.",
+	"mobile.remote_sessions.health_quiet": "This conversation on {owner} has stopped responding — it may be busy or stuck. A send can show a failure and still arrive once it catches up. Retrying won’t send it twice.",
+	"mobile.remote_sessions.health_ended": "This conversation has ended on {owner}. Its history is kept here to read.",
+	"mobile.remote_sessions.file_save_label": "Save {name}",
+	"mobile.remote_sessions.row_long_press_hint": "Recall, move or copy"
 }

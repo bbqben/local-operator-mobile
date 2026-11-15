@@ -9,6 +9,7 @@ const host = vi.hoisted(() => ({
 	write: vi.fn(async () => undefined),
 	share: vi.fn(async () => ({ action: "shared" })),
 	cacheWrite: vi.fn(),
+	cacheDelete: vi.fn(),
 }));
 vi.mock("expo-file-system/legacy", () => ({
 	StorageAccessFramework: {
@@ -22,6 +23,9 @@ vi.mock("expo-file-system", () => ({
 	Paths: { cache: "file://synthetic-private-cache" },
 	Directory: class {
 		create() {}
+		delete() {
+			host.cacheDelete();
+		}
 	},
 	File: class {
 		uri = "file://synthetic-private-cache/retained-file";
@@ -71,6 +75,15 @@ describe("native retained-byte save destinations (platform API contract, not dev
 			url: "file://synthetic-private-cache/retained-file",
 			title: "notes.txt",
 		});
+		/* R1-2: the plaintext cache copy is removed once the sheet resolves. */
+		expect(host.cacheDelete).toHaveBeenCalledTimes(1);
+	});
+	it("iOS removes the cache copy even when the share sheet fails", async () => {
+		host.share.mockRejectedValueOnce(new Error("synthetic share failure"));
+		await expect(
+			saveRetainedFile(new Uint8Array([6]), "notes.txt", "text/plain", "ios"),
+		).rejects.toThrow("synthetic share failure");
+		expect(host.cacheDelete).toHaveBeenCalledTimes(1);
 	});
 	it("Android cancellation performs no file creation/write", async () => {
 		host.permission.mockResolvedValueOnce({ granted: false, directoryUri: "" });

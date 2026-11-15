@@ -10,6 +10,8 @@ import {
 import { remoteSessionsAvailable } from "@/features/sessions/session-navigation";
 import { t } from "@/i18n";
 import { isRelayError } from "@/relay";
+import { CONTROL, SURFACE } from "@/ui/a11y";
+import { BackButton } from "@/ui/components/back-button";
 import { Button } from "@/ui/components/button";
 
 /** Fail closed before mounting session readers on an older relay. Once admitted,
@@ -53,14 +55,15 @@ export function RemoteSessionGate({
 		<View
 			className="flex-1 bg-canvas px-4"
 			style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
-			testID="remote-session-unavailable"
+			testID={SURFACE.remoteSessionUnavailable}
 		>
-			<Button
-				label={t("mobile.common.back")}
-				variant="quiet"
-				onPress={() => router.back()}
-				testID="remote-session-back"
-			/>
+			{/* The kit's one back control, as on every other pushed screen (D2). */}
+			<View className="flex-row">
+				<BackButton
+					onPress={() => router.back()}
+					testID={CONTROL.remoteSessionBack}
+				/>
+			</View>
 			<View className="flex-1 justify-center gap-4">
 				<Text
 					accessibilityRole="header"
@@ -74,7 +77,7 @@ export function RemoteSessionGate({
 						t(
 							pending
 								? "mobile.remote_sessions.loading"
-								: "mobile.remote_sessions.unsupported",
+								: "mobile.remote_sessions.gate_unsupported",
 						)}
 				</Text>
 				<Button
@@ -82,7 +85,7 @@ export function RemoteSessionGate({
 					onPress={() => {
 						void refresh();
 					}}
-					testID="remote-session-retry"
+					testID={CONTROL.remoteSessionRetry}
 				/>
 			</View>
 		</View>
