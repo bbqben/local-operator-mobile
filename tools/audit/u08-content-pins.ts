@@ -1921,7 +1921,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * evidence. */
 	/* Convergence of #265 (M3 S2c) onto main c0b6a4da (#246 background sync): both
 	 * comment chains kept; src re-derived once with --print over the merged tree. */
-	src: "a5b682f9f97df0bd6da0510f7f9e3fd290899c43d041c3b98e4ea80f5949580c",
+	/* PR #262 (fix/radient-account-label) merged with main c0b6a4da: the Radient
+	 * route admits with the grant's account label, #258's AccountCard titles
+	 * itself through `account-title.ts`, and the Diagnostics Last error row goes
+	 * through `redact`. Re-derived once with --print; only `src` moved. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Convergence of #265 (M3 S2c) onto main 81b5df9d (#262 Radient account label):
+	 * both comment chains kept; src re-derived once with --print over the merged tree. */
+	src: "ef41df80311c75198df77b0d73c949f1b57d24dfba6adf7417bf1b38c0aa34b1",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
