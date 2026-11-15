@@ -53,6 +53,7 @@ import type { ImageBytes, RelayError } from "@/relay";
 import { readEntry } from "@/state";
 import { isUsable } from "@/state/connection-store";
 import type { WarmScope } from "@/state/warm-cache";
+import { warmSync } from "@/state/warm-sync";
 import { HistoryWindow } from "./history-window";
 import { createResumeGate } from "./resume-gate";
 import {
@@ -352,6 +353,12 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 	/** Saves this conversation's live frame to the warm cache; replaced per
 	 *  render so the AppState handler always reaches the current owner. */
 	const saveWarmRef = useRef<() => void>(() => undefined);
+	// Claim before the stream effect below: a screen supersedes any seed take,
+	// while a same-session reconnect keeps its onscreen token continuously held.
+	useEffect(() => {
+		if (!hasSessionId(sessionId) || endpoints === null) return;
+		return warmSync.view(sessionId);
+	}, [sessionId, endpoints]);
 	/** Cancels a held resume history read (`holdResumeRead`) on unmount. */
 	const heldHistoryRead = useRef<(() => void) | null>(null);
 	const [historyErrorHeld, setHistoryErrorHeld] = useSessionValue<boolean>(

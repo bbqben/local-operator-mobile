@@ -186,6 +186,26 @@ export async function devicePushToken(): Promise<{
 	}
 }
 
+/** Foreground receipts only: visible iOS completion pushes without
+ * content-available do NOT wake a suspended app. Reuse tap envelope parsing. */
+export async function subscribeConversationPushesReceived(
+	onPush: (push: ConversationPush) => void,
+): Promise<() => void> {
+	const module = await loadNotifications();
+	if (module === null) return () => {};
+	try {
+		const subscription = module.addNotificationReceivedListener(
+			(notification) => {
+				const push = conversationPushFromResponse({ notification });
+				if (push) onPush(push);
+			},
+		);
+		return () => subscription.remove();
+	} catch {
+		return () => {};
+	}
+}
+
 /**
  * Routes a notification tap to the reader's conversation.
  *

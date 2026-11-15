@@ -1291,10 +1291,12 @@ export class RelayEndpoints {
 	 */
 	async resolveConversation(
 		handle: string,
+		options: { signal?: AbortSignal } = {},
 	): Promise<Payload<"pushConversation">> {
 		return this.http.json("pushConversation", {
 			method: "GET",
 			path: `/api/push/conversation/${encodeURIComponent(handle)}`,
+			signal: options.signal,
 		});
 	}
 
