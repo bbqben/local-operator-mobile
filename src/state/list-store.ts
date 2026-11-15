@@ -51,6 +51,14 @@ export interface ListSnapshot {
 	frameCount: number;
 	/** Epoch ms of the last applied frame, or `null` before the first. */
 	lastFrameAt: number | null;
+	/** Epoch ms of the last frame the COMPUTER sent in this generation, or
+	 *  `null` before the first. A warm-cache paint (`origin: "cache"`, PR #246)
+	 *  sets `lastFrameAt` and `capabilities` from disk but NOT this: those
+	 *  capabilities are the last session's, not this daemon's answer. Session
+	 *  push registration waits on this (PR #264 R1 M1) — a register built from a
+	 *  stale cache that lacks `push_preferences` would reset the reader's mute on
+	 *  a daemon that has since gained it. */
+	liveFrameAt: number | null;
 	/** True while what is shown is the last good frame rather than a live one. */
 	stale: boolean;
 }
@@ -64,6 +72,9 @@ export interface ListActions {
 			>,
 		at?: number,
 		connectionGeneration?: number,
+		/** `"cache"` for the warm-cache paint: everything applies except
+		 *  `liveFrameAt`. Defaults to `"live"`. */
+		origin?: "live" | "cache",
 	) => void;
 	/** Applies the inbox counts a fresher `GET /api/notifications` answer carried,
 	 *  so the badge and the inbox's own count line agree at the same moment. */
@@ -89,6 +100,7 @@ const INITIAL: ListSnapshot = {
 	notifications: null,
 	frameCount: 0,
 	lastFrameAt: null,
+	liveFrameAt: null,
 	stale: true,
 };
 
@@ -155,7 +167,12 @@ export function createListStore(deps: { now?: () => number } = {}) {
 	return createStore<ListStore>()((set, get) => ({
 		...INITIAL,
 
-		applyFrame(frame, at, connectionGeneration = get().connectionGeneration) {
+		applyFrame(
+			frame,
+			at,
+			connectionGeneration = get().connectionGeneration,
+			origin = "live",
+		) {
 			if (connectionGeneration !== get().connectionGeneration) return;
 			set({
 				/* Nothing is merged: the frame IS the list. Unchanged rows keep
@@ -191,6 +208,7 @@ export function createListStore(deps: { now?: () => number } = {}) {
 						: admitCounts(get().notifications, frame.notifications),
 				frameCount: get().frameCount + 1,
 				lastFrameAt: at ?? now(),
+				liveFrameAt: origin === "cache" ? get().liveFrameAt : (at ?? now()),
 				stale: false,
 			});
 		},

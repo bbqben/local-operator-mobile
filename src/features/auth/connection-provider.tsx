@@ -1519,7 +1519,10 @@ export const ConnectionProvider = ({
 					return;
 				listStore
 					.getState()
-					.applyFrame(cached.frame, cached.savedAt, listGeneration);
+					/* "cache": the paint is not the computer's answer, so it leaves
+					 * `liveFrameAt` null and push registration keeps waiting for the
+					 * real first frame (merge of #246 into #264, M1). */
+					.applyFrame(cached.frame, cached.savedAt, listGeneration, "cache");
 				cancelColdStale();
 				coldStaleRef.current = heldTimer(
 					resumeClockRef.current,
