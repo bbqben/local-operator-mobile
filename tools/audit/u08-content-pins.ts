@@ -1965,7 +1965,20 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * `mobile.signin.diagnostics` key dropped from every catalogue, the
 	 * regenerated catalogue and its count test. Re-derived LAST with --print;
 	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
-	src: "ea1a023a02d3764321564cf68bf5fa8a2fa4d1e5a7df6014358abbfb15728f60",
+	/* M3 S3 (fix/i18n-m3-s3-transient-subject): the transient notice names an
+	 * unnamed computer through the catalogue (`failureSubject`) and its title
+	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* S3 review round 1: a comment in connection-provider.tsx and a source pin in
+	 * failure-subject.test.ts; no rendered change. Re-derived last with --print;
+	 * only `src` moved. */
+	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
+	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
+	 * the merged tree; only `src` moved. */
+	src: "7e2a8bb1e03bbcc6039f89d9ce0997ee3b1a2a06a4f5175ccc1e30756bf9f313",
+	/* Merge of origin/main (#267, 0a629e65) into M3 S4: preserve both
+	 * source-pin comment chains. Re-derived LAST with --print after staging;
+	 * source identity only, not rendered U-08 evidence. */
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

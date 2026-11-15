@@ -27,6 +27,7 @@
 
 import type { DiscoveredComputer } from "@/connection/discovery";
 import { RADIENT_CONSOLE_TUNNELS_URL } from "@/connection/discovery";
+import type { RouteProfile } from "@/connection/profile";
 import type { SecureStorageRefusal } from "@/connection/secure-storage-refusal";
 import type { TunnelSessionError } from "@/connection/tunnel-session";
 import { t } from "@/i18n";
@@ -467,6 +468,40 @@ const TRANSIENT_CAUSES: ReadonlySet<RefusalCause> = new Set<RefusalCause>([
 	"wait-reconnect",
 	"relay-wait",
 ]);
+
+/**
+ * What a failure's sentence calls the thing that failed — the `{subject}` of both
+ * the refusal surface and the transient notice, chosen in ONE place.
+ *
+ * A known computer is named by the reader's own name for it; a custom route by
+ * the ADDRESS the reader typed ("The relay" as a subject collided with the
+ * `relay-stopped` headline: "The relay is not running on The relay."); a Radient
+ * route with no computer discovered yet is the catalogue's "Your computer".
+ *
+ * Why a shared helper (M3 S3): the transient notice used to inline its own copy
+ * of this choice with the ENGLISH literal "Your computer", so every locale read
+ * "Your computer पर …" inside a translated sentence (PR #265 auditors ur-GAP-C2,
+ * ru X1, hi X1, es) while the refusal memo beside it was already translated.
+ *
+ * `noRoute` is the one place the callers differ, deliberately: a refusal with no
+ * route at all came from the ACCOUNT side, so it names "Radient" (design round
+ * 1, D3); the transient notice names the reader's computer.
+ *
+ * Reads the catalogue, so a memo that calls it must list the language in its
+ * dependencies (`useLocaleFrame`, connection-provider.tsx).
+ */
+export function failureSubject(input: {
+	computer: Pick<DiscoveredComputer, "name"> | null | undefined;
+	route: RouteProfile | null;
+	noRoute: string;
+}): string {
+	const { computer, route, noRoute } = input;
+	if (computer) return computer.name;
+	if (route === null) return noRoute;
+	return route.mode === "radient"
+		? t("mobile.computers.your_computer")
+		: route.baseUrl;
+}
 
 /**
  * The non-blocking notice for a failure the list stream is RETRYING (PR #261
