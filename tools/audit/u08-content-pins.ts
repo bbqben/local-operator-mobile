@@ -703,7 +703,9 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * in-place search, quieter history loading): both sides' comments and
 	 * source kept, so neither parent's digest. Re-derived once with --print
 	 * over the merged tree; source identity, NOT rendered evidence. */
-	app: "fdffae0a10afaf9073640e5e4c9a6f88bc8a1466ce541271e27ad2bcfbd849dd",
+	/* Merge of origin/main (#246, c0b6a4da) into #264: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	app: "6033108f76bf2de22bbc686ed426893fcbc579b0739cbbe78aea9a3e983e20d1",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -1919,6 +1921,19 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * comments and source kept, so neither parent's digest. Re-derived once
 	 * with --print over the merged tree; source identity, NOT rendered
 	 * evidence. */
+	/* PR #264 remediation round 1: registration held for the first list frame,
+	 * the previews switch, the denied-permission nudge row, the one-line primer
+	 * and catalogue copy. Re-derived once with --print; only `src` moved. */
+	/* Merge of origin/main (#263, d92515ff) into #264: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	/* PR #264 design/UX remediation round 1: the Settings preference block
+	 * (granted-only, capability note, denied "Turn on notifications"), the
+	 * SwitchRow screen-reader hint, the shared turn-on label and catalogue
+	 * copy. Re-derived once with --print; only `src` moved. */
+	/* Merge of origin/main (#246, c0b6a4da) into #264: both comment chains
+	 * kept. The list store's `liveFrameAt` (set by a frame from the computer,
+	 * not by #246's warm-cache paint) gates push registration, so M1 holds.
+	 * Re-derived once with --print over the merged tree; only `src` moved. */
 	/* Convergence of #265 (M3 S2c) onto main c0b6a4da (#246 background sync): both
 	 * comment chains kept; src re-derived once with --print over the merged tree. */
 	/* PR #262 (fix/radient-account-label) merged with main c0b6a4da: the Radient
@@ -1926,8 +1941,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * itself through `account-title.ts`, and the Diagnostics Last error row goes
 	 * through `redact`. Re-derived once with --print; only `src` moved. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#262, 81b5df9d) into #264: both comment chains
+	 * kept. #262's provider hunk only adds the Radient label reader to
+	 * routeAdmission; the warm-cache `applyFrame(..., "cache")` call and the
+	 * list-store paths are untouched. Re-derived once with --print over the
+	 * merged tree; only `src` moved. */
 	/* Convergence of #265 (M3 S2c) onto main 81b5df9d (#262 Radient account label):
 	 * both comment chains kept; src re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#265, 51debe8e) into #264: both comment chains
+	 * kept. #265 touches only i18n catalogues, their audit evidence, the
+	 * generated catalogue and its test. Re-derived once with --print over
+	 * the merged tree; only `src` moved. */
 	/* M3 S3 (fix/i18n-m3-s3-transient-subject): the transient notice names an
 	 * unnamed computer through the catalogue (`failureSubject`) and its title
 	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
@@ -1935,7 +1959,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* S3 review round 1: a comment in connection-provider.tsx and a source pin in
 	 * failure-subject.test.ts; no rendered change. Re-derived last with --print;
 	 * only `src` moved. */
-	src: "94cafd9ec9413c00d15275a9482ae2b49957c6fdd427c31238626b701b9cf6d6",
+	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
+	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
+	 * the merged tree; only `src` moved. */
+	src: "9008f2eb8b72a0644cf48496fddd3187d36f06c98d17ba9794683a2663eff086",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -1963,7 +1990,7 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// --print re-pin (PR #244 remediation round 1): comment-only edits — the
 	// Android warm-only claim and the exact-set native-config guard.
 	"app.config.ts":
-		"2b77ffa36a241ee1607ac5cb42582fdf07a683a7fe91f4b0050a2385758a5c4f",
+		"c4b2be52f8a2802eda590a10971a2a624128b86e363f49bfd14ffe611a607d49",
 	"metro.config.js":
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module
