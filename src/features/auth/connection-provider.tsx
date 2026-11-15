@@ -2975,8 +2975,12 @@ export const ConnectionProvider = ({
 		const chosen = computers.find((computer) => computer.tunnelId === tunnelId);
 		/* The catalogue's fallback name, not an English literal: the notice's
 		 *  sentence is translated, and the old literal read "Your computer पर …" in
-		 *  every locale (M3 S3; PR #265 auditors ur-GAP-C2, ru X1, hi X1, es). With
-		 *  no route the notice still names the reader's computer, not "Radient". */
+		 *  every locale (M3 S3; PR #265 auditors ur-GAP-C2, ru X1, hi X1, es).
+		 *  `failureSubject`'s no-route subject deliberately differs from the refusal
+		 *  memo's: a refusal with no route came from the ACCOUNT side, so "Radient"
+		 *  is what failed; a transient notice only exists because the computer
+		 *  itself named a cause (reconnecting, busy), so with no route it still
+		 *  names the reader's computer — translated — never the account. */
 		const subject = failureSubject({
 			computer: chosen,
 			route,

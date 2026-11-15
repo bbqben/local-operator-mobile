@@ -1932,7 +1932,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * unnamed computer through the catalogue (`failureSubject`) and its title
 	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
 	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
-	src: "7b752a975a5a5ed40e1f817fc93fbc24e2dac4f7e9d7a29bc7dac6cac30c8417",
+	/* S3 review round 1: a comment in connection-provider.tsx and a source pin in
+	 * failure-subject.test.ts; no rendered change. Re-derived last with --print;
+	 * only `src` moved. */
+	src: "94cafd9ec9413c00d15275a9482ae2b49957c6fdd427c31238626b701b9cf6d6",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

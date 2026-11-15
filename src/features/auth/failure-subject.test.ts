@@ -99,6 +99,13 @@ describe("the provider's transient memo resolves its subject through the catalog
 		expect(block).not.toContain('"Your computer"');
 	});
 
+	it("names the reader's computer through the catalogue when no route exists", () => {
+		/* Without this pin any other literal (`noRoute: "Radient"`, the refusal
+		 *  memo's account-side subject) passes the two checks above, and the
+		 *  notice would blame the account for a cause the computer named. */
+		expect(block).toContain('noRoute: t("mobile.computers.your_computer")');
+	});
+
 	it("lists the language in its dependencies, so a language frame re-runs it", () => {
 		const deps = block.match(DEPS_TAIL)?.[0] ?? "";
 		expect(deps).toContain("language");
