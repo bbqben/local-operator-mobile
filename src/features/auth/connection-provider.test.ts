@@ -449,6 +449,8 @@ async function relay(
 	 *  `X-Radient-Login` on the list stream, the list read and `/api/models`,
 	 *  switched on and off mid-run so a test can fix the cause (PR #261 U3-1). */
 	let relayRefuses = false;
+	let cacheReportHold: ReturnType<typeof deferred> | null = null;
+	let cacheReportCode = "device_key_required";
 	/* Holds the NEXT list-stream open / list read until released, so a test can
 	 *  order the stream's refusal against a refresh's (U3-1's early-tap order). */
 	let catalogueHold: ReturnType<typeof deferred> | null = null;
@@ -475,6 +477,23 @@ async function relay(
 			response.writeHead(status, { "content-type": "application/json" });
 			response.end(JSON.stringify(value));
 		};
+		if (path === "/api/notification-sounds/cached") {
+			if (cacheReportHold) {
+				const hold = cacheReportHold;
+				cacheReportHold = null;
+				await hold.promise;
+			}
+			json(
+				{
+					code: cacheReportCode,
+					error: cacheReportCode
+						? "Device key required"
+						: "authentication required",
+				},
+				401,
+			);
+			return;
+		}
 		if (path === "/v1/auth/oauth/token" && options.dropOauthRefresh) {
 			request.socket.destroy();
 			return;
@@ -915,6 +934,11 @@ async function relay(
 		},
 		/** How many relay 401s (no `X-Radient-Login`) have been answered. */
 		relay401s: () => response401,
+		holdNextCacheReport: (code = "device_key_required") => {
+			cacheReportCode = code;
+			cacheReportHold = deferred();
+			return cacheReportHold;
+		},
 		/** Holds the next list-stream open; resolve the result to answer it. */
 		holdNextCatalogue: () => {
 			catalogueHold = deferred();
@@ -4948,10 +4972,81 @@ describe("PR #261 round-2 remediation: the provider's side", () => {
 		20_000,
 	);
 
+	it("a cached mutation's device-key 401 does not poison a healthy resumed route", async () => {
+		const mock = await liveRadient();
+		await act(async () => appState.emit("background"));
+		await act(async () => appState.emit("active"));
+		await act(async () => {
+			await expect(
+				latest
+					.relay()
+					?.noteNotificationSoundCache("synthetic-install", "wrong-key", []),
+			).rejects.toMatchObject({ status: 401, code: "device_key_required" });
+			await latest.refreshList();
+		});
+		expect(mock.events).toContain("PUT /api/notification-sounds/cached");
+		expect(mock.events).toContain("GET /api/sessions");
+		expect(connectionStore.getState().surface).toBeNull();
+		expect(connectionStore.getState().phase).toBe("live");
+		expect(latest.refusal).toBeNull();
+	});
+
+	it.each(["device_key_required", ""])(
+		"an old cached request cannot poison the newer computer's healthy route (%s)",
+		async (code) => {
+			const mock = await liveRadient();
+			const hold = mock.holdNextCacheReport(code);
+			let mutation: Promise<unknown> | undefined;
+			await act(async () => {
+				mutation = latest
+					.relay()
+					?.noteNotificationSoundCache("old-install", "wrong-key", [])
+					.catch((error: unknown) => error);
+			});
+			await eventually(() =>
+				mock.events.includes("PUT /api/notification-sounds/cached"),
+			);
+			const next = connectionStore.getState().computers[1];
+			if (!next) throw new Error("Expected second synthetic computer");
+			await act(async () => {
+				await latest.selectComputer(next);
+			});
+			await act(async () => {
+				hold.resolve();
+				await mutation;
+			});
+			expect(connectionStore.getState().route).toMatchObject({
+				tunnelId: next.tunnelId,
+			});
+			expect(connectionStore.getState().surface).toBeNull();
+			expect(connectionStore.getState().phase).toBe("live");
+		},
+	);
+
+	it("Retry recovers a hook-only relay refusal even when the list stream stayed healthy", async () => {
+		const mock = await liveRadient();
+		mock.refuseRelay(true);
+		await act(async () => {
+			await latest
+				.relay()
+				?.models()
+				.catch(() => undefined);
+		});
+		expect(connectionStore.getState().surface).toBe("password");
+		mock.refuseRelay(false);
+		const opens = mock.catalogueStreams();
+		await act(async () => {
+			await latest.retry();
+		});
+		expect(connectionStore.getState().surface).toBeNull();
+		await eventually(() => mock.catalogueStreams() > opens);
+		expect(latest.refusal).toBeNull();
+	});
+
 	/* U3-1 (UX round 3): the Radient 401 (no `X-Radient-Login`) raised by the
 	 *  response hook BEFORE the list stream's own refusal sets the route retry.
-	 *  A Retry tapped then falls back to `refreshList`; when that refresh's 401
-	 *  lands after the stream's refusal, its catch replaced the route retry and
+	 *  A concurrent pull-to-refresh can still call `refreshList`; when its 401
+	 *  lands after the stream's refusal, its catch formerly replaced the route retry and
 	 *  Retry stayed a `GET /api/sessions` for good, even after the fix. Each
 	 *  case drives the real provider through a loopback relay, ordering the
 	 *  responses with holds rather than reading source. */
@@ -5008,12 +5103,13 @@ describe("PR #261 round-2 remediation: the provider's side", () => {
 					await latest.refreshList();
 				});
 			} else if (streamFirst) {
-				/* 2. Retry, tapped at once, falls back to the refresh; its read is
-				 *  held while the stream's refusal lands and sets the route retry. */
+				/* 2. A concurrent pull-to-refresh read is held while the stream's
+				 * refusal lands and sets the route retry. Retry itself now uses the
+				 * route action immediately (covered by the hook-only test above). */
 				const read = mock.holdNextSessions();
 				let tap: Promise<void> = Promise.resolve();
 				await act(async () => {
-					tap = latest.retry();
+					tap = latest.refreshList();
 				});
 				await eventually(() => listReads() > readsBefore);
 				await act(async () => {
@@ -5028,7 +5124,7 @@ describe("PR #261 round-2 remediation: the provider's side", () => {
 				});
 			} else {
 				await act(async () => {
-					await latest.retry();
+					await latest.refreshList();
 				});
 				expect(listReads()).toBe(readsBefore + 1);
 				await act(async () => {

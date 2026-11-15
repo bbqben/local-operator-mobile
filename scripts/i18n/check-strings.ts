@@ -189,8 +189,9 @@ function describe(file: string, line: number, text: string): string {
  * translator notes.
  *
  * A copy module literal that matches one is a MIRROR of a keyed message rather
- * than an omission: `account-routing-copy.ts` keeps its table because a plain-`node`
- * CI entry imports it and cannot follow `src/`'s extensionless imports, and
+ * than an omission: `account-routing-copy.ts` keeps its table as the English
+ * oracle of a plain-`node` CI entry that cannot follow `src/`'s extensionless
+ * imports (the UI itself renders those keys through `t()`), and
  * `catalogues.test.ts` proves the mirror is exact. Without this set the checker
  * would demand the same sentence be keyed twice.
  */

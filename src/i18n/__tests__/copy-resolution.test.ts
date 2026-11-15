@@ -34,7 +34,8 @@ const PINNED_MODULES: ReadonlySet<string> = new Set([
 	/* English-pinned ON PURPOSE: a plain-`node` CI proof
 	 * (`scripts/ci/account-routing-*.ts`) imports this table without a runtime,
 	 * so it must not depend on the locale source at all — and its own test asserts
-	 * the table mirrors the English catalogue key for key. */
+	 * the table mirrors the English catalogue key for key. No screen renders it:
+	 * `account-routing-section.tsx` calls `t()` (M3 S5). */
 	"src/features/settings/account-routing-copy.ts",
 ]);
 

@@ -1957,6 +1957,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept. #265 touches only i18n catalogues, their audit evidence, the
 	 * generated catalogue and its test. Re-derived once with --print over
 	 * the merged tree; only `src` moved. */
+	/* M3 S5: the Account routing section renders `t()` instead of the English
+	 * oracle table (+ its render test, comments). Re-derived once with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#264, 25e9fb2e) into M3 S5 (account routing via
+	 * t()): both comment chains kept; only this pin conflicted. Re-derived LAST
+	 * with --print over the merged tree; only `src` moved. */
 	/* M3 S3 (fix/i18n-m3-s3-transient-subject): the transient notice names an
 	 * unnamed computer through the catalogue (`failureSubject`) and its title
 	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
@@ -1967,9 +1973,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
 	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
 	 * the merged tree; only `src` moved. */
+	/* PR #269 CI admission repair: re-derived with --print after the reviewed
+	 * resume/mutation-401 changes. Source identity only, NOT new rendered U-08
+	 * evidence; no instrument, input, or historical ORIGINAL_* pin changed. */
+	/* Merge of origin/main (#267, 0a629e65) into #269: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
 	/* Re-pinned 2026-11-15 for PR #271 with --print: remote-session view,
 	 * retained files, remote control policy and catalogue. Source admission only. */
-	src: "e945d1bdb94ebb64c53e387cdcdb30ec70e4d623d9f88291555b01472097c8d4",
+	/* Merge of origin/main (#269, 00c2b66d) into #271: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	src: "bf73c4b880f7d7179f320cb9618c8e7563aaffb565b473c22a72f3a560f31e94",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -1387,6 +1387,7 @@ export class RelayEndpoints {
 		await this.http.raw({
 			method: "PUT",
 			path: "/api/notification-sounds/cached",
+			deviceCredential: true,
 			headers: { "X-Lop-Device": installId, "X-Lop-Device-Key": deviceKey },
 			body: { shas: stems },
 		});
