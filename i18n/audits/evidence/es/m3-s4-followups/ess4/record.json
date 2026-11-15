@@ -1,0 +1,80 @@
+{
+ "locale": "es",
+ "slice": "m3-s4-followups",
+ "source_commit": "51debe8e71a52222953c43f001e942fc660f7057",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/brief-s4.json",
+   "sha256": "88022f5348abbb4d8429d770d22e300a200d1bb323eeac07d2f0ac0f5d31fb87"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/es/draft-es.json",
+   "sha256": "38ca7de170e06dfc6cfb2dc42f8c6ae8bb179ba3da1f653201338456db919a6d"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/es/notes-es.md",
+   "sha256": "cfeb9171d0f5057c6fd263bd45c5df054aa39d58e8fad5bb219f707eada3235d"
+  },
+  "messages_ts": {
+   "path": "git show 51debe8e:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  }
+ },
+ "key_count": 10,
+ "auditor": {
+  "agent": "i18n-auditor",
+  "session": "fa3846f03ef6",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "system prompt 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "translator_session": "181884090f7a"
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": {
+  "brief-s4.json": 0,
+  "draft-es.json": 0
+ },
+ "placeholder_check": {
+  "tool": "node v24.22.1 importing messages.ts@51debe8e (parseMessage/formatMessage, ParsedMessage.params)",
+  "result": "10/10 PASS, en params [] == es params [] for every key; render == source",
+  "negative_controls": [
+   "'Conectar una {máquina' → RangeError (detected)",
+   "parse-valid 'Conectar una {host}' → params [[host,text]] ≠ en [] (detected); format throws missing argument"
+  ],
+  "void_first_run": "ph.mts compared undefined field; superseded by ph2.mts, see audit.log"
+ },
+ "checks": {
+  "keys_match_brief": "10/10, no added/dropped",
+  "current_equals_shipped_51debe8e": "10/10",
+  "word_diff": "only computer noun + forced agreement (un→una, El→La, el→la, cerrado→cerrada)",
+  "catalogue_term_counts_before": {
+   "ordenador": 7,
+   "computadora": 3,
+   "máquina": 113
+  },
+  "catalogue_term_counts_after": {
+   "ordenador": 0,
+   "computadora": 0,
+   "máquina": 123
+  },
+  "masculine_residue": 0,
+  "bidi_controls": 0,
+  "max_length_ratio_vs_en": 1.36,
+  "button_label_ratio": {
+   "mobile.chrome.home.connect": 1.11
+  }
+ },
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 0,
+  "NIT": 0
+ },
+ "verdict": "passed",
+ "findings": [],
+ "artifacts": {
+  "report.md": "101dd680ab7f7935269773480c6dfa68952c7dbcb87dd80474cff625560d291c",
+  "audit.log": "b21db8932c892a067cd78af9d08f584d830dda937cc12dad002f0f5fb435597b"
+ }
+}

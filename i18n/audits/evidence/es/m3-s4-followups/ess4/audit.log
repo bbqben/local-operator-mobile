@@ -1,0 +1,88 @@
+# audit.log — es m3-s4-followups, auditor session fa3846f03ef6 (anthropic/claude-opus-5-5). Commands actually run, in order, with output.
+
+$ shasum -a 256 brief-s4.json drafts/es/draft-es.json   (cwd /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4)
+88022f5348abbb4d8429d770d22e300a200d1bb323eeac07d2f0ac0f5d31fb87  brief-s4.json
+38ca7de170e06dfc6cfb2dc42f8c6ae8bb179ba3da1f653201338456db919a6d  drafts/es/draft-es.json
+
+$ grep -c "\[redacted\]" brief-s4.json drafts/es/draft-es.json
+brief-s4.json:0
+drafts/es/draft-es.json:0
+
+$ git -C ~/local-operator-mobile/.worktrees/i18n-m3-s2a show 51debe8e:<path> > ref/...   (24 es catalogue/sidecar files, 46 en, src/i18n/messages.ts)
+ref/messages.ts sha256: c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0
+
+$ python3 check.py   (shipped-value match, term counts before/after, residual, bidi, masculine residue)
+es keys 952 en keys 952
+mobile.chrome.home.connect in_catalogue True current==shipped True en==shipped_en True
+mobile.composer_input.voice.setup_needed in_catalogue True current==shipped True en==shipped_en True
+mobile.computers.connect_refused.generic in_catalogue True current==shipped True en==shipped_en True
+mobile.notifications.channel.description in_catalogue True current==shipped True en==shipped_en True
+mobile.notifications.permission.denied in_catalogue True current==shipped True en==shipped_en True
+mobile.notifications.permission.granted in_catalogue True current==shipped True en==shipped_en True
+mobile.notifications.permission.undetermined in_catalogue True current==shipped True en==shipped_en True
+mobile.team_bridge.gate.connecting in_catalogue True current==shipped True en==shipped_en True
+mobile.team_bridge.gate.signed_out_help in_catalogue True current==shipped True en==shipped_en True
+mobile.team_bridge.navigation.caption in_catalogue True current==shipped True en==shipped_en True
+before {'ordenador': 7, 'computadora': 3, 'máquina': 113, '\\bequipo\\b': 4}
+after {'ordenador': 0, 'computadora': 0, 'máquina': 123, '\\bequipo\\b': 4}
+residual ordenador/computadora keys: []
+equipo keys: [('mobile.home.suggestion.team_of_agents', 'Crea un equipo de agentes'), ('mobile.team_bridge.gate.plan_description', 'Comunícate con los miembros de tu equipo y sus agentes, y permite que los agentes colaboren con otros agentes de tu organización.'), ('mobile.team_bridge.gate.plan_features', 'Canales de tu organización · Mensajes directos · Jefes de gabinete · Notificaciones del equipo'), ('mobile.team_bridge.gate.signed_out_help', 'Conecta directamente con tu equipo, incluso con la máquina cerrada.')]
+bidi in draft 0
+masc residue near máquina: []
+## ^Conecta(r)? 
+  mobile.account_routing.disconnected = Conecta una máquina para cambiar el enrutamiento de cuentas.
+  mobile.chrome.home.connect = Conectar una máquina
+  mobile.computers.paths.radient_title = Conectar con Radient
+  mobile.home.connect_disabled_reason = Conecta una máquina para enviar.
+  mobile.session_health.resume_no_route = Conecta una máquina para reanudar esta sesión.
+  mobile.team_bridge.gate.signed_out_help = Conecta directamente con tu equipo, incluso con la máquina cerrada.
+## reposo|suspendid|dormid
+  mobile.computers.status.suspended = suspendida
+  mobile.computers.own_tunnel.step_computer_help = El relé solo acepta conexiones desde la propia máquina (loopback), así que tiene que ejecutarse en ella. Evita que entre
+  mobile.computers.own_tunnel.verdict_timeout = Esa dirección no respondió en un plazo de {seconds, plural, one {# segundo} many {# de segundos} other {# segundos}}. Co
+  mobile.computers.own_tunnel.verdict_local_network_ios = No respondió nada en esa dirección dentro de esta red. Comprueba que la máquina no está en reposo y que ejecuta el relé.
+  mobile.computers.own_tunnel.verdict_local_network = No respondió nada en esa dirección dentro de esta red. Comprueba que la máquina no está en reposo y que ejecuta el relé;
+  mobile.computers.setup.intro = Esta app controla las sesiones de tu propia máquina, así que esa máquina tiene que ejecutar un conector y no entrar en r
+  mobile.refusal.offline.title = {computer} está en reposo o sin conexión.
+  mobile.team_bridge.navigation.caption = Tu organización, incluso con tu máquina en reposo
+## cerrad
+  mobile.settings.sign_out.done = Sesión cerrada. Se revocó tu sesión de acceso en tu máquina.
+  mobile.team_bridge.gate.connecting = Conectando con Radient. Tu máquina puede seguir cerrada.
+  mobile.team_bridge.gate.signed_out_help = Conecta directamente con tu equipo, incluso con la máquina cerrada.
+## voz a texto|dictado|transcrip
+  mobile.composer_input.voice.setup_needed = Configura la conversión de voz a texto en tu máquina.
+  mobile.projects.delete_body = ¿Eliminar {name}? La fila del proyecto se borra para siempre. Sus sesiones vinculadas y sus transcripciones no se tocan.
+  mobile.session.subagent.unavailable_next = Su transcripción no se conservó o la máquina no responde.
+  mobile.session.subagent.no_rows = Este subagente no tiene entradas propias en la transcripción.
+  mobile.session.find.hint = Busca mensajes en la transcripción cargada en este dispositivo
+
+$ env -i PATH=$PATH HOME=$PWD/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node ph.mts
+# NOTE: this first run compared a non-existent field (.arguments → undefined on both sides); its PASS rows are void. Negative controls (parse errors) were still real. Superseded by ph2.mts which reads ParsedMessage.params.
+PASS mobile.chrome.home.connect en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.composer_input.voice.setup_needed en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.computers.connect_refused.generic en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.notifications.channel.description en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.notifications.permission.denied en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.notifications.permission.granted en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.notifications.permission.undetermined en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.team_bridge.gate.connecting en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.team_bridge.gate.signed_out_help en_args=undefined es_args=undefined render_eq_source=true
+PASS mobile.team_bridge.navigation.caption en_args=undefined es_args=undefined render_eq_source=true
+NEG threw (DETECTED): RangeError Invalid message "Conectar una {máquina": expected ',' or '}' (at offset 15)
+NEG threw (DETECTED): RangeError Invalid message "Hola {host} y {count, plural, one {#}}": plural is missing its 'other' branch (at offset 37)
+fail=0
+
+$ env -i PATH=$PATH HOME=$PWD/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node ph2.mts
+PASS mobile.chrome.home.connect en=[] es=[] render_eq=true
+PASS mobile.composer_input.voice.setup_needed en=[] es=[] render_eq=true
+PASS mobile.computers.connect_refused.generic en=[] es=[] render_eq=true
+PASS mobile.notifications.channel.description en=[] es=[] render_eq=true
+PASS mobile.notifications.permission.denied en=[] es=[] render_eq=true
+PASS mobile.notifications.permission.granted en=[] es=[] render_eq=true
+PASS mobile.notifications.permission.undetermined en=[] es=[] render_eq=true
+PASS mobile.team_bridge.gate.connecting en=[] es=[] render_eq=true
+PASS mobile.team_bridge.gate.signed_out_help en=[] es=[] render_eq=true
+PASS mobile.team_bridge.navigation.caption en=[] es=[] render_eq=true
+NEG parse-valid extra param: [["host","text"]] vs en [] DETECTED
+NEG format threw (DETECTED): RangeError Message "Conectar una {host}" is missing the argument "host"
+fail=0

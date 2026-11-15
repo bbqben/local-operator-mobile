@@ -1,0 +1,84 @@
+{
+  "locale": "hi",
+  "slice": "m3-s4-followups",
+  "source_commit": "51debe8e71a52222953c43f001e942fc660f7057",
+  "audit_date": "2026-11-15",
+  "inputs": {
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/brief-s4.json",
+      "sha256": "88022f5348abbb4d8429d770d22e300a200d1bb323eeac07d2f0ac0f5d31fb87"
+    },
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi.json",
+      "sha256": "042f62b1da1e2d31ddcc1a6d5da27a7518ebd6b297d77da63dccbeb6e0105f85"
+    },
+    "draft_v2_considered": {
+      "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3s4/drafts/hi/draft-hi-v2.json",
+      "sha256": "1ea26898585c44cf873b7b005bb451d88d55a05da3d028babe56081bdd3f153e"
+    },
+    "messages_ts": {
+      "path": "git show 51debe8e:src/i18n/messages.ts",
+      "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+    },
+    "en_catalogue": {
+      "path": "git show 51debe8e:src/i18n/catalogues/en/mobile.signin.json",
+      "sha256": "02758ac464696c2c7d2f6f234b0f93d04ea5679fdd26610487036b5d2090aace"
+    },
+    "hi_catalogue_shipped": {
+      "path": "git show 51debe8e:src/i18n/catalogues/hi/mobile.signin.json",
+      "sha256": "59dc55c33790e35171c91d369de0f67ad071be1eae9b0e49849f76bb4cc847e8"
+    },
+    "scratch_copies": "inputs copied to in/ with sha256 verified identical (audit.log)"
+  },
+  "key_count": 1,
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "d91dff98db01",
+    "model": "anthropic/claude-opus-5-5",
+    "actual_model_source": "system prompt 'Model:' line",
+    "fallback_used": false,
+    "independent_from_translator_session": true,
+    "translator_session": "61f275865611"
+  },
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": {
+    "brief": 0,
+    "draft-hi.json": 0,
+    "draft-hi-v2.json": 0,
+    "plain_word_redacted_in_brief": 1
+  },
+  "placeholder_check": {
+    "tool": "repo messages.ts parseMessage via node v24.22.1 (env -i, scratch HOME, NODE_OPTIONS=--max-old-space-size=256)",
+    "mismatches": 0,
+    "keys_checked": [
+      "mobile.signin.diagnostics (v1)",
+      "+ v2 3 keys"
+    ],
+    "negative_control_added_arg": "DETECTED",
+    "negative_control_unclosed": "throws",
+    "bidi_controls": 0,
+    "length_ratio": 1.16,
+    "keyset_equal_en_after_merge": true
+  },
+  "counts": {
+    "BLOCKER": 0,
+    "MAJOR": 0,
+    "MINOR": 0,
+    "NIT": 0
+  },
+  "verdict": "passed",
+  "lane_decision": "agree v1; v2 imports 'diagnostics' into toggle whose en says 'details'; all other locales keep 'details' on toggle",
+  "dead_key": {
+    "key": "mobile.signin.diagnostics",
+    "call_sites_in_src": 0,
+    "evidence": "audit.log git grep exit=1",
+    "status": "dead in all locales; change harmless, zero user-visible effect; code-side removal/wiring recommended, non-gating, not a translation finding"
+  },
+  "findings": [],
+  "artifacts": {
+    "report.md": "0739bcc06638be79b750aec3ffc456cccd4390983b82c4e7db34049708d2735c",
+    "audit.log": "0d6db2d305a8c40b88750b0a7a1e6e435052274b98c00a9e7013a2b5594d2aac",
+    "check.mjs": "dadadc5323df92e0791a95d81a80e6fbf184ecde4025ee779c11e939de7df361",
+    "check2.mjs": "65745feb7a88c6325f1b09215ca9cf8887eddb50b72e2f14341cc9e5103ed1f8"
+  }
+}

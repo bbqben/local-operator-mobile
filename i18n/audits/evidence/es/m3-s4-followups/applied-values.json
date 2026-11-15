@@ -1,0 +1,37 @@
+{
+	"locale": "es",
+	"slice": "m3-s4-followups",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "38ca7de170e06dfc6cfb2dc42f8c6ae8bb179ba3da1f653201338456db919a6d",
+	"key_count": 7,
+	"values": {
+		"mobile.chrome.home.connect": {
+			"file": "src/i18n/catalogues/es/mobile.chrome.json",
+			"value": "Conectar una máquina"
+		},
+		"mobile.composer_input.voice.setup_needed": {
+			"file": "src/i18n/catalogues/es/mobile.composer_input.json",
+			"value": "Configura la conversión de voz a texto en tu máquina."
+		},
+		"mobile.computers.connect_refused.generic": {
+			"file": "src/i18n/catalogues/es/mobile.computers.json",
+			"value": "La máquina no aceptó la conexión. Tu dirección y tu contraseña siguen aquí, así que revísalas y vuelve a intentarlo."
+		},
+		"mobile.notifications.channel.description": {
+			"file": "src/i18n/catalogues/es/mobile.notifications.json",
+			"value": "Alertas de Local Operator. La configuración de sonido de tu máquina elige cuál de estos canales suena."
+		},
+		"mobile.team_bridge.gate.connecting": {
+			"file": "src/i18n/catalogues/es/mobile.team_bridge.json",
+			"value": "Conectando con Radient. Tu máquina puede seguir cerrada."
+		},
+		"mobile.team_bridge.gate.signed_out_help": {
+			"file": "src/i18n/catalogues/es/mobile.team_bridge.json",
+			"value": "Conecta directamente con tu equipo, incluso con la máquina cerrada."
+		},
+		"mobile.team_bridge.navigation.caption": {
+			"file": "src/i18n/catalogues/es/mobile.team_bridge.json",
+			"value": "Tu organización, incluso con tu máquina en reposo"
+		}
+	}
+}
