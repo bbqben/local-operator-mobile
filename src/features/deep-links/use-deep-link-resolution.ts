@@ -54,6 +54,7 @@ import {
 import { sessionLinkOutcome } from "@/features/deep-links/session-link";
 import { isRelayMissing } from "@/relay";
 import { useUiStore } from "@/state/ui-store";
+import { warmSync } from "@/state/warm-sync";
 
 /**
  * How long a held destination waits for a live route before it gives up.
@@ -165,6 +166,9 @@ export const useDeepLinkResolution = (): void => {
 			try {
 				const answer = await client.resolveConversation(destination.handle);
 				if (connectionStore.getState().revision !== askedOn) return;
+				// Navigation remains the one route owner. A prior receipt shares this
+				// seed; mounting the screen supersedes it before its live stream opens.
+				void warmSync.prefetch(answer.session_id);
 				router.navigate(`/session/${answer.session_id}`);
 			} catch (error) {
 				if (connectionStore.getState().revision !== askedOn) return;
