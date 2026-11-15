@@ -97,8 +97,11 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * live-fold prefix, which the history pager refuses as a cursor), so the
 	 * fixture-control ids this instrument names moved with them. A rename of
 	 * the same rows; what the proof measures is unchanged. `--print`, staged. */
+	/* PR #250: --print admits affirmative readiness and current-scene admission,
+	 * reviewed in Agent review round 1 (6841333661). The exact historical matcher
+	 * is retained; absent/ambiguous historical evidence stays NOT-REPRODUCED. */
 	"tools/audit/u08-fragment-verification.ts":
-		"21e0c079b0572599e10bef7f640214835dbe30ee96c0710104e702caad6d8055",
+		"6957ec079cdfaa752568491d50e1c728db084ef3af5809fa1318f27b33425be9",
 	// PR #207 CI remediation: same `m-conv-…` fixture-id rename as above.
 	"tools/audit/u08-geometry-proof.ts":
 		"dac279b1e8d6fbe728d44d96505c9a2c72c192c2be71c950bcffc23ba5ffef49",
@@ -250,6 +253,10 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 // hardened byte reads and exact-lock image-manipulator dependency. Identity only;
 // rendered and real-path evidence is recorded separately, not inferred from hashes.
 export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
+	/* PR #246: --print from bebded4b admits the semantic warm hydration,
+	 * resume, catalogue and cached interaction changes in app/src. Source
+	 * admission only, not unchanged pixels or historical reproduction;
+	 * fresh canonical measurement after admission is still pending. */
 	/* Re-pinned 2026-11-09 for PR #211's UX round-1 remediation, with --print from
 	 * the staged tree. `app` moves: the session screen tags the composer box with
 	 * the window it was measured in (U1). `src` moves: `heldComposerLimit`, the
@@ -686,9 +693,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * payload envelope read. No rendered component, style or token changed;
 	 * re-derived over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
+	/* PR #246 converged onto main fb224cfe (#244/#245/#251): both sides' app
+	 * source carried, so neither parent's digest. Re-derived once with --print
+	 * over the final merged tree; source identity of the #246 + main fb224cfe
+	 * merge, NOT rendered evidence. */
 	/* fix/mobile-fast-start-search: the session screen passes its image loader
 	 * to the pending rows. --print over the staged tree; source identity only. */
-	app: "e39827b24fccec576c573ca4b1a62c8783828521cd355cc989750c5ab2f871e5",
+	/* PR #246 converged onto main 9214ff9b (#256 instant first message,
+	 * in-place search, quieter history loading): both sides' comments and
+	 * source kept, so neither parent's digest. Re-derived once with --print
+	 * over the merged tree; source identity, NOT rendered evidence. */
+	app: "fdffae0a10afaf9073640e5e4c9a6f88bc8a1466ce541271e27ad2bcfbd849dd",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -1624,6 +1639,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * direction fix) merged with main e24de6cd (#241 show-more polish): both sides' src
 	 * carried, so neither parent's digest; re-derived last with --print. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #246 converged onto d33c46af: upstream sign-in/computers i18n and the
+	 * reviewed background-sync source are both retained. Re-derived once with
+	 * --print over the final combined tracked app/src tree; neither parent's src
+	 * digest admits this tree. Source admission only, NOT visual/native proof;
+	 * canonical measurement remains pending. */
 	/* fix/ola-feedback-1112 (#1): the Team Bridge provider no longer keys the
 	 * router on the account, and the own-tunnel guide's and sign-in's Back leave
 	 * for Home with no history (`leave-screen.ts`). Re-derived once with --print
@@ -1675,6 +1695,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * PR #251 CI fix: biome formatting of the switcher transport `Text` and the
 	 * refusal-surface import order (no logic change). Re-derived with --print;
 	 * only `src` moved. */
+	/* PR #246 converged onto main fb224cfe (#244/#245/#251): both sides' src
+	 * carried, so neither parent's digest. Re-derived once with --print over the
+	 * final merged tree; source identity of the #246 + main fb224cfe merge, NOT
+	 * rendered evidence. */
+	/* PR #246 round-5 remediation (R5-M1): the connection provider seeds its
+	 * resume clock from a background launch, plus its regression tests. App,
+	 * layout, token, instrument and fixture inputs unchanged; only `src` moved.
+	 * Re-derived with --print; source identity, not rendered evidence. */
 	/* fix/computers-drawer-polish-d11-d13: the Computers facts line without a
 	 * separator, the drawer row's word beside its name, and the inline cwd that
 	 * yields to the marks. Re-derived once with --print over the staged tree;
@@ -1698,6 +1726,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* Convergence of #254 onto main b254ae63 (#252): both comments kept;
 	 * re-derived once with --print over the merged tree. */
+	/* Convergence of PR #246 onto main d5831603 (#254 i18n M3 S2b-1): both
+	 * sides' comments and src kept, so neither parent's digest. Re-derived once
+	 * with --print over the merged tree; source identity only, NOT rendered
+	 * U-08 or native evidence. */
 	/* M3 S2b-2a (feat/i18n-m3-s2b2): the refusal surface's keys (English-first;
 	 * `catalogue.gen.ts` is regenerated with the translations), the remedy line
 	 * via `own_tunnel.remedy`, `verdictSentence`'s caller-supplied action label
@@ -1742,6 +1774,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * tree; only `src` moved. Source identity only. */
 	/* Merge of origin/main (#255, f8d0d8dd) into #259: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* Convergence of PR #246 onto main 9ef19ccd (#255 sidebar view, #259 push
+	 * registration): both sides' comments and src kept, so neither parent's
+	 * digest. Re-derived once with --print over the merged tree; source identity
+	 * of the merge, NOT rendered evidence. */
 	/* fix/no-terminal-refusals (M1): plain-language refusal copy and actions,
 	 * terminal commands only behind "Using a terminal?", the set-up screen's
 	 * Phone access instruction and the new `mobile.refusal` namespace (844 keys).
@@ -1780,6 +1816,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#259, 9ef19ccd) into #258: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* Convergence of PR #246 onto main 8ca71d54 (#258 settings sign-in card,
+	 * status pill fit, Diagnostics stream-health reason): both sides' comments
+	 * and src kept, so neither parent's digest. Re-derived once with --print
+	 * over the merged tree; source identity, NOT rendered evidence. */
+	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* Convergence of PR #246 onto main caae98bc (#257 i18n connection-failure
+	 * screen): both sides' comments and src kept, so neither parent's digest.
+	 * Re-derived once with --print over the merged tree; source identity of the
+	 * merge, NOT rendered evidence. */
 	/* Merge of origin/main (#254, d5831603) into #256: both sides' comments
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#255, f8d0d8dd) into #256: both comments kept,
@@ -1798,8 +1844,6 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * diagnostics' `redact`. Re-derived once with --print over the merged tree
 	 * (dfd4dfaf); only `src` moved. Source identity only, NOT rendered U-08
 	 * evidence. */
-	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
-	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#257, caae98bc) into #261: both comment blocks
 	 * kept (the keyed connection-failure surface from #257; the M1 refusal
 	 * work from #261, its kind-default buttons now on #257's keys and its
@@ -1837,12 +1881,23 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#257, caae98bc) into #263: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
+	/* Convergence of PR #246 onto main d92515ff (#263 running drawer rows
+	 * ordered by last_user_at): both sides' comments and src kept, so neither
+	 * parent's digest. Re-derived once with --print over the merged tree; source
+	 * identity of the merge, NOT rendered evidence. */
 	/* Convergence of #260 onto main d92515ff (#263): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#263, d92515ff) into #261: both comment blocks
 	 * kept (the session-row `last_user_at` contract from #263; the M1 refusal
 	 * work from #261). Re-derived once with --print over the merged tree; only
 	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* Convergence of PR #246 onto main f340368a (#261 plain-language refusals,
+	 * transient notice, diagnostics-only Last error, computers set-up poll):
+	 * both sides' comments and src kept, so neither parent's digest. The list
+	 * loop's resume hold now also holds #261's Diagnostics record, and the
+	 * notice's Retry shares the wake rule's one restart timer. Re-derived once
+	 * with --print over the merged tree; source identity, NOT rendered
+	 * evidence. */
 	/* Convergence of #260 onto main f340368a (#261): both comment chains kept
 	 * (#261's set-up restructure with #260's keying applied to it);
 	 * re-derived last with --print over the merged tree; only `src` moved.
@@ -1851,12 +1906,22 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#261, f340368a) into #256: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
+	/* PR #246 converged onto main 9214ff9b (#256 instant first message,
+	 * in-place search, quieter history loading): both sides' comments and
+	 * source kept, so neither parent's digest. Re-derived once with --print
+	 * over the merged tree; source identity, NOT rendered evidence. */
 	/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
 	/* M3 S2c audit gap: 118 audited catalogue values in 7 locales and the two
 	 * unused setup.billing_* keys dropped; re-derived last with --print; only
 	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
-	src: "894aff86a10fd9378ff85bd47f314f62fe9eb589c7308e5b1c632aed4cf00ebb",
+	/* PR #246 converged onto main 95adf190 (#260 i18n M3 S2b-2b): both sides'
+	 * comments and source kept, so neither parent's digest. Re-derived once
+	 * with --print over the merged tree; source identity, NOT rendered
+	 * evidence. */
+	/* Convergence of #265 (M3 S2c) onto main c0b6a4da (#246 background sync): both
+	 * comment chains kept; src re-derived once with --print over the merged tree. */
+	src: "a5b682f9f97df0bd6da0510f7f9e3fd290899c43d041c3b98e4ea80f5949580c",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
