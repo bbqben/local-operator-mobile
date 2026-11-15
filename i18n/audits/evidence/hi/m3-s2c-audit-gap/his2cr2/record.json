@@ -1,0 +1,157 @@
+{
+ "locale": "hi",
+ "slice": "m3-s2c-audit-gap",
+ "round": 2,
+ "audit_date": "2026-11-14",
+ "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+ "inputs": {
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+   "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/hi/draft-hi.json",
+   "sha256": "ff2bab4316698f1ae380b88f6c83da4f1e8cc183d619920a57d63466c92e40fb"
+  },
+  "round1_record": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/hi/record.json",
+   "sha256": "d1e297eec3e9c5741e8d94fc848d31804332085b27f8910ca7bd9d2a501255c2"
+  },
+  "round1_report": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/audits/hi/report.md",
+   "sha256": "b70e7946089d0319feaaad03544a16c0d3e011c11b16c93aaf552b49fe360d4b"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/hi/notes-hi.md",
+   "sha256": "e9c2ca218836200ea8d94baf13c854727e3eddf1a959cbde51f5a16591e95f33"
+  },
+  "messages_ts": {
+   "path": "git show 9214ff9b:src/i18n/messages.ts",
+   "sha256": "c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "en_settings": {
+   "path": "git show 9214ff9b:src/i18n/catalogues/en/mobile.settings.json",
+   "sha256": "2921d033eaad0782a0234f78824a074b782124cbe6425202dc39e813a61ab730"
+  },
+  "hi_settings_shipped": {
+   "path": "git show 9214ff9b:src/i18n/catalogues/hi/mobile.settings.json",
+   "sha256": "15ff157b2e36f5eec7efae960b129c8e7084025de9fc711e2d1e93b44cce259d"
+  },
+  "desktop": "local-operator-ui origin/main e612221450 (no fetch)",
+  "style_guide": "local-operator origin/main i18n/style-guides/hi.md"
+ },
+ "inputs_copied_to_own_scratch": "brief, draft, round-1 record copied by absolute path; sha256 re-verified equal to lane values",
+ "auditor": {
+  "agent": "i18n-auditor",
+  "team": "lopdev",
+  "session": "db7521df8c9d",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "system prompt 'Model:' line",
+  "fallback_used": false,
+  "independent_from_translator_session": true,
+  "translator_session": "f932d8b2ca5f",
+  "independent_from_round1_session": true,
+  "round1_session": "b61aea064bef",
+  "mt_used": false
+ },
+ "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+ "redaction_marker_hits": 0,
+ "placeholder_check": {
+  "tool": "repo messages.ts parseMessage/formatMessage via node (env -i, isolated HOME, NODE_OPTIONS=--max-old-space-size=256)",
+  "keys_checked": 67,
+  "mismatches": 0,
+  "parse_errors": 0,
+  "bidi_controls": 0,
+  "same_as_en": 0,
+  "negative_controls": {
+   "renamed_placeholder_{computr}": "detected (computer vs computr)",
+   "unbalanced_brace": "rejected: expected ',' or '}' (at offset 10)"
+  },
+  "hi_plural_0_1_2": "one one other (no plural in set)"
+ },
+ "scope_check": {
+  "draft_keys": 8,
+  "all_changed_vs_shipped": true,
+  "keys_outside_round1_findings": 0,
+  "extra_key": "mobile.settings.section.diagnostics (named in hi-GAP-1 suggestion; justified in notes)"
+ },
+ "round1_resolution": [
+  {
+   "id": "hi-GAP-1",
+   "status": "resolved",
+   "note": "copy/copied → डायग्नॉस्टिक्स (byte-equal to desktop copy_diagnostics); header निदान → डायग्नॉस्टिक्स, one word per context note, matches the button below it (settings.tsx:618 SectionHeader, full-width). Residual: signin.diagnostics, R2-1."
+  },
+  {
+   "id": "hi-GAP-2",
+   "status": "resolved (variant accepted)",
+   "note": "Double पर removed; LO is now the one needing attention. Dropping 'चल रहे' is right: body says 'Open it there', so LO may not be running. Same shape as shipped mobile.computers.refusal.console_title ('को … आपके ध्यान की ज़रूरत है')."
+  },
+  {
+   "id": "hi-GAP-3",
+   "status": "resolved (variant accepted)",
+   "note": "फ़िलहाल ('for now') conveys the momentary pause, avoids a second के लिए; desktop uses फ़िलहाल in the same register. Renders correctly with name/URL/English fallback."
+  },
+  {
+   "id": "hi-GAP-4",
+   "status": "resolved",
+   "note": "ख़त्म with nukta per hi.md; mobile hi now has no un-nukta'd खत्म."
+  },
+  {
+   "id": "hi-GAP-5",
+   "status": "resolved",
+   "note": "टनल का पता parallels desktop फ़ोन का पता."
+  },
+  {
+   "id": "hi-GAP-6",
+   "status": "resolved",
+   "note": "'अगर ऐसा ही बना रहे' idiomatic; rest of the value byte-identical; Retry label still matches mobile.refusal.action.retry."
+  },
+  {
+   "id": "hi-GAP-X1",
+   "status": "open — out of catalogue scope",
+   "note": "Code finding (English 'Your computer' fallback in connection-provider.tsx); not a translator item; owner coder. Re-observed in render: 'Your computer पर Local Operator …'. Not counted in this verdict."
+  }
+ ],
+ "counts": {
+  "BLOCKER": 0,
+  "MAJOR": 0,
+  "MINOR": 1,
+  "NIT": 1
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "hi-GAP-R2-1",
+   "hi-GAP-R2-2"
+  ]
+ },
+ "findings": [
+  {
+   "id": "hi-GAP-R2-1",
+   "severity": "MINOR",
+   "gating": false,
+   "key": "mobile.signin.diagnostics (out of the 67-key set; not changed by the draft)",
+   "current": "साइन-इन निदान",
+   "suggested": "साइन-इन डायग्नॉस्टिक्स",
+   "reason": "After the draft, Settings uses डायग्नॉस्टिक्स (header + button + status, = desktop ui.providers.phone.*) while the sign-in screen's 'Sign-in diagnostics' button still says निदान — the only remaining noun-sense निदान on mobile. Split existed before (header vs button on one screen); the draft moves it to a different screen, a net improvement. Align in a later slice and record the translator's proposed glossary row (Diagnostics noun = डायग्नॉस्टिक्स; diagnose verb = निदान करना)."
+  },
+  {
+   "id": "hi-GAP-R2-2",
+   "severity": "NIT",
+   "gating": false,
+   "key": "desktop ui.chat.pickers.session_panel.session_diagnostics_region (local-operator-ui, out of scope)",
+   "current": "सत्र डायग्नोस्टिक्स क्षेत्र",
+   "suggested": "सत्र डायग्नॉस्टिक्स क्षेत्र",
+   "reason": "Desktop's one remaining ो spelling (accessibility region label); the phone-access block uses ॉ in 3 strings, which the mobile draft now matches. Desktop-side, record only."
+  }
+ ],
+ "artifacts": {
+  "check.mjs": "507ab7b6fa5e08aa85db16599fa399bf7b4e1e24b41fb808b752fb2981a4a075",
+  "check.out": "1762c317d74eabb09a27799f5f8920a75a0640a4e277867db737fb86f1d69586",
+  "final-hi.json": "cd50d2322da678ee45da35745093d1f7ed3ddecca3c4acf2f504ff4cc3517d0d"
+ },
+ "audit_notes_not_execution_log": "report.md is analysis; audit.log holds the commands actually run and their output.",
+ "not_claimed": "No device/browser render; fit judged from layout code (settings.tsx SectionHeader, full-width)."
+}

@@ -1,0 +1,94 @@
+# ur audit-gap (M3 S2c) — execution log
+# auditor: i18n-auditor (team lopdev), session 6ce4c67b2038, model anthropic/claude-opus-5-5 (system prompt Model line; no fallback)
+# date: 2026-11-14 · source commit 9214ff9b43c58256c49f48a8c2858f9c186d35c8 (mobile main)
+# Every block below is a command actually run in this session, with its actual output (long outputs abbreviated, marked "…").
+# Scratch root: $LOCAL_OPERATOR_SCRATCHPAD/ur-gap = /Users/damian/.local-operator/sessions/6ce4c67b2038/scratchpad/ur-gap
+
+## CONTROL 1 — brief hash + redaction marker
+$ shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+  -> matches the brief's frozen sha256 (proceed)
+$ grep -c '\[redacted\]' brief-gap.json ; echo exit=$?
+0
+exit=1          (grep: no match)
+$ grep -ci '\[redacted\]' brief-gap.json
+0
+$ python3 -c "...json.load(brief)..."  -> keys: ['source_commit','note','keys']; 66 rows; row keys ['key','origin_pr','en','context','values']
+  source_commit 9214ff9b43c58256c49f48a8c2858f9c186d35c8
+
+## CONTROL 2 — read route
+Ordinary git reads (`git show 9214ff9b:<path>`, `git grep … 9214ff9b`) in the read-only worktree
+/Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a and scratch reads of the brief. read_public_copy NOT used:
+the core route refuses mobile catalogue paths and the *.context.json sidecars are nested JSON, not routable.
+Desktop label lookup: `git show origin/main:src/i18n/catalogues/{en,ur}/<ns>.json` in ~/local-operator-ui (origin/main e6122214503b).
+Worktree untouched: `git status --porcelain` -> "?? docs/evidence/agent-review-pr251-code-round1.md" (pre-existing, not created by this audit); HEAD 8d45bab79449.
+$ git show 9214ff9b:src/i18n/messages.ts | shasum -a 256
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  -
+$ (git show 9214ff9b:src/i18n/messages.ts) > tools/messages.ts      (scratch copy, same sha256)
+
+## CONTROL 3 — placeholders / ICU with the repo's own parser
+$ env -i PATH="$PATH" HOME=$PWD/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node tools/check.mts brief-gap.json; echo exit=$?
+{"keys":66,"parse_errors":[],"placeholder_mismatches":[],"plural_keys":[],"ur_cldr_categories_seen":["other","one"]}
+exit=0
+(stderr: node MODULE_TYPELESS_PACKAGE_JSON warning only)
+Negative control (tampered in-scratch copy: offline.title {computer}->{name}; relay_wait.title unclosed brace), then deleted:
+$ env -i … node tools/check.mts neg-control.json
+{"keys":66,"parse_errors":["mobile.refusal.relay_wait.title: Invalid message \"{computer ابھی شروع ہو رہا ہے۔\": expected ',' or '}' (at offset 10)"],"placeholder_mismatches":["mobile.refusal.offline.title: en=[[\"computer\",\"text\"]] ur=[[\"name\",\"text\"]]"],"plural_keys":[],"ur_cldr_categories_seen":["other","one"]}
+exit=0   -> checker detects both defect classes; the real run's empty lists are meaningful.
+Result: 66/66 parse; 0 placeholder mismatches; no plural/select in the 66 keys (ur CLDR = one/other, nothing to check).
+
+## CONTROL 4 — glossary / quoted labels
+Style guide ~/local-operator/i18n/style-guides/ur.md sha256 c0eecf7f7b5e…ca60; glossary ~/local-operator/i18n/glossary.md sha256 0eb34437a8c3…62f8.
+Desktop (local-operator-ui origin/main) ur labels, extracted with python from ui.providers / ui.settings.navigation / ui.settings.account / ui.chat.page_chrome:
+  ui.providers.phone.heading            Phone access          -> فون کی رسائی
+  ui.providers.phone.action.set_up      Set up phone access   -> فون کی رسائی ترتیب دیں
+  ui.settings.navigation.settings_sidebar.radient_account  Radient account -> Radient اکاؤنٹ
+  ui.chat.page_chrome.options.settings  Settings              -> ترتیبات
+  ui.providers.phone.action.check_again Check again           -> دوبارہ جانچیں
+  ui.providers.phone.status.checking    Checking              -> جانچ جاری ہے
+  ui.providers.phone.action.add_credit  Add credit            -> کریڈٹ شامل کریں
+  ui.providers.phone.action.open_console Open Radient console -> Radient کنسول کھولیں
+  ui.providers.phone.action.copy_diagnostics Copy diagnostics -> تشخیصی معلومات نقل کریں
+Mobile Retry: mobile.refusal.action.retry = دوبارہ کوشش کریں (the 4 bodies that name Retry quote exactly this) — MATCH.
+Mobile term census over all ur catalogues at 9214ff9b (python, gap keys vs non-gap keys):
+  جانچ nongap=31 gap=0 · دوبارہ دیکھ nongap=0 gap=1 · منسلک nongap=26 gap=0 · جڑ nongap=5 gap=5 · کاپی nongap=3 gap=3 · نقل 0/0 · ٹنل 41/2 · پتہ 16/2 · پتا 0/0 · الرٹ 4/6 · سلیپ 1/1 · ترتیبات 8/3
+Quote census over all ur mobile catalogues: “ x16, ” x16; every non-gap use is “…”; the 4 gap refusal bodies use ”…“.
+Arrow precedent: mobile.computers.own_tunnel.verdict_local_network_ios ships "ترتیبات ← رازداری اور سیکیورٹی ← مقامی نیٹ ورک" after ur audit URS2B1-02 (MAJOR; i18n/audits/evidence/ur/m3-s2b1-computers-common-settings/urs2b1/report.md:30-34, r2 audit.log:27 confirms ←).
+
+## CONTROL 5/6 — scan (bidi, digits, NFC, quotes, arrows, first strong, widths)
+$ python3 tools/scan.py brief-gap.json; echo exit=$?
+bidi_controls: []   urdu_or_arabic_digits: []   not_nfc: []   english_identical: []   ascii_terminal_punct: []
+reversed_quotes: [balance_out.body, suspended.body, relay_stopped.body, relay_refused.body]
+arrows: setup.open_settings / refusal.tunnel_gone.body / refusal.how_to.body : "U+2192 x3 bidi=ON mirrored=0"
+first_strong: {"AL": 48, "L": 7, "PLACEHOLDER": 11}
+latin_initial: refusal.suspended.title, provisioning.title, refused.title, radient_unreachable.title, action.open_billing, action.open_console, settings.account.signed_in_radient
+placeholder_initial ({computer} first): console_disabled, offline, relay_stopped, relay_refused, tunnel_gone, relay_wait, wait_network, wait_reconnect, computer_sign_in, computer_attention, open_console (.title each)
+overflow_flags (>1.6x en on button/meta, or status replacing a button label): setup.checking 9->16; refusal.action.retry 5->16; sign_in_confirm.confirm 7->12
+exit=0
+
+## Render-site direction (git show/grep at 9214ff9b)
+$ git grep -n -c useComposedDir 9214ff9b -- src/ui/components/refusal-surface.tsx src/features/settings …
+  refusal-surface.tsx:3 · account-card.tsx:2 · settings.tsx:1 · own-tunnel-settings.tsx:2
+$ git show 9214ff9b:src/ui/components/refusal-surface.tsx | sed -n 280,300p;380,470p
+  :295 const composedDir = useComposedDir(); headline Text spreads {...composedDir} (:331), body Text (:341,:347), every copy.actions Button passes labelDir={composedDir} (:393,:403)
+$ git show 9214ff9b:src/features/settings/account-card.tsx | sed -n 140,158p   -> title Text {...composedDir} (:145)
+$ git show 9214ff9b:src/features/auth/transient-notice.tsx | sed -n 1,45p
+  <Alert title={transient.title} bodyDir={composedDir} …>  — title gets NO direction
+$ git show 9214ff9b:src/ui/components/alert.tsx | sed -n 25,120p
+  title rendered as <Text className="text-body-sm font-semibold …">{title}</Text> with no dir; only bodyDir exists
+$ grep -n -A8 TRANSIENT_CAUSES refusal.ts (git show 9214ff9b:src/features/auth/refusal.ts)
+  :464 radient-unreachable, wait-network, wait-reconnect, relay-wait  -> titles radient_unreachable / wait_network / wait_reconnect / relay_wait reach the Alert title
+$ git grep -n '"Your computer"' 9214ff9b -- src | grep -v test
+  connection-provider.tsx:2588 (refusal subject, literal since <=Oct 2026; also "Radient" when route===null)
+  connection-provider.tsx:2623 (transient subject, added by e64edd28 2026-11-14, PR #261)
+$ git log -S'"Your computer"' --format='%h %ad %s' 9214ff9b -- src/features/auth/connection-provider.tsx | tail -3
+  e64edd28 Sat Nov 14 03:26:57 2026 +0000 fix(refusal): round-1 remediation — no discovery loop, honest retries, named causes on Home
+  5fe0f1dc Tue Oct 27 … · 2b4f829a Wed Oct 14 …
+
+## Bidi reasoning (unicodedata, not a rendered capture)
+U+2192 RIGHTWARDS ARROW: bidi ON, Bidi_Mirrored No. In "ترتیبات → Radient اکاؤنٹ → فون کی رسائی" each arrow sits between AL…L, L/AL…AL or L…AL;
+N1 applies only for AL…AL (→R), the rest fall to N2 = embedding level (RTL paragraph, first strong AL) → R. The arrow therefore displays in RTL
+order with its glyph pointing right = back at the item before it. U+2190 resolves identically and points forward. No frame captured (no device/RTL render in this lane) — reasoned.
+
+## Outputs
+record.json, report.md, audit.log in this directory; tools/check.mts, tools/scan.py, tools/messages.ts (scratch copy of 9214ff9b) retained for re-run.

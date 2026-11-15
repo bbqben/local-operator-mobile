@@ -1,0 +1,28 @@
+# zh-CN m3-s2c audit-gap round 2 — execution log (commands actually run; outputs abridged only where marked)
+$ cd <lane>/m3gap; shasum -a 256 brief-gap.json drafts/zh-CN/draft-zh-CN.json audits/zh-CN/record.json audits/zh-CN/report.md
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+c41ad98ff0061f17873886322ebb0498015f2ae7a7cd674db6359aed7feb13eb  drafts/zh-CN/draft-zh-CN.json
+35f82d55aa274dd7ecd809e4bc752b40b85c91b165b76d8138e79461f662fecc  audits/zh-CN/record.json
+df045613b02cd0f963bcf0fa315a3084feed56a4736dc6f6a83afce5b253a581  audits/zh-CN/report.md
+$ cat audits/zh-CN/report.md drafts/zh-CN/notes-zh-CN.md drafts/zh-CN/draft-zh-CN.json   (read)
+$ git -C ~/local-operator show origin/main:i18n/style-guides/zh-CN.md   (read lines 1-80; line 15-16 请 rule, 66 ellipsis, 67 no Han-Latin space)
+$ python (eval): load brief, draft; git show 9214ff9b zh-CN + en catalogues (1121 zh keys, 2781 en keys)
+brief!=shipped [] ; draft not in brief [] 36
+请-containing shipped zh-CN values: 72; of which en lacks "please": 72
+$ python: final(66) checks -> issues [] (space, bidi, ellipsis, ascii punct, 点按/点击/这部手机/睡眠/请稍后再试/再次检查/[redacted]); identical-en divergence within 66: []
+cross-namespace: how_to.title 开通手机访问 vs mobile.home.suggestion.phone_access 开启手机访问 (pre-existing)
+quoted: 重试 x4, 设置手机访问 x1; arrows in open_settings, tunnel_gone.body, how_to.body
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/zh-CN/*.json  (origin/main e612221450)
+ui.providers.phone.heading 手机访问 | ui.settings.page.title 设置 | ui.providers.phone.action.set_up 设置手机访问 | ...check_again 重新检查 | ...open_console 打开Radient控制台 | settings_sidebar.radient_account Radient账户
+$ python: GAP-1 spaced keys in shipped = 31; draft - flagged = set(); flagged - draft = set(); non-whitespace changes = 13 keys (all flagged)
+$ git show 9214ff9b:src/i18n/messages.ts > $S/messages.ts ; cp brief-gap.json draft-zh-CN.json $S/inputs/ ; shasum -a 256
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  inputs/brief-gap.json
+c41ad98ff0061f17873886322ebb0498015f2ae7a7cd674db6359aed7feb13eb  inputs/draft-zh-CN.json
+$ env -i PATH="$PATH" HOME=$S/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs
+(node warning MODULE_TYPELESS_PACKAGE_JSON — harmless)
+final=66 draft=36 match=66 mismatch=0 keys_with_params=13
+sample [["computer","text"]] [["computer","text"]]
+NEG rename detected: true [["computr","text"]]
+NEG unclosed threw: RangeError Invalid message "{computer处于休眠状态": expected ',' or '}' (at offset 9)
+$ python: wrote record.json ; wrote report.md, audit.log

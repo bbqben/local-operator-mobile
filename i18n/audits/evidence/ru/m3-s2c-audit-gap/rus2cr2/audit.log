@@ -1,0 +1,136 @@
+# audit.log — ru m3-s2c-audit-gap round 2, auditor session 3a8c49e648fe (execution log; commands actually run, outputs captured)
+
+$ shasum -a 256 brief-gap.json drafts/ru/draft-ru.json audits/ru/record.json audits/ru/report.md   (in /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap)
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+42030448ac68393b464cee2b45d0fd25d0021fee6a2162201cfa7c155993dda3  drafts/ru/draft-ru.json
+c0f006c89c61bf2fb0be092f04993f58fe0ea9f45a31deb12d493827fff294c5  audits/ru/record.json
+c50b6daa61b7fca2894a69fd6b364c9fdba6a8a6ea30b8ca190d0b2906a8ba6f  audits/ru/report.md
+
+$ cp brief/draft/r1 record into own scratchpad; git -C ~/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/i18n/messages.ts > messages.ts; shasum -a 256 (copies)
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  brief-gap.json
+42030448ac68393b464cee2b45d0fd25d0021fee6a2162201cfa7c155993dda3  draft-ru.json
+c0f006c89c61bf2fb0be092f04993f58fe0ea9f45a31deb12d493827fff294c5  r1-record.json
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+
+$ python3: build final-ru.json = shipped ru @9214ff9b (brief values) overlaid with draft; en.json from brief
+keys=66, draft keys not in brief: []
+3a96743467a4795fb9722efd549475b6c710ef86e4e6f4800ae73a060e6a5906  final-ru.json
+35fe2f5328b32f373d32bd1a2fe4dc3402278ac6c41b4571fafccdd0080e66c9  en.json
+
+$ env -i PATH="$PATH" HOME=$D/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mts
+--- check.mts:
+import { parseMessage, formatMessage } from "./messages.ts";
+import { readFileSync } from "node:fs";
+const en = JSON.parse(readFileSync("en.json","utf8")), ru = JSON.parse(readFileSync("final-ru.json","utf8")), draft = JSON.parse(readFileSync("draft-ru.json","utf8"));
+const set = (s:string)=>JSON.stringify([...parseMessage(s).params.entries()].sort());
+let mism=0, n=0; const comp:string[]=[];
+for (const k of Object.keys(en)) { n++; if (set(en[k])!==set(ru[k])) {mism++; console.log("MISMATCH",k);} if (parseMessage(en[k]).params.has("computer")) comp.push(k); }
+console.log(`keys=${n} draft=${Object.keys(draft).length} placeholder_mismatch=${mism}`);
+// negative controls
+console.log("neg1 injected mismatch detected:", set(en["mobile.refusal.relay_stopped.title"])!==set("{computr}: Local Operator не запущен."));
+try { parseMessage("{computer: сломано"); console.log("neg2 malformed: NOT rejected"); } catch(e:any){ console.log("neg2 malformed rejected:", e.constructor.name); }
+console.log(`computer_keys=${comp.length}`);
+for (const k of comp) { const ruHas = parseMessage(ru[k]).params.has("computer"); console.log(`\n${k} ${draft[k]!==undefined?"[draft]":"[shipped]"} ruHas=${ruHas}`);
+ for (const c of ["Домашний ноутбук","Ваш компьютер","192.168.1.24","MacBook Pro"]) console.log("  "+formatMessage(parseMessage(ru[k]),{computer:c},"ru")); }
+--- output:
+(node:66943) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/.local-operator/sessions/3a8c49e648fe/scratchpad/ru-gap-r2/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+keys=66 draft=13 placeholder_mismatch=0
+neg1 injected mismatch detected: true
+neg2 malformed rejected: RangeError
+computer_keys=13
+
+mobile.refusal.suspended.title [draft] ruHas=true
+  Домашний ноутбук: Radient приостановил доступ с телефона.
+  Ваш компьютер: Radient приостановил доступ с телефона.
+  192.168.1.24: Radient приостановил доступ с телефона.
+  MacBook Pro: Radient приостановил доступ с телефона.
+
+mobile.refusal.console_disabled.title [draft] ruHas=true
+  Домашний ноутбук: доступ с телефона отключён в вашей консоли Radient.
+  Ваш компьютер: доступ с телефона отключён в вашей консоли Radient.
+  192.168.1.24: доступ с телефона отключён в вашей консоли Radient.
+  MacBook Pro: доступ с телефона отключён в вашей консоли Radient.
+
+mobile.refusal.refused.title [draft] ruHas=true
+  Домашний ноутбук: Radient пока не разрешает доступ с телефона.
+  Ваш компьютер: Radient пока не разрешает доступ с телефона.
+  192.168.1.24: Radient пока не разрешает доступ с телефона.
+  MacBook Pro: Radient пока не разрешает доступ с телефона.
+
+mobile.refusal.offline.title [draft] ruHas=true
+  Домашний ноутбук спит или не в сети.
+  Ваш компьютер спит или не в сети.
+  192.168.1.24 спит или не в сети.
+  MacBook Pro спит или не в сети.
+
+mobile.refusal.relay_stopped.title [draft] ruHas=true
+  Домашний ноутбук: Local Operator не запущен.
+  Ваш компьютер: Local Operator не запущен.
+  192.168.1.24: Local Operator не запущен.
+  MacBook Pro: Local Operator не запущен.
+
+mobile.refusal.relay_refused.title [draft] ruHas=true
+  Домашний ноутбук: Local Operator не принял этот телефон.
+  Ваш компьютер: Local Operator не принял этот телефон.
+  192.168.1.24: Local Operator не принял этот телефон.
+  MacBook Pro: Local Operator не принял этот телефон.
+
+mobile.refusal.tunnel_gone.title [draft] ruHas=true
+  Домашний ноутбук: доступ с телефона выключен.
+  Ваш компьютер: доступ с телефона выключен.
+  192.168.1.24: доступ с телефона выключен.
+  MacBook Pro: доступ с телефона выключен.
+
+mobile.refusal.relay_wait.title [shipped] ruHas=true
+  Домашний ноутбук ещё запускается.
+  Ваш компьютер ещё запускается.
+  192.168.1.24 ещё запускается.
+  MacBook Pro ещё запускается.
+
+mobile.refusal.wait_network.title [shipped] ruHas=true
+  Домашний ноутбук сейчас не может связаться с Radient.
+  Ваш компьютер сейчас не может связаться с Radient.
+  192.168.1.24 сейчас не может связаться с Radient.
+  MacBook Pro сейчас не может связаться с Radient.
+
+mobile.refusal.wait_reconnect.title [shipped] ruHas=true
+  Домашний ноутбук переподключается.
+  Ваш компьютер переподключается.
+  192.168.1.24 переподключается.
+  MacBook Pro переподключается.
+
+mobile.refusal.computer_sign_in.title [draft] ruHas=true
+  Домашний ноутбук: Local Operator просит снова войти в Radient.
+  Ваш компьютер: Local Operator просит снова войти в Radient.
+  192.168.1.24: Local Operator просит снова войти в Radient.
+  MacBook Pro: Local Operator просит снова войти в Radient.
+
+mobile.refusal.computer_attention.title [draft] ruHas=true
+  Домашний ноутбук: Local Operator требует внимания.
+  Ваш компьютер: Local Operator требует внимания.
+  192.168.1.24: Local Operator требует внимания.
+  MacBook Pro: Local Operator требует внимания.
+
+mobile.refusal.open_console.title [draft] ruHas=true
+  Домашний ноутбук: для доступа с телефона нужно изменить настройку в консоли Radient.
+  Ваш компьютер: для доступа с телефона нужно изменить настройку в консоли Radient.
+  192.168.1.24: для доступа с телефона нужно изменить настройку в консоли Radient.
+  MacBook Pro: для доступа с телефона нужно изменить настройку в консоли Radient.
+
+$ python3 typography/consistency script (bidi, straight quotes, "...", spacing, unspaced em dash, en-identical, stray Latin, identical-en→identical-ru, draft key set, lengths)
+identical-en groups with divergent ru: []
+draft keys vs r1 flagged: ['mobile.refusal.computer_attention.title', 'mobile.refusal.computer_sign_in.title', 'mobile.refusal.console_disabled.title', 'mobile.refusal.offline.title', 'mobile.refusal.open_console.title', 'mobile.refusal.refused.title', 'mobile.refusal.relay_refused.title', 'mobile.refusal.relay_stopped.title', 'mobile.refusal.relay_wait.body', 'mobile.refusal.suspended.title', 'mobile.refusal.tunnel_gone.title', 'mobile.settings.diagnostics.copy_failed', 'mobile.settings.sign_in_confirm.body']
+copy_failed len 26 copy len 22 copied 23
+аккаунт/учётная ['mobile.computers.setup.open_settings', 'mobile.refusal.phone_access_off.title', 'mobile.refusal.tunnel_gone.body', 'mobile.refusal.how_to.body']
+
+$ env -i … node -e (render "{computer}: Local Operator не запущен." with route.baseUrl and no-route "Radient" subjects)
+https://10.0.0.5:8443: Local Operator не запущен.
+Radient: Local Operator не запущен.
+
+$ git show 9214ff9b:src/features/auth/connection-provider.tsx | sed -n 2575,2630p  → subject = chosen.name | "Radient" (no route) | "Your computer" (radient route) | route.baseUrl (custom)
+$ git show 9214ff9b:src/features/settings/settings.tsx | sed -n 680,700p  → copy_failed replaces the full-size outline "Copy diagnostics" button label
+
+$ grep redaction markers in brief-gap.json draft-ru.json → 0

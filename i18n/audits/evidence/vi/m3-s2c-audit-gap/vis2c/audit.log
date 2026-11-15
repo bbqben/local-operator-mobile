@@ -1,0 +1,46 @@
+# audit.log — vi m3-s2c-audit-gap — auditor i18n-auditor, session 50f759c57419, model anthropic/claude-opus-5-5 (no fallback)
+# Actual commands run in this session (outputs abbreviated; exit codes kept).
+
+$ shasum -a 256 /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5  .../m3gap/brief-gap.json   (matches brief; proceed)
+$ grep -c '\[redacted\]' <brief>
+0      (exit=1, i.e. no match) -> redaction_marker_hits=0
+$ cp <brief> /Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/brief-gap.json && shasum -a 256 /Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/brief-gap.json
+30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5   (identical copy; no guardrail refusal occurred — copied so node reads from own scratchpad)
+python: brief keys -> source_commit 9214ff9b43c58256c49f48a8c2858f9c186d35c8, 66 rows
+
+# Route: ordinary git/scratch reads. read_public_copy NOT used (core refuses mobile catalogue paths; context sidecars are nested JSON, not routable).
+
+$ git -C ~/local-operator-ui rev-parse origin/main
+e6122214503b9fc52841e119c060eabb7650391b   (no fetch, no network)
+$ git show origin/main:src/i18n/catalogues/{en,vi}/ui.providers.json | grep phone.(heading|action.set_up|...)
+en: heading "Phone access"; action.set_up "Set up phone access"
+vi: heading "Truy cập từ điện thoại"; action.set_up "Thiết lập truy cập từ điện thoại"; stopped "Truy cập từ điện thoại đang tắt trên máy tính này."
+$ git grep -h 'Radient account|Settings|Tài khoản Radient|Cài đặt' origin/main -- src/i18n/catalogues/{en,vi}
+ui.settings.page.title "Cài đặt"; ui.settings.navigation.settings_sidebar.radient_account "Tài khoản Radient"
+$ git grep -h -i -o '...truy cập từ điện thoại...' origin/main -- src/i18n/catalogues/vi | sort | uniq -c
+13 hits, all bare "Truy cập từ điện thoại"/"truy cập từ điện thoại"; 0 hits of "Quyền truy cập từ điện thoại"
+$ git grep -h -iE 'nạp|số dư' origin/main -- src/i18n/catalogues/vi
+ui.common.account.top_up "Nạp tín dụng trong Radient Console"; low_credits_dialog.get_more_credits "Nạp thêm tín dụng"; ...
+
+# Mobile reference (read-only): /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a, git show 9214ff9b:<path>
+$ for f in vi catalogues: git show 9214ff9b:$f > /Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/vi-all.txt ; wc -l -> 973
+term counts: cảnh báo 10, thông báo 15, Thử lại 52, bảng điều khiển 13, đường hầm 43, tín dụng 0, truy cập từ điện thoại 12, chẩn đoán 4, push 2
+$ python: mobile.notifications/mobile.settings en|vi pairs for alert/diagnos/tunnel -> 'alerts' consistently 'cảnh báo'; 'tunnel' 'đường hầm'; 'Diagnostics' 'Chẩn đoán'
+$ git grep -n -i 'quyền truy cập từ điện thoại' 9214ff9b -- i18n/audits
+(no output) -> no prior audit approved the 'Quyền' form
+$ git show 9214ff9b:src/features/settings/settings.tsx | sed -n 675,705p
+Copy diagnostics = full-size outline <Button> (comment: 'Full size, not sm (PR #261 D5)')
+
+# Placeholder check with the repo's own parser
+$ git show 9214ff9b:src/i18n/messages.ts > /Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/messages.ts ; shasum -a 256 (both)
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0 (scratch copy == git blob)
+$ cd /Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/ && env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/50f759c57419/scratchpad/vi-gap/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check.mjs
+{"keys":66,"mismatches":[],"plural_args":0,"with_params":[13 keys, each vi params [["computer","text"]]]}
+exit=0  (stderr: MODULE_TYPELESS_PACKAGE_JSON warning only)
+-> no plural/select args; CLDR vi plural set {other} not exercised.
+
+$ python: brief values vs vi catalogue at 9214ff9b
+brief_vs_catalogue_diffs [] ; en_identical [] ; ratio>1.6 on button/status/meta/heading: diagnostics.copy 1.75 (16->28), diagnostics.copied 1.72 (18->31)
+
+# RTL: n/a (vi is LTR).

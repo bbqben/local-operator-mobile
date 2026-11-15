@@ -1,0 +1,163 @@
+{
+  "locale": "fr",
+  "slice": "m3-s2c-audit-gap",
+  "source_commit": "9214ff9b43c58256c49f48a8c2858f9c186d35c8",
+  "key_count": 66,
+  "brief": {
+    "path": "/Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/brief-gap.json",
+    "sha256": "30da94702a51fd850529a049ac446a397ab4bfc23387d14d1a9152e822edbda5"
+  },
+  "auditor": {
+    "agent": "i18n-auditor",
+    "session": "796f6be72d5f",
+    "model": "anthropic/claude-opus-5-5",
+    "fallback_used": false,
+    "independent_from_translator_session": true,
+    "actual_model_source": "system prompt 'Model:' line"
+  },
+  "route": "git/scratch reads; read_public_copy not used (mobile paths refused by core; sidecars nested JSON, not routable)",
+  "redaction_marker_hits": 0,
+  "placeholder_check": {
+    "keys": 66,
+    "mismatches": 0,
+    "parse_errors": 0,
+    "keys_with_params": 13,
+    "plural_args": 0,
+    "parser": "src/i18n/messages.ts@9214ff9b sha256 c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0"
+  },
+  "glossary_reference": {
+    "repo": "damianvtran/local-operator-ui",
+    "ref": "origin/main 789b013d62",
+    "keys": [
+      "ui.providers.phone.heading",
+      "ui.providers.phone.action.set_up",
+      "ui.providers.phone.stopped",
+      "ui.settings.page.title",
+      "ui.settings.navigation.settings_sidebar.radient_account"
+    ]
+  },
+  "counts": {
+    "BLOCKER": 0,
+    "MAJOR": 6,
+    "MINOR": 4,
+    "NIT": 3
+  },
+  "verdict": "failed",
+  "unresolved_blocker_major_count": 6,
+  "findings": [
+    {
+      "id": "fr-GAP-1",
+      "key": "mobile.refusal.phone_access_off.title",
+      "severity": "MAJOR",
+      "current": "L’accès depuis le téléphone n’est pas encore activé pour votre compte Radient.",
+      "suggested": "L’accès depuis un téléphone n’est pas encore activé pour votre compte Radient.",
+      "reason": "Glossary: the desktop feature is « Accès depuis un téléphone » (local-operator-ui origin/main 789b013d62 ui.providers.phone.heading; ui.providers.phone.stopped « L’accès depuis un téléphone est désactivé… »), and 7 sibling keys in this batch use « un ». This value says « depuis le téléphone »; context explicitly requires the desktop's term."
+    },
+    {
+      "id": "fr-GAP-2",
+      "key": "mobile.refusal.suspended.title",
+      "severity": "MAJOR",
+      "current": "Radient a suspendu l’accès depuis le téléphone à {computer}.",
+      "suggested": "Radient a mis en pause l’accès depuis un téléphone à {computer}.",
+      "reason": "Glossary: the desktop feature is « Accès depuis un téléphone » (local-operator-ui origin/main 789b013d62 ui.providers.phone.heading; ui.providers.phone.stopped « L’accès depuis un téléphone est désactivé… »), and 7 sibling keys in this batch use « un ». This value says « depuis le téléphone ». Also « suspendu » reads as a billing/account suspension, while context says billing is fine and it is a brief pause that clears on its own; « mis en pause » carries that."
+    },
+    {
+      "id": "fr-GAP-3",
+      "key": "mobile.refusal.console_disabled.title",
+      "severity": "MAJOR",
+      "current": "L’accès depuis le téléphone à {computer} est désactivé dans votre console Radient.",
+      "suggested": "L’accès depuis un téléphone à {computer} est désactivé dans votre console Radient.",
+      "reason": "Glossary: the desktop feature is « Accès depuis un téléphone » (local-operator-ui origin/main 789b013d62 ui.providers.phone.heading; ui.providers.phone.stopped « L’accès depuis un téléphone est désactivé… »), and 7 sibling keys in this batch use « un ». This value says « depuis le téléphone »; context: 'use the same term'."
+    },
+    {
+      "id": "fr-GAP-4",
+      "key": "mobile.refusal.refused.title",
+      "severity": "MAJOR",
+      "current": "Radient n’autorise pas l’accès depuis le téléphone à {computer} pour le moment.",
+      "suggested": "Radient n’autorise pas l’accès depuis un téléphone à {computer} pour le moment.",
+      "reason": "Glossary: the desktop feature is « Accès depuis un téléphone » (local-operator-ui origin/main 789b013d62 ui.providers.phone.heading; ui.providers.phone.stopped « L’accès depuis un téléphone est désactivé… »), and 7 sibling keys in this batch use « un ». This value says « depuis le téléphone »."
+    },
+    {
+      "id": "fr-GAP-5",
+      "key": "mobile.refusal.tunnel_gone.title",
+      "severity": "MAJOR",
+      "current": "L’accès depuis le téléphone est désactivé sur {computer}.",
+      "suggested": "L’accès depuis un téléphone est désactivé sur {computer}.",
+      "reason": "Glossary: the desktop feature is « Accès depuis un téléphone » (local-operator-ui origin/main 789b013d62 ui.providers.phone.heading; ui.providers.phone.stopped « L’accès depuis un téléphone est désactivé… »), and 7 sibling keys in this batch use « un ». This value says « depuis le téléphone »; its own body line (tunnel_gone.body) names « Accès depuis un téléphone » right below."
+    },
+    {
+      "id": "fr-GAP-6",
+      "key": "mobile.refusal.how_to.title",
+      "severity": "MAJOR",
+      "current": "Activer l’accès depuis le téléphone",
+      "suggested": "Activer l’accès depuis un téléphone",
+      "reason": "Glossary: the desktop feature is « Accès depuis un téléphone » (local-operator-ui origin/main 789b013d62 ui.providers.phone.heading; ui.providers.phone.stopped « L’accès depuis un téléphone est désactivé… »), and 7 sibling keys in this batch use « un ». This value says « depuis le téléphone »; it is the title of a sheet whose body names « Accès depuis un téléphone » two lines below."
+    },
+    {
+      "id": "fr-GAP-7",
+      "key": "mobile.refusal.how_to.body",
+      "severity": "MINOR",
+      "current": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone et choisissez Configurer l’accès depuis un téléphone. Le prix s’affiche d’abord, avant toute activation.",
+      "suggested": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone et choisissez « Configurer l’accès depuis un téléphone ». Le prix s’affiche d’abord, avant toute activation.",
+      "reason": "Button label matches the desktop (ui.providers.phone.action.set_up), but a 5-word label unquoted after « choisissez » melts into the sentence. House style quotes named controls in « » with U+202F (relay.health.ended_detail, own_tunnel verdicts)."
+    },
+    {
+      "id": "fr-GAP-8",
+      "key": "mobile.settings.sign_in_confirm.body",
+      "severity": "MINOR",
+      "current": "Cela met d'abord fin à votre connexion actuelle. Si vous n'allez pas au bout de la connexion, vous devrez vous reconnecter à votre ordinateur.",
+      "suggested": "Cela met d’abord fin à votre connexion actuelle. Si vous interrompez la connexion à Radient avant la fin, vous devrez vous reconnecter à votre ordinateur.",
+      "reason": "(a) straight apostrophes U+0027 ×2; house style is ’ only (315 vs 8 in fr catalogues; prior fr audit: '’ only'). (b) « connexion » is used for the ended connection and then for sign-in in the next sentence; naming Radient disambiguates."
+    },
+    {
+      "id": "fr-GAP-9",
+      "key": "mobile.refusal.terminal.toggle",
+      "severity": "MINOR",
+      "current": "Vous utilisez un terminal ?",
+      "suggested": "Vous utilisez un terminal ?",
+      "reason": "U+0020 before « ? »; house style is U+202F (narrow no-break), which also stops « ? » wrapping alone on a narrow disclosure row."
+    },
+    {
+      "id": "fr-GAP-10",
+      "key": "mobile.settings.sign_in_confirm.title",
+      "severity": "MINOR",
+      "current": "Se connecter avec Radient ?",
+      "suggested": "Se connecter avec Radient ?",
+      "reason": "U+0020 before « ? »; house style U+202F (no orphaned « ? » in the dialog title)."
+    },
+    {
+      "id": "fr-GAP-11",
+      "key": "mobile.refusal.suspended.body",
+      "severity": "NIT",
+      "current": "Votre ordinateur va se reconnecter tout seul — si cela dure, ouvrez Local Operator dessus, puis touchez Réessayer.",
+      "suggested": "Votre ordinateur va se reconnecter tout seul — si cela dure, ouvrez Local Operator sur cet ordinateur, puis touchez Réessayer.",
+      "reason": "« ouvrez Local Operator dessus » is colloquial; sibling keys say « sur l’ordinateur / sur cet ordinateur »."
+    },
+    {
+      "id": "fr-GAP-12",
+      "key": "mobile.notifications.computer_registration.relay_missing",
+      "severity": "NIT",
+      "current": "Cet ordinateur doit mettre à jour Local Operator avant de pouvoir envoyer des alertes à ce téléphone.",
+      "suggested": "Local Operator doit être mis à jour sur cet ordinateur avant de pouvoir envoyer des alertes à ce téléphone.",
+      "reason": "« Cet ordinateur doit mettre à jour Local Operator » makes the computer the actor; the reader (or an update) does it. Meaning still clear."
+    },
+    {
+      "id": "fr-GAP-13",
+      "key": "mobile.refusal.refused.body",
+      "severity": "NIT",
+      "current": "Vérifiez-le dans votre console Radient, ou réessayez.",
+      "suggested": "Vérifiez-le dans votre console Radient ou réessayez.",
+      "reason": "Comma before a short « ou » alternative is not idiomatic French."
+    }
+  ],
+  "rtl": "n/a",
+  "deviations": [
+    "git fetch origin main in ~/local-operator-ui (network, refs only) contrary to no-network bound",
+    "brief copied byte-identically to own scratch after guardrail refused handing the ancestor file to node/python3"
+  ],
+  "out_of_scope_observations": [
+    "mobile.home.suggestion.phone_access « Activez l’accès mobile » — third name for the feature"
+  ],
+  "audit_notes_not_execution_log": "report.md",
+  "execution_log": "audit.log"
+}

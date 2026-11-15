@@ -138,8 +138,6 @@
 	"mobile.computers.own_tunnel.password_slot_empty": "This phone has no relay password saved. Enter this computer's password, test it, then save.",
 	"mobile.computers.own_tunnel.password_slot_this": "This phone's saved relay password is for this address. Test it, then save.",
 	"mobile.computers.setup.intro": "This app drives the sessions on your own computer, so that computer has to run a connector and stay awake. Your code stays on it.",
-	"mobile.computers.setup.billing_title": "Remote access is not active",
-	"mobile.computers.setup.billing_fallback": "Radient says this account cannot start a tunnel yet. Check billing in the console, then try again.",
 	"mobile.computers.setup.create_title": "Create one on the computer",
 	"mobile.computers.setup.create_help": "In a terminal on the computer you want to control:",
 	"mobile.computers.setup.terminal_label": "Terminal",

@@ -138,8 +138,6 @@
 	"mobile.computers.own_tunnel.password_slot_empty": "Aucun mot de passe de relais enregistré sur ce téléphone. Saisissez celui de cet ordinateur, testez-le, puis enregistrez.",
 	"mobile.computers.own_tunnel.password_slot_this": "Le mot de passe enregistré sur ce téléphone correspond à cette adresse. Testez-le, puis enregistrez.",
 	"mobile.computers.setup.intro": "Cette app pilote les sessions qui tournent sur votre propre ordinateur : celui-ci doit donc exécuter un connecteur et ne pas se mettre en veille. Votre code ne le quitte jamais.",
-	"mobile.computers.setup.billing_title": "L’accès à distance n’est pas actif",
-	"mobile.computers.setup.billing_fallback": "Radient indique que ce compte ne peut pas encore démarrer de tunnel. Vérifiez la facturation dans la console, puis réessayez.",
 	"mobile.computers.setup.create_title": "Créer un tunnel sur l’ordinateur",
 	"mobile.computers.setup.create_help": "Dans un terminal, sur l’ordinateur que vous voulez piloter :",
 	"mobile.computers.setup.terminal_label": "Terminal",

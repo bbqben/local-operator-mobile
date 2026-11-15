@@ -1,0 +1,73 @@
+{
+	"locale": "ur",
+	"slice": "m3-s2c-audit-gap",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "a107e8d2f2a7ed7bcbda67e5215894573c8db5bcb57e35db5f157f5c5c47c6a0",
+	"key_count": 16,
+	"values": {
+		"mobile.computers.setup.open_settings": {
+			"file": "src/i18n/catalogues/ur/mobile.computers.json",
+			"value": "اپنے کمپیوٹر پر Local Operator کھولیں اور ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی میں “فون کی رسائی ترتیب دیں” منتخب کریں۔"
+		},
+		"mobile.refusal.tunnel_gone.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "اسے Local Operator ← ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی میں آن کریں۔"
+		},
+		"mobile.refusal.how_to.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "اپنے کمپیوٹر پر Local Operator ← ترتیبات ← Radient اکاؤنٹ ← فون کی رسائی کھولیں اور “فون کی رسائی ترتیب دیں” منتخب کریں۔ کچھ بھی آن ہونے سے پہلے آپ کو قیمت دکھائی جائے گی۔"
+		},
+		"mobile.refusal.balance_out.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "کریڈٹ شامل کریں — آپ کا کمپیوٹر خود بخود دوبارہ منسلک ہو جائے گا۔ پھر “دوبارہ کوشش کریں” پر ٹیپ کریں۔"
+		},
+		"mobile.refusal.suspended.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "آپ کا کمپیوٹر خود بخود دوبارہ منسلک ہو جائے گا — اگر یہ برقرار رہے تو اس پر Local Operator کھولیں، پھر “دوبارہ کوشش کریں” پر ٹیپ کریں۔"
+		},
+		"mobile.refusal.relay_stopped.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "اسے وہاں کھولیں، پھر “دوبارہ کوشش کریں” پر ٹیپ کریں۔"
+		},
+		"mobile.refusal.relay_refused.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "وہاں Local Operator کھولیں، دیکھیں کہ فون کی رسائی آن ہے، پھر “دوبارہ کوشش کریں” پر ٹیپ کریں۔"
+		},
+		"mobile.computers.setup.check_again": {
+			"file": "src/i18n/catalogues/ur/mobile.computers.json",
+			"value": "دوبارہ جانچیں"
+		},
+		"mobile.computers.setup.checking": {
+			"file": "src/i18n/catalogues/ur/mobile.computers.json",
+			"value": "جانچ جاری ہے…"
+		},
+		"mobile.refusal.suspended.title": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "Radient نے {computer} کے لیے فون کی رسائی عارضی طور پر روک دی ہے۔"
+		},
+		"mobile.refusal.refused.title": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "Radient نے اس وقت {computer} تک فون کی رسائی کی اجازت نہیں دی۔"
+		},
+		"mobile.refusal.wait_network.body": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "اس کا نیٹ ورک بحال ہوتے ہی یہ خود بخود دوبارہ منسلک ہو جائے گا۔"
+		},
+		"mobile.settings.diagnostics.copy": {
+			"file": "src/i18n/catalogues/ur/mobile.settings.json",
+			"value": "تشخیصی معلومات کاپی کریں"
+		},
+		"mobile.settings.diagnostics.copied": {
+			"file": "src/i18n/catalogues/ur/mobile.settings.json",
+			"value": "تشخیصی معلومات کاپی ہو گئیں"
+		},
+		"mobile.settings.diagnostics.copy_failed": {
+			"file": "src/i18n/catalogues/ur/mobile.settings.json",
+			"value": "کاپی نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+		},
+		"mobile.refusal.wait_reconnect.title": {
+			"file": "src/i18n/catalogues/ur/mobile.refusal.json",
+			"value": "{computer} دوبارہ منسلک ہو رہا ہے۔"
+		}
+	}
+}

@@ -1914,6 +1914,9 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * over the merged tree; source identity, NOT rendered evidence. */
 	/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
 	 * re-derived once with --print over the merged tree. */
+	/* M3 S2c audit gap: 118 audited catalogue values in 7 locales and the two
+	 * unused setup.billing_* keys dropped; re-derived last with --print; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* PR #246 converged onto main 95adf190 (#260 i18n M3 S2b-2b): both sides'
 	 * comments and source kept, so neither parent's digest. Re-derived once
 	 * with --print over the merged tree; source identity, NOT rendered
@@ -1931,6 +1934,8 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept. The list store's `liveFrameAt` (set by a frame from the computer,
 	 * not by #246's warm-cache paint) gates push registration, so M1 holds.
 	 * Re-derived once with --print over the merged tree; only `src` moved. */
+	/* Convergence of #265 (M3 S2c) onto main c0b6a4da (#246 background sync): both
+	 * comment chains kept; src re-derived once with --print over the merged tree. */
 	/* PR #262 (fix/radient-account-label) merged with main c0b6a4da: the Radient
 	 * route admits with the grant's account label, #258's AccountCard titles
 	 * itself through `account-title.ts`, and the Diagnostics Last error row goes
@@ -1941,7 +1946,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * routeAdmission; the warm-cache `applyFrame(..., "cache")` call and the
 	 * list-store paths are untouched. Re-derived once with --print over the
 	 * merged tree; only `src` moved. */
-	src: "ee578b0779f801101b520b80ecfedfd68d5dc17ac7eef529d54f2ae2d5bdb56e",
+	/* Convergence of #265 (M3 S2c) onto main 81b5df9d (#262 Radient account label):
+	 * both comment chains kept; src re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#265, 51debe8e) into #264: both comment chains
+	 * kept. #265 touches only i18n catalogues, their audit evidence, the
+	 * generated catalogue and its test. Re-derived once with --print over
+	 * the merged tree; only `src` moved. */
+	src: "190bbd567be06fa81f34e3fc08bf701e6c2341b2923d928dc0449a2f3087cf51",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

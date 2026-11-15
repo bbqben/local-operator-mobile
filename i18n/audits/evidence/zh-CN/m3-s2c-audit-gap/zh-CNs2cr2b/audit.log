@@ -1,0 +1,14 @@
+# zh-CN m3-s2c audit-gap round 2b — execution log (commands actually run)
+$ shasum -a 256 <lane>/drafts/zh-CN/draft-zh-CN-v2.json <lane>/drafts/zh-CN/draft-zh-CN.json ; cp v2 -> $S/inputs/ ; shasum
+3cd14eed0642a19711ac0d88a6812447471b808cac66949fc671666aeaae1035  draft-zh-CN-v2.json (lane and scratch copy)
+c41ad98ff0061f17873886322ebb0498015f2ae7a7cd674db6359aed7feb13eb  draft-zh-CN.json
+$ python (eval, fresh kernel): key-set diff v1^v2 = set(); 36 keys; changed: offline.body, relay_stopped.body (values as in report)
+final-66 checks: issues [] ; identical-en divergence [] ; 这台/那台 listing reviewed
+$ sed 's#inputs/draft-zh-CN.json#inputs/draft-zh-CN-v2.json#' check.mjs > check-v2.mjs
+$ env -i PATH="$PATH" HOME=$S/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 node check-v2.mjs  (node module-type warning lines filtered)
+final=66 draft=36 match=66 mismatch=0 keys_with_params=13
+sample [["computer","text"]] [["computer","text"]]
+NEG rename detected: true [["computr","text"]]
+NEG unclosed threw: RangeError Invalid message "{computer处于休眠状态": expected ',' or '}' (at offset 9)
+c1831406332e907c9a914b3db0ec35fc9fd2cddd44c18cd2861b77667c5bdba0  messages.ts
+$ python: wrote record-r2b.json, report-r2b.md, audit-r2b.log

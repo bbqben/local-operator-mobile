@@ -1,0 +1,61 @@
+{
+	"locale": "ru",
+	"slice": "m3-s2c-audit-gap",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "42030448ac68393b464cee2b45d0fd25d0021fee6a2162201cfa7c155993dda3",
+	"key_count": 13,
+	"values": {
+		"mobile.refusal.suspended.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: Radient приостановил доступ с телефона."
+		},
+		"mobile.refusal.console_disabled.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: доступ с телефона отключён в вашей консоли Radient."
+		},
+		"mobile.refusal.refused.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: Radient пока не разрешает доступ с телефона."
+		},
+		"mobile.refusal.relay_stopped.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: Local Operator не запущен."
+		},
+		"mobile.refusal.relay_refused.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: Local Operator не принял этот телефон."
+		},
+		"mobile.refusal.tunnel_gone.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: доступ с телефона выключен."
+		},
+		"mobile.refusal.computer_sign_in.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: Local Operator просит снова войти в Radient."
+		},
+		"mobile.refusal.computer_attention.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: Local Operator требует внимания."
+		},
+		"mobile.refusal.open_console.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer}: для доступа с телефона нужно изменить настройку в консоли Radient."
+		},
+		"mobile.settings.diagnostics.copy_failed": {
+			"file": "src/i18n/catalogues/ru/mobile.settings.json",
+			"value": "Не скопировано — повторите"
+		},
+		"mobile.refusal.relay_wait.body": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "Попробуйте ещё раз чуть позже."
+		},
+		"mobile.refusal.offline.title": {
+			"file": "src/i18n/catalogues/ru/mobile.refusal.json",
+			"value": "{computer} спит или не в сети."
+		},
+		"mobile.settings.sign_in_confirm.body": {
+			"file": "src/i18n/catalogues/ru/mobile.settings.json",
+			"value": "Сначала текущее подключение будет завершено. Если прервать вход, придётся снова подключиться к компьютеру."
+		}
+	}
+}

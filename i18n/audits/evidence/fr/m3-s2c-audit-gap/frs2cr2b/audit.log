@@ -1,0 +1,47 @@
+$ cp /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/draft-fr-v2.json /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/check-v2.log /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/notes-fr.md /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/ 2>&1; cp /Users/damian/.local-operator/sessions/d5aaf8ba6ba5/scratchpad/m3gap/drafts/fr/notes-fr.md /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/notes-fr-v2.md; shasum -a 256 /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/draft-fr-v2.json /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/draft-fr.json /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/notes-fr-v2.md /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/check-v2.log
+26d45acf6684e1709b408cec7a6451c01365f6dc1c0641774bb0c7ca7771d317  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/draft-fr-v2.json
+7c73ad99d3d27494cb9432b74a77e4d7e09d255082b5c7aacf45d1f978320d6b  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/draft-fr.json
+b6ea59ae325b2b1313bf0ce72e2d05bc9aafa02158d7af53d63868490006ec98  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/notes-fr-v2.md
+211c0db69ec2f5ae24c187b8ba606966d94d279e9ea0856628764b2bf94511cc  /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/in/check-v2.log
+exit=0
+
+$ python3 -c 'import json;a=json.load(open("in/draft-fr.json"));b=json.load(open("in/draft-fr-v2.json"));print("keys_equal",set(a)==set(b),len(a),len(b));[print("DIFF",k,repr(a.get(k)),"->",repr(b.get(k))) for k in sorted(set(a)|set(b)) if a.get(k)!=b.get(k)];c=b["mobile.home.suggestion.phone_access"];print("len_utf16",len(c.encode("utf-16-le"))//2,"bytes",c.encode().hex())'
+keys_equal True 14 14
+DIFF mobile.home.suggestion.phone_access 'Accès depuis un téléphone' -> 'Activez l’accès téléphone'
+len_utf16 25 bytes 4163746976657a206ce28099616363c3a8732074c3a96cc3a970686f6e65
+exit=0
+
+$ git -C ~/local-operator-ui show origin/main:src/i18n/catalogues/fr/ui.chat.composer.json | python3 -c 'import json,sys;v=json.load(sys.stdin)["ui.chat.composer.suggestion.phone_access"];b=json.load(open("in/draft-fr-v2.json"))["mobile.home.suggestion.phone_access"];print("desktop",v.encode().hex());print("byte_identical",v.encode()==b.encode())'
+desktop 4163746976657a206ce28099616363c3a8732074c3a96cc3a970686f6e65
+byte_identical True
+exit=0
+
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a show 9214ff9b:src/features/home/home-copy.ts | sed -n 93p
+	fr: 31,
+exit=0
+
+$ env -i PATH="$PATH" HOME=/Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/home GIT_CONFIG_SYSTEM=/dev/null GIT_TERMINAL_PROMPT=0 NODE_OPTIONS=--max-old-space-size=256 /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a/node_modules/.bin/tsx /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2/check-v2.ts /Users/damian/.local-operator/sessions/b27f79fca9d4/scratchpad/fr-gap-r2
+OK mobile.refusal.phone_access_off.title []
+OK mobile.refusal.suspended.title [["computer","text"]]
+OK mobile.refusal.suspended.body []
+OK mobile.refusal.console_disabled.title [["computer","text"]]
+OK mobile.refusal.refused.title [["computer","text"]]
+OK mobile.refusal.refused.body []
+OK mobile.refusal.tunnel_gone.title [["computer","text"]]
+OK mobile.refusal.how_to.title []
+OK mobile.refusal.how_to.body []
+OK mobile.refusal.terminal.toggle []
+OK mobile.settings.sign_in_confirm.title []
+OK mobile.settings.sign_in_confirm.body []
+OK mobile.notifications.computer_registration.relay_missing []
+OK mobile.home.suggestion.phone_access []
+NEG-CONTROL CAUGHT [["ordinateur","text"]]
+NEG-CONTROL-2 CAUGHT RangeError: Invalid message "Accès {computer": expected ',' or '}' (at offset 15
+keys=67 draft_keys=14 errors=0 bidi=0 straight_apos=0
+chip_len 25 25 alt_verb_len 35 desktop_chip_len 25
+exit=0
+
+$ python3 -c 'import json;d=json.load(open("in/fr-mobile.home.json"));b=json.load(open("in/draft-fr-v2.json"));d.update({k:v for k,v in b.items() if k in d});print("max_chip",max(len(v) for k,v in d.items() if "suggestion" in k),"budget 31")'
+max_chip 25 budget 31
+exit=0
+
