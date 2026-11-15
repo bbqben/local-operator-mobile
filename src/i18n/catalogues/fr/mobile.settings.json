@@ -39,6 +39,7 @@
 	"mobile.settings.section.diagnostics": "Diagnostic",
 	"mobile.settings.diagnostics.route": "Acheminement",
 	"mobile.settings.diagnostics.stream": "Flux",
+	"mobile.settings.diagnostics.reason": "Motif",
 	"mobile.settings.diagnostics.last_error": "Dernière erreur",
 	"mobile.settings.diagnostics.route_radient": "Tunnel Radient",
 	"mobile.settings.diagnostics.route_direct": "Relais direct",
@@ -58,6 +59,10 @@
 	"mobile.settings.diagnostics.stream_degraded": "ne répond pas",
 	"mobile.settings.diagnostics.stream_offline": "hors ligne",
 	"mobile.settings.account.app_name": "Local Operator",
+	"mobile.settings.account.signed_in_radient": "Connecté avec Radient",
+	"mobile.settings.sign_in_confirm.title": "Se connecter avec Radient ?",
+	"mobile.settings.sign_in_confirm.body": "Cela met d'abord fin à votre connexion actuelle. Si vous n'allez pas au bout de la connexion, vous devrez vous reconnecter à votre ordinateur.",
+	"mobile.settings.sign_in_confirm.confirm": "Se connecter",
 	"mobile.settings.own_tunnel.not_saved": "Le mot de passe n’est pas enregistré : l’app le demande donc à chaque lancement.",
 	"mobile.settings.own_tunnel.kept_secure": "L’adresse et le mot de passe sont conservés dans le stockage sécurisé de ce téléphone.",
 	"mobile.settings.own_tunnel.edit": "Modifier",
@@ -68,5 +73,10 @@
 	"mobile.settings.own_tunnel.runtime_body": "Cette version n’a pas de stockage sécurisé : le tunnel ne survit pas à la fermeture de l’app. Sur un téléphone, la valeur est conservée dans le stockage sécurisé de la plateforme.",
 	"mobile.settings.own_tunnel.before_saving": "Testez l’adresse avant de l’enregistrer : un tunnel enregistré qui n’a jamais répondu laisse la liste vide, sans aucune explication.",
 	"mobile.settings.own_tunnel.remove_title": "Retirer ce tunnel ?",
-	"mobile.settings.own_tunnel.remove_body": "L’adresse et le mot de passe seront oubliés sur ce téléphone. Cela ne modifie ni votre ordinateur, ni le tunnel que vous exploitez, ni aucun compte."
+	"mobile.settings.own_tunnel.remove_body": "L’adresse et le mot de passe seront oubliés sur ce téléphone. Cela ne modifie ni votre ordinateur, ni le tunnel que vous exploitez, ni aucun compte.",
+	"mobile.settings.diagnostics.tunnel": "ID du tunnel",
+	"mobile.settings.diagnostics.address": "Adresse du tunnel",
+	"mobile.settings.diagnostics.copy": "Copier le diagnostic",
+	"mobile.settings.diagnostics.copied": "Diagnostic copié",
+	"mobile.settings.diagnostics.copy_failed": "Copie impossible. Réessayez."
 }

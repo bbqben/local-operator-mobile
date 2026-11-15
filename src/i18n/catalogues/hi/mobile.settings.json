@@ -39,6 +39,7 @@
 	"mobile.settings.section.diagnostics": "निदान",
 	"mobile.settings.diagnostics.route": "रूट",
 	"mobile.settings.diagnostics.stream": "स्ट्रीम",
+	"mobile.settings.diagnostics.reason": "कारण",
 	"mobile.settings.diagnostics.last_error": "पिछली त्रुटि",
 	"mobile.settings.diagnostics.route_radient": "Radient टनल",
 	"mobile.settings.diagnostics.route_direct": "सीधा रिले",
@@ -58,6 +59,10 @@
 	"mobile.settings.diagnostics.stream_degraded": "बाधित",
 	"mobile.settings.diagnostics.stream_offline": "ऑफ़लाइन",
 	"mobile.settings.account.app_name": "Local Operator",
+	"mobile.settings.account.signed_in_radient": "Radient से साइन इन है",
+	"mobile.settings.sign_in_confirm.title": "Radient से साइन इन करें?",
+	"mobile.settings.sign_in_confirm.body": "इससे पहले आपका मौजूदा कनेक्शन बंद हो जाएगा। अगर आप साइन इन पूरा नहीं करते, तो आपको अपने कंप्यूटर से फिर से कनेक्ट करना होगा।",
+	"mobile.settings.sign_in_confirm.confirm": "साइन इन करें",
 	"mobile.settings.own_tunnel.not_saved": "पासवर्ड सहेजा नहीं गया है, इसलिए ऐप हर बार खुलने पर उसे माँगता है।",
 	"mobile.settings.own_tunnel.kept_secure": "पता और पासवर्ड इस फ़ोन के सुरक्षित स्टोरेज में रखे हैं।",
 	"mobile.settings.own_tunnel.edit": "बदलें",
@@ -68,5 +73,10 @@
 	"mobile.settings.own_tunnel.runtime_body": "इस बिल्ड में कोई सुरक्षित कीस्टोर नहीं है, इसलिए टनल सिर्फ़ ऐप के इस बार चलने तक रहती है। फ़ोन पर इसे प्लेटफ़ॉर्म के सुरक्षित स्टोरेज में रखा जाता है।",
 	"mobile.settings.own_tunnel.before_saving": "सहेजने से पहले पता जाँच लें: जिस सहेजी गई टनल ने कभी जवाब नहीं दिया, उससे सूची ख़ाली रह जाती है और कोई वजह नहीं बताई जाती।",
 	"mobile.settings.own_tunnel.remove_title": "यह टनल हटाएँ?",
-	"mobile.settings.own_tunnel.remove_body": "इससे इस फ़ोन पर सहेजे गए पता और पासवर्ड, दोनों हट जाते हैं। आपके कंप्यूटर, आपकी चलाई टनल या किसी खाते पर इसका कोई असर नहीं पड़ता।"
+	"mobile.settings.own_tunnel.remove_body": "इससे इस फ़ोन पर सहेजे गए पता और पासवर्ड, दोनों हट जाते हैं। आपके कंप्यूटर, आपकी चलाई टनल या किसी खाते पर इसका कोई असर नहीं पड़ता।",
+	"mobile.settings.diagnostics.tunnel": "टनल आईडी",
+	"mobile.settings.diagnostics.address": "टनल पता",
+	"mobile.settings.diagnostics.copy": "डायग्नोस्टिक्स कॉपी करें",
+	"mobile.settings.diagnostics.copied": "डायग्नोस्टिक्स कॉपी हो गए",
+	"mobile.settings.diagnostics.copy_failed": "कॉपी नहीं हो सका। फिर से कोशिश करें।"
 }

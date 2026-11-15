@@ -39,6 +39,7 @@
 	"mobile.settings.section.diagnostics": "تشخیص",
 	"mobile.settings.diagnostics.route": "راستہ",
 	"mobile.settings.diagnostics.stream": "اسٹریم",
+	"mobile.settings.diagnostics.reason": "وجہ",
 	"mobile.settings.diagnostics.last_error": "آخری خرابی",
 	"mobile.settings.diagnostics.route_radient": "Radient ٹنل",
 	"mobile.settings.diagnostics.route_direct": "براہ راست ریلے",
@@ -58,6 +59,10 @@
 	"mobile.settings.diagnostics.stream_degraded": "جواب نہیں دے رہا",
 	"mobile.settings.diagnostics.stream_offline": "آف لائن",
 	"mobile.settings.account.app_name": "Local Operator",
+	"mobile.settings.account.signed_in_radient": "Radient کے ساتھ سائن ان ہے",
+	"mobile.settings.sign_in_confirm.title": "کیا Radient کے ساتھ سائن ان کریں؟",
+	"mobile.settings.sign_in_confirm.body": "اس سے پہلے آپ کا موجودہ کنکشن ختم ہو جائے گا۔ اگر آپ سائن ان مکمل نہیں کرتے تو آپ کو اپنے کمپیوٹر سے دوبارہ جڑنا ہوگا۔",
+	"mobile.settings.sign_in_confirm.confirm": "سائن ان کریں",
 	"mobile.settings.own_tunnel.not_saved": "پاس ورڈ محفوظ نہیں، اس لیے ایپ ہر بار کھلنے پر اسے مانگتی ہے۔",
 	"mobile.settings.own_tunnel.kept_secure": "پتہ اور پاس ورڈ اس فون کے محفوظ اسٹوریج میں رکھے گئے ہیں۔",
 	"mobile.settings.own_tunnel.edit": "ترمیم کریں",
@@ -68,5 +73,10 @@
 	"mobile.settings.own_tunnel.runtime_body": "اس بلڈ میں کوئی محفوظ اسٹوریج نہیں، اس لیے ٹنل صرف ایپ کے اس بار چلنے تک رکھی جاتی ہے۔ فون پر یہ معلومات پلیٹ فارم کے محفوظ اسٹوریج میں رکھی جاتی ہیں۔",
 	"mobile.settings.own_tunnel.before_saving": "محفوظ کرنے سے پہلے پتہ جانچ لیں: اگر محفوظ کی گئی ٹنل نے کبھی جواب نہ دیا ہو تو فہرست خالی رہتی ہے، بغیر کسی وضاحت کے۔",
 	"mobile.settings.own_tunnel.remove_title": "یہ ٹنل ہٹائیں؟",
-	"mobile.settings.own_tunnel.remove_body": "یہ اس فون سے پتہ اور پاس ورڈ ہٹا دیتا ہے۔ آپ کے کمپیوٹر، آپ کی چلائی ہوئی ٹنل یا کسی اکاؤنٹ پر اس کا کوئی اثر نہیں پڑتا۔"
+	"mobile.settings.own_tunnel.remove_body": "یہ اس فون سے پتہ اور پاس ورڈ ہٹا دیتا ہے۔ آپ کے کمپیوٹر، آپ کی چلائی ہوئی ٹنل یا کسی اکاؤنٹ پر اس کا کوئی اثر نہیں پڑتا۔",
+	"mobile.settings.diagnostics.tunnel": "ٹنل آئی ڈی",
+	"mobile.settings.diagnostics.address": "ٹنل کا پتہ",
+	"mobile.settings.diagnostics.copy": "تشخیص کاپی کریں",
+	"mobile.settings.diagnostics.copied": "تشخیص کاپی ہو گئی",
+	"mobile.settings.diagnostics.copy_failed": "کاپی نہیں ہو سکا۔ دوبارہ کوشش کریں۔"
 }

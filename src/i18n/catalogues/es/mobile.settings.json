@@ -39,6 +39,7 @@
 	"mobile.settings.section.diagnostics": "Diagnóstico",
 	"mobile.settings.diagnostics.route": "Ruta",
 	"mobile.settings.diagnostics.stream": "Flujo",
+	"mobile.settings.diagnostics.reason": "Motivo",
 	"mobile.settings.diagnostics.last_error": "Último error",
 	"mobile.settings.diagnostics.route_radient": "Túnel de Radient",
 	"mobile.settings.diagnostics.route_direct": "Relé directo",
@@ -58,6 +59,10 @@
 	"mobile.settings.diagnostics.stream_degraded": "no responde",
 	"mobile.settings.diagnostics.stream_offline": "sin conexión",
 	"mobile.settings.account.app_name": "Local Operator",
+	"mobile.settings.account.signed_in_radient": "Sesión iniciada con Radient",
+	"mobile.settings.sign_in_confirm.title": "¿Iniciar sesión con Radient?",
+	"mobile.settings.sign_in_confirm.body": "Esto cierra primero tu conexión actual. Si no terminas de iniciar sesión, tendrás que volver a conectarte a tu computadora.",
+	"mobile.settings.sign_in_confirm.confirm": "Iniciar sesión",
 	"mobile.settings.own_tunnel.not_saved": "La contraseña no está guardada, así que la app la pide en cada inicio.",
 	"mobile.settings.own_tunnel.kept_secure": "La dirección y la contraseña se guardan en el almacenamiento seguro de este teléfono.",
 	"mobile.settings.own_tunnel.edit": "Editar",
@@ -68,5 +73,10 @@
 	"mobile.settings.own_tunnel.runtime_body": "Esta compilación no tiene un almacén de claves seguro, así que el túnel solo se conserva durante esta ejecución. En un teléfono, se guarda en el almacenamiento seguro de la plataforma.",
 	"mobile.settings.own_tunnel.before_saving": "Prueba la dirección antes de guardarla: un túnel guardado que nunca ha respondido deja la lista vacía sin ninguna explicación.",
 	"mobile.settings.own_tunnel.remove_title": "¿Quitar este túnel?",
-	"mobile.settings.own_tunnel.remove_body": "Borra la dirección y la contraseña de este teléfono. No afecta a tu máquina, al túnel que ejecutas ni a ninguna cuenta."
+	"mobile.settings.own_tunnel.remove_body": "Borra la dirección y la contraseña de este teléfono. No afecta a tu máquina, al túnel que ejecutas ni a ninguna cuenta.",
+	"mobile.settings.diagnostics.tunnel": "ID del túnel",
+	"mobile.settings.diagnostics.address": "Dirección del túnel",
+	"mobile.settings.diagnostics.copy": "Copiar diagnóstico",
+	"mobile.settings.diagnostics.copied": "Diagnóstico copiado",
+	"mobile.settings.diagnostics.copy_failed": "No se pudo copiar. Inténtalo de nuevo."
 }

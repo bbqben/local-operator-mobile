@@ -3,7 +3,7 @@ import { initialsOf } from "@/ui/components/avatar";
 import { settingsAccountInitialsSource } from "./account-title";
 
 /* What Settings' account avatar paints: `initialsOf` over the source this
- * module picks. Composed exactly as `settings.tsx` composes it, so the
+ * module picks. Composed exactly as `account-card.tsx` composes it, so the
  * assertion is on the two letters a user sees, not on an intermediate. */
 const avatarInitials = (label: string) =>
 	initialsOf(settingsAccountInitialsSource(label));

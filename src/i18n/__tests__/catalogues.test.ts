@@ -34,6 +34,8 @@ import oauthContext from "@/i18n/catalogues/en/mobile.oauth.context.json";
 import oauth from "@/i18n/catalogues/en/mobile.oauth.json";
 import projectsContext from "@/i18n/catalogues/en/mobile.projects.context.json";
 import projects from "@/i18n/catalogues/en/mobile.projects.json";
+import refusalContext from "@/i18n/catalogues/en/mobile.refusal.context.json";
+import refusal from "@/i18n/catalogues/en/mobile.refusal.json";
 import schedulesContext from "@/i18n/catalogues/en/mobile.schedules.context.json";
 import schedules from "@/i18n/catalogues/en/mobile.schedules.json";
 import sessionContext from "@/i18n/catalogues/en/mobile.session.context.json";
@@ -112,8 +114,10 @@ const NAMESPACES = [
 		 *  computer's default" for the folder and for the model): 29 before them.
 		 *  65 with the three pickers (#182): 32 for the chips' spoken labels, the
 		 *  effort names and the pickers' copy, and 2 from its round-1 remediation
-		 *  ("Default effort" on the chip, "This computer's level" in the sheet). */
-		expected: 65,
+		 *  ("Default effort" on the chip, "This computer's level" in the sheet).
+		 *  66 with the startup transcript's compact "Needs your answer" row
+		 *  (TestFlight 906, replacing two hard-coded sentences). */
+		expected: 66,
 	},
 	{
 		name: "mobile.projects",
@@ -149,7 +153,16 @@ const NAMESPACES = [
 		 * "Couldn't connect" with its generic and wrong-password bodies, the
 		 * secure-storage refusal, "Connected, but not saved" with its body with and
 		 * without a code, and Continue). */
-		expected: 138, // M3 S2b-1 +27: own-tunnel command labels/notes and tunnel rule (11), verdict sentences (12), offline remedy (1), password-slot explanations (3) (111 + 27 = 138); M3 S2a +36: Computers titles (2), discovery banners (4), "Your own tunnel" screen (30) (75 + 36 = 111); M3 S1 +30 (17 + 13 sweep: status/reach badges, row a11y, billing, Try now, Remove; 45 + 30 = 75); +17: computers list/remove/paths/wait lines (45 + 17 = 62); earlier: +6: the add-a-computer wait panel's keyed lines (app/ scan); +4: the wait panel's remaining expression literals (host/answering lines, fallback name, connected-to line)
+		expected: 194, // Convergence of #260 onto main f340368a (#261): both comment chains kept; main's 167 + 27 (S2b-2b) = 194, counted over the en JSON; Convergence of #260 onto main caae98bc (#257): 138 + 24 (S2b-2a) + 27 (S2b-2b) = 189; Merge of origin/main (#257, caae98bc) into #261: main's 162 + the branch's 5 (143 - 138) = 167; M3 S2b-2b +27: the set-up-a-computer screen (17), refused-address reasons (9), "Your computer" refusal subject (1) (138 + 27 = 165); PR #261 round-1 remediation +2: set-up's "Check again" and its "Checking…" state (141 + 2 = 143); M1 scope additions +1: the switcher's "Can't reach Radient right now" hint (140 + 1 = 141); M1 no-terminal +2: set-up's Settings → Phone access line and its "list updates by itself" line (138 + 2 = 140); M3 S2b-2a +24: the connection-failure (refusal) surface: 9 headlines, 9 next lines, wait line, 5 buttons (138 + 24 = 162); M3 S2b-1 +27: own-tunnel command labels/notes and tunnel rule (11), verdict sentences (12), offline remedy (1), password-slot explanations (3) (111 + 27 = 138); M3 S2a +36: Computers titles (2), discovery banners (4), "Your own tunnel" screen (30) (75 + 36 = 111); M3 S1 +30 (17 + 13 sweep: status/reach badges, row a11y, billing, Try now, Remove; 45 + 30 = 75); +17: computers list/remove/paths/wait lines (45 + 17 = 62); earlier: +6: the add-a-computer wait panel's keyed lines (app/ scan); +4: the wait panel's remaining expression literals (host/answering lines, fallback name, connected-to line)
+	},
+	{
+		name: "mobile.refusal",
+		messages: refusal,
+		context: refusalContext,
+		/* M1 no-terminal: the refusal surface's named causes (11 titles, 9 bodies),
+		 *  their six actions, the "How to turn it on" sheet (2) and the "Using a
+		 *  terminal?" disclosure with its block label (2). */
+		expected: 42, // PR #261 round-1 remediation +3: the suspended body, the relay-refused title and body (39 + 3 = 42); M1 scope additions +9: core C1 kinds (wait_network and wait_reconnect title/body, the computer's sign-in and attention title/body, open_console title) (30 + 9 = 39)
 	},
 	{
 		name: "mobile.notifications",
@@ -165,7 +178,7 @@ const NAMESPACES = [
 		name: "mobile.session",
 		messages: session,
 		context: sessionContext,
-		expected: 80, // +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels)
+		expected: 81, // +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
 	},
 	{
 		/* The relay's own two namespaces, under its own keys. They are here rather
@@ -217,7 +230,7 @@ const NAMESPACES = [
 		name: "mobile.settings",
 		messages: settings,
 		context: settingsContext,
-		expected: 70, // M3 S2b-1 +11: the own-tunnel section of Settings (59 + 11 = 70); +27: Settings screen literals keyed by the app/ scan (title, sections, rows, diagnostics, sign-out); +14: Settings expression literals (account card, status words, stream words, relay words)
+		expected: 80, // Merge of origin/main (#258, 8ca71d54) into #261: the branch's 75 + main's 5 (80, counted over the merged en JSON). Branch: PR #261 round-1 remediation +1: Copy diagnostics' "Couldn't copy" state (74 + 1 = 75); M1 scope additions +4: Diagnostics tunnel id, tunnel address, Copy diagnostics and its copied state (70 + 4 = 74). Main: +4 the account card's `account.signed_in_radient` and the `sign_in_confirm` dialog (PR #258 R1 B1/m1); +1 `diagnostics.reason` (the raw stream-health reason row, Sherman's report). M3 S2b-1 +11: the own-tunnel section of Settings (59 + 11 = 70); +27: Settings screen literals keyed by the app/ scan (title, sections, rows, diagnostics, sign-out); +14: Settings expression literals (account card, status words, stream words, relay words)
 	},
 	{
 		/* The conversations drawer's View options (TestFlight 906): the desktop's
@@ -237,7 +250,9 @@ const NAMESPACES = [
 		name: "mobile.chrome",
 		messages: chrome,
 		context: chromeContext,
-		expected: 26, // +5: the More sheet's row labels (visual audit D5); +1 its Questions row (build 753)
+		// +5: the More sheet's row labels (visual audit D5); +1 its Questions row
+		// (build 753); +1 the search pill's "Clear search" (TestFlight 906).
+		expected: 27,
 	},
 	{
 		name: "relay.chrome",
@@ -341,9 +356,19 @@ describe("the English catalogues", () => {
 		/* M3 slice S2a (English-first): +36 mobile.computers (titles, discovery
 		 * banners, the "Your own tunnel" screen) + 1 mobile.signin (loopback
 		 * unavailable detail) = 37: 734 + 37 = 771, counted over the en JSON. */
+		/* TestFlight 906 mobile fixes: + mobile.home.transcript.needs_answer and
+		 * mobile.chrome.clear_search = 2: 771 + 2 = 773. */
+		/* PR #256 QA round 1, Q3: + mobile.session.pending_echo.not_confirmed_plain
+		 * (the new-conversation caption with no retry to point at) = 774. */
 		/* M3 slice S2b-1 (English-first): +27 mobile.computers (own-tunnel
 		 * commands, verdicts, remedy, password slot) + 3 mobile.common (command
-		 * block) + 11 mobile.settings (own-tunnel section) = 41: 771 + 41 = 812,
+		 * block) + 11 mobile.settings (own-tunnel section) = 41: 774 + 41 = 815,
+		 * counted over the en JSON. */
+		/* M3 slice S2b-2b (English-first): +27 mobile.computers (set-up-a-computer
+		 * screen 17, refused-address reasons 9, "Your computer" subject 1):
+		 * 812 + 27 = 839, counted over the en JSON. */
+		/* M3 slice S2b-2a (English-first): +24 mobile.computers (the refusal
+		 * surface's headlines, next lines, wait line and buttons): 812 + 24 = 836,
 		 * counted over the en JSON. */
 		/* TestFlight 906 drawer View options: + the 21 `mobile.sidebar.*` keys
 		 * (order, grouping, clock, ended, sections, link, heading): 771 + 21 = 792,
@@ -352,12 +377,59 @@ describe("the English catalogues", () => {
 		 * state's headline, line and action (D2, M1): 792 + 4 = 796. */
 		/* Merge of origin/main (#254, d5831603) into #255: 771 + 41 (S2b-1)
 		 * + 25 (mobile.sidebar: 21 + 4) = 837. */
+		/* Convergence of #257 onto main f8d0d8dd (#255): both comment chains kept;
+		 * 812 + 24 (S2b-2a) + 25 (mobile.sidebar) = 861, counted over the en JSON. */
 		/* fix/session-push-register: +6 mobile.notifications (the Settings
 		 * sentence for this phone's registration with the routed computer):
 		 * 812 + 6 = 818. */
 		/* Merge of origin/main (#255, f8d0d8dd) into #259: 837 on main + 6
 		 * mobile.notifications = 843. */
-		expect(total).toBe(843);
+		/* M1 no-terminal: +2 mobile.computers (set-up's two lines) + 30
+		 * mobile.refusal (new namespace) = 32: 812 + 32 = 844, counted over the
+		 * en JSON. */
+		/* M1 scope additions: +9 mobile.refusal, +1 mobile.computers, +4
+		 * mobile.settings = 14: 844 + 14 = 858. */
+		/* PR #261 round-1 remediation: +3 mobile.refusal (the suspended body,
+		 * the relay-refused title and body), +2 mobile.computers (Check again,
+		 * Checking…), +1 mobile.settings (Couldn't copy) = 6: 858 + 6 = 864. */
+		/* Merge of origin/main (#259, 9ef19ccd) into #261: 843 on main + the
+		 * branch's 52 (864 - 812) = 895. */
+		/* Convergence of #257 onto main 9ef19ccd (#259): both comment chains kept;
+		 * 861 + 6 (mobile.notifications) = 867, counted over the en JSON. */
+		/* fix/settings-signin-status-badge: +1 mobile.settings
+		 * (`diagnostics.reason`, the label of the raw reason-code row; the code
+		 * itself is never a key): 812 + 1 = 813. Review round 1: +4 (the signed-in
+		 * account title and the sign-in confirm's title, body and button):
+		 * 813 + 4 = 817. */
+		/* Merge of origin/main (#255, f8d0d8dd) into #258: 837 on main + 5
+		 * mobile.settings = 842. */
+		/* Merge of origin/main (#259, 9ef19ccd) into #258: 843 on main + 5
+		 * mobile.settings = 848. */
+		/* Merge of origin/main (#255, f8d0d8dd) into #256: 837 on main + 3
+		 * (mobile.home, mobile.chrome, mobile.session) = 840. */
+		/* Merge of origin/main (#259, 9ef19ccd) into #256: 843 on main + 3
+		 * (mobile.home, mobile.chrome, mobile.session) = 846. */
+		/* Merge of origin/main (#258, 8ca71d54) into #256: 848 on main + 3
+		 * (mobile.home, mobile.chrome, mobile.session) = 851. */
+		/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+		 * 867 + 5 (mobile.settings) = 872, counted over the en JSON. */
+		/* Merge of origin/main (#257, caae98bc) into #256: 872 on main + 3
+		 * (mobile.home, mobile.chrome, mobile.session) = 875. */
+		/* Merge of origin/main (#258, 8ca71d54) into #261: 848 on main + the
+		 * branch's 52 (895 - 843) = 900, counted over the merged en JSON. */
+		/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+		 * 867 + 5 (mobile.settings) = 872, counted over the en JSON. */
+		/* Merge of origin/main (#257, caae98bc) into #261: 872 on main + the
+		 * branch's 52 (900 - 848) = 924, counted over the merged en JSON. */
+		/* Convergence of #260 onto main caae98bc (#257): both comment chains kept;
+		 * 872 + 27 (S2b-2b) = 899, counted over the en JSON. */
+		/* Convergence of #260 onto main f340368a (#261): both comment chains kept;
+		 * 924 on main + 27 (S2b-2b) = 951, counted over the en JSON. */
+		/* Merge of origin/main (#261, f340368a) into #256: 924 on main + 3
+		 * (mobile.home, mobile.chrome, mobile.session) = 927. */
+		/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
+		 * 927 on main + 27 (S2b-2b) = 954, counted over the en JSON. */
+		expect(total).toBe(954);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -511,6 +583,11 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Placeholder-only template, `{head} · {label}` — the two arguments are pre-rendered sentences and the middle dot is a separator.",
 		"relay.transcript.label.messages":
 			"« Messages » is the French plural of « message », mirrored verbatim from the core relay catalogue.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the fr audit accepted it as kept Latin (i18n/audits/evidence/fr/m3-s2b2b-computers-setup/).",
+		"mobile.computers.setup.terminal_label":
+			"« Terminal » is the French word for the terminal, spelled as in English (as « Sections » for mobile.sidebar.sections); the fr audit accepted the set-up screen's command-block label (i18n/audits/evidence/fr/m3-s2b2b-computers-setup/).",
 	},
 	/* Spanish preserves these placeholder-only templates: names and separators
 	 * have no English prose to translate. Each key remains explicitly listed. */
@@ -533,6 +610,11 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		...PROJECT_TAG_EXAMPLE,
 		"mobile.schedules.head.overdue":
 			"Placeholder-only template, `{head} · {label}` — the separator is the same in Spanish; there is no prose to translate.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the es audit accepted it as kept Latin (i18n/audits/evidence/es/m3-s2b2b-computers-setup/).",
+		"mobile.computers.setup.terminal_label":
+			"«Terminal» is the Spanish word for the terminal, spelled as in English; the es audit accepted the set-up screen's command-block label, which has no article to agree (i18n/audits/evidence/es/m3-s2b2b-computers-setup/).",
 	},
 	"zh-CN": {
 		"mobile.settings.account.app_name":
@@ -548,6 +630,9 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"The server accepts only ASCII slug tags (`^[a-z0-9][a-z0-9_-]{0,23}$`), so the placeholder example stays ASCII here; a localised example is refused when used as a tag.",
 		"mobile.schedules.head.overdue":
 			"Placeholder-only template, `{head} · {label}` — Chinese carries the separator unchanged; there is no prose to translate.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the zh-CN audit accepted it as kept Latin (i18n/audits/evidence/zh-CN/m3-s2b2b-computers-setup/).",
 	},
 	ru: {
 		"mobile.settings.account.app_name":
@@ -569,6 +654,9 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"The server accepts only ASCII slug tags (`^[a-z0-9][a-z0-9_-]{0,23}$`), so the placeholder example stays ASCII here; a localised example is refused when used as a tag.",
 		"mobile.schedules.head.overdue":
 			"Placeholder-only template, `{head} · {label}` — Russian carries the separator unchanged; there is no prose to translate.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the ru audit accepted it as kept Latin (i18n/audits/evidence/ru/m3-s2b2b-computers-setup/).",
 	},
 	vi: {
 		"mobile.settings.account.app_name":
@@ -597,6 +685,11 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		/* The 2026-11-07 home-pickers audit (VI-H01, vi1107p1) chose the loanword. */
 		"mobile.home.picker.folder_home":
 			"Vietnamese names the home folder «thư mục home» across mobile and core (relay.chrome.session.ended_hint); the folder badge is its short form «Home», which matches the English spelling. «Thư mục chính» reads as 'main folder'.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the vi audit accepted it as kept Latin (i18n/audits/evidence/vi/m3-s2b2b-computers-setup/).",
+		"mobile.computers.setup.terminal_label":
+			"Vietnamese developers say `Terminal`: a standard loanword, as the vi catalogue already keeps shell and loopback; the vi audit ruled terminal_label ACCEPT (i18n/audits/evidence/vi/m3-s2b2b-computers-setup/).",
 	},
 	hi: {
 		"mobile.settings.account.app_name":
@@ -622,6 +715,9 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Mirrored from the core relay catalogue: technical CLI/runtime token `shell` kept in Latin script beside the count.",
 		"relay.transcript.fold.python":
 			"Mirrored from the core relay catalogue: language/tool proper token `python` kept in Latin script beside the count.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the hi audit accepted it as kept Latin (i18n/audits/evidence/hi/m3-s2b2b-computers-setup/).",
 	},
 	ur: {
 		"mobile.settings.account.app_name":
@@ -643,6 +739,9 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Mirrored from the core relay catalogue: technical CLI/runtime token `shell` kept in Latin script beside the count.",
 		"relay.transcript.fold.python":
 			"Mirrored from the core relay catalogue: language/tool proper token `python` kept in Latin script beside the count.",
+		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
+		"mobile.computers.setup.tui_label":
+			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the ur audit accepted it as kept Latin (i18n/audits/evidence/ur/m3-s2b2b-computers-setup/).",
 	},
 };
 

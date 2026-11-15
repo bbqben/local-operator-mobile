@@ -39,6 +39,7 @@
 	"mobile.settings.section.diagnostics": "诊断",
 	"mobile.settings.diagnostics.route": "连接路径",
 	"mobile.settings.diagnostics.stream": "数据流",
+	"mobile.settings.diagnostics.reason": "原因",
 	"mobile.settings.diagnostics.last_error": "最近错误",
 	"mobile.settings.diagnostics.route_radient": "Radient隧道",
 	"mobile.settings.diagnostics.route_direct": "直连中继",
@@ -58,6 +59,10 @@
 	"mobile.settings.diagnostics.stream_degraded": "未响应",
 	"mobile.settings.diagnostics.stream_offline": "离线",
 	"mobile.settings.account.app_name": "Local Operator",
+	"mobile.settings.account.signed_in_radient": "已使用Radient登录",
+	"mobile.settings.sign_in_confirm.title": "使用Radient登录？",
+	"mobile.settings.sign_in_confirm.body": "这会先结束你当前的连接。如果你没有完成登录，需要重新连接你的电脑。",
+	"mobile.settings.sign_in_confirm.confirm": "登录",
 	"mobile.settings.own_tunnel.not_saved": "密码未保存，因此应用每次启动时都会要求输入。",
 	"mobile.settings.own_tunnel.kept_secure": "地址和密码保存在此手机的安全存储中。",
 	"mobile.settings.own_tunnel.edit": "编辑",
@@ -68,5 +73,10 @@
 	"mobile.settings.own_tunnel.runtime_body": "此版本没有安全密钥库，因此隧道仅在本次运行期间有效。在手机上，这些信息会保存在系统的安全存储中。",
 	"mobile.settings.own_tunnel.before_saving": "保存前先测试地址：从未响应过的隧道一旦保存，列表会一直为空，且无从得知原因。",
 	"mobile.settings.own_tunnel.remove_title": "移除此隧道？",
-	"mobile.settings.own_tunnel.remove_body": "此操作会清除此手机上的地址和密码，不会影响你的电脑、你运行的隧道或任何账户。"
+	"mobile.settings.own_tunnel.remove_body": "此操作会清除此手机上的地址和密码，不会影响你的电脑、你运行的隧道或任何账户。",
+	"mobile.settings.diagnostics.tunnel": "隧道 ID",
+	"mobile.settings.diagnostics.address": "隧道地址",
+	"mobile.settings.diagnostics.copy": "复制诊断信息",
+	"mobile.settings.diagnostics.copied": "已复制诊断信息",
+	"mobile.settings.diagnostics.copy_failed": "无法复制。请重试。"
 }

@@ -21,6 +21,8 @@ import {
 	useListState,
 	useLocaleFrame,
 } from "@/features/auth/connection-provider";
+import { homeNamedRefusal } from "@/features/auth/refusal";
+import { TransientNotice } from "@/features/auth/transient-notice";
 import { NOTICE_STACK_STYLE } from "@/features/home/composer-stack";
 import { NO_PRESS, pressAnswered } from "@/features/home/hero-focus";
 import {
@@ -38,6 +40,7 @@ import {
 	foldersFrom,
 	type HomeFolders,
 	heldOn,
+	holdReadFailure,
 	homeModelRows,
 	homeStartSelection,
 	isAuthFailure,
@@ -59,7 +62,11 @@ import {
 	homeFolderChip,
 } from "@/features/home/picker-model";
 import { useHomeDrawer } from "@/features/home/use-home-drawer";
-import { StartupTranscript } from "@/features/new-session/startup-transcript";
+import { startupEchoes } from "@/features/new-session/startup-echoes";
+import {
+	StartupPreview,
+	StartupTranscript,
+} from "@/features/new-session/startup-transcript";
 import { useStartup } from "@/features/new-session/use-startup";
 import { notificationsEnabled } from "@/features/notifications/notifications-model";
 import {
@@ -72,6 +79,7 @@ import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import { Composer } from "@/features/session/components/composer";
 import type { ComposerControls } from "@/features/session/composer";
 import { composerCopy, pasteNothingLine } from "@/features/session/composer";
+import { heldTimer } from "@/features/session/resume-hold";
 import { deviceOnline } from "@/features/session/runtime";
 import { useHomeDictation } from "@/features/session/use-dictation";
 import { ConversationsPane } from "@/features/sessions/conversations-pane";
@@ -90,6 +98,7 @@ import { ReadableColumn, SplitView } from "@/ui/components/adaptive";
 import { Alert } from "@/ui/components/alert";
 import { Button } from "@/ui/components/button";
 import { useChromeGlass } from "@/ui/components/chrome-surface";
+import { RefusalSurface } from "@/ui/components/refusal-surface";
 import { Screen } from "@/ui/components/screen";
 import { Sheet } from "@/ui/components/sheet";
 import { TOUCH_FLOOR, useLayout } from "@/ui/layout";
@@ -165,11 +174,15 @@ export default function Home({
 	const {
 		relay,
 		refusal,
+		refreshComputers,
+		signInWithRadient,
+		transient,
 		retry,
 		busy,
 		coldStartSettled,
 		savedTunnel,
 		restoredAccount,
+		resumeClock,
 	} = useConnection();
 	const computers = useConnectionState((state) => state.computers);
 	const tunnelId = useConnectionState((state) => state.tunnelId);
@@ -332,6 +345,36 @@ export default function Home({
 	const setDraft = startup.setText;
 	const setImages = startup.setImages;
 	const starting = startup.snapshot.phase === "starting";
+	/* The reader's sent-but-not-yet-transcribed messages, as rows on screen from
+	 *  the moment the outbox holds them (`startup-echoes.ts`). Memoised on the
+	 *  three coordinator fields it reads, which change only on a real transition,
+	 *  so the memoised rows do not re-render per keystroke. */
+	const echoes = useMemo(
+		() =>
+			startupEchoes({
+				phase: startup.snapshot.phase,
+				queue: startup.snapshot.queue,
+				delivered: startup.snapshot.delivered,
+			}),
+		[
+			startup.snapshot.phase,
+			startup.snapshot.queue,
+			startup.snapshot.delivered,
+		],
+	);
+	/* A refused create's row puts the queue back in the editor — the queue
+	 *  sheet's existing "Put back in draft" (`restoreQueueToDraft`), reached
+	 *  from the row the caption points at. Stable for the memoised rows. */
+	const restoreQueueRef = useRef(startup.restoreQueueToDraft);
+	restoreQueueRef.current = startup.restoreQueueToDraft;
+	const putBackStartup = useCallback(() => {
+		void restoreQueueRef.current();
+	}, []);
+	const witnessRef = useRef(startup.witness);
+	witnessRef.current = startup.witness;
+	const witnessStartup = useCallback((ids: ReadonlySet<string>) => {
+		witnessRef.current(ids);
+	}, []);
 	const queueLine = startupQueueState(
 		startup.snapshot.phase,
 		startup.snapshot.sessionId,
@@ -384,6 +427,7 @@ export default function Home({
 						: !connected
 							? "no-host"
 							: null;
+	const namedRefusal = homeNamedRefusal(homeRecovery, refusal);
 
 	/* The computer's two reads, each kept as the state it really is.
 	 *
@@ -426,6 +470,7 @@ export default function Home({
 		 *  computer change re-asks: `tunnelId` is a dependency for that reason. */
 		const computer = tunnelId;
 		let live = true;
+		let heldReask: (() => void) | null = null;
 		void active
 			.directories()
 			.then((payload) => {
@@ -446,15 +491,26 @@ export default function Home({
 			})
 			.catch((cause: unknown) => {
 				if (!live) return;
-				setDirectoriesError(foldersFailure(cause));
+				const failure = foldersFailure(cause);
+				/* A resume blip is held and re-asked once at the window's end; the
+				 *  last good folders (or the loading state) stay meanwhile. */
+				if (holdReadFailure(failure, resumeClock)) {
+					heldReask = heldTimer(resumeClock, 0, () => {
+						heldReask = null;
+						if (live) setDirectoriesAttempt((attempt) => attempt + 1);
+					});
+					return;
+				}
+				setDirectoriesError(failure);
 				setDirectoriesSettled(directoriesAttempt);
 				if (foldersPressed.current === directoriesAttempt)
 					foldersPressed.current = NO_PRESS;
 			});
 		return () => {
 			live = false;
+			heldReask?.();
 		};
-	}, [relay, tunnelId, directoriesAttempt]);
+	}, [relay, tunnelId, directoriesAttempt, resumeClock]);
 
 	/* `modelsAttempt` is the re-run trigger (see above), and is now read too: the
 	 *  settle records WHICH attempt answered, for the Retry's `loading`. */
@@ -467,6 +523,7 @@ export default function Home({
 			return;
 		}
 		let live = true;
+		let heldReask: (() => void) | null = null;
 		void active
 			.models()
 			.then((catalogue) => {
@@ -480,8 +537,16 @@ export default function Home({
 					setHeroFocus((request) => request + 1);
 				}
 			})
-			.catch(() => {
+			.catch((cause: unknown) => {
 				if (!live) return;
+				// As the folders read: a resume blip is re-asked, not shown.
+				if (holdReadFailure(foldersFailure(cause), resumeClock)) {
+					heldReask = heldTimer(resumeClock, 0, () => {
+						heldReask = null;
+						if (live) setModelsAttempt((attempt) => attempt + 1);
+					});
+					return;
+				}
 				setModelsRead("failed");
 				setModelsSettled(modelsAttempt);
 				if (modelsPressed.current === modelsAttempt)
@@ -489,8 +554,9 @@ export default function Home({
 			});
 		return () => {
 			live = false;
+			heldReask?.();
 		};
-	}, [relay, modelsAttempt]);
+	}, [relay, modelsAttempt, resumeClock]);
 
 	/* The next attempt is computed from the render's value, not inside the
 	 *  updater: an updater must stay pure (StrictMode calls it twice). */
@@ -774,7 +840,27 @@ export default function Home({
 			{/* One exclusive recovery story; a cached transcript is not an empty home.
 			 * Restoring is not evidence of expiry. No token/provider decisions here. */}
 			<View className="flex-1">
-				{homeRecovery ? (
+				{namedRefusal ? (
+					/* A cause the taxonomy named gets its own words and buttons here
+					 *  too, not "couldn't connect" + Retry (PR #261 Q2,
+					 *  `homeNamedRefusal`). The draft line stays: it is Home's. */
+					<View className="px-4" testID={SURFACE.homeRecovery}>
+						<RefusalSurface
+							kind={namedRefusal.kind}
+							subject={namedRefusal.subject}
+							detail={namedRefusal.detail}
+							remedy={namedRefusal.remedy}
+							copy={namedRefusal.copy}
+							retryAfterMs={namedRefusal.retryAfterMs}
+							onRetry={() => void retry()}
+							onRefreshList={() => void refreshComputers()}
+							onSignIn={() => void signInWithRadient()}
+						/>
+						<Text className="text-body-sm text-ink-muted">
+							{t("mobile.chrome.home.saved_draft")}
+						</Text>
+					</View>
+				) : homeRecovery ? (
 					<HomeRecovery
 						kind={homeRecovery}
 						host={listLabel(computers, tunnelId, route)}
@@ -788,7 +874,15 @@ export default function Home({
 					<StartupTranscript
 						sessionId={startup.snapshot.sessionId}
 						onStreaming={setRunning}
+						echoes={echoes}
+						onWitness={witnessStartup}
+						onPutBack={putBackStartup}
 					/>
+				) : echoes.length > 0 && homeRecovery === null ? (
+					/* Before the start has answered there is no session to adopt, but
+					 *  the reader has sent: show what they sent, not the splash
+					 *  (operator, TestFlight 906). */
+					<StartupPreview echoes={echoes} onPutBack={putBackStartup} />
 				) : homeRecovery === null ? (
 					<HomeSplash
 						draft={draft}
@@ -864,6 +958,15 @@ export default function Home({
 				 *  keeps the retry, which is a real answer for a read that only raced something.
 				 *  A successful read clears the row; a retry that fails again keeps it, which is
 				 *  the honest state. */}
+				{/* A wait the computer named while the list stream retries (PR #261
+				 *  Q3): Home is where the reader is, and it showed a green check.
+				 *  Inset in this stack like the folder notice below, so it never
+				 *  moves the composer. */}
+				{transient ? (
+					<View className="px-4 pb-2">
+						<TransientNotice />
+					</View>
+				) : null}
 				{directoriesError !== null ? (
 					<View className="px-4 pb-2">
 						<Alert

@@ -168,13 +168,13 @@ describe("a route is data, and it is validated rather than normalised", () => {
 	it("refuses credentials in a URL, which would end up in a log", () => {
 		const parsed = validateCustomBaseUrl("https://user:secret@relay.example");
 		expect(parsed.ok).toBe(false);
-		if (!parsed.ok) expect(parsed.reason).toMatch(/username and password/);
+		if (!parsed.ok) expect(parsed.code).toBe("credentials");
 	});
 
 	it("allows plain http only for a private host AND only with the warning acknowledged", () => {
 		const insecure = validateCustomBaseUrl("http://192.168.1.4:4098");
 		expect(insecure.ok).toBe(false);
-		if (!insecure.ok) expect(insecure.reason).toMatch(/unencrypted/);
+		if (!insecure.ok) expect(insecure.code).toBe("insecure-off");
 
 		const accepted = validateCustomBaseUrl("http://192.168.1.4:4098", {
 			allowInsecure: true,
@@ -954,6 +954,20 @@ describe("discovery turns tunnels into computers, honestly", () => {
 		);
 		expect(ineligible.billing.eligible).toBe(false);
 		expect(ineligible.billing.message).toBe("Add a payment method.");
+	});
+
+	it("carries billing.active separately from eligible, absent as unknown", () => {
+		/* The refusal split needs both: never turned on (`active: false`) and out
+		 *  of credit (`active: true, eligible: false`) have different fixes. */
+		expect(toComputer(tunnel() as never).billing.active).toBeNull();
+		const off = toComputer(
+			tunnel({ billing: { active: false, eligible: false } }) as never,
+		);
+		expect(off.billing.active).toBe(false);
+		const broke = toComputer(
+			tunnel({ billing: { active: true, eligible: false } }) as never,
+		);
+		expect(broke.billing).toMatchObject({ active: true, eligible: false });
 	});
 });
 

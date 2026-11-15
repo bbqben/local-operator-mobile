@@ -1,18 +1,32 @@
 import { t } from "@/i18n";
 
 /**
- * Settings' account title: the signed-in identity the live route admitted with
- * (`ConnectionSnapshot.accountLabel`, an email or display name — never a token),
- * or the "Not signed in with Radient" fallback when there is none.
+ * Settings' account title, as `account-card.tsx` renders it.
+ *
+ * Signed in with Radient: the identity the live route admitted with
+ * (`ConnectionSnapshot.accountLabel` — the grant's email, else its name; never
+ * a token), else the generic "Signed in with Radient". Not signed in: "Not
+ * signed in with Radient", whatever label is held.
+ *
+ * Why both inputs: PR #258 keyed the card on `radientSignedIn` because, until
+ * this PR, nothing in production wrote a non-null `accountLabel`, so a
+ * label-only title told every signed-in reader they were signed out. PR #262
+ * writes the label at the source — `routeAdmission` reads the Radient grant's
+ * `account_label` — and this lets that label NAME the account on #258's card
+ * without moving the signed-in decision off `radientSignedIn`. A custom route
+ * carries no label, so a reader holding a grant there keeps the generic line.
  *
  * A plain function, not inline JSX, so `connection-provider.test.ts` can drive
- * the same expression the screen renders from a real route admission: Node
- * cannot import Settings' styling stack. The label itself is set at the source —
- * `routeAdmission` reads the Radient grant's `account_label` — never special-cased
- * here (PR #261 design round 2: every Radient user was shown the fallback).
+ * the same expression the card renders from a real route admission: Node cannot
+ * import Settings' styling stack.
  */
-export const settingsAccountTitle = (accountLabel: string | null): string =>
-	accountLabel ?? t("mobile.settings.account.not_signed_in");
+export const settingsAccountTitle = (
+	radientSignedIn: boolean,
+	accountLabel: string | null,
+): string =>
+	radientSignedIn
+		? (accountLabel ?? t("mobile.settings.account.signed_in_radient"))
+		: t("mobile.settings.account.not_signed_in");
 
 /**
  * What Settings' account avatar takes its initials FROM: the label, but only the
