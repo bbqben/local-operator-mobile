@@ -7,5 +7,8 @@
 	"mobile.remote_sessions.owner_unresolved": "El relé no puede confirmar qué equipo es propietario de esta conversación. Actualiza la lista de sesiones y vuelve a intentarlo.",
 	"mobile.remote_sessions.session_missing": "Esta conversación ya no está disponible en su equipo propietario. Actualiza la lista de sesiones.",
 	"mobile.remote_sessions.cursor_missing": "El propietario ya no reconoce esta posición del historial. Los mensajes cargados se conservan; vuelve a abrir la conversación para leer el historial más reciente.",
-	"mobile.remote_sessions.command_ambiguous": "Puede que el propietario haya recibido este comando sin confirmarlo. Revisa la conversación antes de reintentarlo para no enviarlo dos veces."
+	"mobile.remote_sessions.command_ambiguous": "Puede que el propietario haya recibido este comando sin confirmarlo. Revisa la conversación antes de reintentarlo para no enviarlo dos veces.",
+	"mobile.remote_sessions.file_saving": "Guardando el archivo…",
+	"mobile.remote_sessions.file_save_failed": "No se pudo guardar este archivo. Vuelve a intentarlo.",
+	"mobile.remote_sessions.retained_only": "Las sesiones remotas admiten documentos adjuntos conservados, pero no Highlights ni vistas previas de archivos generados."
 }

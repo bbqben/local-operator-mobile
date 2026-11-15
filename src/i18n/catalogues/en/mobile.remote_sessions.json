@@ -7,5 +7,8 @@
 	"mobile.remote_sessions.owner_unresolved": "The relay cannot confirm which computer owns this conversation. Refresh the sessions list and try again.",
 	"mobile.remote_sessions.session_missing": "This conversation is no longer available on its owner computer. Refresh the sessions list.",
 	"mobile.remote_sessions.cursor_missing": "The owner no longer recognizes this history position. Your loaded messages are still here; reopen the conversation to read the latest history.",
-	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate."
+	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate.",
+	"mobile.remote_sessions.file_saving": "Saving file…",
+	"mobile.remote_sessions.file_save_failed": "Could not save this file. Try again.",
+	"mobile.remote_sessions.retained_only": "Remote sessions support retained document attachments, not Highlights or generated-file previews."
 }

@@ -34,5 +34,17 @@
 	"mobile.remote_sessions.command_ambiguous": {
 		"role": "status",
 		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.file_saving": {
+		"role": "status",
+		"note": "Historical retained file save status, used for local and remote conversations. This is not an upload and does not read the original filesystem path."
+	},
+	"mobile.remote_sessions.file_save_failed": {
+		"role": "status",
+		"note": "Historical retained file save status, used for local and remote conversations. This is not an upload and does not read the original filesystem path."
+	},
+	"mobile.remote_sessions.retained_only": {
+		"role": "status",
+		"note": "Visible remote-only capability limit: retained input DocumentContent attachments are supported, generated supplement files and the Highlights feature are not. Highlights is a feature label, not search highlighting. Never imply uploads or local filesystem access."
 	}
 }

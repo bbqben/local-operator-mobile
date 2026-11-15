@@ -3767,10 +3767,28 @@ export function buildScenarios(fix: FixtureCorpus): ScenarioRegistry {
 						) as TranscriptEntry,
 					),
 					id: "remote-owner-answer",
+					files: [
+						{
+							index: 3,
+							filename: "retained-notes.txt",
+							mime_type: "text/plain",
+							bytes: new TextEncoder().encode(
+								"Retained synthetic file bytes.\n",
+							).length,
+						},
+					],
 					text: "The conversation stays on the owner computer. You can read it and send instructions here.",
 					images: [],
 				},
 			];
+			// Negative control: an older owner's cached projection may still carry
+			// Highlights metadata. The remote phone must not expose its previews.
+			projection.supplements = {
+				"remote-owner-answer": {
+					...supplementBeat("done_populated"),
+					anchor: "remote-owner-answer",
+				},
+			};
 			return {
 				projections: { [projection.session_id]: projection },
 				rowOverridesById: {

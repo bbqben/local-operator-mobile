@@ -7,5 +7,8 @@
 	"mobile.remote_sessions.owner_unresolved": "中继无法确认此对话属于哪台电脑。请刷新会话列表后重试。",
 	"mobile.remote_sessions.session_missing": "此对话在所属电脑上已不可用。请刷新会话列表。",
 	"mobile.remote_sessions.cursor_missing": "所属电脑已无法识别此历史记录位置。已加载的消息仍会保留；请重新打开对话以查看最新历史记录。",
-	"mobile.remote_sessions.command_ambiguous": "所属电脑可能已收到此命令，但未确认。重试前请检查对话，避免重复发送。"
+	"mobile.remote_sessions.command_ambiguous": "所属电脑可能已收到此命令，但未确认。重试前请检查对话，避免重复发送。",
+	"mobile.remote_sessions.file_saving": "正在保存文件…",
+	"mobile.remote_sessions.file_save_failed": "无法保存此文件。请重试。",
+	"mobile.remote_sessions.retained_only": "远程会话支持保留的文档附件，但不支持 Highlights 或生成文件的预览。"
 }

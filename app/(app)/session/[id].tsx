@@ -42,6 +42,7 @@ import {
 } from "@/features/session/components/model-sheet";
 import { PendingCard } from "@/features/session/components/pending-card";
 import { PendingEchoRows } from "@/features/session/components/pending-echo-row";
+import { RemoteFeatureNotice } from "@/features/session/components/remote-feature-notice";
 import {
 	HealthAnnouncer,
 	ResumeBlock,
@@ -94,7 +95,10 @@ import { useCompletionAck } from "@/features/session/use-completion-ack";
 import { draftSlashQuery, useComposer } from "@/features/session/use-composer";
 import { useFind } from "@/features/session/use-find";
 import { useSessionRuntime } from "@/features/session/use-session";
-import { sessionCapabilities } from "@/features/sessions/session-navigation";
+import {
+	sessionCapabilities,
+	sessionSupplementClient,
+} from "@/features/sessions/session-navigation";
 import { isRemoteRow } from "@/features/sessions/session-projection";
 import { canAssignSessionTags } from "@/features/sessions/tags";
 import { SessionTagsSheet } from "@/features/sessions/tags-sheet";
@@ -267,6 +271,11 @@ function Session() {
 	/* What the reader just sent and the transcript does not carry yet, resolved by
 	 *  command id against the rows (`pending-echo.ts`). */
 	const pendingEchoes = usePendingEchoes(sessionId, runtime.entries);
+
+	const sessionSupplements = useMemo(
+		() => (remoteConversation ? {} : runtime.supplements),
+		[remoteConversation, runtime.supplements],
+	);
 
 	/* The supplement block's host calls: one session-scoped client, built here
 	 *  from the runtime so the list and the block never hold a relay client.
@@ -507,7 +516,7 @@ function Session() {
 				/* The supplement facts the markers affirm (`S5/supplement-*` cells):
 				 * the same reader the list renders from, so a marker can never claim a
 				 * state the visible block does not show. */
-				supplements: runtime.supplements,
+				supplements: sessionSupplements,
 				supplementPid: runtime.projectionPid,
 				/* The dot's verdict, from the same call the dot renders — so the
 				 * `S5/health-quiet` marker cannot claim a yellow the header is not
@@ -520,7 +529,7 @@ function Session() {
 			runtime.streaming,
 			runtime.error,
 			runtime.entries,
-			runtime.supplements,
+			sessionSupplements,
 			runtime.projectionPid,
 			subagents.total,
 			composer.voice.micVisible,
@@ -794,7 +803,12 @@ function Session() {
 
 	// One notice owner: pending bodies already have a readable floor, whereas
 	// another list viewport cannot fit beside the pinned decision/composer.
-	const transcriptNotice = pendingRecovery ? undefined : connectionBanner;
+	const transcriptNotice = pendingRecovery ? undefined : (
+		<>
+			{connectionBanner}
+			<RemoteFeatureNotice remote={remoteConversation} />
+		</>
+	);
 	/* The pending rows sit after the last real row, inside the scroller: at the
 	 *  transcript's edge, under the bottom fade like any row, with nothing below
 	 *  them but the pinned working line and the dock. Memoised so the list's
@@ -899,10 +913,14 @@ function Session() {
 					pending={pendingRows}
 					streamingRowId={runtime.streamingRowId}
 					loadImage={runtime.loadImage}
+					loadFile={runtime.loadFile}
 					onOpenAgent={openAgent}
-					supplements={runtime.supplements}
+					supplements={sessionSupplements}
 					projectionPid={runtime.projectionPid}
-					supplementClient={supplementClient}
+					supplementClient={sessionSupplementClient(
+						remoteConversation,
+						supplementClient,
+					)}
 					onOpenVideo={openVideo}
 					/* The image-gen card's Cancel is the composer's OWN stop path (the
 					   one turn-interrupt — no second mechanism). The gate is the

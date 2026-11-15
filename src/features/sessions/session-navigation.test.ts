@@ -5,6 +5,7 @@ import {
 	remoteSessionsAvailable,
 	sessionCapabilities,
 	sessionLocation,
+	sessionSupplementClient,
 } from "./session-navigation";
 
 const baseline = {
@@ -12,7 +13,13 @@ const baseline = {
 	version: 1,
 	view: true,
 	history: true,
-	commands: true,
+	supported_command_ops: ["prompt", "steer"],
+	supported_media_kinds: ["image", "video", "file"],
+	file_sources: ["retained_document"],
+	document_upload: false,
+	audio_upload: false,
+	skill_invocation: false,
+	supplements: false,
 	media: true,
 };
 const row = (remote = true) =>
@@ -26,6 +33,11 @@ const row = (remote = true) =>
 	});
 
 describe("normal remote conversation navigation", () => {
+	it("never exposes a remote Highlights/generated-file client, while preserving local previews", () => {
+		const client = { loadFile: () => undefined, loadDocument: () => undefined };
+		expect(sessionSupplementClient(true, client)).toBeUndefined();
+		expect(sessionSupplementClient(false, client)).toBe(client);
+	});
 	it("never offers connected-computer audio upload as remote-owner dictation, while preserving local STT", () => {
 		const capabilities = capabilitiesSchema.parse({
 			stt: { available: true, path: "connected-only" },
@@ -66,7 +78,28 @@ describe("normal remote conversation navigation", () => {
 				capabilitiesSchema.parse({ remote_sessions: baseline }),
 			),
 		).toBe(true);
-		for (const field of ["available", "view", "history", "commands", "media"])
+		expect(
+			remoteSessionsAvailable(
+				capabilitiesSchema.parse({
+					remote_sessions: { ...baseline, supported_command_ops: ["prompt"] },
+				}),
+			),
+		).toBe(false);
+		expect(
+			remoteSessionsAvailable(
+				capabilitiesSchema.parse({
+					remote_sessions: {
+						available: true,
+						version: 1,
+						view: true,
+						history: true,
+						media: true,
+						commands: true,
+					},
+				}),
+			),
+		).toBe(false);
+		for (const field of ["available", "view", "history", "media"])
 			expect(
 				remoteSessionsAvailable(
 					capabilitiesSchema.parse({

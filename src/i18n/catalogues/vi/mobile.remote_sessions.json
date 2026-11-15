@@ -7,5 +7,8 @@
 	"mobile.remote_sessions.owner_unresolved": "Máy chuyển tiếp chưa thể xác nhận máy tính nào sở hữu cuộc trò chuyện này. Làm mới danh sách phiên rồi thử lại.",
 	"mobile.remote_sessions.session_missing": "Cuộc trò chuyện này không còn trên máy tính sở hữu phiên. Hãy làm mới danh sách phiên.",
 	"mobile.remote_sessions.cursor_missing": "Máy sở hữu phiên không còn nhận ra vị trí lịch sử này. Các tin nhắn đã tải vẫn được giữ lại; mở lại cuộc trò chuyện để đọc lịch sử mới nhất.",
-	"mobile.remote_sessions.command_ambiguous": "Máy sở hữu phiên có thể đã nhận lệnh nhưng chưa xác nhận. Kiểm tra cuộc trò chuyện trước khi thử lại để tránh gửi trùng."
+	"mobile.remote_sessions.command_ambiguous": "Máy sở hữu phiên có thể đã nhận lệnh nhưng chưa xác nhận. Kiểm tra cuộc trò chuyện trước khi thử lại để tránh gửi trùng.",
+	"mobile.remote_sessions.file_saving": "Đang lưu tệp…",
+	"mobile.remote_sessions.file_save_failed": "Không thể lưu tệp này. Hãy thử lại.",
+	"mobile.remote_sessions.retained_only": "Phiên từ xa hỗ trợ tài liệu đính kèm đã lưu giữ, chưa hỗ trợ Highlights hoặc xem trước tệp được tạo."
 }

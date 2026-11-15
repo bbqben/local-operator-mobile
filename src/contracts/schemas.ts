@@ -162,6 +162,15 @@ export const promptImageSchema = z.looseObject({
 
 export const inputModeSchema = z.enum(["typed", "dictated", "mixed"]);
 
+/** Retained DocumentContent references only. Indices are sparse block indices,
+ * never positions in this array and never original filesystem paths. */
+export const transcriptFileRefSchema = z.looseObject({
+	index: z.number().int().nonnegative(),
+	filename: nonEmpty,
+	mime_type: z.string(),
+	bytes: z.number().int().nonnegative(),
+});
+
 export const transcriptImageRefSchema = z.looseObject({
 	index: z.number().int(),
 	mime_type: z.string(),
@@ -277,6 +286,7 @@ export const transcriptEntrySchema = z.looseObject({
 	error: z.string(),
 	details: transcriptEntryDetailsSchema,
 	images: z.array(transcriptImageRefSchema),
+	files: z.array(transcriptFileRefSchema).default([]),
 	/* Additive and defaulted: a relay that predates the video phase omits the
 	 * key entirely, and the defensible reading of "omitted" is "this row
 	 * carries no video artifact" — never `undefined` reaching a screen. */
@@ -1267,9 +1277,13 @@ export const capabilitiesSchema = z.looseObject({
 			version: z.number().int().optional(),
 			view: z.boolean().optional(),
 			history: z.boolean().optional(),
-			commands: z.boolean().optional(),
 			media: z.boolean().optional(),
 			supported_command_ops: z.array(z.string()).optional(),
+			supported_media_kinds: z.array(z.string()).optional(),
+			file_sources: z.array(z.string()).optional(),
+			audio_upload: z.boolean().optional(),
+			skill_invocation: z.boolean().optional(),
+			supplements: z.boolean().optional(),
 			document_upload: z.boolean().optional(),
 		})
 		.optional(),

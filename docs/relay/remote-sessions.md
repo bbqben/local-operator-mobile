@@ -15,10 +15,14 @@ The connected relay advertises the complete baseline in its sessions list:
     "version": 1,
     "view": true,
     "history": true,
-    "commands": true,
     "media": true,
     "supported_command_ops": ["prompt", "steer"],
-    "document_upload": false
+    "supported_media_kinds": ["image", "video", "file"],
+    "file_sources": ["retained_document"],
+    "document_upload": false,
+    "audio_upload": false,
+    "skill_invocation": false,
+    "supplements": false
   }
 }
 ```
@@ -41,8 +45,29 @@ never receives an owner control key, peer URL, or arbitrary attachment path.
 
 Typed prompt/steer and inline images use the existing command UUID/envelope
 lifecycle unchanged. The native client does not send `expand_skills=true`.
-Only the relay's recorded image/file/video references are readable. A photo
+Only the relay's recorded image/file/video references are readable. Historical
+DocumentContent rows may carry sparse `files` references:
+
+```json
+{"files":[{"index":3,"filename":"notes.txt","mime_type":"text/plain","bytes":30}]}
+```
+
+The index is a content-block index, **not** the array position. Save fetches
+`GET /api/sessions/{id}/attachment?kind=file&entry={row.id}&i={index}` through
+the admitted relay client. This contract applies to local and remote retained
+files; neither reads the original path. The web target downloads an opaque Blob
+and revokes its URL. iOS copies authenticated bytes into a uniquely named private
+cache directory and offers the system share/Save to Files sheet. Android writes
+those bytes only to a user-selected Storage Access Framework destination.
+Permission failures remain visible; no placeholder file is saved. A photo
 picked from Files is still an inline **image**, not a document upload.
+
+Remote generated supplement files, Highlights and supplement previews are not
+supported: those bytes may depend on a different owner cwd and have no retained
+source contract. Their client/actions are withheld even when an older cached
+projection carries supplement metadata. A visible retained-only notice explains
+the limitation rather than leaving broken Preview actions. Local supplements
+keep their existing behavior.
 
 Remote document and audio uploads are not supported. The remote composer does
 not inherit the connected computer's STT capability or its audio path; both the

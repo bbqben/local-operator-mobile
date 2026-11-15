@@ -36,7 +36,19 @@ export const remoteSessionsAvailable = (
 		capability.version === 1 &&
 		capability.view === true &&
 		capability.history === true &&
-		capability.commands === true &&
-		capability.media === true
+		capability.supported_command_ops?.includes("prompt") === true &&
+		capability.supported_command_ops.includes("steer") &&
+		capability.media === true &&
+		["image", "video", "file"].every((kind) =>
+			capability.supported_media_kinds?.includes(kind),
+		) &&
+		capability.file_sources?.includes("retained_document") === true
 	);
 };
+
+/** v1 has no owner-bound generated/supplement-file contract. Never expose a
+ * stale Highlights/preview client merely because a projection contains beats. */
+export const sessionSupplementClient = <T>(
+	remote: boolean,
+	client: T,
+): T | undefined => (remote ? undefined : client);

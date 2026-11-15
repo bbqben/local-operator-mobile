@@ -1300,9 +1300,13 @@ export function createRelay(options: RelayOptions = {}) {
 						version: 1,
 						view: true,
 						history: true,
-						commands: true,
 						media: true,
 						supported_command_ops: ["prompt", "steer"],
+						supported_media_kinds: ["image", "video", "file"],
+						file_sources: ["retained_document"],
+						audio_upload: false,
+						skill_invocation: false,
+						supplements: false,
 						document_upload: false,
 					};
 				}
@@ -3480,6 +3484,28 @@ export function createRelay(options: RelayOptions = {}) {
 					return;
 				}
 				const kind = url.searchParams.get("kind");
+				if (kind === "file") {
+					const rawIndex = url.searchParams.get("i");
+					const row = projection.transcript.find(
+						(candidate) => candidate.id === entry,
+					);
+					const ref =
+						rawIndex !== null &&
+						/^\d+$/.test(rawIndex) &&
+						row?.files?.find((file) => file.index === Number(rawIndex));
+					if (!ref) {
+						sendJson(res, 404, errorBody("no such attachment"));
+						return;
+					}
+					const body = Buffer.from("Retained synthetic file bytes.\n");
+					res.writeHead(200, {
+						"content-type": ref.mime_type,
+						"content-disposition": "attachment",
+						"cache-control": "no-store",
+						"content-length": body.length,
+					});
+					return res.end(body);
+				}
 				if (kind !== "video") {
 					/* v1 serves one kind; anything else is a client bug the mock
 					 * surfaces loudly rather than hiding as "missing". */

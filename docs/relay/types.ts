@@ -103,6 +103,14 @@ export type SubagentStatus =
  *  `GET /api/sessions/{id}/image?entry={entryId}&i={index}`.
  *  `index` counts IMAGE blocks only — a text caption does not shift it
  *  (`projection.py:416-439`). */
+/** Owner-retained document bytes; sparse index is not an array offset. */
+export interface TranscriptFileRef {
+  index: number;
+  filename: string;
+  mime_type: string;
+  bytes: number;
+}
+
 export interface TranscriptImageRef {
   index: number;
   mime_type: string;
@@ -231,6 +239,7 @@ export interface TranscriptEntry {
   /** `[]` when the turn carried no images — including when an image was
    *  silently dropped at ingest (see `contract.md` §8.9). */
   images: TranscriptImageRef[];
+  files?: TranscriptFileRef[];
   /** The video artifact family — OPTIONAL because the relay lane that
    *  produces it is the video phase's producer side and has not shipped;
    *  absent reads as `[]` (the receipt-only rendering), exactly the way the
@@ -718,9 +727,13 @@ export interface Capabilities {
     version?: number;
     view?: boolean;
     history?: boolean;
-    commands?: boolean;
     media?: boolean;
     supported_command_ops?: string[];
+    supported_media_kinds?: string[];
+    file_sources?: string[];
+    audio_upload?: boolean;
+    skill_invocation?: boolean;
+    supplements?: boolean;
     document_upload?: boolean;
   };
   stt?: SttCapability;

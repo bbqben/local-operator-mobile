@@ -95,7 +95,15 @@ async function relay() {
 			return;
 		}
 		const video = url.searchParams.get("kind") === "video";
-		const file = url.pathname.endsWith("/file");
+		const file =
+			url.pathname.endsWith("/file") || url.searchParams.get("kind") === "file";
+		if (
+			url.searchParams.get("kind") === "file" &&
+			url.searchParams.get("i") !== "3"
+		) {
+			answer(404, { error: "no such attachment" });
+			return;
+		}
 		response.writeHead(200, {
 			"content-type": video ? "video/mp4" : file ? "text/plain" : "image/png",
 		});
@@ -206,6 +214,17 @@ describe("remote conversations use ordinary admitted relay routes", () => {
 					(await client.supplementFile(id, "synthetic-job", 0)).bytes,
 				),
 			).toBe("synthetic-file-bytes");
+			expect(
+				new TextDecoder().decode(
+					(await client.file(id, "historical-document-row", 3)).bytes,
+				),
+			).toBe("synthetic-file-bytes");
+			expect(requests.at(-1)?.path).toBe(
+				`/api/sessions/${id}/attachment?kind=file&entry=historical-document-row&i=3`,
+			);
+			await expect(
+				client.file(id, "historical-document-row", 0),
+			).rejects.toMatchObject({ status: 404 });
 		}
 		expect(
 			requests.every((request) =>
@@ -220,7 +239,7 @@ describe("remote conversations use ordinary admitted relay routes", () => {
 			),
 		).toBe(true);
 		console.info(
-			`PASS relay-only transport: ${requests.length} authenticated requests; two owner ids, history beginning, snapshot reopen, prompt/steer UUID+images, image/video bytes`,
+			`PASS relay-only transport: ${requests.length} authenticated requests; two owner ids, history beginning, snapshot reopen, prompt/steer UUID+images, image/file/video bytes`,
 		);
 	});
 	it("does not log out or replay on a peer refusal/ambiguous ack; keeps loaded history", async () => {
@@ -266,9 +285,16 @@ describe("remote conversations use ordinary admitted relay routes", () => {
 			kind: "rejected",
 			surface: "none",
 		});
+		await expect(
+			server.client.file("synthetic-owner", "historical-document-row", 3),
+		).rejects.toMatchObject({
+			code: "remote_forbidden",
+			kind: "rejected",
+			surface: "none",
+		});
 		history.retire();
 		console.info(
-			"PASS peer403 remains operation-local; loaded history retained; ambiguous409 is one command request, UUID retained, no automatic retry",
+			"PASS peer403 remains operation-local for historical files; loaded history retained; ambiguous409 is one command request, UUID retained, no automatic retry",
 		);
 	});
 });

@@ -55,7 +55,13 @@ const baseline = {
 	version: 1,
 	view: true,
 	history: true,
-	commands: true,
+	supported_command_ops: ["prompt", "steer"],
+	supported_media_kinds: ["image", "video", "file"],
+	file_sources: ["retained_document"],
+	document_upload: false,
+	audio_upload: false,
+	skill_invocation: false,
+	supplements: false,
 	media: true,
 };
 function Reader() {

@@ -526,9 +526,12 @@ export type CatalogueKey =
 	| "mobile.refusal.wait_reconnect.title"
 	| "mobile.remote_sessions.command_ambiguous"
 	| "mobile.remote_sessions.cursor_missing"
+	| "mobile.remote_sessions.file_save_failed"
+	| "mobile.remote_sessions.file_saving"
 	| "mobile.remote_sessions.forbidden"
 	| "mobile.remote_sessions.loading"
 	| "mobile.remote_sessions.owner_unresolved"
+	| "mobile.remote_sessions.retained_only"
 	| "mobile.remote_sessions.session_missing"
 	| "mobile.remote_sessions.title"
 	| "mobile.remote_sessions.unreachable"
@@ -1438,9 +1441,12 @@ export type NoParamKey =
 	| "mobile.refusal.wait_reconnect.body"
 	| "mobile.remote_sessions.command_ambiguous"
 	| "mobile.remote_sessions.cursor_missing"
+	| "mobile.remote_sessions.file_save_failed"
+	| "mobile.remote_sessions.file_saving"
 	| "mobile.remote_sessions.forbidden"
 	| "mobile.remote_sessions.loading"
 	| "mobile.remote_sessions.owner_unresolved"
+	| "mobile.remote_sessions.retained_only"
 	| "mobile.remote_sessions.session_missing"
 	| "mobile.remote_sessions.title"
 	| "mobile.remote_sessions.unreachable"
@@ -2342,9 +2348,12 @@ export type MessageParams = {
 	"mobile.refusal.wait_reconnect.title": { computer: string | number };
 	"mobile.remote_sessions.command_ambiguous": NoParams;
 	"mobile.remote_sessions.cursor_missing": NoParams;
+	"mobile.remote_sessions.file_save_failed": NoParams;
+	"mobile.remote_sessions.file_saving": NoParams;
 	"mobile.remote_sessions.forbidden": NoParams;
 	"mobile.remote_sessions.loading": NoParams;
 	"mobile.remote_sessions.owner_unresolved": NoParams;
+	"mobile.remote_sessions.retained_only": NoParams;
 	"mobile.remote_sessions.session_missing": NoParams;
 	"mobile.remote_sessions.title": NoParams;
 	"mobile.remote_sessions.unreachable": NoParams;
@@ -3339,9 +3348,12 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.refusal.wait_reconnect.title": "{computer} is reconnecting.",
 	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate.",
 	"mobile.remote_sessions.cursor_missing": "The owner no longer recognizes this history position. Your loaded messages are still here; reopen the conversation to read the latest history.",
+	"mobile.remote_sessions.file_save_failed": "Could not save this file. Try again.",
+	"mobile.remote_sessions.file_saving": "Saving file…",
 	"mobile.remote_sessions.forbidden": "This mesh connection does not allow this operation. Ask the owner to grant the required access.",
 	"mobile.remote_sessions.loading": "Checking this computer’s remote-session support…",
 	"mobile.remote_sessions.owner_unresolved": "The relay cannot confirm which computer owns this conversation. Refresh the sessions list and try again.",
+	"mobile.remote_sessions.retained_only": "Remote sessions support retained document attachments, not Highlights or generated-file previews.",
 	"mobile.remote_sessions.session_missing": "This conversation is no longer available on its owner computer. Refresh the sessions list.",
 	"mobile.remote_sessions.title": "Remote conversation",
 	"mobile.remote_sessions.unreachable": "The owner computer is not reachable. Check that it is online, then try again.",
@@ -4321,9 +4333,12 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.refusal.wait_reconnect.title": { role: "heading", note: "Headline while the computer is re-establishing its connection to Radient. {computer} is the computer's name or \"Your computer\"." },
 	"mobile.remote_sessions.command_ambiguous": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.cursor_missing": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.file_save_failed": { role: "status", note: "Historical retained file save status, used for local and remote conversations. This is not an upload and does not read the original filesystem path." },
+	"mobile.remote_sessions.file_saving": { role: "status", note: "Historical retained file save status, used for local and remote conversations. This is not an upload and does not read the original filesystem path." },
 	"mobile.remote_sessions.forbidden": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.loading": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.owner_unresolved": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.retained_only": { role: "status", note: "Visible remote-only capability limit: retained input DocumentContent attachments are supported, generated supplement files and the Highlights feature are not. Highlights is a feature label, not search highlighting. Never imply uploads or local filesystem access." },
 	"mobile.remote_sessions.session_missing": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.title": { role: "heading", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.unreachable": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
@@ -5317,9 +5332,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer} se está volviendo a conectar.",
 		"mobile.remote_sessions.command_ambiguous": "Puede que el propietario haya recibido este comando sin confirmarlo. Revisa la conversación antes de reintentarlo para no enviarlo dos veces.",
 		"mobile.remote_sessions.cursor_missing": "El propietario ya no reconoce esta posición del historial. Los mensajes cargados se conservan; vuelve a abrir la conversación para leer el historial más reciente.",
+		"mobile.remote_sessions.file_save_failed": "No se pudo guardar este archivo. Vuelve a intentarlo.",
+		"mobile.remote_sessions.file_saving": "Guardando el archivo…",
 		"mobile.remote_sessions.forbidden": "Esta conexión de malla no permite esta operación. Pide al propietario que conceda el acceso necesario.",
 		"mobile.remote_sessions.loading": "Comprobando la compatibilidad con sesiones remotas…",
 		"mobile.remote_sessions.owner_unresolved": "El relé no puede confirmar qué equipo es propietario de esta conversación. Actualiza la lista de sesiones y vuelve a intentarlo.",
+		"mobile.remote_sessions.retained_only": "Las sesiones remotas admiten documentos adjuntos conservados, pero no Highlights ni vistas previas de archivos generados.",
 		"mobile.remote_sessions.session_missing": "Esta conversación ya no está disponible en su equipo propietario. Actualiza la lista de sesiones.",
 		"mobile.remote_sessions.title": "Conversación remota",
 		"mobile.remote_sessions.unreachable": "No se puede contactar con el equipo propietario. Comprueba que esté conectado y vuelve a intentarlo.",
@@ -6297,9 +6315,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer} est en train de se reconnecter.",
 		"mobile.remote_sessions.command_ambiguous": "Le propriétaire a peut-être reçu cette commande sans la confirmer. Vérifiez la conversation avant de réessayer pour éviter un doublon.",
 		"mobile.remote_sessions.cursor_missing": "Le propriétaire ne reconnaît plus cette position dans l’historique. Vos messages chargés sont conservés ; rouvrez la conversation pour lire l’historique récent.",
+		"mobile.remote_sessions.file_save_failed": "Impossible d’enregistrer ce fichier. Réessayez.",
+		"mobile.remote_sessions.file_saving": "Enregistrement du fichier…",
 		"mobile.remote_sessions.forbidden": "Cette connexion au réseau maillé n’autorise pas cette opération. Demandez au propriétaire d’accorder l’accès nécessaire.",
 		"mobile.remote_sessions.loading": "Vérification de la prise en charge des sessions distantes…",
 		"mobile.remote_sessions.owner_unresolved": "Le relais ne peut pas confirmer quel ordinateur possède cette conversation. Actualisez la liste des sessions et réessayez.",
+		"mobile.remote_sessions.retained_only": "Les sessions distantes permettent d’enregistrer les documents joints conservés, mais pas d’utiliser Highlights ni les aperçus de fichiers générés.",
 		"mobile.remote_sessions.session_missing": "Cette conversation n’est plus disponible sur son ordinateur propriétaire. Actualisez la liste des sessions.",
 		"mobile.remote_sessions.title": "Conversation distante",
 		"mobile.remote_sessions.unreachable": "L’ordinateur propriétaire est injoignable. Vérifiez qu’il est en ligne, puis réessayez.",
@@ -7277,9 +7298,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer} फिर से जुड़ रहा है।",
 		"mobile.remote_sessions.command_ambiguous": "स्वामी को यह कमांड मिल गई हो सकती है, पर पुष्टि नहीं हुई। दोबारा कोशिश करने से पहले बातचीत जाँचें; कमांड दो बार न भेजें।",
 		"mobile.remote_sessions.cursor_missing": "स्वामी अब इतिहास की इस स्थिति को नहीं पहचानता। लोड किए गए संदेश सुरक्षित हैं; नवीनतम इतिहास पढ़ने के लिए बातचीत फिर से खोलें।",
+		"mobile.remote_sessions.file_save_failed": "यह फ़ाइल सहेजी नहीं जा सकी। दोबारा कोशिश करें।",
+		"mobile.remote_sessions.file_saving": "फ़ाइल सहेजी जा रही है…",
 		"mobile.remote_sessions.forbidden": "यह मेश कनेक्शन इस कार्रवाई की अनुमति नहीं देता। स्वामी से आवश्यक पहुँच देने को कहें।",
 		"mobile.remote_sessions.loading": "इस कंप्यूटर पर दूरस्थ सत्रों का समर्थन जाँचा जा रहा है…",
 		"mobile.remote_sessions.owner_unresolved": "रिले पुष्टि नहीं कर पा रहा कि यह बातचीत किस कंप्यूटर की है। सत्रों की सूची रीफ़्रेश करें और दोबारा कोशिश करें।",
+		"mobile.remote_sessions.retained_only": "दूरस्थ सत्रों में सुरक्षित रखे गए दस्तावेज़ अटैचमेंट समर्थित हैं, लेकिन Highlights या बनाई गई फ़ाइलों का पूर्वावलोकन नहीं।",
 		"mobile.remote_sessions.session_missing": "यह बातचीत अब स्वामी कंप्यूटर पर उपलब्ध नहीं है। सत्रों की सूची रीफ़्रेश करें।",
 		"mobile.remote_sessions.title": "दूरस्थ बातचीत",
 		"mobile.remote_sessions.unreachable": "स्वामी कंप्यूटर से संपर्क नहीं हो पा रहा। जाँचें कि वह ऑनलाइन है, फिर दोबारा कोशिश करें।",
@@ -8257,9 +8281,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer} переподключается.",
 		"mobile.remote_sessions.command_ambiguous": "Владелец мог получить команду, но не подтвердил её. Перед повторной отправкой проверьте разговор, чтобы не отправить дубликат.",
 		"mobile.remote_sessions.cursor_missing": "Владелец больше не распознаёт эту позицию истории. Загруженные сообщения сохранены; откройте разговор заново, чтобы прочитать актуальную историю.",
+		"mobile.remote_sessions.file_save_failed": "Не удалось сохранить файл. Повторите попытку.",
+		"mobile.remote_sessions.file_saving": "Сохраняем файл…",
 		"mobile.remote_sessions.forbidden": "Это соединение mesh-сети не разрешает данную операцию. Попросите владельца предоставить нужный доступ.",
 		"mobile.remote_sessions.loading": "Проверяем поддержку удалённых сеансов…",
 		"mobile.remote_sessions.owner_unresolved": "Ретранслятор не может подтвердить, какому компьютеру принадлежит разговор. Обновите список сеансов и повторите попытку.",
+		"mobile.remote_sessions.retained_only": "В удалённых сеансах доступны сохранённые вложения документов, но не Highlights и не предпросмотр созданных файлов.",
 		"mobile.remote_sessions.session_missing": "Этот разговор больше недоступен на компьютере-владельце. Обновите список сеансов.",
 		"mobile.remote_sessions.title": "Удалённый разговор",
 		"mobile.remote_sessions.unreachable": "Компьютер-владелец недоступен. Убедитесь, что он в сети, и повторите попытку.",
@@ -9237,9 +9264,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer} دوبارہ منسلک ہو رہا ہے۔",
 		"mobile.remote_sessions.command_ambiguous": "ممکن ہے مالک کو یہ کمانڈ مل گئی ہو، مگر تصدیق نہیں ہوئی۔ دوبارہ کوشش کرنے سے پہلے گفتگو دیکھیں؛ کمانڈ دو بار نہ بھیجیں۔",
 		"mobile.remote_sessions.cursor_missing": "مالک اب تاریخ کے اس مقام کو نہیں پہچانتا۔ لوڈ کیے گئے پیغامات محفوظ ہیں؛ تازہ ترین تاریخ پڑھنے کے لیے گفتگو دوبارہ کھولیں۔",
+		"mobile.remote_sessions.file_save_failed": "یہ فائل محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",
+		"mobile.remote_sessions.file_saving": "فائل محفوظ کی جا رہی ہے…",
 		"mobile.remote_sessions.forbidden": "یہ میش کنکشن اس کارروائی کی اجازت نہیں دیتا۔ مالک سے مطلوبہ رسائی دینے کو کہیں۔",
 		"mobile.remote_sessions.loading": "اس کمپیوٹر پر دور دراز سیشن کی معاونت جانچی جا رہی ہے…",
 		"mobile.remote_sessions.owner_unresolved": "ریلے تصدیق نہیں کر پا رہا کہ یہ گفتگو کس کمپیوٹر کی ہے۔ سیشن کی فہرست تازہ کریں اور دوبارہ کوشش کریں۔",
+		"mobile.remote_sessions.retained_only": "دور دراز سیشن میں محفوظ دستاویزی منسلکات دستیاب ہیں، مگر Highlights یا تیار کردہ فائلوں کا پیش منظر دستیاب نہیں۔",
 		"mobile.remote_sessions.session_missing": "یہ گفتگو اب مالک کمپیوٹر پر دستیاب نہیں ہے۔ سیشن کی فہرست تازہ کریں۔",
 		"mobile.remote_sessions.title": "دور دراز گفتگو",
 		"mobile.remote_sessions.unreachable": "مالک کمپیوٹر سے رابطہ نہیں ہو رہا۔ تصدیق کریں کہ وہ آن لائن ہے، پھر دوبارہ کوشش کریں۔",
@@ -10217,9 +10247,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer} đang kết nối lại.",
 		"mobile.remote_sessions.command_ambiguous": "Máy sở hữu phiên có thể đã nhận lệnh nhưng chưa xác nhận. Kiểm tra cuộc trò chuyện trước khi thử lại để tránh gửi trùng.",
 		"mobile.remote_sessions.cursor_missing": "Máy sở hữu phiên không còn nhận ra vị trí lịch sử này. Các tin nhắn đã tải vẫn được giữ lại; mở lại cuộc trò chuyện để đọc lịch sử mới nhất.",
+		"mobile.remote_sessions.file_save_failed": "Không thể lưu tệp này. Hãy thử lại.",
+		"mobile.remote_sessions.file_saving": "Đang lưu tệp…",
 		"mobile.remote_sessions.forbidden": "Kết nối mạng lưới này không cho phép thao tác này. Hãy yêu cầu chủ sở hữu cấp quyền cần thiết.",
 		"mobile.remote_sessions.loading": "Đang kiểm tra khả năng hỗ trợ phiên từ xa…",
 		"mobile.remote_sessions.owner_unresolved": "Máy chuyển tiếp chưa thể xác nhận máy tính nào sở hữu cuộc trò chuyện này. Làm mới danh sách phiên rồi thử lại.",
+		"mobile.remote_sessions.retained_only": "Phiên từ xa hỗ trợ tài liệu đính kèm đã lưu giữ, chưa hỗ trợ Highlights hoặc xem trước tệp được tạo.",
 		"mobile.remote_sessions.session_missing": "Cuộc trò chuyện này không còn trên máy tính sở hữu phiên. Hãy làm mới danh sách phiên.",
 		"mobile.remote_sessions.title": "Cuộc trò chuyện từ xa",
 		"mobile.remote_sessions.unreachable": "Không thể liên lạc với máy tính sở hữu phiên. Kiểm tra máy đang trực tuyến rồi thử lại.",
@@ -11197,9 +11230,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_reconnect.title": "{computer}正在重新连接。",
 		"mobile.remote_sessions.command_ambiguous": "所属电脑可能已收到此命令，但未确认。重试前请检查对话，避免重复发送。",
 		"mobile.remote_sessions.cursor_missing": "所属电脑已无法识别此历史记录位置。已加载的消息仍会保留；请重新打开对话以查看最新历史记录。",
+		"mobile.remote_sessions.file_save_failed": "无法保存此文件。请重试。",
+		"mobile.remote_sessions.file_saving": "正在保存文件…",
 		"mobile.remote_sessions.forbidden": "此网状网络连接不允许执行此操作。请联系所有者授予所需权限。",
 		"mobile.remote_sessions.loading": "正在检查此电脑是否支持远程会话…",
 		"mobile.remote_sessions.owner_unresolved": "中继无法确认此对话属于哪台电脑。请刷新会话列表后重试。",
+		"mobile.remote_sessions.retained_only": "远程会话支持保留的文档附件，但不支持 Highlights 或生成文件的预览。",
 		"mobile.remote_sessions.session_missing": "此对话在所属电脑上已不可用。请刷新会话列表。",
 		"mobile.remote_sessions.title": "远程对话",
 		"mobile.remote_sessions.unreachable": "无法连接会话所属电脑。请确认其在线，然后重试。",
