@@ -686,7 +686,9 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * payload envelope read. No rendered component, style or token changed;
 	 * re-derived over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
-	app: "fc5d82455884b54194d0df37a4ef8dc809918af53b797e5c148e12cffb20de1a",
+	/* fix/mobile-fast-start-search: the session screen passes its image loader
+	 * to the pending rows. --print over the staged tree; source identity only. */
+	app: "e39827b24fccec576c573ca4b1a62c8783828521cd355cc989750c5ab2f871e5",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -1681,6 +1683,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * evidence. */
 	/* Merge of origin/main (#251, fb224cfe) into #252: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* fix/mobile-fast-start-search (TestFlight 906): optimistic first-send rows
+	 * and images, the in-place search pill, the quiet older-history edge and
+	 * the startup banner's removal. Re-derived once with --print over the
+	 * staged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* #256 review round 1 remediation (search Escape guard, pending bubble
+	 * alignment, startup caption, history/needs-answer polish, seeded-image
+	 * release). Re-derived once with --print over the staged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* M3 S2b-1 (feat/i18n-m3-s2b1): the own-tunnel command, verdict and
 	 * Settings-section keys (English-first, then the seven audited translations;
 	 * 812 keys in the regenerated `catalogue.gen.ts`), `Alert.bodyDir` with the
@@ -1770,6 +1780,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#259, 9ef19ccd) into #258: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#254, d5831603) into #256: both sides' comments
+	 * kept, re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#255, f8d0d8dd) into #256: both comments kept,
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#259, 9ef19ccd) into #256: both comments kept,
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#258, 8ca71d54) into #256: both comments kept,
+	 * re-derived once with --print over the merged tree. */
+	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#257, caae98bc) into #256: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#258, 8ca71d54) into #261: both comment blocks
 	 * kept (the account card, pill fit and Diagnostics `reason:` row from #258;
 	 * the M1 refusal work from #261), plus the Reason row routed through Copy
@@ -1797,7 +1819,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept (the session-row `last_user_at` contract from #263; the M1 refusal
 	 * work from #261). Re-derived once with --print over the merged tree; only
 	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
-	src: "1ccea71b34b69f589d4d4c9bb43329e5ea6f1fba8ce94dc8f1d7b245064461c0",
+	/* Merge of origin/main (#263, d92515ff) into #256: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	/* Merge of origin/main (#261, f340368a) into #256: both comment chains
+	 * kept, re-derived once with --print over the merged tree. */
+	src: "d6e42e3548214595044a78e684bfa1498de8b6e1632d1d464e422630825b21d7",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
