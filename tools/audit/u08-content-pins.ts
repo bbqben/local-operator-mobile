@@ -1974,7 +1974,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#267, 0a629e65) into #269: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
-	src: "467a3c980013c6c197d7264f9d828603fcb7c0e351083e743ff6a4ac92d9eac7",
+	/* PR #268 CI remediation: --print at 39c06173 admits the completion
+	 * prefetch and foreground warm-sync source changes. Only `src` moved;
+	 * source identity only, NOT new rendered U-08 proof. Instruments, historical
+	 * ORIGINAL_* hashes and thresholds are unchanged. */
+	/* Merge of origin/main (#267 0a629e65, #269 00c2b66d) into #268: both
+	 * comment chains kept; only this pin conflicted. Re-derived LAST with --print
+	 * over the merged tree; only `src` moved. Source identity only, NOT new
+	 * rendered U-08 evidence. */
+	src: "a88976ef35f4185ecc63b8b5f0a64ed96b2d6ee24837031f605370033a75af38",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
