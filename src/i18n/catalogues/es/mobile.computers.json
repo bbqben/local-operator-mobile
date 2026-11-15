@@ -26,7 +26,7 @@
 	"mobile.computers.transport.radient": "Radient",
 	"mobile.computers.transport.custom": "Tu dirección",
 	"mobile.computers.connect_refused.title": "No se pudo conectar",
-	"mobile.computers.connect_refused.generic": "El ordenador no aceptó la conexión. Tu dirección y tu contraseña siguen aquí, así que revísalas y vuelve a intentarlo.",
+	"mobile.computers.connect_refused.generic": "La máquina no aceptó la conexión. Tu dirección y tu contraseña siguen aquí, así que revísalas y vuelve a intentarlo.",
 	"mobile.computers.connect_refused.password": "El relé no aceptó esa contraseña. Revísala y vuelve a intentarlo.",
 	"mobile.computers.storage_refused.with_code": "El almacenamiento seguro de este dispositivo rechazó la solicitud (código {code}). Vuelve a intentarlo o reinstala la app si sigue ocurriendo.",
 	"mobile.computers.storage_refused.no_code": "El almacenamiento seguro de este dispositivo rechazó la solicitud. Vuelve a intentarlo o reinstala la app si sigue ocurriendo.",

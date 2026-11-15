@@ -80,7 +80,7 @@ const NAMESPACES = [
 		name: "mobile.signin",
 		messages: signin,
 		context: signinContext,
-		expected: 33, // M3 S2a +1: the loopback-unavailable detail (32 + 1 = 33); 18 + 14: S1 sign-in panel, sign-in/welcome screens (M3 slice S1)
+		expected: 32, // M3 S4 −1: the dead mobile.signin.diagnostics (no call site; the panel uses show_/hide_diagnostics) removed (33 − 1 = 32). M3 S2a +1: the loopback-unavailable detail (32 + 1 = 33); 18 + 14: S1 sign-in panel, sign-in/welcome screens (M3 slice S1)
 	},
 	{
 		name: "mobile.oauth",
@@ -456,7 +456,9 @@ describe("the English catalogues", () => {
 		/* Merge of origin/main (#265, 51debe8e) into #264: both comment chains
 		 * kept; 952 on main + the branch's 17 (889 - 872) = 969, the
 		 * generator's own count. */
-		expect(total).toBe(969);
+		/* M3 S4: −1 mobile.signin (the dead `mobile.signin.diagnostics`,
+		 *  no call site) = 968, the generator's own count. */
+		expect(total).toBe(968);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

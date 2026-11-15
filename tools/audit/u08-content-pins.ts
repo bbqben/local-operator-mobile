@@ -1958,7 +1958,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#264, 25e9fb2e) into M3 S5 (account routing via
 	 * t()): both comment chains kept; only this pin conflicted. Re-derived LAST
 	 * with --print over the merged tree; only `src` moved. */
-	src: "1d10a1eb819607d929567b932a7a2e7d0a3545a9a4599eb809b08e0df49a9951",
+	/* M3 S4: 7 es catalogue values (computer → «máquina»), the dead
+	 * `mobile.signin.diagnostics` key dropped from every catalogue, the
+	 * regenerated catalogue and its count test. Re-derived LAST with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	src: "dbd732fe874327d041c264e80e3482e6576d150ad5a0a3439d36ffd058378ba9",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

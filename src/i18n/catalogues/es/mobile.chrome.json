@@ -12,7 +12,7 @@
 	"mobile.chrome.composer.queued": "{count, plural, one {# mensaje en cola} other {# mensajes en cola}}",
 	"mobile.chrome.home.greeting": "¿En qué te gustaría trabajar?",
 	"mobile.chrome.home.connecting": "Conectando con {host}…",
-	"mobile.chrome.home.connect": "Conectar un ordenador",
+	"mobile.chrome.home.connect": "Conectar una máquina",
 	"mobile.chrome.home.sign_in": "Inicia sesión para reconectar",
 	"mobile.chrome.home.saved_draft": "Tu borrador está guardado en este teléfono y no se ha enviado.",
 	"mobile.chrome.home.reconnecting": "Reconectando con {host}…",
