@@ -1952,7 +1952,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * kept. #265 touches only i18n catalogues, their audit evidence, the
 	 * generated catalogue and its test. Re-derived once with --print over
 	 * the merged tree; only `src` moved. */
-	src: "190bbd567be06fa81f34e3fc08bf701e6c2341b2923d928dc0449a2f3087cf51",
+	/* M3 S3 (fix/i18n-m3-s3-transient-subject): the transient notice names an
+	 * unnamed computer through the catalogue (`failureSubject`) and its title
+	 * states the page direction (`Alert.titleDir`). Re-derived last with --print;
+	 * only `src` moved. Source identity only, NOT rendered U-08 evidence. */
+	/* S3 review round 1: a comment in connection-provider.tsx and a source pin in
+	 * failure-subject.test.ts; no rendered change. Re-derived last with --print;
+	 * only `src` moved. */
+	/* Merge of origin/main (#264, 25e9fb2e) into #266 (M3 S3): both comment
+	 * chains kept; only this pin conflicted. Re-derived LAST with --print over
+	 * the merged tree; only `src` moved. */
+	src: "9008f2eb8b72a0644cf48496fddd3187d36f06c98d17ba9794683a2663eff086",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
