@@ -1916,7 +1916,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * comments and source kept, so neither parent's digest. Re-derived once
 	 * with --print over the merged tree; source identity, NOT rendered
 	 * evidence. */
-	src: "77afb21b5640debb18714aa39a670d3ead0bd7340b5dd4cdd4b8a96700fec869",
+	/* PR #262 (fix/radient-account-label) merged with main c0b6a4da: the Radient
+	 * route admits with the grant's account label, #258's AccountCard titles
+	 * itself through `account-title.ts`, and the Diagnostics Last error row goes
+	 * through `redact`. Re-derived once with --print; only `src` moved. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "2f6a15348c6c1dfc8a9a3ab69e58f2cc2bd3cfa81d5478f81b40f2c4abde9075",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -39,6 +39,8 @@ const host = vi.hoisted(() => ({
 	roles: new Map<string, string | undefined>(),
 	labels: new Map<string, string | undefined>(),
 	texts: [] as string[],
+	/** What the avatar's initials were derived FROM (the last `initialsOf` input). */
+	initialsSource: null as string | null,
 	cards: 0,
 	dialog: null as null | {
 		visible: boolean;
@@ -105,7 +107,10 @@ vi.mock("@/ui/text-scale-provider", () => ({
 }));
 vi.mock("@/ui/components/avatar", () => ({
 	Avatar: () => null,
-	initialsOf: (name: string) => name.slice(0, 2),
+	initialsOf: (name: string) => {
+		host.initialsSource = name;
+		return name.slice(0, 2);
+	},
 }));
 vi.mock("@/ui/components/card", () => ({
 	Card: ({ children }: { children?: ReactNode }) => {
@@ -129,6 +134,7 @@ const render = () => {
 	host.roles.clear();
 	host.labels.clear();
 	host.texts = [];
+	host.initialsSource = null;
 	host.cards = 0;
 	host.dialog = null;
 	return act(async () => root.render(<AccountCard />));
@@ -159,7 +165,7 @@ describe("signed in with Radient: a plain card, nothing to press", () => {
 	it("renders the plain card with no sign-in control, even with accountLabel null", async () => {
 		host.connection.radientSignedIn = true;
 		host.state.route = { mode: "radient", baseUrl: "https://m.example" };
-		/* The production shape: nothing writes a non-null accountLabel. */
+		/* The no-label shape: a grant that carried neither email nor name. */
 		host.state.accountLabel = null;
 		await render();
 		expect(host.cards).toBe(1);
@@ -177,6 +183,51 @@ describe("signed in with Radient: a plain card, nothing to press", () => {
 		await render();
 		expect(host.cards).toBe(1);
 		expect(host.presses.has(SIGN_IN)).toBe(false);
+	});
+});
+
+/* PR #262 feeds the grant's account label (email, else name) into this card.
+ * The label NAMES the signed-in account; `radientSignedIn` alone still decides
+ * signed-in-ness and the sign-in button, so a stale label never turns a
+ * signed-out card into a signed-in one. Placeholder addresses only. */
+describe("the account label names the signed-in account (PR #262)", () => {
+	const signedIn = (label: string | null) => {
+		host.connection.radientSignedIn = true;
+		host.state.route = { mode: "radient", baseUrl: "https://m.example" };
+		host.state.accountLabel = label;
+	};
+	it("titles the card with the email, initials from its local part", async () => {
+		signedIn("reader@example.com");
+		await render();
+		expect(host.cards).toBe(1);
+		expect(host.texts).toContain("reader@example.com");
+		expect(host.texts).not.toContain(
+			t("mobile.settings.account.signed_in_radient"),
+		);
+		expect(host.initialsSource).toBe("reader");
+		expect(host.presses.has(SIGN_IN)).toBe(false);
+	});
+	it("titles the card with the display name when the grant had no email", async () => {
+		signedIn("Reader Name");
+		await render();
+		expect(host.texts).toContain("Reader Name");
+		expect(host.initialsSource).toBe("Reader Name");
+	});
+	it("falls back to the generic signed-in line with neither", async () => {
+		signedIn(null);
+		host.state.computers = [{ name: "Studio Mac" }];
+		await render();
+		expect(host.texts).toContain(
+			t("mobile.settings.account.signed_in_radient"),
+		);
+		expect(host.initialsSource).toBe("Studio Mac");
+	});
+	it("signed out, a held label never names the card or hides the sign-in button", async () => {
+		host.state.accountLabel = "reader@example.com";
+		await render();
+		expect(host.texts).toContain(t("mobile.settings.account.not_signed_in"));
+		expect(host.texts).not.toContain("reader@example.com");
+		expect(host.roles.get(SIGN_IN)).toBe("button");
 	});
 });
 

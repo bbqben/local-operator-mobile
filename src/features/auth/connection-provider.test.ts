@@ -37,7 +37,8 @@ import {
 import { useSessionRuntime } from "@/features/session/use-session";
 import { warmCache } from "@/features/session/warm-store";
 import { pillState } from "@/features/sessions/pill-state";
-import { activeLocale, preferredLocale } from "@/i18n";
+import { settingsAccountTitle } from "@/features/settings/account-title";
+import { activeLocale, preferredLocale, t } from "@/i18n";
 import { registerTeamBridgeRetirement } from "@/team-bridge/retirement";
 import { nativeCredentialRetirement } from "./authentication-lifecycle";
 import {
@@ -4603,6 +4604,66 @@ describe("a background launch on a locked device (R1-M2)", () => {
 		durable.locked = false;
 		await act(async () => appState.emit("active"));
 		expect(durable.oauthReads).toBe(1);
+	});
+});
+
+describe("Settings names the Radient account the route admitted (PR #261 design round 2)", () => {
+	/* Settings' account card title is `settingsAccountTitle(radientSignedIn,
+	 * state.accountLabel)` (`account-card.tsx`, PR #258's card). Before this PR
+	 * `routeAdmission` published every route with `accountLabel: null`, so a
+	 * reader live on their own Radient computer got only the generic line, never
+	 * their account. A placeholder address, never a real one (AGENTS.md). */
+	const READER = "reader@example.com";
+	const NOT_SIGNED_IN = t("mobile.settings.account.not_signed_in");
+	const SIGNED_IN_RADIENT = t("mobile.settings.account.signed_in_radient");
+	const title = () =>
+		settingsAccountTitle(
+			latest.radientSignedIn,
+			connectionStore.getState().accountLabel,
+		);
+
+	it("a Radient route goes live with the grant's account label; signing out returns the fallback", async () => {
+		const mock = await relay();
+		transport(mock.origin);
+		durable.oauth = { ...oauth, account_label: READER };
+		await mount();
+		await act(async () => {
+			await latest.selectComputer(computer("a"));
+		});
+		await until(() => connectionStore.getState().phase === "live");
+		expect(connectionStore.getState().route?.mode).toBe("radient");
+		expect(connectionStore.getState().accountLabel).toBe(READER);
+		expect(title()).toBe(READER);
+		expect(title()).not.toBe(NOT_SIGNED_IN);
+
+		await act(async () => {
+			expect(await latest.signOut()).toBe(true);
+		});
+		expect(connectionStore.getState().accountLabel).toBeNull();
+		expect(title()).toBe(NOT_SIGNED_IN);
+	});
+
+	it("a custom route names no account: the held grant gets the generic signed-in line", async () => {
+		const mock = await relay();
+		transport();
+		durable.oauth = { ...oauth, account_label: READER };
+		await mount();
+		await act(async () => {
+			await latest.connectCustom({
+				url: mock.origin,
+				password: "test-only",
+				allowInsecure: true,
+			});
+		});
+		expect(connectionStore.getState().phase).toBe("live");
+		expect(connectionStore.getState().route?.mode).toBe("custom");
+		expect(connectionStore.getState().accountLabel).toBeNull();
+		/* The held grant still makes the reader signed in with Radient (#258's
+		 *  `radientSignedIn`), so the card says so — generically: the custom
+		 *  route admitted no Radient identity, so it never names one. */
+		expect(latest.radientSignedIn).toBe(true);
+		expect(title()).toBe(SIGNED_IN_RADIENT);
+		expect(title()).not.toBe(READER);
 	});
 });
 
