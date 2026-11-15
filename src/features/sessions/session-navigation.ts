@@ -1,0 +1,42 @@
+import type { Capabilities, SessionSummary } from "@/contracts";
+import { isRemoteRow } from "./session-projection";
+
+/** Owner metadata survives navigation even when a later list omits an offline
+ * peer. It is NOT authority: every request still uses the relay's session-id
+ * route, whose server resolves and pins the authorized owner. */
+export const sessionLocation = (session: SessionSummary): string => {
+	const path = `/session/${encodeURIComponent(session.session_id)}`;
+	if (!isRemoteRow(session)) return path;
+	const query = new URLSearchParams({ remote: "1" });
+	if (session.owner_device) query.set("owner", session.owner_device);
+	return `${path}?${query}`;
+};
+
+/** Dictation uploads audio to the CONNECTED computer. A remote conversation
+ * cannot claim that as its owner's audio support or carry its local input_path
+ * to the peer. Omitting STT hides both record and misleading local setup UI;
+ * image-only pickers and ordinary typed prompt/steer remain available. */
+export const sessionCapabilities = (
+	capabilities: Capabilities,
+	remote: boolean,
+): Capabilities => {
+	if (!remote) return capabilities;
+	const { stt: _localStt, ...remoteCapabilities } = capabilities;
+	return remoteCapabilities;
+};
+
+/** An absent/partial capability is an older or incomplete relay, not an empty
+ * conversation. Only the agreed version-1 baseline admits the normal screen. */
+export const remoteSessionsAvailable = (
+	capabilities: Capabilities,
+): boolean => {
+	const capability = capabilities.remote_sessions;
+	return (
+		capability?.available === true &&
+		capability.version === 1 &&
+		capability.view === true &&
+		capability.history === true &&
+		capability.commands === true &&
+		capability.media === true
+	);
+};

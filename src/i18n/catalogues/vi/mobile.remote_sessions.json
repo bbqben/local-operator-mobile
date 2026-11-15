@@ -1,0 +1,11 @@
+{
+	"mobile.remote_sessions.title": "Cuộc trò chuyện từ xa",
+	"mobile.remote_sessions.loading": "Đang kiểm tra khả năng hỗ trợ phiên từ xa…",
+	"mobile.remote_sessions.unsupported": "Thao tác từ xa này chưa được hỗ trợ. Cập nhật Local Operator trên máy tính đang kết nối và máy tính sở hữu phiên để có các tính năng phiên từ xa mới nhất.",
+	"mobile.remote_sessions.unreachable": "Không thể liên lạc với máy tính sở hữu phiên. Kiểm tra máy đang trực tuyến rồi thử lại.",
+	"mobile.remote_sessions.forbidden": "Kết nối mạng lưới này không cho phép thao tác này. Hãy yêu cầu chủ sở hữu cấp quyền cần thiết.",
+	"mobile.remote_sessions.owner_unresolved": "Máy chuyển tiếp chưa thể xác nhận máy tính nào sở hữu cuộc trò chuyện này. Làm mới danh sách phiên rồi thử lại.",
+	"mobile.remote_sessions.session_missing": "Cuộc trò chuyện này không còn trên máy tính sở hữu phiên. Hãy làm mới danh sách phiên.",
+	"mobile.remote_sessions.cursor_missing": "Máy sở hữu phiên không còn nhận ra vị trí lịch sử này. Các tin nhắn đã tải vẫn được giữ lại; mở lại cuộc trò chuyện để đọc lịch sử mới nhất.",
+	"mobile.remote_sessions.command_ambiguous": "Máy sở hữu phiên có thể đã nhận lệnh nhưng chưa xác nhận. Kiểm tra cuộc trò chuyện trước khi thử lại để tránh gửi trùng."
+}

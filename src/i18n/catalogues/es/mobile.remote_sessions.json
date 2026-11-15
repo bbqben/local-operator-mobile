@@ -1,0 +1,11 @@
+{
+	"mobile.remote_sessions.title": "Conversación remota",
+	"mobile.remote_sessions.loading": "Comprobando la compatibilidad con sesiones remotas…",
+	"mobile.remote_sessions.unsupported": "Esta operación remota no es compatible. Actualiza Local Operator en el equipo conectado y en el equipo propietario para obtener las funciones más recientes de sesiones remotas.",
+	"mobile.remote_sessions.unreachable": "No se puede contactar con el equipo propietario. Comprueba que esté conectado y vuelve a intentarlo.",
+	"mobile.remote_sessions.forbidden": "Esta conexión de malla no permite esta operación. Pide al propietario que conceda el acceso necesario.",
+	"mobile.remote_sessions.owner_unresolved": "El relé no puede confirmar qué equipo es propietario de esta conversación. Actualiza la lista de sesiones y vuelve a intentarlo.",
+	"mobile.remote_sessions.session_missing": "Esta conversación ya no está disponible en su equipo propietario. Actualiza la lista de sesiones.",
+	"mobile.remote_sessions.cursor_missing": "El propietario ya no reconoce esta posición del historial. Los mensajes cargados se conservan; vuelve a abrir la conversación para leer el historial más reciente.",
+	"mobile.remote_sessions.command_ambiguous": "Puede que el propietario haya recibido este comando sin confirmarlo. Revisa la conversación antes de reintentarlo para no enviarlo dos veces."
+}

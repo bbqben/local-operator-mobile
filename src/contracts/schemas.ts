@@ -1259,6 +1259,20 @@ export const sessionStartCapabilitySchema = z.looseObject({
 
 export const capabilitiesSchema = z.looseObject({
 	features: z.record(z.string(), z.unknown()).optional(),
+	/** Versioned relay baseline, never inferred from mesh listing/transfer.
+	 * Missing or partial flags must not turn a remote read into a local start. */
+	remote_sessions: z
+		.looseObject({
+			available: z.boolean().optional(),
+			version: z.number().int().optional(),
+			view: z.boolean().optional(),
+			history: z.boolean().optional(),
+			commands: z.boolean().optional(),
+			media: z.boolean().optional(),
+			supported_command_ops: z.array(z.string()).optional(),
+			document_upload: z.boolean().optional(),
+		})
+		.optional(),
 	/** Absent means the relay never knew about the key, which reads exactly like
 	 *  `available: false` — the default is here so a screen can read
 	 *  `capabilities.stt.available` without a second absence check. */

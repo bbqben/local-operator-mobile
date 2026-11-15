@@ -712,6 +712,17 @@ export interface SttCapability {
 
 export interface Capabilities {
   features?: Record<string, unknown>;
+  /** Complete relay-mediated remote viewer baseline, not mesh listing/transfer. */
+  remote_sessions?: {
+    available?: boolean;
+    version?: number;
+    view?: boolean;
+    history?: boolean;
+    commands?: boolean;
+    media?: boolean;
+    supported_command_ops?: string[];
+    document_upload?: boolean;
+  };
   stt?: SttCapability;
   /** The conversation-tag routes. Optional and never defaulted: absence is an
    *  older relay whose `/api/tags` and `/api/sessions/{id}/tags` do not exist. */

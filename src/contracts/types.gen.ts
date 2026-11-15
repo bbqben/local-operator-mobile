@@ -645,6 +645,18 @@ export interface SttCapability {
 
 export interface Capabilities {
 	features?: Record<string, unknown>;
+	/** Relay-owned, versioned remote view/drive/media baseline. Absent on old
+	 * relays; mesh listing or transfer alone never implies viewer support. */
+	remote_sessions?: {
+		available?: boolean;
+		version?: number;
+		view?: boolean;
+		history?: boolean;
+		commands?: boolean;
+		media?: boolean;
+		supported_command_ops?: string[];
+		document_upload?: boolean;
+	};
 	/** An older relay omits this whole object; absence reads as `available:false`. */
 	stt?: SttCapability;
 	/**

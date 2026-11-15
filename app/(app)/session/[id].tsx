@@ -84,6 +84,7 @@ import {
 	type RecoveryFacts,
 	recoveryBudget,
 } from "@/features/session/recovery-budget";
+import { RemoteSessionGate } from "@/features/session/remote-session-gate";
 import { sessionChipLabels } from "@/features/session/session-chips";
 import { sessionFactsFrom } from "@/features/session/state-marker";
 import { createScrollPresence } from "@/features/session/transcript-presence";
@@ -93,6 +94,7 @@ import { useCompletionAck } from "@/features/session/use-completion-ack";
 import { draftSlashQuery, useComposer } from "@/features/session/use-composer";
 import { useFind } from "@/features/session/use-find";
 import { useSessionRuntime } from "@/features/session/use-session";
+import { sessionCapabilities } from "@/features/sessions/session-navigation";
 import { isRemoteRow } from "@/features/sessions/session-projection";
 import { canAssignSessionTags } from "@/features/sessions/tags";
 import { SessionTagsSheet } from "@/features/sessions/tags-sheet";
@@ -169,8 +171,33 @@ function contextFact(
  * roster together push the conversation off a phone screen, and two booleans can
  * express a state the rule forbids.
  */
-export default function Session() {
-	const { id } = useLocalSearchParams<{ id: string }>();
+export default function SessionRoute() {
+	const { id, remote, owner } = useLocalSearchParams<{
+		id: string;
+		remote?: string;
+		owner?: string;
+	}>();
+	const row = useListState((state) =>
+		state.sessions.find((session) => session.session_id === id),
+	);
+	const generation = useListState((state) => state.connectionGeneration);
+	// The route remembers remote ownership when a peer disappears from a list.
+	// Only the relay decides authority; owner is a navigation consistency key.
+	return (
+		<RemoteSessionGate
+			key={`${generation}:${id}:${owner ?? ""}`}
+			remote={remote === "1" || (row !== undefined && isRemoteRow(row))}
+		>
+			<Session />
+		</RemoteSessionGate>
+	);
+}
+
+function Session() {
+	const { id, remote } = useLocalSearchParams<{
+		id: string;
+		remote?: string;
+	}>();
 	const sessionId = typeof id === "string" ? id : "";
 	/* The header's tags come from the LIST frame, not the projection: the tag pair
 	 *  is the listing's own field (`SessionSummary.tags`), and the projection
@@ -207,7 +234,13 @@ export default function Session() {
 				};
 	/* The relay's capability block, off the same list frame the screen already reads
 	 * below. Declared before the composer because the composer's mic gate needs it. */
-	const capabilities = useListState((state) => state.capabilities);
+	const relayCapabilities = useListState((state) => state.capabilities);
+	const remoteConversation =
+		remote === "1" || (listRow !== undefined && isRemoteRow(listRow));
+	const capabilities = useMemo(
+		() => sessionCapabilities(relayCapabilities, remoteConversation),
+		[relayCapabilities, remoteConversation],
+	);
 	/* Whether the header may offer the assignment sheet at all: a LOCAL
 	 *  conversation whose relay advertises the routes. It is computed once so the
 	 *  header's presence and its press cannot disagree (review round 2, U8). The

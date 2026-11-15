@@ -1,0 +1,11 @@
+{
+	"mobile.remote_sessions.title": "Remote conversation",
+	"mobile.remote_sessions.loading": "Checking this computer’s remote-session support…",
+	"mobile.remote_sessions.unsupported": "This remote operation is not supported. Update Local Operator on the connected computer and the owner computer to get the latest remote-session features.",
+	"mobile.remote_sessions.unreachable": "The owner computer is not reachable. Check that it is online, then try again.",
+	"mobile.remote_sessions.forbidden": "This mesh connection does not allow this operation. Ask the owner to grant the required access.",
+	"mobile.remote_sessions.owner_unresolved": "The relay cannot confirm which computer owns this conversation. Refresh the sessions list and try again.",
+	"mobile.remote_sessions.session_missing": "This conversation is no longer available on its owner computer. Refresh the sessions list.",
+	"mobile.remote_sessions.cursor_missing": "The owner no longer recognizes this history position. Your loaded messages are still here; reopen the conversation to read the latest history.",
+	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate."
+}

@@ -1294,6 +1294,18 @@ export function createRelay(options: RelayOptions = {}) {
 				if (world.sessionTags !== undefined) {
 					capabilities.session_tags = { available: true };
 				}
+				if (world.remoteSessions === true) {
+					capabilities.remote_sessions = {
+						available: true,
+						version: 1,
+						view: true,
+						history: true,
+						commands: true,
+						media: true,
+						supported_command_ops: ["prompt", "steer"],
+						document_upload: false,
+					};
+				}
 				return capabilities;
 			})(),
 			unread,

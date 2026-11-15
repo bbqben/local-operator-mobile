@@ -1,0 +1,11 @@
+{
+	"mobile.remote_sessions.title": "Conversation distante",
+	"mobile.remote_sessions.loading": "Vérification de la prise en charge des sessions distantes…",
+	"mobile.remote_sessions.unsupported": "Cette opération distante n’est pas prise en charge. Mettez à jour Local Operator sur l’ordinateur connecté et sur l’ordinateur propriétaire pour bénéficier des dernières fonctions de session distante.",
+	"mobile.remote_sessions.unreachable": "L’ordinateur propriétaire est injoignable. Vérifiez qu’il est en ligne, puis réessayez.",
+	"mobile.remote_sessions.forbidden": "Cette connexion au réseau maillé n’autorise pas cette opération. Demandez au propriétaire d’accorder l’accès nécessaire.",
+	"mobile.remote_sessions.owner_unresolved": "Le relais ne peut pas confirmer quel ordinateur possède cette conversation. Actualisez la liste des sessions et réessayez.",
+	"mobile.remote_sessions.session_missing": "Cette conversation n’est plus disponible sur son ordinateur propriétaire. Actualisez la liste des sessions.",
+	"mobile.remote_sessions.cursor_missing": "Le propriétaire ne reconnaît plus cette position dans l’historique. Vos messages chargés sont conservés ; rouvrez la conversation pour lire l’historique récent.",
+	"mobile.remote_sessions.command_ambiguous": "Le propriétaire a peut-être reçu cette commande sans la confirmer. Vérifiez la conversation avant de réessayer pour éviter un doublon."
+}

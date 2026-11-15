@@ -524,6 +524,15 @@ export type CatalogueKey =
 	| "mobile.refusal.wait_network.title"
 	| "mobile.refusal.wait_reconnect.body"
 	| "mobile.refusal.wait_reconnect.title"
+	| "mobile.remote_sessions.command_ambiguous"
+	| "mobile.remote_sessions.cursor_missing"
+	| "mobile.remote_sessions.forbidden"
+	| "mobile.remote_sessions.loading"
+	| "mobile.remote_sessions.owner_unresolved"
+	| "mobile.remote_sessions.session_missing"
+	| "mobile.remote_sessions.title"
+	| "mobile.remote_sessions.unreachable"
+	| "mobile.remote_sessions.unsupported"
 	| "mobile.schedules.cadence.every"
 	| "mobile.schedules.cadence.left"
 	| "mobile.schedules.cadence.once"
@@ -1427,6 +1436,15 @@ export type NoParamKey =
 	| "mobile.refusal.tunnel_gone.body"
 	| "mobile.refusal.wait_network.body"
 	| "mobile.refusal.wait_reconnect.body"
+	| "mobile.remote_sessions.command_ambiguous"
+	| "mobile.remote_sessions.cursor_missing"
+	| "mobile.remote_sessions.forbidden"
+	| "mobile.remote_sessions.loading"
+	| "mobile.remote_sessions.owner_unresolved"
+	| "mobile.remote_sessions.session_missing"
+	| "mobile.remote_sessions.title"
+	| "mobile.remote_sessions.unreachable"
+	| "mobile.remote_sessions.unsupported"
 	| "mobile.schedules.cadence.once"
 	| "mobile.schedules.empty.body"
 	| "mobile.schedules.empty.title"
@@ -2322,6 +2340,15 @@ export type MessageParams = {
 	"mobile.refusal.wait_network.title": { computer: string | number };
 	"mobile.refusal.wait_reconnect.body": NoParams;
 	"mobile.refusal.wait_reconnect.title": { computer: string | number };
+	"mobile.remote_sessions.command_ambiguous": NoParams;
+	"mobile.remote_sessions.cursor_missing": NoParams;
+	"mobile.remote_sessions.forbidden": NoParams;
+	"mobile.remote_sessions.loading": NoParams;
+	"mobile.remote_sessions.owner_unresolved": NoParams;
+	"mobile.remote_sessions.session_missing": NoParams;
+	"mobile.remote_sessions.title": NoParams;
+	"mobile.remote_sessions.unreachable": NoParams;
+	"mobile.remote_sessions.unsupported": NoParams;
 	"mobile.schedules.cadence.every": { duration: string | number };
 	"mobile.schedules.cadence.left": { cadence: string | number; remaining: number };
 	"mobile.schedules.cadence.once": NoParams;
@@ -3310,6 +3337,15 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.refusal.wait_network.title": "{computer} can't reach Radient right now.",
 	"mobile.refusal.wait_reconnect.body": "This usually takes a few seconds.",
 	"mobile.refusal.wait_reconnect.title": "{computer} is reconnecting.",
+	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate.",
+	"mobile.remote_sessions.cursor_missing": "The owner no longer recognizes this history position. Your loaded messages are still here; reopen the conversation to read the latest history.",
+	"mobile.remote_sessions.forbidden": "This mesh connection does not allow this operation. Ask the owner to grant the required access.",
+	"mobile.remote_sessions.loading": "Checking this computer’s remote-session support…",
+	"mobile.remote_sessions.owner_unresolved": "The relay cannot confirm which computer owns this conversation. Refresh the sessions list and try again.",
+	"mobile.remote_sessions.session_missing": "This conversation is no longer available on its owner computer. Refresh the sessions list.",
+	"mobile.remote_sessions.title": "Remote conversation",
+	"mobile.remote_sessions.unreachable": "The owner computer is not reachable. Check that it is online, then try again.",
+	"mobile.remote_sessions.unsupported": "This remote operation is not supported. Update Local Operator on the connected computer and the owner computer to get the latest remote-session features.",
 	"mobile.schedules.cadence.every": "every {duration}",
 	"mobile.schedules.cadence.left": "{cadence} · {remaining} left",
 	"mobile.schedules.cadence.once": "once",
@@ -4283,6 +4319,15 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.refusal.wait_network.title": { role: "heading", note: "Headline when the computer itself cannot reach Radient (its internet connection may be down). {computer} is the computer's name or \"Your computer\". It clears by itself." },
 	"mobile.refusal.wait_reconnect.body": { role: "help", note: "Follows the reconnecting headline. A short, honest expectation; no action needed." },
 	"mobile.refusal.wait_reconnect.title": { role: "heading", note: "Headline while the computer is re-establishing its connection to Radient. {computer} is the computer's name or \"Your computer\"." },
+	"mobile.remote_sessions.command_ambiguous": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.cursor_missing": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.forbidden": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.loading": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.owner_unresolved": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.session_missing": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.title": { role: "heading", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.unreachable": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.unsupported": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.schedules.cadence.every": { role: "meta", note: "Cadence phrase for a repeating schedule. {duration} is a formatted interval such as '1d' or '1h30m'; it is formatting, not prose, and is not translated in this slice." },
 	"mobile.schedules.cadence.left": { role: "meta", note: "Cadence with a bounded delivery budget. {cadence} is the already-rendered 'every …' phrase; {remaining} is a positive integer. The middle dot is a separator, keep it." },
 	"mobile.schedules.cadence.once": { role: "meta", note: "A schedule that fires once. One lower-case word; it replaces the whole cadence phrase." },
@@ -5270,6 +5315,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer} no puede conectarse a Radient en este momento.",
 		"mobile.refusal.wait_reconnect.body": "Esto suele tardar unos segundos.",
 		"mobile.refusal.wait_reconnect.title": "{computer} se está volviendo a conectar.",
+		"mobile.remote_sessions.command_ambiguous": "Puede que el propietario haya recibido este comando sin confirmarlo. Revisa la conversación antes de reintentarlo para no enviarlo dos veces.",
+		"mobile.remote_sessions.cursor_missing": "El propietario ya no reconoce esta posición del historial. Los mensajes cargados se conservan; vuelve a abrir la conversación para leer el historial más reciente.",
+		"mobile.remote_sessions.forbidden": "Esta conexión de malla no permite esta operación. Pide al propietario que conceda el acceso necesario.",
+		"mobile.remote_sessions.loading": "Comprobando la compatibilidad con sesiones remotas…",
+		"mobile.remote_sessions.owner_unresolved": "El relé no puede confirmar qué equipo es propietario de esta conversación. Actualiza la lista de sesiones y vuelve a intentarlo.",
+		"mobile.remote_sessions.session_missing": "Esta conversación ya no está disponible en su equipo propietario. Actualiza la lista de sesiones.",
+		"mobile.remote_sessions.title": "Conversación remota",
+		"mobile.remote_sessions.unreachable": "No se puede contactar con el equipo propietario. Comprueba que esté conectado y vuelve a intentarlo.",
+		"mobile.remote_sessions.unsupported": "Esta operación remota no es compatible. Actualiza Local Operator en el equipo conectado y en el equipo propietario para obtener las funciones más recientes de sesiones remotas.",
 		"mobile.schedules.cadence.every": "cada {duration}",
 		"mobile.schedules.cadence.left": "{cadence} · {remaining} por enviar",
 		"mobile.schedules.cadence.once": "una vez",
@@ -6241,6 +6295,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer} ne parvient pas à joindre Radient pour le moment.",
 		"mobile.refusal.wait_reconnect.body": "Cela prend généralement quelques secondes.",
 		"mobile.refusal.wait_reconnect.title": "{computer} est en train de se reconnecter.",
+		"mobile.remote_sessions.command_ambiguous": "Le propriétaire a peut-être reçu cette commande sans la confirmer. Vérifiez la conversation avant de réessayer pour éviter un doublon.",
+		"mobile.remote_sessions.cursor_missing": "Le propriétaire ne reconnaît plus cette position dans l’historique. Vos messages chargés sont conservés ; rouvrez la conversation pour lire l’historique récent.",
+		"mobile.remote_sessions.forbidden": "Cette connexion au réseau maillé n’autorise pas cette opération. Demandez au propriétaire d’accorder l’accès nécessaire.",
+		"mobile.remote_sessions.loading": "Vérification de la prise en charge des sessions distantes…",
+		"mobile.remote_sessions.owner_unresolved": "Le relais ne peut pas confirmer quel ordinateur possède cette conversation. Actualisez la liste des sessions et réessayez.",
+		"mobile.remote_sessions.session_missing": "Cette conversation n’est plus disponible sur son ordinateur propriétaire. Actualisez la liste des sessions.",
+		"mobile.remote_sessions.title": "Conversation distante",
+		"mobile.remote_sessions.unreachable": "L’ordinateur propriétaire est injoignable. Vérifiez qu’il est en ligne, puis réessayez.",
+		"mobile.remote_sessions.unsupported": "Cette opération distante n’est pas prise en charge. Mettez à jour Local Operator sur l’ordinateur connecté et sur l’ordinateur propriétaire pour bénéficier des dernières fonctions de session distante.",
 		"mobile.schedules.cadence.every": "tous les {duration}",
 		"mobile.schedules.cadence.left": "{cadence} · {remaining, plural, one {# envoi restant} many {# d’envois restants} other {# envois restants}}",
 		"mobile.schedules.cadence.once": "une fois",
@@ -7212,6 +7275,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer} अभी Radient तक नहीं पहुँच पा रहा है।",
 		"mobile.refusal.wait_reconnect.body": "इसमें आमतौर पर कुछ सेकंड लगते हैं।",
 		"mobile.refusal.wait_reconnect.title": "{computer} फिर से जुड़ रहा है।",
+		"mobile.remote_sessions.command_ambiguous": "स्वामी को यह कमांड मिल गई हो सकती है, पर पुष्टि नहीं हुई। दोबारा कोशिश करने से पहले बातचीत जाँचें; कमांड दो बार न भेजें।",
+		"mobile.remote_sessions.cursor_missing": "स्वामी अब इतिहास की इस स्थिति को नहीं पहचानता। लोड किए गए संदेश सुरक्षित हैं; नवीनतम इतिहास पढ़ने के लिए बातचीत फिर से खोलें।",
+		"mobile.remote_sessions.forbidden": "यह मेश कनेक्शन इस कार्रवाई की अनुमति नहीं देता। स्वामी से आवश्यक पहुँच देने को कहें।",
+		"mobile.remote_sessions.loading": "इस कंप्यूटर पर दूरस्थ सत्रों का समर्थन जाँचा जा रहा है…",
+		"mobile.remote_sessions.owner_unresolved": "रिले पुष्टि नहीं कर पा रहा कि यह बातचीत किस कंप्यूटर की है। सत्रों की सूची रीफ़्रेश करें और दोबारा कोशिश करें।",
+		"mobile.remote_sessions.session_missing": "यह बातचीत अब स्वामी कंप्यूटर पर उपलब्ध नहीं है। सत्रों की सूची रीफ़्रेश करें।",
+		"mobile.remote_sessions.title": "दूरस्थ बातचीत",
+		"mobile.remote_sessions.unreachable": "स्वामी कंप्यूटर से संपर्क नहीं हो पा रहा। जाँचें कि वह ऑनलाइन है, फिर दोबारा कोशिश करें।",
+		"mobile.remote_sessions.unsupported": "यह दूरस्थ कार्रवाई समर्थित नहीं है। नवीनतम दूरस्थ सत्र सुविधाएँ पाने के लिए जुड़े हुए कंप्यूटर और स्वामी कंप्यूटर पर Local Operator अपडेट करें।",
 		"mobile.schedules.cadence.every": "हर {duration}",
 		"mobile.schedules.cadence.left": "{cadence} · {remaining} शेष",
 		"mobile.schedules.cadence.once": "एक बार",
@@ -8183,6 +8255,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer} сейчас не может связаться с Radient.",
 		"mobile.refusal.wait_reconnect.body": "Обычно это занимает несколько секунд.",
 		"mobile.refusal.wait_reconnect.title": "{computer} переподключается.",
+		"mobile.remote_sessions.command_ambiguous": "Владелец мог получить команду, но не подтвердил её. Перед повторной отправкой проверьте разговор, чтобы не отправить дубликат.",
+		"mobile.remote_sessions.cursor_missing": "Владелец больше не распознаёт эту позицию истории. Загруженные сообщения сохранены; откройте разговор заново, чтобы прочитать актуальную историю.",
+		"mobile.remote_sessions.forbidden": "Это соединение mesh-сети не разрешает данную операцию. Попросите владельца предоставить нужный доступ.",
+		"mobile.remote_sessions.loading": "Проверяем поддержку удалённых сеансов…",
+		"mobile.remote_sessions.owner_unresolved": "Ретранслятор не может подтвердить, какому компьютеру принадлежит разговор. Обновите список сеансов и повторите попытку.",
+		"mobile.remote_sessions.session_missing": "Этот разговор больше недоступен на компьютере-владельце. Обновите список сеансов.",
+		"mobile.remote_sessions.title": "Удалённый разговор",
+		"mobile.remote_sessions.unreachable": "Компьютер-владелец недоступен. Убедитесь, что он в сети, и повторите попытку.",
+		"mobile.remote_sessions.unsupported": "Эта удалённая операция не поддерживается. Обновите Local Operator на подключённом компьютере и на компьютере-владельце, чтобы получить актуальные функции удалённых сеансов.",
 		"mobile.schedules.cadence.every": "раз в {duration}",
 		"mobile.schedules.cadence.left": "{cadence} · {remaining, plural, one {осталось #} few {осталось #} many {осталось #} other {осталось #}}",
 		"mobile.schedules.cadence.once": "однократно",
@@ -9154,6 +9235,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer} اس وقت Radient تک نہیں پہنچ پا رہا۔",
 		"mobile.refusal.wait_reconnect.body": "اس میں عموماً چند سیکنڈ لگتے ہیں۔",
 		"mobile.refusal.wait_reconnect.title": "{computer} دوبارہ منسلک ہو رہا ہے۔",
+		"mobile.remote_sessions.command_ambiguous": "ممکن ہے مالک کو یہ کمانڈ مل گئی ہو، مگر تصدیق نہیں ہوئی۔ دوبارہ کوشش کرنے سے پہلے گفتگو دیکھیں؛ کمانڈ دو بار نہ بھیجیں۔",
+		"mobile.remote_sessions.cursor_missing": "مالک اب تاریخ کے اس مقام کو نہیں پہچانتا۔ لوڈ کیے گئے پیغامات محفوظ ہیں؛ تازہ ترین تاریخ پڑھنے کے لیے گفتگو دوبارہ کھولیں۔",
+		"mobile.remote_sessions.forbidden": "یہ میش کنکشن اس کارروائی کی اجازت نہیں دیتا۔ مالک سے مطلوبہ رسائی دینے کو کہیں۔",
+		"mobile.remote_sessions.loading": "اس کمپیوٹر پر دور دراز سیشن کی معاونت جانچی جا رہی ہے…",
+		"mobile.remote_sessions.owner_unresolved": "ریلے تصدیق نہیں کر پا رہا کہ یہ گفتگو کس کمپیوٹر کی ہے۔ سیشن کی فہرست تازہ کریں اور دوبارہ کوشش کریں۔",
+		"mobile.remote_sessions.session_missing": "یہ گفتگو اب مالک کمپیوٹر پر دستیاب نہیں ہے۔ سیشن کی فہرست تازہ کریں۔",
+		"mobile.remote_sessions.title": "دور دراز گفتگو",
+		"mobile.remote_sessions.unreachable": "مالک کمپیوٹر سے رابطہ نہیں ہو رہا۔ تصدیق کریں کہ وہ آن لائن ہے، پھر دوبارہ کوشش کریں۔",
+		"mobile.remote_sessions.unsupported": "یہ دور دراز کارروائی معاونت یافتہ نہیں ہے۔ تازہ ترین دور دراز سیشن کی خصوصیات کے لیے منسلک کمپیوٹر اور مالک کمپیوٹر پر Local Operator اپ ڈیٹ کریں۔",
 		"mobile.schedules.cadence.every": "ہر {duration}",
 		"mobile.schedules.cadence.left": "{cadence} · {remaining} باقی",
 		"mobile.schedules.cadence.once": "ایک بار",
@@ -10125,6 +10215,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer} hiện không kết nối được với Radient.",
 		"mobile.refusal.wait_reconnect.body": "Việc này thường chỉ mất vài giây.",
 		"mobile.refusal.wait_reconnect.title": "{computer} đang kết nối lại.",
+		"mobile.remote_sessions.command_ambiguous": "Máy sở hữu phiên có thể đã nhận lệnh nhưng chưa xác nhận. Kiểm tra cuộc trò chuyện trước khi thử lại để tránh gửi trùng.",
+		"mobile.remote_sessions.cursor_missing": "Máy sở hữu phiên không còn nhận ra vị trí lịch sử này. Các tin nhắn đã tải vẫn được giữ lại; mở lại cuộc trò chuyện để đọc lịch sử mới nhất.",
+		"mobile.remote_sessions.forbidden": "Kết nối mạng lưới này không cho phép thao tác này. Hãy yêu cầu chủ sở hữu cấp quyền cần thiết.",
+		"mobile.remote_sessions.loading": "Đang kiểm tra khả năng hỗ trợ phiên từ xa…",
+		"mobile.remote_sessions.owner_unresolved": "Máy chuyển tiếp chưa thể xác nhận máy tính nào sở hữu cuộc trò chuyện này. Làm mới danh sách phiên rồi thử lại.",
+		"mobile.remote_sessions.session_missing": "Cuộc trò chuyện này không còn trên máy tính sở hữu phiên. Hãy làm mới danh sách phiên.",
+		"mobile.remote_sessions.title": "Cuộc trò chuyện từ xa",
+		"mobile.remote_sessions.unreachable": "Không thể liên lạc với máy tính sở hữu phiên. Kiểm tra máy đang trực tuyến rồi thử lại.",
+		"mobile.remote_sessions.unsupported": "Thao tác từ xa này chưa được hỗ trợ. Cập nhật Local Operator trên máy tính đang kết nối và máy tính sở hữu phiên để có các tính năng phiên từ xa mới nhất.",
 		"mobile.schedules.cadence.every": "mỗi {duration}",
 		"mobile.schedules.cadence.left": "{cadence} · còn {remaining}",
 		"mobile.schedules.cadence.once": "không lặp",
@@ -11096,6 +11195,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.refusal.wait_network.title": "{computer}目前无法连接Radient。",
 		"mobile.refusal.wait_reconnect.body": "这通常只需几秒钟。",
 		"mobile.refusal.wait_reconnect.title": "{computer}正在重新连接。",
+		"mobile.remote_sessions.command_ambiguous": "所属电脑可能已收到此命令，但未确认。重试前请检查对话，避免重复发送。",
+		"mobile.remote_sessions.cursor_missing": "所属电脑已无法识别此历史记录位置。已加载的消息仍会保留；请重新打开对话以查看最新历史记录。",
+		"mobile.remote_sessions.forbidden": "此网状网络连接不允许执行此操作。请联系所有者授予所需权限。",
+		"mobile.remote_sessions.loading": "正在检查此电脑是否支持远程会话…",
+		"mobile.remote_sessions.owner_unresolved": "中继无法确认此对话属于哪台电脑。请刷新会话列表后重试。",
+		"mobile.remote_sessions.session_missing": "此对话在所属电脑上已不可用。请刷新会话列表。",
+		"mobile.remote_sessions.title": "远程对话",
+		"mobile.remote_sessions.unreachable": "无法连接会话所属电脑。请确认其在线，然后重试。",
+		"mobile.remote_sessions.unsupported": "不支持此远程操作。请更新所连接电脑和会话所属电脑上的 Local Operator，以获取最新的远程会话功能。",
 		"mobile.schedules.cadence.every": "每{duration}",
 		"mobile.schedules.cadence.left": "{cadence} · 剩余{remaining}次",
 		"mobile.schedules.cadence.once": "单次",

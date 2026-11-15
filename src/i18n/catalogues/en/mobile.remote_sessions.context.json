@@ -1,0 +1,38 @@
+{
+	"mobile.remote_sessions.title": {
+		"role": "heading",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.loading": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.unsupported": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.unreachable": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.forbidden": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.owner_unresolved": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.session_missing": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.cursor_missing": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	},
+	"mobile.remote_sessions.command_ambiguous": {
+		"role": "status",
+		"note": "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session."
+	}
+}
