@@ -1,0 +1,65 @@
+{
+	"locale": "fr",
+	"slice": "m3-s2c-audit-gap",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "26d45acf6684e1709b408cec7a6451c01365f6dc1c0641774bb0c7ca7771d317",
+	"key_count": 14,
+	"values": {
+		"mobile.refusal.phone_access_off.title": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "L’accès depuis un téléphone n’est pas encore activé pour votre compte Radient."
+		},
+		"mobile.refusal.suspended.title": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Radient a mis en pause l’accès depuis un téléphone à {computer}."
+		},
+		"mobile.refusal.console_disabled.title": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "L’accès depuis un téléphone à {computer} est désactivé dans votre console Radient."
+		},
+		"mobile.refusal.refused.title": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Radient n’autorise pas l’accès depuis un téléphone à {computer} pour le moment."
+		},
+		"mobile.refusal.tunnel_gone.title": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "L’accès depuis un téléphone est désactivé sur {computer}."
+		},
+		"mobile.refusal.how_to.title": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Activer l’accès depuis un téléphone"
+		},
+		"mobile.refusal.how_to.body": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Sur votre ordinateur, ouvrez Local Operator → Paramètres → Compte Radient → Accès depuis un téléphone et choisissez « Configurer l’accès depuis un téléphone ». Le prix s’affiche d’abord, avant toute activation."
+		},
+		"mobile.settings.sign_in_confirm.body": {
+			"file": "src/i18n/catalogues/fr/mobile.settings.json",
+			"value": "Cela met d’abord fin à votre connexion actuelle. Si vous interrompez la connexion à Radient avant la fin, vous devrez vous reconnecter à votre ordinateur."
+		},
+		"mobile.refusal.terminal.toggle": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Vous utilisez un terminal ?"
+		},
+		"mobile.settings.sign_in_confirm.title": {
+			"file": "src/i18n/catalogues/fr/mobile.settings.json",
+			"value": "Se connecter avec Radient ?"
+		},
+		"mobile.refusal.suspended.body": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Votre ordinateur va se reconnecter tout seul — si cela dure, ouvrez Local Operator sur cet ordinateur, puis touchez Réessayer."
+		},
+		"mobile.notifications.computer_registration.relay_missing": {
+			"file": "src/i18n/catalogues/fr/mobile.notifications.json",
+			"value": "Local Operator doit être mis à jour sur cet ordinateur avant de pouvoir envoyer des alertes à ce téléphone."
+		},
+		"mobile.refusal.refused.body": {
+			"file": "src/i18n/catalogues/fr/mobile.refusal.json",
+			"value": "Vérifiez-le dans votre console Radient ou réessayez."
+		},
+		"mobile.home.suggestion.phone_access": {
+			"file": "src/i18n/catalogues/fr/mobile.home.json",
+			"value": "Activez l’accès téléphone"
+		}
+	}
+}

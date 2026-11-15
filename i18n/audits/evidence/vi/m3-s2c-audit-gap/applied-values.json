@@ -1,0 +1,61 @@
+{
+	"locale": "vi",
+	"slice": "m3-s2c-audit-gap",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "aacf5a5e9a785c2f2868e059fcfda722dc2e438fe2fca3ce078d14e0907dc90c",
+	"key_count": 13,
+	"values": {
+		"mobile.refusal.phone_access_off.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Truy cập từ điện thoại chưa được bật cho tài khoản Radient của bạn."
+		},
+		"mobile.refusal.phone_access_off.body": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Hãy bật tính năng này trong Local Operator trên máy tính của bạn."
+		},
+		"mobile.refusal.balance_out.body": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Hãy nạp thêm tín dụng — máy tính của bạn sẽ tự kết nối lại. Sau đó nhấn Thử lại."
+		},
+		"mobile.refusal.suspended.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Radient đã tạm dừng truy cập từ điện thoại vào {computer}."
+		},
+		"mobile.refusal.console_disabled.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Truy cập từ điện thoại vào {computer} đang tắt trong bảng điều khiển Radient của bạn."
+		},
+		"mobile.refusal.relay_stopped.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Local Operator hiện không chạy trên {computer}."
+		},
+		"mobile.refusal.relay_refused.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Local Operator trên {computer} không chấp nhận điện thoại này."
+		},
+		"mobile.refusal.relay_refused.body": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Hãy mở Local Operator trên máy đó, kiểm tra xem truy cập từ điện thoại đã bật chưa, rồi nhấn Thử lại."
+		},
+		"mobile.refusal.tunnel_gone.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Truy cập từ điện thoại đang tắt trên {computer}."
+		},
+		"mobile.refusal.action.add_credit": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Nạp tín dụng"
+		},
+		"mobile.refusal.how_to.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Bật truy cập từ điện thoại"
+		},
+		"mobile.refusal.how_to.body": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Trên máy tính, mở Local Operator → Cài đặt → Tài khoản Radient → Truy cập từ điện thoại rồi chọn Thiết lập truy cập từ điện thoại. Bạn sẽ thấy giá trước khi bất cứ thứ gì được bật."
+		},
+		"mobile.refusal.open_console.title": {
+			"file": "src/i18n/catalogues/vi/mobile.refusal.json",
+			"value": "Truy cập từ điện thoại vào {computer} cần được điều chỉnh trong bảng điều khiển Radient của bạn."
+		}
+	}
+}

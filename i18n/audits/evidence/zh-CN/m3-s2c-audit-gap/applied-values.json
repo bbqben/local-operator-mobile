@@ -1,0 +1,153 @@
+{
+	"locale": "zh-CN",
+	"slice": "m3-s2c-audit-gap",
+	"derived_from": "the head catalogues of this PR, by script (one entry per audited key this PR changed)",
+	"draft_sha256": "3cd14eed0642a19711ac0d88a6812447471b808cac66949fc671666aeaae1035",
+	"key_count": 36,
+	"values": {
+		"mobile.computers.setup.open_settings": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.computers.json",
+			"value": "在你的电脑上，打开Local Operator → 设置 → Radient账户 → 手机访问 → 设置手机访问。"
+		},
+		"mobile.computers.setup.check_again": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.computers.json",
+			"value": "重新检查"
+		},
+		"mobile.computers.setup.checking": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.computers.json",
+			"value": "正在检查……"
+		},
+		"mobile.computers.hint.radient_unreachable": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.computers.json",
+			"value": "目前无法连接Radient"
+		},
+		"mobile.settings.diagnostics.tunnel": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.settings.json",
+			"value": "隧道ID"
+		},
+		"mobile.refusal.phone_access_off.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "你的Radient账户尚未开通手机访问。"
+		},
+		"mobile.refusal.phone_access_off.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请在你电脑上的Local Operator中开通。"
+		},
+		"mobile.refusal.balance_out.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "你的Radient余额已用完。"
+		},
+		"mobile.refusal.balance_out.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "充值后，你的电脑会自动重新连接。然后轻点“重试”。"
+		},
+		"mobile.refusal.suspended.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "Radient已暂停{computer}的手机访问。"
+		},
+		"mobile.refusal.suspended.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "你的电脑会自动重新连接——如果一直这样，请在电脑上打开Local Operator，然后轻点“重试”。"
+		},
+		"mobile.refusal.console_disabled.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}的手机访问已在你的Radient控制台中关闭。"
+		},
+		"mobile.refusal.provisioning.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "Radient仍在设置这台电脑。"
+		},
+		"mobile.refusal.refused.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "Radient目前不允许通过手机访问{computer}。"
+		},
+		"mobile.refusal.refused.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请在Radient控制台中查看，或重试。"
+		},
+		"mobile.refusal.offline.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}处于休眠状态或已离线。"
+		},
+		"mobile.refusal.offline.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请唤醒那台电脑，并确认其上已打开Local Operator。"
+		},
+		"mobile.refusal.relay_stopped.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}上没有运行Local Operator。"
+		},
+		"mobile.refusal.relay_stopped.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请在那台电脑上打开它，然后轻点“重试”。"
+		},
+		"mobile.refusal.relay_refused.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}上的Local Operator没有接受此手机。"
+		},
+		"mobile.refusal.relay_refused.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请在那台电脑上打开Local Operator，确认手机访问已开启，然后轻点“重试”。"
+		},
+		"mobile.refusal.tunnel_gone.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}上的手机访问已关闭。"
+		},
+		"mobile.refusal.tunnel_gone.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请在Local Operator中开启：设置 → Radient账户 → 手机访问。"
+		},
+		"mobile.refusal.radient_unreachable.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "Radient目前没有响应。"
+		},
+		"mobile.refusal.radient_unreachable.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请稍后重试。"
+		},
+		"mobile.refusal.relay_wait.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}仍在启动。"
+		},
+		"mobile.refusal.action.open_billing": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "打开Radient账单"
+		},
+		"mobile.refusal.action.open_console": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "打开Radient控制台"
+		},
+		"mobile.refusal.how_to.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "在你的电脑上，打开Local Operator → 设置 → Radient账户 → 手机访问，然后选择“设置手机访问”。在开通任何功能之前，你会先看到价格。"
+		},
+		"mobile.refusal.wait_network.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}目前无法连接Radient。"
+		},
+		"mobile.refusal.wait_reconnect.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}正在重新连接。"
+		},
+		"mobile.refusal.computer_sign_in.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}上的Local Operator需要你重新登录Radient。"
+		},
+		"mobile.refusal.computer_sign_in.body": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "请在那台电脑上打开Local Operator并登录。在此手机上登录并不能解决问题。"
+		},
+		"mobile.refusal.computer_attention.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}上的Local Operator需要你处理。"
+		},
+		"mobile.refusal.open_console.title": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.refusal.json",
+			"value": "{computer}的手机访问需要在你的Radient控制台中进行更改。"
+		},
+		"mobile.notifications.computer_registration.relay_missing": {
+			"file": "src/i18n/catalogues/zh-CN/mobile.notifications.json",
+			"value": "这台电脑需要先更新Local Operator，才能向此手机发送提醒。"
+		}
+	}
+}

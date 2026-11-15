@@ -30,13 +30,21 @@ The directory name follows the `<locale><slice><round>` id convention of
 
 ## Left to the next slice (code, not catalogue)
 
-- The English "Your computer" / "Radient" fallback interpolated into `{computer}`: `src/features/auth/connection-provider.tsx` passes a literal English `"Your computer"` (and the product name `"Radient"`) into the refusal headlines on some paths, beside the catalogue's `mobile.computers.your_computer`. A code change, not a catalogue one.
+- The English "Your computer" fallback on the transient-notice path: `src/features/auth/connection-provider.tsx` (~line 2634, the `transient` memo) passes a literal English `"Your computer"` into `transientCopy(..., subject)` when no computer is named, so the transient notice shows English inside a translated sentence. The refusal path (~line 2597) already resolves `t("mobile.computers.your_computer")`. A code change, not a catalogue one. (The `"Radient"` subject at ~line 2595 is the product name, identical in every locale by design.)
 - ur alert-title direction (`ur-C1`): the refusal alert title's base direction is a code item.
 
 ## Out-of-batch follow-ups the auditors listed
 
-- es «ordenador» in 10 other keys
+- es: 7 keys with «ordenador» and 3 `mobile.notifications.permission.*` keys with «computadoras» (10 keys outside this batch)
 - hi `mobile.signin.diagnostics` निदान
 - vi "bảng điều khiển Radient" vs desktop "Radient Console"
 - ur `mobile.home.suggestion.phone_access` glossary
 - zh-CN style-guide 请 rule
+
+## Applied values (durable)
+
+`applied-values.json` holds the exact value of every key this PR changed in `vi`, derived by script from this PR's head catalogues, beside the draft sha256 it was applied from — so "applied == audited" can be checked from the repository alone, without the lane's scratchpad. sha256 `c58cde4e9c22bedc0e5c7dba6bb019308dd90a43d3cebded21c730d7d1123011`. Re-check: every `values[k].value` equals the catalogue value at `values[k].file`, and equals the audited draft.
+
+## Record schema note
+
+The auditors' `record.json` files are committed byte-identical and are not normalised here. Their shapes differ: most use `counts: {BLOCKER, MAJOR, MINOR, NIT}` and `verdict: "passed"|"failed"`; `rus2cr2` uses lowercase `counts` keys (`blocker`, `major`, …) with extra fields, and `rus2cr2` / `zh-CNs2cr2` carry `verdict` as an object (`verdict.status`). Read the verdict as `verdict.status` when `verdict` is an object, and compare count keys case-insensitively.
