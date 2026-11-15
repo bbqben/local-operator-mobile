@@ -1857,12 +1857,36 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#258, 8ca71d54) into #263: both comments kept,
 	 * re-derived once with --print over the merged tree. */
+	/* Convergence of #257 onto main 8ca71d54 (#258): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* M3 S2b-2b (feat/i18n-m3-s2b2b, English-first): the dead ConnectorWaitPanel
+	 * deleted, the set-up-a-computer screen keyed, `profile.ts` returning
+	 * refused-address codes mapped to keys in `tunnel-verdict.ts`, the
+	 * "Your computer" refusal subject keyed, and their tests (839 en keys; no
+	 * `catalogue.gen.ts` regeneration yet). Re-derived last with --print over
+	 * the committed tree (cd053eff); only `src` moved. Source identity only,
+	 * NOT rendered U-08 evidence. */
+	/* M3 S2b-2b integration: the six LTR locales' and ur's 27 audited values
+	 * (setup.*, route_invalid.*, your_computer), the regenerated
+	 * `catalogue.gen.ts` (839 keys), and the ur whole-namespace premise listing
+	 * the single-token `setup.tui_label`. Re-derived last with --print over the
+	 * committed tree (10530706); only `src` moved. Source identity
+	 * only, NOT rendered U-08 evidence. */
+	/* Convergence of #260 onto main caae98bc (#257) + round-1 remediation (D2,
+	 * Q-02, identical-by-design TUI/Terminal): both comment chains kept;
+	 * re-derived once with --print over the committed tree. */
+	/* CI remediation of #260 (d90f49d7): one new test file,
+	 * `src/connection/__tests__/route-validation-decisions.test.ts`, and nothing
+	 * else under `src`. Re-derived with --print over the committed tree; only
+	 * `src` moved. Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#257, caae98bc) into #263: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Convergence of PR #246 onto main d92515ff (#263 running drawer rows
 	 * ordered by last_user_at): both sides' comments and src kept, so neither
 	 * parent's digest. Re-derived once with --print over the merged tree; source
 	 * identity of the merge, NOT rendered evidence. */
+	/* Convergence of #260 onto main d92515ff (#263): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#263, d92515ff) into #261: both comment blocks
 	 * kept (the session-row `last_user_at` contract from #263; the M1 refusal
 	 * work from #261). Re-derived once with --print over the merged tree; only
@@ -1874,6 +1898,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * notice's Retry shares the wake rule's one restart timer. Re-derived once
 	 * with --print over the merged tree; source identity, NOT rendered
 	 * evidence. */
+	/* Convergence of #260 onto main f340368a (#261): both comment chains kept
+	 * (#261's set-up restructure with #260's keying applied to it);
+	 * re-derived last with --print over the merged tree; only `src` moved.
+	 * Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#263, d92515ff) into #256: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
 	/* Merge of origin/main (#261, f340368a) into #256: both comment chains
@@ -1882,7 +1910,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * in-place search, quieter history loading): both sides' comments and
 	 * source kept, so neither parent's digest. Re-derived once with --print
 	 * over the merged tree; source identity, NOT rendered evidence. */
-	src: "b93f6d9ba15ee3e5372f3eb53db589c4e9e3834342f8d74892cb2058ace299d3",
+	/* Convergence of #260 onto main 9214ff9b (#256): both comment chains kept;
+	 * re-derived once with --print over the merged tree. */
+	/* PR #246 converged onto main 95adf190 (#260 i18n M3 S2b-2b): both sides'
+	 * comments and source kept, so neither parent's digest. Re-derived once
+	 * with --print over the merged tree; source identity, NOT rendered
+	 * evidence. */
+	src: "77afb21b5640debb18714aa39a670d3ead0bd7340b5dd4cdd4b8a96700fec869",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
