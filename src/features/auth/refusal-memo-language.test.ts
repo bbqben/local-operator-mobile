@@ -44,7 +44,20 @@ describe("the refusal memo re-resolves its copy when the language changes", () =
 	const marker = "const refusal = useMemo<RefusalView | null>(";
 
 	it("still resolves catalogue copy inside the memo (else this guard is moot)", () => {
-		expect(memoBlock(marker)).toContain('t("mobile.computers.your_computer")');
+		/* M3 S3 moved the subject choice into `failureSubject` (refusal.ts), which
+		 * reads `mobile.computers.your_computer`; the memo reaches it through that
+		 * call (and `refusalFromError`'s own catalogue lines). */
+		expect(memoBlock(marker)).toContain("failureSubject(");
+		const refusal = readFileSync(
+			resolve(import.meta.dirname, "refusal.ts"),
+			"utf8",
+		);
+		const helper = refusal.slice(
+			refusal.indexOf("export function failureSubject("),
+		);
+		expect(helper.slice(0, helper.indexOf("\n}\n"))).toContain(
+			't("mobile.computers.your_computer")',
+		);
 	});
 
 	it("subscribes the provider to the config frame the language arrives on", () => {

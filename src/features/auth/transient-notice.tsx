@@ -19,14 +19,17 @@ import { useComposedDir } from "@/ui/direction";
  */
 export const TransientNotice = () => {
 	const { transient, retryTransient } = useConnection();
-	/* The title often opens with the computer's Latin name; on an RTL page the
-	 *  body states the page's base rather than `dir="auto"`'s guess. */
+	/* The TITLE is the Latin-initial run: `{computer}` is usually a Latin name,
+	 *  and ur's "Radient isn't responding" opens with "Radient" — so on an RTL
+	 *  page `dir="auto"` laid it out LTR (M3 S3, auditor ur-C1). Title and body
+	 *  both state the page's base rather than `dir="auto"`'s guess. */
 	const composedDir = useComposedDir();
 	if (!transient) return null;
 	return (
 		<Alert
 			severity="warning"
 			title={transient.title}
+			titleDir={composedDir}
 			testID={SURFACE.transientNotice}
 			bodyDir={composedDir}
 			action={{
