@@ -67,6 +67,9 @@ const sha256 = (content: string | Uint8Array) =>
 
 /* --------------------------------------------------------------- the table -- */
 
+/* Background push refresh: re-derived with --print after the register fixture
+ * and warm-sync source changed. These hashes prove SOURCE IDENTITY ONLY, not
+ * rendered/native/device/battery evidence; no assertion or exemption changed. */
 export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-07 for PR #189 (audit fix 2) with --print: `auditCell` now
 	 *  brackets the unchanged `EXTRACT_PROBE` with `SPACING_REST_PROBE` and retakes
@@ -195,7 +198,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
 	"tools/mock-relay/relay.ts":
-		"fd8d5e9c17f3b7219024340b20934321980411f4b510c64aab0cde36ba9e8669",
+		"220c1034e2443da38d76f755eab6a0bcc3781fa50dba93d7c3d03c942b357e19",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -2070,7 +2073,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
 	 * keys in all 8 locales. Re-derived with --print over the working tree (run
 	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
-	src: "bab911c26d3d7bfae0326ce5c625e4ebbb70e1e900cbc3c189ef019c68b2af08",
+	/* Push-background refresh: re-derived with --print after staging the full
+	 * mapping/coordinator/task and regression tests. SOURCE IDENTITY ONLY;
+	 * no rendered, native, device or battery proof is implied. */
+	src: "9cc4944f0c3582f6d507d1cdd0caadb48150c35f07eecb3e9602d97f36847714",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
