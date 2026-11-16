@@ -2094,7 +2094,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * alignment, so it has neither parent's digest. Derived from the staged
 	 * merged tree with --print; source admission only, NOT new rendered,
 	 * native or device evidence. */
-	src: "7c88eaab8efe28bb3df1feee65a1239cb149c66d38fcf5cfd8330c4375d61d50",
+	/* iOS notification category summaries: new `notifications/categories.ts`,
+	 * its mount hook, tests and six catalogue keys in all 8 locales. Nothing
+	 * the U-08 scene renders changes. Derived with --print over the committed
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	src: "84f0d7187b13c7bde8e67b6fd094404dd023370f32eaac01d7af44e9c9a8a399",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
