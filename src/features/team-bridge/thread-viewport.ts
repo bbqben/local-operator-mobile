@@ -92,8 +92,20 @@ export type ThreadViewportOptions = {
 	 * see there for why a layout event cannot be waited for.
 	 */
 	measure?: () => ScrollGeometry | null;
-	/** Clock for the in-flight write window (tests inject one). */
+	/** Monotonic clock for the in-flight write window (tests inject one). */
 	now?: () => number;
+	/** Run `run` after `ms`; returns a cancel. Tests inject one. */
+	schedule?: (run: () => void, ms: number) => () => void;
+};
+
+const monotonic = (): number =>
+	typeof globalThis.performance?.now === "function"
+		? globalThis.performance.now()
+		: Date.now();
+
+const timeout = (run: () => void, ms: number) => {
+	const timer = setTimeout(run, ms);
+	return () => clearTimeout(timer);
 };
 
 /**
@@ -155,7 +167,21 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	 * host that settled elsewhere is never masked; a new target still writes.
 	 */
 	let requested: { target: number; at: number } | null = null;
-	const now = options.now ?? Date.now;
+	const now = options.now ?? monotonic;
+	const schedule = options.schedule ?? timeout;
+	/**
+	 * One self re-check per un-confirmed native write (QA r2, Q1 residual).
+	 * Unchanged polls are silent now, so a write iOS drops INSIDE a new
+	 * message's burst may get no later trigger to re-assert it. The re-check
+	 * runs once per distinct target: a host that never reports can never turn
+	 * this into a periodic write loop — the flicker this file guards against.
+	 */
+	let recheck: (() => void) | null = null;
+	let rechecked: number | null = null;
+	const cancelRecheck = () => {
+		recheck?.();
+		recheck = null;
+	};
 	let readSeq = 0;
 
 	const finish = (atNewest: boolean) => {
@@ -244,6 +270,19 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		const readBack = options.scrollTo(target);
 		requested = readBack ? null : { target, at: now() };
 		if (readBack) settle(readBack.y, readBack.viewport, readBack.content);
+		else if (
+			rechecked === null ||
+			Math.abs(rechecked - target) > POSITION_SLACK
+		) {
+			cancelRecheck();
+			recheck = schedule(() => {
+				recheck = null;
+				if (requested === null) return; // the host reported
+				rechecked = requested.target;
+				requested = null;
+				position();
+			}, IN_FLIGHT_MS);
+		}
 	};
 
 	const intent = () => {
@@ -277,6 +316,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 				event.nativeEvent;
 			// The host has reported: whatever was requested is now grounded.
 			requested = null;
+			cancelRecheck();
 			// Native offset/visible-content anchoring can settle AFTER the final
 			// layout callback. That callback's correction is not proof that the
 			// host stayed there. Reconcile only an existing follower, without a
@@ -367,6 +407,10 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			setFollowing(false);
 			gesture = false;
 			landing = true;
+		},
+		/** The thread unmounted: drop a pending re-check. */
+		dispose() {
+			cancelRecheck();
 		},
 		/** The list's visible height (0 before its first layout). */
 		get viewportHeight() {

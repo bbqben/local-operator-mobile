@@ -543,6 +543,82 @@ describe("a periodic unchanged refresh", () => {
 		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
 		expect(moves).toEqual([2201, 2201]);
 	});
+	/*
+	 * QA round 2 (Q1 residual): with unchanged polls now silent, a write iOS
+	 * drops INSIDE the new message's burst may get no later trigger at all.
+	 * The controller re-checks once on its own, and only once per target, so
+	 * a host that never reports can never turn into a periodic write loop.
+	 */
+	const nativeDropping = () => {
+		const timers: Array<() => void> = [];
+		const moves: number[] = [];
+		let clock = 0;
+		const v = createThreadViewport({
+			scrollTo: (offset) => {
+				moves.push(offset);
+				return null;
+			},
+			positioned: vi.fn(),
+			read: vi.fn(),
+			newestSeq: () => 4,
+			dataReady: () => true,
+			web: false,
+			now: () => clock,
+			schedule: (run) => {
+				timers.push(run);
+				return () => {
+					const i = timers.indexOf(run);
+					if (i >= 0) timers.splice(i, 1);
+				};
+			},
+		});
+		const scroll = (y: number, content: number) =>
+			v.handlers.onScroll({
+				nativeEvent: {
+					contentOffset: { y },
+					layoutMeasurement: { height: 599 },
+					contentSize: { height: content },
+				},
+			});
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		v.handlers.onContentSizeChange(390, 2718);
+		scroll(2119, 2718);
+		moves.length = 0;
+		timers.length = 0;
+		return {
+			v,
+			moves,
+			timers,
+			scroll,
+			advance(ms: number) {
+				clock += ms;
+				for (const run of timers.splice(0)) run();
+			},
+		};
+	};
+	it("re-checks a write dropped inside its burst with no later trigger, once", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		expect(r.moves).toEqual([2201]);
+		r.advance(300); // no event, no trigger: the controller re-asserts once
+		expect(r.moves).toEqual([2201, 2201]);
+		for (let i = 0; i < 20; i += 1) r.advance(300); // and never loops
+		expect(r.moves).toEqual([2201, 2201]);
+	});
+	it("a scroll event before the re-check cancels it", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.scroll(2201, 2800);
+		r.advance(300);
+		expect(r.moves).toEqual([2201]);
+	});
+	it("dispose cancels a pending re-check", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.v.dispose();
+		expect(r.timers).toHaveLength(0);
+	});
 	it("the #283 reconcile corrects a past-end report once and then rests", () => {
 		const r = openLong(false);
 		r.moves.mockClear();
@@ -567,6 +643,13 @@ describe("screen wiring", () => {
 		expect(source.match(RELEASE)).toHaveLength(2);
 		expect(source).not.toContain("onScroll={");
 		expect(source).not.toContain("onContentSizeChange={");
+	});
+	it("re-arms the day-turnover timer on every fire and disposes the viewport (r2)", () => {
+		// Keyed on a fire counter, not the day: a timer that fires early (clock
+		// set back, timezone moved west) must still arm the next one.
+		expect(source).toContain("setDayTick((tick) => tick + 1)");
+		expect(source).toContain("}, [dayTick]);");
+		expect(source).toContain("viewport.current?.dispose()");
 	});
 	it("hands memoised rows a stable people list when the directory is absent", () => {
 		// `?? []` minted a new array per render, so every store publish (an

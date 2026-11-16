@@ -486,14 +486,19 @@ function ThreadContent({
 	 *  them when the local day turns over instead (design r1 D1). A timer that
 	 *  fires late after a backgrounded app still lands on the new day. */
 	const [today, setToday] = useState(() => model.localDay(new Date()));
-	// biome-ignore lint/correctness/useExhaustiveDependencies: a new `today` re-arms the timer for the following midnight.
+	/* Re-armed on every FIRE, not on a day change: a timer that fires early
+	 *  (clock set back, timezone moved west) must still arm the next one
+	 *  (review r2 MINOR / QA r2 Q4). `setToday` with an unchanged day is a
+	 *  no-op render, so an early fire costs nothing. */
+	const [dayTick, setDayTick] = useState(0);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: each fire bumps `dayTick` to arm the next timer.
 	useEffect(() => {
-		const timer = setTimeout(
-			() => setToday(model.localDay(new Date())),
-			model.msUntilNextLocalDay(new Date()) + 1000,
-		);
+		const timer = setTimeout(() => {
+			setToday(model.localDay(new Date()));
+			setDayTick((tick) => tick + 1);
+		}, model.msUntilNextLocalDay(new Date()) + 1000);
 		return () => clearTimeout(timer);
-	}, [today]);
+	}, [dayTick]);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: `today` is the day the labels are derived for.
 	const items = useMemo(
 		() => model.threadItems(thread?.messages ?? [], new Date()),
@@ -636,6 +641,8 @@ function ThreadContent({
 	useEffect(() => {
 		if (readyForPosition && items.length > 0) viewport.current?.dataChanged();
 	}, [items, readyForPosition]);
+	// The controller may hold one pending native re-check; never run it after unmount.
+	useEffect(() => () => viewport.current?.dispose(), []);
 	const {
 		showJump,
 		highlightId,
