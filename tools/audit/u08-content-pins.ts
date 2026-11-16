@@ -2076,7 +2076,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Push-background refresh: re-derived with --print after staging the full
 	 * mapping/coordinator/task and regression tests. SOURCE IDENTITY ONLY;
 	 * no rendered, native, device or battery proof is implied. */
-	src: "9cc4944f0c3582f6d507d1cdd0caadb48150c35f07eecb3e9602d97f36847714",
+	/* PR #279 CI remediation round 3: the session AppState test-source helper
+	 * adds tracked src content. Re-derived with --print; source identity only, NOT
+	 * new rendered, native, device or battery proof. */
+	src: "cf45fa1aa71b76c126b89971d77ddf34e7075b58a0dcf40d486019f270efe80b",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
