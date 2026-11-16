@@ -2057,7 +2057,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * an independent reader over the staged tree's git objects (not --print);
 	 * the same reader reproduced main's pin (c4df74ae…) from main's tree as a
 	 * control. Source identity only, NOT rendered U-08 evidence. */
-	src: "6b5288751f4d5630901264574202f7f72eae41c202db664eae62e368a37dc373",
+	/* O3-a CI fix: composer-layout.test.ts now pins the keyed attach title
+	 * instead of the retired literal (test-only src change). Same independent
+	 * reader over the staged tree; it reproduced the previous pin (6b528875…)
+	 * from a420c2c1 as a control. Source identity only, NOT rendered U-08 evidence. */
+	src: "90cfbd1e13a692dd4143e155d533636648c23a4790b492677101755420b4cfa9",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
