@@ -28,6 +28,7 @@ import type {
 	NotificationItem,
 	NotificationsResponse,
 } from "@/contracts";
+import { t } from "@/i18n";
 import type { NotificationTarget } from "@/relay";
 
 /** The inbox stamps are epoch MILLISECONDS, unlike the session clocks. */
@@ -61,13 +62,23 @@ export interface InboxSection {
 /** The pinned asks' header. "Waiting on you" is the operator's own word for the
  *  pile (brief, "everything that's pending in one view"), and the section is the
  *  reason the screen opens. */
-export const WAITING_TITLE = "Waiting on you";
+/* Functions, not constants: `t()` reads the active locale at CALL time, and a
+ * module-level constant would freeze whichever language was active when this
+ * module was first imported. The bucket words are the shared `mobile.time.bucket`
+ * keys so the inbox and the Team Bridge day divider say "Today" identically. */
+const waitingTitle = (): string => t("mobile.notifications.section.waiting");
 
-const BUCKET_TITLES: Record<Exclude<InboxSectionId, "waiting">, string> = {
-	today: "Today",
-	yesterday: "Yesterday",
-	week: "Earlier this week",
-	earlier: "Earlier",
+const bucketTitle = (id: Exclude<InboxSectionId, "waiting">): string => {
+	switch (id) {
+		case "today":
+			return t("mobile.time.bucket.today");
+		case "yesterday":
+			return t("mobile.time.bucket.yesterday");
+		case "week":
+			return t("mobile.time.bucket.earlier_this_week");
+		case "earlier":
+			return t("mobile.time.bucket.earlier");
+	}
 };
 
 /**
@@ -91,7 +102,7 @@ export function inboxSections(
 	const waiting = response.waiting ?? [];
 	const sections: InboxSection[] = [];
 	if (waiting.length > 0) {
-		sections.push({ id: "waiting", title: WAITING_TITLE, items: waiting });
+		sections.push({ id: "waiting", title: waitingTitle(), items: waiting });
 	}
 	const buckets = new Map<
 		Exclude<InboxSectionId, "waiting">,
@@ -108,7 +119,7 @@ export function inboxSections(
 	for (const id of ["today", "yesterday", "week", "earlier"] as const) {
 		const rows = buckets.get(id);
 		if (rows !== undefined && rows.length > 0) {
-			sections.push({ id, title: BUCKET_TITLES[id], items: rows });
+			sections.push({ id, title: bucketTitle(id), items: rows });
 		}
 	}
 	return sections;
@@ -256,7 +267,7 @@ export function plural(count: number, one: string, many: string): string {
 /** The lead sentence over the pinned section: how many things are actually
  *  blocked on the operator. A count of one is a sentence, not "1 asks". */
 export function waitingSummary(count: number): string {
-	return `Waiting on you · ${count}`;
+	return t("mobile.notifications.section.waiting_count", { count });
 }
 
 /** The selection bar's own line: how many rows the next write will touch. */
@@ -274,7 +285,6 @@ export function unreadSummary(count: number): string {
 
 /* ------------------------------------------------------------------- copy -- */
 
-export const INBOX_TITLE = "Notifications";
 export const ALL_CAUGHT_UP_TITLE = "All caught up";
 export const ALL_CAUGHT_UP_BODY =
 	"Nothing is waiting on you. New items from your agents land here.";
@@ -508,12 +518,18 @@ export function relativeTime(atMs: number, nowMs: number): string {
 	if (!(atMs > 0)) return "";
 	const delta = Math.max(0, nowMs - atMs);
 	const minutes = Math.round(delta / 60_000);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes}m ago`;
+	/* The compact `5m ago` register (no space before the unit) is this narrow
+	 * row meta's own; the spaced `5 min ago` family is a separate key set. */
+	if (minutes < 1) return t("mobile.time.relative.just_now");
+	if (minutes < 60)
+		return t("mobile.time.relative.minutes_ago_compact", { count: minutes });
 	const hours = Math.round(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
+	if (hours < 24)
+		return t("mobile.time.relative.hours_ago_compact", { count: hours });
 	const days = Math.round(hours / 24);
-	return days === 1 ? "yesterday" : `${days}d ago`;
+	return days === 1
+		? t("mobile.time.relative.yesterday")
+		: t("mobile.time.relative.days_ago_compact", { count: days });
 }
 
 /**

@@ -13,6 +13,7 @@ import {
 	staleBadgeLabel,
 } from "@/features/projects/projects-copy";
 import { ProjectsStateMarkers } from "@/features/projects/projects-markers";
+import { t } from "@/i18n";
 import { CONTROL, EMPTY, projectRowId, ROLE, SCREEN, SURFACE } from "@/ui/a11y";
 import { Alert } from "@/ui/components/alert";
 import { BackButton } from "@/ui/components/back-button";
@@ -135,7 +136,7 @@ export default function Projects() {
 
 	return (
 		<Screen
-			title="Projects"
+			title={t("mobile.projects.title")}
 			testID={SCREEN.projects}
 			headerLeading={
 				<BackButton

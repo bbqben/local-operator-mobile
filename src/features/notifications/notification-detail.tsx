@@ -323,7 +323,7 @@ export default function NotificationDetail({ itemId }: { itemId: string }) {
 
 	return (
 		<Screen
-			title="Notification"
+			title={t("mobile.notifications.detail.title")}
 			testID={SCREEN.notificationDetail}
 			scroll={false}
 			headerLeading={
@@ -405,13 +405,17 @@ function DetailBody({
 			</View>
 			{item.source === "notify" && (item.body_md ?? "") !== "" ? (
 				<View className="gap-2">
-					<SectionHeader label="Notification" />
+					<SectionHeader
+						label={t("mobile.notifications.detail.section_notification")}
+					/>
 					<Markdown text={item.body_md ?? ""} />
 				</View>
 			) : null}
 			{(item.links ?? []).length > 0 ? (
 				<View className="gap-2">
-					<SectionHeader label="Links" />
+					<SectionHeader
+						label={t("mobile.notifications.detail.section_links")}
+					/>
 					{(item.links ?? []).map((link) => (
 						<Button
 							key={`${link.label}:${link.url}`}
@@ -429,7 +433,9 @@ function DetailBody({
 			) : null}
 			{anchor !== null && anchor.excerpt.length > 0 ? (
 				<View className="gap-2">
-					<SectionHeader label="Message" />
+					<SectionHeader
+						label={t("mobile.notifications.detail.section_message")}
+					/>
 					<View className="rounded-md border-hairline bg-elevated p-3">
 						<Text className="text-body text-ink">{anchor.excerpt}</Text>
 					</View>

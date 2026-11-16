@@ -115,19 +115,26 @@ export const dueLabel = (seconds: number): string => {
 	const overdue = seconds < 0;
 	const magnitude = Math.abs(seconds);
 	let label: string;
+	/* The thresholds stay a port of the terminal's formatter; the unit letters
+	 * are the shared `mobile.time.short.*` copy (the O3-a decision to localize
+	 * them), so `in 4m` here and `4m` on a transcript read the same in every
+	 * language. `formatWakeDuration`'s compound cadence token is a separate,
+	 * still-unkeyed formatter. */
 	if (magnitude < 90) {
-		label = `${Math.floor(magnitude)}s`;
+		label = t("mobile.time.short.seconds", { count: Math.floor(magnitude) });
 	} else if (magnitude < 5_400) {
-		label = `${Math.floor(magnitude / 60)}m`;
+		label = t("mobile.time.short.minutes", {
+			count: Math.floor(magnitude / 60),
+		});
 	} else if (magnitude < 172_800) {
-		label = `${Math.floor(magnitude / 3_600)}h`;
+		label = t("mobile.time.short.hours", {
+			count: Math.floor(magnitude / 3_600),
+		});
 	} else {
-		label = `${Math.floor(magnitude / 86_400)}d`;
+		label = t("mobile.time.short.days", {
+			count: Math.floor(magnitude / 86_400),
+		});
 	}
-	/* The duration itself (`45s`, `1h30m`) is a FORMATTING token, kept in code
-	 * for the same reason `formatWakeDuration` is: it is a port of the terminal's
-	 * own formatter, and localizing its unit letters is a decision nobody has
-	 * made. The sentence around it is copy, and is keyed. */
 	return overdue
 		? t("mobile.schedules.due.overdue", { label })
 		: t("mobile.schedules.due.ahead", { label });

@@ -6,6 +6,8 @@
  * so the app's copy rules are unit tests rather than review notes.
  */
 
+import { t } from "@/i18n";
+
 /**
  * Shorten a home-directory path to `~/…`.
  *
@@ -53,10 +55,20 @@ export const countLabel = (
  */
 export const elapsedLabel = (totalSeconds: number): string => {
 	const seconds = Math.max(0, Math.floor(totalSeconds));
-	if (seconds < 60) return `${seconds}s`;
+	/* The unit letters are catalogue copy (`mobile.time.short.*`) so a language
+	 * can use its own abbreviations; the zero-padding stays here and reaches the
+	 * message as text, because padding is the width rule above, not wording. */
+	if (seconds < 60) return t("mobile.time.short.seconds", { count: seconds });
 	const minutes = Math.floor(seconds / 60);
 	const rest = seconds % 60;
-	if (minutes < 60) return `${minutes}m ${String(rest).padStart(2, "0")}s`;
+	if (minutes < 60)
+		return t("mobile.time.short.minutes_seconds", {
+			minutes,
+			seconds: String(rest).padStart(2, "0"),
+		});
 	const hours = Math.floor(minutes / 60);
-	return `${hours}h ${String(minutes % 60).padStart(2, "0")}m`;
+	return t("mobile.time.short.hours_minutes", {
+		hours,
+		minutes: String(minutes % 60).padStart(2, "0"),
+	});
 };

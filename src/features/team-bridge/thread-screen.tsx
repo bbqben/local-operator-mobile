@@ -27,7 +27,7 @@ import {
 	textSelectionContainerTouchCancel,
 	textSelectionContainerTouchEnd,
 } from "@/features/session/text-selection";
-import { t } from "@/i18n";
+import { activeLocale, t } from "@/i18n";
 import { useUiStore } from "@/state/ui-store";
 import {
 	canSend,
@@ -257,7 +257,10 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 							</Text>
 						)}
 						<Text className="text-meta text-ink-muted">
-							{model.messageTime(message.created_at)}
+							{/* The APP language, not the device default: with no locale
+							 *  `toLocaleTimeString` follows the device, so a Spanish-UI
+							 *  reader on an English device got English times. */}
+							{model.messageTime(message.created_at, activeLocale())}
 						</Text>
 					</View>
 				)}
@@ -477,9 +480,13 @@ function ThreadContent({
 			notice: setAttachNotice,
 		});
 	};
+	/* Day dividers follow the app language: "Today"/"Yesterday" come from the
+	 * catalogue and the dated fallback is formatted in this same locale, so a
+	 * divider never mixes a translated word with a device-default date. */
+	const locale = activeLocale();
 	const items = useMemo(
-		() => model.threadItems(thread?.messages ?? [], new Date()),
-		[thread?.messages],
+		() => model.threadItems(thread?.messages ?? [], new Date(), locale),
+		[thread?.messages, locale],
 	);
 	const people = state.orgs[tenantId]?.people ?? [];
 	const directoryState = state.orgs[tenantId]?.peopleState;

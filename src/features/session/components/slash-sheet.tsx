@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 import type { SlashCommand } from "@/contracts";
 import { argumentHint, filterCommands } from "@/features/session/slash";
+import { t } from "@/i18n";
 import { CONTROL, ROLE, SURFACE, slashCommandId, state } from "@/ui/a11y";
 import { Sheet } from "@/ui/components";
 
@@ -66,7 +67,7 @@ export const SlashSheet = ({
 		<Sheet
 			visible={visible}
 			onClose={onClose}
-			title="commands"
+			title={t("mobile.session.sheet_title.commands")}
 			testID={SURFACE.slashSheet}
 		>
 			<TextInput

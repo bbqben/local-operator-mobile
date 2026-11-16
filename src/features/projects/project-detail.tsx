@@ -24,6 +24,7 @@ import {
 	writeUnknownNote,
 } from "@/features/projects/projects-copy";
 import { ProjectDetailStateMarkers } from "@/features/projects/projects-markers";
+import { t } from "@/i18n";
 import { useUiStore } from "@/state/ui-store";
 import {
 	CONTROL,
@@ -367,7 +368,7 @@ export default function ProjectDetail() {
 
 					{project.progress.trim() !== "" ? (
 						<View className="gap-1">
-							<SectionHeader label="progress" />
+							<SectionHeader label={t("mobile.projects.section.progress")} />
 							<Text className="text-body-sm text-ink">{project.progress}</Text>
 						</View>
 					) : null}
@@ -384,7 +385,7 @@ export default function ProjectDetail() {
 					) : null}
 
 					<View>
-						<SectionHeader label="milestones" />
+						<SectionHeader label={t("mobile.projects.section.milestones")} />
 						{project.milestones.length === 0 ? (
 							<Text className="py-1 text-body-sm text-ink-dim">
 								No milestones.
@@ -417,7 +418,9 @@ export default function ProjectDetail() {
 					</View>
 
 					<View testID={SURFACE.projectLinks}>
-						<SectionHeader label="linked sessions" />
+						<SectionHeader
+							label={t("mobile.projects.section.linked_sessions")}
+						/>
 						{links.length === 0 ? (
 							<Text className="py-1 text-body-sm text-ink-dim">
 								No sessions linked.

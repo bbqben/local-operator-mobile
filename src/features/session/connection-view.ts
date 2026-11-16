@@ -268,10 +268,10 @@ export const relaySentence = (error: RelayError): string | undefined => {
 /** `Ns`, `Nm Ss`, `Nh` — the register the transcript already uses. */
 const agoLabel = (seconds: number): string => {
 	const whole = Math.max(0, Math.round(seconds));
-	if (whole < 60) return `${whole}s`;
+	if (whole < 60) return t("mobile.time.short.seconds", { count: whole });
 	const minutes = Math.floor(whole / 60);
-	if (minutes < 60) return `${minutes}m`;
-	return `${Math.floor(minutes / 60)}h`;
+	if (minutes < 60) return t("mobile.time.short.minutes", { count: minutes });
+	return t("mobile.time.short.hours", { count: Math.floor(minutes / 60) });
 };
 
 const computerName = (label: string): string =>

@@ -78,5 +78,6 @@
 	"mobile.settings.diagnostics.address": "Tunnel address",
 	"mobile.settings.diagnostics.copy": "Copy diagnostics",
 	"mobile.settings.diagnostics.copied": "Diagnostics copied",
-	"mobile.settings.diagnostics.copy_failed": "Couldn't copy. Try again."
+	"mobile.settings.diagnostics.copy_failed": "Couldn't copy. Try again.",
+	"mobile.settings.section.notifications": "Notifications"
 }

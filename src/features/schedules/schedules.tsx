@@ -31,6 +31,7 @@ import {
 	wakeSectionSummary,
 } from "@/features/schedules/schedules-copy";
 import { SchedulesStateMarkers } from "@/features/schedules/schedules-markers";
+import { t } from "@/i18n";
 import {
 	CONTROL,
 	EMPTY,
@@ -170,7 +171,7 @@ export default function Schedules() {
 
 	return (
 		<Screen
-			title="Schedules"
+			title={t("mobile.chrome.destination.schedules")}
 			testID={SCREEN.schedules}
 			headerLeading={
 				<BackButton
@@ -219,8 +220,10 @@ export default function Schedules() {
 								labelDir={composedDir}
 								label={
 									wakeState === "unreadable"
-										? "Wakes"
-										: `Wakes · ${wakeSectionSummary(allWakeRows(wakes, nowMs))}`
+										? t("mobile.schedules.section.wakes")
+										: t("mobile.schedules.section.wakes_summary", {
+												summary: wakeSectionSummary(allWakeRows(wakes, nowMs)),
+											})
 								}
 							/>
 							{/* The read_error strip LEADS — directly under the section header
@@ -286,8 +289,12 @@ export default function Schedules() {
 								labelDir={composedDir}
 								label={
 									monitorState === "unreadable"
-										? "Monitors"
-										: `Monitors · ${monitorSectionSummary(allMonitorRows(monitors, nowMs))}`
+										? t("mobile.schedules.section.monitors")
+										: t("mobile.schedules.section.monitors_summary", {
+												summary: monitorSectionSummary(
+													allMonitorRows(monitors, nowMs),
+												),
+											})
 								}
 							/>
 							{familyState(monitors) === "unreadable" ? (

@@ -6,6 +6,7 @@ import type { PastSession } from "@/contracts";
 import { useConnection } from "@/features/auth/connection-provider";
 import { SessionTagLine } from "@/features/sessions/tag-line";
 import { tagAnnouncement } from "@/features/sessions/tags";
+import { t } from "@/i18n";
 import {
 	CONTROL,
 	EMPTY,
@@ -320,12 +321,13 @@ export function relativeTime(mtime: number): string {
 	 *  "20706 d ago" where the honest reading is "21 h ago", and it also meant the
 	 *  minute/hour rungs below could never be reached. */
 	const seconds = Math.max(0, Math.round(Date.now() / 1000 - mtime));
-	if (seconds < 60) return "just now";
+	if (seconds < 60) return t("mobile.time.relative.just_now");
 	const minutes = Math.round(seconds / 60);
-	if (minutes < 60) return `${minutes} min ago`;
+	if (minutes < 60)
+		return t("mobile.time.relative.minutes_ago", { count: minutes });
 	const hours = Math.round(minutes / 60);
-	if (hours < 24) return `${hours} h ago`;
-	return `${Math.round(hours / 24)} d ago`;
+	if (hours < 24) return t("mobile.time.relative.hours_ago", { count: hours });
+	return t("mobile.time.relative.days_ago", { count: Math.round(hours / 24) });
 }
 
 /**

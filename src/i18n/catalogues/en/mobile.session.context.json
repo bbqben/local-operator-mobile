@@ -322,5 +322,13 @@
 	"mobile.session.back_to_session": {
 		"role": "button",
 		"note": "Back-navigation label on the video and agent-job screens when the parent session has no name of its own (replaces 'Back to {name}' in that case). Full phrase, sentence case, no full stop; free to adapt article/case/word order. Reuse the locale's 'session' term."
+	},
+	"mobile.session.sheet_title.commands": {
+		"role": "heading",
+		"note": "Title of the bottom sheet listing slash commands the reader can run in a conversation. Lower case as currently shipped (other sheet titles are Title case; a casing change is a separate design decision) — use your language's natural form. ~16 characters. No placeholders."
+	},
+	"mobile.session.sheet_title.attach": {
+		"role": "heading",
+		"note": "Title of the bottom sheet offering attachment sources (photo, file, camera) in the composer: the verb 'attach' used as a title. Lower case as currently shipped (other sheet titles are Title case; a casing change is a separate design decision). ~16 characters. No placeholders."
 	}
 }

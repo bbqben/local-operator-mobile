@@ -205,11 +205,12 @@ export function switcherHealth(input: {
  *  time is a hint, not a timestamp. */
 export function relativeAgo(then: number, now: number): string {
 	const minutes = Math.round((now - then) / 60_000);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes} min ago`;
+	if (minutes < 1) return t("mobile.time.relative.just_now");
+	if (minutes < 60)
+		return t("mobile.time.relative.minutes_ago", { count: minutes });
 	const hours = Math.round(minutes / 60);
-	if (hours < 24) return `${hours} h ago`;
-	return `${Math.round(hours / 24)} d ago`;
+	if (hours < 24) return t("mobile.time.relative.hours_ago", { count: hours });
+	return t("mobile.time.relative.days_ago", { count: Math.round(hours / 24) });
 }
 
 /** The health word a row shows. Never colour alone: the dot beside it is

@@ -30,5 +30,9 @@
 	"mobile.projects.status.qa": "qa",
 	"mobile.projects.status.validation": "validation",
 	"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {Created} completed {Completed} reopened {Reopened} added {Added} updated {Updated} removed {Removed} deleted {Deleted} other {Updated}} {subject}.} milestone {{action, select, created {Created} completed {Completed} reopened {Reopened} added {Added} updated {Updated} removed {Removed} deleted {Deleted} other {Updated}} milestone {subject}.} other {{action, select, created {Created} completed {Completed} reopened {Reopened} added {Added} updated {Updated} removed {Removed} deleted {Deleted} other {Updated}} {subject}.}}",
-	"mobile.projects.write_unknown_note": "We couldn't reach your computer, so we can't tell whether that was saved. Check the project before trying again."
+	"mobile.projects.write_unknown_note": "We couldn't reach your computer, so we can't tell whether that was saved. Check the project before trying again.",
+	"mobile.projects.title": "Projects",
+	"mobile.projects.section.progress": "progress",
+	"mobile.projects.section.milestones": "milestones",
+	"mobile.projects.section.linked_sessions": "linked sessions"
 }

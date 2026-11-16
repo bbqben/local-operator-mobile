@@ -267,7 +267,7 @@ export const NotificationsSection = () => {
 
 	return (
 		<View className="gap-2" testID={REGION.settingsNotifications}>
-			<SectionHeader label="Notifications" />
+			<SectionHeader label={t("mobile.settings.section.notifications")} />
 			{/* The state sentence. `null` is the read in flight — one line, no
 			 *  spinner: Settings is a static screen and a spinner here would be
 			 *  furniture. `unknown` wears a mark, because a check that FAILED is

@@ -1,0 +1,94 @@
+{
+	"mobile.time.bucket.today": {
+		"role": "heading",
+		"note": "Notifications inbox section heading and Team Bridge thread day divider for items from this local calendar day. Short heading, keep under ~16 characters. Sentence case. No placeholders."
+	},
+	"mobile.time.bucket.yesterday": {
+		"role": "heading",
+		"note": "Notifications inbox section heading and Team Bridge thread day divider for items from the previous local calendar day. Short heading, keep under ~16 characters. No placeholders."
+	},
+	"mobile.time.bucket.earlier_this_week": {
+		"role": "heading",
+		"note": "Notifications inbox section heading for items from two to six days ago (before yesterday, within the last week). Short heading, keep under ~24 characters. No placeholders."
+	},
+	"mobile.time.bucket.earlier": {
+		"role": "heading",
+		"note": "Notifications inbox section heading for items older than a week. One short word, keep under ~16 characters. No placeholders."
+	},
+	"mobile.time.relative.now": {
+		"role": "meta",
+		"note": "Timestamp for something under a minute old, shown alone in a narrow row meta slot (session drawer rows, Team Bridge list rows). One lower-case word; keep it as short as possible (~6 characters). No placeholders."
+	},
+	"mobile.time.relative.just_now": {
+		"role": "meta",
+		"note": "Relative age for something under a minute old. Appears alone or after a separator, e.g. 'Asleep · just now' on a computer row, 'Last update just now'. Lower case in English because it sits mid-line. Keep under ~12 characters. No placeholders."
+	},
+	"mobile.time.relative.yesterday": {
+		"role": "meta",
+		"note": "Relative age for a notification that is one day old, in the inbox row's narrow meta line and its screen-reader label. Lower case in English because it sits mid-line. No placeholders."
+	},
+	"mobile.time.relative.seconds_ago_compact": {
+		"role": "meta",
+		"note": "Compact relative age in seconds (5–59), e.g. '12s ago', in a stale-connection note. {count} is an integer; # renders it. 's' is an abbreviated unit: use your language's customary short form. Narrow slot, keep compact."
+	},
+	"mobile.time.relative.minutes_ago": {
+		"role": "meta",
+		"note": "Relative age in whole minutes, e.g. '5 min ago' ('Asleep · 5 min ago' on a computer row, the Past list, a stale-connection note). {count} is an integer ≥ 1; # renders it. Keep the short unit; ~14 characters."
+	},
+	"mobile.time.relative.hours_ago": {
+		"role": "meta",
+		"note": "Relative age in whole hours with a spaced abbreviated unit, e.g. '3 h ago', on computer rows and the Past list. {count} is an integer ≥ 1; # renders it. Keep the short unit; ~12 characters."
+	},
+	"mobile.time.relative.days_ago": {
+		"role": "meta",
+		"note": "Relative age in whole days with a spaced abbreviated unit, e.g. '4 d ago', on computer rows and the Past list. {count} is an integer ≥ 1; # renders it. Keep the short unit; ~12 characters."
+	},
+	"mobile.time.relative.minutes_ago_compact": {
+		"role": "meta",
+		"note": "Compact relative age in minutes, no space before the unit, e.g. '5m ago', in the notifications inbox row meta. {count} is an integer ≥ 1; # renders it. Narrow slot: keep the abbreviated unit, ~10 characters."
+	},
+	"mobile.time.relative.hours_ago_compact": {
+		"role": "meta",
+		"note": "Compact relative age in hours, no space before the unit, e.g. '3h ago', in the notifications inbox row meta and a stale-connection note. {count} is an integer ≥ 1; # renders it. Narrow slot, ~10 characters."
+	},
+	"mobile.time.relative.days_ago_compact": {
+		"role": "meta",
+		"note": "Compact relative age in days, no space before the unit, e.g. '4d ago', in the notifications inbox row meta and a stale-connection note. {count} is an integer ≥ 2 in the inbox (1 reads 'yesterday'); # renders it. Narrow slot, ~10 characters."
+	},
+	"mobile.time.short.seconds": {
+		"role": "meta",
+		"note": "A bare duration in seconds, e.g. '45s': elapsed time on a transcript, a schedule's 'in 45s', a connection's '12s'. {count} is an integer; # renders it. Use your language's customary one- or two-letter unit abbreviation; this is a tight token, ~4 characters."
+	},
+	"mobile.time.short.minutes": {
+		"role": "meta",
+		"note": "A bare duration in minutes, e.g. '5m': a schedule's 'in 5m', a connection's age, a Team Bridge row stamp. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters."
+	},
+	"mobile.time.short.hours": {
+		"role": "meta",
+		"note": "A bare duration in hours, e.g. '3h': a schedule's due time, a connection's age, a session drawer row's time, a Team Bridge row stamp. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters."
+	},
+	"mobile.time.short.days": {
+		"role": "meta",
+		"note": "A bare duration in days, e.g. '2d': a schedule's due time, a session drawer row's time, a Team Bridge row stamp. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters."
+	},
+	"mobile.time.short.weeks": {
+		"role": "meta",
+		"note": "A bare age in weeks on a session drawer row, e.g. '3w'. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters."
+	},
+	"mobile.time.short.years": {
+		"role": "meta",
+		"note": "A bare age in years on a session drawer row, e.g. '2y'. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters."
+	},
+	"mobile.time.short.minutes_spaced": {
+		"role": "meta",
+		"note": "A bare age in minutes with a spaced unit on a session drawer row, e.g. '12 min' (the row's narrow time column). {count} is an integer ≥ 1; # renders it. Keep it ~7 characters."
+	},
+	"mobile.time.short.minutes_seconds": {
+		"role": "meta",
+		"note": "An elapsed duration under an hour on a running transcript item, e.g. '4m 07s'. {minutes} is an integer; # renders it. {seconds} is ALWAYS two digits, zero-padded ('07'), so the width never jitters as it ticks; do not reformat it. Keep both unit abbreviations short and the order minutes then seconds."
+	},
+	"mobile.time.short.hours_minutes": {
+		"role": "meta",
+		"note": "An elapsed duration of an hour or more on a running transcript item, e.g. '2h 07m'. {hours} is an integer; # renders it. {minutes} is ALWAYS two digits, zero-padded ('07'); do not reformat it. Keep both unit abbreviations short and the order hours then minutes."
+	}
+}
