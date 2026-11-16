@@ -217,6 +217,10 @@ export interface ComposerControlInput {
 	sending: boolean;
 	/** An instruction is retained whose delivery is unknown. */
 	envelopePending: boolean;
+	/** The durable outbox (`outbox.ts`) owns an earlier send on this session and
+	 *  is still delivering it. Blocks the primary like `envelopePending`, with its
+	 *  own sentence: there is nothing for the reader to resolve, only to wait. */
+	outboxPending?: boolean;
 	/** The session's health verdict is ENDED (from the dot, not just
 	 *  `projection.ended`): a send REOPENS it, so the primary is NOT disabled
 	 *  for this. Retained in the input because the placeholder and the send-
@@ -242,7 +246,7 @@ export const composerControls = (
 	/* An unresolved instruction blocks the primary: sending a second, differently
 	 * keyed instruction while the first may already be admitted is the duplicate
 	 * hazard, and the disabled control must say why (U4). */
-	const blocked = input.envelopePending;
+	const blocked = input.envelopePending || input.outboxPending === true;
 	/* A retry with an EMPTY draft is sendable on the reference client (it replays
 	 * the envelope's own bytes), and it is the reason the check below is not simply
 	 * `!hasContent`: but the primary is deliberately NOT that control. The retry
@@ -286,11 +290,13 @@ export const composerControls = (
 		 *  and no new copy is minted. Only with a draft — an empty field is the
 		 *  self-evident case, and the hint would sit under every cold open. */
 		disabledReason:
-			blocked && !input.ended
-				? composerCopy().retryDisabledHint
-				: cached && hasContent
-					? healthCopy()["relay.health.reconnecting"]
-					: null,
+			input.outboxPending === true
+				? t("mobile.session.outbox.composer_wait")
+				: blocked && !input.ended
+					? composerCopy().retryDisabledHint
+					: cached && hasContent
+						? healthCopy()["relay.health.reconnecting"]
+						: null,
 		ended: input.ended,
 	};
 };

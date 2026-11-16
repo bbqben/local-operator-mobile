@@ -708,7 +708,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * over the merged tree; source identity, NOT rendered evidence. */
 	/* Merge of origin/main (#246, c0b6a4da) into #264: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
-	app: "6033108f76bf2de22bbc686ed426893fcbc579b0739cbbe78aea9a3e983e20d1",
+	/* fix/background-send-retry: the root layout mounts the outbox host and the
+	 * session screen hands its pending rows the outbox's Retry/Discard. --print
+	 * over the staged tree; source identity only, NOT rendered U-08 evidence. */
+	app: "478cbb20c326d9a5563d41371776f6ddac429990205b1d0b6fa856d4cc78c05e",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2027,7 +2030,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (not --print); the same reader reproduced the previous pin from the
 	 * base tree as a control. Source identity only, NOT rendered U-08
 	 * evidence. */
-	src: "4d812c779e1676f3dafde7ec1a4f6067200f6ea7caa868b8ccdf94f1b2ea3c7a",
+	/* fix/background-send-retry: the durable outbox (`features/session/outbox*`),
+	 * its pending-row captions/controls, the conversation-row indicator, the
+	 * command deadline override and their catalogue keys in all 8 locales.
+	 * --print over the staged tree; source identity only, NOT rendered U-08
+	 * evidence. */
+	src: "511d1086d984e797d4f402d78adacb04970ceaa3cbad49f9944cd04353814acd",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

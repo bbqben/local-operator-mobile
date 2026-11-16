@@ -89,6 +89,13 @@ export interface PendingEcho {
 	 *  timeout or transport loss, and the retained envelope behind the composer's
 	 *  Retry still holds it. Absent while the send is live. */
 	failure?: "refused" | "unconfirmed";
+	/** Set while the durable outbox (`outbox.ts`) owns this send after its first
+	 *  attempt failed with an UNKNOWN or temporary outcome: `waiting` — it is
+	 *  backing off and will try again by itself under the SAME id; `exhausted` —
+	 *  it stopped trying (the keep-trying window ran out, or the failure needs the
+	 *  reader) and the row offers Retry and Discard. Absent for every send the
+	 *  composer still owns, so the pre-outbox captions are unchanged. */
+	outbox?: "waiting" | "exhausted";
 	/** The envelope's own image objects, in envelope order. Two jobs:
 	 *
 	 *  - DISPLAY (operator, TestFlight 906: "the image attachment doesn't appear
@@ -148,6 +155,13 @@ export function pendingEchoCaption(
 				? "mobile.session.pending_echo.not_confirmed_plain"
 				: "mobile.session.pending_echo.not_confirmed",
 		);
+	/* The outbox states come after the composer's failure captions (a row is
+	 *  never both) and before `sending…`: a send the outbox is retrying has
+	 *  already failed once, and saying `sending…` for minutes reads as a hang. */
+	if (echo.outbox === "exhausted")
+		return t("mobile.session.pending_echo.exhausted");
+	if (echo.outbox === "waiting")
+		return t("mobile.session.pending_echo.waiting");
 	if (!echo.accepted) return t("mobile.session.pending_echo.sending");
 	if (echo.op !== "steer") return t("mobile.session.pending_echo.sent");
 	return streaming
@@ -231,9 +245,13 @@ export function markPendingEchoAccepted(
 	const current = held[index];
 	if (current === undefined) return;
 	const nextOp = op ?? current.op;
-	if (current.accepted && current.op === nextOp) return;
+	if (current.accepted && current.op === nextOp && current.outbox === undefined)
+		return;
 	const next = [...held];
-	next[index] = { ...current, accepted: true, op: nextOp };
+	/* An outbox retry that lands is accepted like any send: its `waiting` caption
+	 *  must not outlive the acknowledgement. */
+	const { outbox: _settled, ...rest } = current;
+	next[index] = { ...rest, accepted: true, op: nextOp };
 	echoes.set(sessionId, next);
 	emit();
 }
@@ -372,6 +390,46 @@ function failPendingEcho(
 	};
 	echoes.set(sessionId, next);
 	emit();
+}
+
+/** The outbox's handle on a row it owns: re-caption it in place
+ *  (`waiting`/`exhausted`), or clear the state when a new attempt starts. A
+ *  no-op when the row is gone — the transcript may already carry it. */
+export function setPendingEchoOutbox(
+	sessionId: string,
+	commandId: string,
+	state: "waiting" | "exhausted" | undefined,
+): void {
+	const held = echoes.get(sessionId);
+	if (!held) return;
+	const index = held.findIndex((item) => item.commandId === commandId);
+	const current = held[index];
+	if (current === undefined || current.outbox === state) return;
+	const next = [...held];
+	const { outbox: _previous, ...rest } = current;
+	next[index] = state === undefined ? rest : { ...rest, outbox: state };
+	echoes.set(sessionId, next);
+	emit();
+}
+
+/** The outbox's definitive refusal of a send it owned in the background: the
+ *  row becomes the same `refused` row the composer leaves (tap to put back),
+ *  because the envelope is discarded and the row is the text's only copy. */
+export function refusePendingEcho(sessionId: string, commandId: string): void {
+	setPendingEchoOutbox(sessionId, commandId, undefined);
+	const echo = echoes
+		.get(sessionId)
+		?.find((item) => item.commandId === commandId);
+	failPendingEcho(sessionId, commandId, "refused", echo?.images);
+}
+
+/** The current row for one id, or `undefined`. For the outbox's resume path,
+ *  which must not repaint a row the composer already painted. */
+export function pendingEchoFor(
+	sessionId: string,
+	commandId: string,
+): PendingEcho | undefined {
+	return echoes.get(sessionId)?.find((item) => item.commandId === commandId);
 }
 
 /** The tap on a `refused` row: its words (and images) go back into the

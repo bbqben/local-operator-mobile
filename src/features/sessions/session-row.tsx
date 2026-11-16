@@ -1,7 +1,9 @@
 import { memo } from "react";
+import { Text } from "react-native";
 import type { SessionSummary } from "@/contracts";
 import { avatarRefOf } from "@/features/agent-avatar/agent-avatar";
 import { AgentListRow } from "@/features/agent-avatar/agent-avatar-view";
+import { useOutboxPhase } from "@/features/session/outbox";
 import {
 	attentionWord,
 	isRemoteRow,
@@ -12,6 +14,7 @@ import {
 import type { SidebarBasis } from "@/features/sessions/sidebar-view";
 import { SessionTagLine } from "@/features/sessions/tag-line";
 import { tagAnnouncement } from "@/features/sessions/tags";
+import { t } from "@/i18n";
 import { homeShortened } from "@/lib/format";
 import {
 	remoteSessionRowId,
@@ -86,6 +89,34 @@ export const SessionRow = memo(function SessionRow({
 }: SessionRowProps) {
 	const remote = isRemoteRow(session);
 	const tagged = (session.tags?.length ?? 0) > 0;
+	/* The outbox indicator (`outbox.ts`): a send this phone is still delivering
+	 *  to this conversation, so leaving it never hides that the message has not
+	 *  landed yet. A primitive subscription, so only THIS row re-renders when
+	 *  its phase moves — the memo above still holds for every other row. */
+	const outboxPhase = useOutboxPhase(session.session_id);
+	const outboxWords =
+		outboxPhase === null
+			? undefined
+			: outboxPhase === "failed"
+				? t("mobile.sidebar.outbox_failed")
+				: t("mobile.sidebar.outbox_sending");
+	const outboxLine =
+		outboxWords === undefined ? undefined : (
+			<Text
+				className={
+					outboxPhase === "failed"
+						? "text-meta text-danger"
+						: "text-meta text-ink-dim"
+				}
+				numberOfLines={1}
+				/* Folded into the row's one label below, like the tags. */
+				accessibilityElementsHidden
+				importantForAccessibility="no-hide-descendants"
+			>
+				{outboxWords}
+			</Text>
+		);
+	const tags = tagged ? tagAnnouncement(session.tags ?? []) : undefined;
 	return (
 		<AgentListRow
 			selected={selected}
@@ -142,17 +173,24 @@ export const SessionRow = memo(function SessionRow({
 			 *  future relay that projects them renders them rather than silently
 			 *  dropping a fact. */
 			tagLine={
-				tagged ? (
-					<SessionTagLine
-						tags={session.tags ?? []}
-						testID={sessionTagLineId(session.session_id)}
-						/* The ROW announces its tags as one label; the line itself
-						 *  must not be a second stop (D4/Q2). */
-						announce={false}
-					/>
+				tagged || outboxLine ? (
+					<>
+						{outboxLine}
+						{tagged ? (
+							<SessionTagLine
+								tags={session.tags ?? []}
+								testID={sessionTagLineId(session.session_id)}
+								/* The ROW announces its tags as one label; the line itself
+								 *  must not be a second stop (D4/Q2). */
+								announce={false}
+							/>
+						) : null}
+					</>
 				) : undefined
 			}
-			tagAnnouncement={tagged ? tagAnnouncement(session.tags ?? []) : undefined}
+			tagAnnouncement={
+				[outboxWords, tags].filter(Boolean).join(", ") || undefined
+			}
 			testID={sessionRowId(session.session_id)}
 		/>
 	);

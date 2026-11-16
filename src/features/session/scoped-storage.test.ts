@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+	clearPrivateFamilies,
 	reopenPrivateWrites,
 	scopedStore,
 	withdrawPrivateWrites,
@@ -88,4 +89,24 @@ describe("inactive authorization", () => {
 		await expect(store.set("anything", "text")).rejects.toThrow();
 		expect(await store.keys()).toEqual([]);
 	});
+});
+
+it("purges the outbox's ownership marks with the other private families", async () => {
+	/* A mark left behind would make the NEXT identity's launch try to resume a
+	 * send for a session it never owned (`OutboxLedger`, `outbox.ts`). */
+	const values = new Map([
+		["lo-mobile-draft:s:authorization:a", "draft"],
+		["lo-mobile-command:s:authorization:a", "envelope"],
+		["lo-mobile-outbox:s:authorization:a", "1"],
+		["lo-mobile-theme", "kept"],
+	]);
+	await clearPrivateFamilies({
+		get: async (key: string) => values.get(key) ?? null,
+		set: async () => {},
+		remove: async (key: string) => {
+			values.delete(key);
+		},
+		keys: async () => [...values.keys()],
+	});
+	expect([...values.keys()]).toEqual(["lo-mobile-theme"]);
 });

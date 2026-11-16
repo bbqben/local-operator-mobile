@@ -98,5 +98,13 @@
 	"mobile.sidebar.empty_by_view.reset": {
 		"role": "button",
 		"note": "Action of that empty state: restores the default drawer view (every section shown, ended sessions shown, default order and grouping)."
+	},
+	"mobile.sidebar.outbox_sending": {
+		"role": "status",
+		"note": "Small line on a conversation row in the conversation list while the phone is still delivering a message the user sent to that conversation (retrying in the background). Also read aloud as part of the row."
+	},
+	"mobile.sidebar.outbox_failed": {
+		"role": "status",
+		"note": "Small line, in error ink, on a conversation row after the phone stopped retrying a message to that conversation. Opening the conversation shows the message with Retry and Discard."
 	}
 }

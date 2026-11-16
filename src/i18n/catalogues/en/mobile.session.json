@@ -79,5 +79,10 @@
 	"mobile.session.region.label_todos": "tasks",
 	"mobile.session.region.label_strip": "status",
 	"mobile.session.back_to": "Back to {name}",
-	"mobile.session.back_to_session": "Back to session"
+	"mobile.session.back_to_session": "Back to session",
+	"mobile.session.pending_echo.waiting": "waiting for your computer — still trying",
+	"mobile.session.pending_echo.exhausted": "couldn’t reach your computer yet",
+	"mobile.session.outbox.retry": "Retry",
+	"mobile.session.outbox.discard": "Discard",
+	"mobile.session.outbox.composer_wait": "Your earlier message is still sending. You can send this one once it’s delivered."
 }

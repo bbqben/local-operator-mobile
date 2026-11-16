@@ -113,7 +113,9 @@ export async function clearPrivateFamilies(store: PrivateStore): Promise<void> {
 	for (const key of await store.keys()) {
 		if (
 			key.startsWith("lo-mobile-draft:") ||
-			key.startsWith("lo-mobile-command:")
+			key.startsWith("lo-mobile-command:") ||
+			/* The durable outbox's ownership marks (`outbox.ts`, OutboxLedger). */
+			key.startsWith("lo-mobile-outbox:")
 		)
 			await store.remove(key);
 	}

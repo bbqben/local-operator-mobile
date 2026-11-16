@@ -70,6 +70,7 @@ import { isRouteRefused } from "@/features/session/connection-view";
 import { headerHealth } from "@/features/session/health";
 import { headerSubtitle } from "@/features/session/health-copy";
 import { useKeyboardFrame } from "@/features/session/keyboard-frame";
+import { outbox } from "@/features/session/outbox";
 import { rosterNeedsAttention } from "@/features/session/panels";
 import { pendingView } from "@/features/session/pending";
 import { usePendingEchoes } from "@/features/session/pending-echo";
@@ -767,6 +768,15 @@ export default function Session() {
 	 *  them but the pinned working line and the dock. Memoised so the list's
 	 *  footer memo changes only when an echo does, never per streamed frame
 	 *  (`usePendingEchoes` keeps the array stable across frames). */
+	/* The outbox owns at most one send per session, so its actions are keyed by
+	 *  the session; the row's command id is not needed to address it. */
+	const outboxRetry = useCallback(
+		() => outbox.retryNow(sessionId),
+		[sessionId],
+	);
+	const outboxDiscard = useCallback(() => {
+		void outbox.discard(sessionId);
+	}, [sessionId]);
 	const pendingRows = useMemo(
 		() =>
 			pendingEchoes.length === 0 ? null : (
@@ -774,12 +784,21 @@ export default function Session() {
 					echoes={pendingEchoes}
 					streaming={runtime.streaming}
 					onPutBack={composer.putBack}
+					onOutboxRetry={outboxRetry}
+					onOutboxDiscard={outboxDiscard}
 					/* The echo's own images are seeded under this loader so the
 					 *  settled row paints them on its first frame (TestFlight 906). */
 					loadImage={runtime.loadImage}
 				/>
 			),
-		[pendingEchoes, runtime.streaming, composer.putBack, runtime.loadImage],
+		[
+			pendingEchoes,
+			runtime.streaming,
+			composer.putBack,
+			runtime.loadImage,
+			outboxRetry,
+			outboxDiscard,
+		],
 	);
 	const transcript =
 		runtime.content === "disconnected" ? (
