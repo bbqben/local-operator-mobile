@@ -345,6 +345,69 @@ describe("read marks", () => {
 	});
 });
 
+describe("late native end geometry", () => {
+	it("reconciles a follower offset reported past the end after layout has settled", () => {
+		const r = openLong(false);
+		r.layout(700);
+		r.flush();
+		r.moves.mockClear();
+		// Native anchoring can report its offset after the layout correction.
+		// No further layout/content callback exists to trigger position().
+		r.scrollTo(2208);
+		r.flush();
+		expect(r.moves).toHaveBeenCalledWith(2018);
+		expect(r.bottom).toBe(2718);
+	});
+	it("reconciles an initial native landing that reports past the end", () => {
+		const r = host({ web: false });
+		r.layout(500);
+		r.grow(1000);
+		r.moves.mockClear();
+		r.scrollTo(690);
+		r.flush();
+		expect(r.moves).toHaveBeenCalledWith(500);
+		expect(r.bottom).toBe(1000);
+		expect(r.v.pending).toBe(false);
+	});
+	it("leaves a reader's bottom-edge bounce alone", () => {
+		const r = openLong(false);
+		r.h.onScrollBeginDrag();
+		r.moves.mockClear();
+		r.scrollTo(2309);
+		r.scrollTo(2250);
+		expect(r.moves).not.toHaveBeenCalled();
+		// Once the bounce actually returns to the tail, following can resume.
+		r.scrollTo(2119);
+		r.grow(2800);
+		expect(r.moves).toHaveBeenCalledWith(2201);
+	});
+	it("does not correct from a late event with pre-resize geometry", () => {
+		const r = openLong(false);
+		r.layout(700);
+		r.flush();
+		r.moves.mockClear();
+		r.h.onScroll({
+			nativeEvent: {
+				contentOffset: { y: 2309 },
+				layoutMeasurement: { height: 599 },
+				contentSize: { height: 2718 },
+			},
+		});
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it.each(["history", "anchor"])(
+		"does not reconcile a %s reader's offset",
+		(mode) => {
+			const r = openLong(false);
+			if (mode === "anchor") r.v.anchored();
+			else r.v.releaseFollow();
+			r.moves.mockClear();
+			r.scrollTo(2309);
+			expect(r.moves).not.toHaveBeenCalled();
+		},
+	);
+});
+
 describe("screen wiring", () => {
 	const source = readFileSync(
 		new URL("./thread-screen.tsx", import.meta.url),
@@ -355,6 +418,11 @@ describe("screen wiring", () => {
 		expect(source.match(RELEASE)).toHaveLength(2);
 		expect(source).not.toContain("onScroll={");
 		expect(source).not.toContain("onContentSizeChange={");
+	});
+	it("bottom-aligns fitting rows without adding a message spacer", () => {
+		expect(source).toContain(
+			'contentContainerClassName="grow justify-end pb-2"',
+		);
 	});
 	it("keeps the heading semantic and scalable and the identity account scoped", () => {
 		// The heading is the session header's title style now (one line, two

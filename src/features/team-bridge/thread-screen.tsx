@@ -992,7 +992,10 @@ function ThreadContent({
 									 *  (PR #230 design D1; `pb-4` read ~30 pt, a visible step
 									 *  when switching screens). Not tighter: 12 pt puts
 									 *  descenders against the card's rounded top. */
-									contentContainerClassName="pb-2"
+									/* A fitting transcript cannot scroll down: grow its
+									 * container and align the rows, not a fake footer. Long
+									 * threads still use the controller's measured offset. */
+									contentContainerClassName="grow justify-end pb-2"
 									keyboardShouldPersistTaps="handled"
 									onViewableItemsChanged={onViewableItemsChanged}
 									viewabilityConfig={viewabilityConfig}
