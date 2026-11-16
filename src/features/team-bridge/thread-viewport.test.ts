@@ -4,6 +4,8 @@ import { createThreadViewport } from "./thread-viewport";
 
 const RELEASE = /releaseFollow\(\);/g;
 const INITIAL_ANCHOR = /maintainVisibleContentPosition=\{\s*positioned/;
+const ADMISSION_RECHECK =
+	/useEffect\(\(\) => \{\s*if \(readyForPosition && items\.length > 0\) viewport\.current\?\.dataChanged\(\);\s*\}, \[items, readyForPosition\]\)/;
 
 /**
  * A scroll host that behaves like the list's real one: offsets clamp to
@@ -345,6 +347,42 @@ describe("read marks", () => {
 	});
 });
 
+describe("admission without a content-size change", () => {
+	it.each([true, false])(
+		"remeasures unchanged fitting content safely (web: %s)",
+		(web) => {
+			let ready = false;
+			const positioned = vi.fn();
+			const scrollTo = vi.fn(() => null);
+			const v = createThreadViewport({
+				web,
+				scrollTo,
+				positioned,
+				read: vi.fn(),
+				newestSeq: () => 7,
+				dataReady: () => ready,
+				measure: () => (web ? { y: 0, viewport: 888, content: 888 } : null),
+			});
+			v.handlers.onLayout({ nativeEvent: { layout: { height: 888 } } });
+			v.handlers.onContentSizeChange(471, 888);
+			ready = true;
+			// Admission is a React state transition, not a size transition.
+			v.dataChanged();
+			if (!web) {
+				// Native must not claim stale skeleton geometry as admitted rows.
+				expect(v.pending).toBe(true);
+				// Its container remains natural-sized until positioning, so the
+				// admitted fitting rows can report their own measurement.
+				v.handlers.onContentSizeChange(471, 400);
+			}
+			expect(v.pending).toBe(false);
+			expect(positioned).toHaveBeenCalledOnce();
+			expect(v.readSeq).toBe(7);
+			expect(scrollTo).not.toHaveBeenCalled();
+		},
+	);
+});
+
 describe("late native end geometry", () => {
 	it("reconciles a follower offset reported past the end after layout has settled", () => {
 		const r = openLong(false);
@@ -419,10 +457,9 @@ describe("screen wiring", () => {
 		expect(source).not.toContain("onScroll={");
 		expect(source).not.toContain("onContentSizeChange={");
 	});
-	it("bottom-aligns fitting rows without adding a message spacer", () => {
-		expect(source).toContain(
-			'contentContainerClassName="grow justify-end pb-2"',
-		);
+	it("waits for positioned rows before growing the container, and rechecks admitted data", () => {
+		expect(source).toContain('positioned ? "grow justify-end pb-2" : "pb-2"');
+		expect(source).toMatch(ADMISSION_RECHECK);
 	});
 	it("keeps the heading semantic and scalable and the identity account scoped", () => {
 		// The heading is the session header's title style now (one line, two

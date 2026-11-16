@@ -592,10 +592,11 @@ function ThreadContent({
 	// The controller is created once; it reaches the latest hook callback here.
 	const followChanged = useRef(anchorState.followChanged);
 	followChanged.current = anchorState.followChanged;
-	const dataReady = useRef(false);
-	dataReady.current =
+	const readyForPosition =
 		!anchorState.pending &&
 		(!conversationId || !!thread?.messages.length || thread?.state === "ready");
+	const dataReady = useRef(false);
+	dataReady.current = readyForPosition;
 	if (!viewport.current)
 		viewport.current = createThreadViewport({
 			// Exact measured offset, not scrollToEnd's estimated frame offset.
@@ -611,6 +612,12 @@ function ThreadContent({
 			web: Platform.OS === "web",
 			followChanged: (following) => followChanged.current(following),
 		});
+	// Admission need not change content height. Web can remeasure the committed
+	// rows now; native still waits for their own content measurement rather than
+	// trusting a skeleton's geometry (the controller's contentReady guard).
+	useEffect(() => {
+		if (readyForPosition && items.length > 0) viewport.current?.dataChanged();
+	}, [items, readyForPosition]);
 	const {
 		showJump,
 		highlightId,
@@ -992,10 +999,12 @@ function ThreadContent({
 									 *  (PR #230 design D1; `pb-4` read ~30 pt, a visible step
 									 *  when switching screens). Not tighter: 12 pt puts
 									 *  descenders against the card's rounded top. */
-									/* A fitting transcript cannot scroll down: grow its
-									 * container and align the rows, not a fake footer. Long
-									 * threads still use the controller's measured offset. */
-									contentContainerClassName="grow justify-end pb-2"
+									/* Grow only AFTER positioning: doing so for skeletons
+									 * can keep content height unchanged on admission and
+									 * suppress the measurement that reveals hidden rows. */
+									contentContainerClassName={
+										positioned ? "grow justify-end pb-2" : "pb-2"
+									}
 									keyboardShouldPersistTaps="handled"
 									onViewableItemsChanged={onViewableItemsChanged}
 									viewabilityConfig={viewabilityConfig}
