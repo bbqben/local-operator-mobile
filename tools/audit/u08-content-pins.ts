@@ -2085,7 +2085,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #280 convergence with #279: both histories retained above. Derived
 	 * from the staged merged tree with --print; source admission only, NOT
 	 * new rendered, native, device or battery evidence. */
-	src: "db18b58f887662ac3fc4792fc87731970f005247af8c3c60f8199f6c5123db90",
+	/* List freshness recovery: --print over the changed provider and mounted
+	 * loopback tests. Healthy seeded streams have no periodic list deadline;
+	 * the U-08 scene, layout and instrument are unchanged. Source admission
+	 * only, NOT new rendered, native or device evidence. */
+	src: "7e48682768a5fe129f2384a8ee3e3ed41186c4c11f90a615f29b11b4bdda90f9",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

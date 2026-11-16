@@ -123,6 +123,7 @@ import {
 	type RelayEndpoints,
 	RelayError,
 	type RelayStream,
+	STREAM_SILENCE_MS,
 	type StreamStatus,
 } from "@/relay";
 import { type ConfigSnapshot, createConfigStore } from "@/state/config-store";
@@ -975,8 +976,20 @@ export const ConnectionProvider = ({
 			 * `run()`'s stream so the one a wake stops cannot report its own `closed`
 			 * as news; `backoff` is the queued restart a wake may cut short. */
 			let runSeq = 0;
+			// Only an accepted list is progress. Open sockets, keepalives and schema
+			// failures cannot make a stale cached list fresh on the next foreground.
 			let seenAt: number | null = null;
+			let attemptStartedAt = Date.now();
+			let awaitingSeed = true;
+			let terminal = false;
+			let seedTimer: ReturnType<typeof setTimeout> | undefined;
+			let progressBackoff = false;
+			let recoveryNeeded = false;
 			let backoff: ReturnType<typeof setTimeout> | undefined;
+			const clearSeedTimer = () => {
+				if (seedTimer !== undefined) clearTimeout(seedTimer);
+				seedTimer = undefined;
+			};
 			let lastFrame: SessionListFrame | null = null;
 			/* A stale/degraded paint held while the resume window is open; the next
 			 * frame cancels it (the #232 pattern, `use-session.ts`'s drop grace). */
@@ -1085,9 +1098,44 @@ export const ConnectionProvider = ({
 					});
 			};
 
+			/* The daemon promises a seed, NOT periodic snapshots: api_list_events
+			 * suppresses identical lists and sends comment keepalives while idle.
+			 * Reuse the transport's existing silence budget only for the required
+			 * seed; after one valid list a quiet healthy stream has NO deadline.
+			 * Explicit unreadable lists use the same deduplicated exponential retry
+			 * as transport errors, never a byte-driven reconnect hot loop. */
+			const recoverList = (error: RelayError) => {
+				if (stopped || terminal || !admission.isCurrent()) return;
+				clearSeedTimer();
+				recoveryNeeded = true;
+				listStore.getState().markStale();
+				recordDiagnostic(error, "stream");
+				if (backoff !== undefined || resumeClockRef.current.backgrounded())
+					return;
+				progressBackoff = true;
+				_attempt += 1;
+				backoff = setTimeout(
+					() => {
+						backoff = undefined;
+						progressBackoff = false;
+						if (resumeClockRef.current.backgrounded()) return;
+						if (stopped || terminal || !admission.isCurrent()) return;
+						runSeq += 1;
+						streamRef.current?.stop();
+						run();
+					},
+					reconnectDelay(_attempt, undefined),
+				);
+			};
+
 			const run = () => {
-				if (stopped || !admission.isCurrent()) return;
+				if (stopped || terminal || !admission.isCurrent()) return;
+				clearSeedTimer();
+				recoveryNeeded = false;
+				awaitingSeed = true;
+				attemptStartedAt = Date.now();
 				backoff = undefined;
+				progressBackoff = false;
 				const seq = ++runSeq;
 				const mine = () => !stopped && seq === runSeq && admission.isCurrent();
 				const stream = client.sessionsStream({
@@ -1098,7 +1146,6 @@ export const ConnectionProvider = ({
 					includePeers: true,
 					onFrame: (frame) => {
 						if (!mine()) return;
-						seenAt = Date.now();
 						if (frame.kind === "malformed") {
 							/* NOT SILENT (round 1, R1-1). This handler used to fall through for a
 							 *  frame the schema refused, so a relay answer this build cannot read
@@ -1108,14 +1155,30 @@ export const ConnectionProvider = ({
 							 *  the drop is REPORTED: a line for the diagnosis, and the stale mark
 							 *  (`Last updated …`) so the reader can see the list is no longer
 							 *  being kept current. The next readable frame clears it. */
-							console.warn(
-								`[sessions] an unreadable ${frame.event} frame was dropped; the list keeps its last good frame`,
-								frame.error,
-							);
-							if (frame.event === "sessions") listStore.getState().markStale();
+							if (frame.event === "sessions")
+								recoverList(
+									// Do not retain a decoder error: it can contain session data.
+									new RelayError(
+										"malformed-frame",
+										"Unreadable sessions list",
+										{
+											diagnostic: "sessions_seed_invalid",
+											envelope: "keep",
+										},
+									),
+								);
 							return;
 						}
 						if (frame.kind === "sessions") {
+							seenAt = Date.now();
+							awaitingSeed = false;
+							recoveryNeeded = false;
+							clearSeedTimer();
+							if (progressBackoff && backoff !== undefined) {
+								clearTimeout(backoff);
+								backoff = undefined;
+								progressBackoff = false;
+							}
 							_attempt = 0;
 							cancelHeld();
 							cancelColdStale();
@@ -1157,8 +1220,23 @@ export const ConnectionProvider = ({
 					},
 					onState: (status) => {
 						if (!mine()) return;
-						if (status.state === "open" || status.state === "rotating")
-							seenAt = Date.now();
+						if (status.state === "open") {
+							clearSeedTimer();
+							attemptStartedAt = Date.now();
+							awaitingSeed = true;
+							seedTimer = setTimeout(() => {
+								if (!mine() || !awaitingSeed) return;
+								recoverList(
+									new RelayError(
+										"transport",
+										"Sessions list seed did not arrive",
+										{
+											diagnostic: "sessions_seed_timeout",
+										},
+									),
+								);
+							}, STREAM_SILENCE_MS);
+						}
 						const health = healthFrom(status);
 						const resuming = insideResumeWindow(resumeClockRef.current);
 						/* A stall, OR a reopen that failed at transport level (`closed` →
@@ -1212,6 +1290,7 @@ export const ConnectionProvider = ({
 					},
 					onError: (error) => {
 						if (!mine()) return;
+						clearSeedTimer();
 						/* A surface the reader must act on ends the loop: retrying a
 						 * 401 or a revoked tunnel in a tight cycle is how a phone
 						 * burns a battery to annoy a gateway. */
@@ -1229,6 +1308,9 @@ export const ConnectionProvider = ({
 							 *  pill still read a healthy state 30 s after the relay went away (design
 							 *  round 2, D12 rider). The refusal surface below the row carried the
 							 *  cause; the health was simply never told. */
+							terminal = true;
+							if (backoff !== undefined) clearTimeout(backoff);
+							backoff = undefined;
 							cancelHeld();
 							if (mountedRef.current) {
 								setStreamHealth("offline");
@@ -1272,6 +1354,7 @@ export const ConnectionProvider = ({
 						 * flat 2 s turned a Radient outage into a renewal POST every 2 s
 						 * per phone once a 5xx stopped being terminal (PR #178 R1-2/Q1). */
 						if (backoff !== undefined) clearTimeout(backoff);
+						progressBackoff = false;
 						backoff = setTimeout(
 							run,
 							reconnectDelay(_attempt, error.retryAfterMs ?? undefined),
@@ -1308,7 +1391,7 @@ export const ConnectionProvider = ({
 			 *  socket's own `closed` is not painted as news. A no-op once this
 			 *  loop is stopped or superseded. */
 			const kick = () => {
-				if (stopped || !admission.isCurrent()) return;
+				if (stopped || terminal || !admission.isCurrent()) return;
 				if (backoff !== undefined) clearTimeout(backoff);
 				backoff = undefined;
 				runSeq += 1;
@@ -1318,6 +1401,7 @@ export const ConnectionProvider = ({
 			streamKickRef.current = kick;
 			const cancel = () => {
 				stopped = true;
+				clearSeedTimer();
 				cancelHeld();
 				if (backoff !== undefined) clearTimeout(backoff);
 				backoff = undefined;
@@ -1330,8 +1414,17 @@ export const ConnectionProvider = ({
 				/* The wake rule (`shouldWakeStream`): silent ≥ 20 s, or waiting out a
 				 * backoff, reopens NOW rather than when the backoff timer says. */
 				wake: (now = Date.now()) => {
-					if (stopped || !admission.isCurrent()) return false;
+					if (stopped || terminal || !admission.isCurrent()) return false;
+					// Join a recent seed request rather than duplicate it on foreground.
 					if (
+						awaitingSeed &&
+						!recoveryNeeded &&
+						backoff === undefined &&
+						now - attemptStartedAt < STREAM_SILENCE_MS
+					)
+						return false;
+					if (
+						!recoveryNeeded &&
 						!shouldWakeStream({
 							silentMs: seenAt === null ? null : now - seenAt,
 							inBackoff: backoff !== undefined,
@@ -1341,7 +1434,6 @@ export const ConnectionProvider = ({
 					if (backoff !== undefined) clearTimeout(backoff);
 					backoff = undefined;
 					_attempt = 0;
-					seenAt = now;
 					runSeq += 1; // retire the old stream's callbacks before it stops
 					streamRef.current?.stop();
 					run();
