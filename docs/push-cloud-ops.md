@@ -110,11 +110,11 @@ the row stays.
 
 | State | Marker | Token | Register route | Fan-out | `list` shows |
 |---|---|---|---|---|---|
-| Live | none set | present | replaces it on rotation | sends | "registered, and push resumes on its next authenticated read" |
-| Expired — credential lapse, rotation **or** cookie TTL | `expired_at` | present | allows | **paused** | "notifications are paused for this device until you sign in again" |
-| Unpaired — durable deregistration | `unpaired_at` | dropped | refuses until a deliberate re-pair | skips | "this computer is no longer paired" |
-| Revoked — machine-side or account-side | `revoked_at` | dropped | refuses | skips | "this device was revoked on this computer" |
-| Absent — provider dead token, per-token revocation, or 60 days silent | none, row deleted | — | allows freely | skips | "not in this computer's registry; it may register again" |
+| Live | none set | present | replaces it on rotation | sends | "Registered. Notifications are delivered to this device." |
+| Expired — credential lapse, rotation **or** cookie TTL | `expired_at` | present | allows | **paused** | "Notifications are paused for this device until you sign in again." |
+| Unpaired — durable deregistration | `unpaired_at` | dropped | refuses until a deliberate re-pair | skips | "This computer is no longer paired." |
+| Revoked — machine-side or account-side | `revoked_at` | dropped | refuses | skips | "This device was revoked on this computer." |
+| Absent — provider dead token, per-token revocation, or 60 days silent | none, row deleted | — | allows freely | skips | "Not in this computer's registry; it may register again." |
 
 Those five `list` strings are ADR §6's `push_devices.STATE_DESCRIPTIONS` constants verbatim — module
 constants, not app copy — closed by its precedence sentence, "a device can carry more than one
