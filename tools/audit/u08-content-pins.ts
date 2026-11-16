@@ -67,6 +67,9 @@ const sha256 = (content: string | Uint8Array) =>
 
 /* --------------------------------------------------------------- the table -- */
 
+/* Background push refresh: re-derived with --print after the register fixture
+ * and warm-sync source changed. These hashes prove SOURCE IDENTITY ONLY, not
+ * rendered/native/device/battery evidence; no assertion or exemption changed. */
 export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-07 for PR #189 (audit fix 2) with --print: `auditCell` now
 	 *  brackets the unchanged `EXTRACT_PROBE` with `SPACING_REST_PROBE` and retakes
@@ -195,7 +198,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
 	"tools/mock-relay/relay.ts":
-		"5311af04e208237adb473c1a56b9417d12819112e14c602159b05f312f99a384",
+		"9bec3b7e5c493832cb6b583ce8d9710f669709d45ac2808affe1cf7b6784d957",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -2073,7 +2076,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #280 round-1 remediation: capability-gated graphic Retry and the
 	 * operation-local remote document refusal, plus mounted failure tests.
 	 * Derived by --print; source admission only, not rendered U-08 evidence. */
-	src: "3b60dee071464f4a989e2d051229b6e2a96009c4effa082aebc771d1ddcbe998",
+	/* Push-background refresh: re-derived with --print after staging the full
+	 * mapping/coordinator/task and regression tests. SOURCE IDENTITY ONLY;
+	 * no rendered, native, device or battery proof is implied. */
+	/* PR #279 CI remediation round 3: the session AppState test-source helper
+	 * adds tracked src content. Re-derived with --print; source identity only, NOT
+	 * new rendered, native, device or battery proof. */
+	/* PR #280 convergence with #279: both histories retained above. Derived
+	 * from the staged merged tree with --print; source admission only, NOT
+	 * new rendered, native, device or battery evidence. */
+	src: "db18b58f887662ac3fc4792fc87731970f005247af8c3c60f8199f6c5123db90",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
