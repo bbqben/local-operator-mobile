@@ -1,0 +1,110 @@
+# namespace filter: mobile.time (header, controls and this namespace’s key lines from one check run)
+# O3-a es audit — mechanical checks (auditor session 7a618dafc6fb)
+date 2026-11-16T01:21:18+00:00
+draft canonical sha256 (json.dumps sort_keys, ensure_ascii=False): 2db4f877d3ab6a721222aee47c1e42fb10d517b8d8f3bf3b8050baf40a5067e3 expected 2db4f877… True
+draft file sha256 268e896d… attested by relayer d5aaf8ba6ba5 (auditor read of file refused by guardrail dangerous-delete)
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d keys 40
+draft keys 40 set equal to brief: True
+en mobile.notifications ('src/i18n/catalogues/en/mobile.notifications.json', '3b7438ad177efd0a75532e63bfed2298d70d2e498a66dae1d32fece9ee45b3ae')
+ctx mobile.notifications ('src/i18n/catalogues/en/mobile.notifications.context.json', '77cdc2d82b3e1a5b5f34af56bd4759c1f39735a95596c9f6804add4bf6ac6f12')
+es-shipped mobile.notifications ('src/i18n/catalogues/es/mobile.notifications.json', 'e571521cfdae92148c5825c2b9f2958f6c1f1edabb79e94d8b6541b26fb4182f')
+en mobile.projects ('src/i18n/catalogues/en/mobile.projects.json', 'e7f62744afb1b38e9ad2d9ee183aea9f184f531d203054ceb5ceed8f31d70948')
+ctx mobile.projects ('src/i18n/catalogues/en/mobile.projects.context.json', '2a1c6a04279f4010b7288d8e266467a706e6fcf31a2f140c68404223ee9f5496')
+es-shipped mobile.projects ('src/i18n/catalogues/es/mobile.projects.json', 'fc7cf36f697081132b97a676d7ae11cb19d27411adee0151caddfed99e9e4081')
+en mobile.schedules ('src/i18n/catalogues/en/mobile.schedules.json', '1f9edfffe611a553d9dc83235852396cf2eba0b5a7c903f30fb206493287985f')
+ctx mobile.schedules ('src/i18n/catalogues/en/mobile.schedules.context.json', 'aae99aed5ca846fa5d5e9b2cf0fcb665fcff4865f0709df3d8707c02468ca8bb')
+es-shipped mobile.schedules ('src/i18n/catalogues/es/mobile.schedules.json', 'bf8afe000f506431789fb5df4654d700bf5935238eb1ba01f3aa1854936bd826')
+en mobile.session ('src/i18n/catalogues/en/mobile.session.json', '75e78620eec27ac22184772e2da65a3e555e87c979de563c154e188201820b99')
+ctx mobile.session ('src/i18n/catalogues/en/mobile.session.context.json', 'd318916fc0270d4a66d7edfc0a71fb2d4fb9d15abc0b96063570c362485f2e42')
+es-shipped mobile.session ('src/i18n/catalogues/es/mobile.session.json', '94b75d686f98ce08fc6e0932145332d9597452175155860d0b347186b9aa43f6')
+en mobile.settings ('src/i18n/catalogues/en/mobile.settings.json', '4646525ff23693af1ed772c00fadb4adcc54eb8c706383e2d1f00bc1a4fc667a')
+ctx mobile.settings ('src/i18n/catalogues/en/mobile.settings.context.json', 'a800eb6898cf749d78af0cf5973ac39c43dda939840b3ae2339a1a42ca206684')
+es-shipped mobile.settings ('src/i18n/catalogues/es/mobile.settings.json', '9773bf6392cf3b07018d29daf77db7a8707bcd3178ed45a6da710e257bc8015f')
+en mobile.time ('src/i18n/catalogues/en/mobile.time.json', 'd1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5')
+ctx mobile.time ('src/i18n/catalogues/en/mobile.time.context.json', '22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da')
+es-shipped mobile.time ('src/i18n/catalogues/es/mobile.time.json', None)
+mobile.time.bucket.today: placeholders=[] -> OK 
+mobile.time.bucket.yesterday: placeholders=[] -> OK 
+mobile.time.bucket.earlier_this_week: placeholders=[] -> OK 
+mobile.time.bucket.earlier: placeholders=[] -> OK 
+mobile.time.relative.now: placeholders=[] -> OK 
+mobile.time.relative.just_now: placeholders=[] -> OK 
+mobile.time.relative.yesterday: placeholders=[] -> OK 
+mobile.time.relative.seconds_ago_compact: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.relative.minutes_ago: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.relative.hours_ago: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.relative.days_ago: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.relative.minutes_ago_compact: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.relative.hours_ago_compact: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.relative.days_ago_compact: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.seconds: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.minutes: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.hours: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.days: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.weeks: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.years: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.minutes_spaced: placeholders=[('count', 'plural')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.minutes_seconds: placeholders=[('minutes', 'plural'), ('seconds', 'simple')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+mobile.time.short.hours_minutes: placeholders=[('hours', 'plural'), ('minutes', 'simple')] -> OK INFO missing optional es categories ['many'] (falls back to other)
+totals: NFC fails 0 | marker hits 0 | ordenador/computadora hits 0 | hard fails 0
+negative control '{n, plural, one {# s} other {# s}}' -> mismatch  
+negative control '{count, plural, one {# s} few {# s} other {# s}}'  bad selectors 
+negative control '{count, plural, one {s} other {# s}' -> PARSE ERROR IndexError('string index out of range')
+
+# width (rendered len vs ~hint from en context note; worst sample)
+mobile.time.bucket.today: es 'Hoy' 3 | en 'Today' 5 | hint ~16 
+mobile.time.bucket.yesterday: es 'Ayer' 4 | en 'Yesterday' 9 | hint ~16 
+mobile.time.bucket.earlier_this_week: es 'Esta semana' 11 | en 'Earlier this week' 17 | hint ~24 
+mobile.time.bucket.earlier: es 'Anteriores' 10 | en 'Earlier' 7 | hint ~16 
+mobile.time.relative.now: es 'ahora' 5 | en 'now' 3 | hint ~6 
+mobile.time.relative.just_now: es 'ahora mismo' 11 | en 'just now' 8 | hint ~12 
+mobile.time.relative.yesterday: es 'ayer' 4 | en 'yesterday' 9 | hint ~None 
+mobile.time.relative.seconds_ago_compact: es 'hace 59 s' 9 | en '59s ago' 7 | hint ~None 
+mobile.time.relative.minutes_ago: es 'hace 59 min' 11 | en '59 min ago' 10 | hint ~14 
+mobile.time.relative.hours_ago: es 'hace 23 h' 9 | en '23 h ago' 8 | hint ~12 
+mobile.time.relative.days_ago: es 'hace 30 d' 9 | en '30 d ago' 8 | hint ~12 
+mobile.time.relative.minutes_ago_compact: es 'hace 59 min' 11 | en '59m ago' 7 | hint ~10 OVER
+mobile.time.relative.hours_ago_compact: es 'hace 23 h' 9 | en '23h ago' 7 | hint ~10 
+mobile.time.relative.days_ago_compact: es 'hace 30 d' 9 | en '30d ago' 7 | hint ~10 
+mobile.time.short.seconds: es '59 s' 4 | en '59s' 3 | hint ~4 
+mobile.time.short.minutes: es '59 min' 6 | en '59m' 3 | hint ~4 OVER
+mobile.time.short.hours: es '23 h' 4 | en '23h' 3 | hint ~4 
+mobile.time.short.days: es '30 d' 4 | en '30d' 3 | hint ~4 
+mobile.time.short.weeks: es '52 sem' 6 | en '52w' 3 | hint ~4 OVER
+mobile.time.short.years: es '10 a' 4 | en '10y' 3 | hint ~4 
+mobile.time.short.minutes_spaced: es '59 min' 6 | en '59 min' 6 | hint ~7 
+mobile.time.short.minutes_seconds: es '59 min 07 s' 11 | en '59m 07s' 7 | hint ~None 
+mobile.time.short.hours_minutes: es '23 h 07 min' 11 | en '23h 07m' 7 | hint ~None 
+
+
+# O3-a es audit round 2 — scoped re-check (auditor session 7a618dafc6fb)
+date 2026-11-16T01:27:39+00:00
+R1 values rebuilt from R1 record.json draft_values: 40 keys, canonical sha256 2db4f877d3ab6a721222aee47c1e42fb10d517b8d8f3bf3b8050baf40a5067e3 == R1 verified 2db4f877… True
+R2 file sha256 2d360fb4… attested by lane owner (auditor file read refused by guardrail at R1); 3 changed values relayed via resume brief
+R2 canonical sha256 (R1 + 3 relayed changes, json.dumps sort_keys ensure_ascii=False): 0d1628379a6081e5247151e83b9892abd078afc001484f2091e90cbd33dd9d46 — the 37 unchanged keys are NOT independently verified against the file; lane owner can confirm by computing this canonical sha on the file
+keys differing R1->R2: ['mobile.notifications.section.waiting', 'mobile.notifications.section.waiting_count', 'mobile.time.short.years']
+
+mobile.notifications.section.waiting: R1 'Pendientes de ti' -> R2 'Te esperan'
+  NFC True | ordenador/computadora False | marker False
+  placeholders [] match en True
+  rendered Te esperan len 10 (hint ~20 for section.waiting)
+
+mobile.notifications.section.waiting_count: R1 'Pendientes de ti · {count}' -> R2 'Te esperan · {count}'
+  NFC True | ordenador/computadora False | marker False
+  placeholders ['count'] match en True
+  rendered Te esperan · 12 len 15 (hint ~20 for section.waiting)
+
+mobile.time.short.years: R1 '{count, plural, one {# a} other {# a}}' -> R2 '{count, plural, one {# año} many {# de años} other {# años}}'
+  NFC True | ordenador/computadora False | marker False
+  placeholders ['count'] match en True
+  selectors ['many', 'one', 'other'] subset of es {one,many,other} True | other present True | # in every arm True
+   n=0 cat=other -> '0 años' len 6
+   n=1 cat=one -> '1 año' len 5
+   n=2 cat=other -> '2 años' len 6
+   n=10 cat=other -> '10 años' len 7
+   n=52 cat=other -> '52 años' len 7
+   n=1000000 cat=many -> '1.000.000 de años' len 17
+   n=1500000 cat=other -> '1.500.000 años' len 14
+   n=2000000 cat=many -> '2.000.000 de años' len 17
+
+negative control: "{count, plural, one {# año} few {# años} other {# años}}" selectors -> ['few', 'one', 'other'] flagged non-es: True

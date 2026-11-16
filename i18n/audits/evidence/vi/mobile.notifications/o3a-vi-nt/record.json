@@ -1,0 +1,110 @@
+{
+  "audit_id": "o3a-vi-nt",
+  "slice": "O3-a",
+  "locale": "vi",
+  "namespace": "mobile.notifications",
+  "audit_date": "2026-11-15",
+  "key_count": 6,
+  "keys": [
+    "mobile.notifications.section.waiting",
+    "mobile.notifications.section.waiting_count",
+    "mobile.notifications.detail.title",
+    "mobile.notifications.detail.section_notification",
+    "mobile.notifications.detail.section_links",
+    "mobile.notifications.detail.section_message"
+  ],
+  "input_route": {
+    "draft": "direct file read of translator scratchpad (no guardrail block)",
+    "english_and_context": "git -C ~/local-operator-mobile show 26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/<ns>(.context).json",
+    "brief": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json"
+  },
+  "translator_session": "91a37cc70236",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "aecc48976d9d",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "Model line of this session's system prompt; no fallback observed"
+  },
+  "input_hashes": {
+    "en": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/mobile.notifications.json",
+      "sha256": "3b7438ad177efd0a75532e63bfed2298d70d2e498a66dae1d32fece9ee45b3ae"
+    },
+    "context": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/mobile.notifications.context.json",
+      "sha256": "77cdc2d82b3e1a5b5f34af56bd4759c1f39735a95596c9f6804add4bf6ac6f12"
+    },
+    "vi_draft": {
+      "path": "/Users/damian/.local-operator/sessions/91a37cc70236/scratchpad/o3a/draft-vi.json",
+      "sha256": "ca3c9293bcfba23594221410bb6796b6891b28b11d4df8d72d91f95a261d6484",
+      "namespace_subset_sha256": "a2622a8e7efbc5a557f9077180212b09b09664fa1485539070fbca29450d30b4"
+    },
+    "vi_notes": {
+      "path": "/Users/damian/.local-operator/sessions/91a37cc70236/scratchpad/o3a/notes-vi.md",
+      "sha256": "610c409cba2218477c2193521f1c6b1dc9b0b3042278af4d3c75e994ca207dbc"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "vi_shipped": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/vi/mobile.notifications.json",
+      "sha256": "2508afb0530906d512b0d56489f98a42bbb74ee7e5592fd0cd0336e1d04ca599"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/vi.md",
+      "sha256": "e4901497ed553e2b2ae4a2660bf776adb787b89e11d7eb0f8d08f3da4b227888"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    },
+    "relay_notifications_vi": {
+      "path": "~/local-operator/local_operator/i18n/catalogues/vi/relay.notifications.json",
+      "sha256": "4d3a1db432bcf93697cb899957e7b852b87afe0315c1fa3e298c4e24931f2c5a"
+    }
+  },
+  "artifacts": {
+    "check_script": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/tools/check_vi.py",
+      "sha256": "094e16f5203857516ce755979d035e9267f7618abe9eaa2db28b7f915909ad0e"
+    },
+    "check_output": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/tools/check_vi.out",
+      "sha256": "0d79d3358521676faaa54f1e65f7b7f055c75d4f8b887f84cd95e465b96504ff"
+    },
+    "report.md": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/mobile.notifications/o3a-vi-nt/report.md",
+      "sha256": "f85b20ebaa7f4d062f0dab28c91fbdeba0a8f713aeac1f05396bf892b8520e2c"
+    },
+    "audit.log": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/mobile.notifications/o3a-vi-nt/audit.log",
+      "sha256": "0be1fe13ff7cf8fae1c946d8f08260a8936402b11262b2a2d017f8656fecc7d9"
+    }
+  },
+  "checks": {
+    "json_valid": true,
+    "keys_match_brief": true,
+    "icu_parse": true,
+    "placeholders_identical": true,
+    "plural_other_only": true,
+    "nfc": true,
+    "redaction_hits": 0,
+    "wide_or_combining_glyphs": 0
+  },
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "findings": [],
+  "audit_notes_not_execution_log": [
+    "section_notification \"Nội dung\" (content) instead of a second \"Thông báo\" under the title \"Thông báo\": accepted. It is the natural vi heading above a body, and it stays distinct from section_message \"Tin nhắn\" (the quoted conversation message, noun, matching team_bridge \"Tin nhắn\").",
+    "waiting \"Chờ bạn\" and waiting_count \"Chờ bạn · {count}\" match relay section.waiting. The relay form uses {count, number} where the en source is a bare {count}, so the draft correctly mirrors source.",
+    "detail.title \"Thông báo\" and section_links \"Liên kết\" are consistent with mobile.notifications.title and relay detail.section.links."
+  ],
+  "ledger_recorded": false,
+  "ledger_note": "repo read-only for this task; not recorded"
+}

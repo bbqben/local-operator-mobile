@@ -30,5 +30,9 @@
 	"mobile.projects.status.qa": "contrôle qualité",
 	"mobile.projects.status.validation": "validation",
 	"mobile.projects.write_receipt": "{kind, select, project {Projet {subject} {action, select, created {créé} completed {terminé} reopened {rouvert} added {ajouté} updated {mis à jour} removed {retiré} deleted {supprimé} other {mis à jour}}.} milestone {Jalon {subject} {action, select, created {créé} completed {terminé} reopened {rouvert} added {ajouté} updated {mis à jour} removed {retiré} deleted {supprimé} other {mis à jour}}.} other {{subject} {action, select, created {créé} completed {terminé} reopened {rouvert} added {ajouté} updated {mis à jour} removed {retiré} deleted {supprimé} other {mis à jour}}.}}",
-	"mobile.projects.write_unknown_note": "Impossible de joindre votre ordinateur : nous ne savons pas si la modification a été enregistrée. Vérifiez le projet avant de réessayer."
+	"mobile.projects.write_unknown_note": "Impossible de joindre votre ordinateur : nous ne savons pas si la modification a été enregistrée. Vérifiez le projet avant de réessayer.",
+	"mobile.projects.title": "Projets",
+	"mobile.projects.section.progress": "progression",
+	"mobile.projects.section.milestones": "jalons",
+	"mobile.projects.section.linked_sessions": "sessions liées"
 }

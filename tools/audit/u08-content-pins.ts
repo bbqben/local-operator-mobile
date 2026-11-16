@@ -2050,7 +2050,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (#271 remote-session view + #273 Radient Console copy), so it matches
 	 * neither parent. Re-derived with --print over the merged tree (run twice,
 	 * stable). Source identity only, NOT new rendered U-08 evidence. */
-	src: "c4df74ae1185272165d7ea77772c937f4742966418a35a94c4533999a52347bc",
+	/* O3-a (headers and date/time copy), rebased onto origin/main (#271,
+	 * 57b129c8): the keyed sites, the 40 English keys with their audited
+	 * translations in all 7 locales, the generated projection, and the C1
+	 * English-pinned age wrappers. Derived LAST from the treeDigest contract by
+	 * an independent reader over the staged tree's git objects (not --print);
+	 * the same reader reproduced main's pin (c4df74ae…) from main's tree as a
+	 * control. Source identity only, NOT rendered U-08 evidence. */
+	src: "11ae0710d297e3f33286c58e3930f4466d322ead2bdafacb4dc7979ba5ea2e48",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -30,5 +30,9 @@
 	"mobile.projects.status.qa": "QA",
 	"mobile.projects.status.validation": "सत्यापन",
 	"mobile.projects.write_receipt": "{kind, select, project {“{subject}” प्रोजेक्ट {action, select, created {बनाया गया} completed {पूरा किया गया} reopened {फिर खोला गया} added {जोड़ा गया} updated {अपडेट किया गया} removed {हटाया गया} deleted {मिटाया गया} other {अपडेट किया गया}}।} milestone {“{subject}” पड़ाव {action, select, created {बनाया गया} completed {पूरा किया गया} reopened {फिर खोला गया} added {जोड़ा गया} updated {अपडेट किया गया} removed {हटाया गया} deleted {मिटाया गया} other {अपडेट किया गया}}।} other {“{subject}” {action, select, created {बनाया गया} completed {पूरा किया गया} reopened {फिर खोला गया} added {जोड़ा गया} updated {अपडेट किया गया} removed {हटाया गया} deleted {मिटाया गया} other {अपडेट किया गया}}।}}",
-	"mobile.projects.write_unknown_note": "आपके कंप्यूटर तक नहीं पहुँच सके, इसलिए यह नहीं बता सकते कि वह सहेजा गया या नहीं। दोबारा कोशिश करने से पहले प्रोजेक्ट जाँच लें।"
+	"mobile.projects.write_unknown_note": "आपके कंप्यूटर तक नहीं पहुँच सके, इसलिए यह नहीं बता सकते कि वह सहेजा गया या नहीं। दोबारा कोशिश करने से पहले प्रोजेक्ट जाँच लें।",
+	"mobile.projects.title": "प्रोजेक्ट",
+	"mobile.projects.section.progress": "प्रगति",
+	"mobile.projects.section.milestones": "पड़ाव",
+	"mobile.projects.section.linked_sessions": "जुड़े सत्र"
 }

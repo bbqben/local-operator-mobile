@@ -30,7 +30,7 @@
  * No React, no React Native.
  */
 
-import { t } from "@/i18n";
+import { renderFor, t } from "@/i18n";
 import type { ErrorSurface, RelayError, StreamState } from "@/relay";
 import { isRemoteErrorCode, remoteFailureMessage } from "@/relay/remote-errors";
 import type { ConnectionPhase, ProjectionEntry } from "@/state";
@@ -265,13 +265,27 @@ export const relaySentence = (error: RelayError): string | undefined => {
 	return sentence === "" ? undefined : sentence;
 };
 
-/** `Ns`, `Nm Ss`, `Nh` — the register the transcript already uses. */
+/** `Ns`, `Nm Ss`, `Nh` — the register the transcript already uses.
+ *
+ * WHY ENGLISH, EXPLICITLY. Its only callers embed it in the C3/C7 sentences
+ * ("Not answering — last update 12s ago."), which are still hard-coded English
+ * until slice O3-b keys them. Rendering the age in the reader's locale inside an
+ * English sentence produced mixed-script, mixed-direction text in `ur`
+ * ("… last update 12 سیکنڈ ago."), so the age is pinned to the English catalogue
+ * and the sentence stays wholly English, exactly as before O3-a. When O3-b keys
+ * the wrapper, the whole sentence (age included) moves to `t()` together. */
 const agoLabel = (seconds: number): string => {
 	const whole = Math.max(0, Math.round(seconds));
-	if (whole < 60) return t("mobile.time.short.seconds", { count: whole });
+	if (whole < 60)
+		return renderFor("mobile.time.short.seconds", { count: whole }, "en");
 	const minutes = Math.floor(whole / 60);
-	if (minutes < 60) return t("mobile.time.short.minutes", { count: minutes });
-	return t("mobile.time.short.hours", { count: Math.floor(minutes / 60) });
+	if (minutes < 60)
+		return renderFor("mobile.time.short.minutes", { count: minutes }, "en");
+	return renderFor(
+		"mobile.time.short.hours",
+		{ count: Math.floor(minutes / 60) },
+		"en",
+	);
 };
 
 const computerName = (label: string): string =>

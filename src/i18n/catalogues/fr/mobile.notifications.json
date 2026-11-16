@@ -57,5 +57,11 @@
 	"mobile.notifications.primer.title": "Soyez averti quand vos agents ont terminé",
 	"mobile.notifications.priority_high": "Élevée",
 	"mobile.notifications.title": "Notifications",
-	"mobile.notifications.turn_on": "Activer les notifications"
+	"mobile.notifications.turn_on": "Activer les notifications",
+	"mobile.notifications.section.waiting": "À traiter",
+	"mobile.notifications.section.waiting_count": "À traiter · {count}",
+	"mobile.notifications.detail.title": "Notification",
+	"mobile.notifications.detail.section_notification": "Notification",
+	"mobile.notifications.detail.section_links": "Liens",
+	"mobile.notifications.detail.section_message": "Message"
 }

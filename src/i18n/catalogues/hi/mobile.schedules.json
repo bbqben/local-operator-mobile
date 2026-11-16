@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "इस प्लैटफ़ॉर्म पर जागृतियों की निगरानी अभी नहीं होती, इसलिए नीचे दी गई जागृतियाँ केवल तब जागेंगी जब उनकी बातचीत चल रही हो।",
 	"mobile.schedules.supervisor.unverifiable": "इन जागृतियों पर कोई निगरानी नहीं — ये केवल तब जागेंगी जब इनकी बातचीत चल रही हो।",
 	"mobile.schedules.tail.failed": "{count} विफल",
-	"mobile.schedules.truncated": "{family, select, wakes {जागृतियों} other {मॉनिटरों}} वाली कुल {total, plural, one {# बातचीत} other {# बातचीतों}} में से {shown} दिखा रहे हैं।"
+	"mobile.schedules.truncated": "{family, select, wakes {जागृतियों} other {मॉनिटरों}} वाली कुल {total, plural, one {# बातचीत} other {# बातचीतों}} में से {shown} दिखा रहे हैं।",
+	"mobile.schedules.section.wakes": "जागृतियाँ",
+	"mobile.schedules.section.wakes_summary": "जागृतियाँ · {summary}",
+	"mobile.schedules.section.monitors": "मॉनिटर",
+	"mobile.schedules.section.monitors_summary": "मॉनिटर · {summary}"
 }

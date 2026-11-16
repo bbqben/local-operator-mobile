@@ -79,5 +79,7 @@
 	"mobile.session.region.label_todos": "कार्य",
 	"mobile.session.region.label_strip": "स्थिति",
 	"mobile.session.back_to": "{name} पर वापस जाएँ",
-	"mobile.session.back_to_session": "सत्र पर वापस जाएँ"
+	"mobile.session.back_to_session": "सत्र पर वापस जाएँ",
+	"mobile.session.sheet_title.commands": "कमांड",
+	"mobile.session.sheet_title.attach": "संलग्न करें"
 }

@@ -1,0 +1,180 @@
+{
+  "audit_id": "o3a-es-268e89",
+  "slice": "O3-a",
+  "locale": "es",
+  "namespace": "mobile.notifications",
+  "audit_date": "2026-11-15",
+  "key_count": 6,
+  "keys_audited": [
+    "mobile.notifications.section.waiting",
+    "mobile.notifications.section.waiting_count",
+    "mobile.notifications.detail.title",
+    "mobile.notifications.detail.section_notification",
+    "mobile.notifications.detail.section_links",
+    "mobile.notifications.detail.section_message"
+  ],
+  "translator_session": "073b2553cc4d",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "7a618dafc6fb",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "session system prompt \"Model:\" line; no fallback observed"
+  },
+  "input_route": "round-2 values relayed by the lane owner in the auditor resume brief (3 changed keys); R2 file sha256 attested by the lane owner; auditor rebuilt R1 from its own R1 record (canonical sha verified) and computed the R2 canonical sha; the 37 unchanged keys were not verified against the file",
+  "input_hashes": {
+    "draft": {
+      "sha256": "2d360fb43fee46d4be381a5af0bb3c092cabde59bef74ce5c6ab4d1e83e59e4e",
+      "sha256_source": "attested by lane owner",
+      "canonical_json_sha256": "0d1628379a6081e5247151e83b9892abd078afc001484f2091e90cbd33dd9d46",
+      "canonical_json_sha256_source": "computed by auditor from R1 record values + 3 relayed changes; unchanged 37 keys not file-verified",
+      "path": "/Users/damian/.local-operator/sessions/073b2553cc4d/scratchpad/o3a/draft-es.json"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "en": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.notifications.json",
+      "sha256": "3b7438ad177efd0a75532e63bfed2298d70d2e498a66dae1d32fece9ee45b3ae"
+    },
+    "context": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.notifications.context.json",
+      "sha256": "77cdc2d82b3e1a5b5f34af56bd4759c1f39735a95596c9f6804add4bf6ac6f12"
+    },
+    "es_shipped": {
+      "path": "26663e18:src/i18n/catalogues/es/mobile.notifications.json",
+      "sha256": "e571521cfdae92148c5825c2b9f2958f6c1f1edabb79e94d8b6541b26fb4182f"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/es.md",
+      "sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    }
+  },
+  "draft_values": {
+    "mobile.notifications.section.waiting": "Te esperan",
+    "mobile.notifications.section.waiting_count": "Te esperan · {count}",
+    "mobile.notifications.detail.title": "Notificación",
+    "mobile.notifications.detail.section_notification": "Notificación",
+    "mobile.notifications.detail.section_links": "Enlaces",
+    "mobile.notifications.detail.section_message": "Mensaje"
+  },
+  "mechanical": {
+    "placeholder_mismatches": 0,
+    "icu_parse_errors": 0,
+    "non_es_selectors": 0,
+    "nfc_failures": 0,
+    "redaction_marker_hits": 0,
+    "ordenador_computadora_hits": 0
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "MAJOR",
+      "keys": [
+        "mobile.notifications.section.waiting",
+        "mobile.notifications.section.waiting_count"
+      ],
+      "current": [
+        "Pendientes de ti",
+        "Pendientes de ti · {count}"
+      ],
+      "problem": "Third rendering of a product term that es already ships: the same inbox heading is «Te esperan · {count, number}» in core relay.notifications.section.waiting (web relay inbox), and «Esperando tu respuesta» in tui.notifications.group_waiting / ui.notifications.group.waiting. «Estar pendiente de alguien» also reads first as \"keep an eye on / look after someone\", not as \"blocked on you\".",
+      "suggested": [
+        "Te esperan",
+        "Te esperan · {count}"
+      ],
+      "note": "Matches relay inbox wording; 10 chars, ~20 hint. «Esperando tu respuesta» (22) is over the ~20 hint."
+    }
+  ],
+  "observations": [
+    "detail.*: «Notificación», «Enlaces» (hyperlinks → enlace per style-guide link rule), «Mensaje» (noun) are correct."
+  ],
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "artifacts": {
+    "report": {
+      "path": "/Users/damian/.local-operator/sessions/7a618dafc6fb/scratchpad/o3a-audit/es/mobile.notifications/o3a-es-268e89/report.md",
+      "sha256": "730670c7b12a88af715fa367e61948b8db006a1e6e008d883c1f965b0e999df1"
+    },
+    "audit_log": {
+      "path": "/Users/damian/.local-operator/sessions/7a618dafc6fb/scratchpad/o3a-audit/es/mobile.notifications/o3a-es-268e89/audit.log",
+      "sha256": "2491d2be809d640ea917504afe4e7d8e482f4a338877c108857b5e8725c204a5"
+    }
+  },
+  "audit_notes_not_execution_log": "report.md is audit notes; audit.log is the actual output of the auditor’s Python check run. No repo validator was run (task barred builds/tests). Ledger append is not done here (repo read-only); this bundle is scratch staging pending a tracked commit.",
+  "history": [
+    {
+      "round": 1,
+      "verdict": "failed",
+      "current_report_verdict": {
+        "status": "changes_requested",
+        "unresolved_blocker_major_count": 1,
+        "finding_ids": [
+          "F1"
+        ]
+      },
+      "input_hashes_draft": {
+        "path": "/Users/damian/.local-operator/sessions/073b2553cc4d/scratchpad/o3a/draft-es.json",
+        "sha256": "268e896dd0aec526ccf2071764b1f15de2c09ea79940cea5337effc3d1718abf",
+        "sha256_source": "attested by relayer d5aaf8ba6ba5 (auditor read refused by guardrail)",
+        "canonical_json_sha256": "2db4f877d3ab6a721222aee47c1e42fb10d517b8d8f3bf3b8050baf40a5067e3",
+        "canonical_json_sha256_source": "verified by auditor"
+      },
+      "draft_values": {
+        "mobile.notifications.section.waiting": "Te esperan",
+        "mobile.notifications.section.waiting_count": "Te esperan · {count}",
+        "mobile.notifications.detail.title": "Notificación",
+        "mobile.notifications.detail.section_notification": "Notificación",
+        "mobile.notifications.detail.section_links": "Enlaces",
+        "mobile.notifications.detail.section_message": "Mensaje"
+      }
+    },
+    {
+      "round": 2,
+      "audit_date": "2026-11-15",
+      "scope": [
+        "mobile.notifications.section.waiting",
+        "mobile.notifications.section.waiting_count"
+      ],
+      "input_route": "round-2 values relayed by the lane owner in the auditor resume brief (3 changed keys); R2 file sha256 attested by the lane owner; auditor rebuilt R1 from its own R1 record (canonical sha verified) and computed the R2 canonical sha; the 37 unchanged keys were not verified against the file",
+      "input_hashes": {
+        "draft": {
+          "sha256": "2d360fb43fee46d4be381a5af0bb3c092cabde59bef74ce5c6ab4d1e83e59e4e",
+          "sha256_source": "attested by lane owner",
+          "canonical_json_sha256": "0d1628379a6081e5247151e83b9892abd078afc001484f2091e90cbd33dd9d46",
+          "canonical_json_sha256_source": "computed by auditor from R1 record values + 3 relayed changes; unchanged 37 keys not file-verified"
+        }
+      },
+      "changed_values": {
+        "mobile.notifications.section.waiting": "Te esperan",
+        "mobile.notifications.section.waiting_count": "Te esperan · {count}"
+      },
+      "resolutions": [
+        {
+          "id": "F1",
+          "status": "fixed",
+          "value": [
+            "Te esperan",
+            "Te esperan · {count}"
+          ],
+          "note": "Matches shipped relay.notifications.section.waiting «Te esperan · {count, number}»; 10/15 chars within ~20; idiomatic, tú register."
+        }
+      ],
+      "verdict": "passed",
+      "current_report_verdict": {
+        "status": "passed",
+        "unresolved_blocker_major_count": 0,
+        "finding_ids": []
+      }
+    }
+  ]
+}

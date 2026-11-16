@@ -14,7 +14,7 @@ import type {
 	UnreadBlock,
 } from "@/contracts";
 import type { SidebarBasis } from "@/features/sessions/sidebar-view";
-import { t } from "@/i18n";
+import { renderFor, t } from "@/i18n";
 
 /**
  * The one state mark a row shows (docs/ux/flows.md § 5 step 2).
@@ -171,8 +171,8 @@ export type StaleNoteInput = {
 };
 
 export function staleNote(input: StaleNoteInput): string | null {
-	const phrase = stalePhrase(input);
-	return phrase === null ? null : `Last updated ${phrase}.`;
+	const age = stalePhrase(input);
+	return age === null ? null : `Last updated ${age.phrase}.`;
 }
 
 /**
@@ -197,9 +197,12 @@ export function staleNote(input: StaleNoteInput): string | null {
  * it must keep fitting whole.
  */
 export function staleShortNote(input: StaleNoteInput): string | null {
-	const phrase = stalePhrase(input);
-	if (phrase === null) return null;
-	return `${phrase === "just now" ? "Just now" : phrase}.`;
+	const age = stalePhrase(input);
+	if (age === null) return null;
+	/* Branch on the structural flag, never on the rendered text: comparing with
+	 * the string "just now" silently stops matching the moment the phrase is
+	 * rendered in any other wording. */
+	return `${age.justNow ? "Just now" : age.phrase}.`;
 }
 
 /**
@@ -215,24 +218,56 @@ export function staleShortNote(input: StaleNoteInput): string | null {
  * One phrase for both sentences, so the long form and the short form cannot
  * disagree about the age the reader is being told.
  */
-function stalePhrase(input: StaleNoteInput): string | null {
+type StaleAge = { justNow: boolean; phrase: string };
+
+function stalePhrase(input: StaleNoteInput): StaleAge | null {
 	if (!input.stale || input.lastFrameAt === null) return null;
 	const now = input.now ?? Date.now();
 	const seconds = Math.max(0, Math.round((now - input.lastFrameAt) / 1000));
-	/* The mixed spacing (`12s ago`, `5 min ago`, `3h ago`) is this phrase's
+	/* WHY ENGLISH, EXPLICITLY. Both callers wrap this phrase in English that is
+	 * still unkeyed until slice O3-b keys it ("Last updated …." and the short
+	 * form's "Just now." / trailing "."). A localized age inside those sentences
+	 * read as mixed-script, mixed-direction text in `ur`, so the age is pinned to
+	 * the English catalogue and both sentences stay wholly English, exactly as
+	 * before O3-a. O3-b moves sentence and age to `t()` together.
+	 *
+	 * The mixed spacing (`12s ago`, `5 min ago`, `3h ago`) is this phrase's
 	 * shipped register; each rung names the key family that renders it exactly. */
-	if (seconds < 5) return t("mobile.time.relative.just_now");
+	const age = (phrase: string): StaleAge => ({ justNow: false, phrase });
+	if (seconds < 5)
+		return {
+			justNow: true,
+			phrase: renderFor("mobile.time.relative.just_now", {}, "en"),
+		};
 	if (seconds < 60)
-		return t("mobile.time.relative.seconds_ago_compact", { count: seconds });
+		return age(
+			renderFor(
+				"mobile.time.relative.seconds_ago_compact",
+				{ count: seconds },
+				"en",
+			),
+		);
 	const minutes = Math.round(seconds / 60);
 	if (minutes < 60)
-		return t("mobile.time.relative.minutes_ago", { count: minutes });
+		return age(
+			renderFor("mobile.time.relative.minutes_ago", { count: minutes }, "en"),
+		);
 	const hours = Math.round(minutes / 60);
 	if (hours < 24)
-		return t("mobile.time.relative.hours_ago_compact", { count: hours });
-	return t("mobile.time.relative.days_ago_compact", {
-		count: Math.round(hours / 24),
-	});
+		return age(
+			renderFor(
+				"mobile.time.relative.hours_ago_compact",
+				{ count: hours },
+				"en",
+			),
+		);
+	return age(
+		renderFor(
+			"mobile.time.relative.days_ago_compact",
+			{ count: Math.round(hours / 24) },
+			"en",
+		),
+	);
 }
 
 /**

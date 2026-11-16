@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "اس پلیٹ فارم پر بیداریوں کی نگرانی ابھی نہیں ہوتی، اس لیے نیچے دی گئی بیداریاں صرف تب چلیں گی جب ان کی گفتگو چل رہی ہو۔",
 	"mobile.schedules.supervisor.unverifiable": "نیچے دی گئی بیداریوں کی نگرانی کوئی نہیں کرتا، اس لیے یہ صرف تب چلتی ہیں جب ان کی گفتگو چل رہی ہو۔",
 	"mobile.schedules.tail.failed": "{count} ناکام",
-	"mobile.schedules.truncated": "{family, select, wakes {بیداریوں} other {نگرانیوں}} والی کل {total, plural, one {# گفتگو} other {# گفتگوؤں}} میں سے {shown, plural, one {# دکھائی جا رہی ہے} other {# دکھائی جا رہی ہیں}}۔"
+	"mobile.schedules.truncated": "{family, select, wakes {بیداریوں} other {نگرانیوں}} والی کل {total, plural, one {# گفتگو} other {# گفتگوؤں}} میں سے {shown, plural, one {# دکھائی جا رہی ہے} other {# دکھائی جا رہی ہیں}}۔",
+	"mobile.schedules.section.wakes": "بیداریاں",
+	"mobile.schedules.section.wakes_summary": "بیداریاں · {summary}",
+	"mobile.schedules.section.monitors": "نگرانیاں",
+	"mobile.schedules.section.monitors_summary": "نگرانیاں · {summary}"
 }

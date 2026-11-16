@@ -57,5 +57,11 @@
 	"mobile.notifications.primer.title": "Nhận thông báo khi các agent của bạn hoàn tất",
 	"mobile.notifications.priority_high": "Cao",
 	"mobile.notifications.title": "Thông báo",
-	"mobile.notifications.turn_on": "Bật thông báo"
+	"mobile.notifications.turn_on": "Bật thông báo",
+	"mobile.notifications.section.waiting": "Chờ bạn",
+	"mobile.notifications.section.waiting_count": "Chờ bạn · {count}",
+	"mobile.notifications.detail.title": "Thông báo",
+	"mobile.notifications.detail.section_notification": "Nội dung",
+	"mobile.notifications.detail.section_links": "Liên kết",
+	"mobile.notifications.detail.section_message": "Tin nhắn"
 }

@@ -79,5 +79,7 @@
 	"mobile.session.region.label_todos": "کام",
 	"mobile.session.region.label_strip": "حالت",
 	"mobile.session.back_to": "{name} پر واپس جائیں",
-	"mobile.session.back_to_session": "سیشن پر واپس جائیں"
+	"mobile.session.back_to_session": "سیشن پر واپس جائیں",
+	"mobile.session.sheet_title.commands": "کمانڈز",
+	"mobile.session.sheet_title.attach": "منسلک کریں"
 }

@@ -673,6 +673,16 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the fr audit accepted it as kept Latin (i18n/audits/evidence/fr/m3-s2b2b-computers-setup/).",
 		"mobile.computers.setup.terminal_label":
 			"« Terminal » is the French word for the terminal, spelled as in English (as « Sections » for mobile.sidebar.sections); the fr audit accepted the set-up screen's command-block label (i18n/audits/evidence/fr/m3-s2b2b-computers-setup/).",
+		/* O3-a (headers): French spells these nouns as English does; the fr audit
+		 * passed each value verbatim. */
+		"mobile.notifications.detail.title":
+			"« Notification » is the French noun, spelled as in English (as « Notifications » for mobile.notifications.title); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
+		"mobile.notifications.detail.section_notification":
+			"« Notification » is the French noun for this section heading, spelled as in English; the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
+		"mobile.notifications.detail.section_message":
+			"« Message » is the French noun, spelled as in English (as « Messages » for relay.transcript.label.messages); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
+		"mobile.settings.section.notifications":
+			"« Notifications » is the French plural, spelled as in English (as mobile.notifications.title); the fr audit passed this Settings section header (i18n/audits/evidence/fr/mobile.settings/o3a-fr-b3177c/).",
 	},
 	/* Spanish preserves these placeholder-only templates: names and separators
 	 * have no English prose to translate. Each key remains explicitly listed. */
@@ -702,6 +712,9 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the es audit accepted it as kept Latin (i18n/audits/evidence/es/m3-s2b2b-computers-setup/).",
 		"mobile.computers.setup.terminal_label":
 			"«Terminal» is the Spanish word for the terminal, spelled as in English; the es audit accepted the set-up screen's command-block label, which has no article to agree (i18n/audits/evidence/es/m3-s2b2b-computers-setup/).",
+		/* O3-a (date/time): the abbreviated unit is the same symbol in Spanish. */
+		"mobile.time.short.minutes_spaced":
+			"«min» is the Spanish abbreviation of «minuto(s)» too, with no «de» after an abbreviated unit, so `{count, plural, one {# min} other {# min}}` is the correct Spanish value; the es audit passed it (i18n/audits/evidence/es/mobile.time/o3a-es-268e89/).",
 	},
 	"zh-CN": {
 		"mobile.settings.account.app_name":

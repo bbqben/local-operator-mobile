@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "此平台尚不支持监督唤醒，因此以下唤醒仅在对话运行时触发。",
 	"mobile.schedules.supervisor.unverifiable": "以下唤醒没有监督者，因此仅在其对话运行时触发。",
 	"mobile.schedules.tail.failed": "{count}次失败",
-	"mobile.schedules.truncated": "显示{shown}/{total}个含{family, select, wakes {唤醒} other {监控}}的对话。"
+	"mobile.schedules.truncated": "显示{shown}/{total}个含{family, select, wakes {唤醒} other {监控}}的对话。",
+	"mobile.schedules.section.wakes": "唤醒",
+	"mobile.schedules.section.wakes_summary": "唤醒 · {summary}",
+	"mobile.schedules.section.monitors": "监控",
+	"mobile.schedules.section.monitors_summary": "监控 · {summary}"
 }

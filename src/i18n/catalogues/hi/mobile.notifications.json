@@ -57,5 +57,11 @@
 	"mobile.notifications.primer.title": "जब आपके एजेंट काम पूरा करें, तब सूचना पाएँ",
 	"mobile.notifications.priority_high": "उच्च",
 	"mobile.notifications.title": "सूचनाएँ",
-	"mobile.notifications.turn_on": "सूचनाएँ चालू करें"
+	"mobile.notifications.turn_on": "सूचनाएँ चालू करें",
+	"mobile.notifications.section.waiting": "आपका इंतज़ार",
+	"mobile.notifications.section.waiting_count": "आपका इंतज़ार · {count}",
+	"mobile.notifications.detail.title": "सूचना",
+	"mobile.notifications.detail.section_notification": "विवरण",
+	"mobile.notifications.detail.section_links": "लिंक",
+	"mobile.notifications.detail.section_message": "संदेश"
 }

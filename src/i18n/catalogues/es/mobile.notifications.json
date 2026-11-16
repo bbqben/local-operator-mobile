@@ -57,5 +57,11 @@
 	"mobile.notifications.primer.title": "Recibe avisos cuando tus agentes terminen",
 	"mobile.notifications.priority_high": "Alta",
 	"mobile.notifications.title": "Notificaciones",
-	"mobile.notifications.turn_on": "Activar notificaciones"
+	"mobile.notifications.turn_on": "Activar notificaciones",
+	"mobile.notifications.section.waiting": "Te esperan",
+	"mobile.notifications.section.waiting_count": "Te esperan · {count}",
+	"mobile.notifications.detail.title": "Notificación",
+	"mobile.notifications.detail.section_notification": "Notificación",
+	"mobile.notifications.detail.section_links": "Enlaces",
+	"mobile.notifications.detail.section_message": "Mensaje"
 }

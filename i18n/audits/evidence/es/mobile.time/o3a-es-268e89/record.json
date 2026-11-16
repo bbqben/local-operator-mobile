@@ -1,0 +1,267 @@
+{
+  "audit_id": "o3a-es-268e89",
+  "slice": "O3-a",
+  "locale": "es",
+  "namespace": "mobile.time",
+  "audit_date": "2026-11-15",
+  "key_count": 23,
+  "keys_audited": [
+    "mobile.time.bucket.today",
+    "mobile.time.bucket.yesterday",
+    "mobile.time.bucket.earlier_this_week",
+    "mobile.time.bucket.earlier",
+    "mobile.time.relative.now",
+    "mobile.time.relative.just_now",
+    "mobile.time.relative.yesterday",
+    "mobile.time.relative.seconds_ago_compact",
+    "mobile.time.relative.minutes_ago",
+    "mobile.time.relative.hours_ago",
+    "mobile.time.relative.days_ago",
+    "mobile.time.relative.minutes_ago_compact",
+    "mobile.time.relative.hours_ago_compact",
+    "mobile.time.relative.days_ago_compact",
+    "mobile.time.short.seconds",
+    "mobile.time.short.minutes",
+    "mobile.time.short.hours",
+    "mobile.time.short.days",
+    "mobile.time.short.weeks",
+    "mobile.time.short.years",
+    "mobile.time.short.minutes_spaced",
+    "mobile.time.short.minutes_seconds",
+    "mobile.time.short.hours_minutes"
+  ],
+  "translator_session": "073b2553cc4d",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "7a618dafc6fb",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "session system prompt \"Model:\" line; no fallback observed"
+  },
+  "input_route": "round-2 values relayed by the lane owner in the auditor resume brief (3 changed keys); R2 file sha256 attested by the lane owner; auditor rebuilt R1 from its own R1 record (canonical sha verified) and computed the R2 canonical sha; the 37 unchanged keys were not verified against the file",
+  "input_hashes": {
+    "draft": {
+      "sha256": "2d360fb43fee46d4be381a5af0bb3c092cabde59bef74ce5c6ab4d1e83e59e4e",
+      "sha256_source": "attested by lane owner",
+      "canonical_json_sha256": "0d1628379a6081e5247151e83b9892abd078afc001484f2091e90cbd33dd9d46",
+      "canonical_json_sha256_source": "computed by auditor from R1 record values + 3 relayed changes; unchanged 37 keys not file-verified",
+      "path": "/Users/damian/.local-operator/sessions/073b2553cc4d/scratchpad/o3a/draft-es.json"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "en": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.time.json",
+      "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+    },
+    "context": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.time.context.json",
+      "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+    },
+    "es_shipped": {
+      "path": "26663e18:src/i18n/catalogues/es/mobile.time.json",
+      "sha256": null
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/es.md",
+      "sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    }
+  },
+  "draft_values": {
+    "mobile.time.bucket.today": "Hoy",
+    "mobile.time.bucket.yesterday": "Ayer",
+    "mobile.time.bucket.earlier_this_week": "Esta semana",
+    "mobile.time.bucket.earlier": "Anteriores",
+    "mobile.time.relative.now": "ahora",
+    "mobile.time.relative.just_now": "ahora mismo",
+    "mobile.time.relative.yesterday": "ayer",
+    "mobile.time.relative.seconds_ago_compact": "{count, plural, one {hace # s} other {hace # s}}",
+    "mobile.time.relative.minutes_ago": "{count, plural, one {hace # min} other {hace # min}}",
+    "mobile.time.relative.hours_ago": "{count, plural, one {hace # h} other {hace # h}}",
+    "mobile.time.relative.days_ago": "{count, plural, one {hace # d} other {hace # d}}",
+    "mobile.time.relative.minutes_ago_compact": "{count, plural, one {hace # min} other {hace # min}}",
+    "mobile.time.relative.hours_ago_compact": "{count, plural, one {hace # h} other {hace # h}}",
+    "mobile.time.relative.days_ago_compact": "{count, plural, one {hace # d} other {hace # d}}",
+    "mobile.time.short.seconds": "{count, plural, one {# s} other {# s}}",
+    "mobile.time.short.minutes": "{count, plural, one {# min} other {# min}}",
+    "mobile.time.short.hours": "{count, plural, one {# h} other {# h}}",
+    "mobile.time.short.days": "{count, plural, one {# d} other {# d}}",
+    "mobile.time.short.weeks": "{count, plural, one {# sem} other {# sem}}",
+    "mobile.time.short.years": "{count, plural, one {# año} many {# de años} other {# años}}",
+    "mobile.time.short.minutes_spaced": "{count, plural, one {# min} other {# min}}",
+    "mobile.time.short.minutes_seconds": "{minutes, plural, one {# min} other {# min}} {seconds} s",
+    "mobile.time.short.hours_minutes": "{hours, plural, one {# h} other {# h}} {minutes} min"
+  },
+  "mechanical": {
+    "placeholder_mismatches": 0,
+    "icu_parse_errors": 0,
+    "non_es_selectors": 0,
+    "nfc_failures": 0,
+    "redaction_marker_hits": 0,
+    "ordenador_computadora_hits": 0
+  },
+  "findings": [
+    {
+      "id": "F2",
+      "severity": "MINOR",
+      "keys": [
+        "mobile.time.short.years"
+      ],
+      "current": [
+        "{count, plural, one {# a} other {# a}}"
+      ],
+      "problem": "«a» is the CLDR narrow form, but in UI copy it is rarely seen and it collides with the preposition «a», so «2 a» is ambiguous. Its only consumer, session-projection.ts:409, is the session drawer column. That column already renders minutes_spaced «59 min» (6) and weeks «52 sem» (6) within the ~7 budget, so the full noun adds no new overflow.",
+      "suggested": [
+        "{count, plural, one {# año} other {# años}}"
+      ],
+      "note": "«1 año» 5 / «10 años» 7 cells, within the drawer column’s ~7 (minutes_spaced)."
+    },
+    {
+      "id": "F3",
+      "severity": "NIT",
+      "keys": [
+        "mobile.time.relative.seconds_ago_compact",
+        "mobile.time.relative.minutes_ago",
+        "mobile.time.relative.hours_ago",
+        "mobile.time.relative.days_ago",
+        "mobile.time.relative.minutes_ago_compact",
+        "mobile.time.relative.hours_ago_compact",
+        "mobile.time.relative.days_ago_compact",
+        "mobile.time.short.seconds",
+        "mobile.time.short.minutes",
+        "mobile.time.short.hours",
+        "mobile.time.short.days",
+        "mobile.time.short.weeks",
+        "mobile.time.short.years",
+        "mobile.time.short.minutes_spaced",
+        "mobile.time.short.minutes_seconds",
+        "mobile.time.short.hours_minutes"
+      ],
+      "current": [
+        "plural arms one/other only"
+      ],
+      "problem": "es CLDR categories are one/many/other. `many` is omitted, so it falls back to `other`, and output is identical: with a unit symbol and no noun, «de» is never inserted, so many==other. Shipped mobile es is mixed (23 plurals with many, 14 without). Core relay ships explicit identical arms (relay.notifications.age.minutes).",
+      "suggested": [
+        "optional: add `many {…}` identical to `other` if the mobile validator or reviewers want category parity"
+      ],
+      "note": "Not gating."
+    }
+  ],
+  "observations": [
+    "Translator flagged risks, judged: (1) compact == spaced «hace # min»: accepted. «m» reads as metres; core relay.notifications.age.minutes ships «hace # min» in the same inbox row role; «hace 59 min» is 11 against the ~10 hint, 1 over a soft hint. (2) «Esta semana»: accepted. Under «Hoy»/«Ayer» it reads as \"the rest of this week\", and it matches shipped tui/ui/relay group_week and the desktop sidebar. (3) «2 a»: see F2.",
+    "Width: short.minutes «59 min» (6) and short.weeks «52 sem» (6) exceed the ~4 hint. Their slots already hold equal or wider es text: Team Bridge rowStamp falls back to a toLocaleDateString month-short date («15 nov», 6), and the drawer column holds minutes_spaced (~7). minutes_seconds / hours_minutes render «59 min 07 s» / «23 h 07 min» (11 vs en 7). The seconds/minutes stay zero-padded, so there is no tick jitter. All are the shortest correct forms, so I filed no finding. A rendered check of the running transcript item is recommended."
+  ],
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+      "F3"
+    ]
+  },
+  "artifacts": {
+    "report": {
+      "path": "/Users/damian/.local-operator/sessions/7a618dafc6fb/scratchpad/o3a-audit/es/mobile.time/o3a-es-268e89/report.md",
+      "sha256": "1371319964038a21584d1739fec36cdc1d91650a18b2d8c692c1faee5567abb0"
+    },
+    "audit_log": {
+      "path": "/Users/damian/.local-operator/sessions/7a618dafc6fb/scratchpad/o3a-audit/es/mobile.time/o3a-es-268e89/audit.log",
+      "sha256": "b66365c8d22ce94be28d0628167a832b49acc0fd526ee2d3f9f12b041c095d0e"
+    }
+  },
+  "audit_notes_not_execution_log": "report.md is audit notes; audit.log is the actual output of the auditor’s Python check run. No repo validator was run (task barred builds/tests). Ledger append is not done here (repo read-only); this bundle is scratch staging pending a tracked commit.",
+  "history": [
+    {
+      "round": 1,
+      "verdict": "passed",
+      "current_report_verdict": {
+        "status": "passed",
+        "unresolved_blocker_major_count": 0,
+        "finding_ids": [
+          "F2",
+          "F3"
+        ]
+      },
+      "input_hashes_draft": {
+        "path": "/Users/damian/.local-operator/sessions/073b2553cc4d/scratchpad/o3a/draft-es.json",
+        "sha256": "268e896dd0aec526ccf2071764b1f15de2c09ea79940cea5337effc3d1718abf",
+        "sha256_source": "attested by relayer d5aaf8ba6ba5 (auditor read refused by guardrail)",
+        "canonical_json_sha256": "2db4f877d3ab6a721222aee47c1e42fb10d517b8d8f3bf3b8050baf40a5067e3",
+        "canonical_json_sha256_source": "verified by auditor"
+      },
+      "draft_values": {
+        "mobile.time.bucket.today": "Hoy",
+        "mobile.time.bucket.yesterday": "Ayer",
+        "mobile.time.bucket.earlier_this_week": "Esta semana",
+        "mobile.time.bucket.earlier": "Anteriores",
+        "mobile.time.relative.now": "ahora",
+        "mobile.time.relative.just_now": "ahora mismo",
+        "mobile.time.relative.yesterday": "ayer",
+        "mobile.time.relative.seconds_ago_compact": "{count, plural, one {hace # s} other {hace # s}}",
+        "mobile.time.relative.minutes_ago": "{count, plural, one {hace # min} other {hace # min}}",
+        "mobile.time.relative.hours_ago": "{count, plural, one {hace # h} other {hace # h}}",
+        "mobile.time.relative.days_ago": "{count, plural, one {hace # d} other {hace # d}}",
+        "mobile.time.relative.minutes_ago_compact": "{count, plural, one {hace # min} other {hace # min}}",
+        "mobile.time.relative.hours_ago_compact": "{count, plural, one {hace # h} other {hace # h}}",
+        "mobile.time.relative.days_ago_compact": "{count, plural, one {hace # d} other {hace # d}}",
+        "mobile.time.short.seconds": "{count, plural, one {# s} other {# s}}",
+        "mobile.time.short.minutes": "{count, plural, one {# min} other {# min}}",
+        "mobile.time.short.hours": "{count, plural, one {# h} other {# h}}",
+        "mobile.time.short.days": "{count, plural, one {# d} other {# d}}",
+        "mobile.time.short.weeks": "{count, plural, one {# sem} other {# sem}}",
+        "mobile.time.short.years": "{count, plural, one {# año} many {# de años} other {# años}}",
+        "mobile.time.short.minutes_spaced": "{count, plural, one {# min} other {# min}}",
+        "mobile.time.short.minutes_seconds": "{minutes, plural, one {# min} other {# min}} {seconds} s",
+        "mobile.time.short.hours_minutes": "{hours, plural, one {# h} other {# h}} {minutes} min"
+      }
+    },
+    {
+      "round": 2,
+      "audit_date": "2026-11-15",
+      "scope": [
+        "mobile.time.short.years"
+      ],
+      "input_route": "round-2 values relayed by the lane owner in the auditor resume brief (3 changed keys); R2 file sha256 attested by the lane owner; auditor rebuilt R1 from its own R1 record (canonical sha verified) and computed the R2 canonical sha; the 37 unchanged keys were not verified against the file",
+      "input_hashes": {
+        "draft": {
+          "sha256": "2d360fb43fee46d4be381a5af0bb3c092cabde59bef74ce5c6ab4d1e83e59e4e",
+          "sha256_source": "attested by lane owner",
+          "canonical_json_sha256": "0d1628379a6081e5247151e83b9892abd078afc001484f2091e90cbd33dd9d46",
+          "canonical_json_sha256_source": "computed by auditor from R1 record values + 3 relayed changes; unchanged 37 keys not file-verified"
+        }
+      },
+      "changed_values": {
+        "mobile.time.short.years": "{count, plural, one {# año} many {# de años} other {# años}}"
+      },
+      "resolutions": [
+        {
+          "id": "F2",
+          "status": "fixed",
+          "value": [
+            "{count, plural, one {# año} many {# de años} other {# años}}"
+          ],
+          "note": "Unambiguous; 5–7 cells for realistic counts, within the drawer column’s ~7. The added many arm is correct: CLDR es many = exact multiples of 10^6 and a noun follows, so «1.000.000 de años» per style guide §Plurals; 1.500.000 → other «1.500.000 años». Unreachable in practice, harmless."
+        },
+        {
+          "id": "F3",
+          "status": "deferred — by translator decision: abbreviated units take no «de», so many==other; fallback output identical",
+          "value": [],
+          "note": "NIT; does not gate."
+        }
+      ],
+      "verdict": "passed",
+      "current_report_verdict": {
+        "status": "passed",
+        "unresolved_blocker_major_count": 0,
+        "finding_ids": [
+          "F3"
+        ]
+      }
+    }
+  ]
+}

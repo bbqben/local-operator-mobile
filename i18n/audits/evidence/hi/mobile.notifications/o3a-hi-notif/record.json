@@ -1,0 +1,125 @@
+{
+ "audit_id": "o3a-hi-notif",
+ "slice": "O3-a",
+ "locale": "hi",
+ "namespace": "mobile.notifications",
+ "audit_date": "2026-11-15",
+ "key_count": 6,
+ "keys": [
+  "mobile.notifications.section.waiting",
+  "mobile.notifications.section.waiting_count",
+  "mobile.notifications.detail.title",
+  "mobile.notifications.detail.section_notification",
+  "mobile.notifications.detail.section_links",
+  "mobile.notifications.detail.section_message"
+ ],
+ "draft_values": {
+  "mobile.notifications.section.waiting": "आपका इंतज़ार",
+  "mobile.notifications.section.waiting_count": "आपका इंतज़ार · {count}",
+  "mobile.notifications.detail.title": "सूचना",
+  "mobile.notifications.detail.section_notification": "विवरण",
+  "mobile.notifications.detail.section_links": "लिंक",
+  "mobile.notifications.detail.section_message": "संदेश"
+ },
+ "input_route": "Read directly from the translator session scratchpad (no guardrail block). en/context/shipped hi via `git -C ~/local-operator-mobile show 26663e18:<path>`. Style guide, glossary and relay hi from the clean working tree of ~/local-operator @ b42471d3935cb7e95d64428af27c32626665f4c0.",
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.notifications.json",
+   "sha256": "3b7438ad177efd0a75532e63bfed2298d70d2e498a66dae1d32fece9ee45b3ae"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.notifications.context.json",
+   "sha256": "77cdc2d82b3e1a5b5f34af56bd4759c1f39735a95596c9f6804add4bf6ac6f12"
+  },
+  "hi_shipped": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/hi/mobile.notifications.json",
+   "sha256": "44cdcd3762d2e0cfbe651f0d8066c9b6ba802002f07ef47f13c5e959b3630b8e"
+  },
+  "hi_draft": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/draft-hi.json",
+   "sha256": "bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9"
+  },
+  "per_key_brief_hashes": {
+   "mobile.notifications.section.waiting": {
+    "sha256_english": "57dccc5db9b096172f80ed94d7ba1886dbd8ad7c582831c78f0a3e4ab095ceec",
+    "sha256_context": "1cd5034cebdbb26abf54a7833910d40cde62225fa3e700b1a15145d5f4624c0e"
+   },
+   "mobile.notifications.section.waiting_count": {
+    "sha256_english": "97f06bb4e6d47bf16a76a82fd3b80cc159d3907f43334911016409e02a24c225",
+    "sha256_context": "31e31e5bbbe05b725d480dccc1bd618924134895d7f7b2df5798fb40d5160a07"
+   },
+   "mobile.notifications.detail.title": {
+    "sha256_english": "7d31b83313991d4c969b95ff28385ff891514dbe7a93c93c5db8145ad031420f",
+    "sha256_context": "1beb9245d39e4c26ab0db43b35d4bf160cbe4493080f1a86099521bb5bd5a4df"
+   },
+   "mobile.notifications.detail.section_notification": {
+    "sha256_english": "7d31b83313991d4c969b95ff28385ff891514dbe7a93c93c5db8145ad031420f",
+    "sha256_context": "bfac370e6fbb1d0b95e4b49f452615ec86e6d0b366c6330e05c10a076009a82c"
+   },
+   "mobile.notifications.detail.section_links": {
+    "sha256_english": "9024c197d84940e47ff6aa631b7711c4cbff4e7fb2fe1a574a3592b662983a0d",
+    "sha256_context": "ddeb071557a1b3a4ee6961e7687e03ec22c2053ce093296ae11f942432223f80"
+   },
+   "mobile.notifications.detail.section_message": {
+    "sha256_english": "2f77668a9dfbf8d5848b9eeb4a7145ca94c6ed9236e4a773f6dcafa5132b2f91",
+    "sha256_context": "a8d66256125969a6806e4451d0173fa73cc69f7451e44481c0d59e43172f9015"
+   }
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/notes-hi.md",
+   "sha256": "eae4971902027646cb8badbeb638006511c71e59a16013a1f92841b839853abd"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/hi.md",
+   "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "relay_notifications_hi": {
+   "path": "~/local-operator/local_operator/i18n/catalogues/hi/relay.notifications.json",
+   "sha256": "8a7726aecb5c43747b2f207d4fbb02b0649cf5ae60a47b4835c6bbac6eaaf3cf"
+  }
+ },
+ "translator": {
+  "session": "ea3ea9b9290e",
+  "agent": "translator (lopdev)",
+  "model_claimed_in_notes": "anthropic/claude-opus-5-5"
+ },
+ "auditor": {
+  "agent": "i18n-auditor (lopdev)",
+  "session": "7f1fd014ba0d",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt \"Model: anthropic/claude-opus-5-5\"; no fallback observed",
+  "independent_from_translator_session": true,
+  "mt_service_used": false
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "notes": {
+  "obs-detail": "Observation, no finding: detail.section_notification → 'विवरण' ('details/body') instead of repeating 'सूचना' under the 'सूचना' screen title. This is a deliberate, accurate choice. It does not collide on that screen with स्रोत/लिंक/संदेश/पिछले अपडेट. ('विवरण' also translates projects.create.description, but on a different screen.)"
+ },
+ "terminology_review": "waiting 'आपका इंतज़ार' and waiting_count keep relay's wording (without its ', number'). detail.title 'सूचना', links 'लिंक' (relay), message 'संदेश' (noun, as required).",
+ "ledger": "not appended: the task makes all repos read-only. Bundles are staged in scratch for the manager to land under i18n/audits/evidence/hi/<ns>/<audit-id>/ and append via ledger.py.",
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "989820844807966a0e8f3ef3af40777d813ef4f046ad89cf92a66653623b7df5"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "7ff2de18a1c15a7281f33adbb8deed1fdb72ad8b84c40ce75b5522f90508e472"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is reasoning and notes. audit.log is the actual stdout of the checks run in this session."
+}

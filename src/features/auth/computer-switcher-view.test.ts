@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DiscoveredComputer } from "@/connection";
 import type {
 	SavedCustomComputer,
@@ -23,6 +23,7 @@ import {
 	switcherSections,
 	switcherTap,
 } from "@/features/auth/computer-switcher-view";
+import { renderFor, resetLocaleSource, setLocaleSource } from "@/i18n";
 
 /* Placeholder hosts only (AGENTS.md: never a real tunnel hostname). */
 const HOST_A = "0123456789abcdef0123456789abcdef-lop.example.com";
@@ -872,5 +873,31 @@ describe("a named wait on a live route reads Not connected (PR #261 Q3)", () => 
 		expect(row.health).toMatchObject({ kind: "refused", surface: "retry" });
 		expect(healthLabel(row.health, NOW)).toBe("Not connected");
 		expect(rowHint(row, "on-phone")).toBe(hint);
+	});
+});
+
+/* C1 (ur audit): the age helpers sit inside English sentences that stay
+ * unkeyed until slice O3-b keys them, so under a non-en locale the age must
+ * still render from the English catalogue — no mixed-script sentence. */
+const ENGLISH_ONLY = /^[\x20-\x7E\u00B7\u2014\u2019]*$/;
+
+describe("the Asleep label stays wholly English under a non-en locale", () => {
+	afterEach(resetLocaleSource);
+
+	it("renders the last-seen age in English while ur is active", () => {
+		setLocaleSource(() => "ur");
+		// Negative control: the ur age token is not Latin.
+		expect(
+			renderFor("mobile.time.relative.hours_ago", { count: 2 }, "ur"),
+		).not.toMatch(ENGLISH_ONLY);
+		const label = healthLabel(
+			{ kind: "asleep", lastSeenAt: NOW - 2 * 60 * 60_000 },
+			NOW,
+		);
+		expect(label).toBe("Asleep · 2 h ago");
+		expect(label).toMatch(ENGLISH_ONLY);
+		expect(healthLabel({ kind: "asleep", lastSeenAt: NOW - 10_000 }, NOW)).toBe(
+			"Asleep · just now",
+		);
 	});
 });

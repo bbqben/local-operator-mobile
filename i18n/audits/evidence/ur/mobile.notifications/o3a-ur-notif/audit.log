@@ -1,0 +1,67 @@
+# o3a-ur-notif audit.log — actual output of this auditor's Python checks (eval kernel, session 966cb6dc566f), 2026-11-16T02:15:50Z
+# lines filtered to namespace mobile.notifications plus slice-wide checks
+mechanical check, draft sha256 2ceedc0c2b53366bcbc2238cac66b488deade32abba4aa61a9572ea4eae617a7
+keys draft 40 brief 40 missing [] extra []
+ok   mobile.notifications.section.waiting {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.notifications.section.waiting_count {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.notifications.detail.title {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.notifications.detail.section_notification {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.notifications.detail.section_links {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.notifications.detail.section_message {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+
+# BIDI: rendered samples, first strong char (dir=auto base)
+mobile.notifications.section.waiting: آپ کا انتظار  first_strong='آ'(AL) digit_initial=False cells=12
+mobile.notifications.section.waiting_count: آپ کا انتظار · 1  first_strong='آ'(AL) digit_initial=False cells=16
+mobile.notifications.detail.title: اطلاع  first_strong='ا'(AL) digit_initial=False cells=5
+mobile.notifications.detail.section_notification: متن  first_strong='م'(AL) digit_initial=False cells=3
+mobile.notifications.detail.section_links: لنکس  first_strong='ل'(AL) digit_initial=False cells=4
+mobile.notifications.detail.section_message: پیغام  first_strong='پ'(AL) digit_initial=False cells=5
+digit-initial count 16
+all digit-initial first strong AL: True
+control chars total 0
+redaction hits (/redacted/i) in draft 0
+
+# negative controls (mutated copies; each must be detected)
+detected mobile.time.relative.hours_ago '{count, plural, one {# گھنٹہ قبل} few {# گھنٹے قبل}}'
+detected mobile.time.short.hours_minutes '{hours, plural, one {# گھنٹہ} other {# گھنٹے}} {mins} منٹ'
+detected mobile.time.bucket.today '\u200fآج'
+MISSED mobile.projects.title 'پروجیکٹس'
+control note: NFD(پروجیکٹس)==NFC (no decomposable char) -> invalid control replaced by NFD(آج)
+detected mobile.time.bucket.today (NFD) 'آج'
+
+# ICU plural categories (CLDR ur = one/other) in draft: ['one', 'other']
+# gender/inflection by arm: hours one=گھنٹہ other=گھنٹے; weeks one=ہفتہ other=ہفتے: True True
+
+# composition with shipped ur keys @26663e18
+ due.overdue h=1: 1 گھنٹہ سے تاخیر | due.ahead: 1 گھنٹہ بعد
+ due.overdue h=2: 2 گھنٹے سے تاخیر | due.ahead: 2 گھنٹے بعد
+ wakes_summary: بیداریاں · 3 شیڈول شدہ · 1 ناکام
+ monitors_summary: نگرانیاں · 2 فعال
+ waiting_count: آپ کا انتظار · 12
+ waiting_count bidi classes: AL AL WS AL AL WS AL AL AL AL AL AL WS ON WS EN EN
+ code-wrapped: 'Not answering — last update 12 سیکنڈ ago.' first strong= ('N', 'L')
+ code-wrapped: 'Last updated 5 منٹ قبل.' first strong= ('L', 'L')
+ code-wrapped: 'Asleep · 2 گھنٹے قبل' first strong= ('A', 'L')
+ code-wrapped: 'ابھی ابھی.' first strong= ('ا', 'AL')
+# widths (code points ~ cells per ur.md §Width), worst case 2-digit counts
+  OVER mobile.time.relative.seconds_ago_compact: 12 vs ~10  e.g. 12 سیکنڈ قبل
+  ok   mobile.time.relative.minutes_ago: 10 vs ~14  e.g. 12 منٹ قبل
+  ok   mobile.time.relative.hours_ago: 12 vs ~12  e.g. 12 گھنٹے قبل
+  ok   mobile.time.relative.days_ago: 9 vs ~12  e.g. 12 دن قبل
+  ok   mobile.time.relative.minutes_ago_compact: 10 vs ~10  e.g. 12 منٹ قبل
+  OVER mobile.time.relative.hours_ago_compact: 12 vs ~10  e.g. 12 گھنٹے قبل
+  ok   mobile.time.relative.days_ago_compact: 9 vs ~10  e.g. 12 دن قبل
+  OVER mobile.time.short.seconds: 8 vs ~4  e.g. 12 سیکنڈ
+  OVER mobile.time.short.minutes: 6 vs ~4  e.g. 12 منٹ
+  OVER mobile.time.short.hours: 8 vs ~4  e.g. 12 گھنٹے
+  OVER mobile.time.short.days: 5 vs ~4  e.g. 12 دن
+  OVER mobile.time.short.weeks: 7 vs ~4  e.g. 12 ہفتے
+  OVER mobile.time.short.years: 6 vs ~4  e.g. 12 سال
+  ok   mobile.time.short.minutes_spaced: 6 vs ~7  e.g. 12 منٹ
+  ok   mobile.time.relative.now: 4 vs ~6  e.g. ابھی
+  ok   mobile.time.relative.just_now: 9 vs ~12  e.g. ابھی ابھی
+  ok   mobile.time.bucket.earlier_this_week: 12 vs ~24  e.g. پچھلے چند دن
+  ok   mobile.notifications.section.waiting: 12 vs ~20  e.g. آپ کا انتظار
+  ok   mobile.projects.section.linked_sessions: 14 vs ~20  e.g. جڑے ہوئے سیشنز
+  minutes_seconds/hours_minutes worst: 15 15 vs en ~6-7 (no explicit budget)
+note: the first wakes/monitors_summary sample in the BIDI table used a synthetic {summary}; the composition section above uses the shipped ur summary keys.

@@ -1,0 +1,100 @@
+# O3-a vi audit log — mobile.notifications (o3a-vi-nt)
+# generated 2026-11-15T20:56:49-05:00
+# command: python3 tools/check_vi.py > tools/check_vi.out  (exit 0); verbatim output below
+# note: en "sample" = rendered with count=12 / seconds=07 / summary="3 đã lên lịch" for width comparison only
+
+## rows for this namespace
+ok   mobile.notifications.section.waiting | vi='Chờ bạn' | sample vi='Chờ bạn' (7) en='Waiting on you' (14)
+ok   mobile.notifications.section.waiting_count | vi='Chờ bạn · {count}' | sample vi='Chờ bạn · 3' (11) en='Waiting on you · 3' (18)
+ok   mobile.notifications.detail.title | vi='Thông báo' | sample vi='Thông báo' (9) en='Notification' (12)
+ok   mobile.notifications.detail.section_notification | vi='Nội dung' | sample vi='Nội dung' (8) en='Notification' (12)
+ok   mobile.notifications.detail.section_links | vi='Liên kết' | sample vi='Liên kết' (8) en='Links' (5)
+ok   mobile.notifications.detail.section_message | vi='Tin nhắn' | sample vi='Tin nhắn' (8) en='Message' (7)
+
+## full check_vi.py output
+rev 26663e1864585a106a57bca6b0cbdfe54d97dd79
+draft sha256 ca3c9293bcfba23594221410bb6796b6891b28b11d4df8d72d91f95a261d6484 expected ca3c9293… True
+notes sha256 610c409cba2218477c2193521f1c6b1dc9b0b3042278af4d3c75e994ca207dbc
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d
+keys brief 40 draft 40 missing set() extra set()
+
+# per-key mechanical
+ok   mobile.time.bucket.today | vi='Hôm nay' | sample vi='Hôm nay' (7) en='Today' (5)
+ok   mobile.time.bucket.yesterday | vi='Hôm qua' | sample vi='Hôm qua' (7) en='Yesterday' (9)
+ok   mobile.time.bucket.earlier_this_week | vi='Vài ngày trước' | sample vi='Vài ngày trước' (14) en='Earlier this week' (17)
+ok   mobile.time.bucket.earlier | vi='Trước đó' | sample vi='Trước đó' (8) en='Earlier' (7)
+ok   mobile.time.relative.now | vi='vừa xong' | sample vi='vừa xong' (8) en='now' (3)  OVER hint 6
+ok   mobile.time.relative.just_now | vi='vừa xong' | sample vi='vừa xong' (8) en='just now' (8)
+ok   mobile.time.relative.yesterday | vi='hôm qua' | sample vi='hôm qua' (7) en='yesterday' (9)
+ok   mobile.time.relative.seconds_ago_compact | vi='{count, plural, other {# giây trước}}' | sample vi='12 giây trước' (13) en='12s ago' (7)
+ok   mobile.time.relative.minutes_ago | vi='{count, plural, other {# phút trước}}' | sample vi='12 phút trước' (13) en='12 min ago' (10)
+ok   mobile.time.relative.hours_ago | vi='{count, plural, other {# giờ trước}}' | sample vi='12 giờ trước' (12) en='12 h ago' (8)
+ok   mobile.time.relative.days_ago | vi='{count, plural, other {# ngày trước}}' | sample vi='12 ngày trước' (13) en='12 d ago' (8)  OVER hint 12
+ok   mobile.time.relative.minutes_ago_compact | vi='{count, plural, other {# ph trước}}' | sample vi='12 ph trước' (11) en='12m ago' (7)  OVER hint 10
+ok   mobile.time.relative.hours_ago_compact | vi='{count, plural, other {# giờ trước}}' | sample vi='12 giờ trước' (12) en='12h ago' (7)  OVER hint 10
+ok   mobile.time.relative.days_ago_compact | vi='{count, plural, other {# ngày trước}}' | sample vi='12 ngày trước' (13) en='12d ago' (7)  OVER hint 10
+ok   mobile.time.short.seconds | vi='{count, plural, other {# giây}}' | sample vi='12 giây' (7) en='12s' (3)  OVER hint 4
+ok   mobile.time.short.minutes | vi='{count, plural, other {# phút}}' | sample vi='12 phút' (7) en='12m' (3)  OVER hint 4
+ok   mobile.time.short.hours | vi='{count, plural, other {# giờ}}' | sample vi='12 giờ' (6) en='12h' (3)  OVER hint 4
+ok   mobile.time.short.days | vi='{count, plural, other {# ngày}}' | sample vi='12 ngày' (7) en='12d' (3)  OVER hint 4
+ok   mobile.time.short.weeks | vi='{count, plural, other {# tuần}}' | sample vi='12 tuần' (7) en='12w' (3)  OVER hint 4
+ok   mobile.time.short.years | vi='{count, plural, other {# năm}}' | sample vi='12 năm' (6) en='12y' (3)  OVER hint 4
+ok   mobile.time.short.minutes_spaced | vi='{count, plural, other {# phút}}' | sample vi='12 phút' (7) en='12 min' (6)
+ok   mobile.time.short.minutes_seconds | vi='{minutes, plural, other {# phút}} {seconds} giây' | sample vi='12 phút 07 giây' (15) en='12m 07s' (7)
+ok   mobile.time.short.hours_minutes | vi='{hours, plural, other {# giờ}} {minutes} phút' | sample vi='12 giờ 07 phút' (14) en='12h 07m' (7)
+ok   mobile.notifications.section.waiting | vi='Chờ bạn' | sample vi='Chờ bạn' (7) en='Waiting on you' (14)
+ok   mobile.notifications.section.waiting_count | vi='Chờ bạn · {count}' | sample vi='Chờ bạn · 3' (11) en='Waiting on you · 3' (18)
+ok   mobile.notifications.detail.title | vi='Thông báo' | sample vi='Thông báo' (9) en='Notification' (12)
+ok   mobile.notifications.detail.section_notification | vi='Nội dung' | sample vi='Nội dung' (8) en='Notification' (12)
+ok   mobile.notifications.detail.section_links | vi='Liên kết' | sample vi='Liên kết' (8) en='Links' (5)
+ok   mobile.notifications.detail.section_message | vi='Tin nhắn' | sample vi='Tin nhắn' (8) en='Message' (7)
+ok   mobile.projects.title | vi='Dự án' | sample vi='Dự án' (5) en='Projects' (8)
+ok   mobile.projects.section.progress | vi='tiến độ' | sample vi='tiến độ' (7) en='progress' (8)
+ok   mobile.projects.section.milestones | vi='các mốc' | sample vi='các mốc' (7) en='milestones' (10)
+ok   mobile.projects.section.linked_sessions | vi='phiên liên kết' | sample vi='phiên liên kết' (14) en='linked sessions' (15)
+ok   mobile.schedules.section.wakes | vi='Lần thức dậy' | sample vi='Lần thức dậy' (12) en='Wakes' (5)
+ok   mobile.schedules.section.wakes_summary | vi='Lần thức dậy · {summary}' | sample vi='Lần thức dậy · 3 đã lên lịch' (28) en='Wakes · 3 đã lên lịch' (21)
+ok   mobile.schedules.section.monitors | vi='Giám sát' | sample vi='Giám sát' (8) en='Monitors' (8)
+ok   mobile.schedules.section.monitors_summary | vi='Giám sát · {summary}' | sample vi='Giám sát · 3 đã lên lịch' (24) en='Monitors · 3 đã lên lịch' (24)
+ok   mobile.settings.section.notifications | vi='Thông báo' | sample vi='Thông báo' (9) en='Notifications' (13)
+ok   mobile.session.sheet_title.commands | vi='lệnh' | sample vi='lệnh' (4) en='commands' (8)
+ok   mobile.session.sheet_title.attach | vi='đính kèm' | sample vi='đính kèm' (8) en='attach' (6)
+
+mechanical failures: 0
+redaction scan whole draft: 0
+NFC whole draft: True
+
+# worst-case widths
+minutes_seconds 59:59 -> '59 phút 59 giây' en 59m 59s (7)
+hours_minutes 23:59 -> '23 giờ 59 phút'
+mobile.time.relative.seconds_ago_compact '59 giây trước'
+mobile.time.relative.minutes_ago_compact '59 ph trước'
+mobile.time.relative.hours_ago_compact '59 giờ trước'
+mobile.time.relative.days_ago_compact '59 ngày trước'
+
+# reuse consistency
+same mobile.time.bucket.today Hôm nay | relay.notifications.section.today Hôm nay
+same mobile.time.bucket.yesterday Hôm qua | relay.notifications.section.yesterday Hôm qua
+same mobile.time.bucket.earlier Trước đó | relay.notifications.section.earlier Trước đó
+same mobile.time.relative.just_now vừa xong | relay.notifications.age.now vừa xong
+same mobile.time.relative.minutes_ago_compact {count, plural, other {# ph trước}} | relay.notifications.age.minutes {count, plural, other {# ph trước}}
+same mobile.time.relative.hours_ago_compact {count, plural, other {# giờ trước}} | relay.notifications.age.hours {count, plural, other {# giờ trước}}
+same mobile.time.relative.days_ago_compact {count, plural, other {# ngày trước}} | relay.notifications.age.days {count, plural, other {# ngày trước}}
+relay waiting: Chờ bạn · {count, number} | draft waiting_count: Chờ bạn · {count}
+shipped mobile.sidebar.section.today = Hôm nay
+shipped mobile.sidebar.section.week = Tuần này
+shipped mobile.sidebar.section.older = Cũ hơn
+shipped mobile.session.sheet_title.model = Mô hình
+shipped mobile.session.sheet_title.effort = Mức suy luận
+shipped mobile.session.sheet_title.status = Tác vụ và tác nhân
+shipped mobile.settings.section.connection = Kết nối
+shipped mobile.settings.section.appearance = Giao diện
+shipped mobile.settings.section.about = Giới thiệu
+shipped mobile.schedules.count.wakes = {count, plural, other {# lần thức dậy}}
+shipped mobile.schedules.count.monitors = {count, plural, other {# giám sát}}
+shipped mobile.schedules.due.ahead = sau {label}
+shipped mobile.schedules.due.overdue = trễ {label}
+shipped mobile.projects.delete_body = Xóa {name}? Dòng dự án sẽ mất hẳn. Các phiên liên kết và bản ghi của chúng vẫn giữ nguyên.
+shipped mobile.projects.stale_badge = tiến độ cũ
+shipped mobile.projects.milestones.none = chưa có mốc
+shipped mobile.team_bridge.thread.message = Tin nhắn

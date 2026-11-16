@@ -79,5 +79,7 @@
 	"mobile.session.region.label_todos": "tareas",
 	"mobile.session.region.label_strip": "estado",
 	"mobile.session.back_to": "Volver a {name}",
-	"mobile.session.back_to_session": "Volver a la sesión"
+	"mobile.session.back_to_session": "Volver a la sesión",
+	"mobile.session.sheet_title.commands": "comandos",
+	"mobile.session.sheet_title.attach": "adjuntar"
 }
