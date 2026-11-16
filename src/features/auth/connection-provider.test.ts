@@ -363,6 +363,8 @@ async function relay(
 		oauthExpiresIn?: number;
 		holdToken?: boolean;
 		failStream?: boolean;
+		/** A transport can answer while its required list seed never arrives. */
+		listSeed?: "valid" | "keepalive" | "malformed";
 		failLogout?: boolean;
 		refuseCatalogue?: boolean;
 		serveCommands?: boolean;
@@ -464,6 +466,7 @@ async function relay(
 	let failCode = options.failCode ?? false;
 	const refreshFailures: { status: number; retryAfter?: number }[] = [];
 	const openCatalogue = new Set<ServerResponse>();
+	let listSeed = options.listSeed ?? "valid";
 	const openSession = new Set<ServerResponse>();
 	let sessionStreams = 0;
 	let failedStream = false;
@@ -724,7 +727,9 @@ async function relay(
 			}
 			response.writeHead(200, { "content-type": "text/event-stream" });
 			response.write(
-				`event: sessions\ndata: ${JSON.stringify(body("sessions-empty"))}\n\n`,
+				listSeed === "keepalive"
+					? ": keepalive\n\n"
+					: `event: sessions\ndata: ${JSON.stringify(listSeed === "malformed" ? { sessions: {}, degraded: [] } : body("sessions-empty"))}\n\n`,
 			);
 			openCatalogue.add(response);
 			response.on("close", () => openCatalogue.delete(response));
@@ -863,6 +868,16 @@ async function relay(
 	return {
 		origin: `http://127.0.0.1:${address.port}`,
 		events,
+		setListSeed(value: typeof listSeed) {
+			listSeed = value;
+		},
+		pushList(value: unknown = body("sessions-empty")) {
+			for (const response of openCatalogue)
+				response.write(`event: sessions\ndata: ${JSON.stringify(value)}\n\n`);
+		},
+		keepListsAlive() {
+			for (const response of openCatalogue) response.write(": keepalive\n\n");
+		},
 		loginReceived,
 		tokenReceived,
 		releaseLogin,
@@ -1128,6 +1143,272 @@ describe("startup authorization is admitted by the route (R1-1)", () => {
 			mock.events.filter((event) => event === "GET /api/sessions"),
 		).toHaveLength(1);
 	});
+});
+
+describe("usable list progress recovery", () => {
+	const count = (mock: Awaited<ReturnType<typeof relay>>) =>
+		mock.events.filter((event) => event === "GET /api/sessions/events").length;
+	const flush = async () => {
+		await act(async () => {
+			// Real HTTP keeps running while only application timers are advanced.
+			for (let i = 0; i < 20; i += 1)
+				await new Promise<void>((resolve) => setImmediate(resolve));
+		});
+	};
+	const advance = async (ms: number) => {
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(ms);
+		});
+		await flush();
+	};
+	async function open(listSeed: "valid" | "keepalive" | "malformed") {
+		const mock = await relay({ listSeed });
+		transport();
+		await mount();
+		vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+		await act(async () => {
+			await latest.connectCustom({
+				url: mock.origin,
+				password: "test-only",
+				allowInsecure: true,
+			});
+		});
+		await until(() => count(mock) === 1);
+		await flush();
+		return mock;
+	}
+
+	it("recovers an initial keepalive-only seed without treating bytes as a list", async () => {
+		const mock = await open("keepalive");
+		await advance(20_000);
+		mock.keepListsAlive();
+		await flush();
+		await advance(15_000);
+		await until(
+			() =>
+				latest.diagnosticError?.error?.diagnostic === "sessions_seed_timeout",
+		);
+		expect(listStore.getState().liveFrameAt).toBeNull();
+		expect(count(mock)).toBe(1);
+		mock.setListSeed("valid");
+		await advance(2_000);
+		await until(() => listStore.getState().liveFrameAt !== null);
+		expect(count(mock)).toBe(2);
+		expect(listStore.getState().stale).toBe(false);
+		expect(latest.diagnosticError).toBeNull();
+	});
+
+	it("keeps a valid seeded quiet stream open past the seed deadline", async () => {
+		const mock = await open("valid");
+		await until(() => listStore.getState().liveFrameAt !== null);
+		const at = listStore.getState().lastFrameAt;
+		for (let i = 0; i < 4; i += 1) {
+			await advance(20_000);
+			mock.keepListsAlive();
+			await flush();
+		}
+		expect(count(mock)).toBe(1);
+		expect(mock.events).not.toContain("GET /api/sessions");
+		expect(listStore.getState().lastFrameAt).toBe(at);
+		expect(listStore.getState().stale).toBe(false);
+		expect(latest.diagnosticError).toBeNull();
+	});
+
+	it("retains rows, diagnoses malformed lists safely, and accepts the retry seed", async () => {
+		const mock = await open("valid");
+		await until(() => listStore.getState().liveFrameAt !== null);
+		mock.pushList(body("sessions-with-unread"));
+		await until(() => listStore.getState().sessions.length > 0);
+		const rows = listStore.getState().sessions;
+		const at = listStore.getState().lastFrameAt;
+		mock.setListSeed("malformed");
+		mock.pushList({
+			sessions: { private: "must-not-be-retained" },
+			degraded: [],
+		});
+		await until(() => listStore.getState().stale);
+		expect(listStore.getState().sessions).toBe(rows);
+		expect(listStore.getState().lastFrameAt).toBe(at);
+		expect(latest.diagnosticError?.error?.kind).toBe("malformed-frame");
+		expect(latest.diagnosticError?.error?.diagnostic).toBe(
+			"sessions_seed_invalid",
+		);
+		expect(JSON.stringify(latest.diagnosticError)).not.toContain(
+			"must-not-be-retained",
+		);
+		expect(latest.lastError).toBeNull();
+		expect(getStartupAuthorization()).not.toBeNull();
+		expect(latest.streamHealth).toBe("live");
+		mock.setListSeed("valid");
+		await advance(2_000);
+		await until(() => count(mock) === 2 && !listStore.getState().stale);
+		expect(latest.diagnosticError).toBeNull();
+	});
+
+	it("deduplicates repeated malformed frames and exponentially backs off", async () => {
+		const mock = await open("malformed");
+		await until(
+			() => latest.diagnosticError?.error?.kind === "malformed-frame",
+		);
+		for (let i = 0; i < 10; i += 1)
+			mock.pushList({ sessions: {}, degraded: [] });
+		await flush();
+		const delays = [2_000, 4_000, 8_000, 15_000, 15_000];
+		for (const [index, delay] of delays.entries()) {
+			await advance(delay - 1);
+			expect(count(mock)).toBe(index + 1);
+			if (index === delays.length - 1) mock.setListSeed("valid");
+			await advance(1);
+			await until(() => count(mock) === index + 2);
+			await flush();
+		}
+		await until(() => !listStore.getState().stale);
+		expect(
+			mock.events.filter((event) => event === "GET /api/sessions"),
+		).toHaveLength(0);
+	});
+
+	it("a valid frame cancels a queued schema recovery without reconnecting", async () => {
+		const mock = await open("malformed");
+		await until(
+			() => latest.diagnosticError?.error?.kind === "malformed-frame",
+		);
+		mock.pushList();
+		await until(() => listStore.getState().liveFrameAt !== null);
+		await advance(3_000);
+		expect(count(mock)).toBe(1);
+		expect(latest.diagnosticError).toBeNull();
+	});
+
+	it("does not dispatch recovery while backgrounded and joins one foreground retry", async () => {
+		const mock = await open("malformed");
+		await until(
+			() => latest.diagnosticError?.error?.kind === "malformed-frame",
+		);
+		await act(async () => appState.emit("background"));
+		// Keep the underlying transport healthy: its existing silence reconnect
+		// is independent of the new usable-list recovery being tested here.
+		for (let i = 0; i < 3; i += 1) {
+			await advance(20_000);
+			mock.keepListsAlive();
+			await flush();
+		}
+		expect(count(mock)).toBe(1);
+		mock.setListSeed("valid");
+		await act(async () => appState.emit("active"));
+		await until(() => count(mock) === 2 && !listStore.getState().stale);
+		await act(async () => {
+			appState.emit("active");
+			appState.emit("active");
+		});
+		await flush();
+		expect(count(mock)).toBe(2);
+	});
+
+	it("does not duplicate an in-flight seed on a quick foreground", async () => {
+		const mock = await open("keepalive");
+		await act(async () => {
+			appState.emit("background");
+			appState.emit("active");
+		});
+		await flush();
+		expect(count(mock)).toBe(1);
+		mock.pushList();
+		await until(() => listStore.getState().liveFrameAt !== null);
+	});
+
+	it("joins a recovery request still waiting for headers on foreground", async () => {
+		const mock = await open("malformed");
+		await until(
+			() => latest.diagnosticError?.error?.kind === "malformed-frame",
+		);
+		const held = mock.holdNextCatalogue();
+		mock.setListSeed("valid");
+		await advance(2_000);
+		await until(() => count(mock) === 2);
+		await act(async () => {
+			appState.emit("background");
+			appState.emit("active");
+		});
+		await flush();
+		expect(count(mock)).toBe(2);
+		held.resolve();
+		await until(() => !listStore.getState().stale);
+		expect(count(mock)).toBe(2);
+	});
+
+	it("uses accepted-list age on foreground, not a recent malformed frame", async () => {
+		const mock = await open("valid");
+		await until(() => listStore.getState().liveFrameAt !== null);
+		const now = Date.now();
+		const clock = vi.spyOn(Date, "now").mockReturnValue(now + 30_000);
+		try {
+			await act(async () => appState.emit("background"));
+			mock.pushList({ sessions: {}, degraded: [] });
+			await until(() => listStore.getState().stale);
+			await act(async () => appState.emit("active"));
+			await until(() => count(mock) === 2 && !listStore.getState().stale);
+			expect(latest.lastError).toBeNull();
+		} finally {
+			clock.mockRestore();
+		}
+	});
+
+	it.each([401, 403])(
+		"a recovery refused %s is terminal, including on foreground",
+		async (status) => {
+			const mock = await open("malformed");
+			await until(
+				() => latest.diagnosticError?.error?.kind === "malformed-frame",
+			);
+			mock.failListStreams(status);
+			await advance(2_000);
+			await until(() => latest.lastError !== null);
+			expect(count(mock)).toBe(2);
+			await act(async () => {
+				appState.emit("background");
+				appState.emit("active");
+			});
+			await advance(60_000);
+			expect(count(mock)).toBe(2);
+		},
+	);
+
+	it.each([
+		["route", "malformed"],
+		["account", "malformed"],
+		["unmount", "malformed"],
+		["route", "keepalive"],
+		["account", "keepalive"],
+		["unmount", "keepalive"],
+	] as const)(
+		"cancels recovery on %s retirement while %s",
+		async (retirement, seed) => {
+			const mock = await open(seed);
+			if (seed === "malformed")
+				await until(
+					() => latest.diagnosticError?.error?.kind === "malformed-frame",
+				);
+			if (retirement === "unmount") await unmount();
+			else if (retirement === "account")
+				await act(async () => {
+					await latest.signOut();
+				});
+			else {
+				const other = await relay();
+				await act(async () => {
+					await latest.connectCustom({
+						url: other.origin,
+						password: "test-only",
+						allowInsecure: true,
+					});
+				});
+				await until(() => !listStore.getState().stale);
+			}
+			await advance(60_000);
+			expect(count(mock)).toBe(1);
+		},
+	);
 });
 
 /**

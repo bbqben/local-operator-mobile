@@ -2085,7 +2085,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #280 convergence with #279: both histories retained above. Derived
 	 * from the staged merged tree with --print; source admission only, NOT
 	 * new rendered, native, device or battery evidence. */
-	src: "c4f00d16363d80c9d72851142b5415ad28a3195ec100e1ecbc2012c06309f4a3",
+	/* List freshness recovery: --print over the changed provider and mounted
+	 * loopback tests. Healthy seeded streams have no periodic list deadline;
+	 * the U-08 scene, layout and instrument are unchanged. Source admission
+	 * only, NOT new rendered, native or device evidence. */
+	/* PR #283 convergence with #284 (main 93825691): the merged tree carries
+	 * #284's list-freshness provider change and #283's Team Bridge bottom
+	 * alignment, so it has neither parent's digest. Derived from the staged
+	 * merged tree with --print; source admission only, NOT new rendered,
+	 * native or device evidence. */
+	src: "7c88eaab8efe28bb3df1feee65a1239cb149c66d38fcf5cfd8330c4375d61d50",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
