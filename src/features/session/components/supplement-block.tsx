@@ -540,7 +540,11 @@ export const SupplementBlock = ({
 					<FrameSlot
 						key={component.attachment}
 						component={component}
-						onRetry={() => void sendOp("restart")}
+						onRetry={
+							client.allowsCommand?.("restart") === false
+								? undefined
+								: () => void sendOp("restart")
+						}
 						onHeight={noteHeight}
 						client={client}
 					/>
@@ -569,7 +573,11 @@ export const SupplementBlock = ({
 									<FrameSlot
 										key={component.attachment}
 										component={component}
-										onRetry={() => void sendOp("restart")}
+										onRetry={
+											client.allowsCommand?.("restart") === false
+												? undefined
+												: () => void sendOp("restart")
+										}
 										onHeight={noteHeight}
 										client={client}
 									/>
@@ -1255,22 +1263,31 @@ function FrameSlot({
 	client: SupplementClient;
 }) {
 	const [html, setHtml] = useState<string | null>(null);
-	const [failed, setFailed] = useState(false);
+	const [failure, setFailure] = useState<{ reason?: string } | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
 		setHtml(null);
-		setFailed(false);
+		setFailure(null);
 		client
 			.loadDocument(component.attachment)
 			.then((documentHtml) => {
 				if (!cancelled) setHtml(documentHtml);
 			})
-			.catch(() => {
+			.catch((error: unknown) => {
 				/* The document could not be fetched (a pruned blob, a refusal,
 				   a malformed body): the frame paints the frame-level fallback
 				   line instead of holding its reserved box forever. */
-				if (!cancelled) setFailed(true);
+				if (!cancelled) {
+					// Remote refusals carry localized recovery guidance. Keep it scoped
+					// to this read, without changing the local frame fallback contract.
+					setFailure({
+						reason:
+							client.allowsCommand?.("restart") === false
+								? refusalText(error)
+								: undefined,
+					});
+				}
 			});
 		return () => {
 			cancelled = true;
@@ -1281,7 +1298,8 @@ function FrameSlot({
 		<SupplementWebView
 			component={component}
 			documentHtml={html}
-			documentFailed={failed}
+			documentFailed={failure !== null}
+			documentFailureReason={failure?.reason}
 			onRetry={onRetry}
 			onHeightChange={(height) => onHeight(component.attachment, height)}
 		/>

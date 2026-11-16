@@ -102,6 +102,8 @@ export type SupplementWebViewProps = {
 	 *  body): the frame paints the frame-level fallback line instead of holding
 	 *  its reserved box forever. */
 	documentFailed?: boolean;
+	/** Localized, operation-local recovery guidance for a refused remote read. */
+	documentFailureReason?: string;
 	/** The row's `supplement_restart` arm, offered as `· Retry` beside the
 	 *  fallback line. Absent handler, absent control. */
 	onRetry?: () => void;
@@ -114,6 +116,7 @@ export const SupplementWebView = ({
 	component,
 	documentHtml,
 	documentFailed = false,
+	documentFailureReason,
 	onRetry,
 	onHeightChange,
 }: SupplementWebViewProps) => {
@@ -432,7 +435,11 @@ export const SupplementWebView = ({
 				className="flex-row flex-wrap items-center gap-1"
 				testID={SURFACE.supplementFrameFallback}
 			>
-				<Text className="text-meta text-ink-dim">{COPY_FRAME_FALLBACK}</Text>
+				<Text className="text-meta text-ink-dim">
+					{documentFailed && documentFailureReason
+						? documentFailureReason
+						: COPY_FRAME_FALLBACK}
+				</Text>
 				{onRetry ? (
 					<>
 						<Text className="text-meta text-ink-dim" aria-hidden>

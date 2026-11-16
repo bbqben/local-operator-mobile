@@ -2,17 +2,22 @@ import { readFileSync } from "node:fs";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { relayErrorFromResponse } from "@/relay/errors";
 import { installDomShim } from "@/testing/dom-shim";
 import { beatFromWire } from "../supplements";
 
 const host = vi.hoisted(() => ({
 	presses: new Map<string, () => void>(),
+	texts: [] as string[],
 	source: vi.fn(async () => "blob:synthetic-sound"),
 	revoke: vi.fn(),
 }));
 vi.mock("react-native", () => ({
 	View: ({ children }: { children: import("react").ReactNode }) => children,
-	Text: ({ children }: { children: import("react").ReactNode }) => children,
+	Text: ({ children }: { children: import("react").ReactNode }) => {
+		if (typeof children === "string") host.texts.push(children);
+		return children;
+	},
 	ScrollView: ({ children }: { children: import("react").ReactNode }) =>
 		children,
 	Pressable: ({
@@ -39,16 +44,23 @@ vi.mock("expo-video", () => ({
 	VideoView: () => null,
 }));
 vi.mock("lucide-react-native", () => ({ Pause: () => null, Play: () => null }));
-vi.mock("@/features/session/components/supplement-webview", () => ({
-	SupplementWebView: () => null,
-}));
+// Mount the shipping web child, not a prop-only stub: a callback can be passed
+// correctly while the rendered failure affordance is still wrong.
+vi.mock(
+	"@/features/session/components/supplement-webview",
+	async () => import("./supplement-webview.web"),
+);
+vi.mock("expo-crypto", () => ({ getRandomBytes: () => new Uint8Array(16) }));
 vi.mock("@/features/session/runtime", () => ({
 	playableSource: host.source,
 	audioExtension: () => "wav",
 	videoExtension: () => "mp4",
 	toBase64: () => "",
 }));
-vi.mock("@/ui/appearance", () => ({ useTokenColor: () => "#000000" }));
+vi.mock("@/ui/appearance", () => ({
+	useTokenColor: () => "#000000",
+	useTheme: () => ({ theme: "light", active: { colors: {} } }),
+}));
 vi.mock("@/ui/components", () => ({ Input: () => null, Shimmer: () => null }));
 const { SupplementBlock } = await import("./supplement-block");
 const { CONTROL } = await import("@/ui/a11y");
@@ -61,6 +73,7 @@ beforeEach(() => {
 	root = createRoot(dom.container as never);
 	unmounted = false;
 	host.presses.clear();
+	host.texts.length = 0;
 	host.source.mockReset().mockResolvedValue("blob:synthetic-sound");
 	host.revoke.mockReset();
 	vi.stubGlobal(
@@ -172,4 +185,90 @@ describe("remote Highlight block lifecycle", () => {
 		});
 		expect(host.source).not.toHaveBeenCalled();
 	});
+});
+
+/** Both budget locations must obey capability gating. A forced budget tail
+ * exercises the disclosure's separately wired FrameSlot, not only the head. */
+const graphicBeat = () => {
+	const beat = fixture("done_files_only");
+	return {
+		...beat,
+		sounds: [],
+		components: [0, 1, 2].map((index) => ({
+			attachment: String(index).repeat(32),
+			title: `Graphic ${index}`,
+			source: "Synthetic fixture",
+			mime: "text/html",
+			heightHint: 1000,
+		})),
+	};
+};
+
+describe("mounted graphic document failure", () => {
+	it.each([
+		[403, "remote_forbidden"],
+		[409, "remote_unsupported"],
+		[503, "remote_unreachable"],
+	])(
+		"keeps remote %s recovery guidance and no Retry in head or disclosed tail",
+		async (status, code) => {
+			const error = relayErrorFromResponse({
+				status,
+				header: () => null,
+				body: { error: code, code, remote: true },
+			});
+			const c = { ...client(), allowsCommand: () => false };
+			c.loadDocument.mockRejectedValue(error);
+			await act(async () =>
+				root.render(
+					createElement(SupplementBlock, {
+						beat: graphicBeat(),
+						jobLive: false,
+						client: c,
+					}),
+				),
+			);
+			expect(c.loadDocument).toHaveBeenCalledTimes(1);
+			expect(host.presses.has(CONTROL.supplementRetry)).toBe(false);
+			expect(host.texts).toContain(error.displayableMessage);
+			expect(host.texts).not.toContain(code);
+			await act(async () => host.presses.get(CONTROL.supplementShowAll)?.());
+			expect(c.loadDocument).toHaveBeenCalledTimes(3);
+			expect(host.presses.has(CONTROL.supplementRetry)).toBe(false);
+			expect(c.command).not.toHaveBeenCalled();
+		},
+	);
+	it.each([false, true])(
+		"preserves working local/supported Retry (explicit capability: %s)",
+		async (explicit) => {
+			const c = {
+				...client(),
+				...(explicit ? { allowsCommand: () => true } : {}),
+			};
+			c.loadDocument.mockRejectedValue(new Error("local document failure"));
+			await act(async () =>
+				root.render(
+					createElement(SupplementBlock, {
+						beat: graphicBeat(),
+						jobLive: false,
+						client: c,
+					}),
+				),
+			);
+			expect(host.texts).toContain("Couldn't render this graphic");
+			expect(host.texts).not.toContain("local document failure");
+			expect(host.presses.has(CONTROL.supplementRetry)).toBe(true);
+			await act(async () => host.presses.get(CONTROL.supplementRetry)?.());
+			expect(c.command).toHaveBeenCalledWith(
+				"restart",
+				expect.any(String),
+				expect.any(String),
+				"",
+			);
+			await act(async () => host.presses.get(CONTROL.supplementShowAll)?.());
+			expect(c.loadDocument).toHaveBeenCalledTimes(3);
+			await act(async () => host.presses.get(CONTROL.supplementRetry)?.());
+			expect(c.command).toHaveBeenCalledTimes(2);
+		},
+	);
 });

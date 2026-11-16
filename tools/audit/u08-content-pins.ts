@@ -2070,7 +2070,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
 	 * keys in all 8 locales. Re-derived with --print over the working tree (run
 	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
-	src: "dffe436254cf3ff36f5ddcc143686a8ebd9920c8a6a760b3f27281888d3d1241",
+	/* PR #280 round-1 remediation: capability-gated graphic Retry and the
+	 * operation-local remote document refusal, plus mounted failure tests.
+	 * Derived by --print; source admission only, not rendered U-08 evidence. */
+	src: "3b60dee071464f4a989e2d051229b6e2a96009c4effa082aebc771d1ddcbe998",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
