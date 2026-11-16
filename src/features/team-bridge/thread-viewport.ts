@@ -132,6 +132,17 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	 */
 	let contentReady = false;
 	let lastY: number | null = null;
+	/**
+	 * The offset last requested from a host that cannot read back (native),
+	 * until a scroll event reports where the host actually is. Native writes
+	 * are asynchronous, so between the write and its event every other
+	 * trigger — the admission recheck on each new `items`, an equal content
+	 * size, a keyboard/dock layout — saw the OLD `lastY` and wrote the same
+	 * offset again (Bridge thread flicker: two writes per new message, one per
+	 * extra trigger). Cleared by any scroll event, so a reader's move or a
+	 * host that settled elsewhere is never masked; a new target still writes.
+	 */
+	let requested: number | null = null;
 	let readSeq = 0;
 
 	const finish = (atNewest: boolean) => {
@@ -207,7 +218,14 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			if (initial && contentReady) finish(true);
 			return;
 		}
+		if (requested !== null && Math.abs(requested - target) <= POSITION_SLACK)
+			return;
+		write(target);
+	};
+
+	const write = (target: number) => {
 		const readBack = options.scrollTo(target);
+		requested = readBack ? null : target;
 		if (readBack) settle(readBack.y, readBack.viewport, readBack.content);
 	};
 
@@ -240,6 +258,8 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		}) => {
 			const { contentOffset, layoutMeasurement, contentSize } =
 				event.nativeEvent;
+			// The host has reported: whatever was requested is now grounded.
+			requested = null;
 			// Native offset/visible-content anchoring can settle AFTER the final
 			// layout callback. That callback's correction is not proof that the
 			// host stayed there. Reconcile only an existing follower, without a
@@ -348,8 +368,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			landing = false;
 			setFollowing(true);
 			gesture = false;
-			const readBack = options.scrollTo(Math.max(0, content - height));
-			if (readBack) settle(readBack.y, readBack.viewport, readBack.content);
+			write(Math.max(0, content - height));
 		},
 	};
 }

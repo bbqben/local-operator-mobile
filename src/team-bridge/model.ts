@@ -594,10 +594,54 @@ export function mergeMessages(
 	held: readonly Message[],
 	incoming: readonly Message[],
 ): Message[] {
+	/*
+	 * STRUCTURAL SHARING (Bridge thread flicker, builds 1112/1130). The thread
+	 * re-reads its newest page on a timer, and the hub answers an unchanged
+	 * thread with equal content in NEW objects. Taking those objects defeated
+	 * every identity check downstream: the memoised rows, the FlatList's
+	 * `data`, and the viewport's admission recheck all ran for a poll that
+	 * changed nothing. So an incoming message equal to the one held keeps the
+	 * held object, and a merge that changes nothing returns `held` itself;
+	 * a store can then skip publishing it (`store.ts` `loadThread`).
+	 */
 	const byId = new Map<string, Message>();
 	for (const message of held) byId.set(message.id, message);
-	for (const message of incoming) byId.set(message.id, message);
-	return chronological([...byId.values()]);
+	let changed = false;
+	for (const message of incoming) {
+		const current = byId.get(message.id);
+		if (current && sameValue(current, message)) continue;
+		byId.set(message.id, message);
+		changed = true;
+	}
+	const merged = chronological([...byId.values()]);
+	// `held` is already chronological wherever it came from this function.
+	if (
+		!changed &&
+		merged.length === held.length &&
+		merged.every((message, i) => message === held[i])
+	)
+		return held as Message[];
+	return merged;
+}
+
+/**
+ * Deep equality for parsed JSON values (what the hub client hands back after
+ * schema validation): primitives, arrays and plain objects. Key ORDER is
+ * ignored, so a server that reorders fields is still "unchanged".
+ */
+function sameValue(a: unknown, b: unknown): boolean {
+	if (Object.is(a, b)) return true;
+	if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+	if (Array.isArray(a) !== Array.isArray(b)) return false;
+	if (Array.isArray(a) && Array.isArray(b))
+		return a.length === b.length && a.every((v, i) => sameValue(v, b[i]));
+	const left = a as Record<string, unknown>;
+	const right = b as Record<string, unknown>;
+	const keys = Object.keys(left);
+	if (keys.length !== Object.keys(right).length) return false;
+	return keys.every(
+		(key) => Object.hasOwn(right, key) && sameValue(left[key], right[key]),
+	);
 }
 
 /** The time a message row shows: hour and minute, the reader's locale. */

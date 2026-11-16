@@ -751,8 +751,21 @@ export function createTeamBridgeStore(deps: {
 							});
 						const current = store.getState().threads[key];
 						const first = !current || current.messages.length === 0;
+						const messages = mergeMessages(current?.messages ?? [], incoming);
+						/* An unchanged poll is not an update (Bridge thread flicker):
+						 *  publishing it re-rendered the open thread, its memoised rows
+						 *  and the viewport's admission recheck for nothing. `mergeMessages`
+						 *  returns the held array itself when no message changed. */
+						if (
+							current &&
+							!first &&
+							messages === current.messages &&
+							current.state === "ready" &&
+							current.error === null
+						)
+							return;
 						patchThread(key, {
-							messages: mergeMessages(current?.messages ?? [], incoming),
+							messages,
 							state: "ready",
 							error: null,
 							/* Only the FIRST page decides whether older history exists; a

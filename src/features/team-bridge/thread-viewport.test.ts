@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createThreadViewport } from "./thread-viewport";
 
 const RELEASE = /releaseFollow\(\);/g;
+const FRESH_PEOPLE = /\?\.people \?\? \[\]/;
 const INITIAL_ANCHOR = /maintainVisibleContentPosition=\{\s*positioned/;
 const ADMISSION_RECHECK =
 	/useEffect\(\(\) => \{\s*if \(readyForPosition && items\.length > 0\) viewport\.current\?\.dataChanged\(\);\s*\}, \[items, readyForPosition\]\)/;
@@ -446,6 +447,76 @@ describe("late native end geometry", () => {
 	);
 });
 
+/*
+ * Bridge thread flicker (operator report, builds 1112/1130): "about once a
+ * second another frame flickers in". Each signal an unchanged refresh can
+ * raise on the shipping handlers — the admission recheck (`dataChanged`, run
+ * for every new `items`), an equal content size, an equal layout, and a late
+ * native scroll event at the resting offset — is replayed on a synthetic
+ * periodic tick. None may write an offset. The #283 reconcile is included so
+ * a follower corrected once can never be bounced back and forth.
+ */
+describe("a periodic unchanged refresh", () => {
+	const tick = (r: ReturnType<typeof openLong>, content = 2718) => {
+		r.v.dataChanged();
+		r.grow(content);
+		r.layout(599);
+		r.h.onScroll({
+			nativeEvent: {
+				contentOffset: { y: r.y },
+				layoutMeasurement: { height: 599 },
+				contentSize: { height: content },
+			},
+		});
+		r.flush();
+	};
+	it.each([
+		["native", false],
+		["web", true],
+	])("writes no offset for a follower at the newest edge (%s)", (_, web) => {
+		const r = openLong(web);
+		r.moves.mockClear();
+		for (let i = 0; i < 30; i += 1) tick(r);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.bottom).toBe(2718);
+	});
+	it("a genuinely new message still follows, exactly once", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		tick(r, 2800);
+		expect(r.moves.mock.calls).toEqual([[2201]]);
+		expect(r.bottom).toBe(2800);
+		r.moves.mockClear();
+		for (let i = 0; i < 10; i += 1) tick(r, 2800);
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it("never moves a reader on older history, through ticks and a new message", () => {
+		const r = openLong(false);
+		r.scrollTo(900);
+		r.moves.mockClear();
+		for (let i = 0; i < 10; i += 1) {
+			r.v.dataChanged();
+			r.grow(2718);
+			r.layout(599);
+		}
+		r.grow(2800);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.y).toBe(900);
+	});
+	it("the #283 reconcile corrects a past-end report once and then rests", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		// One late past-end report (native anchoring), then the periodic tick.
+		r.scrollTo(2309);
+		r.flush();
+		expect(r.moves.mock.calls).toEqual([[2119]]);
+		r.moves.mockClear();
+		for (let i = 0; i < 30; i += 1) tick(r);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.bottom).toBe(2718);
+	});
+});
+
 describe("screen wiring", () => {
 	const source = readFileSync(
 		new URL("./thread-screen.tsx", import.meta.url),
@@ -456,6 +527,12 @@ describe("screen wiring", () => {
 		expect(source.match(RELEASE)).toHaveLength(2);
 		expect(source).not.toContain("onScroll={");
 		expect(source).not.toContain("onContentSizeChange={");
+	});
+	it("hands memoised rows a stable people list when the directory is absent", () => {
+		// `?? []` minted a new array per render, so every store publish (an
+		// unread refresh, a read receipt) re-rendered every message row.
+		expect(source).not.toMatch(FRESH_PEOPLE);
+		expect(source).toContain("?.people ?? NO_PEOPLE");
 	});
 	it("waits for positioned rows before growing the container, and rechecks admitted data", () => {
 		expect(source).toContain('positioned ? "grow justify-end pb-2" : "pb-2"');

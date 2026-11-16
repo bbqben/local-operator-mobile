@@ -179,6 +179,10 @@ function AnchorHighlight({
 	);
 }
 
+/** One empty directory for every render: a fresh `[]` per render was a new
+ *  `people` prop on every memoised row (Bridge thread flicker). */
+const NO_PEOPLE: readonly DirectoryMember[] = [];
+
 const ThreadMessageRow = memo(function ThreadMessageRow({
 	message,
 	continuation,
@@ -481,7 +485,7 @@ function ThreadContent({
 		() => model.threadItems(thread?.messages ?? [], new Date()),
 		[thread?.messages],
 	);
-	const people = state.orgs[tenantId]?.people ?? [];
+	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;
 	useEffect(() => {
 		// Cold push/deep links bypass the list, so no directory has hydrated yet.

@@ -414,4 +414,20 @@ describe("thread items", () => {
 		]);
 		expect(merged.map((m) => m.seq)).toEqual([1, 3, 4]);
 	});
+
+	it("merging an equal page returns the held array and objects unchanged", () => {
+		const held = [
+			message(3, ADA, "2026-10-21T09:00:00Z"),
+			message(4, ADA, "2026-10-21T09:01:00Z"),
+		];
+		// Equal content in new objects, as every re-read of the hub answers.
+		const again = structuredClone(held);
+		expect(mergeMessages(held, again)).toBe(held);
+		// A changed field is a change; the untouched neighbour keeps its object.
+		const edited = [held[0], { ...structuredClone(held[1]), body: "edited" }];
+		const merged = mergeMessages(held, edited as typeof held);
+		expect(merged).not.toBe(held);
+		expect(merged[0]).toBe(held[0]);
+		expect(merged[1]?.body).toBe("edited");
+	});
 });
