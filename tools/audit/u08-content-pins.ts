@@ -192,8 +192,10 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 
 	/* PR #207 CI remediation: `/history?before=<oldest row>` answers the empty
 	 * terminal page instead of re-serving the newest one. `--print`, staged. */
+	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
+	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
 	"tools/mock-relay/relay.ts":
-		"375535169c6988971e31dd5a537d3907da6bbd050714fb8bb713c7b8caf65671",
+		"fd8d5e9c17f3b7219024340b20934321980411f4b510c64aab0cde36ba9e8669",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -212,7 +214,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* PR #207 round 5: omit the false head-pin flag, matching Core's wire.
 	 * Re-derived with --print from the staged tree; no capture assertion moved. */
 	"tools/mock-relay/scenarios.ts":
-		"cf2d3918ac43b711a31ed96188a695b3082eeaa18c9e5441c6422c5281759573",
+		"26a2bc072de976ec16b3b0083efeb3367f2896dc573805fdd625b0b3232a8a1e",
 	"tools/mock-relay/shape.ts":
 		"0ef0c342578ffaf4a7067d4427f10a999740152d6a56ec2da63d75697f08fb5b",
 	/* The startup evidence helper the fixture's relay imports. It has been loaded by
@@ -240,7 +242,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * probe, so no cell and no planned frame changes. */
 	// PR #207 CI remediation: the `m-conv-…` fixture-id rename, nothing else.
 	"tools/visual/matrix.ts":
-		"9f753d7aad6b191c8bc59af98e85adac897234a9734f60376b4bf9db3767777e",
+		"c94eea1f1fbdcb18835ea3d8fa98b408ab705f66142c30f42654c993f01c25e4",
 	"e2e/fixtures/audit-canary/index.html":
 		"96085343f6aaa34a3162c979d536208a32f897beba9bbc3633d6f3d0e37a5403",
 };
@@ -711,7 +713,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* fix/background-send-retry: the root layout mounts the outbox host and the
 	 * session screen hands its pending rows the outbox's Retry/Discard. --print
 	 * over the staged tree; source identity only, NOT rendered U-08 evidence. */
-	app: "478cbb20c326d9a5563d41371776f6ddac429990205b1d0b6fa856d4cc78c05e",
+	/* Re-pinned 2026-11-15 for PR #271 (remote conversations, round-1
+	 * remediation) with --print: the session route withholds remote controls the
+	 * relay does not forward and names the owner. Source admission only. */
+	/* Merge of origin/main (#271, 57b129c8) into fix/background-send-retry
+	 * (PR #275): both comment chains retained; the merged app carries both
+	 * sides, so it matches neither parent. Re-derived with --print over the
+	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
+	app: "d4c15704e4c7d6daf91f7b6a1575ec5e849ba0be08f5a344ab48d25c9405eda7",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -1987,6 +1996,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#267, 0a629e65) into #269: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Re-pinned 2026-11-15 for PR #271 with --print: remote-session view,
+	 * retained files, remote control policy and catalogue. Source admission only. */
+	/* Merge of origin/main (#269, 00c2b66d) into #271: both comment chains
+	 * retained; only this pin conflicted. Re-derived with --print over the merged
+	 * tree. Source identity only, NOT new rendered U-08 evidence. */
 	/* Merge of origin/main (#269, 00c2b66d) into M3 S4 (#270): both comment
 	 * chains kept; only this pin conflicted. The merged src carries both sides
 	 * (S4 catalogues + #269 resume/401 files), so it matches neither parent.
@@ -2017,12 +2031,20 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (#268, eaa49a3e) into #272: both comment chains
 	 * retained; only this pin conflicted. Re-derived with --print over the merged
 	 * tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#268 eaa49a3e, #272 b190244f) into #271: both
+	 * comment chains retained; only this pin conflicted. Re-derived with --print
+	 * over the merged tree. Source identity only, NOT new rendered U-08 evidence. */
 	/* Merge of origin/main (#272, b190244f) into M3 S4 (#270): both comment
 	 * chains kept; only this pin conflicted. The merged src carries both sides
 	 * (S4 catalogues + #272 notification grouping/guidance), so it matches
 	 * neither parent. Derived from the treeDigest contract above by an
 	 * independent reader over the merge's git objects (not --print); the pin
 	 * test re-checks it. Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#270, 0e32160f) into #271: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides
+	 * (#271 remote-session view + #270 S4 catalogues), so it matches neither
+	 * parent. Re-derived with --print over the merged tree (run twice, stable).
+	 * Source identity only, NOT new rendered U-08 evidence. */
 	/* Radient Console brand slice: 15 audited keys in all 8 locales (exact
 	 * product name, glossary rule), their generated projection and the 6
 	 * tests pinning the English text. Derived LAST from the treeDigest
@@ -2035,7 +2057,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * command deadline override and their catalogue keys in all 8 locales.
 	 * --print over the staged tree; source identity only, NOT rendered U-08
 	 * evidence. */
-	src: "511d1086d984e797d4f402d78adacb04970ceaa3cbad49f9944cd04353814acd",
+	/* Merge of origin/main (#273, c7821fc7) into #271: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides
+	 * (#271 remote-session view + #273 Radient Console copy), so it matches
+	 * neither parent. Re-derived with --print over the merged tree (run twice,
+	 * stable). Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#271, 57b129c8) into fix/background-send-retry
+	 * (PR #275): both comment chains retained; the merged src carries both
+	 * sides, so it matches neither parent. Re-derived with --print over the
+	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
+	src: "fb7a162ed773777b5c86ae23597ded4a170cbea65bc43eaadb4aa53b5415ffb1",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

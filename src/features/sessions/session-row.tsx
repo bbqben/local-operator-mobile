@@ -162,7 +162,7 @@ export const SessionRow = memo(function SessionRow({
 			onLongPress={() => onLongPress(session)}
 			longPressAccessibilityHint={
 				remote
-					? "Move or copy"
+					? t("mobile.remote_sessions.row_long_press_hint")
 					: tagsAssignable
 						? "Pin, tag, or open"
 						: "Pin or open"
