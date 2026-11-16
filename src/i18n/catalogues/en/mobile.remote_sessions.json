@@ -10,7 +10,7 @@
 	"mobile.remote_sessions.command_ambiguous": "The owner may have received this command, but did not confirm it. Check the conversation before retrying; do not send a duplicate.",
 	"mobile.remote_sessions.file_saving": "Saving file…",
 	"mobile.remote_sessions.file_save_failed": "Could not save this file. Try again.",
-	"mobile.remote_sessions.retained_only": "Files the agent created can’t be previewed in remote conversations yet. Attached documents can be saved.",
+	"mobile.remote_sessions.retained_only": "Highlight previews need a newer Local Operator on the connected computer. Open them on the owner computer for now. Attached documents can still be saved.",
 	"mobile.remote_sessions.gate_unsupported": "Opening remote conversations needs a newer Local Operator on this computer and on the owner computer. Update both, then try again.",
 	"mobile.remote_sessions.subtitle_owner": "{state} · On {owner}",
 	"mobile.remote_sessions.owner_only": "Approvals, Stop, model changes and slash commands work only on {owner} for now.",
@@ -20,5 +20,7 @@
 	"mobile.remote_sessions.health_quiet": "This conversation on {owner} has stopped responding — it may be busy or stuck. A send can show a failure and still arrive once it catches up. Retrying won’t send it twice.",
 	"mobile.remote_sessions.health_ended": "This conversation has ended on {owner}. Its history is kept here to read.",
 	"mobile.remote_sessions.file_save_label": "Save {name}",
-	"mobile.remote_sessions.row_long_press_hint": "Recall, move or copy"
+	"mobile.remote_sessions.row_long_press_hint": "Recall, move or copy",
+	"mobile.remote_sessions.media_changed": "This media changed or access ended during download. Nothing was opened. Try again when the owner computer is available.",
+	"mobile.remote_sessions.supplement_needs_running": "This file needs the conversation running on its owner computer. Open it there or resume the conversation there, then try again."
 }

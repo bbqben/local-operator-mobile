@@ -45,7 +45,7 @@
 	},
 	"mobile.remote_sessions.retained_only": {
 		"role": "status",
-		"note": "Visible remote-only capability limit: retained input DocumentContent attachments are supported, generated supplement files and the Highlights feature are not. Highlights is a feature label, not search highlighting. Never imply uploads or local filesystem access."
+		"note": "Fallback only for a connected relay without remote Highlight reads: update that computer or open on the owner computer. Retained attached documents remain supported. Highlights is the feature label."
 	},
 	"mobile.remote_sessions.gate_unsupported": {
 		"role": "status",
@@ -86,5 +86,13 @@
 	"mobile.remote_sessions.row_long_press_hint": {
 		"role": "help",
 		"note": "Screen-reader hint on a remote conversation row in the drawer: long-press opens recall/move/copy. Recall brings the conversation to this computer."
+	},
+	"mobile.remote_sessions.media_changed": {
+		"role": "status",
+		"note": "Operation-local remote Highlight refusal. Keep transcript and attached documents usable; never suggest signing out."
+	},
+	"mobile.remote_sessions.supplement_needs_running": {
+		"role": "status",
+		"note": "Operation-local remote Highlight refusal. Keep transcript and attached documents usable; never suggest signing out."
 	}
 }

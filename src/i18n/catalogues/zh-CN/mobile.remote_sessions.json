@@ -10,7 +10,7 @@
 	"mobile.remote_sessions.command_ambiguous": "所属电脑可能已收到此命令，但未确认。重试前请检查对话，避免重复发送。",
 	"mobile.remote_sessions.file_saving": "正在保存文件…",
 	"mobile.remote_sessions.file_save_failed": "无法保存此文件。请重试。",
-	"mobile.remote_sessions.retained_only": "远程对话暂时无法预览智能体创建的文件。附加的文档可以保存。",
+	"mobile.remote_sessions.retained_only": "预览 Highlights 需要所连接的电脑安装更新版本的 Local Operator。暂时请在所属电脑上打开。附件文档仍可保存。",
 	"mobile.remote_sessions.gate_unsupported": "打开远程对话需要此电脑和所属电脑都安装较新版本的 Local Operator。请将两者都更新后重试。",
 	"mobile.remote_sessions.subtitle_owner": "{state} · 在 {owner} 上",
 	"mobile.remote_sessions.owner_only": "目前，批准、停止、更换模型和斜杠命令仅能在 {owner} 上使用。",
@@ -20,5 +20,7 @@
 	"mobile.remote_sessions.health_quiet": "{owner} 上的此对话已停止响应——可能正忙或卡住了。发送可能显示失败，但赶上进度后仍会送达。重试不会重复发送。",
 	"mobile.remote_sessions.health_ended": "此对话已在 {owner} 上结束。其历史记录保留在这里供阅读。",
 	"mobile.remote_sessions.file_save_label": "保存 {name}",
-	"mobile.remote_sessions.row_long_press_hint": "召回、移动或复制"
+	"mobile.remote_sessions.row_long_press_hint": "召回、移动或复制",
+	"mobile.remote_sessions.media_changed": "下载期间，此媒体已更改或访问权限已失效。未打开任何内容。请在所属电脑可用时重试。",
+	"mobile.remote_sessions.supplement_needs_running": "此文件需要对话正在所属电脑上运行。请在那台电脑上打开文件，或恢复对话后重试。"
 }

@@ -284,7 +284,8 @@ const NAMESPACES = [
 		 *  plus round-1 remediation (10): the gate's own sentence, the header's
 		 *  owner subtitle, the owner-only control line, five owner-aware health
 		 *  sentences, the Save button's name and the row's long-press hint. */
-		expected: 22,
+		// +2 owner-routed Highlight refusal sentences.
+		expected: 24,
 	},
 ] as const;
 
@@ -493,7 +494,8 @@ describe("the English catalogues", () => {
 		 * Retry/Discard, three composer hints) + 2 mobile.sidebar (row outbox
 		 * lines) = 1004, derived by summing the keys of all 24 en catalogue
 		 * files (mobile.session 89, mobile.sidebar 27). */
-		expect(total).toBe(1004);
+		// Remote Highlight operation-local refusals: +2 = 1006 (generator count).
+		expect(total).toBe(1006);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

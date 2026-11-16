@@ -668,6 +668,7 @@ export interface Capabilities {
 		audio_upload?: boolean;
 		skill_invocation?: boolean;
 		supplements?: boolean;
+		supplement_kinds?: string[];
 		document_upload?: boolean;
 	};
 	/** An older relay omits this whole object; absence reads as `available:false`. */

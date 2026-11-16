@@ -1,4 +1,5 @@
 import type { Capabilities, SessionSummary } from "@/contracts";
+import { sessionSupplementsAvailable } from "@/features/session/remote-supplements";
 import { isRemoteRow } from "./session-projection";
 
 /** Owner metadata survives navigation even when a later list omits an offline
@@ -55,9 +56,11 @@ export const remoteSessionsAvailable = (
 	);
 };
 
-/** v1 has no owner-bound generated/supplement-file contract. Never expose a
- * stale Highlights/preview client merely because a projection contains beats. */
+/** Older relays may carry stale beats without owner-routed Highlight reads.
+ * Share the screen map's capability gate so metadata alone never creates a client. */
 export const sessionSupplementClient = <T>(
 	remote: boolean,
 	client: T,
-): T | undefined => (remote ? undefined : client);
+	capabilities?: Capabilities | null,
+): T | undefined =>
+	sessionSupplementsAvailable(capabilities, remote) ? client : undefined;

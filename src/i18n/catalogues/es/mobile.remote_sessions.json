@@ -10,7 +10,7 @@
 	"mobile.remote_sessions.command_ambiguous": "Puede que el propietario haya recibido este comando sin confirmarlo. Revisa la conversación antes de reintentarlo para no enviarlo dos veces.",
 	"mobile.remote_sessions.file_saving": "Guardando el archivo…",
 	"mobile.remote_sessions.file_save_failed": "No se pudo guardar este archivo. Vuelve a intentarlo.",
-	"mobile.remote_sessions.retained_only": "Los archivos creados por el agente aún no se pueden previsualizar en conversaciones remotas. Los documentos adjuntos sí se pueden guardar.",
+	"mobile.remote_sessions.retained_only": "Las vistas previas de Highlights necesitan una versión más reciente de Local Operator en el equipo conectado. Por ahora, ábrelas en el equipo propietario. Los documentos adjuntos se pueden seguir guardando.",
 	"mobile.remote_sessions.gate_unsupported": "Para abrir conversaciones remotas se necesita una versión más reciente de Local Operator en este equipo y en el equipo propietario. Actualiza ambos y vuelve a intentarlo.",
 	"mobile.remote_sessions.subtitle_owner": "{state} · En {owner}",
 	"mobile.remote_sessions.owner_only": "Por ahora, las aprobaciones, Detener, los cambios de modelo y los comandos con barra solo funcionan en {owner}.",
@@ -20,5 +20,7 @@
 	"mobile.remote_sessions.health_quiet": "Esta conversación en {owner} ha dejado de responder; puede estar ocupada o bloqueada. Un envío puede mostrar un error y llegar igualmente cuando se ponga al día. Reintentar no lo enviará dos veces.",
 	"mobile.remote_sessions.health_ended": "Esta conversación terminó en {owner}. Su historial se conserva aquí para leerlo.",
 	"mobile.remote_sessions.file_save_label": "Guardar {name}",
-	"mobile.remote_sessions.row_long_press_hint": "Recuperar, mover o copiar"
+	"mobile.remote_sessions.row_long_press_hint": "Recuperar, mover o copiar",
+	"mobile.remote_sessions.media_changed": "Este contenido multimedia cambió o se perdió el acceso durante la descarga. No se abrió nada. Vuelve a intentarlo cuando el equipo propietario esté disponible.",
+	"mobile.remote_sessions.supplement_needs_running": "Este archivo necesita que la conversación esté en ejecución en el equipo propietario. Ábrelo allí o reanuda la conversación allí y vuelve a intentarlo."
 }

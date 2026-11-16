@@ -195,7 +195,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
 	"tools/mock-relay/relay.ts":
-		"fd8d5e9c17f3b7219024340b20934321980411f4b510c64aab0cde36ba9e8669",
+		"5311af04e208237adb473c1a56b9417d12819112e14c602159b05f312f99a384",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -214,7 +214,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* PR #207 round 5: omit the false head-pin flag, matching Core's wire.
 	 * Re-derived with --print from the staged tree; no capture assertion moved. */
 	"tools/mock-relay/scenarios.ts":
-		"26a2bc072de976ec16b3b0083efeb3367f2896dc573805fdd625b0b3232a8a1e",
+		"5b8c61f4d6763d968d9f1b78337b700c7f016a500836a33617efba06c3dbe133",
 	"tools/mock-relay/shape.ts":
 		"0ef0c342578ffaf4a7067d4427f10a999740152d6a56ec2da63d75697f08fb5b",
 	/* The startup evidence helper the fixture's relay imports. It has been loaded by
@@ -720,7 +720,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged app carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	app: "d4c15704e4c7d6daf91f7b6a1575ec5e849ba0be08f5a344ab48d25c9405eda7",
+	app: "0eef54119604f176cb2e445670e92e74eeaf8f928cdfc23308a33ce166204597",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2070,7 +2070,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
 	 * keys in all 8 locales. Re-derived with --print over the working tree (run
 	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
-	src: "bab911c26d3d7bfae0326ce5c625e4ebbb70e1e900cbc3c189ef019c68b2af08",
+	src: "dffe436254cf3ff36f5ddcc143686a8ebd9920c8a6a760b3f27281888d3d1241",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

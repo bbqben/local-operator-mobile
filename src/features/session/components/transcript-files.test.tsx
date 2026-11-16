@@ -62,7 +62,7 @@ describe("retained file affordance", () => {
 		);
 		/* D5/U5: reader words, not protocol vocabulary. */
 		expect(host.texts.join(" ")).toContain(
-			"can’t be previewed in remote conversations yet",
+			"Open them on the owner computer for now",
 		);
 		expect(host.texts.join(" ")).not.toContain("retained document");
 		host.texts = [];
