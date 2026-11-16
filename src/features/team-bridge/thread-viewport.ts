@@ -164,7 +164,9 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 				return;
 			}
 			setFollowing(true);
-			gesture = false;
+			// A native end bounce is still the reader's gesture until it
+			// returns inside the content; do not correct its later frames.
+			if (y + viewport <= measured + POSITION_SLACK) gesture = false;
 		} else if (
 			lastY !== null &&
 			// Moving up is the reader leaving the tail, whatever moved it
@@ -238,7 +240,21 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		}) => {
 			const { contentOffset, layoutMeasurement, contentSize } =
 				event.nativeEvent;
+			// Native offset/visible-content anchoring can settle AFTER the final
+			// layout callback. That callback's correction is not proof that the
+			// host stayed there. Reconcile only an existing follower, without a
+			// reader gesture, and only against the current measured geometry:
+			// late events from an earlier layout must not move a history/anchor
+			// reader or undo a newer resize.
+			const reconcile =
+				following &&
+				!gesture &&
+				contentSize.height === content &&
+				layoutMeasurement.height === height &&
+				contentOffset.y >
+					Math.max(0, contentSize.height - height) + POSITION_SLACK;
 			settle(contentOffset.y, layoutMeasurement.height, contentSize.height);
+			if (reconcile) position();
 		},
 		onScrollBeginDrag: intent,
 		onTouchMove: intent,

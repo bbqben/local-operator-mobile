@@ -4,6 +4,8 @@ import { createThreadViewport } from "./thread-viewport";
 
 const RELEASE = /releaseFollow\(\);/g;
 const INITIAL_ANCHOR = /maintainVisibleContentPosition=\{\s*positioned/;
+const ADMISSION_RECHECK =
+	/useEffect\(\(\) => \{\s*if \(readyForPosition && items\.length > 0\) viewport\.current\?\.dataChanged\(\);\s*\}, \[items, readyForPosition\]\)/;
 
 /**
  * A scroll host that behaves like the list's real one: offsets clamp to
@@ -345,6 +347,105 @@ describe("read marks", () => {
 	});
 });
 
+describe("admission without a content-size change", () => {
+	it.each([true, false])(
+		"remeasures unchanged fitting content safely (web: %s)",
+		(web) => {
+			let ready = false;
+			const positioned = vi.fn();
+			const scrollTo = vi.fn(() => null);
+			const v = createThreadViewport({
+				web,
+				scrollTo,
+				positioned,
+				read: vi.fn(),
+				newestSeq: () => 7,
+				dataReady: () => ready,
+				measure: () => (web ? { y: 0, viewport: 888, content: 888 } : null),
+			});
+			v.handlers.onLayout({ nativeEvent: { layout: { height: 888 } } });
+			v.handlers.onContentSizeChange(471, 888);
+			ready = true;
+			// Admission is a React state transition, not a size transition.
+			v.dataChanged();
+			if (!web) {
+				// Native must not claim stale skeleton geometry as admitted rows.
+				expect(v.pending).toBe(true);
+				// Its container remains natural-sized until positioning, so the
+				// admitted fitting rows can report their own measurement.
+				v.handlers.onContentSizeChange(471, 400);
+			}
+			expect(v.pending).toBe(false);
+			expect(positioned).toHaveBeenCalledOnce();
+			expect(v.readSeq).toBe(7);
+			expect(scrollTo).not.toHaveBeenCalled();
+		},
+	);
+});
+
+describe("late native end geometry", () => {
+	it("reconciles a follower offset reported past the end after layout has settled", () => {
+		const r = openLong(false);
+		r.layout(700);
+		r.flush();
+		r.moves.mockClear();
+		// Native anchoring can report its offset after the layout correction.
+		// No further layout/content callback exists to trigger position().
+		r.scrollTo(2208);
+		r.flush();
+		expect(r.moves).toHaveBeenCalledWith(2018);
+		expect(r.bottom).toBe(2718);
+	});
+	it("reconciles an initial native landing that reports past the end", () => {
+		const r = host({ web: false });
+		r.layout(500);
+		r.grow(1000);
+		r.moves.mockClear();
+		r.scrollTo(690);
+		r.flush();
+		expect(r.moves).toHaveBeenCalledWith(500);
+		expect(r.bottom).toBe(1000);
+		expect(r.v.pending).toBe(false);
+	});
+	it("leaves a reader's bottom-edge bounce alone", () => {
+		const r = openLong(false);
+		r.h.onScrollBeginDrag();
+		r.moves.mockClear();
+		r.scrollTo(2309);
+		r.scrollTo(2250);
+		expect(r.moves).not.toHaveBeenCalled();
+		// Once the bounce actually returns to the tail, following can resume.
+		r.scrollTo(2119);
+		r.grow(2800);
+		expect(r.moves).toHaveBeenCalledWith(2201);
+	});
+	it("does not correct from a late event with pre-resize geometry", () => {
+		const r = openLong(false);
+		r.layout(700);
+		r.flush();
+		r.moves.mockClear();
+		r.h.onScroll({
+			nativeEvent: {
+				contentOffset: { y: 2309 },
+				layoutMeasurement: { height: 599 },
+				contentSize: { height: 2718 },
+			},
+		});
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it.each(["history", "anchor"])(
+		"does not reconcile a %s reader's offset",
+		(mode) => {
+			const r = openLong(false);
+			if (mode === "anchor") r.v.anchored();
+			else r.v.releaseFollow();
+			r.moves.mockClear();
+			r.scrollTo(2309);
+			expect(r.moves).not.toHaveBeenCalled();
+		},
+	);
+});
+
 describe("screen wiring", () => {
 	const source = readFileSync(
 		new URL("./thread-screen.tsx", import.meta.url),
@@ -355,6 +456,10 @@ describe("screen wiring", () => {
 		expect(source.match(RELEASE)).toHaveLength(2);
 		expect(source).not.toContain("onScroll={");
 		expect(source).not.toContain("onContentSizeChange={");
+	});
+	it("waits for positioned rows before growing the container, and rechecks admitted data", () => {
+		expect(source).toContain('positioned ? "grow justify-end pb-2" : "pb-2"');
+		expect(source).toMatch(ADMISSION_RECHECK);
 	});
 	it("keeps the heading semantic and scalable and the identity account scoped", () => {
 		// The heading is the session header's title style now (one line, two
