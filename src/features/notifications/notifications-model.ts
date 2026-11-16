@@ -28,7 +28,7 @@ import type {
 	NotificationItem,
 	NotificationsResponse,
 } from "@/contracts";
-import { t } from "@/i18n";
+import { preferredLocale, renderFor, t } from "@/i18n";
 import type { NotificationTarget } from "@/relay";
 
 /** The inbox stamps are epoch MILLISECONDS, unlike the session clocks. */
@@ -509,27 +509,79 @@ export function rowAccessibilityLabel(input: {
 		item.priority === "high" ? "High priority." : "",
 		`${item.title}.`,
 		`${conversationName(item.session.title)}.`,
-		relativeTime(item.updated_at, nowMs),
+		/* ENGLISH, EXPLICITLY (review m1, the C1 class): "High priority." and the
+		 * sentence's periods are still unkeyed English until slice O3-b keys this
+		 * spoken label, so a reader-locale age would make a `ur` screen reader
+		 * read a mixed-script, mixed-direction sentence. Pinned to the English
+		 * catalogue until O3-b keys the whole label. */
+		relativeTime(item.updated_at, nowMs, "en"),
 	].filter((part) => part !== "");
 	return parts.join(" ");
 }
 
-export function relativeTime(atMs: number, nowMs: number): string {
+/**
+ * The detail screen's meta line: "<conversation> · Live · <age>".
+ *
+ * A pure function (rather than inline JSX) so the C1-class rule below has a
+ * test: the screen cannot be mounted in this Node suite.
+ *
+ * ENGLISH, EXPLICITLY (review m1): "Live" and "untitled" are still unkeyed
+ * English until slice O3-b keys this line, so the age renders from the English
+ * catalogue rather than the reader's locale — a localized age beside an English
+ * word read as mixed-script text in `ur`. Every clause stays optional and the
+ * `·` separator never dangles (an absent age drops out, as before).
+ */
+export function detailMetaLine(input: {
+	sessionTitle: string | undefined | null;
+	live: boolean;
+	updatedAt: number;
+	nowMs: number;
+}): string {
+	return [
+		conversationName(input.sessionTitle),
+		input.live ? "Live" : "",
+		relativeTime(input.updatedAt, input.nowMs, "en"),
+	]
+		.filter((part) => part !== "")
+		.join(" · ");
+}
+
+/**
+ * A notification's compact age ("5m ago").
+ *
+ * `preference` exists for the C1-class callers only: a fragment whose
+ * surrounding words are still unkeyed English passes `"en"` so the age matches
+ * them (rendered through `renderFor`). Omitted, the age follows the app
+ * language through `t()` — the inbox row's standalone age.
+ */
+export function relativeTime(
+	atMs: number,
+	nowMs: number,
+	preference?: string,
+): string {
 	if (!(atMs > 0)) return "";
+	/* `t(key, params)` is `renderFor(key, params, preferredLocale())`, so the
+	 *  default path is exactly the `t()` the row used before. */
+	const render = (
+		key: Parameters<typeof renderFor>[0],
+		params: Record<string, number> = {},
+	): string => renderFor(key, params, preference ?? preferredLocale());
 	const delta = Math.max(0, nowMs - atMs);
 	const minutes = Math.round(delta / 60_000);
 	/* The compact `5m ago` register (no space before the unit) is this narrow
 	 * row meta's own; the spaced `5 min ago` family is a separate key set. */
-	if (minutes < 1) return t("mobile.time.relative.just_now");
+	if (minutes < 1) return render("mobile.time.relative.just_now");
 	if (minutes < 60)
-		return t("mobile.time.relative.minutes_ago_compact", { count: minutes });
+		return render("mobile.time.relative.minutes_ago_compact", {
+			count: minutes,
+		});
 	const hours = Math.round(minutes / 60);
 	if (hours < 24)
-		return t("mobile.time.relative.hours_ago_compact", { count: hours });
+		return render("mobile.time.relative.hours_ago_compact", { count: hours });
 	const days = Math.round(hours / 24);
 	return days === 1
-		? t("mobile.time.relative.yesterday")
-		: t("mobile.time.relative.days_ago_compact", { count: days });
+		? render("mobile.time.relative.yesterday")
+		: render("mobile.time.relative.days_ago_compact", { count: days });
 }
 
 /**

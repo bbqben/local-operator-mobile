@@ -2057,7 +2057,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * an independent reader over the staged tree's git objects (not --print);
 	 * the same reader reproduced main's pin (c4df74ae…) from main's tree as a
 	 * control. Source identity only, NOT rendered U-08 evidence. */
-	src: "11ae0710d297e3f33286c58e3930f4466d322ead2bdafacb4dc7979ba5ea2e48",
+	src: "6b5288751f4d5630901264574202f7f72eae41c202db664eae62e368a37dc373",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

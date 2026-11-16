@@ -86,10 +86,13 @@ describe("thread-screen passes the app locale (source guard)", () => {
 	);
 	const THREAD_ITEMS =
 		/model\.threadItems\(\s*thread\?\.messages \?\? \[\],\s*new Date\(\),\s*locale,?\s*\)/;
+	/* `locale` is the memoised row's PROP since review M1 (PR #276): a live
+	 *  `activeLocale()` read inside a `memo()` row never re-ran on a language
+	 *  change. `locale-frame-memos.test.ts` pins the prop and the subscription. */
 	const MESSAGE_TIME =
-		/model\.messageTime\(\s*message\.created_at,\s*activeLocale\(\)\s*\)/;
+		/model\.messageTime\(\s*message\.created_at,\s*locale\s*\)/;
 
-	it("threads activeLocale() into the day dividers and the message times", () => {
+	it("threads the app locale into the day dividers and the message times", () => {
 		expect(source).toMatch(THREAD_ITEMS);
 		expect(source).toMatch(/const locale = activeLocale\(\);/);
 		expect(source).toMatch(MESSAGE_TIME);

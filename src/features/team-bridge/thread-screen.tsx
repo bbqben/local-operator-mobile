@@ -20,6 +20,7 @@ import {
 	type ViewToken,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useLocaleFrame } from "@/features/auth/connection-provider";
 import { Markdown } from "@/features/session/components/markdown";
 import {
 	textSelectionContainerScroll,
@@ -27,7 +28,7 @@ import {
 	textSelectionContainerTouchCancel,
 	textSelectionContainerTouchEnd,
 } from "@/features/session/text-selection";
-import { activeLocale, t } from "@/i18n";
+import { activeLocale, type ShippedLocale, t } from "@/i18n";
 import { useUiStore } from "@/state/ui-store";
 import {
 	canSend,
@@ -191,9 +192,16 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 	highlight = null,
 	fadeMs = DURATIONS.draw,
 	onAnchorLayout,
+	locale,
 }: {
 	message: Message;
 	continuation: boolean;
+	/** The app language the row renders in. A PROP rather than an
+	 *  `activeLocale()` read because this row is `memo()`: a read inside it is
+	 *  only re-run when some other prop changes, so a language frame would leave
+	 *  painted rows with the previous language's times and copy (review M1).
+	 *  Passing it in makes the language part of the memo's comparison. */
+	locale: ShippedLocale;
 	/** The message an anchored open landed on: held for `ANCHOR_HIGHLIGHT_MS`,
 	 *  then fading over `fadeMs`. */
 	highlight?: "hold" | "fade" | null;
@@ -260,7 +268,7 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 							{/* The APP language, not the device default: with no locale
 							 *  `toLocaleTimeString` follows the device, so a Spanish-UI
 							 *  reader on an English device got English times. */}
-							{model.messageTime(message.created_at, activeLocale())}
+							{model.messageTime(message.created_at, locale)}
 						</Text>
 					</View>
 				)}
@@ -482,11 +490,19 @@ function ThreadContent({
 	};
 	/* Day dividers follow the app language: "Today"/"Yesterday" come from the
 	 * catalogue and the dated fallback is formatted in this same locale, so a
-	 * divider never mixes a translated word with a device-default date. */
+	 * divider never mixes a translated word with a device-default date.
+	 *
+	 * `language` is the SUBSCRIPTION (`useLocaleFrame`, connection-provider.tsx):
+	 * `activeLocale()` reads the locale at call time but cannot re-render this
+	 * screen, so without it a language frame left the dividers, times and the
+	 * memoised rows in the previous language until unrelated state moved (review
+	 * M1). It is a TRIGGER in the memo below, the same shape as home.tsx's. */
+	const language = useLocaleFrame();
 	const locale = activeLocale();
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` is a TRIGGER: `t()` reads the locale live, so the memo must re-run (see above)
 	const items = useMemo(
 		() => model.threadItems(thread?.messages ?? [], new Date(), locale),
-		[thread?.messages, locale],
+		[thread?.messages, locale, language],
 	);
 	const people = state.orgs[tenantId]?.people ?? [];
 	const directoryState = state.orgs[tenantId]?.peopleState;
@@ -811,6 +827,7 @@ function ThreadContent({
 					onAnchorLayout={
 						item.message.id === highlightId ? measureRow : undefined
 					}
+					locale={locale}
 				/>
 			);
 		},
@@ -824,6 +841,7 @@ function ThreadContent({
 			highlightFading,
 			fadeMs,
 			measureRow,
+			locale,
 		],
 	);
 	const validDraft = routeId === "new" && !!target;

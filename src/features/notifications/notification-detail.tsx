@@ -16,10 +16,10 @@ import { DismissReceipt } from "@/features/notifications/dismiss-receipt";
 import { noteInboxWrite } from "@/features/notifications/inbox-writes";
 import {
 	conversationName,
+	detailMetaLine,
 	OPEN_LABEL,
 	RETRY_LABEL,
 	readLoadedDetail,
-	relativeTime,
 	VANISHED_BODY,
 	VANISHED_TITLE,
 } from "@/features/notifications/notifications-model";
@@ -394,13 +394,13 @@ function DetailBody({
 					{item.title}
 				</Text>
 				<Text className="text-meta text-ink-dim">
-					{[
-						conversationName(session.title),
-						session.live || session.live_state === "live" ? "Live" : "",
-						relativeTime(item.updated_at, Date.now()),
-					]
-						.filter((part) => part !== "")
-						.join(" · ")}
+					{/* English until O3-b keys "Live" — see `detailMetaLine` (review m1). */}
+					{detailMetaLine({
+						sessionTitle: session.title,
+						live: session.live || session.live_state === "live",
+						updatedAt: item.updated_at,
+						nowMs: Date.now(),
+					})}
 				</Text>
 			</View>
 			{item.source === "notify" && (item.body_md ?? "") !== "" ? (
