@@ -9,6 +9,7 @@ import {
 	type PendingEcho,
 	pendingEchoBoxClass,
 	pendingEchoCaption,
+	puttable,
 	seedPendingEchoImages,
 } from "@/features/session/pending-echo";
 import { userBubbleFill } from "@/features/session/user-bubble";
@@ -145,6 +146,7 @@ const PendingEchoRowImpl = ({
 			<Text
 				className={cx(
 					"max-w-[85%] px-1 pt-0.5 text-meta",
+					/* `discarded` is the reader's own choice, not a failure: dim. */
 					echo.failure === undefined && echo.outbox !== "exhausted"
 						? "text-ink-dim"
 						: "text-danger",
@@ -157,7 +159,9 @@ const PendingEchoRowImpl = ({
 			 *  small: a waiting send is not an error, and Discard is the reader's
 			 *  way out of an automatic retry they no longer want. Retry appears
 			 *  only once the outbox stopped trying by itself. */}
-			{echo.outbox !== undefined &&
+			{/* A `discarded` row has no controls: the tap is already taken (U1),
+			 * and the row itself is the put-back button. */}
+			{(echo.outbox === "waiting" || echo.outbox === "exhausted") &&
 			echo.failure === undefined &&
 			(onOutboxRetry || onOutboxDiscard) ? (
 				<View className="flex-row gap-2 pt-0.5">
@@ -183,7 +187,7 @@ const PendingEchoRowImpl = ({
 			) : null}
 		</>
 	);
-	if (echo.failure === "refused" && onPutBack) {
+	if (puttable(echo) && onPutBack) {
 		return (
 			<Pressable
 				className="items-end px-4 py-1"

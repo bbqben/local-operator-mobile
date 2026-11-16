@@ -64,8 +64,13 @@
  *   a native module wrapping a background `URLSession`; that is NOT built here.
  *   What IS built: the send survives suspension and kill as a persisted
  *   envelope; on the next foreground (`onForeground`) or launch (`resume`) it is
- *   tried again at once; and when the OS wakes the app for a silent push
- *   (`remote-notification`, ~30 s), `drainForBackgroundWake` uses that window.
+ *   tried again at once; and when the OS wakes a SUSPENDED (still-alive)
+ *   process for a silent push (`remote-notification`, ~30 s),
+ *   `drainForBackgroundWake` uses that window. A KILLED process woken by a
+ *   push has no jobs until `OutboxHost` mounts with a usable client and
+ *   resumes the ledger, which a headless wake may not reach, so the wake is
+ *   only a bonus for a live process; the relaunch resume is the guarantee
+ *   (agent review round 1, R4).
  * - Android does not freeze a backgrounded process's JS immediately, so the
  *   retry loop simply keeps running until the process is killed or Doze cuts
  *   the network; kill and relaunch then resume from the envelope as on iOS.
@@ -82,7 +87,6 @@ import {
 	refusePendingEcho,
 	registerPendingEcho,
 	setPendingEchoOutbox,
-	withdrawPendingEcho,
 } from "@/features/session/pending-echo";
 import {
 	type ContinuationEnvelope,
@@ -195,8 +199,11 @@ export interface OutboxEntry {
 	commandId: string | null;
 	/** `sending` — the composer's first attempt; `waiting` — the outbox is
 	 *  retrying (an attempt may be on the wire); `failed` — it stopped and the
-	 *  row offers Retry / Discard. */
-	phase: "sending" | "waiting" | "failed";
+	 *  row offers Retry / Discard; `discarding` — the reader tapped Discard
+	 *  while an attempt was on the wire, and the job lingers only until that
+	 *  attempt settles (the envelope slot stays reserved so a new instruction
+	 *  cannot race the old one), with nothing left for the reader to do. */
+	phase: "sending" | "waiting" | "failed" | "discarding";
 	/** Attempts made so far in this keep-trying window. */
 	attempts: number;
 	/** When the next attempt is scheduled, or `null`. */
@@ -254,8 +261,13 @@ export interface OutboxDeps {
 	) => Promise<boolean>;
 }
 
-/** The newest transcript page is enough: reconciliation runs within minutes of
- *  the send, and a user row is written at admission, before any reply. */
+/** The newest transcript page, as a cheap first check: a user row is written
+ *  at admission, before any reply, so a recent send is usually on it. It is
+ *  NOT guaranteed — a relaunch resume can run up to the envelope's 24 h TTL
+ *  later, and a busy turn can push the row past 50 entries. Safety does not
+ *  depend on it: a miss falls through to a same-id replay, and the relay
+ *  answers `already admitted` for any id durably in its transcript
+ *  (`command_reservation.py`). (Agent review round 1, R7.) */
 const RECONCILE_PAGE = 50;
 
 async function transcriptCarries(
@@ -391,10 +403,12 @@ export class Outbox {
 		this.ledger = ledger;
 	}
 
-	private note(sessionId: string, owned: boolean): void {
+	/** Write or drop the ownership mark. Returns the write so the first attempt
+	 *  can await it (see `attempt`); every other caller fires and forgets. */
+	private note(sessionId: string, owned: boolean): Promise<void> {
 		const ledger = this.ledger;
-		if (ledger === null) return;
-		void (owned ? ledger.add(sessionId) : ledger.remove(sessionId)).catch(
+		if (ledger === null) return Promise.resolve();
+		return (owned ? ledger.add(sessionId) : ledger.remove(sessionId)).catch(
 			() => undefined,
 		);
 	}
@@ -545,10 +559,18 @@ export class Outbox {
 	}
 
 	/**
-	 * The reader's Discard. Stops retrying, drops the envelope and the row. If
-	 * an attempt is on the wire it is allowed to finish first: should it land,
-	 * the message WAS delivered and the transcript says so — the truth beats the
-	 * discard.
+	 * The reader's Discard. Stops retrying and drops the envelope; the row
+	 * becomes a `discarded` row whose tap puts the words back in the composer
+	 * (UX round 1, U2), because the envelope was the text's only other copy.
+	 *
+	 * VISIBLE AT ONCE (UX round 1, U1): the row and the entry change
+	 * synchronously, before any await, so the tap never looks ignored. An
+	 * attempt already on the wire cannot be aborted (`RelayEndpoints.command`
+	 * takes no `AbortSignal`), so the job lingers as `discarding` until it
+	 * settles: should it land, the message WAS delivered, the row turns `sent`
+	 * and the transcript shows it — the truth beats the discard. Every await in
+	 * `attempt` re-checks `cancelled`, so no NEW POST starts after the tap
+	 * (agent review round 1, R1).
 	 */
 	async discard(sessionId: string): Promise<void> {
 		const job = this.jobs.get(sessionId);
@@ -556,7 +578,11 @@ export class Outbox {
 		job.cancelled = true;
 		if (job.timer !== null) this.clearTimer(job.timer);
 		job.timer = null;
+		if (job.entry.commandId !== null)
+			setPendingEchoOutbox(sessionId, job.entry.commandId, "discarded");
 		if (job.running) {
+			job.entry = { ...job.entry, phase: "discarding", nextAttemptAt: null };
+			this.emit();
 			await job.idle;
 			/* Delivered while we waited: `attempt` already finished the job. */
 			if (this.jobs.get(sessionId) !== job) return;
@@ -633,6 +659,15 @@ export class Outbox {
 		};
 		this.emit();
 		try {
+			/* Custody BEFORE the first byte (QA round 1, Q1): the composer's
+			 * attached attempt can run for the whole 60 s deadline, and iOS may
+			 * suspend and kill the app inside it. Marking only at hand-off left
+			 * such a send with a held envelope but no mark, so the relaunch never
+			 * resumed it. Awaited (a few ms of device storage) so the mark is on
+			 * disk before the POST; a kill before the envelope is held leaves a
+			 * mark with no envelope, which `resume` drops as stale. `finish`
+			 * removes it on every terminal outcome. */
+			if (first) await this.note(sessionId, true);
 			const client = first ? job.client : (this.client ?? job.client);
 			if (client === null) {
 				/* No usable route right now (reconnecting, minting): a temporary
@@ -654,6 +689,11 @@ export class Outbox {
 			} else {
 				const held = await this.heldEnvelope(job);
 				if (held === null) return;
+				/* Discarded during an await: stop here and let `discard` finalize.
+				 * Checked after EVERY await before the POST (agent review round 1,
+				 * R1): a history read on a slow link can take the transport's 20 s,
+				 * and a Discard inside it must not be followed by a fresh POST. */
+				if (job.cancelled) return;
 				/* Did the previous, unanswered attempt land? Positive evidence
 				 * settles it with no second POST. */
 				if (await this.reconcile(client, sessionId, held.command_id)) {
@@ -664,6 +704,7 @@ export class Outbox {
 					this.finish(job);
 					return;
 				}
+				if (job.cancelled) return;
 				input = {
 					client,
 					envelopes: job.envelopes,
@@ -681,6 +722,10 @@ export class Outbox {
 					timeoutMs: this.policy.attemptTimeoutMs,
 				};
 			}
+			/* The last gate before the wire. `discard` finalizes. An attached
+			 * first attempt is exempt: the row offers no Discard while the
+			 * composer still awaits it, and the composer must get an outcome. */
+			if (job.cancelled && job.attached === null) return;
 			let result: SendResult;
 			try {
 				result = await sendPersistedCommand(input);
@@ -806,11 +851,12 @@ export class Outbox {
 		this.emit();
 	}
 
+	/** The row was already turned `discarded` by `discard` and stays, so its
+	 *  tap can put the words back; only the job and the envelope go. */
 	private async finalizeDiscard(job: Job): Promise<void> {
-		const { sessionId, commandId } = job.entry;
+		const { sessionId } = job.entry;
 		this.finish(job);
 		await job.envelopes.clear(sessionId).catch(() => undefined);
-		if (commandId !== null) withdrawPendingEcho(sessionId, commandId);
 	}
 
 	private finish(job: Job): void {

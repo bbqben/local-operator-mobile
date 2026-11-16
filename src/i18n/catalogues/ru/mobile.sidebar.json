@@ -25,5 +25,5 @@
 	"mobile.sidebar.empty_by_view.next": "Снова включите разделы или завершённые сеансы либо сбросьте вид.",
 	"mobile.sidebar.empty_by_view.reset": "Сбросить вид",
 	"mobile.sidebar.outbox_sending": "Отправка сообщения…",
-	"mobile.sidebar.outbox_failed": "Сообщение не отправлено"
+	"mobile.sidebar.outbox_failed": "Отправка сообщения остановлена"
 }

@@ -25,5 +25,5 @@
 	"mobile.sidebar.empty_by_view.next": "Réactivez des sections ou les sessions terminées, ou réinitialisez l’affichage.",
 	"mobile.sidebar.empty_by_view.reset": "Réinitialiser l’affichage",
 	"mobile.sidebar.outbox_sending": "Envoi d’un message…",
-	"mobile.sidebar.outbox_failed": "Message non envoyé"
+	"mobile.sidebar.outbox_failed": "Envoi du message arrêté"
 }

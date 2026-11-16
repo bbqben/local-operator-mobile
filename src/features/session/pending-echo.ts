@@ -93,9 +93,13 @@ export interface PendingEcho {
 	 *  attempt failed with an UNKNOWN or temporary outcome: `waiting` — it is
 	 *  backing off and will try again by itself under the SAME id; `exhausted` —
 	 *  it stopped trying (the keep-trying window ran out, or the failure needs the
-	 *  reader) and the row offers Retry and Discard. Absent for every send the
-	 *  composer still owns, so the pre-outbox captions are unchanged. */
-	outbox?: "waiting" | "exhausted";
+	 *  reader) and the row offers Retry and Discard; `discarded` — the reader
+	 *  tapped Discard: no more attempts, the envelope is (being) cleared, and
+	 *  the row's tap puts the words back in the composer like a `refused` row
+	 *  (UX round 1, U2). Its caption says the message may already have arrived,
+	 *  because an earlier attempt may have been admitted. Absent for every send
+	 *  the composer still owns, so the pre-outbox captions are unchanged. */
+	outbox?: "waiting" | "exhausted" | "discarded";
 	/** The envelope's own image objects, in envelope order. Two jobs:
 	 *
 	 *  - DISPLAY (operator, TestFlight 906: "the image attachment doesn't appear
@@ -158,6 +162,8 @@ export function pendingEchoCaption(
 	/* The outbox states come after the composer's failure captions (a row is
 	 *  never both) and before `sending…`: a send the outbox is retrying has
 	 *  already failed once, and saying `sending…` for minutes reads as a hang. */
+	if (echo.outbox === "discarded")
+		return t("mobile.session.pending_echo.discarded");
 	if (echo.outbox === "exhausted")
 		return t("mobile.session.pending_echo.exhausted");
 	if (echo.outbox === "waiting")
@@ -398,7 +404,7 @@ function failPendingEcho(
 export function setPendingEchoOutbox(
 	sessionId: string,
 	commandId: string,
-	state: "waiting" | "exhausted" | undefined,
+	state: "waiting" | "exhausted" | "discarded" | undefined,
 ): void {
 	const held = echoes.get(sessionId);
 	if (!held) return;
@@ -434,7 +440,9 @@ export function pendingEchoFor(
 
 /** The tap on a `refused` row: its words (and images) go back into the
  *  composer AHEAD of whatever is there, and the row comes down — the composer
- *  is the one place a message is edited and sent from. A no-op for any other
+ *  is the one place a message is edited and sent from. A `discarded` outbox
+ *  row (`puttable`) behaves the same: the reader chose to stop delivery, and
+ *  its caption already warns that it may have arrived. A no-op for any other
  *  row: a live one is still going out, and an unconfirmed one may have been
  *  delivered, so putting it back would invite a duplicate (Retry is its path). */
 export function putBackPendingEcho(
@@ -445,10 +453,15 @@ export function putBackPendingEcho(
 	const echo = echoes
 		.get(sessionId)
 		?.find((item) => item.commandId === commandId);
-	if (echo?.failure !== "refused") return;
+	if (echo === undefined || !puttable(echo)) return;
 	withdrawPendingEcho(sessionId, commandId);
 	draft.prepend(echo.text, echo.images ?? []);
 }
+
+/** Whether a row's tap puts its words back (see `putBackPendingEcho`). */
+export const puttable = (echo: PendingEcho): boolean =>
+	echo.failure === "refused" ||
+	(echo.failure === undefined && echo.outbox === "discarded");
 
 /** The composer's failure line while a `refused` row is kept: it names the
  *  EARLIER message, because the text in the composer is not what failed, and

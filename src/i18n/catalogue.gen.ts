@@ -631,9 +631,12 @@ export type CatalogueKey =
 	| "mobile.session.history.stalled"
 	| "mobile.session.not_connected.headline"
 	| "mobile.session.not_connected.next"
+	| "mobile.session.outbox.composer_discarding"
+	| "mobile.session.outbox.composer_stopped"
 	| "mobile.session.outbox.composer_wait"
 	| "mobile.session.outbox.discard"
 	| "mobile.session.outbox.retry"
+	| "mobile.session.pending_echo.discarded"
 	| "mobile.session.pending_echo.earlier_not_sent"
 	| "mobile.session.pending_echo.earlier_went_through"
 	| "mobile.session.pending_echo.exhausted"
@@ -1533,9 +1536,12 @@ export type NoParamKey =
 	| "mobile.session.history.stalled"
 	| "mobile.session.not_connected.headline"
 	| "mobile.session.not_connected.next"
+	| "mobile.session.outbox.composer_discarding"
+	| "mobile.session.outbox.composer_stopped"
 	| "mobile.session.outbox.composer_wait"
 	| "mobile.session.outbox.discard"
 	| "mobile.session.outbox.retry"
+	| "mobile.session.pending_echo.discarded"
 	| "mobile.session.pending_echo.earlier_went_through"
 	| "mobile.session.pending_echo.exhausted"
 	| "mobile.session.pending_echo.not_confirmed"
@@ -2484,9 +2490,12 @@ export type MessageParams = {
 	"mobile.session.history.stalled": NoParams;
 	"mobile.session.not_connected.headline": NoParams;
 	"mobile.session.not_connected.next": NoParams;
+	"mobile.session.outbox.composer_discarding": NoParams;
+	"mobile.session.outbox.composer_stopped": NoParams;
 	"mobile.session.outbox.composer_wait": NoParams;
 	"mobile.session.outbox.discard": NoParams;
 	"mobile.session.outbox.retry": NoParams;
+	"mobile.session.pending_echo.discarded": NoParams;
 	"mobile.session.pending_echo.earlier_not_sent": { reason: string | number };
 	"mobile.session.pending_echo.earlier_went_through": NoParams;
 	"mobile.session.pending_echo.exhausted": NoParams;
@@ -3504,12 +3513,15 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.session.history.stalled": "Earlier messages stopped loading. Try again, or reopen this conversation.",
 	"mobile.session.not_connected.headline": "This session is not connected yet.",
 	"mobile.session.not_connected.next": "Open it from the session list once a computer is connected.",
+	"mobile.session.outbox.composer_discarding": "Discarding your earlier message. You can send this one in a moment.",
+	"mobile.session.outbox.composer_stopped": "Your earlier message stopped sending. Retry or discard it above to send this one.",
 	"mobile.session.outbox.composer_wait": "Your earlier message is still sending. You can send this one once it’s delivered.",
 	"mobile.session.outbox.discard": "Discard",
 	"mobile.session.outbox.retry": "Retry",
+	"mobile.session.pending_echo.discarded": "discarded — it may already have arrived · tap to put back",
 	"mobile.session.pending_echo.earlier_not_sent": "Your earlier message wasn’t sent ({reason}). Tap it above to put it back.",
 	"mobile.session.pending_echo.earlier_went_through": "Your earlier message went through. The text below hasn’t been sent yet.",
-	"mobile.session.pending_echo.exhausted": "couldn’t reach your computer yet",
+	"mobile.session.pending_echo.exhausted": "couldn’t deliver — stopped trying",
 	"mobile.session.pending_echo.images": "{count, plural, one {# image attached} other {# images attached}}",
 	"mobile.session.pending_echo.not_confirmed": "not confirmed — retry below",
 	"mobile.session.pending_echo.not_confirmed_plain": "not confirmed",
@@ -3651,7 +3663,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.sidebar.order.active_first": "Active first",
 	"mobile.sidebar.order.most_recent": "Most recent",
 	"mobile.sidebar.order_by": "Order by",
-	"mobile.sidebar.outbox_failed": "Message not sent",
+	"mobile.sidebar.outbox_failed": "Message stopped sending",
 	"mobile.sidebar.outbox_sending": "Sending a message…",
 	"mobile.sidebar.section.older": "Older",
 	"mobile.sidebar.section.pinned": "Pinned",
@@ -4509,12 +4521,15 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.session.history.stalled": { role: "status", note: "The server returned a cursor that did not advance; automatic reads stop. Name the button's own action (Try again) or reopening; plain wording, no engineering terms." },
 	"mobile.session.not_connected.headline": { role: "status", note: "Empty-state headline on a session screen opened with no computer connected. Sentence with a final full stop." },
 	"mobile.session.not_connected.next": { role: "help", note: "Empty-state follow-up telling the user how to reach the session once a computer is connected. One sentence." },
+	"mobile.session.outbox.composer_discarding": { role: "help", note: "Shown under the disabled send button for the few seconds after the user discarded an earlier message while the app finishes the attempt that was already under way. Nothing for the user to do; sending unlocks by itself." },
+	"mobile.session.outbox.composer_stopped": { role: "help", note: "Shown under the disabled send button while an earlier message in the SAME conversation has stopped sending and waits for the user (Retry or Discard buttons on that message, above the text box). Must not say the earlier message was definitely not received." },
 	"mobile.session.outbox.composer_wait": { role: "help", note: "Shown under the disabled send button while an earlier message in the SAME conversation is still being delivered in the background. One message per conversation is delivered at a time so they never arrive twice or out of order. Other conversations are unaffected." },
 	"mobile.session.outbox.discard": { role: "button", note: "Small quiet button under a message the app is still trying (or stopped trying) to deliver: stop trying and remove the message from the phone. Not a delete of anything on the computer." },
 	"mobile.session.outbox.retry": { role: "button", note: "Small button under a message the app stopped retrying: try delivering it again now. Same message, never a duplicate." },
+	"mobile.session.pending_echo.discarded": { role: "meta", note: "Caption under a message the user just discarded (told the app to stop delivering it). An earlier attempt may already have reached the computer, so it must not promise the message was cancelled. Tapping the message puts its words back into the text box. Lower-case, like the other captions under a message." },
 	"mobile.session.pending_echo.earlier_not_sent": { role: "status", note: "Error line above the message box when an earlier message was refused while the user was already typing the next one: it must be clear the EARLIER message failed, not the text in the box. {reason} is the relay's own short reason, in English. Points at the kept message above, which puts itself back on a tap." },
 	"mobile.session.pending_echo.earlier_went_through": { role: "status", note: "Confirmation line above the message box when an earlier message was delivered while the box holds text the user has not sent. Must not claim the text in the box is an edit, and must not say 'delivered' (the message may still be queued)." },
-	"mobile.session.pending_echo.exhausted": { role: "meta", note: "Caption under a sent message after the app stopped retrying it automatically (about 15 minutes without reaching the computer). Shown in error ink with Retry and Discard buttons below it. The message is kept on the phone and has not been confirmed delivered. Lower case like the other pending-row captions." },
+	"mobile.session.pending_echo.exhausted": { role: "meta", note: "Caption under a message the app STOPPED trying to deliver by itself (it kept trying for a while, or hit a problem only the user can resolve). Retry and Discard buttons sit under it. Must say it stopped; must NOT claim the message was definitely not received, nor blame the computer specifically (the cause can also be phone storage or a certificate)." },
 	"mobile.session.pending_echo.images": { role: "meta", note: "Meta line on a just-sent message saying how many images ride with it; the images themselves are not shown until the conversation carries the message. Sentence fragment, lower case, no full stop." },
 	"mobile.session.pending_echo.not_confirmed": { role: "meta", note: "Caption, in danger colour, under a message whose delivery is uncertain (the computer did not answer); the Retry button below the message box resends it. Lower case, em dash, no full stop." },
 	"mobile.session.pending_echo.not_confirmed_plain": { role: "meta", note: "Caption, in danger colour, under the first message of a NEW conversation whose start the computer never confirmed. Unlike not_confirmed there is no Retry button on this screen (a start is never resent automatically), so it states the fact only. Lower case, no full stop." },
@@ -4656,7 +4671,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.sidebar.order.active_first": { role: "button", note: "Order option: conversations with a turn running, or waiting on the reader, are lifted to the top; the rest follow newest first. Desktop: ui.chat.sidebar_view.active_first." },
 	"mobile.sidebar.order.most_recent": { role: "button", note: "Order option: one newest-first order over every conversation, nothing lifted. Desktop: ui.chat.sidebar_view.most_recent." },
 	"mobile.sidebar.order_by": { role: "heading", note: "Label of the choice of how conversations are ordered in the drawer. Desktop: ui.chat.sidebar_view.order_by." },
-	"mobile.sidebar.outbox_failed": { role: "status", note: "Small line, in error ink, on a conversation row after the phone stopped retrying a message to that conversation. Opening the conversation shows the message with Retry and Discard." },
+	"mobile.sidebar.outbox_failed": { role: "status", note: "Small line in danger colour on a conversation row in the conversation list when the phone stopped trying to deliver a message to that conversation and needs the user (Retry or Discard inside the conversation). Delivery is UNKNOWN: must not claim the message was definitely not received. Also read aloud as part of the row." },
 	"mobile.sidebar.outbox_sending": { role: "status", note: "Small line on a conversation row in the conversation list while the phone is still delivering a message the user sent to that conversation (retrying in the background). Also read aloud as part of the row." },
 	"mobile.sidebar.section.older": { role: "heading", note: "Drawer section heading for everything older than this week. Desktop: ui.chat.sidebar_view.section.older." },
 	"mobile.sidebar.section.pinned": { role: "heading", note: "Drawer section heading for conversations the reader pinned; also the switch label that shows or hides it. Desktop: ui.chat.sidebar_view.section.pinned." },
@@ -5528,12 +5543,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "Los mensajes anteriores dejaron de cargarse. Reintenta o abre de nuevo esta conversación.",
 		"mobile.session.not_connected.headline": "Esta sesión aún no está conectada.",
 		"mobile.session.not_connected.next": "Ábrela desde la lista de sesiones cuando haya una máquina conectada.",
+		"mobile.session.outbox.composer_discarding": "Descartando tu mensaje anterior. Podrás enviar este en un momento.",
+		"mobile.session.outbox.composer_stopped": "Tu mensaje anterior dejó de enviarse. Reinténtalo o descártalo arriba para enviar este.",
 		"mobile.session.outbox.composer_wait": "Tu mensaje anterior todavía se está enviando. Podrás enviar este cuando se entregue.",
 		"mobile.session.outbox.discard": "Descartar",
 		"mobile.session.outbox.retry": "Reintentar",
+		"mobile.session.pending_echo.discarded": "descartado — puede que ya haya llegado · toca para recuperarlo",
 		"mobile.session.pending_echo.earlier_not_sent": "Tu mensaje anterior no se envió ({reason}). Tócalo arriba para recuperarlo.",
 		"mobile.session.pending_echo.earlier_went_through": "Tu mensaje anterior se envió. El texto de abajo aún no se ha enviado.",
-		"mobile.session.pending_echo.exhausted": "aún no se pudo llegar a tu máquina",
+		"mobile.session.pending_echo.exhausted": "no se pudo entregar — se dejó de intentar",
 		"mobile.session.pending_echo.images": "{count, plural, one {# imagen adjunta} other {# imágenes adjuntas}}",
 		"mobile.session.pending_echo.not_confirmed": "sin confirmar — reintenta abajo",
 		"mobile.session.pending_echo.not_confirmed_plain": "sin confirmar",
@@ -5675,7 +5693,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "Activos primero",
 		"mobile.sidebar.order.most_recent": "Más recientes",
 		"mobile.sidebar.order_by": "Ordenar por",
-		"mobile.sidebar.outbox_failed": "Mensaje no enviado",
+		"mobile.sidebar.outbox_failed": "El mensaje dejó de enviarse",
 		"mobile.sidebar.outbox_sending": "Enviando un mensaje…",
 		"mobile.sidebar.section.older": "Anteriores",
 		"mobile.sidebar.section.pinned": "Fijadas",
@@ -6531,12 +6549,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "Le chargement des messages précédents s’est arrêté. Réessayez ou rouvrez cette conversation.",
 		"mobile.session.not_connected.headline": "Cette session n’est pas encore connectée.",
 		"mobile.session.not_connected.next": "Ouvrez-la depuis la liste des sessions une fois qu’un ordinateur est connecté.",
+		"mobile.session.outbox.composer_discarding": "Abandon de votre message précédent. Vous pourrez envoyer celui-ci dans un instant.",
+		"mobile.session.outbox.composer_stopped": "L’envoi de votre message précédent s’est arrêté. Réessayez-le ou abandonnez-le ci-dessus pour envoyer celui-ci.",
 		"mobile.session.outbox.composer_wait": "Votre message précédent est encore en cours d’envoi. Vous pourrez envoyer celui-ci une fois qu’il sera remis.",
 		"mobile.session.outbox.discard": "Abandonner",
 		"mobile.session.outbox.retry": "Réessayer",
+		"mobile.session.pending_echo.discarded": "abandonné — il est peut-être déjà arrivé · touchez pour le récupérer",
 		"mobile.session.pending_echo.earlier_not_sent": "Votre message précédent n’a pas été envoyé ({reason}). Touchez-le ci-dessus pour le récupérer.",
 		"mobile.session.pending_echo.earlier_went_through": "Votre message précédent est parti. Le texte ci-dessous n’a pas encore été envoyé.",
-		"mobile.session.pending_echo.exhausted": "votre ordinateur reste injoignable",
+		"mobile.session.pending_echo.exhausted": "impossible de le remettre — envoi arrêté",
 		"mobile.session.pending_echo.images": "{count, plural, one {# image jointe} other {# images jointes}}",
 		"mobile.session.pending_echo.not_confirmed": "non confirmé — réessayez ci-dessous",
 		"mobile.session.pending_echo.not_confirmed_plain": "non confirmé",
@@ -6678,7 +6699,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "Actives d’abord",
 		"mobile.sidebar.order.most_recent": "Plus récentes",
 		"mobile.sidebar.order_by": "Trier par",
-		"mobile.sidebar.outbox_failed": "Message non envoyé",
+		"mobile.sidebar.outbox_failed": "Envoi du message arrêté",
 		"mobile.sidebar.outbox_sending": "Envoi d’un message…",
 		"mobile.sidebar.section.older": "Plus anciennes",
 		"mobile.sidebar.section.pinned": "Épinglées",
@@ -7534,12 +7555,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "पहले के संदेश लोड होना रुक गया। फिर से कोशिश करें, या यह बातचीत दोबारा खोलें।",
 		"mobile.session.not_connected.headline": "यह सत्र अभी कनेक्ट नहीं है।",
 		"mobile.session.not_connected.next": "कंप्यूटर कनेक्ट होने पर इसे सत्रों की सूची से खोलें।",
+		"mobile.session.outbox.composer_discarding": "आपका पिछला संदेश छोड़ा जा रहा है। आप यह संदेश कुछ ही पल में भेज सकेंगे।",
+		"mobile.session.outbox.composer_stopped": "आपका पिछला संदेश भेजना रुक गया है। यह संदेश भेजने के लिए ऊपर उसे दोबारा भेजें या छोड़ें।",
 		"mobile.session.outbox.composer_wait": "आपका पिछला संदेश अभी भेजा जा रहा है। उसके पहुँचने के बाद आप यह संदेश भेज सकेंगे।",
 		"mobile.session.outbox.discard": "छोड़ें",
 		"mobile.session.outbox.retry": "दोबारा कोशिश करें",
+		"mobile.session.pending_echo.discarded": "छोड़ दिया गया — हो सकता है यह पहले ही पहुँच गया हो · वापस लाने के लिए टैप करें",
 		"mobile.session.pending_echo.earlier_not_sent": "आपका पिछला संदेश नहीं भेजा गया ({reason})। उसे वापस लाने के लिए ऊपर टैप करें।",
 		"mobile.session.pending_echo.earlier_went_through": "आपका पिछला संदेश भेज दिया गया। नीचे का टेक्स्ट अभी नहीं भेजा गया है।",
-		"mobile.session.pending_echo.exhausted": "आपके कंप्यूटर तक अभी नहीं पहुँच सके",
+		"mobile.session.pending_echo.exhausted": "पहुँचाया नहीं जा सका — कोशिश रोक दी गई",
 		"mobile.session.pending_echo.images": "{count, plural, one {# छवि संलग्न} other {# छवियाँ संलग्न}}",
 		"mobile.session.pending_echo.not_confirmed": "पुष्टि नहीं हुई — नीचे फिर से कोशिश करें",
 		"mobile.session.pending_echo.not_confirmed_plain": "पुष्टि नहीं हुई",
@@ -7681,7 +7705,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "सक्रिय पहले",
 		"mobile.sidebar.order.most_recent": "सबसे हाल के",
 		"mobile.sidebar.order_by": "क्रम चुनें",
-		"mobile.sidebar.outbox_failed": "संदेश नहीं भेजा गया",
+		"mobile.sidebar.outbox_failed": "संदेश भेजना रुक गया",
 		"mobile.sidebar.outbox_sending": "संदेश भेजा जा रहा है…",
 		"mobile.sidebar.section.older": "पुराने",
 		"mobile.sidebar.section.pinned": "पिन किए हुए",
@@ -8537,12 +8561,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "Загрузка предыдущих сообщений остановилась. Повторите или откройте беседу заново.",
 		"mobile.session.not_connected.headline": "Эта сессия пока не подключена.",
 		"mobile.session.not_connected.next": "После подключения компьютера откройте её в списке сессий.",
+		"mobile.session.outbox.composer_discarding": "Предыдущее сообщение отбрасывается. Это можно будет отправить через мгновение.",
+		"mobile.session.outbox.composer_stopped": "Предыдущее сообщение перестало отправляться. Повторите или отбросьте его выше, чтобы отправить это.",
 		"mobile.session.outbox.composer_wait": "Предыдущее сообщение ещё отправляется. Это можно будет отправить, когда оно будет доставлено.",
 		"mobile.session.outbox.discard": "Отбросить",
 		"mobile.session.outbox.retry": "Повторить",
+		"mobile.session.pending_echo.discarded": "отброшено — возможно, уже доставлено · нажмите, чтобы вернуть",
 		"mobile.session.pending_echo.earlier_not_sent": "Предыдущее сообщение не отправлено ({reason}). Нажмите на него выше, чтобы вернуть.",
 		"mobile.session.pending_echo.earlier_went_through": "Предыдущее сообщение отправлено. Текст ниже ещё не отправлен.",
-		"mobile.session.pending_echo.exhausted": "пока не удалось связаться с компьютером",
+		"mobile.session.pending_echo.exhausted": "не удалось доставить — попытки остановлены",
 		"mobile.session.pending_echo.images": "{count, plural, one {# изображение прикреплено} few {# изображения прикреплены} many {# изображений прикреплено} other {# изображения прикреплено}}",
 		"mobile.session.pending_echo.not_confirmed": "не подтверждено — повторите ниже",
 		"mobile.session.pending_echo.not_confirmed_plain": "не подтверждено",
@@ -8684,7 +8711,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "Сначала активные",
 		"mobile.sidebar.order.most_recent": "Сначала недавние",
 		"mobile.sidebar.order_by": "Сортировать по",
-		"mobile.sidebar.outbox_failed": "Сообщение не отправлено",
+		"mobile.sidebar.outbox_failed": "Отправка сообщения остановлена",
 		"mobile.sidebar.outbox_sending": "Отправка сообщения…",
 		"mobile.sidebar.section.older": "Раньше",
 		"mobile.sidebar.section.pinned": "Закреплённые",
@@ -9540,12 +9567,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "تاریخچے کے پہلے کے پیغامات لوڈ ہونا رک گئے۔ دوبارہ کوشش کریں، یا یہ گفتگو دوبارہ کھولیں۔",
 		"mobile.session.not_connected.headline": "یہ سیشن ابھی منسلک نہیں ہے۔",
 		"mobile.session.not_connected.next": "کمپیوٹر منسلک ہونے کے بعد اسے سیشن کی فہرست سے کھولیں۔",
+		"mobile.session.outbox.composer_discarding": "آپ کا پچھلا پیغام چھوڑا جا رہا ہے۔ آپ یہ پیغام کچھ ہی لمحے میں بھیج سکیں گے۔",
+		"mobile.session.outbox.composer_stopped": "آپ کا پچھلا پیغام بھیجنا رک گیا ہے۔ یہ پیغام بھیجنے کے لیے اوپر اسے دوبارہ بھیجیں یا چھوڑ دیں۔",
 		"mobile.session.outbox.composer_wait": "آپ کا پچھلا پیغام ابھی بھیجا جا رہا ہے۔ اس کے پہنچنے کے بعد آپ یہ پیغام بھیج سکیں گے۔",
 		"mobile.session.outbox.discard": "چھوڑ دیں",
 		"mobile.session.outbox.retry": "دوبارہ کوشش کریں",
+		"mobile.session.pending_echo.discarded": "چھوڑ دیا گیا — ہو سکتا ہے یہ پہلے ہی پہنچ گیا ہو · واپس لانے کے لیے ٹیپ کریں",
 		"mobile.session.pending_echo.earlier_not_sent": "آپ کا پچھلا پیغام نہیں بھیجا گیا ({reason})۔ اسے واپس لانے کے لیے اوپر ٹیپ کریں۔",
 		"mobile.session.pending_echo.earlier_went_through": "آپ کا پچھلا پیغام چلا گیا۔ نیچے والا متن ابھی نہیں بھیجا گیا۔",
-		"mobile.session.pending_echo.exhausted": "آپ کے کمپیوٹر تک ابھی نہیں پہنچ سکے",
+		"mobile.session.pending_echo.exhausted": "پہنچایا نہیں جا سکا — کوشش روک دی گئی",
 		"mobile.session.pending_echo.images": "{count, plural, one {# تصویر منسلک} other {# تصاویر منسلک}}",
 		"mobile.session.pending_echo.not_confirmed": "تصدیق نہیں ہوئی — نیچے دوبارہ کوشش کریں",
 		"mobile.session.pending_echo.not_confirmed_plain": "تصدیق نہیں ہوئی",
@@ -9687,7 +9717,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "فعال پہلے",
 		"mobile.sidebar.order.most_recent": "تازہ ترین",
 		"mobile.sidebar.order_by": "ترتیب کی بنیاد",
-		"mobile.sidebar.outbox_failed": "پیغام نہیں بھیجا گیا",
+		"mobile.sidebar.outbox_failed": "پیغام بھیجنا رک گیا",
 		"mobile.sidebar.outbox_sending": "پیغام بھیجا جا رہا ہے…",
 		"mobile.sidebar.section.older": "پرانے",
 		"mobile.sidebar.section.pinned": "پن شدہ",
@@ -10543,12 +10573,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "Tin nhắn trước đó đã ngừng tải. Hãy thử lại hoặc mở lại cuộc trò chuyện này.",
 		"mobile.session.not_connected.headline": "Phiên này chưa được kết nối.",
 		"mobile.session.not_connected.next": "Sau khi kết nối máy tính, mở lại từ danh sách phiên.",
+		"mobile.session.outbox.composer_discarding": "Đang bỏ tin nhắn trước của bạn. Bạn có thể gửi tin này trong giây lát.",
+		"mobile.session.outbox.composer_stopped": "Tin nhắn trước của bạn đã ngừng gửi. Hãy thử lại hoặc bỏ tin đó ở trên để gửi tin này.",
 		"mobile.session.outbox.composer_wait": "Tin nhắn trước của bạn vẫn đang được gửi. Bạn có thể gửi tin này sau khi tin trước đến nơi.",
 		"mobile.session.outbox.discard": "Bỏ",
 		"mobile.session.outbox.retry": "Thử lại",
+		"mobile.session.pending_echo.discarded": "đã bỏ — có thể tin đã đến nơi · chạm để đưa lại",
 		"mobile.session.pending_echo.earlier_not_sent": "Tin nhắn trước của bạn chưa được gửi ({reason}). Chạm vào nó ở trên để đưa lại.",
 		"mobile.session.pending_echo.earlier_went_through": "Tin nhắn trước của bạn đã được gửi. Nội dung bên dưới chưa được gửi.",
-		"mobile.session.pending_echo.exhausted": "chưa kết nối được với máy tính của bạn",
+		"mobile.session.pending_echo.exhausted": "không gửi đến được — đã ngừng thử",
 		"mobile.session.pending_echo.images": "{count, plural, other {đã đính kèm # hình ảnh}}",
 		"mobile.session.pending_echo.not_confirmed": "chưa xác nhận — thử lại bên dưới",
 		"mobile.session.pending_echo.not_confirmed_plain": "chưa xác nhận",
@@ -10690,7 +10723,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "Đang hoạt động trước",
 		"mobile.sidebar.order.most_recent": "Mới nhất",
 		"mobile.sidebar.order_by": "Sắp xếp theo",
-		"mobile.sidebar.outbox_failed": "Chưa gửi được tin nhắn",
+		"mobile.sidebar.outbox_failed": "Tin nhắn đã ngừng gửi",
 		"mobile.sidebar.outbox_sending": "Đang gửi tin nhắn…",
 		"mobile.sidebar.section.older": "Cũ hơn",
 		"mobile.sidebar.section.pinned": "Đã ghim",
@@ -11546,12 +11579,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.history.stalled": "无法继续加载更早的消息。请重试或重新打开此对话。",
 		"mobile.session.not_connected.headline": "此会话尚未连接。",
 		"mobile.session.not_connected.next": "连接电脑后，从会话列表中打开此会话。",
+		"mobile.session.outbox.composer_discarding": "正在放弃上一条消息。稍后即可发送这一条。",
+		"mobile.session.outbox.composer_stopped": "上一条消息已停止发送。请在上方重试或放弃它，再发送这一条。",
 		"mobile.session.outbox.composer_wait": "上一条消息仍在发送。送达后即可发送这一条。",
 		"mobile.session.outbox.discard": "放弃",
 		"mobile.session.outbox.retry": "重试",
+		"mobile.session.pending_echo.discarded": "已放弃——可能已经送达 · 轻点放回",
 		"mobile.session.pending_echo.earlier_not_sent": "你之前的消息未发送（{reason}）。轻点上方的消息即可放回。",
 		"mobile.session.pending_echo.earlier_went_through": "你之前的消息已发出。下方的文字尚未发送。",
-		"mobile.session.pending_echo.exhausted": "暂时无法连接你的电脑",
+		"mobile.session.pending_echo.exhausted": "未能送达——已停止重试",
 		"mobile.session.pending_echo.images": "{count, plural, other {已附加 # 张图片}}",
 		"mobile.session.pending_echo.not_confirmed": "未确认——请在下方重试",
 		"mobile.session.pending_echo.not_confirmed_plain": "未确认",
@@ -11693,7 +11729,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order.active_first": "活跃优先",
 		"mobile.sidebar.order.most_recent": "最近优先",
 		"mobile.sidebar.order_by": "排序方式",
-		"mobile.sidebar.outbox_failed": "消息未发送",
+		"mobile.sidebar.outbox_failed": "消息已停止发送",
 		"mobile.sidebar.outbox_sending": "正在发送消息…",
 		"mobile.sidebar.section.older": "更早",
 		"mobile.sidebar.section.pinned": "已置顶",

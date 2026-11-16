@@ -105,6 +105,6 @@
 	},
 	"mobile.sidebar.outbox_failed": {
 		"role": "status",
-		"note": "Small line, in error ink, on a conversation row after the phone stopped retrying a message to that conversation. Opening the conversation shows the message with Retry and Discard."
+		"note": "Small line in danger colour on a conversation row in the conversation list when the phone stopped trying to deliver a message to that conversation and needs the user (Retry or Discard inside the conversation). Delivery is UNKNOWN: must not claim the message was definitely not received. Also read aloud as part of the row."
 	}
 }

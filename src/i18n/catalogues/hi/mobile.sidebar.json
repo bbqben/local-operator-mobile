@@ -25,5 +25,5 @@
 	"mobile.sidebar.empty_by_view.next": "खंड या समाप्त सत्र फिर से चालू करें, या दृश्य रीसेट करें।",
 	"mobile.sidebar.empty_by_view.reset": "दृश्य रीसेट करें",
 	"mobile.sidebar.outbox_sending": "संदेश भेजा जा रहा है…",
-	"mobile.sidebar.outbox_failed": "संदेश नहीं भेजा गया"
+	"mobile.sidebar.outbox_failed": "संदेश भेजना रुक गया"
 }

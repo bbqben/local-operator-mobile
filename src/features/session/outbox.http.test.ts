@@ -44,6 +44,7 @@ import {
 	clearPendingEchoes,
 	pendingEchoCaption,
 	pendingEchoFor,
+	putBackPendingEcho,
 	registerPendingEcho,
 } from "./pending-echo";
 
@@ -440,7 +441,7 @@ describe("relaunch", () => {
 		});
 		expect(outcome.kind).toBe("background");
 		const id = outcome.kind === "background" ? outcome.commandId : "";
-		// Custody was recorded the moment the composer was released.
+		// Custody was recorded before the first attempt and kept at hand-off.
 		expect([...owned]).toEqual([SESSION]);
 		// Kill: the outbox and the echo store are gone; only storage remains.
 		first.abandonAll();
@@ -465,6 +466,89 @@ describe("relaunch", () => {
 		expect(await envelopes.peek(SESSION)).toBeNull();
 		// Delivered: the mark goes with the job.
 		expect(owned.size).toBe(0);
+	});
+
+	it("a kill DURING the composer's first attempt still resumes it (QA round 1, Q1)", async () => {
+		const backing = memoryEnvelopeStore();
+		const owned = new Set<string>();
+		const ledger = {
+			add: async (id: string) => {
+				owned.add(id);
+			},
+			remove: async (id: string) => {
+				owned.delete(id);
+			},
+		};
+		/* The relay admits and never answers: the attached attempt is still out
+		 * (the 60 s window on a slow link) when the app is killed. */
+		const slow = await relay(() => "admit-stall");
+		let markedAtFirstPost: boolean | null = null;
+		const watch = setInterval(() => {
+			if (markedAtFirstPost === null && slow.posts.length > 0)
+				markedAtFirstPost = owned.has(SESSION);
+		}, 1);
+		const first = makeOutbox();
+		first.setLedger(ledger);
+		let id = "";
+		void first
+			.deliver({
+				client: clientFor(slow.baseUrl),
+				envelopes: envelopesOn(backing),
+				sessionId: SESSION,
+				op: "prompt",
+				text: "killed mid-send",
+				onHeld: (envelope) => {
+					id = envelope.command_id;
+					paint("killed mid-send")(envelope);
+				},
+			})
+			.catch(() => undefined);
+		await until(() => slow.posts.length === 1);
+		clearInterval(watch);
+		// Custody was on disk before the first byte, not only at hand-off.
+		expect(markedAtFirstPost).toBe(true);
+		expect(first.entryFor(SESSION)?.phase).toBe("sending");
+		// Kill mid-attempt: only storage survives.
+		first.abandonAll();
+		clearPendingEchoes();
+		await slow.close();
+		expect([...owned]).toEqual([SESSION]);
+
+		const up = await relay(() => "ok");
+		const relaunched = makeOutbox();
+		relaunched.setLedger(ledger);
+		relaunched.setClient(clientFor(up.baseUrl));
+		const envelopes = envelopesOn(backing);
+		await relaunched.resume(
+			[...owned].map((sessionId) => ({ sessionId, envelopes })),
+		);
+		// The conversation list's marker (`useOutboxPhase`) reads this entry.
+		expect(relaunched.entryFor(SESSION)?.phase).toBe("waiting");
+		expect(pendingEchoFor(SESSION, id)?.text).toBe("killed mid-send");
+		await until(() => relaunched.entryFor(SESSION) === null);
+		// Same UUID as the killed attempt; never a new one.
+		expect(up.posts).toEqual([id]);
+		expect(pendingEchoFor(SESSION, id)?.accepted).toBe(true);
+		expect(owned.size).toBe(0);
+	});
+
+	it("a kill before the envelope is held leaves only a stale mark, dropped on resume", async () => {
+		const backing = memoryEnvelopeStore();
+		const owned = new Set<string>([SESSION]);
+		const relaunched = makeOutbox();
+		relaunched.setLedger({
+			add: async (id: string) => {
+				owned.add(id);
+			},
+			remove: async (id: string) => {
+				owned.delete(id);
+			},
+		});
+		await relaunched.resume([
+			{ sessionId: SESSION, envelopes: envelopesOn(backing) },
+		]);
+		expect(relaunched.entryFor(SESSION)).toBeNull();
+		await until(() => owned.size === 0);
 	});
 });
 
@@ -518,8 +602,119 @@ describe("the reader stays in control", () => {
 		await new Promise((resolve) => setTimeout(resolve, 400));
 		expect(server.posts).toHaveLength(sent);
 		expect(box.entryFor(SESSION)).toBeNull();
-		expect(pendingEchoFor(SESSION, id)).toBeUndefined();
+		// The row stays, as the put-back row (UX round 1, U2)…
+		expect(pendingEchoFor(SESSION, id)?.outbox).toBe("discarded");
 		expect(await envelopes.peek(SESSION)).toBeNull();
+		// …and its tap puts the words back in the composer, row gone.
+		const restored: string[] = [];
+		putBackPendingEcho(SESSION, id, {
+			read: () => ({ text: "", imageCount: 0 }),
+			clear: () => {},
+			restore: () => {},
+			prepend: (text) => restored.push(text),
+		});
+		expect(restored).toEqual(["hello"]);
+		expect(pendingEchoFor(SESSION, id)).toBeUndefined();
+	});
+
+	it("Discard during the reconcile read sends nothing more (agent review round 1, R1)", async () => {
+		const server = await relay(() => "drop");
+		const envelopes = envelopesOn();
+		let reconcileStarted = false;
+		let answer: (landed: boolean) => void = () => {};
+		const box = makeOutbox({
+			reconcile: () => {
+				reconcileStarted = true;
+				return new Promise<boolean>((resolve) => {
+					answer = resolve;
+				});
+			},
+		});
+		const outcome = await box.deliver({
+			client: clientFor(server.baseUrl),
+			envelopes,
+			sessionId: SESSION,
+			op: "prompt",
+			text: "hello",
+			onHeld: paint("hello"),
+		});
+		expect(outcome.kind).toBe("background");
+		// The retry is inside its history check (a slow GET on a bad link).
+		await until(() => reconcileStarted);
+		const before = server.posts.length;
+		const discarded = box.discard(SESSION);
+		answer(false);
+		await discarded;
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		expect(server.posts).toHaveLength(before);
+		expect(box.entryFor(SESSION)).toBeNull();
+		expect(await envelopes.peek(SESSION)).toBeNull();
+	});
+
+	it("Discard while a POST is on the wire changes the row at once (UX round 1, U1)", async () => {
+		// The retry is admitted and never answered: the full attempt deadline.
+		const server = await relay((n) => (n === 1 ? "drop" : "admit-stall"));
+		const envelopes = envelopesOn();
+		const box = makeOutbox();
+		const outcome = await box.deliver({
+			client: clientFor(server.baseUrl),
+			envelopes,
+			sessionId: SESSION,
+			op: "prompt",
+			text: "hello",
+			onHeld: paint("hello"),
+		});
+		const id = outcome.kind === "background" ? outcome.commandId : "";
+		await until(() => server.posts.length === 2);
+		const tapped = Date.now();
+		const discarded = box.discard(SESSION);
+		// Same tick, before any await: the row and the entry already moved.
+		expect(pendingEchoFor(SESSION, id)?.outbox).toBe("discarded");
+		expect(box.entryFor(SESSION)?.phase).toBe("discarding");
+		expect(
+			composerControls({
+				streaming: false,
+				hasDraft: true,
+				hasImages: false,
+				sending: false,
+				envelopePending: false,
+				outboxPhase: "discarding",
+				ended: false,
+			}).disabledReason,
+		).toBe(
+			"Discarding your earlier message. You can send this one in a moment.",
+		);
+		await discarded;
+		// It waited out the attempt it could not abort, and sent nothing new.
+		expect(Date.now() - tapped).toBeGreaterThan(POLICY.attemptTimeoutMs / 2);
+		expect(server.posts).toHaveLength(2);
+		expect(box.entryFor(SESSION)).toBeNull();
+		expect(await envelopes.peek(SESSION)).toBeNull();
+		expect(pendingEchoFor(SESSION, id)?.outbox).toBe("discarded");
+	});
+
+	it("an attempt already on the wire that lands after Discard still shows as sent", async () => {
+		const server = await relay((n) => (n === 1 ? "drop" : "admit-slow"), {
+			slowMs: 300,
+		});
+		const envelopes = envelopesOn();
+		const box = makeOutbox();
+		const outcome = await box.deliver({
+			client: clientFor(server.baseUrl),
+			envelopes,
+			sessionId: SESSION,
+			op: "prompt",
+			text: "hello",
+			onHeld: paint("hello"),
+		});
+		const id = outcome.kind === "background" ? outcome.commandId : "";
+		await until(() => server.posts.length === 2);
+		await box.discard(SESSION);
+		// The truth beats the discard: the relay took it, the row says so.
+		expect(server.admissions).toBe(1);
+		expect(pendingEchoFor(SESSION, id)?.accepted).toBe(true);
+		expect(pendingEchoFor(SESSION, id)?.outbox).toBeUndefined();
+		expect(box.entryFor(SESSION)).toBeNull();
 	});
 
 	it("refuses a DIFFERENT instruction on the same session while one is owned", async () => {
@@ -587,20 +782,33 @@ describe("policy and copy", () => {
 			"waiting for your computer — still trying",
 		);
 		expect(pendingEchoCaption({ ...base, outbox: "exhausted" }, false)).toBe(
-			"couldn’t reach your computer yet",
+			"couldn’t deliver — stopped trying",
 		);
-		const controls = composerControls({
-			streaming: false,
-			hasDraft: true,
-			hasImages: false,
-			sending: false,
-			envelopePending: false,
-			outboxPending: true,
-			ended: false,
-		});
-		expect(controls.primary.disabled).toBe(true);
-		expect(controls.disabledReason).toBe(
+		expect(pendingEchoCaption({ ...base, outbox: "discarded" }, false)).toBe(
+			"discarded — it may already have arrived · tap to put back",
+		);
+		const controlsAt = (
+			outboxPhase: "sending" | "waiting" | "failed" | "discarding" | null,
+		) =>
+			composerControls({
+				streaming: false,
+				hasDraft: true,
+				hasImages: false,
+				sending: false,
+				envelopePending: false,
+				outboxPhase,
+				ended: false,
+			});
+		expect(controlsAt("waiting").primary.disabled).toBe(true);
+		expect(controlsAt("waiting").disabledReason).toBe(
 			"Your earlier message is still sending. You can send this one once it’s delivered.",
 		);
+		// Stopped: the hint agrees with the row (UX round 1, U3 / review R6).
+		expect(controlsAt("failed").primary.disabled).toBe(true);
+		expect(controlsAt("failed").disabledReason).toBe(
+			"Your earlier message stopped sending. Retry or discard it above to send this one.",
+		);
+		expect(controlsAt(null).primary.disabled).toBe(false);
+		expect(controlsAt(null).disabledReason).toBeNull();
 	});
 });

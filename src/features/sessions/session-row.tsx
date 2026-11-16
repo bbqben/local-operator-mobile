@@ -94,8 +94,9 @@ export const SessionRow = memo(function SessionRow({
 	 *  landed yet. A primitive subscription, so only THIS row re-renders when
 	 *  its phase moves — the memo above still holds for every other row. */
 	const outboxPhase = useOutboxPhase(session.session_id);
+	/* `discarding`: the reader already dismissed it; no list line. */
 	const outboxWords =
-		outboxPhase === null
+		outboxPhase === null || outboxPhase === "discarding"
 			? undefined
 			: outboxPhase === "failed"
 				? t("mobile.sidebar.outbox_failed")

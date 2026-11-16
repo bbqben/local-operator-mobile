@@ -329,7 +329,7 @@
 	},
 	"mobile.session.pending_echo.exhausted": {
 		"role": "meta",
-		"note": "Caption under a sent message after the app stopped retrying it automatically (about 15 minutes without reaching the computer). Shown in error ink with Retry and Discard buttons below it. The message is kept on the phone and has not been confirmed delivered. Lower case like the other pending-row captions."
+		"note": "Caption under a message the app STOPPED trying to deliver by itself (it kept trying for a while, or hit a problem only the user can resolve). Retry and Discard buttons sit under it. Must say it stopped; must NOT claim the message was definitely not received, nor blame the computer specifically (the cause can also be phone storage or a certificate)."
 	},
 	"mobile.session.outbox.retry": {
 		"role": "button",
@@ -342,5 +342,17 @@
 	"mobile.session.outbox.composer_wait": {
 		"role": "help",
 		"note": "Shown under the disabled send button while an earlier message in the SAME conversation is still being delivered in the background. One message per conversation is delivered at a time so they never arrive twice or out of order. Other conversations are unaffected."
+	},
+	"mobile.session.pending_echo.discarded": {
+		"role": "meta",
+		"note": "Caption under a message the user just discarded (told the app to stop delivering it). An earlier attempt may already have reached the computer, so it must not promise the message was cancelled. Tapping the message puts its words back into the text box. Lower-case, like the other captions under a message."
+	},
+	"mobile.session.outbox.composer_stopped": {
+		"role": "help",
+		"note": "Shown under the disabled send button while an earlier message in the SAME conversation has stopped sending and waits for the user (Retry or Discard buttons on that message, above the text box). Must not say the earlier message was definitely not received."
+	},
+	"mobile.session.outbox.composer_discarding": {
+		"role": "help",
+		"note": "Shown under the disabled send button for the few seconds after the user discarded an earlier message while the app finishes the attempt that was already under way. Nothing for the user to do; sending unlocks by itself."
 	}
 }

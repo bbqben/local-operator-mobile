@@ -2066,7 +2066,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged src carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	src: "fb7a162ed773777b5c86ae23597ded4a170cbea65bc43eaadb4aa53b5415ffb1",
+	/* PR #275 round-1 remediation: outbox discard/custody fixes, the
+	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
+	 * keys in all 8 locales. Re-derived with --print over the working tree (run
+	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
+	src: "bab911c26d3d7bfae0326ce5c625e4ebbb70e1e900cbc3c189ef019c68b2af08",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

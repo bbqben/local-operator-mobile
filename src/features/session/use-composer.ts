@@ -1039,7 +1039,7 @@ export const useComposer = (input: {
 				hasImages: images.length > 0,
 				sending,
 				envelopePending: retained !== null,
-				outboxPending: outboxEntry !== null,
+				outboxPhase: outboxEntry?.phase ?? null,
 				ended,
 			}),
 		[
