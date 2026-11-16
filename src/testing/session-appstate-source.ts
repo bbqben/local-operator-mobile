@@ -9,10 +9,11 @@ export function sessionResumeHandler(source: string): string {
 	const handlers = [...source.matchAll(APPSTATE_HANDLER)].filter(([handler]) =>
 		handler.includes("reconnectRef.current();"),
 	);
-	if (handlers.length !== 1) {
+	const firstHandler = handlers[0];
+	if (!firstHandler || handlers.length !== 1) {
 		throw new Error(
 			`Expected one stream-owning AppState listener, found ${handlers.length}`,
 		);
 	}
-	return handlers[0][0];
+	return firstHandler[0];
 }
