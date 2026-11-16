@@ -1,6 +1,12 @@
 {
 	"mobile.notifications.answer": "Trả lời",
 	"mobile.notifications.back": "Quay lại",
+	"mobile.notifications.category.completion_placeholder": "Cập nhật agent",
+	"mobile.notifications.category.completion_summary": "Thêm %u từ các agent của bạn",
+	"mobile.notifications.category.digest_placeholder": "Bản tóm tắt",
+	"mobile.notifications.category.digest_summary": "Thêm %u từ bản tóm tắt của bạn",
+	"mobile.notifications.category.message_placeholder": "Tin nhắn Team Bridge",
+	"mobile.notifications.category.message_summary": "Thêm %u từ Team Bridge",
 	"mobile.notifications.channel.airy_whistle": "Tiếng huýt nhẹ",
 	"mobile.notifications.channel.bubble_chord": "Hợp âm bong bóng",
 	"mobile.notifications.channel.bubble_pulse": "Nhịp bong bóng",

@@ -1,6 +1,12 @@
 {
 	"mobile.notifications.answer": "Responder",
 	"mobile.notifications.back": "Atrás",
+	"mobile.notifications.category.completion_placeholder": "Novedad del agente",
+	"mobile.notifications.category.completion_summary": "%u más de tus agentes",
+	"mobile.notifications.category.digest_placeholder": "Resumen",
+	"mobile.notifications.category.digest_summary": "%u más de tu resumen",
+	"mobile.notifications.category.message_placeholder": "Mensaje de Team Bridge",
+	"mobile.notifications.category.message_summary": "%u más de Team Bridge",
 	"mobile.notifications.channel.airy_whistle": "Silbido etéreo",
 	"mobile.notifications.channel.bubble_chord": "Acorde de burbujas",
 	"mobile.notifications.channel.bubble_pulse": "Pulso de burbuja",
