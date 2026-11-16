@@ -710,10 +710,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * over the merged tree; source identity, NOT rendered evidence. */
 	/* Merge of origin/main (#246, c0b6a4da) into #264: both comment chains
 	 * kept, re-derived once with --print over the merged tree. */
+	/* fix/background-send-retry: the root layout mounts the outbox host and the
+	 * session screen hands its pending rows the outbox's Retry/Discard. --print
+	 * over the staged tree; source identity only, NOT rendered U-08 evidence. */
 	/* Re-pinned 2026-11-15 for PR #271 (remote conversations, round-1
 	 * remediation) with --print: the session route withholds remote controls the
 	 * relay does not forward and names the owner. Source admission only. */
-	app: "d3291363d20631cabf0e6f447953dc2ff5c363d34e795ff6a0de9d889b1c02da",
+	/* Merge of origin/main (#271, 57b129c8) into fix/background-send-retry
+	 * (PR #275): both comment chains retained; the merged app carries both
+	 * sides, so it matches neither parent. Re-derived with --print over the
+	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
+	app: "d4c15704e4c7d6daf91f7b6a1575ec5e849ba0be08f5a344ab48d25c9405eda7",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2045,6 +2052,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (not --print); the same reader reproduced the previous pin from the
 	 * base tree as a control. Source identity only, NOT rendered U-08
 	 * evidence. */
+	/* fix/background-send-retry: the durable outbox (`features/session/outbox*`),
+	 * its pending-row captions/controls, the conversation-row indicator, the
+	 * command deadline override and their catalogue keys in all 8 locales.
+	 * --print over the staged tree; source identity only, NOT rendered U-08
+	 * evidence. */
 	/* Merge of origin/main (#273, c7821fc7) into #271: both comment chains
 	 * retained; only this pin conflicted. The merged src carries both sides
 	 * (#271 remote-session view + #273 Radient Console copy), so it matches
@@ -2061,7 +2073,22 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * instead of the retired literal (test-only src change). Same independent
 	 * reader over the staged tree; it reproduced the previous pin (6b528875…)
 	 * from a420c2c1 as a control. Source identity only, NOT rendered U-08 evidence. */
-	src: "90cfbd1e13a692dd4143e155d533636648c23a4790b492677101755420b4cfa9",
+	/* Merge of origin/main (#271, 57b129c8) into fix/background-send-retry
+	 * (PR #275): both comment chains retained; the merged src carries both
+	 * sides, so it matches neither parent. Re-derived with --print over the
+	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
+	/* PR #275 round-1 remediation: outbox discard/custody fixes, the
+	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
+	 * keys in all 8 locales. Re-derived with --print over the working tree (run
+	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#275 background sending, b1fbb813) into O3-a:
+	 * both comment chains retained; the merged src carries both sides (the
+	 * key-union mobile.session catalogues in all 8 locales plus #275's outbox
+	 * sources), so it matches neither parent. Derived LAST by the same
+	 * independent treeDigest reader over the staged merge tree's git objects
+	 * (not --print); it reproduced main's pin (bab911c2…) from b1fbb813's tree
+	 * as a control. Source identity only, NOT rendered U-08 evidence. */
+	src: "795de762078c3b9c01278a9c9a5f091222c618c77bd996e8fac1763288d95bfd",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

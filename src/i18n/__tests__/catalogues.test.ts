@@ -202,7 +202,7 @@ const NAMESPACES = [
 		name: "mobile.session",
 		messages: session,
 		context: sessionContext,
-		expected: 83, // O3-a +2: the commands and attach sheet titles (81 + 2 = 83); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
+		expected: 91, // O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
 	},
 	{
 		/* The relay's own two namespaces, under its own keys. They are here rather
@@ -263,7 +263,7 @@ const NAMESPACES = [
 		name: "mobile.sidebar",
 		messages: sidebar,
 		context: sidebarContext,
-		expected: 25,
+		expected: 27, // PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
 	},
 	{
 		/* This app's own short chrome words the relay has no key for: the sidebar
@@ -512,7 +512,15 @@ describe("the English catalogues", () => {
 		 * mobile.projects 4, mobile.schedules 4, mobile.session 2,
 		 * mobile.settings 1): 994 on main + 40 = 1034, derived by summing the keys
 		 * of all 25 en catalogue files (mobile.time 23, mobile.remote_sessions 22). */
-		expect(total).toBe(1034);
+		/* PR #275 (background sending): +8 mobile.session (outbox captions,
+		 * Retry/Discard, three composer hints) + 2 mobile.sidebar (row outbox
+		 * lines) = 1004, derived by summing the keys of all 24 en catalogue
+		 * files (mobile.session 89, mobile.sidebar 27). */
+		/* Merge of origin/main (#275, b1fbb813) into O3-a: both comment chains
+		 * kept; 1034 on O3-a + #275's 10 (mobile.session 8, mobile.sidebar 2) =
+		 * 1044, derived by summing the keys of all 25 merged en catalogue files
+		 * (mobile.session 91, mobile.sidebar 27, mobile.time 23). */
+		expect(total).toBe(1044);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
