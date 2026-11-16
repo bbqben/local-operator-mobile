@@ -758,10 +758,12 @@ export function createTeamBridgeStore(deps: {
 						 *  returns the held array itself when no message changed. */
 						if (
 							current &&
-							!first &&
 							messages === current.messages &&
 							current.state === "ready" &&
-							current.error === null
+							current.error === null &&
+							// A first page also decides `hasMore` (below); skip only when
+							// that answer is unchanged too (empty threads, QA r1 Q3).
+							(!first || current.hasMore === (page.has_more === true))
 						)
 							return;
 						patchThread(key, {

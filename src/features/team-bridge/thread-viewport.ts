@@ -92,7 +92,19 @@ export type ThreadViewportOptions = {
 	 * see there for why a layout event cannot be waited for.
 	 */
 	measure?: () => ScrollGeometry | null;
+	/** Clock for the in-flight write window (tests inject one). */
+	now?: () => number;
 };
+
+/**
+ * How long a native write counts as in flight. Long enough to collapse ONE
+ * burst of triggers (content size, layout and the admission recheck land in
+ * the same commit), short enough that a write iOS dropped without a scroll
+ * event is re-asserted by the next trigger (QA r1 Q1 / design D2). A
+ * programmatic move's event normally arrives within a frame or two, and the
+ * list's own `scrollEventThrottle` is 100 ms.
+ */
+export const IN_FLIGHT_MS = 250;
 
 export function createThreadViewport(options: ThreadViewportOptions) {
 	let initial = true;
@@ -142,7 +154,8 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	 * extra trigger). Cleared by any scroll event, so a reader's move or a
 	 * host that settled elsewhere is never masked; a new target still writes.
 	 */
-	let requested: number | null = null;
+	let requested: { target: number; at: number } | null = null;
+	const now = options.now ?? Date.now;
 	let readSeq = 0;
 
 	const finish = (atNewest: boolean) => {
@@ -218,14 +231,18 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			if (initial && contentReady) finish(true);
 			return;
 		}
-		if (requested !== null && Math.abs(requested - target) <= POSITION_SLACK)
+		if (
+			requested !== null &&
+			Math.abs(requested.target - target) <= POSITION_SLACK &&
+			now() - requested.at < IN_FLIGHT_MS
+		)
 			return;
 		write(target);
 	};
 
 	const write = (target: number) => {
 		const readBack = options.scrollTo(target);
-		requested = readBack ? null : target;
+		requested = readBack ? null : { target, at: now() };
 		if (readBack) settle(readBack.y, readBack.viewport, readBack.content);
 	};
 

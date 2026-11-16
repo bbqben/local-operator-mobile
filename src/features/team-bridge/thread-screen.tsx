@@ -481,9 +481,23 @@ function ThreadContent({
 			notice: setAttachNotice,
 		});
 	};
+	/* "Today"/"Yesterday" dividers are derived from the clock. An unchanged
+	 *  poll no longer rebuilds the rows (Bridge thread flicker), so re-derive
+	 *  them when the local day turns over instead (design r1 D1). A timer that
+	 *  fires late after a backgrounded app still lands on the new day. */
+	const [today, setToday] = useState(() => model.localDay(new Date()));
+	// biome-ignore lint/correctness/useExhaustiveDependencies: a new `today` re-arms the timer for the following midnight.
+	useEffect(() => {
+		const timer = setTimeout(
+			() => setToday(model.localDay(new Date())),
+			model.msUntilNextLocalDay(new Date()) + 1000,
+		);
+		return () => clearTimeout(timer);
+	}, [today]);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `today` is the day the labels are derived for.
 	const items = useMemo(
 		() => model.threadItems(thread?.messages ?? [], new Date()),
-		[thread?.messages],
+		[thread?.messages, today],
 	);
 	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;

@@ -519,6 +519,20 @@ export const RUN_WINDOW_MS = 5 * 60_000;
 const dayKey = (date: Date): string =>
 	`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
+/**
+ * The reader's local calendar day, for re-deriving "Today"/"Yesterday".
+ * The thread's rows used to be rebuilt by every poll as a side effect; now an
+ * unchanged poll is a no-op, so the screen re-derives them when the day
+ * changes instead (design r1 D1).
+ */
+export const localDay = dayKey;
+
+/** Milliseconds until the next local midnight (at least 1 ms). */
+export function msUntilNextLocalDay(now: Date): number {
+	const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+	return Math.max(1, next.getTime() - now.getTime());
+}
+
 /** The day divider's words: Today, Yesterday, or a dated label. */
 export function dayLabel(date: Date, now: Date, locale?: string): string {
 	const today = dayKey(now);

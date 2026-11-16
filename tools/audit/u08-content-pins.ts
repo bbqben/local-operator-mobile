@@ -2097,9 +2097,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Bridge thread flicker: unchanged polls keep message identity (structural
 	 * sharing in mergeMessages, no publish in loadThread), a stable empty
 	 * people list, and no repeated native write for an in-flight target.
-	 * Re-derived with --print; source admission only, NOT rendered, native
-	 * or device evidence. */
-	src: "ae2b2bf403aa5e4b065c860028730b969c3ff2412b58854fd059f8ed76497f28",
+	 * Round-1 remediation adds the day-turnover re-derive and a 250 ms
+	 * in-flight window. Re-derived with --print; source admission only, NOT
+	 * rendered, native or device evidence. */
+	src: "1ea0b77ac9b93c1cd6c6969de1cf3f5be5e535f0c0f4a3722d9ba9fe848c6f9e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

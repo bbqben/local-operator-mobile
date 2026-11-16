@@ -503,6 +503,46 @@ describe("a periodic unchanged refresh", () => {
 		expect(r.moves).not.toHaveBeenCalled();
 		expect(r.y).toBe(900);
 	});
+	/*
+	 * QA round 1 Q1 / design D2: a native write that iOS drops raises no
+	 * scroll event. The in-flight dedupe must only collapse the duplicates of
+	 * ONE burst of triggers, never strand the follower short of the end.
+	 */
+	it("re-asserts a dropped native write once the in-flight window has passed", () => {
+		let clock = 0;
+		const moves: number[] = [];
+		const v = createThreadViewport({
+			scrollTo: (offset) => {
+				moves.push(offset); // dropped: the host never moves, no event
+				return null;
+			},
+			positioned: vi.fn(),
+			read: vi.fn(),
+			newestSeq: () => 4,
+			dataReady: () => true,
+			web: false,
+			now: () => clock,
+		});
+		const scroll = (y: number, content: number) =>
+			v.handlers.onScroll({
+				nativeEvent: {
+					contentOffset: { y },
+					layoutMeasurement: { height: 599 },
+					contentSize: { height: content },
+				},
+			});
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		v.handlers.onContentSizeChange(390, 2718);
+		scroll(2119, 2718); // landed and positioned
+		moves.length = 0;
+		v.handlers.onContentSizeChange(390, 2800); // a new message
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		v.dataChanged();
+		expect(moves).toEqual([2201]); // one burst, one write
+		clock += 1000; // iOS dropped it: no event ever arrived
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		expect(moves).toEqual([2201, 2201]);
+	});
 	it("the #283 reconcile corrects a past-end report once and then rests", () => {
 		const r = openLong(false);
 		r.moves.mockClear();

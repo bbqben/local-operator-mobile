@@ -365,6 +365,24 @@ describe("team bridge store", () => {
 		expect(after?.messages).toBe(before?.messages);
 	});
 
+	it("an unchanged poll of an EMPTY thread publishes nothing either (QA r1 Q3)", async () => {
+		const listMessages = vi.fn(async () => ({ messages: [], has_more: false }));
+		const { store, actions } = createTeamBridgeStore({
+			hub: () => fakeHub({ listMessages }),
+			accessToken: async () => token(SELF),
+		});
+		await actions.loadThread(TENANT, "c1");
+		const before = store.getState().threads[threadKey(TENANT, "c1")];
+		expect(before?.state).toBe("ready");
+		const published = vi.fn();
+		const stop = store.subscribe(published);
+		for (let tick = 0; tick < 5; tick += 1)
+			await actions.loadThread(TENANT, "c1");
+		stop();
+		expect(published).not.toHaveBeenCalled();
+		expect(store.getState().threads[threadKey(TENANT, "c1")]).toBe(before);
+	});
+
 	it("a poll that changes one message replaces only that object, and appends a new one", async () => {
 		const edited = message(4, ADA, "2026-10-21T10:01:00Z");
 		const listMessages = vi
