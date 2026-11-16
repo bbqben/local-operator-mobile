@@ -187,7 +187,10 @@ const NAMESPACES = [
 		// `preferences.disabled_hint` (U9): 53 + 1 − 2 + 3 = 55.
 		// PR #272: +4 the agent/Bridge group headings and their guidance;
 		// count the authored notification catalogue, not only rendered switches.
-		expected: 59,
+		// feat/notification-category-summaries: +6 the iOS category summary
+		// formats and hidden-preview placeholders (`category.*`), one pair per
+		// `aps.category` id (59 + 6 = 65).
+		expected: 65,
 	},
 	{
 		name: "mobile.session",
@@ -495,7 +498,8 @@ describe("the English catalogues", () => {
 		 * lines) = 1004, derived by summing the keys of all 24 en catalogue
 		 * files (mobile.session 89, mobile.sidebar 27). */
 		// Remote Highlight operation-local refusals: +2 = 1006 (generator count).
-		expect(total).toBe(1006);
+		// iOS notification category summaries/placeholders: +6 = 1012.
+		expect(total).toBe(1012);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
