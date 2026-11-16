@@ -111,6 +111,18 @@
 		"role": "heading",
 		"note": "Section header listing the projects a notification relates to."
 	},
+	"mobile.notifications.devices.last_active": {
+		"role": "meta",
+		"note": "Settings → Notifications: a secondary line under another registered device's name telling it apart from similar devices. {date} is a localized short date and time, e.g. \"Nov 15, 4:37 PM\"."
+	},
+	"mobile.notifications.devices.this_android": {
+		"role": "heading",
+		"note": "Settings → Notifications: the title of the registered-device row that is the Android phone the reader is holding, listed first above the computer's other devices. Android is a product name, kept verbatim."
+	},
+	"mobile.notifications.devices.this_iphone": {
+		"role": "heading",
+		"note": "Settings → Notifications: the title of the registered-device row that is the phone the reader is holding, listed first above the computer's other devices. iPhone is Apple's product name, kept verbatim."
+	},
 	"mobile.notifications.dismiss": {
 		"role": "button",
 		"note": "Accessibility label of the icon-only button that clears a notification from the inbox. Imperative."

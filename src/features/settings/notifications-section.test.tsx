@@ -24,6 +24,9 @@ vi.mock("react-native", () => ({
 	View: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
 	Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
 }));
+// The section reads the install record to find this phone's row; its module
+// imports expo-crypto, whose native entry does not load under Node.
+vi.mock("expo-crypto", () => ({ randomUUID: () => "synthetic-install" }));
 vi.mock("@/connection/storage", async (original) => {
 	const actual = await original<typeof import("@/connection/storage")>();
 	const storage = actual.memorySecureStore();

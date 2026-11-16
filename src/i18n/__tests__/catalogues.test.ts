@@ -187,7 +187,9 @@ const NAMESPACES = [
 		// `preferences.disabled_hint` (U9): 53 + 1 − 2 + 3 = 55.
 		// PR #272: +4 the agent/Bridge group headings and their guidance;
 		// count the authored notification catalogue, not only rendered switches.
-		expected: 59,
+		// fix/push-device-dedupe: +3 the Settings device rows' "This iPhone" /
+		// "This Android device" titles and "Last active {date}" (59 + 3 = 62).
+		expected: 62,
 	},
 	{
 		name: "mobile.session",
@@ -495,7 +497,8 @@ describe("the English catalogues", () => {
 		 * lines) = 1004, derived by summing the keys of all 24 en catalogue
 		 * files (mobile.session 89, mobile.sidebar 27). */
 		// Remote Highlight operation-local refusals: +2 = 1006 (generator count).
-		expect(total).toBe(1006);
+		// fix/push-device-dedupe: +3 mobile.notifications.devices.* = 1009.
+		expect(total).toBe(1009);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

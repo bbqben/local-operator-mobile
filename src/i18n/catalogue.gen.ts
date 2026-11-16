@@ -419,6 +419,9 @@ export type CatalogueKey =
 	| "mobile.notifications.detail.no_asks"
 	| "mobile.notifications.detail.nothing_to_dismiss"
 	| "mobile.notifications.detail.projects"
+	| "mobile.notifications.devices.last_active"
+	| "mobile.notifications.devices.this_android"
+	| "mobile.notifications.devices.this_iphone"
 	| "mobile.notifications.dismiss"
 	| "mobile.notifications.filter_label"
 	| "mobile.notifications.load_failed"
@@ -1378,6 +1381,8 @@ export type NoParamKey =
 	| "mobile.notifications.detail.no_asks"
 	| "mobile.notifications.detail.nothing_to_dismiss"
 	| "mobile.notifications.detail.projects"
+	| "mobile.notifications.devices.this_android"
+	| "mobile.notifications.devices.this_iphone"
 	| "mobile.notifications.dismiss"
 	| "mobile.notifications.filter_label"
 	| "mobile.notifications.load_failed"
@@ -2282,6 +2287,9 @@ export type MessageParams = {
 	"mobile.notifications.detail.no_asks": NoParams;
 	"mobile.notifications.detail.nothing_to_dismiss": NoParams;
 	"mobile.notifications.detail.projects": NoParams;
+	"mobile.notifications.devices.last_active": { date: string | number };
+	"mobile.notifications.devices.this_android": NoParams;
+	"mobile.notifications.devices.this_iphone": NoParams;
 	"mobile.notifications.dismiss": NoParams;
 	"mobile.notifications.filter_label": NoParams;
 	"mobile.notifications.load_failed": NoParams;
@@ -3307,6 +3315,9 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.detail.no_asks": "No asks in this conversation.",
 	"mobile.notifications.detail.nothing_to_dismiss": "No updates from this conversation to dismiss.",
 	"mobile.notifications.detail.projects": "Projects",
+	"mobile.notifications.devices.last_active": "Last active {date}",
+	"mobile.notifications.devices.this_android": "This Android device",
+	"mobile.notifications.devices.this_iphone": "This iPhone",
 	"mobile.notifications.dismiss": "Dismiss",
 	"mobile.notifications.filter_label": "Show",
 	"mobile.notifications.load_failed": "Couldn't load notifications",
@@ -4317,6 +4328,9 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.detail.no_asks": { role: "status", note: "Empty state under the asks header. Ends with a full stop." },
 	"mobile.notifications.detail.nothing_to_dismiss": { role: "status", note: "Empty state of the dismiss dialog when the conversation has no dismissable updates. Ends with a full stop." },
 	"mobile.notifications.detail.projects": { role: "heading", note: "Section header listing the projects a notification relates to." },
+	"mobile.notifications.devices.last_active": { role: "meta", note: "Settings → Notifications: a secondary line under another registered device's name telling it apart from similar devices. {date} is a localized short date and time, e.g. \"Nov 15, 4:37 PM\"." },
+	"mobile.notifications.devices.this_android": { role: "heading", note: "Settings → Notifications: the title of the registered-device row that is the Android phone the reader is holding, listed first above the computer's other devices. Android is a product name, kept verbatim." },
+	"mobile.notifications.devices.this_iphone": { role: "heading", note: "Settings → Notifications: the title of the registered-device row that is the phone the reader is holding, listed first above the computer's other devices. iPhone is Apple's product name, kept verbatim." },
 	"mobile.notifications.dismiss": { role: "button", note: "Accessibility label of the icon-only button that clears a notification from the inbox. Imperative." },
 	"mobile.notifications.filter_label": { role: "meta", note: "Accessible label of the segmented control that chooses which notifications are listed (unread or all). One word; a verb used as a label." },
 	"mobile.notifications.load_failed": { role: "heading", note: "Title of the error alert when the inbox could not be loaded. The relay's own sentence follows as the alert body." },
@@ -5341,6 +5355,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "No hay preguntas en esta conversación.",
 		"mobile.notifications.detail.nothing_to_dismiss": "No hay actualizaciones de esta conversación que descartar.",
 		"mobile.notifications.detail.projects": "Proyectos",
+		"mobile.notifications.devices.last_active": "Última actividad: {date}",
+		"mobile.notifications.devices.this_android": "Este dispositivo Android",
+		"mobile.notifications.devices.this_iphone": "Este iPhone",
 		"mobile.notifications.dismiss": "Descartar",
 		"mobile.notifications.filter_label": "Mostrar",
 		"mobile.notifications.load_failed": "No se pudieron cargar las notificaciones",
@@ -6349,6 +6366,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "Aucune question dans cette conversation.",
 		"mobile.notifications.detail.nothing_to_dismiss": "Aucune mise à jour de cette conversation à ignorer.",
 		"mobile.notifications.detail.projects": "Projets",
+		"mobile.notifications.devices.last_active": "Dernière activité : {date}",
+		"mobile.notifications.devices.this_android": "Cet appareil Android",
+		"mobile.notifications.devices.this_iphone": "Cet iPhone",
 		"mobile.notifications.dismiss": "Ignorer",
 		"mobile.notifications.filter_label": "Afficher",
 		"mobile.notifications.load_failed": "Impossible de charger les notifications",
@@ -7357,6 +7377,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "इस बातचीत में कोई सवाल नहीं।",
 		"mobile.notifications.detail.nothing_to_dismiss": "इस बातचीत से हटाने के लिए कोई अपडेट नहीं।",
 		"mobile.notifications.detail.projects": "प्रोजेक्ट",
+		"mobile.notifications.devices.last_active": "अंतिम बार सक्रिय: {date}",
+		"mobile.notifications.devices.this_android": "यह Android डिवाइस",
+		"mobile.notifications.devices.this_iphone": "यह iPhone",
 		"mobile.notifications.dismiss": "हटाएँ",
 		"mobile.notifications.filter_label": "दिखाएँ",
 		"mobile.notifications.load_failed": "सूचनाएँ लोड नहीं हो सकीं",
@@ -8365,6 +8388,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "В этой беседе нет вопросов.",
 		"mobile.notifications.detail.nothing_to_dismiss": "В этой беседе нет обновлений, которые можно скрыть.",
 		"mobile.notifications.detail.projects": "Проекты",
+		"mobile.notifications.devices.last_active": "Последняя активность: {date}",
+		"mobile.notifications.devices.this_android": "Это устройство Android",
+		"mobile.notifications.devices.this_iphone": "Этот iPhone",
 		"mobile.notifications.dismiss": "Скрыть",
 		"mobile.notifications.filter_label": "Показать",
 		"mobile.notifications.load_failed": "Не удалось загрузить уведомления",
@@ -9373,6 +9399,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "اس گفتگو میں کوئی سوال نہیں۔",
 		"mobile.notifications.detail.nothing_to_dismiss": "اس گفتگو سے ہٹانے کے لیے کوئی اپ ڈیٹ نہیں۔",
 		"mobile.notifications.detail.projects": "پروجیکٹس",
+		"mobile.notifications.devices.last_active": "آخری بار فعال: {date}",
+		"mobile.notifications.devices.this_android": "یہ Android ڈیوائس",
+		"mobile.notifications.devices.this_iphone": "یہ iPhone",
 		"mobile.notifications.dismiss": "ہٹائیں",
 		"mobile.notifications.filter_label": "دکھائیں",
 		"mobile.notifications.load_failed": "اطلاعات لوڈ نہیں ہو سکیں",
@@ -10381,6 +10410,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "Không có câu hỏi nào trong cuộc trò chuyện này.",
 		"mobile.notifications.detail.nothing_to_dismiss": "Không có cập nhật nào từ cuộc trò chuyện này để bỏ qua.",
 		"mobile.notifications.detail.projects": "Dự án",
+		"mobile.notifications.devices.last_active": "Hoạt động lần cuối: {date}",
+		"mobile.notifications.devices.this_android": "Thiết bị Android này",
+		"mobile.notifications.devices.this_iphone": "iPhone này",
 		"mobile.notifications.dismiss": "Bỏ qua",
 		"mobile.notifications.filter_label": "Hiển thị",
 		"mobile.notifications.load_failed": "Không thể tải thông báo",
@@ -11389,6 +11421,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "此对话中没有问题。",
 		"mobile.notifications.detail.nothing_to_dismiss": "此对话没有可忽略的更新。",
 		"mobile.notifications.detail.projects": "项目",
+		"mobile.notifications.devices.last_active": "上次活跃：{date}",
+		"mobile.notifications.devices.this_android": "这台 Android 设备",
+		"mobile.notifications.devices.this_iphone": "这台 iPhone",
 		"mobile.notifications.dismiss": "忽略",
 		"mobile.notifications.filter_label": "显示",
 		"mobile.notifications.load_failed": "无法加载通知",
