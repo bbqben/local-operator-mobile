@@ -10,7 +10,7 @@
 	"mobile.remote_sessions.command_ambiguous": "Le propriétaire a peut-être reçu cette commande sans la confirmer. Vérifiez la conversation avant de réessayer pour éviter un doublon.",
 	"mobile.remote_sessions.file_saving": "Enregistrement du fichier…",
 	"mobile.remote_sessions.file_save_failed": "Impossible d’enregistrer ce fichier. Réessayez.",
-	"mobile.remote_sessions.retained_only": "Les fichiers créés par l’agent ne peuvent pas encore être prévisualisés dans les conversations à distance. Les documents joints peuvent être enregistrés.",
+	"mobile.remote_sessions.retained_only": "Les aperçus des Highlights nécessitent une version plus récente de Local Operator sur l’ordinateur connecté. Ouvrez-les sur l’ordinateur propriétaire en attendant. Les documents joints peuvent toujours être enregistrés.",
 	"mobile.remote_sessions.gate_unsupported": "L’ouverture des conversations à distance nécessite une version plus récente de Local Operator sur cet ordinateur et sur l’ordinateur propriétaire. Mettez les deux à jour, puis réessayez.",
 	"mobile.remote_sessions.subtitle_owner": "{state} · Sur {owner}",
 	"mobile.remote_sessions.owner_only": "Pour l’instant, les approbations, Arrêter, les changements de modèle et les commandes slash ne fonctionnent que sur {owner}.",
@@ -20,5 +20,7 @@
 	"mobile.remote_sessions.health_quiet": "Cette conversation sur {owner} ne répond plus — elle est peut-être occupée ou bloquée. Un envoi peut afficher un échec et arriver quand même une fois qu’elle a rattrapé son retard. Réessayer ne l’enverra pas deux fois.",
 	"mobile.remote_sessions.health_ended": "Cette conversation est terminée sur {owner}. Son historique reste consultable ici.",
 	"mobile.remote_sessions.file_save_label": "Enregistrer {name}",
-	"mobile.remote_sessions.row_long_press_hint": "Rapatrier, déplacer ou copier"
+	"mobile.remote_sessions.row_long_press_hint": "Rapatrier, déplacer ou copier",
+	"mobile.remote_sessions.media_changed": "Ce média a changé ou l’accès a pris fin pendant le téléchargement. Rien n’a été ouvert. Réessayez lorsque l’ordinateur propriétaire sera disponible.",
+	"mobile.remote_sessions.supplement_needs_running": "Ce fichier nécessite que la conversation soit en cours sur son ordinateur propriétaire. Ouvrez-le là-bas ou reprenez-y la conversation, puis réessayez."
 }

@@ -1284,6 +1284,7 @@ export const capabilitiesSchema = z.looseObject({
 			audio_upload: z.boolean().optional(),
 			skill_invocation: z.boolean().optional(),
 			supplements: z.boolean().optional(),
+			supplement_kinds: z.array(z.string()).optional(),
 			document_upload: z.boolean().optional(),
 		})
 		.optional(),

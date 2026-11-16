@@ -1306,7 +1306,10 @@ export function createRelay(options: RelayOptions = {}) {
 						file_sources: ["retained_document"],
 						audio_upload: false,
 						skill_invocation: false,
-						supplements: false,
+						supplements: world.remoteSupplements === true,
+						...(world.remoteSupplements
+							? { supplement_kinds: ["document", "file", "sound"] }
+							: {}),
 						document_upload: false,
 					};
 				}

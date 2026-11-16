@@ -260,6 +260,8 @@ export interface ScenarioWorld {
 	/** Complete v1 viewer fixture only; listing/transfer scenarios stay old-relay
 	 * controls so a phone cannot infer remote support from the row alone. */
 	remoteSessions?: boolean;
+	/** Additive read contract; keep remote-conversation as the old-core control. */
+	remoteSupplements?: boolean;
 	/**
 	 * What `POST /api/sessions/{id}/transfer` answers for this state.
 	 *
@@ -3801,6 +3803,31 @@ export function buildScenarios(fix: FixtureCorpus): ScenarioRegistry {
 				},
 				remoteSessions: true,
 			};
+		},
+	);
+
+	add(
+		"remote-highlights",
+		"Owner-routed Highlight reads on the ordinary admitted relay URLs; the older remote-conversation scenario remains the negative control.",
+		[],
+		() => {
+			const base = scenarios["remote-conversation"];
+			if (!base) throw new Error("remote-conversation fixture is missing");
+			const world = base.world();
+			world.remoteSupplements = true;
+			for (const projection of Object.values(world.projections ?? {})) {
+				const beat = projection.supplements?.["remote-owner-answer"];
+				if (beat)
+					beat.sounds = [
+						{
+							attachment: "0123456789abcdef0123456789abcdef",
+							mime: "audio/wav",
+							title: "Generated chime",
+							duration_s: 8,
+						},
+					];
+			}
+			return world;
 		},
 	);
 

@@ -1148,10 +1148,12 @@ export class RelayEndpoints {
 	async supplementSound(
 		sessionId: string,
 		digest: string,
+		signal?: AbortSignal,
 	): Promise<ImageBytes> {
 		const result = await this.http.bytes({
 			method: "GET",
 			path: `/api/sessions/${encodeURIComponent(sessionId)}/sound${query({ digest })}`,
+			signal,
 		});
 		return { bytes: result.bytes, mimeType: result.mimeType };
 	}

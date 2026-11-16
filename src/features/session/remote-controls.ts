@@ -39,7 +39,10 @@ export type SessionControlOp =
 	| "slash"
 	| "set_model"
 	| "set_effort"
-	| "resume";
+	| "resume"
+	| "supplement_cancel"
+	| "supplement_restart"
+	| "supplement_steer";
 
 export type SessionControlPolicy = {
 	remote: boolean;

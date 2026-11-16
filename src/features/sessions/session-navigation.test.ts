@@ -33,9 +33,21 @@ const row = (remote = true) =>
 	});
 
 describe("normal remote conversation navigation", () => {
-	it("never exposes a remote Highlights/generated-file client, while preserving local previews", () => {
+	it("exposes a remote Highlight client only with explicit owner-routed read support, preserving local previews", () => {
 		const client = { loadFile: () => undefined, loadDocument: () => undefined };
 		expect(sessionSupplementClient(true, client)).toBeUndefined();
+		expect(
+			sessionSupplementClient(true, client, { remote_sessions: baseline }),
+		).toBeUndefined();
+		expect(
+			sessionSupplementClient(true, client, {
+				remote_sessions: {
+					...baseline,
+					supplements: true,
+					supplement_kinds: ["document", "file", "sound"],
+				},
+			}),
+		).toBe(client);
 		expect(sessionSupplementClient(false, client)).toBe(client);
 	});
 	it("never offers connected-computer audio upload as remote-owner dictation, while preserving local STT", () => {

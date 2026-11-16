@@ -2,7 +2,7 @@
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { Pause, Play } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	Image,
 	Pressable,
@@ -128,7 +128,10 @@ export interface SupplementClient {
 	 *  relay client's cookie, the reason `loadVideoSource` fetches too. */
 	loadSound: (
 		digest: string,
+		signal?: AbortSignal,
 	) => Promise<{ bytes: Uint8Array; mimeType: string | null }>;
+	/** Read support does not imply remote mutation support. Local hosts omit this. */
+	allowsCommand?: (op: "cancel" | "restart" | "steer") => boolean;
 	/** `supplement_cancel` | `supplement_restart` | `supplement_steer`. */
 	command: (
 		op: "cancel" | "restart" | "steer",
@@ -190,6 +193,7 @@ export const SupplementBlock = ({
 
 	const sendOp = useCallback(
 		async (op: "cancel" | "restart" | "steer", text = ""): Promise<void> => {
+			if (client.allowsCommand?.(op) === false) return;
 			setBusy(true);
 			setOpError("");
 			try {
@@ -329,7 +333,9 @@ export const SupplementBlock = ({
 				    scope) — a lone control, so the rubric's dense-list window
 				    cannot apply. `min-w-11` is the same token step `min-h-11`
 				    uses for height, so no label can shrink the target. */}
-				{preparing ? (
+				{preparing &&
+				client.allowsCommand?.("steer") !== false &&
+				client.allowsCommand?.("cancel") !== false ? (
 					<>
 						<Text aria-hidden className="text-meta text-ink-dim">
 							·
@@ -370,7 +376,8 @@ export const SupplementBlock = ({
 						</Pressable>
 					</>
 				) : null}
-				{cancelled || failed ? (
+				{(cancelled || failed) &&
+				client.allowsCommand?.("restart") !== false ? (
 					<>
 						<Text aria-hidden className="text-meta text-ink-dim">
 							·
@@ -533,7 +540,11 @@ export const SupplementBlock = ({
 					<FrameSlot
 						key={component.attachment}
 						component={component}
-						onRetry={() => void sendOp("restart")}
+						onRetry={
+							client.allowsCommand?.("restart") === false
+								? undefined
+								: () => void sendOp("restart")
+						}
 						onHeight={noteHeight}
 						client={client}
 					/>
@@ -562,7 +573,11 @@ export const SupplementBlock = ({
 									<FrameSlot
 										key={component.attachment}
 										component={component}
-										onRetry={() => void sendOp("restart")}
+										onRetry={
+											client.allowsCommand?.("restart") === false
+												? undefined
+												: () => void sendOp("restart")
+										}
 										onHeight={noteHeight}
 										client={client}
 									/>
@@ -673,6 +688,15 @@ function SoundCell({
 	client: SupplementClient;
 }) {
 	const [state, setState] = useState<SoundState>({ kind: "idle" });
+	const pending = useRef<AbortController | null>(null);
+	useEffect(
+		() => () => {
+			// A scrolled-away remote sound must not finish downloading and start
+			// playing later, or leak a source URL after its cell has disappeared.
+			pending.current?.abort();
+		},
+		[],
+	);
 
 	/* A web object URL outlives nothing it was made for: release it with the
 	   cell (`playableSource`'s contract — the caller revokes). Native cache
@@ -686,9 +710,16 @@ function SoundCell({
 	);
 
 	const load = async () => {
+		const controller = new AbortController();
+		pending.current?.abort();
+		pending.current = controller;
 		setState({ kind: "loading" });
 		try {
-			const { bytes, mimeType } = await client.loadSound(sound.attachment);
+			const { bytes, mimeType } = await client.loadSound(
+				sound.attachment,
+				controller.signal,
+			);
+			if (controller.signal.aborted) return;
 			const type = mimeType ?? sound.mime;
 			const uri = await playableSource(
 				bytes,
@@ -696,8 +727,13 @@ function SoundCell({
 				sound.attachment,
 				audioExtension(type),
 			);
+			if (controller.signal.aborted) {
+				if (uri.startsWith("blob:")) URL.revokeObjectURL(uri);
+				return;
+			}
 			setState({ kind: "ready", uri });
 		} catch (error) {
+			if (controller.signal.aborted) return;
 			setState({
 				kind: "refused",
 				message: t("mobile.session.highlights.sound_refused", {
@@ -1227,22 +1263,31 @@ function FrameSlot({
 	client: SupplementClient;
 }) {
 	const [html, setHtml] = useState<string | null>(null);
-	const [failed, setFailed] = useState(false);
+	const [failure, setFailure] = useState<{ reason?: string } | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
 		setHtml(null);
-		setFailed(false);
+		setFailure(null);
 		client
 			.loadDocument(component.attachment)
 			.then((documentHtml) => {
 				if (!cancelled) setHtml(documentHtml);
 			})
-			.catch(() => {
+			.catch((error: unknown) => {
 				/* The document could not be fetched (a pruned blob, a refusal,
 				   a malformed body): the frame paints the frame-level fallback
 				   line instead of holding its reserved box forever. */
-				if (!cancelled) setFailed(true);
+				if (!cancelled) {
+					// Remote refusals carry localized recovery guidance. Keep it scoped
+					// to this read, without changing the local frame fallback contract.
+					setFailure({
+						reason:
+							client.allowsCommand?.("restart") === false
+								? refusalText(error)
+								: undefined,
+					});
+				}
 			});
 		return () => {
 			cancelled = true;
@@ -1253,7 +1298,8 @@ function FrameSlot({
 		<SupplementWebView
 			component={component}
 			documentHtml={html}
-			documentFailed={failed}
+			documentFailed={failure !== null}
+			documentFailureReason={failure?.reason}
 			onRetry={onRetry}
 			onHeightChange={(height) => onHeight(component.attachment, height)}
 		/>

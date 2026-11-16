@@ -2,9 +2,8 @@ import { Text, View } from "react-native";
 import { t } from "@/i18n";
 import { SURFACE } from "@/ui/a11y";
 
-/** v1 exposes retained DocumentContent, not owner-cwd-dependent supplements.
- * Explain the missing Highlights/generated-file controls rather than presenting
- * actions whose bytes are neither retained nor authorized by this protocol. */
+/** Shown only when the connected relay lacks owner-routed Highlight reads.
+ * Retained attachments remain usable on that older remote-session baseline. */
 export function RemoteFeatureNotice({ remote }: { remote: boolean }) {
 	if (!remote) return null;
 	return (
