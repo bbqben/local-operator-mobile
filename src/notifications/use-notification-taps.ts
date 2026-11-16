@@ -18,6 +18,7 @@ import {
 } from "@/notifications/native";
 import { warmSync } from "@/state/warm-sync";
 import { useCustomSoundPrefetch } from "./use-custom-sound-prefetch";
+import { useNotificationCategories } from "./use-notification-categories";
 import { useSessionPushRegistration } from "./use-session-push-registration";
 
 export const useNotificationTapRouting = (): void => {
@@ -25,6 +26,9 @@ export const useNotificationTapRouting = (): void => {
 	// mints, and re-runs on `onPushRegistration` once it lands.
 	useSessionPushRegistration();
 	useCustomSoundPrefetch();
+	// iOS stack summaries (`categories.ts`): separate hook so a language change
+	// re-registers the categories without re-subscribing the listeners below.
+	useNotificationCategories();
 	useEffect(() => {
 		let cancelled = false;
 		let unsubscribe: (() => void) | null = null;

@@ -2094,6 +2094,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * alignment, so it has neither parent's digest. Derived from the staged
 	 * merged tree with --print; source admission only, NOT new rendered,
 	 * native or device evidence. */
+	/* iOS notification category summaries: new `notifications/categories.ts`,
+	 * its mount hook, tests and six catalogue keys in all 8 locales. Nothing
+	 * the U-08 scene renders changes. Derived with --print over the committed
+	 * tree; source admission only, NOT rendered, native or device evidence. */
 	/* Bridge thread flicker: unchanged polls keep message identity (structural
 	 * sharing in mergeMessages, no publish in loadThread), a stable empty
 	 * people list, and no repeated native write for an in-flight target.
@@ -2101,7 +2105,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * in-flight window and a once-per-target native re-check (reset by a
 	 * reported scroll). Re-derived with --print; source admission only, NOT
 	 * rendered, native or device evidence. */
-	src: "9da50b21d145f5565d465e5868e49db8a144304c3d4d20c8f422accde8e929fb",
+	/* PR #286 convergence with #285 (main 53fe98ec): both histories above;
+	 * the merged tree carries both, so it has neither parent's digest.
+	 * Derived from the staged merged tree with --print; source admission
+	 * only, NOT rendered, native or device evidence. */
+	src: "20c7cc36c69c8c2b4ab7d688b0c37985fb67e512c18da53d0a670fb3d0bb6462",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
