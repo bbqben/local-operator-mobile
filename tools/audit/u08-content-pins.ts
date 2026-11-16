@@ -2098,9 +2098,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * sharing in mergeMessages, no publish in loadThread), a stable empty
 	 * people list, and no repeated native write for an in-flight target.
 	 * Round-1/2 remediation adds the day-turnover re-derive, a 250 ms
-	 * in-flight window and a once-per-target native re-check. Re-derived with --print; source admission only, NOT
+	 * in-flight window and a once-per-target native re-check (reset by a
+	 * reported scroll). Re-derived with --print; source admission only, NOT
 	 * rendered, native or device evidence. */
-	src: "5c587565b5b0915c9d8095bd085b666cad3b7d77e1bd653d1d090e6e5565e0c1",
+	src: "9da50b21d145f5565d465e5868e49db8a144304c3d4d20c8f422accde8e929fb",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

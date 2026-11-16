@@ -317,6 +317,9 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			// The host has reported: whatever was requested is now grounded.
 			requested = null;
 			cancelRecheck();
+			// Only a host that REPORTS can re-enable a re-check for a target it
+			// has already had, so this cannot become a loop (QA r3 Q5).
+			rechecked = null;
 			// Native offset/visible-content anchoring can settle AFTER the final
 			// layout callback. That callback's correction is not proof that the
 			// host stayed there. Reconcile only an existing follower, without a

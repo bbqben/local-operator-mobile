@@ -606,6 +606,19 @@ describe("a periodic unchanged refresh", () => {
 		for (let i = 0; i < 20; i += 1) r.advance(300); // and never loops
 		expect(r.moves).toEqual([2201, 2201]);
 	});
+	it("a target that returns after a reported scroll gets its re-check again (QA r3 Q5)", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.advance(300); // dropped twice: re-checked once
+		expect(r.moves).toEqual([2201, 2201]);
+		// The host reports (the reader nudged it), then the same end comes back
+		// and that write is dropped too: it is re-checked again, still once.
+		r.scroll(2150, 2800);
+		r.v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		r.advance(300);
+		for (let i = 0; i < 10; i += 1) r.advance(300);
+		expect(r.moves).toEqual([2201, 2201, 2201, 2201]);
+	});
 	it("a scroll event before the re-check cancels it", () => {
 		const r = nativeDropping();
 		r.v.handlers.onContentSizeChange(390, 2800);
