@@ -94,7 +94,7 @@
 	"mobile.session.diagram.label_titled": "Diagrama {type}: {title}",
 	"mobile.session.diagram.copied": "copiado",
 	"mobile.session.diagram.error": "No se pudo dibujar este diagrama. Se muestra el código fuente.",
-	"mobile.session.diagram.open_hint": "Abre el diagrama a pantalla completa para ampliar y desplazar",
+	"mobile.session.diagram.open_hint": "Abre el diagrama a pantalla completa",
 	"mobile.session.diagram.copy": "Copiar el código fuente del diagrama",
 	"mobile.session.diagram.close": "Cerrar el diagrama",
 	"mobile.session.diagram.viewer": "Visor de diagramas"

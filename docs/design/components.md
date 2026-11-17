@@ -688,8 +688,14 @@ a source Pele cannot draw stays a listing under a one-line notice.
 - **Size:** full size when it fits the column, shrunk to no less than 0.85 (so the
   12pt labels stay near 10pt), then it scrolls **sideways only**; a vertical drag
   always scrolls the transcript.
-- **Tap** opens the full-screen viewer (pan, and pinch-zoom on iOS, as the Team
-  Bridge image viewer does); the header's 44pt button copies the source.
+- **Tap** opens the full-screen viewer, as the Team Bridge image viewer does: the
+  drawing at full size (or as wide as the window, up to 3x), panned with one
+  finger; pinch-zoom on iOS only (Android and web have none). The header's 44pt
+  button copies the source.
+- **Not scaled with the reader's text size:** the drawing is a graphic, so its
+  labels stay 10-14pt while the prose around it scales (accepted gap).
+- **Too large** (past 1.5M pt² or 5,000pt on a side at the scale it would be
+  drawn): a one-line notice and the listing, because a native view is one surface.
 - **Reader without sight:** the control is named "<kind> diagram: <title or first
   label>" and carries the Mermaid source as its value; the drawing is hidden.
 

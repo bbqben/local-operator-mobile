@@ -336,8 +336,8 @@ describe("a diagram too big for a native surface", () => {
 		}
 	});
 
-	it("still draws a 60-node chain", async () => {
-		const chain = `flowchart TD\n${Array.from({ length: 60 }, (_, i) => `  N${i} --> N${i + 1}`).join("\n")}`;
+	it("still draws a 50-node chain", async () => {
+		const chain = `flowchart TD\n${Array.from({ length: 50 }, (_, i) => `  N${i} --> N${i + 1}`).join("\n")}`;
 		const result = await renderDiagram(request(chain));
 		expect(result.ok).toBe(true);
 	});

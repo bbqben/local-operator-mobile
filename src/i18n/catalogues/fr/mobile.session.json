@@ -94,7 +94,7 @@
 	"mobile.session.diagram.label_titled": "Diagramme {type} : {title}",
 	"mobile.session.diagram.copied": "copié",
 	"mobile.session.diagram.error": "Impossible de dessiner ce diagramme. La source est affichée à la place.",
-	"mobile.session.diagram.open_hint": "Ouvre le diagramme en plein écran pour zoomer et se déplacer",
+	"mobile.session.diagram.open_hint": "Ouvre le diagramme en plein écran",
 	"mobile.session.diagram.copy": "Copier la source du diagramme",
 	"mobile.session.diagram.close": "Fermer le diagramme",
 	"mobile.session.diagram.viewer": "Visionneuse de diagramme"

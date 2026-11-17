@@ -34,20 +34,25 @@ export const MIN_DIAGRAM_SCALE = 0.85;
  *  turns a few hundred nodes into a 137 x 55,768 pt picture, so the limit is
  *  ours to set. 1.5 M pt² is 13.5 M px at 3x (54 MB), well under the ~100 MB
  *  draw limit; 5,000 pt is 15,000 px at 3x, under the 16,384 px texture side
- *  of current devices. A 60-node tree (1,268,616 pt²) and a 60-node chain
- *  (4,716 pt tall) fit; a 100-node chain does not. Measured on Pele 1.13.0 at
+ *  of current devices. A 60-node tree (1,268,616 pt² at 0.85) and a 50-node chain
+ *  (about 4,600 pt tall) fit; a 60-node chain (5,548 pt) and a 100-node chain do not. Measured on Pele 1.13.0 at
  *  `maxWidth` 340; NOT yet confirmed on a device. */
 export const MAX_DRAWN_AREA_PT = 1_500_000;
 export const MAX_DRAWN_SIDE_PT = 5_000;
 
 /** Whether a diagram of this natural size can be drawn at all, judged at the
- *  smallest scale the inline view ever uses. */
-export const withinDrawBudget = (size: {
-	width: number;
-	height: number;
-}): boolean => {
-	const w = size.width * MIN_DIAGRAM_SCALE;
-	const h = size.height * MIN_DIAGRAM_SCALE;
+ *  scale the inline view will ACTUALLY use in a column `inner` wide
+ *  (`diagramLayout`): 1 for a diagram that fits, down to the floor for a wide
+ *  one. Judging at the floor would pass a narrow, tall diagram that is then
+ *  drawn at 1 (measured: a 62-node chain, 78 x 5,827 pt). */
+export const withinDrawBudget = (
+	size: { width: number; height: number },
+	inner: number,
+): boolean => {
+	if (!(size.width > 0) || !(size.height > 0)) return false;
+	const scale = Math.max(MIN_DIAGRAM_SCALE, Math.min(1, inner / size.width));
+	const w = size.width * scale;
+	const h = size.height * scale;
 	return (
 		Number.isFinite(w) &&
 		Number.isFinite(h) &&
@@ -59,14 +64,16 @@ export const withinDrawBudget = (size: {
 
 /** How the full-screen viewer sizes a drawing in a window: as large as fits the
  *  window's width (never above 3x, so a tiny chart is not a poster), never below
- *  the inline floor, and never past the draw budget. Pan and zoom do the rest. */
+ *  full size (a wide diagram opens at its natural 12-14 pt labels and pans — the
+ *  inline view already shows it at the floor, so anything smaller would add
+ *  nothing, and Android and web have no pinch), and never past the draw budget. */
 export const viewerScale = (
 	size: { width: number; height: number },
 	windowWidth: number,
 ): number => {
 	const fit =
 		Math.max(1, windowWidth - 2 * DIAGRAM_FRAME_PAD - 16) / size.width;
-	let scale = Math.min(3, Math.max(MIN_DIAGRAM_SCALE, fit));
+	let scale = Math.min(3, Math.max(1, fit));
 	const budget = Math.sqrt(MAX_DRAWN_AREA_PT / (size.width * size.height));
 	scale = Math.min(
 		scale,

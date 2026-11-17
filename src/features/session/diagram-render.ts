@@ -154,7 +154,7 @@ export const renderDiagram = async (
 		// A native view is one surface the size of the drawing; past the budget it
 		// cannot be allocated, so the block shows its source instead (see
 		// `MAX_DRAWN_AREA_PT`).
-		result = withinDrawBudget(prepared)
+		result = withinDrawBudget(prepared, request.width)
 			? { ok: true, type: rendered.type, prepared }
 			: {
 					ok: false,

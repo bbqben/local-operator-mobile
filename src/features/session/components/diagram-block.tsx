@@ -261,7 +261,7 @@ function DiagramBlockView({
 				accessibilityHint={t("mobile.session.diagram.open_hint")}
 				// The Mermaid source is the text alternative: the picture's words, in
 				// the order the author wrote them, for a reader who cannot see it.
-				accessibilityValue={{ text: spoken(source) }}
+				aria-valuetext={spoken(source)}
 				testID={CONTROL.diagramOpen}
 				onPress={() => setViewing(true)}
 				onLongPress={enter}

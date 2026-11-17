@@ -94,7 +94,7 @@
 	"mobile.session.diagram.label_titled": "Диаграмма {type}: {title}",
 	"mobile.session.diagram.copied": "скопировано",
 	"mobile.session.diagram.error": "Не удалось нарисовать диаграмму. Вместо неё показан исходный код.",
-	"mobile.session.diagram.open_hint": "Открывает диаграмму на весь экран для масштабирования и прокрутки",
+	"mobile.session.diagram.open_hint": "Открывает диаграмму на весь экран",
 	"mobile.session.diagram.copy": "Скопировать исходный код диаграммы",
 	"mobile.session.diagram.close": "Закрыть диаграмму",
 	"mobile.session.diagram.viewer": "Просмотр диаграммы"

@@ -381,7 +381,7 @@
 	},
 	"mobile.session.diagram.open_hint": {
 		"role": "help",
-		"note": "Accessibility hint on a drawn diagram in the transcript. Activating it opens the diagram full screen, where it can be panned and (on iPhone) pinch-zoomed. Sentence case, no final full stop."
+		"note": "Accessibility hint on a drawn diagram in the transcript. Activating it opens the diagram full screen, where it can be panned (and on iPhone pinch-zoomed; the hint does not promise zoom because Android has none). Sentence case, no final full stop."
 	},
 	"mobile.session.diagram.copy": {
 		"role": "button",

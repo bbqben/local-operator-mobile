@@ -128,6 +128,7 @@ const warm = (source: string, mode: "light" | "dark" = "light") => {
 const markup = (text: string) =>
 	renderToStaticMarkup(createElement(Markdown, { text }));
 
+const VALUE_TEXT = / aria-valuetext="[^"]*"/;
 const INERT = /<script|<a |href=|onerror=|<img|<foreignObject/i;
 const FILL = /fill="(#[0-9a-f]{6})"/gi;
 const fills = (html: string) =>
@@ -154,8 +155,9 @@ describe("a mermaid fence in assistant markdown", () => {
 		expect(html).toContain("<svg-root");
 		expect(html).toContain("<svg-text");
 		expect(html).toContain("mermaid");
-		// The listing is not shown beside the picture.
-		expect(html).not.toContain("flowchart TD");
+		// The listing is not shown beside the picture (the source is only the
+		// control's spoken value).
+		expect(html).not.toContain('data-testid="code-block-copy"');
 	});
 
 	it("stays code for an unterminated fence even when the same text is drawn", async () => {
@@ -180,10 +182,13 @@ describe("a mermaid fence in assistant markdown", () => {
 		// react-native-web has no DOM channel for `accessibilityHint`; the string
 		// the native control is handed is the catalogue's.
 		expect(t("mobile.session.diagram.open_hint")).toBe(
-			"Opens the diagram full screen to zoom and pan",
+			"Opens the diagram full screen",
 		);
 		expect(html).toContain('role="button"');
 		expect(html).toContain('data-testid="diagram-open"');
+		// The source is the text alternative, on web as on native.
+		expect(html).toContain("aria-valuetext=");
+		expect(html).toContain("flowchart TD");
 		// The drawing itself is out of the reading order.
 		expect(html).toContain('aria-hidden="true"');
 	});
@@ -218,7 +223,11 @@ describe("a mermaid fence in assistant markdown", () => {
 		await warm(hostile);
 		const html = markup(fenced(hostile));
 		expect(html).toContain("<svg-root");
-		expect(html).not.toMatch(INERT);
+		// The spoken value legitimately carries the source text, escaped; the
+		// drawn markup is everything else.
+		const drawn = html.replace(VALUE_TEXT, "");
+		expect(drawn).not.toMatch(INERT);
+		expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
 	});
 });
 

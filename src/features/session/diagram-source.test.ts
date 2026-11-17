@@ -112,14 +112,15 @@ describe("the draw budget", () => {
 			{ width: 452, height: 385 }, // 10-node tree
 			{ width: 1576, height: 466 }, // 30-node tree
 			{ width: 3210, height: 547 }, // 60-node tree
-			{ width: 78, height: 5548 }, // 60-node chain
+			{ width: 78, height: 4620 }, // 50-node chain
 			{ width: 2442, height: 836 }, // 80-node random graph
 		];
-		for (const size of measured) expect(withinDrawBudget(size)).toBe(true);
+		for (const size of measured) expect(withinDrawBudget(size, 322)).toBe(true);
 	});
 
 	it("refuses what a native view cannot hold", () => {
 		const hostile = [
+			{ width: 78, height: 5827 }, // 62-node chain, drawn at scale 1
 			{ width: 78, height: 9268 }, // 100-node chain
 			{ width: 5388, height: 628 }, // 100-node tree
 			{ width: 137, height: 55_768 }, // 600-node chain
@@ -127,14 +128,14 @@ describe("the draw budget", () => {
 			{ width: Number.POSITIVE_INFINITY, height: 10 },
 			{ width: Number.NaN, height: 10 },
 		];
-		for (const size of hostile) expect(withinDrawBudget(size)).toBe(false);
+		for (const size of hostile) expect(withinDrawBudget(size, 322)).toBe(false);
 	});
 
 	it("never lets the viewer exceed the budget either", () => {
 		for (const size of [
 			{ width: 100, height: 100 },
 			{ width: 1576, height: 466 },
-			{ width: 78, height: 5548 },
+			{ width: 78, height: 4620 },
 			{ width: 2442, height: 836 },
 		]) {
 			const scale = viewerScale(size, 390);
@@ -157,9 +158,25 @@ describe("the viewer's scale", () => {
 		);
 	});
 
-	it("never goes below the inline floor for a wide diagram", () => {
-		expect(viewerScale({ width: 2000, height: 400 }, 390)).toBe(
-			MIN_DIAGRAM_SCALE,
-		);
+	it("opens a wide diagram at full size to pan, never below", () => {
+		expect(viewerScale({ width: 2000, height: 400 }, 390)).toBe(1);
+	});
+});
+
+describe("the budget holds at the scale the layout uses", () => {
+	it("agrees with diagramLayout for narrow and wide diagrams", () => {
+		for (const size of [
+			{ width: 78, height: 4620 },
+			{ width: 78, height: 5827 },
+			{ width: 3210, height: 547 },
+			{ width: 5388, height: 628 },
+		]) {
+			const layout = diagramLayout(size, 322);
+			const fits =
+				layout.height <= MAX_DRAWN_SIDE_PT &&
+				layout.width <= MAX_DRAWN_SIDE_PT &&
+				layout.width * layout.height <= MAX_DRAWN_AREA_PT;
+			expect(withinDrawBudget(size, 322), JSON.stringify(size)).toBe(fits);
+		}
 	});
 });
