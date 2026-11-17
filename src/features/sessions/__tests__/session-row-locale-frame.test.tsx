@@ -204,6 +204,8 @@ describe("a mounted conversation row repaints on a language frame", () => {
 					selected: false,
 					now: 1_700_000_100,
 					tagsAssignable: true,
+					// Required prop; no row in this fixture list has a picture.
+					reserveLeading: false,
 					onActivate,
 					onLongPress,
 				}),

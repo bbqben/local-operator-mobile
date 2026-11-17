@@ -1037,6 +1037,9 @@ describe("the row count chips carry every plural arm of their locale", () => {
 	)("%s %s has an arm for every category", (locale, key) => {
 		const value = messagesOf(locale)[key];
 		expect(value, `${locale} ships ${key}`).toBeDefined();
+		// The expect above reports the failure; the throw narrows the type and
+		// stops a missing key from reaching missingArms as `undefined`.
+		if (value === undefined) throw new Error(`${locale} does not ship ${key}`);
 		expect(missingArms(value, locale)).toEqual([]);
 	});
 
@@ -1044,6 +1047,9 @@ describe("the row count chips carry every plural arm of their locale", () => {
 		/* In memory only: the shipped value minus its `many` arm must be reported,
 		 *  or the check above is vacuous. */
 		const shipped = messagesOf("ru")["mobile.sidebar.row.asks"];
+		expect(shipped, "ru ships mobile.sidebar.row.asks").toBeDefined();
+		if (shipped === undefined)
+			throw new Error("ru does not ship the asks count");
 		const dropped = shipped.replace(MANY_ARM, "");
 		expect(dropped).not.toBe(shipped);
 		expect(missingArms(dropped, "ru")).toEqual(["many"]);

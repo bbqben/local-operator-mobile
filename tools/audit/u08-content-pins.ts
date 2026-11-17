@@ -2262,7 +2262,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * reproduced the parent's pin (a2cd4cfa…) from c0c4d661 as the control,
 	 * agreed with --print, and a one-byte tamper of session-row.tsx diverged.
 	 * Source identity only, NOT rendered U-08 evidence. */
-	src: "00db2322767d4f244cd2a1bc3c93bd7944078f4c82b7099cdb77178fa47575cc",
+	/* PR #302 CI typecheck remediation: test-only strict-type fixes (a required
+	 * `reserveLeading` prop in the row locale-frame test; defined-guards in the
+	 * plural-arm tests). No runtime src/ change. Derived LAST with --print; the
+	 * control reproduced the parent's pin (00db2322…) from 9e357316. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "0bd9b5ee7dfc16993e3330e061180464880ee46dfbe83547b44a4dccc1345835",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
