@@ -425,6 +425,11 @@ export type CatalogueKey =
 	| "mobile.notifications.detail.no_asks"
 	| "mobile.notifications.detail.nothing_to_dismiss"
 	| "mobile.notifications.detail.projects"
+	| "mobile.notifications.device_state.absent"
+	| "mobile.notifications.device_state.expired"
+	| "mobile.notifications.device_state.live"
+	| "mobile.notifications.device_state.revoked"
+	| "mobile.notifications.device_state.unpaired"
 	| "mobile.notifications.devices.last_active"
 	| "mobile.notifications.devices.this_android"
 	| "mobile.notifications.devices.this_iphone"
@@ -1393,6 +1398,11 @@ export type NoParamKey =
 	| "mobile.notifications.detail.no_asks"
 	| "mobile.notifications.detail.nothing_to_dismiss"
 	| "mobile.notifications.detail.projects"
+	| "mobile.notifications.device_state.absent"
+	| "mobile.notifications.device_state.expired"
+	| "mobile.notifications.device_state.live"
+	| "mobile.notifications.device_state.revoked"
+	| "mobile.notifications.device_state.unpaired"
 	| "mobile.notifications.devices.this_android"
 	| "mobile.notifications.devices.this_iphone"
 	| "mobile.notifications.dismiss"
@@ -2305,6 +2315,11 @@ export type MessageParams = {
 	"mobile.notifications.detail.no_asks": NoParams;
 	"mobile.notifications.detail.nothing_to_dismiss": NoParams;
 	"mobile.notifications.detail.projects": NoParams;
+	"mobile.notifications.device_state.absent": NoParams;
+	"mobile.notifications.device_state.expired": NoParams;
+	"mobile.notifications.device_state.live": NoParams;
+	"mobile.notifications.device_state.revoked": NoParams;
+	"mobile.notifications.device_state.unpaired": NoParams;
 	"mobile.notifications.devices.last_active": { date: string | number };
 	"mobile.notifications.devices.this_android": NoParams;
 	"mobile.notifications.devices.this_iphone": NoParams;
@@ -3339,6 +3354,11 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.detail.no_asks": "No asks in this conversation.",
 	"mobile.notifications.detail.nothing_to_dismiss": "No updates from this conversation to dismiss.",
 	"mobile.notifications.detail.projects": "Projects",
+	"mobile.notifications.device_state.absent": "Not in this computer's registry; it may register again.",
+	"mobile.notifications.device_state.expired": "Notifications are paused for this device until you sign in again.",
+	"mobile.notifications.device_state.live": "Registered with this computer.",
+	"mobile.notifications.device_state.revoked": "This device was revoked on this computer.",
+	"mobile.notifications.device_state.unpaired": "This computer is no longer paired.",
 	"mobile.notifications.devices.last_active": "Last active {date}",
 	"mobile.notifications.devices.this_android": "This Android device",
 	"mobile.notifications.devices.this_iphone": "This iPhone",
@@ -4358,6 +4378,11 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.detail.no_asks": { role: "status", note: "Empty state under the asks header. Ends with a full stop." },
 	"mobile.notifications.detail.nothing_to_dismiss": { role: "status", note: "Empty state of the dismiss dialog when the conversation has no dismissable updates. Ends with a full stop." },
 	"mobile.notifications.detail.projects": { role: "heading", note: "Section header listing the projects a notification relates to." },
+	"mobile.notifications.device_state.absent": { role: "status", note: "Settings → Notifications: a status line for a device the connected computer's device list does not hold; the device may register itself again. 'Registry' means that list of devices, not an OS registry." },
+	"mobile.notifications.device_state.expired": { role: "status", note: "Settings → Notifications: the status line under a registered device whose sign-in lapsed; the computer stops sending to it until the person signs in on that device again." },
+	"mobile.notifications.device_state.live": { role: "status", note: "Settings → Notifications: the status line under a registered device whose registration with the connected computer is current. States only that the computer holds the registration; must NOT promise that notifications are delivered (neither the computer nor the phone can observe delivery)." },
+	"mobile.notifications.device_state.revoked": { role: "status", note: "Settings → Notifications: the status line under a registered device that the person removed (revoked) on the connected computer; it receives nothing until restored there." },
+	"mobile.notifications.device_state.unpaired": { role: "status", note: "Settings → Notifications: the status line under a registered device when the connected computer reports it is no longer paired with this device. 'Paired' is the link between the computer and the app." },
 	"mobile.notifications.devices.last_active": { role: "meta", note: "Settings → Notifications: a secondary line under another registered device's name telling it apart from similar devices. {date} is a localized short date and time, e.g. \"Nov 15, 4:37 PM\"." },
 	"mobile.notifications.devices.this_android": { role: "heading", note: "Settings → Notifications: the title of the registered-device row that is the Android phone the reader is holding, listed first above the computer's other devices. Android is a product name, kept verbatim." },
 	"mobile.notifications.devices.this_iphone": { role: "heading", note: "Settings → Notifications: the title of the registered-device row that is the phone the reader is holding, listed first above the computer's other devices. iPhone is Apple's product name, kept verbatim." },
@@ -5391,6 +5416,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "No hay preguntas en esta conversación.",
 		"mobile.notifications.detail.nothing_to_dismiss": "No hay actualizaciones de esta conversación que descartar.",
 		"mobile.notifications.detail.projects": "Proyectos",
+		"mobile.notifications.device_state.absent": "No está en el registro de esta máquina; puede volver a registrarse.",
+		"mobile.notifications.device_state.expired": "Las notificaciones de este dispositivo están en pausa hasta que vuelvas a iniciar sesión.",
+		"mobile.notifications.device_state.live": "Registrado en esta máquina.",
+		"mobile.notifications.device_state.revoked": "Este dispositivo se revocó en esta máquina.",
+		"mobile.notifications.device_state.unpaired": "Esta máquina ya no está vinculada.",
 		"mobile.notifications.devices.last_active": "Última actividad: {date}",
 		"mobile.notifications.devices.this_android": "Este dispositivo Android",
 		"mobile.notifications.devices.this_iphone": "Este iPhone",
@@ -6408,6 +6438,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "Aucune question dans cette conversation.",
 		"mobile.notifications.detail.nothing_to_dismiss": "Aucune mise à jour de cette conversation à ignorer.",
 		"mobile.notifications.detail.projects": "Projets",
+		"mobile.notifications.device_state.absent": "Absent du registre de cet ordinateur ; il peut s’enregistrer à nouveau.",
+		"mobile.notifications.device_state.expired": "Les notifications sont suspendues pour cet appareil jusqu’à ce que vous vous reconnectiez.",
+		"mobile.notifications.device_state.live": "Enregistré auprès de cet ordinateur.",
+		"mobile.notifications.device_state.revoked": "Cet appareil a été révoqué sur cet ordinateur.",
+		"mobile.notifications.device_state.unpaired": "Cet ordinateur n’est plus associé.",
 		"mobile.notifications.devices.last_active": "Dernière activité : {date}",
 		"mobile.notifications.devices.this_android": "Cet appareil Android",
 		"mobile.notifications.devices.this_iphone": "Cet iPhone",
@@ -7425,6 +7460,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "इस बातचीत में कोई सवाल नहीं।",
 		"mobile.notifications.detail.nothing_to_dismiss": "इस बातचीत से हटाने के लिए कोई अपडेट नहीं।",
 		"mobile.notifications.detail.projects": "प्रोजेक्ट",
+		"mobile.notifications.device_state.absent": "इस कंप्यूटर की रजिस्ट्री में नहीं है; यह फिर से रजिस्टर हो सकता है।",
+		"mobile.notifications.device_state.expired": "जब तक आप दोबारा साइन इन नहीं करते, इस डिवाइस के लिए सूचनाएँ रुकी हुई हैं।",
+		"mobile.notifications.device_state.live": "इस कंप्यूटर के साथ रजिस्टर है।",
+		"mobile.notifications.device_state.revoked": "इस डिवाइस को इस कंप्यूटर पर रद्द कर दिया गया।",
+		"mobile.notifications.device_state.unpaired": "यह कंप्यूटर अब पेयर नहीं है।",
 		"mobile.notifications.devices.last_active": "अंतिम बार सक्रिय: {date}",
 		"mobile.notifications.devices.this_android": "यह Android डिवाइस",
 		"mobile.notifications.devices.this_iphone": "यह iPhone",
@@ -8442,6 +8482,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "В этой беседе нет вопросов.",
 		"mobile.notifications.detail.nothing_to_dismiss": "В этой беседе нет обновлений, которые можно скрыть.",
 		"mobile.notifications.detail.projects": "Проекты",
+		"mobile.notifications.device_state.absent": "Нет в реестре этого компьютера; устройство может зарегистрироваться снова.",
+		"mobile.notifications.device_state.expired": "Уведомления для этого устройства приостановлены, пока вы снова не войдёте.",
+		"mobile.notifications.device_state.live": "Зарегистрировано на этом компьютере.",
+		"mobile.notifications.device_state.revoked": "Это устройство отозвано на этом компьютере.",
+		"mobile.notifications.device_state.unpaired": "Этот компьютер больше не сопряжён.",
 		"mobile.notifications.devices.last_active": "Последняя активность: {date}",
 		"mobile.notifications.devices.this_android": "Это устройство Android",
 		"mobile.notifications.devices.this_iphone": "Этот iPhone",
@@ -9459,6 +9504,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "اس گفتگو میں کوئی سوال نہیں۔",
 		"mobile.notifications.detail.nothing_to_dismiss": "اس گفتگو سے ہٹانے کے لیے کوئی اپ ڈیٹ نہیں۔",
 		"mobile.notifications.detail.projects": "پروجیکٹس",
+		"mobile.notifications.device_state.absent": "اس کمپیوٹر کی رجسٹری میں نہیں ہے؛ یہ دوبارہ رجسٹر ہو سکتا ہے۔",
+		"mobile.notifications.device_state.expired": "جب تک آپ دوبارہ سائن اِن نہیں کرتے، اس ڈیوائس کے لیے اطلاعات رکی ہوئی ہیں۔",
+		"mobile.notifications.device_state.live": "اس کمپیوٹر کے ساتھ رجسٹرڈ ہے۔",
+		"mobile.notifications.device_state.revoked": "اس ڈیوائس کو اس کمپیوٹر پر منسوخ کر دیا گیا۔",
+		"mobile.notifications.device_state.unpaired": "یہ کمپیوٹر اب پیئر نہیں ہے۔",
 		"mobile.notifications.devices.last_active": "آخری بار فعال: {date}",
 		"mobile.notifications.devices.this_android": "یہ Android ڈیوائس",
 		"mobile.notifications.devices.this_iphone": "یہ iPhone",
@@ -10476,6 +10526,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "Không có câu hỏi nào trong cuộc trò chuyện này.",
 		"mobile.notifications.detail.nothing_to_dismiss": "Không có cập nhật nào từ cuộc trò chuyện này để bỏ qua.",
 		"mobile.notifications.detail.projects": "Dự án",
+		"mobile.notifications.device_state.absent": "Không có trong danh sách đăng ký của máy tính này; thiết bị có thể đăng ký lại.",
+		"mobile.notifications.device_state.expired": "Thông báo cho thiết bị này đang tạm dừng cho đến khi bạn đăng nhập lại.",
+		"mobile.notifications.device_state.live": "Đã đăng ký với máy tính này.",
+		"mobile.notifications.device_state.revoked": "Thiết bị này đã bị thu hồi trên máy tính này.",
+		"mobile.notifications.device_state.unpaired": "Máy tính này không còn được ghép nối.",
 		"mobile.notifications.devices.last_active": "Hoạt động lần cuối: {date}",
 		"mobile.notifications.devices.this_android": "Thiết bị Android này",
 		"mobile.notifications.devices.this_iphone": "iPhone này",
@@ -11493,6 +11548,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "此对话中没有问题。",
 		"mobile.notifications.detail.nothing_to_dismiss": "此对话没有可忽略的更新。",
 		"mobile.notifications.detail.projects": "项目",
+		"mobile.notifications.device_state.absent": "不在这台电脑的设备列表中；它可以重新注册。",
+		"mobile.notifications.device_state.expired": "此设备的通知已暂停，重新登录后恢复。",
+		"mobile.notifications.device_state.live": "已在这台电脑上注册。",
+		"mobile.notifications.device_state.revoked": "此设备已在这台电脑上被撤销。",
+		"mobile.notifications.device_state.unpaired": "这台电脑已不再配对。",
 		"mobile.notifications.devices.last_active": "上次活跃：{date}",
 		"mobile.notifications.devices.this_android": "这台 Android 设备",
 		"mobile.notifications.devices.this_iphone": "这台 iPhone",

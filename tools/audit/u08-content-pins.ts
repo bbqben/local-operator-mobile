@@ -2103,7 +2103,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * #287 install-id/device rows), so it matches neither parent. Re-derived
 	 * with --print over the staged merged tree (run twice, stable). Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "3a1ed7ad32a37cac370c6df9c2844909bef33cefd69741e8c6502b6e9c7e9ab4",
+	/* PR #287 round-1 remediation: device state sentences as catalogue keys
+	 * in all 8 locales, app-language "Last active" dates and row spacing/ink.
+	 * Re-derived with --print over the staged tree (run twice, stable). Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "55b5173f98f81da0c05f79b092ff31eaf18beaba0e01a3fe1fb914dcad1d672b",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

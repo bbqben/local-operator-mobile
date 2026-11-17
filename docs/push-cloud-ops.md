@@ -110,7 +110,7 @@ the row stays.
 
 | State | Marker | Token | Register route | Fan-out | `list` shows |
 |---|---|---|---|---|---|
-| Live | none set | present | replaces it on rotation | sends | "Registered. Notifications are delivered to this device." |
+| Live | none set | present | replaces it on rotation | sends | "Registered with this computer." |
 | Expired — credential lapse, rotation **or** cookie TTL | `expired_at` | present | allows | **paused** | "Notifications are paused for this device until you sign in again." |
 | Unpaired — durable deregistration | `unpaired_at` | dropped | refuses until a deliberate re-pair | skips | "This computer is no longer paired." |
 | Revoked — machine-side or account-side | `revoked_at` | dropped | refuses | skips | "This device was revoked on this computer." |

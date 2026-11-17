@@ -1,13 +1,16 @@
 /**
- * The device-list vocabulary, carried verbatim from the core.
+ * The device-list vocabulary: the core's five device states, in the app's language.
  *
  * `push_devices.STATE_DESCRIPTIONS` (local-operator, `mobile/push_devices.py`) is
- * "the product's own words for each state — the CLI's legend renders them and
- * the app's Settings will mirror them … two surfaces that spell the same state
- * two ways is the defect the single resolver exists to prevent". This module is
- * that mirror: the strings are copied, never re-worded, and the test beside it
- * pins each one against the core's own text so a drift is a failing test rather
- * than two screens disagreeing.
+ * the product's own sentence for each state, and the core keeps it in ENGLISH
+ * for its CLI legend. This app no longer mirrors that table verbatim: Settings
+ * renders in the reader's language (design review D2, PR #287), so each state is
+ * a catalogue key (`mobile.notifications.device_state.<state>`) translated in
+ * all shipped locales. The English catalogue still says what the core says, and
+ * the test beside this module pins that, so a reword on either side is a
+ * visible decision rather than silent drift. The core sends the state WORD
+ * (`live`, `expired`, …), never the sentence, so an app on an older core still
+ * renders these.
  *
  * `absent` is in the vocabulary but can never be a row's state (it IS the
  * absence of a row); it is kept because the same table is what a future "this
@@ -19,26 +22,26 @@
  */
 
 import type { PushDeviceRow } from "@/contracts";
-import { t } from "@/i18n";
+import { activeLocale, t } from "@/i18n";
 
-/** Copied from `push_devices.STATE_DESCRIPTIONS` (core, fix/push-device-dedupe,
- *  2026-11-16 — the core reworded them as whole sentences, because this screen
- *  renders each on its own line and the old lowercase fragments read as broken
- *  copy). An app on an older core still shows these: they are this table, not
- *  a field the core sends. */
-export const PUSH_DEVICE_STATE_DESCRIPTIONS: Readonly<Record<string, string>> =
-	{
-		live: "Registered. Notifications are delivered to this device.",
-		expired:
-			"Notifications are paused for this device until you sign in again.",
-		unpaired: "This computer is no longer paired.",
-		revoked: "This device was revoked on this computer.",
-		absent: "Not in this computer's registry; it may register again.",
-	};
+/** Each known state's catalogue key. A literal map (not a template string) so
+ *  the i18n string check sees every key this module renders. */
+export const PUSH_DEVICE_STATE_KEYS = {
+	live: "mobile.notifications.device_state.live",
+	expired: "mobile.notifications.device_state.expired",
+	unpaired: "mobile.notifications.device_state.unpaired",
+	revoked: "mobile.notifications.device_state.revoked",
+	absent: "mobile.notifications.device_state.absent",
+} as const;
 
-/** The reader-facing sentence for a row's state. */
+const isKnownState = (
+	state: string,
+): state is keyof typeof PUSH_DEVICE_STATE_KEYS =>
+	Object.hasOwn(PUSH_DEVICE_STATE_KEYS, state);
+
+/** The reader-facing sentence for a row's state, in the app's language. */
 export const deviceStateDescription = (state: string): string =>
-	PUSH_DEVICE_STATE_DESCRIPTIONS[state] ?? state;
+	isKnownState(state) ? t(PUSH_DEVICE_STATE_KEYS[state]) : state;
 
 /** The row's title: its name when the machine recorded one, else the platform
  *  it is — never the device id, which names nothing a reader recognises. */
@@ -97,12 +100,18 @@ export const deviceListEntries = (
 			isThisDevice: false,
 			title: deviceTitle(row),
 			detail: t("mobile.notifications.devices.last_active", {
-				date: new Date(row.last_seen_at * 1000).toLocaleString(locale, {
-					month: "short",
-					day: "numeric",
-					hour: "numeric",
-					minute: "2-digit",
-				}),
+				// The catalogue's resolved language, not the device locale, so a
+				// French app on an English phone reads one language (design D3);
+				// an explicit caller/test locale still wins, as in team-bridge.
+				date: new Date(row.last_seen_at * 1000).toLocaleString(
+					locale ?? activeLocale(),
+					{
+						month: "short",
+						day: "numeric",
+						hour: "numeric",
+						minute: "2-digit",
+					},
+				),
 			}),
 		})),
 	];

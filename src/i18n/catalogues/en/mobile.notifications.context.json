@@ -135,6 +135,26 @@
 		"role": "heading",
 		"note": "Section header listing the projects a notification relates to."
 	},
+	"mobile.notifications.device_state.absent": {
+		"role": "status",
+		"note": "Settings → Notifications: a status line for a device the connected computer's device list does not hold; the device may register itself again. 'Registry' means that list of devices, not an OS registry."
+	},
+	"mobile.notifications.device_state.expired": {
+		"role": "status",
+		"note": "Settings → Notifications: the status line under a registered device whose sign-in lapsed; the computer stops sending to it until the person signs in on that device again."
+	},
+	"mobile.notifications.device_state.live": {
+		"role": "status",
+		"note": "Settings → Notifications: the status line under a registered device whose registration with the connected computer is current. States only that the computer holds the registration; must NOT promise that notifications are delivered (neither the computer nor the phone can observe delivery)."
+	},
+	"mobile.notifications.device_state.revoked": {
+		"role": "status",
+		"note": "Settings → Notifications: the status line under a registered device that the person removed (revoked) on the connected computer; it receives nothing until restored there."
+	},
+	"mobile.notifications.device_state.unpaired": {
+		"role": "status",
+		"note": "Settings → Notifications: the status line under a registered device when the connected computer reports it is no longer paired with this device. 'Paired' is the link between the computer and the app."
+	},
 	"mobile.notifications.devices.last_active": {
 		"role": "meta",
 		"note": "Settings → Notifications: a secondary line under another registered device's name telling it apart from similar devices. {date} is a localized short date and time, e.g. \"Nov 15, 4:37 PM\"."

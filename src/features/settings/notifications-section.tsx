@@ -451,21 +451,27 @@ export const NotificationsSection = () => {
 				/* This phone first and named as such; every other device carries
 				 * when it was last active, so two phones of one model never render
 				 * as identical rows (operator report, 2026-11-16: 33 "iPhone" rows). */
-				deviceListEntries(deviceList.devices, deviceList.thisDeviceId).map(
-					(entry) => (
-						<View key={entry.row.device_id} className="gap-1">
-							<Text className="text-body-sm text-ink">{entry.title}</Text>
-							{entry.detail !== null ? (
+				/* Own `gap-3` wrapper: a three-line row needs more separation from
+				 * the next than the section's `gap-2` gives (design D4). The state
+				 * line is the one that matters when something is wrong, so it
+				 * outranks "Last active" in ink (design D5). */
+				<View className="gap-3">
+					{deviceListEntries(deviceList.devices, deviceList.thisDeviceId).map(
+						(entry) => (
+							<View key={entry.row.device_id} className="gap-1">
+								<Text className="text-body-sm text-ink">{entry.title}</Text>
+								{entry.detail !== null ? (
+									<Text className="text-body-sm text-ink-dim">
+										{entry.detail}
+									</Text>
+								) : null}
 								<Text className="text-body-sm text-ink-muted">
-									{entry.detail}
+									{deviceStateDescription(entry.row.state)}
 								</Text>
-							) : null}
-							<Text className="text-body-sm text-ink-dim">
-								{deviceStateDescription(entry.row.state)}
-							</Text>
-						</View>
-					),
-				)
+							</View>
+						),
+					)}
+				</View>
 			)}
 		</View>
 	);

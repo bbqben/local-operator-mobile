@@ -192,7 +192,9 @@ const NAMESPACES = [
 		// `aps.category` id (59 + 6 = 65).
 		// fix/push-device-dedupe: +3 the Settings device rows' "This iPhone" /
 		// "This Android device" titles and "Last active {date}" (65 + 3 = 68).
-		expected: 68,
+		// PR #287 design D2: +5 the device state sentences
+		// (`device_state.{live,expired,unpaired,revoked,absent}`) (68 + 5 = 73).
+		expected: 73,
 	},
 	{
 		name: "mobile.session",
@@ -502,7 +504,8 @@ describe("the English catalogues", () => {
 		// Remote Highlight operation-local refusals: +2 = 1006 (generator count).
 		// iOS notification category summaries/placeholders: +6 = 1012.
 		// fix/push-device-dedupe: +3 mobile.notifications.devices.* = 1015.
-		expect(total).toBe(1015);
+		// PR #287 design D2: +5 mobile.notifications.device_state.* = 1020.
+		expect(total).toBe(1020);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

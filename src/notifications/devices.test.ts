@@ -1,45 +1,64 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { PushDeviceRow } from "@/contracts";
+import { resetLocaleSource, SHIPPED_LOCALES, setLocaleSource } from "@/i18n";
 import {
 	deviceListEntries,
 	deviceStateDescription,
 	deviceTitle,
-	PUSH_DEVICE_STATE_DESCRIPTIONS,
+	PUSH_DEVICE_STATE_KEYS,
 } from "@/notifications/devices";
 
 /**
- * The mirror check: these strings are the CORE's words
- * (`push_devices.STATE_DESCRIPTIONS`), copied so two surfaces cannot spell one
- * state two ways. The assertions below are the copies written out again — that
- * is the point, not an accident: a reword here fails the test rather than
- * quietly drifting from the CLI legend the core renders.
+ * The core keeps its five state sentences in ENGLISH for its CLI legend
+ * (`push_devices.STATE_DESCRIPTIONS`); this app renders them in the reader's
+ * language from catalogue keys (design review D2), so it no longer mirrors the
+ * core verbatim. What stays pinned: the ENGLISH catalogue says exactly what the
+ * core's legend says today, so a reword on either side is a visible decision.
  */
 
+afterEach(resetLocaleSource);
+
+const CORE_ENGLISH = {
+	live: "Registered with this computer.",
+	expired: "Notifications are paused for this device until you sign in again.",
+	unpaired: "This computer is no longer paired.",
+	revoked: "This device was revoked on this computer.",
+	absent: "Not in this computer's registry; it may register again.",
+} as const;
+
 describe("the device state vocabulary", () => {
-	it("carries the core's five descriptions verbatim", () => {
-		expect(PUSH_DEVICE_STATE_DESCRIPTIONS).toEqual({
-			live: "Registered. Notifications are delivered to this device.",
-			expired:
-				"Notifications are paused for this device until you sign in again.",
-			unpaired: "This computer is no longer paired.",
-			revoked: "This device was revoked on this computer.",
-			absent: "Not in this computer's registry; it may register again.",
-		});
+	it("keys every state the core names", () => {
+		expect(Object.keys(PUSH_DEVICE_STATE_KEYS).sort()).toEqual(
+			Object.keys(CORE_ENGLISH).sort(),
+		);
 	});
 
-	it("reads every description as a sentence, not a fragment", () => {
-		for (const description of Object.values(PUSH_DEVICE_STATE_DESCRIPTIONS)) {
-			expect(description[0]).toBe(description[0]?.toUpperCase());
-			expect(description.endsWith(".")).toBe(true);
+	// D1: "live" claims only registration — neither the core nor the phone
+	// observes delivery — and CORE_ENGLISH.live pins that wording.
+	it("says in English what the core's CLI legend says", () => {
+		for (const [state, sentence] of Object.entries(CORE_ENGLISH)) {
+			expect(deviceStateDescription(state)).toBe(sentence);
 		}
 	});
 
+	it.each(SHIPPED_LOCALES.filter((locale) => locale !== "en"))(
+		"renders every state in %s, not English (D2)",
+		(locale) => {
+			setLocaleSource(() => locale);
+			for (const [state, english] of Object.entries(CORE_ENGLISH)) {
+				const rendered = deviceStateDescription(state);
+				expect(rendered.length).toBeGreaterThan(0);
+				expect(rendered).not.toBe(english);
+				expect(rendered).not.toBe(state);
+			}
+		},
+	);
+
 	it("renders an unknown state as itself — never a guessed description", () => {
-		expect(deviceStateDescription("live")).toBe(
-			PUSH_DEVICE_STATE_DESCRIPTIONS.live,
-		);
 		expect(deviceStateDescription("a-future-state")).toBe("a-future-state");
+		// An inherited Object key is not a state either.
+		expect(deviceStateDescription("toString")).toBe("toString");
 	});
 });
 
@@ -114,5 +133,18 @@ describe("the Settings device list", () => {
 				(entry) => entry.isThisDevice,
 			),
 		).toBe(false);
+	});
+
+	it("formats Last active in the app's language, not the device's (D3)", () => {
+		const seen = [row("other", 1_794_778_637)];
+		setLocaleSource(() => "fr");
+		const [entry] = deviceListEntries(seen, null);
+		const french = new Date(1_794_778_637 * 1000).toLocaleString("fr", {
+			month: "short",
+			day: "numeric",
+			hour: "numeric",
+			minute: "2-digit",
+		});
+		expect(entry?.detail).toBe(`Dernière activité : ${french}`);
 	});
 });
