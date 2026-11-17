@@ -432,7 +432,11 @@ export function BridgeDirectory({
 	const org = tenantId ? state.orgs[tenantId] : undefined;
 	const selected = state.organizations.find((o) => o.tenantId === tenantId);
 	useEffect(() => {
-		if (tenantId) void actions.loadOrganization(tenantId);
+		// Every drawer open (and the docked pane) mounts this list. `ifStale` reuses
+		// a list read in the last 30 s and the directory's 5 min TTL, because the
+		// hub's read buckets are per ACCOUNT and shared with the desktop and every
+		// agent (TestFlight 1157's 429; see store.ts RATE LIMITS).
+		if (tenantId) void actions.loadOrganization(tenantId, { ifStale: true });
 	}, [actions, tenantId]);
 	const conversations = org?.conversations ?? [];
 	const people = org?.people ?? [];
@@ -502,14 +506,31 @@ export function BridgeDirectory({
 		</View>
 	);
 	const retry = () => {
-		if (tenantId) void actions.loadOrganization(tenantId);
+		// The reader asked: bypass freshness and TTL (never an active 429 wait).
+		if (tenantId) void actions.loadOrganization(tenantId, { force: true });
 	};
+	/* A 429 that outlived its Retry-After. Calm status copy, not an alert and
+	 * no button: the store is already retrying on the hub's schedule, and held
+	 * rows stay visible beneath it. */
+	const catchingUp = (testID: string) => (
+		<Text
+			accessibilityLiveRegion="polite"
+			className="px-4 py-1.5 text-body-sm text-ink-dim"
+			testID={testID}
+		>
+			{t("mobile.team_bridge.list.catching_up")}
+		</Text>
+	);
 	const orgName = selected?.name ?? t("mobile.team_bridge.list.choose");
 	const conversationsLoading =
 		(!org ||
 			org.conversationsState === "idle" ||
 			org.conversationsState === "loading") &&
-		!conversations.length;
+		!conversations.length &&
+		// "Catching up…" replaces the skeleton once a 429 outlived its wait.
+		!org?.conversationsCatchingUp;
+	const peopleLoading =
+		org?.peopleState === "loading" && !people.length && !org.peopleCatchingUp;
 	const multiOrg = state.organizations.length > 1;
 	return (
 		<DirectoryGroundContext.Provider value={ground}>
@@ -602,6 +623,8 @@ export function BridgeDirectory({
 							</View>
 						)}
 						{heading(t("mobile.team_bridge.list.channels"))}
+						{org?.conversationsCatchingUp &&
+							catchingUp(SURFACE.teamBridgeConversationsCatchingUp)}
 						{/* The loading placeholder sits UNDER the first section it
 						 *  stands in for, and the Groups header waits for data: a
 						 *  skeleton floating above two empty headers read as content
@@ -637,7 +660,9 @@ export function BridgeDirectory({
 							</>
 						)}
 						{heading(t("mobile.team_bridge.list.people"))}
-						{org?.peopleState === "loading" && !people.length && (
+						{org?.peopleCatchingUp &&
+							catchingUp(SURFACE.teamBridgePeopleCatchingUp)}
+						{peopleLoading && (
 							<View
 								accessible
 								className="px-4 py-2"

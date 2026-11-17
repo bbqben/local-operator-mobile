@@ -2204,7 +2204,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "c6c21aafd614bfe3ac2370634f4e6ec0c1a363523d7999bbf268d2b91d704219",
+	/* Re-pinned 2026-11-17 for fix/bridge-429 with --print at the staged tree:
+	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
+	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
+	 * U-08 instrument or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	src: "ea54ad145b841bab2e5f275e00ac83d81ec4c5191ed2602485255edafd428b31",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

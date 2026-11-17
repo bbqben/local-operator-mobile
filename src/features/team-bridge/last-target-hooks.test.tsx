@@ -63,6 +63,9 @@ const org = (
 	peopleState: "ready",
 	peopleError: null,
 	refreshedAt: 1,
+	peopleRefreshedAt: 1,
+	conversationsCatchingUp: false,
+	peopleCatchingUp: false,
 });
 const setState = (next: Partial<TeamBridgeState>) => {
 	host.state = { ...host.state, ...next };

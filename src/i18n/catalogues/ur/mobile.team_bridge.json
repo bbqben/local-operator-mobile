@@ -76,6 +76,7 @@
 	"mobile.team_bridge.gate.update_help": "یہ ورژن Team Bridge سروس تک رسائی حاصل نہیں کر سکتا۔ جاری رکھنے کے لیے ایپ اپ ڈیٹ کریں۔",
 	"mobile.team_bridge.gate.update_required": "اپ ڈیٹ ضروری ہے",
 	"mobile.team_bridge.gate.upgrade": "Team پر اپ گریڈ کریں",
+	"mobile.team_bridge.list.catching_up": "اپ ڈیٹ ہو رہا ہے…",
 	"mobile.team_bridge.list.channels": "چینلز",
 	"mobile.team_bridge.list.channels_empty": "ابھی کوئی چینل نہیں ہے۔",
 	"mobile.team_bridge.list.chief_role": "چیف آف اسٹاف",

@@ -76,6 +76,7 @@
 	"mobile.team_bridge.gate.update_help": "此版本无法访问 Team Bridge 服务，请更新应用以继续。",
 	"mobile.team_bridge.gate.update_required": "需要更新",
 	"mobile.team_bridge.gate.upgrade": "升级至 Team",
+	"mobile.team_bridge.list.catching_up": "正在同步…",
 	"mobile.team_bridge.list.channels": "频道",
 	"mobile.team_bridge.list.channels_empty": "暂无频道。",
 	"mobile.team_bridge.list.chief_role": "幕僚长",
