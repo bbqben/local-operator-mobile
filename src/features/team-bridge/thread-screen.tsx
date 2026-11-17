@@ -1057,12 +1057,10 @@ function ThreadContent({
 									 *  scroll keeps it so the reader can reach a long message's
 									 *  far handle (design R1, D3). Wraps — never replaces — the
 									 *  viewport's intent. */
-									/* Wraps, never replaces, the viewport's web touch hold
-									 *  (TestFlight 1139); native holds on drag/momentum. */
-									onTouchStart={() => {
-										textSelectionContainerTouch();
-										viewport.current?.handlers.onTouchStart?.();
-									}}
+									/* Web touch scrolls hold the list through POINTER events
+									 *  (the viewport's handlers, PR #289), so these stay the
+									 *  text-selection wiring alone. */
+									onTouchStart={textSelectionContainerTouch}
 									onTouchEnd={textSelectionContainerTouchEnd}
 									onTouchCancel={textSelectionContainerTouchCancel}
 									onScrollBeginDrag={() => {

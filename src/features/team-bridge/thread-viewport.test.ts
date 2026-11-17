@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
-import { createThreadViewport } from "./thread-viewport";
+import {
+	createThreadViewport,
+	DRAG_RELEASE_MS,
+	WEB_IDLE_MS,
+} from "./thread-viewport";
 
 const RELEASE = /releaseFollow\(\);/g;
 const FRESH_PEOPLE = /\?\.people \?\? \[\]/;
@@ -25,13 +29,16 @@ const host = ({ web }: { web: boolean }) => {
 	const moves = vi.fn();
 	const newBelow = vi.fn();
 	let newest = 0;
-	// Timers run only when a test advances them (re-check, drag release).
-	const timers: Array<() => void> = [];
+	// Timers run only when a test advances them (re-check, hold release):
+	// `runTimers` fires every pending one, `advanceClock` only those due.
+	let clock = 0;
+	const timers: Array<{ run: () => void; at: number }> = [];
 	const v = createThreadViewport({
-		schedule: (run) => {
-			timers.push(run);
+		schedule: (run, ms) => {
+			const entry = { run, at: clock + ms };
+			timers.push(entry);
 			return () => {
-				const i = timers.indexOf(run);
+				const i = timers.indexOf(entry);
 				if (i >= 0) timers.splice(i, 1);
 			};
 		},
@@ -76,7 +83,16 @@ const host = ({ web }: { web: boolean }) => {
 		newBelow,
 		/** Run every pending timer once (re-check, drag-release grace). */
 		runTimers() {
-			for (const run of timers.splice(0)) run();
+			for (const { run } of timers.splice(0)) run();
+		},
+		advanceClock(ms: number) {
+			clock += ms;
+			for (const entry of timers.filter((t) => t.at <= clock)) {
+				const i = timers.indexOf(entry);
+				if (i < 0) continue;
+				timers.splice(i, 1);
+				entry.run();
+			}
 		},
 		get timers() {
 			return timers.length;
@@ -767,6 +783,47 @@ describe("a reader's drag is never fought (TestFlight 1139)", () => {
 		r.v.jumpToNewest();
 		expect(r.moves).toHaveBeenCalledWith(2201);
 		expect(r.newBelow).toHaveBeenLastCalledWith(false);
+	});
+	it("a glide caught by a drag, lifted with no new glide, resumes follow (M1)", () => {
+		const r = openLong(false);
+		r.h.onScrollBeginDrag();
+		r.scrollTo(r.y - 10);
+		r.h.onScrollEndDrag?.();
+		r.h.onMomentumScrollBegin?.();
+		r.h.onScrollBeginDrag(); // caught: no momentum end arrives
+		r.scrollTo(r.y + 10);
+		r.h.onScrollEndDrag?.();
+		r.advanceClock(DRAG_RELEASE_MS);
+		expect(r.v.held).toBe(false);
+		expect(r.v.following).toBe(true);
+		r.moves.mockClear();
+		r.grow(2800);
+		expect(r.moves).toHaveBeenCalledWith(2201);
+	});
+	it("web: a touch held still for 300 ms is still the reader's (M2)", () => {
+		const r = openLong(true);
+		r.moves.mockClear();
+		r.h.onPointerDown?.(); // touch down: browsers raise pointer events
+		r.h.onPointerMove?.();
+		r.scrollTo(r.y - 10);
+		r.advanceClock(300); // the finger pauses on the glass
+		r.grow(2760); // content changes under it
+		r.v.dataChanged();
+		expect(r.moves).not.toHaveBeenCalled();
+		r.h.onPointerUp?.();
+		r.advanceClock(WEB_IDLE_MS);
+		expect(r.v.held).toBe(false);
+	});
+	it("only messages newer than the reader's departure raise the pill (m1)", () => {
+		const r = openLong(false);
+		// Leaving the tail without a gesture (screen reader / scrollbar).
+		r.scrollTo(r.y - 300);
+		expect(r.v.following).toBe(false);
+		r.grow(2760); // an image loads: no new message
+		expect(r.newBelow).not.toHaveBeenCalledWith(true);
+		r.newest = 81;
+		r.grow(2820);
+		expect(r.newBelow).toHaveBeenLastCalledWith(true);
 	});
 	it("web: a wheel near the end holds until the scroll goes idle", () => {
 		const r = openLong(true);

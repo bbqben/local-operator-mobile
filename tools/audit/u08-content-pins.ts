@@ -2127,7 +2127,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * momentum start until the reader's scroll rests; Team Bridge shows Jump
 	 * to newest for arrivals meanwhile. Re-derived with --print; source
 	 * admission only, NOT rendered, native or device evidence. */
-	src: "d0bed104615488f9549056383de53328db814b3aa59bb77e4a96b199ea8dd19d",
+	/* PR #289 round-1 remediation: the Team Bridge viewport composes the shared
+	 * reader-scroll-hold (momentum reset on a caught glide, web pointer-down
+	 * hold, current-geometry tail at rest, web hold in the agent transcript).
+	 * Re-derived with --print over the staged tree; source admission only,
+	 * NOT rendered, native or device evidence. */
+	src: "da599933e2d4d00dec29164eb2cb7ce88c298d7ff022a8df7ddbadc70f97203c",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
