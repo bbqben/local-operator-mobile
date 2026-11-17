@@ -23,7 +23,10 @@ import {
 	View,
 } from "react-native";
 import { countLabel } from "@/features/notifications/notifications-model";
-import { createViewportSignal } from "@/features/team-bridge/avatar-viewport";
+import {
+	createViewportSignal,
+	type ViewportSignal,
+} from "@/features/team-bridge/avatar-viewport";
 import { AvatarViewportProvider } from "@/features/team-bridge/avatar-viewport-context";
 import {
 	conversationsStatus,
@@ -395,6 +398,26 @@ function BridgeRowLink({
  * `onNavigate`, which dismisses the panel first so the thread is not opened
  * underneath a still-covering drawer; the route screen passes nothing.
  */
+/** The directory's two contexts: its ground, and the photo viewport signal
+ *  its rows gate their reads on (`avatar-viewport.ts`). */
+function DirectoryProviders({
+	ground,
+	viewport,
+	children,
+}: {
+	ground: DirectoryGround;
+	viewport: ViewportSignal;
+	children: ReactNode;
+}) {
+	return (
+		<DirectoryGroundContext.Provider value={ground}>
+			<AvatarViewportProvider signal={viewport}>
+				{children}
+			</AvatarViewportProvider>
+		</DirectoryGroundContext.Provider>
+	);
+}
+
 export function BridgeDirectory({
 	onBeforeOpen,
 	ground = "canvas",
@@ -564,7 +587,7 @@ export function BridgeDirectory({
 	const peopleLoading = peopleSection.skeleton;
 	const multiOrg = state.organizations.length > 1;
 	return (
-		<DirectoryGroundContext.Provider value={ground}>
+		<DirectoryProviders ground={ground} viewport={viewport}>
 			<View className="px-2 py-1">
 				<Pressable
 					accessibilityRole={ROLE.button}
@@ -623,233 +646,229 @@ export function BridgeDirectory({
 					<RefreshControl refreshing={pulling} onRefresh={pull} />
 				}
 			>
-				<AvatarViewportProvider signal={viewport}>
-					<DefaultOnNoticeBanner tenantId={tenantId} />
-					{!tenantId && (
-						<Text className="px-4 py-4 text-body-sm text-ink-dim">
-							{t("mobile.team_bridge.list.organizations_empty")}
-						</Text>
-					)}
-					{tenantId && (
-						<>
-							{conversationsSection.alert && org && (
-								<View className="gap-2 px-4 py-2">
-									<Text
-										accessibilityRole="alert"
-										className="text-body-sm text-danger"
-									>
-										{org.conversationsError?.message ??
-											t("mobile.team_bridge.list.conversations_error")}
-									</Text>
-									<View className="self-start">
-										<Button
-											label={t("mobile.team_bridge.list.conversations_retry")}
-											variant="outline"
-											size="sm"
-											testID={CONTROL.teamBridgeConversationsRetry}
-											onPress={retry}
-										/>
-									</View>
-								</View>
-							)}
-							{heading(t("mobile.team_bridge.list.channels"), {
-								show: conversationsSection.catchingUp,
-								testID: SURFACE.teamBridgeConversationsCatchingUp,
-							})}
-							{/* The loading placeholder sits UNDER the first section it
-							 *  stands in for, and the Groups header waits for data: a
-							 *  skeleton floating above two empty headers read as content
-							 *  belonging to neither (UX U1-5). `accessible` makes the
-							 *  wrapper one element so its label is what a screen reader
-							 *  hears, not three unlabeled bars (R1-6). */}
-							{conversationsLoading ? (
-								<View
-									accessible
-									className="px-4 py-3"
-									testID={SURFACE.teamBridgeConversationsLoading}
-									accessibilityLabel={t(
-										"mobile.team_bridge.list.conversations_loading",
-									)}
+				<DefaultOnNoticeBanner tenantId={tenantId} />
+				{!tenantId && (
+					<Text className="px-4 py-4 text-body-sm text-ink-dim">
+						{t("mobile.team_bridge.list.organizations_empty")}
+					</Text>
+				)}
+				{tenantId && (
+					<>
+						{conversationsSection.alert && org && (
+							<View className="gap-2 px-4 py-2">
+								<Text
+									accessibilityRole="alert"
+									className="text-body-sm text-danger"
 								>
-									<Skeleton lines={3} ground={ground} />
+									{org.conversationsError?.message ??
+										t("mobile.team_bridge.list.conversations_error")}
+								</Text>
+								<View className="self-start">
+									<Button
+										label={t("mobile.team_bridge.list.conversations_retry")}
+										variant="outline"
+										size="sm"
+										testID={CONTROL.teamBridgeConversationsRetry}
+										onPress={retry}
+									/>
 								</View>
-							) : (
-								<>
-									{conversationRows(
-										sections.channels,
-										org?.conversationsState === "ready"
-											? t("mobile.team_bridge.list.channels_empty")
-											: "",
-									)}
-									{heading(t("mobile.team_bridge.list.groups"))}
-									{conversationRows(
-										sections.groups,
-										org?.conversationsState === "ready"
-											? t("mobile.team_bridge.list.groups_empty")
-											: "",
-									)}
-								</>
-							)}
-							{heading(t("mobile.team_bridge.list.people"), {
-								show: peopleSection.catchingUp,
-								testID: SURFACE.teamBridgePeopleCatchingUp,
-							})}
-							{peopleLoading && (
-								<View
-									accessible
-									className="px-4 py-2"
-									accessibilityLabel={t(
-										"mobile.team_bridge.list.people_loading",
-									)}
+							</View>
+						)}
+						{heading(t("mobile.team_bridge.list.channels"), {
+							show: conversationsSection.catchingUp,
+							testID: SURFACE.teamBridgeConversationsCatchingUp,
+						})}
+						{/* The loading placeholder sits UNDER the first section it
+						 *  stands in for, and the Groups header waits for data: a
+						 *  skeleton floating above two empty headers read as content
+						 *  belonging to neither (UX U1-5). `accessible` makes the
+						 *  wrapper one element so its label is what a screen reader
+						 *  hears, not three unlabeled bars (R1-6). */}
+						{conversationsLoading ? (
+							<View
+								accessible
+								className="px-4 py-3"
+								testID={SURFACE.teamBridgeConversationsLoading}
+								accessibilityLabel={t(
+									"mobile.team_bridge.list.conversations_loading",
+								)}
+							>
+								<Skeleton lines={3} ground={ground} />
+							</View>
+						) : (
+							<>
+								{conversationRows(
+									sections.channels,
+									org?.conversationsState === "ready"
+										? t("mobile.team_bridge.list.channels_empty")
+										: "",
+								)}
+								{heading(t("mobile.team_bridge.list.groups"))}
+								{conversationRows(
+									sections.groups,
+									org?.conversationsState === "ready"
+										? t("mobile.team_bridge.list.groups_empty")
+										: "",
+								)}
+							</>
+						)}
+						{heading(t("mobile.team_bridge.list.people"), {
+							show: peopleSection.catchingUp,
+							testID: SURFACE.teamBridgePeopleCatchingUp,
+						})}
+						{peopleLoading && (
+							<View
+								accessible
+								className="px-4 py-2"
+								accessibilityLabel={t("mobile.team_bridge.list.people_loading")}
+							>
+								<Skeleton lines={2} ground={ground} />
+							</View>
+						)}
+						{peopleSection.alert && (
+							<View className="gap-2 px-4 py-2">
+								<Text
+									accessibilityRole="alert"
+									className="text-body-sm text-danger"
 								>
-									<Skeleton lines={2} ground={ground} />
-								</View>
-							)}
-							{peopleSection.alert && (
-								<View className="gap-2 px-4 py-2">
-									<Text
-										accessibilityRole="alert"
-										className="text-body-sm text-danger"
-									>
-										{t("mobile.team_bridge.list.people_error")}
-									</Text>
-									<View className="self-start">
-										<Button
-											label={t("mobile.team_bridge.list.people_retry")}
-											variant="outline"
-											size="sm"
-											testID={CONTROL.teamBridgePeopleRetry}
-											onPress={retry}
-										/>
-									</View>
-								</View>
-							)}
-							{!people.length && org?.peopleState === "ready" && (
-								<Text className="px-4 py-1.5 text-body-sm text-ink-dim">
-									{t("mobile.team_bridge.list.people_empty")}
+									{t("mobile.team_bridge.list.people_error")}
 								</Text>
-							)}
-							{people.map((person) => {
-								const rowState = model.personRowState(
-									person,
-									state.selfAccountId,
-								);
-								const dm = model.dmWithPerson(
-									conversations,
-									person.account_id,
-									state.selfAccountId,
-								);
-								const label = model.personLabel(person);
-								const personSelected = Boolean(
-									activeRoute?.tenantId === tenantId &&
-										((dm && activeRoute.conversationId === dm.id) ||
-											(activeRoute.conversationId === "new" &&
-												activeRoute.kind === "person" &&
-												activeRoute.accountId === person.account_id)),
-								);
-								return (
-									<BridgeRow
-										key={person.account_id}
-										label={label}
-										detail={
-											rowState === "self"
-												? t("mobile.team_bridge.list.self")
-												: rowState === "unavailable"
-													? t("mobile.team_bridge.list.person_unavailable")
-													: rowState === "paused"
-														? t("mobile.team_bridge.list.paused")
-														: null
-										}
-										conversation={dm}
-										selected={personSelected}
-										current={personSelected && markCurrent}
-										disabled={rowState === "unavailable" || rowState === "self"}
-										testID={teamBridgePersonId(person.account_id)}
-										profile={{
-											subject: { person, agent: false },
-											onOpen: setProfile,
-											testID: teamBridgeProfileOpenId(person.account_id),
-										}}
-										onPress={() =>
-											dm
-												? existing(dm)
-												: open({
-														kind: "person",
-														tenantId,
-														accountId: person.account_id,
-														label,
-													})
-										}
+								<View className="self-start">
+									<Button
+										label={t("mobile.team_bridge.list.people_retry")}
+										variant="outline"
+										size="sm"
+										testID={CONTROL.teamBridgePeopleRetry}
+										onPress={retry}
 									/>
-								);
-							})}
-							{org?.peopleIncomplete && (
-								<Text className="px-4 py-1.5 text-body-sm text-ink-dim">
-									{t("mobile.team_bridge.list.directory_incomplete")}
-								</Text>
-							)}
-							{heading(t("mobile.team_bridge.list.chiefs"))}
-							{!chiefs.length && org?.peopleState === "ready" && (
-								<Text className="px-4 py-1.5 text-body-sm text-ink-dim">
-									{t("mobile.team_bridge.list.chiefs_empty")}
-								</Text>
-							)}
-							{chiefs.map((chief) => {
-								const dm = model.dmWithAgent(
-									conversations,
-									chief.person.account_id,
-								);
-								const chiefSelected = Boolean(
-									activeRoute?.tenantId === tenantId &&
-										((dm && activeRoute.conversationId === dm.id) ||
-											(activeRoute.conversationId === "new" &&
-												activeRoute.kind === "agent" &&
-												activeRoute.endpointId === chief.endpointId)),
-								);
-								return (
-									<BridgeRow
-										key={chief.endpointId}
-										label={chief.label}
-										detail={
-											chief.paused
-												? t("mobile.team_bridge.list.paused")
-												: t("mobile.team_bridge.list.chief_role")
-										}
-										conversation={dm}
-										selected={chiefSelected}
-										current={chiefSelected && markCurrent}
-										testID={teamBridgeChiefId(chief.endpointId)}
-										profile={{
-											subject: { person: chief.person, agent: true },
-											onOpen: setProfile,
-											testID: teamBridgeProfileOpenId(chief.endpointId),
-										}}
-										onPress={() =>
-											dm
-												? existing(dm)
-												: open({
-														kind: "agent",
-														tenantId,
-														ownerAccountId: chief.person.account_id,
-														endpointId: chief.endpointId,
-														label: chief.label,
-													})
-										}
-									/>
-								);
-							})}
-							{sections.directs.some((c) => !represented.has(c.id)) && (
-								<>
-									{heading(t("mobile.team_bridge.list.other_direct"))}
-									{conversationRows(
-										sections.directs.filter((c) => !represented.has(c.id)),
-										"",
-									)}
-								</>
-							)}
-						</>
-					)}
-				</AvatarViewportProvider>
+								</View>
+							</View>
+						)}
+						{!people.length && org?.peopleState === "ready" && (
+							<Text className="px-4 py-1.5 text-body-sm text-ink-dim">
+								{t("mobile.team_bridge.list.people_empty")}
+							</Text>
+						)}
+						{people.map((person) => {
+							const rowState = model.personRowState(
+								person,
+								state.selfAccountId,
+							);
+							const dm = model.dmWithPerson(
+								conversations,
+								person.account_id,
+								state.selfAccountId,
+							);
+							const label = model.personLabel(person);
+							const personSelected = Boolean(
+								activeRoute?.tenantId === tenantId &&
+									((dm && activeRoute.conversationId === dm.id) ||
+										(activeRoute.conversationId === "new" &&
+											activeRoute.kind === "person" &&
+											activeRoute.accountId === person.account_id)),
+							);
+							return (
+								<BridgeRow
+									key={person.account_id}
+									label={label}
+									detail={
+										rowState === "self"
+											? t("mobile.team_bridge.list.self")
+											: rowState === "unavailable"
+												? t("mobile.team_bridge.list.person_unavailable")
+												: rowState === "paused"
+													? t("mobile.team_bridge.list.paused")
+													: null
+									}
+									conversation={dm}
+									selected={personSelected}
+									current={personSelected && markCurrent}
+									disabled={rowState === "unavailable" || rowState === "self"}
+									testID={teamBridgePersonId(person.account_id)}
+									profile={{
+										subject: { person, agent: false },
+										onOpen: setProfile,
+										testID: teamBridgeProfileOpenId(person.account_id),
+									}}
+									onPress={() =>
+										dm
+											? existing(dm)
+											: open({
+													kind: "person",
+													tenantId,
+													accountId: person.account_id,
+													label,
+												})
+									}
+								/>
+							);
+						})}
+						{org?.peopleIncomplete && (
+							<Text className="px-4 py-1.5 text-body-sm text-ink-dim">
+								{t("mobile.team_bridge.list.directory_incomplete")}
+							</Text>
+						)}
+						{heading(t("mobile.team_bridge.list.chiefs"))}
+						{!chiefs.length && org?.peopleState === "ready" && (
+							<Text className="px-4 py-1.5 text-body-sm text-ink-dim">
+								{t("mobile.team_bridge.list.chiefs_empty")}
+							</Text>
+						)}
+						{chiefs.map((chief) => {
+							const dm = model.dmWithAgent(
+								conversations,
+								chief.person.account_id,
+							);
+							const chiefSelected = Boolean(
+								activeRoute?.tenantId === tenantId &&
+									((dm && activeRoute.conversationId === dm.id) ||
+										(activeRoute.conversationId === "new" &&
+											activeRoute.kind === "agent" &&
+											activeRoute.endpointId === chief.endpointId)),
+							);
+							return (
+								<BridgeRow
+									key={chief.endpointId}
+									label={chief.label}
+									detail={
+										chief.paused
+											? t("mobile.team_bridge.list.paused")
+											: t("mobile.team_bridge.list.chief_role")
+									}
+									conversation={dm}
+									selected={chiefSelected}
+									current={chiefSelected && markCurrent}
+									testID={teamBridgeChiefId(chief.endpointId)}
+									profile={{
+										subject: { person: chief.person, agent: true },
+										onOpen: setProfile,
+										testID: teamBridgeProfileOpenId(chief.endpointId),
+									}}
+									onPress={() =>
+										dm
+											? existing(dm)
+											: open({
+													kind: "agent",
+													tenantId,
+													ownerAccountId: chief.person.account_id,
+													endpointId: chief.endpointId,
+													label: chief.label,
+												})
+									}
+								/>
+							);
+						})}
+						{sections.directs.some((c) => !represented.has(c.id)) && (
+							<>
+								{heading(t("mobile.team_bridge.list.other_direct"))}
+								{conversationRows(
+									sections.directs.filter((c) => !represented.has(c.id)),
+									"",
+								)}
+							</>
+						)}
+					</>
+				)}
 			</ScrollView>
 			{tenantId && (
 				<ProfileSheet
@@ -930,7 +949,7 @@ export function BridgeDirectory({
 					})}
 				</View>
 			</Sheet>
-		</DirectoryGroundContext.Provider>
+		</DirectoryProviders>
 	);
 }
 

@@ -2270,7 +2270,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (avatar-viewport, profile-card, list-screen scroll signal). No U-08
 	 * instrument, copy or measured geometry moved. Source identity only, NOT
 	 * rendered U-08 evidence. */
-	src: "88ca005dfe50edf71d53fbe6bd03526620285d6f732e5ca6006cc12dda70c3a2",
+	src: "fee54c8818090fffda4829384f0771fa4425e5ba1632a42e2cf5bce544f4ceab",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
