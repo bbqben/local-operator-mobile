@@ -2226,6 +2226,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
 	 * chains kept; re-derived with --print over the staged merged tree. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
 	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
 	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
@@ -2244,7 +2254,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
 	 * chains kept; re-derived with --print over the staged merged tree. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "cb56933b8d447a55dbbd32b2722028f3ba79530004d98dd084c2ccfc49eb4c4e",
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
+	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
+	 * chains kept; only this pin conflicted. Re-derived with --print over the
+	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "93e737b750fa43af7c1d26d987a2e0ccc8382366f9a511e33a05a96a570edf1a",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
