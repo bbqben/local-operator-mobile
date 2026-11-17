@@ -13,9 +13,10 @@
  */
 import { usePathname, useRouter } from "expo-router";
 import { Bot, Clock, MessageSquare, UserRound } from "lucide-react-native";
-import { useCallback, useEffect, useState } from "react";
-import { Pressable, Text } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Pressable, Text, type View } from "react-native";
 import { toBase64 } from "@/features/session/runtime";
+import { useSeenInViewport } from "@/features/team-bridge/avatar-viewport-context";
 import { t } from "@/i18n";
 import {
 	type AvatarPixels,
@@ -60,6 +61,8 @@ const PIXELS: Record<AvatarSize, AvatarPixels> = { sm: 64, md: 64, lg: 256 };
 export function useAvatarUri(
 	member: DirectoryMember | null | undefined,
 	size: AvatarSize,
+	/** False while the row is off screen: show a held photo, read nothing. */
+	enabled = true,
 ): { uri: string | null; onError: () => void } {
 	const { hub, avatars } = useTeamBridge();
 	const version = avatarVersion(member);
@@ -77,8 +80,9 @@ export function useAvatarUri(
 			setUri(null);
 			return;
 		}
-		let live = true;
 		setUri(avatars.peek(key));
+		if (!enabled) return;
+		let live = true;
 		void avatars
 			.load(
 				key,
@@ -98,7 +102,7 @@ export function useAvatarUri(
 		return () => {
 			live = false;
 		};
-	}, [avatars, hub, key, accountId, hash, pixels]);
+	}, [avatars, hub, key, accountId, hash, pixels, enabled]);
 	const onError = useCallback(() => {
 		if (key) avatars.fail(key, "permanent");
 		setUri(null);
@@ -114,12 +118,15 @@ export function PersonAvatar({
 	member,
 	label,
 	size = "md",
+	deferred = false,
 }: {
 	member: DirectoryMember | null | undefined;
 	label: string;
 	size?: AvatarSize;
+	/** Off screen in a list: keep a held photo, start no read. */
+	deferred?: boolean;
 }) {
-	const { uri, onError } = useAvatarUri(member, size);
+	const { uri, onError } = useAvatarUri(member, size, !deferred);
 	return (
 		<Avatar
 			initials={initialsOf(label)}
@@ -132,13 +139,17 @@ export function PersonAvatar({
 
 /**
  * Endpoint photos are authorized on the hub, not inherited from the owner.
- * Never initialize from ready cache: the endpoint route is private/no-cache.
- * Display binds to cache instance, retirement epoch and the complete photo key,
- * so changing owner/endpoint/hash/size cannot flash the old result for a frame.
+ * The bytes for one hash-pinned key are held by the account-scoped cache and
+ * shown from it at once (no glyph flash, no request) on a later mount; the
+ * row itself only exists while the current directory lists that endpoint with
+ * that hash. Display binds to cache instance, retirement epoch and the complete
+ * photo key, so changing owner/endpoint/hash/size cannot flash the old result.
  */
 export function useEndpointAvatarUri(
 	member: DirectoryMember | null | undefined,
 	size: AvatarSize,
+	/** False while the row is off screen: show a held photo, read nothing. */
+	enabled = true,
 ): { uri: string | null; onError: () => void } {
 	const { hub, avatars } = useTeamBridge();
 	const version = endpointAvatarVersion(member?.agent);
@@ -151,7 +162,7 @@ export function useEndpointAvatarUri(
 	const [loaded, setLoaded] = useState<EndpointAvatarSnapshot | null>(null);
 	useEffect(() => {
 		setLoaded(null);
-		if (!key || !endpointId || !hash) return;
+		if (!key || !endpointId || !hash || !enabled) return;
 		let live = true;
 		void avatars
 			.loadEndpoint(
@@ -173,7 +184,7 @@ export function useEndpointAvatarUri(
 		return () => {
 			live = false;
 		};
-	}, [avatars, hub, key, endpointId, hash, pixels, epoch]);
+	}, [avatars, hub, key, endpointId, hash, pixels, epoch, enabled]);
 	const onError = useCallback(() => {
 		// A late decoder callback from an old scope must not poison the new one.
 		if (key && avatars.epoch === epoch) avatars.fail(key, "permanent");
@@ -186,7 +197,9 @@ export function useEndpointAvatarUri(
 		);
 	}, [avatars, key, epoch]);
 	return {
-		uri: endpointDisplayUri(loaded, avatars, epoch, key),
+		uri:
+			endpointDisplayUri(loaded, avatars, epoch, key) ??
+			(key ? avatars.peek(key) : null),
 		onError,
 	};
 }
@@ -194,11 +207,13 @@ export function useEndpointAvatarUri(
 function AgentAvatar({
 	member,
 	size,
+	deferred = false,
 }: {
 	member: DirectoryMember;
 	size: AvatarSize;
+	deferred?: boolean;
 }) {
-	const { uri, onError } = useEndpointAvatarUri(member, size);
+	const { uri, onError } = useEndpointAvatarUri(member, size, !deferred);
 	const ink = useTokenColor("accent-active");
 	return (
 		<Avatar
@@ -238,17 +253,21 @@ export function UnknownSenderAvatar({
 export function ProfileSubjectAvatar({
 	subject,
 	size = "md",
+	deferred = false,
 }: {
 	subject: ProfileSubject;
 	size?: AvatarSize;
+	/** Off screen in a list (`useSeenInViewport`): no photo read yet. */
+	deferred?: boolean;
 }) {
 	return subject.agent ? (
-		<AgentAvatar member={subject.person} size={size} />
+		<AgentAvatar member={subject.person} size={size} deferred={deferred} />
 	) : (
 		<PersonAvatar
 			member={subject.person}
 			label={subjectMarkLabel(subject)}
 			size={size}
+			deferred={deferred}
 		/>
 	);
 }
@@ -339,8 +358,13 @@ export function ProfileAvatarButton({
 	onOpen: (subject: ProfileSubject) => void;
 	testID: string;
 }) {
+	// The drawer mounts every row; only the ones on screen read their photo
+	// (`avatar-viewport.ts`). Outside the drawer this is true at once.
+	const box = useRef<View>(null);
+	const seen = useSeenInViewport(box);
 	return (
 		<Pressable
+			ref={box}
 			accessibilityRole={ROLE.button}
 			accessibilityLabel={t("mobile.team_bridge.profile.open", { name: label })}
 			className="items-center justify-center"
@@ -348,7 +372,7 @@ export function ProfileAvatarButton({
 			onPress={() => onOpen(subject)}
 			testID={testID}
 		>
-			<ProfileSubjectAvatar subject={subject} size={size} />
+			<ProfileSubjectAvatar subject={subject} size={size} deferred={!seen} />
 		</Pressable>
 	);
 }

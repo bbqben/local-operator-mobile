@@ -2263,7 +2263,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "93e737b750fa43af7c1d26d987a2e0ccc8382366f9a511e33a05a96a570edf1a",
+	/* Re-pinned 2026-11-17 for fix/bridge-transient with --print at the staged
+	 * tree: Team Bridge keeps held rows on every transient failure (store),
+	 * holds hash-pinned endpoint photos and caps photo reads at 4 in flight
+	 * (avatars), and the drawer reads photos only for on-screen rows
+	 * (avatar-viewport, profile-card, list-screen scroll signal). No U-08
+	 * instrument, copy or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	src: "88ca005dfe50edf71d53fbe6bd03526620285d6f732e5ca6006cc12dda70c3a2",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

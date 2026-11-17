@@ -77,8 +77,8 @@ describe("endpoint avatar identity", () => {
 	});
 });
 
-describe("private endpoint photo retention", () => {
-	it("deduplicates only in-flight reads, leaves no ready bytes and reauthorizes a remount", async () => {
+describe("endpoint photo retention (hash-pinned, TestFlight 1157 fan-out)", () => {
+	it("holds one hash's bytes for later mounts, in their own namespace", async () => {
 		const cache = createAvatarCache();
 		const human = avatarKey(OWNER, HASH, 64);
 		const key = endpointAvatarKey(OWNER, HASH, 64);
@@ -89,14 +89,14 @@ describe("private endpoint photo retention", () => {
 		expect(await first).toBe(AGENT_URI);
 		expect(await twin).toBe(AGENT_URI);
 		expect(read).toHaveBeenCalledTimes(1);
-		expect(cache.peek(key)).toBeNull();
-		expect(cache.stats().bytes).toBe(OWNER_URI.length);
-		await cache.loadEndpoint(key, read, avatarFailure);
-		// Even an accidental legacy call cannot create reusable endpoint bytes.
-		await cache.load(key, read, avatarFailure);
-		expect(read).toHaveBeenCalledTimes(3);
-		expect(cache.stats().bytes).toBe(OWNER_URI.length);
+		// The `?v=<hash>` URL is immutable: a remount re-reads nothing.
+		expect(await cache.loadEndpoint(key, read, avatarFailure)).toBe(AGENT_URI);
+		expect(read).toHaveBeenCalledTimes(1);
+		expect(cache.peek(key)).toBe(AGENT_URI);
+		// Same opaque id and hash, different namespace: never the owner's bytes.
 		expect(cache.peek(human)).toBe(OWNER_URI);
+		cache.clear();
+		expect(cache.peek(key)).toBeNull();
 	});
 	it("shares permanent endpoint failures across sizes, never with the owner's key", async () => {
 		const cache = createAvatarCache();
@@ -268,7 +268,9 @@ describe("photo authorization and refusal bounds", () => {
 			finish(ACCESS);
 			await vi.advanceTimersByTimeAsync(0);
 			expect(read).not.toHaveBeenCalled();
-			expect(cache.stats()).toEqual({ entries: 0, bytes: 0 });
+			// The queued photo succeeded and is held (hash-pinned retention); the
+			// timed-out one left nothing behind it could have been evicted for.
+			expect(cache.stats()).toEqual({ entries: 1, bytes: AGENT_URI.length });
 		} finally {
 			vi.useRealTimers();
 		}
@@ -388,7 +390,7 @@ describe("photo authorization and refusal bounds", () => {
 		expect(first.bodyUsed).toBe(true);
 		expect(read).toHaveBeenCalledTimes(2);
 	});
-	it("reauthorizes after success and turns a withdrawn 404 into a glyph, not stale bytes", async () => {
+	it("a held hash is never re-asked; a 404 is a glyph retried only after the cooldown", async () => {
 		let calls = 0;
 		let clock = 0;
 		const hub = createHubClient({
@@ -399,24 +401,31 @@ describe("photo authorization and refusal bounds", () => {
 		});
 		const cache = createAvatarCache({ now: () => clock });
 		const key = endpointAvatarKey(ENDPOINT, HASH, 64);
-		const read = () =>
-			hub.endpointAvatarBytes(ENDPOINT, HASH, 64).then(() => AGENT_URI);
-		expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
-			AGENT_URI,
-		);
+		const read = (hash: string) => () =>
+			hub.endpointAvatarBytes(ENDPOINT, hash, 64).then(() => AGENT_URI);
 		expect(
-			await cache.loadEndpoint(key, read, endpointAvatarFailure),
+			await cache.loadEndpoint(key, read(HASH), endpointAvatarFailure),
+		).toBe(AGENT_URI);
+		expect(
+			await cache.loadEndpoint(key, read(HASH), endpointAvatarFailure),
+		).toBe(AGENT_URI);
+		expect(calls).toBe(1);
+		// A new photo is a new key; its withdrawal answer (404) is a glyph.
+		const next = "fedcba9876543210";
+		const nextKey = endpointAvatarKey(ENDPOINT, next, 64);
+		expect(
+			await cache.loadEndpoint(nextKey, read(next), endpointAvatarFailure),
 		).toBeNull();
 		expect(calls).toBe(2);
-		expect(cache.peek(key)).toBeNull();
+		expect(cache.peek(nextKey)).toBeNull();
 		expect(
-			await cache.loadEndpoint(key, read, endpointAvatarFailure),
+			await cache.loadEndpoint(nextKey, read(next), endpointAvatarFailure),
 		).toBeNull();
 		expect(calls).toBe(2);
 		clock = 60_001;
-		expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
-			AGENT_URI,
-		);
+		expect(
+			await cache.loadEndpoint(nextKey, read(next), endpointAvatarFailure),
+		).toBe(AGENT_URI);
 		expect(calls).toBe(3);
 	});
 	it("refuses oversized declared and streamed endpoint bodies, cancelling each", async () => {

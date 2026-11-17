@@ -24,6 +24,20 @@
  *   resolves into nothing.
  * - Bounded in entries AND bytes, least recently used first. A crowded list
  *   that cannot make room renders initials rather than growing the heap.
+ * - Endpoint (agent) photos are held too, keyed on endpoint + hash + size.
+ *   Their URL is hash-pinned (`?v=<hash>`), so the bytes for one key never
+ *   change: revalidating them is a request that can only answer 304. Before
+ *   this, every drawer open re-read every agent's photo (TestFlight 1157,
+ *   2026-11-17: 119 `GET /v1/messaging/endpoints/bep_<id>/avatar` → 304 in one
+ *   burst drained the account's 120/min `reads` bucket, and the directory and
+ *   settings reads that followed got 429). Authorization still follows the
+ *   directory: a row is only asked for an endpoint photo the CURRENT directory
+ *   lists with that hash, so a withdrawn endpoint drops out on the next
+ *   directory read (`DIRECTORY_TTL_MS`), and sign-out / account change clears
+ *   everything.
+ * - At most `maxInFlight` reads (default 4) are outstanding at once; the rest
+ *   queue FIFO. A list of N rows must never become N simultaneous requests
+ *   against a bucket the directory and settings reads share.
  * - A failure is remembered. A 404 (no photo, or not readable) and an
  *   undecodable answer stay failed for that hash; a network failure is retried
  *   only after a cool-down. Scrolling a list of people with no photos must not
@@ -208,6 +222,8 @@ export interface AvatarCacheOptions {
 	maxEntries?: number;
 	/** Most `data:` URI characters held across ready entries. */
 	maxBytes?: number;
+	/** Most reads outstanding at once; the rest wait their turn. */
+	maxInFlight?: number;
 	/** How long a network failure is remembered before one more try. */
 	transientCooldownMs?: number;
 	now?: () => number;
@@ -223,10 +239,18 @@ export interface AvatarCacheOptions {
 const DEFAULT_MAX_ENTRIES = 200;
 const DEFAULT_MAX_BYTES = 4 * 1024 * 1024;
 const DEFAULT_TRANSIENT_COOLDOWN_MS = 60_000;
+/*
+ * Four keeps a screenful of photos arriving within a few round trips while a
+ * 100-agent organization drains as a trickle, not a burst, against the shared
+ * 120/min `reads` bucket. Hub variants are a few KB, so latency, not bandwidth,
+ * is what a higher number would buy.
+ */
+export const AVATAR_MAX_IN_FLIGHT = 4;
 
 export function createAvatarCache(options: AvatarCacheOptions = {}) {
 	const maxEntries = options.maxEntries ?? DEFAULT_MAX_ENTRIES;
 	const maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES;
+	const maxInFlight = Math.max(1, options.maxInFlight ?? AVATAR_MAX_IN_FLIGHT);
 	const cooldown = options.transientCooldownMs ?? DEFAULT_TRANSIENT_COOLDOWN_MS;
 	const now = options.now ?? Date.now;
 	/* Map iteration order is insertion order: re-inserting on use makes the
@@ -255,7 +279,7 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 	 * waking until a waiter actually occupies a slot or the room runs out.
 	 */
 	const wakeOne = () => {
-		while (waiters.length > 0 && makeRoom(1, 0)) {
+		while (waiters.length > 0 && inFlight < maxInFlight && makeRoom(1, 0)) {
 			const before = inFlight;
 			waiters.shift()?.run();
 			if (inFlight > before) return;
@@ -341,22 +365,18 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		fetchUri: () => Promise<string>,
 		classify: (error: unknown) => AvatarFailure,
 	): Promise<string | null> => {
-		const retainReady = !ENDPOINT_KEY.test(key);
 		const held = entries.get(key);
 		if (held?.state === "ready") {
-			if (retainReady) {
-				touch(key, held);
-				return Promise.resolve(held.uri);
-			}
-			remove(key);
+			touch(key, held);
+			return Promise.resolve(held.uri);
 		}
 		if (held?.state === "loading") return held.promise;
 		if (held?.state === "failed") {
 			if (now() < held.retryAt) return Promise.resolve(null);
 			remove(key);
 		}
-		if (!makeRoom(1, 0)) {
-			// Every slot is an outstanding read: wait for one to settle.
+		if (inFlight >= maxInFlight || !makeRoom(1, 0)) {
+			// Too many reads outstanding: wait for one to settle.
 			return new Promise((resolve) => {
 				waiters.push({
 					// `load` runs synchronously up to starting its fetch, so the
@@ -371,7 +391,8 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		const promise = fetchUri()
 			.then(
 				(uri) => {
-					if (started !== epoch) return retainReady ? uri : null;
+					// A retired account's endpoint read lands as nothing (as before).
+					if (started !== epoch) return ENDPOINT_KEY.test(key) ? null : uri;
 					remove(key);
 					/* A URI over the WHOLE budget is refused before anything is
 					 * evicted: storing it would empty the cache and still not fit,
@@ -382,10 +403,6 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 						remember(key, Number.POSITIVE_INFINITY, true);
 						return null;
 					}
-					// Co-member endpoint reads are private/no-cache. A mounted view
-					// may show its newly authorized result, but a later mount must
-					// read the hub again (withdrawal may now answer 404).
-					if (!retainReady) return uri;
 					if (!makeRoom(1, uri.length)) return uri;
 					heldBytes += uri.length;
 					entries.set(key, { state: "ready", uri, bytes: uri.length });
@@ -413,9 +430,8 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 			return epoch;
 		},
 
-		/** A held account photo's URI; endpoint authorization is never cached. */
+		/** A held photo's URI, account or endpoint. */
 		peek(key: string): string | null {
-			if (ENDPOINT_KEY.test(key)) return null;
 			const entry = entries.get(key);
 			if (entry?.state !== "ready") return null;
 			touch(key, entry);
@@ -434,8 +450,8 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		load,
 
 		/**
-		 * Share an active authorized endpoint read, never reusable ready bytes.
-		 * Failed entries still honor bounded cooldown and the existing size rules.
+		 * An endpoint photo: held bytes for this hash, the read in flight, or a
+		 * new one. Refuses anything that is not an endpoint key.
 		 */
 		loadEndpoint(
 			key: string,
