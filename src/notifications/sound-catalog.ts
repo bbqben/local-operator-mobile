@@ -149,3 +149,23 @@ export const legacyChannelIds = (created: ReadonlySet<string>): string[] => {
 			.map((value) => soundChannelId(value)),
 	];
 };
+
+/** One row of `assets/notification-sounds/manifest.json`, written by
+ *  `scripts/sounds/export-mobile.ts`. `source_sha256` is the core FLAC's sha
+ *  from its catalog, which is what ties a bundled WAV to the computer's sound. */
+export type SoundManifestEntry = {
+	id: string;
+	file: string;
+	sha256: string;
+	bytes: number;
+	duration_s: number;
+	channels: number;
+	source_file: string;
+	source_sha256: string;
+};
+
+export type SoundManifest = {
+	schema: 1;
+	default: string;
+	sounds: SoundManifestEntry[];
+};
