@@ -5,7 +5,9 @@
   maintaining team (everything else)
 - **Decisions recorded (2026-11-17):**
   - **The S5 photo capability link is approved** by the operator (ask a-4eab), with the scoping in
-    §3 and §6: an opaque server-stored nonce, re-checked at serve time, in a redacted path segment.
+    §3 and §6: an opaque server-stored nonce, re-checked at serve time. The nonce travels in the
+    `Authorization` request header, never in a URL, because the WAF log keeps every request's full
+    path for 30 days and redacts only headers (§6, review R2-1).
   - **Agent senders show the agent's own avatar, or an agent glyph** (manager decision, following
     the operator's words). They never show the owner's face. See §5.
 - **Related:** [ADR 0006](0006-push-and-ack-sync.md) (push and ack sync),
@@ -51,8 +53,8 @@ a device to settle it.
      `INSendMessageIntent`. Android draws it in an Expo presentation-delegate subclass, as
      `MessagingStyle` with a `Person` and a long-lived conversation shortcut.
    - **Step 2 (approved, a-4eab):** photos, through a short-lived capability URL that the cloud
-     mints. The URL carries only an opaque server-stored nonce, and the server re-checks the
-     recipient's access each time it serves.
+     mints. The phone presents an opaque server-stored nonce in the `Authorization` header (never
+     in the URL), and the server re-checks the recipient's access each time it serves.
    - Rejected: sharing the Radient bearer with the extension. The refresh token rotates on every use
      (`src/connection/radient-oauth.ts:507-509`), so a second process refreshing it would sign the
      reader out.
@@ -174,12 +176,15 @@ badged in the corner by iOS.
      - **Channel or group (`conv.group == true`):** iOS treats nil recipients as one-to-one and
        then hides `speakableGroupName` (Apple, "Implementing communication notifications": "For
        group message intents, provide an array that contains the other participants"). So set
-       `recipients` to **two** opaque placeholder `INPerson`s (the reader, `customIdentifier:
-       "tb:me"`, and `"tb:<conversation>:others"`, no names and no ids), which is enough for iOS to
-       treat the intent as a group. Also set
+       `recipients` to **one** opaque placeholder `INPerson` (`customIdentifier:
+       "tb:<conversation>:others"`, no name and no id). Apple adds the reader itself ("For incoming
+       communication notification donations, the system includes the current user as a recipient
+       in addition to those your app provides"), so a `"tb:me"` placeholder would double-count the
+       reader. Add one only if the S3 simulator stills show iOS needs it. Also set
        `intent.donationMetadata = INSendMessageIntentDonationMetadata()` with
-       `recipientCount = max(conv.members - 1, 2)`; Apple documents it as the stand-in for a full
-       list. Optionally call `setImage(_:forParameterNamed: \.speakableGroupName)` with a channel
+       `recipientCount = conv.members - 1` (the active members other than the reader). Apple
+       documents it as the stand-in for a full list and asks for "an accurate recipient count".
+       Optionally call `setImage(_:forParameterNamed: \.speakableGroupName)` with a channel
        glyph. No member ids are sent, so this keeps the §6 rule.
      - **Settle on a simulator in S3:** a `group: true` push must show the group name and the sender
        face; a `group: false` push must show the DM layout. Screenshots of both are the acceptance.
@@ -197,7 +202,7 @@ badged in the corner by iOS.
 |---|---|
 | Shared keychain access group, the extension reads the Radient grant | **Reject.** Radient rotates the refresh token on every use (`radient-oauth.ts:507-509`). An extension that refreshes races the app and can sign the reader out. Using the access token alone fails whenever it has expired. It would also re-home the grant one day after the `AFTER_FIRST_UNLOCK` keychain migration (`src/features/auth/tunnel-storage.ts:125-142`). |
 | Inline bytes in the payload | **Reject.** APNs and FCM cap the payload at 4 KB, and a 64 px PNG is 3–6 KB. |
-| **Short-lived capability URL** minted by the cloud per recipient device | **Step 2, approved by the operator (a-4eab, 2026-11-17).** The URL carries an **opaque server-stored nonce**: 128 random bits, base64url, in a **path segment** (`GET /v1/push-avatars/<nonce>`, never a query string). The server row holds (recipient account, recipient device, tenant, sender identity, avatar hash, size, expiry ≤ 15 min). A plain HMAC is rejected because it can only be verified if the URL carries those ids in clear, which breaks §6. The nonce is preferred over an AEAD-sealed token for three reasons. A sealed token of four ids is about 250 characters against the 4 KB APNs/FCM budget, where the nonce is 22. A row can be revoked on sign-out. And the serve path reads the database for its re-checks anyway (§6). The route serves that one derivative only. It is a deliberate, approved exception to the "no … credential … accepted" rule at `routes.go:918-921`, and works the same way on Android. |
+| **Short-lived capability URL** minted by the cloud per recipient device | **Step 2, approved by the operator (a-4eab, 2026-11-17).** The phone fetches a **fixed URL** (`GET /v1/push-avatars`, with no path parameter and no query) and presents an **opaque server-stored nonce** (128 random bits, base64url) as **`Authorization: PushAvatar <nonce>`**. The nonce never appears in any URL, so no URL log anywhere can hold it (§6). The server row holds (recipient account, recipient device, tenant, sender identity, avatar hash, size, expiry ≤ 15 min). A plain HMAC is rejected because it can only be verified if the request carries those ids in clear, which breaks §6. The nonce is preferred over an AEAD-sealed token for three reasons. A sealed token of four ids is about 250 characters against the 4 KB APNs/FCM budget, where the nonce is 22. A row can be revoked on sign-out. And the serve path reads the database for its re-checks anyway (§6). The row is keyed by `sha256(nonce)`, so the database never holds a usable capability, and a Mongo TTL index on `expires_at` removes rows after expiry. The route serves that one derivative only. It is a deliberate, approved exception to the "no … credential … accepted" rule at `routes.go:918-921`, and works the same way on Android. |
 | **Initials rendered on the device** | **Step 1, and always the fallback.** No network and no secret. |
 
 - **Expo integration:**
@@ -302,8 +307,10 @@ response pipeline. **Keep data-only and build on the device.**
     production), not a literal, because it must be the same string core uses as `origin` for that
     hub (`team_bridge/client.py:1172, 3810`). Staging and self-hosted hubs then keep desktop and
     phone colours equal. The shared fixture pins the production value and one non-production value.
-  - `conv.group`: `conversation.Kind != dm`. `conv.members`: `len(conversation.Members)`, capped at
-    999. Both are already in hand where the push is composed (`ComposeBridgePushNotification`,
+  - `conv.group`: `conversation.Kind != dm`. `conv.members`: the number of
+    `conversation.Members` with `State == BridgeParticipantStateActive`
+    (`models/bridge_conversation.go:89`), capped at 999. Left, removed and invited rows don't
+    count. Both are already in hand where the push is composed (`ComposeBridgePushNotification`,
     `models/bridge_push.go:267-300`), so no extra read is needed. The phone uses them only for
     group rendering (§3 step 4, §4 step 2).
   - **A shared fixture** (`{account_id, display_label} → {initials, tone}`, about 30 rows, including
@@ -325,19 +332,32 @@ response pipeline. **Keep data-only and build on the device.**
 
 ## 6. Privacy
 
-- The payload adds only `kind`, `initials`, `tone` and, in step 2, an opaque short-lived URL. **No
-  account ids or endpoint ids** go to Apple or Google. Use an opaque per-sender key (an HMAC of the
-  id) for `INPerson`/`Person` identity.
-- **No logging:** nothing from `title`, `preview`, `sender` or the URL is logged in the extension or
-  the delegate. The cloud's existing rule already applies (`models/bridge_push.go:133-135`).
-- **The capability URL is scoped** to the recipient account, a tenant they share with the sender
+- The payload adds only `kind`, `initials`, `tone` and, in step 2, an opaque short-lived nonce and
+  the fixed fetch URL. **No account ids or endpoint ids** go to Apple or Google. Use an opaque
+  per-sender key (an HMAC of the id) for `INPerson`/`Person` identity.
+- **No logging:** nothing from `title`, `preview`, `sender`, the URL or the nonce is logged in the
+  extension or the delegate. The cloud's existing rule already applies
+  (`models/bridge_push.go:133-135`).
+- **The capability is scoped** to the recipient account, a tenant they share with the sender
   (the existing `OpenAvatar` check), one hash, one size, ≤ 15 min, and GET only. It is served
-  `private, no-store`. A leaked URL shows one org-visible face for minutes.
-  - **Token:** the opaque server-stored nonce in §3. The URL and payload carry no account,
-    tenant, endpoint or device id, in clear or sealed.
-  - **Re-checked at serve time:** no bearer is presented, so anyone holding the URL can fetch
-    it, and checks made only at mint would outlive a tenant removal by up to the TTL. On every GET
-    the handler loads the nonce row and serves **only if all of these still hold**:
+  `private, no-store`. A leaked nonce shows one org-visible face for minutes.
+  - **Token:** the opaque server-stored nonce in §3, sent as `Authorization: PushAvatar <nonce>`.
+    The URL, the header and the payload carry no account, tenant, endpoint or device id, in clear
+    or sealed.
+  - **Header, not URL:** the phone fetches the fixed `GET /v1/push-avatars`. The route is mounted
+    on the bare `v1` group (`routes.go:80`), which has no auth middleware, so the handler parses
+    the scheme itself. A missing header, another scheme or an unknown nonce gets the same 404 as
+    every other failure, never a 401, so URLSession never sees an auth challenge. The client sends
+    the header only to the origin it registered the device with, and turns redirects off (an
+    `URLSessionTaskDelegate` that refuses redirection, and `followRedirects(false)` in OkHttp), so
+    the nonce can't follow a redirect to another host.
+  - **At rest:** the table stores `sha256(nonce)` as its unique key and looks rows up by that
+    hash, the way bearer tokens are never stored. A database read therefore yields no fetchable
+    capability. A Mongo TTL index on `expires_at` removes expired rows. The TTL monitor runs
+    about once a minute, so the serve-time expiry check (1. below) stays authoritative.
+  - **Re-checked at serve time:** no account bearer is presented, so anyone holding the nonce
+    can fetch it, and checks made only at mint would outlive a tenant removal by up to the TTL. On
+    every GET the handler loads the nonce row and serves **only if all of these still hold**:
     1. not expired;
     2. the recipient device registration is still active, which a sign-out removes;
     3. the recipient and the sender **still share an ACTIVE tenant**, using the same check the
@@ -346,33 +366,59 @@ response pipeline. **Keep data-only and build on the device.**
        is never served.
     Any failure answers the same `404` with no body difference. Sign-out and account switch also
     delete that device's nonce rows.
-  - **Logging:**
-    - **In the app's logs:** agent-server logs request paths only after `RedactRequestPath`. That
-      covers the request logger (`internal/middlewares/middleware.go:186-219`) and the central
-      error handler (`cmd/server/main.go:2808`). Its rules are the `tokenPathRules` table
-      (`middleware.go:74-84`). S5 **adds `{^/v1/push-avatars/[^/]+, "/v1/push-avatars/:token"}`**,
-      with a unit test beside `TestRedactRequestPathSurvivesEncodedControlBytes` covering the
-      case, slash and dot variants. The token is a path segment for exactly this reason, and a
-      query string is rejected.
-    - **On the platform:** `api.radienthq.com` is a **Cloudflare-proxied** host
-      (`radient-infra@ce41f73 pulumi/radient_infra/dns.py:138`, `PROXIED_HOSTS`) in front of the
-      shared AWS ALB `radient-prod-alb` in `ca-central-1`, with WAFv2 attached
-      (`radient-environments@1cd3d37 apps/agent-server/overlays/prod/ingress-patch.yaml`). It is
-      **not** Cloud Run, so `httpRequest.requestUrl` doesn't apply.
-      - **ALB access logs are not enabled in IaC.** The group's `load-balancer-attributes`
-        (`apps/agent-server/base/ingress.yaml`) have no `access_logs.s3.*`, and neither repository
-        has an `access_logs` key or a WAF logging configuration.
-      - **Two places can still see the full path.** WAF keeps `sampled_requests_enabled` on
-        (`waf.py:1192`), and AWS keeps those samples, with the request URI, for about 3 hours.
-        Cloudflare's edge analytics and security events can also show the path.
-      - **Accepted, as the review allows:** someone who can read those consoles could replay the
-        nonce within its ≤ 15 min TTL. The serve-time checks still apply, so the most they get is
-        one org-visible face.
-      - **Not verified live**, because no AWS or Cloudflare console read was made: whether access
-        logging was turned on outside IaC. A read-only
-        `aws elbv2 describe-load-balancer-attributes` and `aws wafv2 get-logging-configuration`
-        settle it before S5 ships. If either is on, add a redaction (WAF `redacted_fields` on
-        `uri_path`) or record the exposure here.
+  - **Logging.** The nonce is in a request header, so every log that keeps URLs is out of reach
+    by construction. Each sink was checked:
+    - **The AWS WAF log keeps every request's path, and redacts only headers.**
+      `radient-infra@ce41f73 pulumi/radient_infra/waf.py:1762-1768` creates
+      `aws.wafv2.WebAclLoggingConfiguration` into the CloudWatch group
+      `aws-waf-logs-radient-prod-waf`, with 30-day retention (`config.py:149`). Its
+      `tunnel_logging_filter` (`waf.py:1355-1399`) has `default_behavior: KEEP` and drops only
+      tunnel-host and XSS-labelled bridge ALLOWs, so every `api.radienthq.com` record is kept with
+      its URI. Its `redacted_fields` are the headers in `WAF_REDACTED_HEADERS` (`waf.py:628-634`),
+      and **`authorization` is already one of them**. (Round 1 of this ADR said neither repository
+      had a WAF logging configuration. That was wrong.)
+    - **WAF samples** (`sampled_requests_enabled`, about 3 hours) are covered by web-ACL data
+      protection, which substitutes `REDACTED` for each header in `WAF_PROTECTED_HEADERS`
+      (`waf.py:723-731`, `:1734-1739`). **`authorization` is already one of those too.**
+      `pulumi/tests/test_waf_data_protection.py:181-223` fails the build if the protected list
+      changes or the samples become weaker than the log, and `:239-246` pins the post-apply gate
+      script to the same names.
+    - **Agent-server** logs the method, the redacted path, status, latency, IP and user agent, but
+      no request headers (`internal/middlewares/middleware.go:186-219`). The central error handler
+      logs only the redacted path (`cmd/server/main.go:2808`). The only global middleware is
+      `edgeProofTag` (`main.go:3136`).
+    - **Cloudflare** URL analytics and security events show the path, which is now the fixed
+      `/v1/push-avatars`.
+    - **Defence in depth:** S5 still adds
+      `{^/v1/push-avatars/.+, "/v1/push-avatars/:token"}` to `tokenPathRules`
+      (`middleware.go:74-84`), with a unit test beside
+      `TestRedactRequestPathSurvivesEncodedControlBytes` for the case, slash and dot variants, so
+      a buggy client that puts the nonce in the path still keeps it out of the app's logs. The
+      route itself serves no subpath.
+    - **Options weighed (R2-1):**
+      - *Keep the path segment and add `uri_path` to `redacted_fields`* — rejected. The redaction
+        applies to the whole logging configuration, so it would blank the path on every record for
+        every host behind the ACL, which the runbook's path triage needs. Sample data protection
+        can't cover a path at all: `FieldToProtect` accepts only `SINGLE_HEADER`, `SINGLE_COOKIE`,
+        `SINGLE_QUERY_ARGUMENT`, `QUERY_STRING` and `BODY`.
+      - *Keep the path segment and add a label rule plus a `logging_filter` DROP*, like the tunnel
+        rule — rejected. It needs a new count rule and filter, it loses the route's ALLOW records
+        from the log, and the samples would still show the nonce.
+      - *Accept a logged path with a ≤ 15 min TTL* — rejected. Every nonce would sit in a 30-day
+        log readable by the WAF log readers, and the cost of avoiding that is one header.
+      - **Chosen: `Authorization: PushAvatar <nonce>`.** No radient-infra configuration change is
+        needed, because the header is already redacted in the log and substituted in the samples,
+        and the tests already pin both. The NSE and the Android delegate make the request
+        themselves, so a header costs nothing.
+    - **iOS caveat, and its fallback.** Apple lists `Authorization` among the reserved URLRequest
+      headers: "the system may ignore the value you set, or overwrite it with its own value, or
+      simply not send it". This app already sends `Authorization: Bearer` through React
+      Native's NSURLSession-backed `fetch` (`src/connection/discovery.ts:218`), so in practice the
+      header survives. The S5 simulator fetch returning 200 proves it, since every failure is a
+      404. If the header doesn't survive, rename it to `X-Radient-Push-Avatar` and add that name to
+      both `WAF_REDACTED_HEADERS` and `WAF_PROTECTED_HEADERS`, to `PROTECTED_HEADERS` in
+      `test_waf_data_protection.py`, and to the post-apply gate list (`:239-246`). That is a real
+      radient-infra configuration change.
 - **No avatar bytes are persisted:**
   - iOS: the bytes live only in the donated intent. The system retains donated interactions;
     delete them on sign-out with `INInteraction.deleteAll`.
@@ -433,7 +479,7 @@ The legend for "Verify":
 | S2 Android presentation | mobile (coder) | In-repo config plugin plus `LoNotificationsService`, `LoPresentationDelegate` and `LoHandlingDelegate`. `MessagingStyle`, `Person` initials bitmap, long-lived shortcut, group. Foreground fix (row 2). i18n channel name. Shortcut and intent cleanup on sign-out. | Instrumentation test on API 29 and 36 (existing KVM job) posts a synthetic `RemoteMessage`. It asserts the platform `MessagingStyle` extras and `isGroupConversation` on both. On 36 it asserts the shortcut id and locus id; on 29 it asserts there is none. It also asserts the group, the foreground show/quiet rule, row 14's `VISIBILITY_PRIVATE` plus public version, and that the tap routes. A JVM unit test pins the API-gate function for 24, 27, 28, 29 and 30. Rendered shade screenshots: before/after, light and dark. A designer round. |
 | S3 iOS extension | mobile (coder) | `with-ios-notification-service` plugin, Swift NSE, `INSendMessageIntent` donation, `NSUserActivityTypes`, entitlement. Fastlane and `ios-signing.py` handle two targets. `native-config.ts` pins. | XCTest on the extension's pure parts (payload parse → `INPerson`). Simulator push via `xcrun simctl push` with `mutable-content` shows the avatar (screenshot). The signed IPA passes `verify` with the extension embedded. A TestFlight device check by the operator. |
 | S4 parity fixes | mobile (coder) | **Row 7: Android badge 0 must not cancel every session notification.** Skip the 0 write on Android and dismiss only the `tb:*` notifications. Row 4 (session channels to HIGH, which needs **new channel ids** because importance is fixed at creation), row 9 (channel-state read and system-settings link), row 12 (assert the backup rules in the merged manifest in `native-config.ts`). | Unit tests plus emulator `dumpsys` assertions, including row 7's 0-unread case: a session notification survives. A UX round for the Settings row. |
-| S5 photos (step 2, approved a-4eab) | agent-server and mobile | Nonce table and minting per recipient device. `GET /v1/push-avatars/:nonce` with the serve-time re-checks in §6. Nonce rows deleted on sign-out. A redactor rule in `tokenPathRules`. Extension and delegate fetch with a deadline and fall back to initials. | Route tests: expired, signed-out device, foreign tenant, **recipient removed from the tenant after mint**, changed or removed avatar after mint → the same 404. Redactor test: the nonce never appears in the request log or in the `main.go:2808` error line, for case, slash and dot variants. The read-only AWS logging check from §6 recorded. Device and simulator stills. |
+| S5 photos (step 2, approved a-4eab) | agent-server, mobile and radient-infra | **agent-server:** a nonce table keyed by `sha256(nonce)`, with a TTL index on `expires_at`, and minting per recipient device. `GET /v1/push-avatars` on the bare `v1` group, reading `Authorization: PushAvatar <nonce>`, with the serve-time re-checks in §6. Nonce rows deleted on sign-out. A defence-in-depth `tokenPathRules` entry for `/v1/push-avatars/.+`. **mobile:** the extension and the delegate send the header only to the registered hub origin, with redirects off and a deadline, and fall back to initials. **radient-infra:** no WAF configuration change, because `authorization` is already log-redacted and sample-protected (§6). Add one line to the comment above `WAF_REDACTED_HEADERS` (`waf.py:602-627`) naming the push-avatar nonce as a further reason the entry must stay. If the iOS fallback in §6 is taken, this slice also adds the custom header to both tuples, the test list and the gate list. | Route tests: missing header, wrong scheme, unknown nonce, expired, signed-out device, foreign tenant, **recipient removed from the tenant after mint**, changed or removed avatar after mint → the same 404, never 401. Storage test: the stored key is the hash, and the raw nonce appears in no document. Redactor test: a nonce in the path never appears in the request log or in the `main.go:2808` error line, for case, slash and dot variants. radient-infra: `test_waf_data_protection.py` passes unchanged. Read-only live checks recorded: `aws wafv2 get-logging-configuration` shows `authorization` in `RedactedFields`, and one sampled `GET /v1/push-avatars` from `get-sampled-requests` shows `authorization` as `REDACTED` and the bare path. Device and simulator stills, including a simulator fetch that returns 200, which proves the header arrived. |
 | S6 Android proof lane | mobile (QA) | Emulator jobs for rows 1, 2, 5, 6, 8, 9, 11, 12 and 13. An internal-track device pass for rows 3 and 7. | A QA matrix with actual outputs. |
 
 **Manual operator steps:** the three Apple portal actions in §3. The S5 capability-URL exception
@@ -454,9 +500,11 @@ verified from this Mac.
   apps without `sender` keep today's look.
 - **Channel migration (S4):** new session channel ids orphan the old ones. Delete the old ids at
   start, as `LEGACY_ALERT_CHANNEL_ID` is today.
-- **Capability-URL exposure (S5):** the nonce is redacted in the app's logs, but WAF samples and
-  Cloudflare's edge can still see it (§6). Keep the TTL ≤ 15 min, and alert if the route's 404
-  rate rises sharply, which would point to replay or enumeration.
+- **Capability exposure (S5):** the nonce never appears in a URL. The WAF log and the samples
+  redact `Authorization`, and the database holds only its hash (§6). One regression to watch: an
+  edit that drops `authorization` from `WAF_REDACTED_HEADERS` or `WAF_PROTECTED_HEADERS`. That
+  would expose bearer tokens as well, and the existing tests fail on it. Keep the TTL ≤ 15 min,
+  and alert if the route's 404 rate rises sharply, which would point to replay or enumeration.
 - **Group rendering on iOS:** the placeholder-recipients approach (§3 step 4) depends on how iOS
   decides group versus DM. Treat the S3 simulator stills for both layouts as a release gate.
 - **Unverified assumptions, and how to settle each:**
