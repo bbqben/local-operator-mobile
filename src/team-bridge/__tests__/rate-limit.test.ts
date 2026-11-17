@@ -12,6 +12,10 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	conversationsStatus,
+	peopleStatus,
+} from "@/features/team-bridge/section-status";
+import {
 	createHubClient,
 	type HubClient,
 	HubError,
@@ -354,5 +358,329 @@ describe("thread polls under a 429", () => {
 		await advance(10_000);
 		await actions.loadThread(TENANT, "c1");
 		expect(hub.listMessages).toHaveBeenCalledTimes(3);
+	});
+});
+
+/* Round-1 remediation (PR #297). Each test below fails on f0596c02. */
+
+function deferred<T>() {
+	let resolve!: (value: T) => void;
+	const promise = new Promise<T>((r) => {
+		resolve = r;
+	});
+	return { promise, resolve };
+}
+
+describe("an active wait survives drawer re-opens (QA Q1)", () => {
+	it("directory: load, +31 s pull refused by the WAF, +10 s re-open, +11 s pull sends 0", async () => {
+		let refuse = false;
+		const hub = fakeHub({
+			directory: vi.fn(async () => {
+				if (refuse) throw limited(300_000);
+				return { members: [person(ADA, "Ada")], unavailable_count: 0 };
+			}),
+		});
+		const { actions } = bridge(hub);
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		await advance(31_000);
+		refuse = true;
+		await actions.loadOrganization(TENANT, { force: true });
+		expect(hub.directory).toHaveBeenCalledTimes(2);
+		await advance(10_000);
+		// The cached directory is still inside its TTL: "fresh" for this open.
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		await advance(11_000);
+		await actions.loadOrganization(TENANT, { force: true });
+		expect(hub.directory).toHaveBeenCalledTimes(2);
+	});
+
+	it("conversations: Retry-After 60, re-open, pull sends 0", async () => {
+		let refuse = false;
+		const hub = fakeHub({
+			listConversations: vi.fn(async () => {
+				if (refuse) throw limited(60_000);
+				return { conversations: [conversation()], has_more: false };
+			}),
+		});
+		const { actions } = bridge(hub);
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		await advance(5_000);
+		refuse = true;
+		await actions.loadOrganization(TENANT, { force: true });
+		await advance(1_000);
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		await advance(2_000);
+		await actions.loadOrganization(TENANT, { force: true });
+		expect(hub.listConversations).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe("a retry that lands inside an in-flight load (review M1)", () => {
+	it("re-reads the refused half once the in-flight load ends", async () => {
+		const held = deferred<Awaited<ReturnType<HubClient["directory"]>>>();
+		let directoryCalls = 0;
+		let refuse = true;
+		const hub = fakeHub({
+			listConversations: vi.fn(async () => {
+				if (refuse) throw limited(7_000);
+				return { conversations: [conversation()], has_more: false };
+			}),
+			directory: vi.fn(async () => {
+				directoryCalls += 1;
+				if (directoryCalls === 1)
+					return { members: [person(ADA, "Ada")], unavailable_count: 0 };
+				return held.promise;
+			}),
+		});
+		const { store, actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		refuse = false;
+		await advance(6_500);
+		// A pull inside the wait: conversations skipped, directory held open.
+		const pull = actions.loadOrganization(TENANT, { force: true });
+		// The 7 s retry fires into that in-flight load and is merged away.
+		await advance(500);
+		expect(hub.listConversations).toHaveBeenCalledTimes(1);
+		held.resolve({ members: [person(ADA, "Ada")], unavailable_count: 0 });
+		await pull;
+		await advance(1);
+		expect(hub.listConversations).toHaveBeenCalledTimes(2);
+		expect(store.getState().orgs[TENANT]?.conversationsState).toBe("ready");
+		expect(store.getState().orgs[TENANT]?.conversations).toHaveLength(1);
+		// And nothing loops afterwards.
+		await advance(10 * 60_000);
+		expect(hub.listConversations).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe("a non-429 failure ends the rate-limit episode (review m1)", () => {
+	it("conversations: two 429s then unreachable clears Catching up and the strike", async () => {
+		const answers: Array<() => never | undefined> = [
+			() => {
+				throw limited(1_000);
+			},
+			() => {
+				throw limited(1_000);
+			},
+			() => {
+				throw new HubError({ kind: "unreachable", message: "offline" });
+			},
+			() => {
+				throw limited(1_000);
+			},
+		];
+		const hub = fakeHub({
+			listConversations: vi.fn(async () => {
+				answers.shift()?.();
+				return { conversations: [conversation()], has_more: false };
+			}),
+		});
+		const { store, actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		await advance(1_000);
+		expect(store.getState().orgs[TENANT]?.conversationsCatchingUp).toBe(true);
+		await advance(2_000);
+		let org = store.getState().orgs[TENANT];
+		expect(hub.listConversations).toHaveBeenCalledTimes(3);
+		expect(org?.conversationsState).toBe("error");
+		expect(org?.conversationsCatchingUp).toBe(false);
+		// The record went with it: Retry goes straight out, and its 429 is a
+		// FIRST strike (silent), not a third.
+		await actions.loadOrganization(TENANT, { force: true });
+		org = store.getState().orgs[TENANT];
+		expect(hub.listConversations).toHaveBeenCalledTimes(4);
+		expect(org?.conversationsCatchingUp).toBe(false);
+	});
+
+	it("people: two 429s then a server error clears Catching up", async () => {
+		let calls = 0;
+		const hub = fakeHub({
+			directory: vi.fn(async () => {
+				calls += 1;
+				if (calls <= 2) throw limited(1_000);
+				throw new HubError({ kind: "server", message: "x", status: 500 });
+			}),
+		});
+		const { store, actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		await advance(1_000);
+		expect(store.getState().orgs[TENANT]?.peopleCatchingUp).toBe(true);
+		await advance(2_000);
+		const org = store.getState().orgs[TENANT];
+		expect(org?.peopleState).toBe("error");
+		expect(org?.peopleCatchingUp).toBe(false);
+		expect(peopleStatus(org)).toEqual({
+			skeleton: false,
+			catchingUp: false,
+			alert: true,
+		});
+	});
+});
+
+describe("the people half waits out its own 429 (review m4)", () => {
+	it("cold directory 429s: skeleton, then Catching up after the second, recovery after the doubled wait", async () => {
+		let refusals = 2;
+		const hub = fakeHub({
+			directory: vi.fn(async () => {
+				if (refusals > 0) {
+					refusals -= 1;
+					throw limited(1_000);
+				}
+				return { members: [person(ADA, "Ada")], unavailable_count: 0 };
+			}),
+		});
+		const { store, actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		expect(peopleStatus(store.getState().orgs[TENANT])).toEqual({
+			skeleton: true,
+			catchingUp: false,
+			alert: false,
+		});
+		await advance(1_000);
+		expect(hub.directory).toHaveBeenCalledTimes(2);
+		expect(peopleStatus(store.getState().orgs[TENANT])).toEqual({
+			skeleton: true,
+			catchingUp: true,
+			alert: false,
+		});
+		// The second wait doubled to 2 s: nothing at +1.999 s, the read at +2 s.
+		await actions.loadOrganization(TENANT, { force: true });
+		await advance(1_999);
+		expect(hub.directory).toHaveBeenCalledTimes(2);
+		await advance(1);
+		expect(hub.directory).toHaveBeenCalledTimes(3);
+		expect(peopleStatus(store.getState().orgs[TENANT])).toEqual({
+			skeleton: false,
+			catchingUp: false,
+			alert: false,
+		});
+	});
+});
+
+describe("what the list renders under a 429 (review m4, design D2)", () => {
+	it("cold: skeleton plus Catching up, never the alert; held rows: no skeleton", async () => {
+		let refuse = true;
+		const hub = fakeHub({
+			listConversations: vi.fn(async () => {
+				if (refuse) throw limited(1_000);
+				return { conversations: [conversation()], has_more: false };
+			}),
+		});
+		const { store, actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		await advance(1_000);
+		// Strike 2, nothing held: the skeleton stays (so Groups stays hidden)
+		// and the heading says Catching up. No red banner.
+		expect(conversationsStatus(store.getState().orgs[TENANT])).toEqual({
+			skeleton: true,
+			catchingUp: true,
+			alert: false,
+		});
+		refuse = false;
+		await advance(2_000);
+		expect(store.getState().orgs[TENANT]?.conversations).toHaveLength(1);
+		// Past the freshness window, so the scheduled retry re-reads the rows.
+		await advance(CONVERSATIONS_FRESH_MS);
+		refuse = true;
+		await actions.loadOrganization(TENANT, { force: true });
+		await advance(1_000);
+		// Held rows under a second strike: rows, Catching up, no skeleton, no alert.
+		expect(conversationsStatus(store.getState().orgs[TENANT])).toEqual({
+			skeleton: false,
+			catchingUp: true,
+			alert: false,
+		});
+	});
+});
+
+describe("account boundaries clear pending retries (review m4)", () => {
+	it("retire() mid-wait sends nothing afterwards", async () => {
+		const hub = fakeHub({
+			listConversations: vi.fn(async () => {
+				throw limited(1_000);
+			}),
+		});
+		const { actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		expect(vi.getTimerCount()).toBeGreaterThan(0);
+		actions.retire();
+		expect(vi.getTimerCount()).toBe(0);
+		await advance(RATE_LIMIT_MAX_MS);
+		expect(hub.listConversations).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe("unread changes drop the list reuse (review m2)", () => {
+	const seedOrg = (store: ReturnType<typeof bridge>["store"], unread: number) =>
+		store.setState({
+			organizations: [
+				{
+					tenantId: TENANT,
+					name: "Org",
+					eligible: true,
+					readOnly: false,
+					unread,
+				},
+			],
+		});
+	const unreadHub = (unread: number) =>
+		fakeHub({
+			accountUnread: vi.fn(async () => ({
+				total: unread,
+				organizations: [
+					{ tenant_id: TENANT, tenant_name: "Org", unread, eligible: true },
+				],
+			})),
+		});
+
+	it("a changed count makes the next open re-read the list", async () => {
+		const hub = unreadHub(3);
+		const { store, actions } = bridge(hub);
+		seedOrg(store, 0);
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		await advance(10_000);
+		await actions.refreshUnread();
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		expect(hub.listConversations).toHaveBeenCalledTimes(2);
+		// The directory is not part of it.
+		expect(hub.directory).toHaveBeenCalledTimes(1);
+	});
+
+	it("an unchanged count keeps the reuse", async () => {
+		const hub = unreadHub(3);
+		const { store, actions } = bridge(hub);
+		seedOrg(store, 3);
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		await advance(10_000);
+		await actions.refreshUnread();
+		await actions.loadOrganization(TENANT, { ifStale: true });
+		expect(hub.listConversations).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe("abandoned thread waits are pruned (review n1)", () => {
+	it("a 429 long after an abandoned thread's wait starts from the served wait", async () => {
+		let refuse = true;
+		const hub = fakeHub({
+			listMessages: vi.fn(async () => {
+				if (refuse) throw limited(30_000);
+				return {
+					messages: [message(3, ADA, "2026-10-21T10:00:00Z")],
+					has_more: false,
+				};
+			}),
+		});
+		const { actions } = bridge(hub);
+		await actions.loadThread(TENANT, "c1");
+		// The reader leaves; an hour later another thread is refused, then c1.
+		await advance(60 * 60_000);
+		await actions.loadThread(TENANT, "c2");
+		await actions.loadThread(TENANT, "c1");
+		expect(hub.listMessages).toHaveBeenCalledTimes(3);
+		// A fresh first strike waits the served 30 s, not a doubled 60 s.
+		refuse = false;
+		await advance(30_000);
+		await actions.loadThread(TENANT, "c1");
+		expect(hub.listMessages).toHaveBeenCalledTimes(4);
 	});
 });

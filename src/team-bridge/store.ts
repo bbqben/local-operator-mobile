@@ -232,8 +232,10 @@ export const THREAD_RETRY_DELAYS_MS: readonly number[] = [1_000, 2_000, 4_000];
  * A drawer re-open inside this window reuses the held conversation list. 30 s
  * is the desktop app's notification poll (`TEAM_BRIDGE_NOTIFY_POLL_MS`,
  * local-operator-ui `src/shared/team-bridge-poll.ts`): the list is no staler
- * than the desktop's own, and pushes plus the open thread's 20 s poll carry
- * anything urgent. Explicit refreshes (pull, Retry, after a send) bypass it.
+ * than the desktop's own. An unread-count change seen by `refreshUnread` (the
+ * push and badge path) drops the reuse for that org, so a new message is
+ * re-read on the next open rather than up to 30 s later. Explicit refreshes
+ * (pull, Retry, after a send) bypass it.
  */
 export const CONVERSATIONS_FRESH_MS = 30_000;
 
@@ -376,6 +378,16 @@ export function createTeamBridgeStore(deps: {
 		(backoff.get(key)?.until ?? 0) > at;
 	/** Record one refusal; returns the consecutive-strike count. */
 	function noteRateLimit(key: string, error: HubError, at: number): number {
+		/* Only success deletes a thread's record, and a thread the reader left
+		 * never succeeds again: without this prune its record lives for the whole
+		 * session, and a 429 on that thread hours later would start from a doubled
+		 * wait and a second strike. A record whose wait ended more than one cap
+		 * ago describes a refusal the hub has long forgotten. (Org records are
+		 * settled by every org load, so they need no prune.) */
+		for (const [other, record] of backoff) {
+			if (other.startsWith("thread:") && at - record.until > RATE_LIMIT_MAX_MS)
+				backoff.delete(other);
+		}
 		const prev = backoff.get(key);
 		const strikes = (prev?.strikes ?? 0) + 1;
 		const served = transientDelay(error.retryAfterMs, RATE_LIMIT_FALLBACK_MS);
@@ -398,9 +410,18 @@ export function createTeamBridgeStore(deps: {
 	 */
 	function scheduleOrgRetry(tenantId: string) {
 		const at = clock();
+		/* A record whose wait already ENDED is a half nobody has re-read since:
+		 * every org load either deletes its half's record (success, fresh, non-429
+		 * error) or renews it (another 429). One survives only when a load SKIPPED
+		 * the half because it was still backed off when the load began, and the
+		 * wait ran out before that load finished, typically the retry timer firing
+		 * into a pull already in flight, which `once` merges away (review M1). It
+		 * is due now: clamp it to `at`, or the cold list stays a skeleton until
+		 * the reader pulls again. */
 		const ends = [`conv:${tenantId}`, `people:${tenantId}`]
 			.map((key) => backoff.get(key)?.until)
-			.filter((until): until is number => until !== undefined && until > at);
+			.filter((until): until is number => until !== undefined)
+			.map((until) => Math.max(until, at));
 		if (!ends.length) return;
 		const existing = retryTimers.get(tenantId);
 		if (existing) clearTimeout(existing);
@@ -685,16 +706,32 @@ export function createTeamBridgeStore(deps: {
 					const byTenant = new Map(
 						(answer.organizations ?? []).map((o) => [o.tenant_id, o.unread]),
 					);
-					store.setState((s) => ({
-						totalUnread: answer.total,
-						unreadKnown: true,
-						unreadFailed: false,
-						unreadReads: s.unreadReads + 1,
-						organizations: s.organizations.map((o) => ({
-							...o,
-							unread: byTenant.get(o.tenantId) ?? o.unread,
-						})),
-					}));
+					store.setState((s) => {
+						/* A changed count means the held list is behind (a new message,
+						 * maybe a new conversation): drop that org's list freshness so
+						 * the next drawer open re-reads it instead of reusing it for up to
+						 * `CONVERSATIONS_FRESH_MS` under a badge that disagrees with the
+						 * rows (review m2). Unchanged counts keep the reuse. */
+						let orgs = s.orgs;
+						for (const o of s.organizations) {
+							const next = byTenant.get(o.tenantId);
+							const held = orgs[o.tenantId];
+							if (next === undefined || next === o.unread) continue;
+							if (!held || held.refreshedAt === null) continue;
+							orgs = { ...orgs, [o.tenantId]: { ...held, refreshedAt: null } };
+						}
+						return {
+							totalUnread: answer.total,
+							unreadKnown: true,
+							unreadFailed: false,
+							unreadReads: s.unreadReads + 1,
+							orgs,
+							organizations: s.organizations.map((o) => ({
+								...o,
+								unread: byTenant.get(o.tenantId) ?? o.unread,
+							})),
+						};
+					});
 				} catch (error) {
 					if (!owned()) return;
 					// A gate failure (sign-in, plan) resets or re-gates the store, and
@@ -744,11 +781,14 @@ export function createTeamBridgeStore(deps: {
 					held?.peopleState === "ready" &&
 					held.peopleRefreshedAt !== null &&
 					at - held.peopleRefreshedAt < DIRECTORY_TTL_MS;
-				/* A fresh half has nothing outstanding: forget its refusal record, or
-				 * a 429 on a pull over fresh rows would linger as a strike and make
-				 * an unrelated refusal an hour later say "Catching up…" at once. */
-				if (convFresh) backoff.delete(convKey);
-				if (peopleFresh) backoff.delete(peopleKey);
+				/* A fresh half whose wait has ENDED has nothing outstanding: forget its
+				 * refusal record, or a 429 on a pull over fresh rows would linger as a
+				 * strike and make an unrelated refusal an hour later say "Catching
+				 * up…" at once. A wait still running is kept: deleting it let the next
+				 * pull or Retry re-ask inside Retry-After (QA Q1; for the directory,
+				 * whose 5 min TTL spans a WAF wait, that was every re-open). */
+				if (convFresh && !backedOff(convKey, at)) backoff.delete(convKey);
+				if (peopleFresh && !backedOff(peopleKey, at)) backoff.delete(peopleKey);
 				const readConversations = !convFresh && !backedOff(convKey, at);
 				const readPeople = !peopleFresh && !backedOff(peopleKey, at);
 				if (!readConversations && !readPeople) return;
@@ -827,11 +867,17 @@ export function createTeamBridgeStore(deps: {
 							return;
 						}
 						const hubError = isHubError(error) ? error : null;
+						/* A different failure ends the rate-limit episode: the error
+						 * state speaks now, and "Catching up…" over a red error and its
+						 * Retry button would contradict it (review m1). The record goes
+						 * too, so a later 429 is a first, silent strike. */
+						backoff.delete(convKey);
 
 						/* A silent refresh that fails keeps the rows on screen. */
 						patchOrg(tenantId, {
 							conversationsState: "error",
 							conversationsError: hubError,
+							conversationsCatchingUp: false,
 						});
 					}
 				})();
@@ -862,9 +908,12 @@ export function createTeamBridgeStore(deps: {
 							});
 							return;
 						}
+						// As for conversations above: a non-429 failure ends the episode.
+						backoff.delete(peopleKey);
 						patchOrg(tenantId, {
 							peopleState: "error",
 							peopleError: isHubError(error) ? error : null,
+							peopleCatchingUp: false,
 						});
 					}
 				})();

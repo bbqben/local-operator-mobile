@@ -2208,8 +2208,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
 	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
 	 * U-08 instrument or measured geometry moved. Source identity only, NOT
-	 * rendered U-08 evidence. */
-	src: "ea54ad145b841bab2e5f275e00ac83d81ec4c5191ed2602485255edafd428b31",
+	 * rendered U-08 evidence.
+	 * Re-pinned again 2026-11-17 for PR #297 round-1 remediation with --print
+	 * at the staged tree: the status moved into the section heading row, the
+	 * pure `section-status.ts`, store backoff fixes and their tests. No U-08
+	 * instrument or measured geometry moved. Source identity only. */
+	src: "6459ae2b741c07c3035d1c32f7f7b7ce112c6c68ecd864c63b4f86bd957536dc",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
