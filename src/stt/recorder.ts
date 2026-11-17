@@ -298,9 +298,15 @@ export async function startRecording(options?: {
 			const permission = await module.getRecordingPermissionsAsync();
 			if (permission.status !== "granted") return null;
 		}
-		/* The iOS audio session has to allow recording before `record()`; without
-		 * it the recorder starts and captures silence. */
-		await module.setAudioModeAsync({ allowsRecording: true });
+		/* The iOS audio session has to allow recording before `record()`. It must ALSO
+		 * play in silent mode: expo-audio's iOS `validateAudioMode` rejects
+		 * `allowsRecording: true` with `playsInSilentMode: false` (its default) as an
+		 * invalid mode, and the catch below turned that throw into "the microphone did
+		 * not open" straight after the reader granted access. Android ignores both. */
+		await module.setAudioModeAsync({
+			allowsRecording: true,
+			playsInSilentMode: true,
+		});
 		const recorder = new module.AudioModule.AudioRecorder({
 			...module.RecordingPresets.HIGH_QUALITY,
 			/* Drives the recording meter (design §2.5's fourth state carrier). Costs
