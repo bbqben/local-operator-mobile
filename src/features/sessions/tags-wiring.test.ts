@@ -31,7 +31,8 @@ const HEALTH = source("../session/components/session-health.tsx");
  *  once (biome's useTopLevelRegex); they scan the source text, not a frame. */
 const TAGS_PANE_GATE = /\{tagsAssignable \? \(/;
 const NO_AVAILABLE_GATE = /session_tags\?\.available ===/;
-const TAGS_LABEL = />\s*Tags\s*<\/Text>/;
+/* The visible disclosure word renders the row key, not a literal (O3-b). */
+const TAGS_LABEL = />\s*\{t\("relay\.chrome\.row\.tags"\)\}\s*<\/Text>/;
 const SESSION = source("../../../app/(app)/session/[id].tsx");
 
 describe("the conversations pane", () => {
@@ -118,7 +119,7 @@ describe("the tag line component", () => {
 			"if (tags.length === 0 && onPress === undefined) return null;",
 		);
 		expect(LINE).toContain(
-			'accessibilityLabel={tags.length > 0 ? tagAnnouncement(tags) : "Tags"}',
+			'tags.length > 0 ? tagAnnouncement(tags) : t("relay.chrome.row.tags")',
 		);
 		expect(LINE).toMatch(TAGS_LABEL);
 		expect(LINE).toContain(
@@ -236,7 +237,9 @@ describe("the tags sheet", () => {
 		expect(SHEET).toContain("CONTROL.sessionTagsRetry");
 		expect(SHEET).toContain("<Dialog");
 		expect(SHEET).toContain("sessionTagsRemoveAllDialog");
-		expect(SHEET).toContain('title="Remove all tags?"');
+		expect(SHEET).toContain(
+			'title={t("mobile.sidebar.tags.remove_all_title")}',
+		);
 		expect(SHEET).toContain(
 			'catalogue.kind === "error" ? removeAllAction : null',
 		);
@@ -285,7 +288,9 @@ describe("the tags sheet", () => {
 		expect(SHEET).toContain("catalogue.tags.length === 0 ? (");
 		/* Both empty-registry branches now name no action in the sentence: the
 		 *  pinned footer IS the action, and the longer copy was cut at 200 % SE. */
-		expect(SHEET.split('next="Created on desktop."')).toHaveLength(3);
+		expect(
+			SHEET.split('next={t("mobile.sidebar.tags.empty_next")}'),
+		).toHaveLength(3);
 	});
 
 	it("renders each catalogue tag as a checkbox with an ARIA checked state", () => {

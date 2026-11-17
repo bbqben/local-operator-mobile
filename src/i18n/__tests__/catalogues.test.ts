@@ -96,7 +96,7 @@ const NAMESPACES = [
 		name: "mobile.common",
 		messages: common,
 		context: commonContext,
-		expected: 13, // M3 S2b-1 +3: the command block's Copy / Copied / copy hint (10 + 3 = 13); +4: the not-found screen (app/ scan)
+		expected: 15, // O3-b +2: the shared sheet Close and skeleton Loading labels (13 + 2 = 15, counted over the en JSON). M3 S2b-1 +3: the command block's Copy / Copied / copy hint (10 + 3 = 13); +4: the not-found screen (app/ scan)
 	},
 	{
 		name: "mobile.composer_input",
@@ -129,7 +129,9 @@ const NAMESPACES = [
 		context: projectsContext,
 		// O3-a +4: the list title and the detail screen's three section headings
 		// (32 + 4 = 36, counted over the en JSON).
-		expected: 36,
+		// O3-b +23: the list's error/empty copy (3) and Project detail plus its
+		// milestone editor (20) (36 + 23 = 59, counted over the en JSON).
+		expected: 59,
 	},
 	{
 		name: "mobile.schedules",
@@ -273,7 +275,7 @@ const NAMESPACES = [
 		name: "mobile.sidebar",
 		messages: sidebar,
 		context: sidebarContext,
-		expected: 27, // PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
+		expected: 42, // O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
 	},
 	{
 		/* This app's own short chrome words the relay has no key for: the sidebar
@@ -539,7 +541,9 @@ describe("the English catalogues", () => {
 		 * chains kept; 1044 on O3-a + main's 16 since b1fbb813 (mobile.notifications
 		 * 14, mobile.remote_sessions 2) = 1060, derived by summing the keys of all
 		 * 25 merged en catalogue files (mobile.notifications 79). */
-		expect(total).toBe(1060);
+		/* O3-b (English-first): +2 mobile.common, +23 mobile.projects,
+		 * +15 mobile.sidebar = 40: 1060 + 40 = 1100, counted over the en JSON. */
+		expect(total).toBe(1100);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

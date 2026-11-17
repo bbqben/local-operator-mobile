@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 import { ScopedVariables } from "uniwind";
+import { t } from "@/i18n";
 import { haptic } from "@/lib/haptics";
 import { CONTROL, ROLE, SURFACE } from "@/ui/a11y";
 import { useReducedMotion, useTokenColor } from "@/ui/appearance";
@@ -474,7 +475,7 @@ export const Sheet = ({
 									backgroundColor: drawsDim ? scrimColour : "transparent",
 								}}
 								accessibilityRole={ROLE.button}
-								accessibilityLabel="Close"
+								accessibilityLabel={t("mobile.common.close")}
 								// The labelled close button remains available; a picker's scrim is
 								// pointer-only so initial focus never starts on a duplicate Close.
 								accessible={!focusTitle}
@@ -547,7 +548,7 @@ export const Sheet = ({
 									{title}
 								</Heading>
 								<IconButton
-									accessibilityLabel="Close"
+									accessibilityLabel={t("mobile.common.close")}
 									testID={CONTROL.sheetClose}
 									onPress={onClose}
 									icon={({ color, size }) => <X color={color} size={size} />}

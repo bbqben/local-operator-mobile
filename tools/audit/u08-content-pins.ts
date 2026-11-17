@@ -2204,7 +2204,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "c6c21aafd614bfe3ac2370634f4e6ec0c1a363523d7999bbf268d2b91d704219",
+	/* O3-b (English-first): Projects list/detail, the Tags sheet, the shared
+	 * sheet/dialog/skeleton labels and the row's plural counts render keyed
+	 * English (byte-identical copy), the Tags sheet subscribes to the locale
+	 * frame, plus two tests. catalogue.gen.ts is unchanged until the
+	 * translations land, so this pin moves again then. Derived LAST by an
+	 * independent treeDigest reader over the staged index's git objects; it
+	 * reproduced the parent's committed pin (c6c21aaf…) from main's tree as the
+	 * control, agreed with --print, and a one-byte tamper diverged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "73fca3debd264d3ec7fe0fcb33082d4d3bc806862cfc26378ee724d5e66f7720",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

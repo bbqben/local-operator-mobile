@@ -10,7 +10,7 @@ import {
 	View,
 } from "react-native";
 
-import { countLabel } from "@/lib/format";
+import { t } from "@/i18n";
 import { ROLE, state } from "@/ui/a11y";
 import { useReducedMotion, useTokenColor } from "@/ui/appearance";
 import {
@@ -293,7 +293,9 @@ export const ListRow = ({
 				</Text>
 			) : null}
 			{unread ? (
-				<Text className="shrink-0 text-meta text-accent">new</Text>
+				<Text className="shrink-0 text-meta text-accent">
+					{t("mobile.sidebar.row.new")}
+				</Text>
 			) : null}
 			{/* The asks count comes FIRST in the count strip (design E2 §2.1): a
 			 *  deadline outranks a progress count, so when the strip is under
@@ -308,23 +310,28 @@ export const ListRow = ({
 			 *  is not a "waiting for you" state: the agent keeps working
 			 *  (design §5's header rule), and a reader who heard "waiting" beside a
 			 *  danger approval would rightly conclude the run was held. */}
+			{/* The counts are ICU plurals rather than `countLabel`'s appended "s":
+			 *  several shipped languages have more than two plural forms (ru, and
+			 *  ur/hi agreement), so the noun must come from the catalogue per form. */}
 			{askCount > 0 ? (
 				<Text
 					className="shrink-0 text-mono-sm text-ink-dim"
 					testID={askBadgeTestID}
-					accessibilityLabel={`${countLabel(askCount, "ask")}, not a blocker`}
+					accessibilityLabel={t("mobile.sidebar.row.asks_not_blocker", {
+						asks: t("mobile.sidebar.row.asks", { count: askCount }),
+					})}
 				>
-					{countLabel(askCount, "ask")}
+					{t("mobile.sidebar.row.asks", { count: askCount })}
 				</Text>
 			) : null}
 			{subagentCount > 0 && !progressCountsYield ? (
 				<Text className="shrink-0 text-mono-sm text-ink-dim">
-					{countLabel(subagentCount, "agent")}
+					{t("mobile.sidebar.row.agents", { count: subagentCount })}
 				</Text>
 			) : null}
 			{todoCount > 0 && !progressCountsYield ? (
 				<Text className="shrink-0 text-mono-sm text-ink-dim">
-					{countLabel(todoCount, "todo")}
+					{t("mobile.sidebar.row.todos", { count: todoCount })}
 				</Text>
 			) : null}
 		</>
