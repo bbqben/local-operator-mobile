@@ -47,12 +47,16 @@ const CORE_PALETTE_LIGHT = [
 	0xff5a5fc8, 0xff7a6345,
 ];
 
+const ARGB_LITERAL = /0x([0-9A-Fa-f]{8})\.toInt\(\)/g;
+const EXPO_NOTIFICATIONS_ARTIFACT =
+	/host\.exp\.exponent:expo\.modules\.notifications:([0-9.]+)'/;
+
 const kotlinPalette = (): number[] => {
 	const source = kotlin("AvatarRenderer.kt");
 	const start = source.indexOf("val PALETTE: IntArray = intArrayOf(");
 	const block = source.slice(start, source.indexOf("\n  )", start));
-	return [...block.matchAll(/0x([0-9A-Fa-f]{8})\.toInt\(\)/g)].map((m) =>
-		Number.parseInt(m[1], 16),
+	return [...block.matchAll(ARGB_LITERAL)].map((m) =>
+		Number.parseInt(m[1] ?? "", 16),
 	);
 };
 
@@ -64,6 +68,22 @@ const DRAWABLE = /^[\p{L}\p{N}]{1,2}$/u;
 describe("push avatar contract (ADR 0010 §5)", () => {
 	it("draws on core's light palette, in tone order", () => {
 		expect(kotlinPalette()).toEqual(CORE_PALETTE_LIGHT);
+	});
+
+	it("compiles against the installed expo-notifications version (its classes are subclassed)", () => {
+		// The delegates override Expo internals; a bump that moves the npm package
+		// without the Gradle coordinate would compile against one version and run
+		// another. Change both together.
+		const gradle = readFileSync(join(moduleDir, "..", "build.gradle"), "utf8");
+		const installed = JSON.parse(
+			readFileSync(
+				join(root, "node_modules/expo-notifications/package.json"),
+				"utf8",
+			),
+		) as { version: string };
+		expect(EXPO_NOTIFICATIONS_ARTIFACT.exec(gradle)?.[1]).toBe(
+			installed.version,
+		);
 	});
 
 	it("bounds the parsed tone by the palette size", () => {
