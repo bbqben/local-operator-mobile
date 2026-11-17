@@ -936,6 +936,7 @@ export type CatalogueKey =
 	| "mobile.team_bridge.gate.update_help"
 	| "mobile.team_bridge.gate.update_required"
 	| "mobile.team_bridge.gate.upgrade"
+	| "mobile.team_bridge.list.catching_up"
 	| "mobile.team_bridge.list.channels"
 	| "mobile.team_bridge.list.channels_empty"
 	| "mobile.team_bridge.list.chief_role"
@@ -1857,6 +1858,7 @@ export type NoParamKey =
 	| "mobile.team_bridge.gate.update_help"
 	| "mobile.team_bridge.gate.update_required"
 	| "mobile.team_bridge.gate.upgrade"
+	| "mobile.team_bridge.list.catching_up"
 	| "mobile.team_bridge.list.channels"
 	| "mobile.team_bridge.list.channels_empty"
 	| "mobile.team_bridge.list.chief_role"
@@ -2887,6 +2889,7 @@ export type MessageParams = {
 	"mobile.team_bridge.gate.update_help": NoParams;
 	"mobile.team_bridge.gate.update_required": NoParams;
 	"mobile.team_bridge.gate.upgrade": NoParams;
+	"mobile.team_bridge.list.catching_up": NoParams;
 	"mobile.team_bridge.list.channels": NoParams;
 	"mobile.team_bridge.list.channels_empty": NoParams;
 	"mobile.team_bridge.list.chief_role": NoParams;
@@ -3966,6 +3969,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.gate.update_help": "This version cannot read the Team Bridge service. Update the app to continue.",
 	"mobile.team_bridge.gate.update_required": "Update required",
 	"mobile.team_bridge.gate.upgrade": "Upgrade to Team",
+	"mobile.team_bridge.list.catching_up": "Catching up…",
 	"mobile.team_bridge.list.channels": "Channels",
 	"mobile.team_bridge.list.channels_empty": "No channels yet.",
 	"mobile.team_bridge.list.chief_role": "Chief of staff",
@@ -5030,6 +5034,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.gate.update_help": { role: "help", note: "Team Bridge mobile UI: gate / update help. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team." },
 	"mobile.team_bridge.gate.update_required": { role: "help", note: "Team Bridge mobile UI: gate / update required. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team." },
 	"mobile.team_bridge.gate.upgrade": { role: "button", note: "Team Bridge mobile UI: gate / upgrade. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team." },
+	"mobile.team_bridge.list.catching_up": { role: "status", note: "Team Bridge mobile UI: list / calm status shown when Radient has asked the app to slow down (rate limit) for longer than one short wait. The app is already retrying on its own and any rows already loaded stay visible; there is no button. Not an error: keep it calm and brief, never mention HTTP, 429 or limits." },
 	"mobile.team_bridge.list.channels": { role: "heading", note: "Team Bridge mobile UI: list / channels. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.list.channels_empty": { role: "status", note: "Team Bridge mobile UI: list / channels empty. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.list.chief_role": { role: "help", note: "Team Bridge mobile UI: list / chief role. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Chief of staff is the user’s coordinating agent role, not a human job posting." },
@@ -6108,6 +6113,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "Esta versión no puede acceder al servicio Team Bridge. Actualiza la aplicación para continuar.",
 		"mobile.team_bridge.gate.update_required": "Actualización necesaria",
 		"mobile.team_bridge.gate.upgrade": "Mejorar a Team",
+		"mobile.team_bridge.list.catching_up": "Poniéndonos al día…",
 		"mobile.team_bridge.list.channels": "Canales",
 		"mobile.team_bridge.list.channels_empty": "Aún no hay canales.",
 		"mobile.team_bridge.list.chief_role": "Jefe de gabinete",
@@ -7170,6 +7176,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "Cette version ne peut pas accéder au service Team Bridge. Mettez l’application à jour pour continuer.",
 		"mobile.team_bridge.gate.update_required": "Mise à jour requise",
 		"mobile.team_bridge.gate.upgrade": "Passer à Team",
+		"mobile.team_bridge.list.catching_up": "Mise à jour en cours…",
 		"mobile.team_bridge.list.channels": "Canaux",
 		"mobile.team_bridge.list.channels_empty": "Aucun canal pour le moment.",
 		"mobile.team_bridge.list.chief_role": "Chef de cabinet",
@@ -8232,6 +8239,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "यह संस्करण Team Bridge सेवा का उपयोग नहीं कर सकता। जारी रखने के लिए ऐप अपडेट करें।",
 		"mobile.team_bridge.gate.update_required": "अपडेट ज़रूरी है",
 		"mobile.team_bridge.gate.upgrade": "Team में अपग्रेड करें",
+		"mobile.team_bridge.list.catching_up": "अपडेट हो रहा है…",
 		"mobile.team_bridge.list.channels": "चैनल",
 		"mobile.team_bridge.list.channels_empty": "अभी कोई चैनल नहीं है।",
 		"mobile.team_bridge.list.chief_role": "चीफ़ ऑफ़ स्टाफ़",
@@ -9294,6 +9302,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "Эта версия не поддерживает сервис Team Bridge. Обновите приложение, чтобы продолжить.",
 		"mobile.team_bridge.gate.update_required": "Требуется обновление",
 		"mobile.team_bridge.gate.upgrade": "Перейти на Team",
+		"mobile.team_bridge.list.catching_up": "Обновляем…",
 		"mobile.team_bridge.list.channels": "Каналы",
 		"mobile.team_bridge.list.channels_empty": "Каналов пока нет.",
 		"mobile.team_bridge.list.chief_role": "Руководитель аппарата",
@@ -10356,6 +10365,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "یہ ورژن Team Bridge سروس تک رسائی حاصل نہیں کر سکتا۔ جاری رکھنے کے لیے ایپ اپ ڈیٹ کریں۔",
 		"mobile.team_bridge.gate.update_required": "اپ ڈیٹ ضروری ہے",
 		"mobile.team_bridge.gate.upgrade": "Team پر اپ گریڈ کریں",
+		"mobile.team_bridge.list.catching_up": "اپ ڈیٹ ہو رہا ہے…",
 		"mobile.team_bridge.list.channels": "چینلز",
 		"mobile.team_bridge.list.channels_empty": "ابھی کوئی چینل نہیں ہے۔",
 		"mobile.team_bridge.list.chief_role": "چیف آف اسٹاف",
@@ -11418,6 +11428,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "Phiên bản này không hỗ trợ dịch vụ Team Bridge. Hãy cập nhật ứng dụng để tiếp tục.",
 		"mobile.team_bridge.gate.update_required": "Cần cập nhật",
 		"mobile.team_bridge.gate.upgrade": "Nâng cấp lên Team",
+		"mobile.team_bridge.list.catching_up": "Đang cập nhật…",
 		"mobile.team_bridge.list.channels": "Kênh",
 		"mobile.team_bridge.list.channels_empty": "Chưa có kênh nào.",
 		"mobile.team_bridge.list.chief_role": "Chánh văn phòng",
@@ -12480,6 +12491,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.gate.update_help": "此版本无法访问 Team Bridge 服务，请更新应用以继续。",
 		"mobile.team_bridge.gate.update_required": "需要更新",
 		"mobile.team_bridge.gate.upgrade": "升级至 Team",
+		"mobile.team_bridge.list.catching_up": "正在同步…",
 		"mobile.team_bridge.list.channels": "频道",
 		"mobile.team_bridge.list.channels_empty": "暂无频道。",
 		"mobile.team_bridge.list.chief_role": "幕僚长",

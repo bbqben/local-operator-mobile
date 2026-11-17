@@ -2214,6 +2214,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
+	/* Re-pinned 2026-11-17 for fix/bridge-429 with --print at the staged tree:
+	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
+	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
+	 * U-08 instrument or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence.
+	 * Re-pinned again 2026-11-17 for PR #297 round-1 remediation with --print
+	 * at the staged tree: the status moved into the section heading row, the
+	 * pure `section-status.ts`, store backoff fixes and their tests. No U-08
+	 * instrument or measured geometry moved. Source identity only. */
+	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
 	 * handoff moves to src/features/session/attach-handoff.ts and drops its
 	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
@@ -2239,13 +2251,19 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * regression test. No rendered component or copy changes. Re-derived with
 	 * --print over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
+	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
 	 * comment chains retained; only this pin conflicted. The merged src carries
 	 * the attach-handoff move and #298's push-registration changes, so it
 	 * matches neither parent. Re-derived with --print over the staged merge
 	 * tree (src the only differing root); source identity only, NOT rendered
 	 * U-08 evidence. */
-	src: "4cbea3d6eec5ec09220b363f3459d254266f3f046f3175fcbdd6a0a8bba65f15",
+	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
+	 * chains kept; only this pin conflicted. Re-derived with --print over the
+	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "93e737b750fa43af7c1d26d987a2e0ccc8382366f9a511e33a05a96a570edf1a",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
