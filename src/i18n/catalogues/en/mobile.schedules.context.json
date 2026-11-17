@@ -150,5 +150,21 @@
 	"mobile.schedules.truncated": {
 		"role": "status",
 		"note": "The listing was capped. {shown} entries of {total} are rendered; the family select picks the noun so the sentence stays grammatical in locales where the noun inflects."
+	},
+	"mobile.schedules.section.wakes": {
+		"role": "heading",
+		"note": "Section heading for the wakes list on the Schedules screen, shown alone when the wakes could not be read. A wake fires a prompt into a conversation at a time. ~16 characters. No placeholders."
+	},
+	"mobile.schedules.section.wakes_summary": {
+		"role": "heading",
+		"note": "Section heading for the wakes list with its summary, e.g. 'Wakes · 3 scheduled · 1 failed'. {summary} is an already-translated phrase built from other keys (mobile.schedules.summary.*, tail.*); keep it after the separator. Keep the middle dot."
+	},
+	"mobile.schedules.section.monitors": {
+		"role": "heading",
+		"note": "Section heading for the monitors list on the Schedules screen, shown alone when the monitors could not be read. A monitor watches one thing and reports changes. ~16 characters. No placeholders."
+	},
+	"mobile.schedules.section.monitors_summary": {
+		"role": "heading",
+		"note": "Section heading for the monitors list with its summary, e.g. 'Monitors · 2 armed'. {summary} is an already-translated phrase built from other keys (mobile.schedules.summary.*); keep it after the separator. Keep the middle dot."
 	}
 }

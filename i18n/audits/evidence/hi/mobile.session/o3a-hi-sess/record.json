@@ -1,0 +1,99 @@
+{
+ "audit_id": "o3a-hi-sess",
+ "slice": "O3-a",
+ "locale": "hi",
+ "namespace": "mobile.session",
+ "audit_date": "2026-11-15",
+ "key_count": 2,
+ "keys": [
+  "mobile.session.sheet_title.commands",
+  "mobile.session.sheet_title.attach"
+ ],
+ "draft_values": {
+  "mobile.session.sheet_title.commands": "कमांड",
+  "mobile.session.sheet_title.attach": "संलग्न करें"
+ },
+ "input_route": "Read directly from the translator session scratchpad (no guardrail block). en/context/shipped hi via `git -C ~/local-operator-mobile show 26663e18:<path>`. Style guide, glossary and relay hi from the clean working tree of ~/local-operator @ b42471d3935cb7e95d64428af27c32626665f4c0.",
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.session.json",
+   "sha256": "75e78620eec27ac22184772e2da65a3e555e87c979de563c154e188201820b99"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.session.context.json",
+   "sha256": "d318916fc0270d4a66d7edfc0a71fb2d4fb9d15abc0b96063570c362485f2e42"
+  },
+  "hi_shipped": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/hi/mobile.session.json",
+   "sha256": "1fedfaa74ec8c1557e910ab5e05ef6d2ad7d9ac9274f7c46258f2485176bb7cf"
+  },
+  "hi_draft": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/draft-hi.json",
+   "sha256": "bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9"
+  },
+  "per_key_brief_hashes": {
+   "mobile.session.sheet_title.commands": {
+    "sha256_english": "10f5f77eef9a6b43dc5bf972c7cfd101133e5b738b5e46a0fcdf9021b13b0519",
+    "sha256_context": "b25accc3d1c7c7ae71d41b397e4ed458306773a3bbe645c3ad62770cf4850bbd"
+   },
+   "mobile.session.sheet_title.attach": {
+    "sha256_english": "a919007637abd504f123db0cbc8f290ab16db93adf24b1fc03c50e6131d2b98e",
+    "sha256_context": "6ee5aa90c728db284381cafb1bca66ad08eb19a44bcb242ef672a0615c497034"
+   }
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/notes-hi.md",
+   "sha256": "eae4971902027646cb8badbeb638006511c71e59a16013a1f92841b839853abd"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/hi.md",
+   "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "relay_notifications_hi": {
+   "path": "~/local-operator/local_operator/i18n/catalogues/hi/relay.notifications.json",
+   "sha256": "8a7726aecb5c43747b2f207d4fbb02b0649cf5ae60a47b4835c6bbac6eaaf3cf"
+  }
+ },
+ "translator": {
+  "session": "ea3ea9b9290e",
+  "agent": "translator (lopdev)",
+  "model_claimed_in_notes": "anthropic/claude-opus-5-5"
+ },
+ "auditor": {
+  "agent": "i18n-auditor (lopdev)",
+  "session": "7f1fd014ba0d",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt \"Model: anthropic/claude-opus-5-5\"; no fallback observed",
+  "independent_from_translator_session": true,
+  "mt_service_used": false
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "notes": {},
+ "terminology_review": "'कमांड' (shipped loan). 'संलग्न करें' is the polite imperative of the shipped 'संलग्न' and stays clear of 'जोड़ें' (tunnel). Devanagari has no case, so the lower-case house style does not apply.",
+ "ledger": "not appended: the task makes all repos read-only. Bundles are staged in scratch for the manager to land under i18n/audits/evidence/hi/<ns>/<audit-id>/ and append via ledger.py.",
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "291a3b3ad4e972622fb8a0b526b8b4364a4543e2a60232522d1e897fd19b536c"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "a8e6069322bdad34e4085e8073250dd2ae36daa1f48d58e6a44b1abb0df6d04e"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is reasoning and notes. audit.log is the actual stdout of the checks run in this session."
+}

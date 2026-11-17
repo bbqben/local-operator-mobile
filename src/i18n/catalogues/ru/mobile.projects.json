@@ -30,5 +30,9 @@
 	"mobile.projects.status.qa": "тестирование",
 	"mobile.projects.status.validation": "проверка",
 	"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {Создан проект} completed {Завершён проект} reopened {Возобновлён проект} added {Добавлен проект} updated {Обновлён проект} removed {Удалён проект} deleted {Удалён проект} other {Обновлён проект}} «{subject}».} milestone {{action, select, created {Создана веха} completed {Завершена веха} reopened {Возобновлена веха} added {Добавлена веха} updated {Обновлена веха} removed {Удалена веха} deleted {Удалена веха} other {Обновлена веха}} «{subject}».} other {{action, select, created {Создано} completed {Завершено} reopened {Возобновлено} added {Добавлено} updated {Обновлено} removed {Удалено} deleted {Удалено} other {Обновлено}} «{subject}».}}",
-	"mobile.projects.write_unknown_note": "Не удалось связаться с компьютером, поэтому неизвестно, сохранилось ли изменение. Проверьте проект, прежде чем повторять попытку."
+	"mobile.projects.write_unknown_note": "Не удалось связаться с компьютером, поэтому неизвестно, сохранилось ли изменение. Проверьте проект, прежде чем повторять попытку.",
+	"mobile.projects.title": "Проекты",
+	"mobile.projects.section.progress": "прогресс",
+	"mobile.projects.section.milestones": "вехи",
+	"mobile.projects.section.linked_sessions": "связанные сессии"
 }

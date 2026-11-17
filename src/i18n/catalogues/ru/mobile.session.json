@@ -87,5 +87,7 @@
 	"mobile.session.outbox.composer_wait": "Предыдущее сообщение ещё отправляется. Это можно будет отправить, когда оно будет доставлено.",
 	"mobile.session.pending_echo.discarded": "отброшено — возможно, уже доставлено · нажмите, чтобы вернуть",
 	"mobile.session.outbox.composer_stopped": "Предыдущее сообщение перестало отправляться. Повторите или отбросьте его выше, чтобы отправить это.",
-	"mobile.session.outbox.composer_discarding": "Предыдущее сообщение отбрасывается. Это можно будет отправить через мгновение."
+	"mobile.session.outbox.composer_discarding": "Предыдущее сообщение отбрасывается. Это можно будет отправить через мгновение.",
+	"mobile.session.sheet_title.commands": "слэш-команды",
+	"mobile.session.sheet_title.attach": "прикрепить"
 }

@@ -511,6 +511,19 @@ function expressionFindings(
 	return findings;
 }
 
+/** Every string literal in `source` (comments excluded), with its line — the
+ *  same tokenisation the rules use. Exported for `keyed-sites.ts`, an exact-file
+ *  guard that must not re-implement comment/template handling to see the
+ *  literals a file still carries. It applies no rule of its own. */
+export function stringLiterals(
+	source: string,
+): readonly { readonly line: number; readonly text: string }[] {
+	return splitCodeAndLiterals(source).literals.map(({ line, text }) => ({
+		line,
+		text,
+	}));
+}
+
 /** Every un-keyed literal in one file. Exported so a test can drive the same
  *  rules on a string instead of on the tree.
  *

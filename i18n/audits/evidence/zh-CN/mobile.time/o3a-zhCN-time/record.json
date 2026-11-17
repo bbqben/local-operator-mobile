@@ -1,0 +1,249 @@
+{
+ "record_kind": "independent i18n audit (mobile slice O3-a)",
+ "audit_id": "o3a-zhCN-time",
+ "locale": "zh-CN",
+ "namespace": "mobile.time",
+ "audit_date": "2026-11-16",
+ "audited_at": "2026-11-16T01:30:27+00:00",
+ "key_count": 23,
+ "keys": [
+  "mobile.time.bucket.today",
+  "mobile.time.bucket.yesterday",
+  "mobile.time.bucket.earlier_this_week",
+  "mobile.time.bucket.earlier",
+  "mobile.time.relative.now",
+  "mobile.time.relative.just_now",
+  "mobile.time.relative.yesterday",
+  "mobile.time.relative.seconds_ago_compact",
+  "mobile.time.relative.minutes_ago",
+  "mobile.time.relative.hours_ago",
+  "mobile.time.relative.days_ago",
+  "mobile.time.relative.minutes_ago_compact",
+  "mobile.time.relative.hours_ago_compact",
+  "mobile.time.relative.days_ago_compact",
+  "mobile.time.short.seconds",
+  "mobile.time.short.minutes",
+  "mobile.time.short.hours",
+  "mobile.time.short.days",
+  "mobile.time.short.weeks",
+  "mobile.time.short.years",
+  "mobile.time.short.minutes_spaced",
+  "mobile.time.short.minutes_seconds",
+  "mobile.time.short.hours_minutes"
+ ],
+ "draft_values": {
+  "mobile.time.bucket.today": "今天",
+  "mobile.time.bucket.yesterday": "昨天",
+  "mobile.time.bucket.earlier_this_week": "本周早些时候",
+  "mobile.time.bucket.earlier": "更早",
+  "mobile.time.relative.now": "刚刚",
+  "mobile.time.relative.just_now": "刚刚",
+  "mobile.time.relative.yesterday": "昨天",
+  "mobile.time.relative.seconds_ago_compact": "{count, plural, other {#秒前}}",
+  "mobile.time.relative.minutes_ago": "{count, plural, other {#分钟前}}",
+  "mobile.time.relative.hours_ago": "{count, plural, other {#小时前}}",
+  "mobile.time.relative.days_ago": "{count, plural, other {#天前}}",
+  "mobile.time.relative.minutes_ago_compact": "{count, plural, other {#分钟前}}",
+  "mobile.time.relative.hours_ago_compact": "{count, plural, other {#小时前}}",
+  "mobile.time.relative.days_ago_compact": "{count, plural, other {#天前}}",
+  "mobile.time.short.seconds": "{count, plural, other {#秒}}",
+  "mobile.time.short.minutes": "{count, plural, other {#分钟}}",
+  "mobile.time.short.hours": "{count, plural, other {#小时}}",
+  "mobile.time.short.days": "{count, plural, other {#天}}",
+  "mobile.time.short.weeks": "{count, plural, other {#周}}",
+  "mobile.time.short.years": "{count, plural, other {#年}}",
+  "mobile.time.short.minutes_spaced": "{count, plural, other {#分钟}}",
+  "mobile.time.short.minutes_seconds": "{minutes, plural, other {#分}}{seconds}秒",
+  "mobile.time.short.hours_minutes": "{hours, plural, other {#小时}}{minutes}分"
+ },
+ "input_route": {
+  "draft": "direct read by the auditor of the translator scratchpad file (it was not guardrail-blocked); the copy relayed by lane owner d5aaf8ba6ba5 was compared and is dict-equal",
+  "draft_path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+  "draft_file_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+  "draft_file_sha256_expected": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+  "draft_canonical_sha256": "cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee",
+  "draft_canonical_rule": "sha256(json.dumps(d, ensure_ascii=False, sort_keys=True)) over all 40 keys",
+  "relayed_copy_equal": true,
+  "english_context": "translation brief (direct read) cross-checked: brief english == en@26663e18 and sha256_english matches for every key",
+  "draft_round2": "direct read by the auditor of the translator scratchpad file; the round-1 baseline was rebuilt from the relayed copy and confirmed by its canonical sha256 cde876…",
+  "draft_canonical_sha256_round2": "f8c03d70917154568bb219ac124128b7a027a13384ef9ee0207c9e277b129f81"
+ },
+ "translator_session": "bb79330944ae",
+ "lane_owner_session": "d5aaf8ba6ba5",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "49772dd20be0",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt Model line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.json",
+   "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.context.json",
+   "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+  },
+  "target": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/zh-CN/mobile.time.json",
+   "sha256": null,
+   "note": "namespace file does not exist yet at 26663e18 (new in O3-a)"
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+   "sha256": "953d337ff4c227f7f8d2ad7d95685af274bf9d15788a5907bda97499569e79a0",
+   "round": 2,
+   "previous_round1_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/zh-CN.md",
+   "sha256": "8f95d89debbd0af848e72e4805e256ef9566632e520a5c6d9b37928cd617142c"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "placeholders_icu": "all keys OK (names/kinds match en; plural arms other only)",
+  "nfc": "all NFC",
+  "cjk_latin_spacing": "no space between CJK and digits/#/placeholders",
+  "redaction_hits": 0,
+  "repo_validator": "NOT run (repo is read-only for this audit: no tests/builds); checks were done in Python, output in audit.log"
+ },
+ "verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "ZH-T1",
+   "ZH-T2",
+   "ZH-T3",
+   "ZH-T4"
+  ],
+  "resolved_in_round2": [
+   "ZH-T1"
+  ]
+ },
+ "findings": [
+  {
+   "id": "ZH-T1",
+   "severity": "MINOR",
+   "key": "mobile.time.bucket.earlier_this_week",
+   "current": "本周早些时候",
+   "problem": "The bucket is a rolling window (notifications-model.ts:140, todayStart-6d to yesterday), not the calendar week. Chinese 本周 strictly means the calendar week, so on a Monday, items from last Thu-Sat would sit under 本周早些时候 and the label would be wrong. English \"this week\" is looser.",
+   "suggestion": "前几天 (matches \"2-6 days ago\"; reads naturally between 昨天 and 更早)",
+   "round2_status": "resolved",
+   "round2_text": "前几天"
+  },
+  {
+   "id": "ZH-T2",
+   "severity": "MINOR",
+   "key": "mobile.time.short.hours / .days / .weeks / .years / .minutes (+ .minutes_spaced)",
+   "current": "#小时 / #天 / #周 / #年 / #分钟",
+   "problem": "These are correct as durations (schedules \"{label}后\", \"已逾期{label}\", the transcript elapsed time). But the same keys are also used as ages in the session drawer row time (session-projection.ts:402-409) and the Team Bridge row stamp (team-bridge/model.ts:616-620). A bare \"3小时\" or \"2年\" in a row timestamp reads as a length of time, not \"3 hours ago\". This comes from reusing one key for two meanings; a translation of the shared key cannot fix it.",
+   "suggestion": "Keep the draft. Upstream (code, not this catalogue): make the row stamps use relative.*_ago_compact (#分钟前/#小时前/#天前), and add week/year ago keys (#周前/#年前). Non-gating."
+  },
+  {
+   "id": "ZH-T3",
+   "severity": "MINOR",
+   "key": "mobile.time.short.minutes / mobile.time.short.hours",
+   "current": "#分钟 / #小时",
+   "problem": "At two-digit counts these are 6 terminal cells (\"59分钟\", \"47小时\") against a \"~4 characters\" tight-token hint, and they sit in narrow row-meta slots (Team Bridge row stamp, session drawer). No shorter idiomatic form exists: 分 alone is ambiguous in a bare stamp and 时 alone is not idiomatic.",
+   "suggestion": "No wording change. QA should check a rendered row with \"59分钟\" for clipping."
+  },
+  {
+   "id": "ZH-T4",
+   "severity": "NIT",
+   "key": "mobile.time.relative.*_ago / short.*",
+   "current": "#分钟前 (no space)",
+   "problem": "The desktop/relay zh-CN (relay.notifications.age.minutes \"# 分钟前\") and some shipped mobile keys (\"# 秒\", \"# 个监控\") put a space after #. Other shipped keys (\"再显示#个监控\") do not. The draft follows the style guide rule of no space between CJK and digits, which is correct. The inconsistency elsewhere is pre-existing.",
+   "suggestion": "Keep the draft. Optionally normalise the older keys in a later pass."
+  }
+ ],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "81adbb4bf569732b761b0036db31888a2046bd1bbe796948f7e98abe21ebba78"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "74d7816e996910a83a6c65624e5874229d2cbedc6b11307c8a226420ce50cc12"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md holds the auditor's judgement; audit.log holds the actual Python check output from this session",
+ "ledger": "not written: the repo is read-only for this audit; the lane owner records the ledger row",
+ "history": [
+  {
+   "round": 1,
+   "input_draft_file_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+   "input_draft_canonical_sha256": "cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee",
+   "verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+     "ZH-T1",
+     "ZH-T2",
+     "ZH-T3",
+     "ZH-T4"
+    ]
+   }
+  },
+  {
+   "round": 2,
+   "date": "2026-11-16T01:38:01+00:00",
+   "scope": "only the 2 remediated keys (ZH-T1, ZH-N1); the other 38 keys were checked for byte identity",
+   "input_draft_path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+   "input_route": "direct read by the auditor of the translator scratchpad file; the round-1 baseline was rebuilt from the relayed copy and confirmed by its canonical sha256 cde876…",
+   "input_draft_file_sha256": "953d337ff4c227f7f8d2ad7d95685af274bf9d15788a5907bda97499569e79a0",
+   "input_draft_canonical_sha256": "f8c03d70917154568bb219ac124128b7a027a13384ef9ee0207c9e277b129f81",
+   "changed_keys": {
+    "mobile.time.bucket.earlier_this_week": {
+     "r1": "本周早些时候",
+     "r2": "前几天",
+     "finding": "ZH-T1",
+     "judgement": "前几天 fits the rolling 2-6-days-before-today window (notifications-model.ts:140) with no calendar-week claim. It reads naturally in the sequence 今天/昨天/前几天/更早 and is 6 cells against a ~24 hint. Resolved."
+    }
+   },
+   "all_changed_keys_in_draft": [
+    "mobile.time.bucket.earlier_this_week",
+    "mobile.notifications.detail.section_notification"
+   ],
+   "unchanged_byte_identical": "38/38",
+   "new_findings": [],
+   "verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+     "ZH-T1",
+     "ZH-T2",
+     "ZH-T3",
+     "ZH-T4"
+    ],
+    "resolved_in_round2": [
+     "ZH-T1"
+    ]
+   }
+  }
+ ],
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "ZH-T1",
+   "ZH-T2",
+   "ZH-T3",
+   "ZH-T4"
+  ],
+  "resolved_in_round2": [
+   "ZH-T1"
+  ]
+ },
+ "audit_round": 2,
+ "audit_date_round2": "2026-11-16T01:38:01+00:00"
+}

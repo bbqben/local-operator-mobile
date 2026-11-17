@@ -1,0 +1,13 @@
+# audit.log — o3a-zhCN-proj — actual output of auditor Python checks, session 49772dd20be0, 2026-11-16T01:30:27+00:00
+draft raw sha256 8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128 (expected 8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128) match=True
+draft canonical sha256 json.dumps(ensure_ascii=False,sort_keys=True) cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee
+relayed copy == file content (dict equality): True; relayed canonical sha256 cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee
+MECH mobile.projects.title: rendered='项目' OK
+MECH mobile.projects.section.progress: rendered='进度' OK
+MECH mobile.projects.section.milestones: rendered='里程碑' OK
+MECH mobile.projects.section.linked_sessions: rendered='关联会话' OK
+redaction scan pattern=/Users/|~/|@[\w.-]+\.\w+|\bsk-[A-Za-z0-9]|\bghp_|\bglpat-|[A-Fa-f0-9]{32,}|https?://|damian|token hits=0 []
+WIDTH mobile.projects.title: sample='项目' cells=4 en_hint_chars=16
+WIDTH mobile.projects.section.progress: sample='进度' cells=4 en_hint_chars=16
+WIDTH mobile.projects.section.milestones: sample='里程碑' cells=6 en_hint_chars=16
+WIDTH mobile.projects.section.linked_sessions: sample='关联会话' cells=8 en_hint_chars=20

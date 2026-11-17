@@ -87,5 +87,7 @@
 	"mobile.session.outbox.composer_wait": "Your earlier message is still sending. You can send this one once it’s delivered.",
 	"mobile.session.pending_echo.discarded": "discarded — it may already have arrived · tap to put back",
 	"mobile.session.outbox.composer_stopped": "Your earlier message stopped sending. Retry or discard it above to send this one.",
-	"mobile.session.outbox.composer_discarding": "Discarding your earlier message. You can send this one in a moment."
+	"mobile.session.outbox.composer_discarding": "Discarding your earlier message. You can send this one in a moment.",
+	"mobile.session.sheet_title.commands": "commands",
+	"mobile.session.sheet_title.attach": "attach"
 }

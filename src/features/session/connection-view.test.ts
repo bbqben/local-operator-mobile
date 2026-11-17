@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
 	type ConnectionViewInput,
@@ -6,6 +6,7 @@ import {
 	KEEPALIVE_GRACE_S,
 	reconnectDelay,
 } from "@/features/session/connection-view";
+import { renderFor, resetLocaleSource, setLocaleSource } from "@/i18n";
 import { RelayError, relayErrorFromResponse } from "@/relay";
 import type { ProjectionEntry } from "@/state";
 
@@ -423,5 +424,43 @@ describe("C3 behind the session-health dot", () => {
 			connectionView(input({ droppedSinceFrame: true, healthDotShown: true }))
 				.id,
 		).toBe("C2");
+	});
+});
+
+/* C1 (ur audit): the age helpers sit inside English sentences that stay
+ * unkeyed until slice O3-b keys them, so under a non-en locale the age must
+ * still render from the English catalogue — no mixed-script sentence. */
+const ENGLISH_ONLY = /^[\x20-\x7E\u00B7\u2014\u2019]*$/;
+
+describe("C3/C7 wrappers stay wholly English under a non-en locale", () => {
+	afterEach(resetLocaleSource);
+
+	it("renders the C3 age in English while ur is active", () => {
+		setLocaleSource(() => "ur");
+		// Negative control: ur really is active and its age token is not Latin, so
+		// an assertion below that passed would not be passing by accident.
+		expect(
+			renderFor("mobile.time.short.minutes", { count: 1 }, "ur"),
+		).not.toMatch(ENGLISH_ONLY);
+		const view = connectionView(input({ ageS: KEEPALIVE_GRACE_S + 5 }));
+		expect(view.text).toBe("Not answering — last update 1m ago.");
+		expect(view.text).toMatch(ENGLISH_ONLY);
+	});
+
+	it("renders the C7 last-seen age in English while ur is active", () => {
+		setLocaleSource(() => "ur");
+		const view = connectionView(
+			input({
+				error: new RelayError("computer-offline", "503", {
+					status: 503,
+					serverError: "Tunnel temporarily unavailable",
+				}),
+				computerLastSeenS: 12,
+			}),
+		);
+		expect(view.text).toBe(
+			"Studio desktop isn’t answering — last seen 12s ago.",
+		);
+		expect(view.text).toMatch(ENGLISH_ONLY);
 	});
 });

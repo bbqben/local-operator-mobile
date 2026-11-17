@@ -1,0 +1,17 @@
+# actual checker output, session 6bb2909e7a4f, 2026-11-15; namespace filter mobile.settings
+mechanical errors: 0 keys: 40
+json valid sorted-order-as-brief: True
+NEG control drop few -> ['arms']
+NEG control rename ph -> ['placeholder']
+NEG control NFD -> ['nfc']
+NEG control redact -> ['redaction']
+mobile.settings.section.notifications: "Уведомления" cells=11
+draft sha256 6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f == expected
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d
+brief en/context hash mismatches vs 26663e18 : 0
+input draft 6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f /Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/draft-ru.json
+input translator_notes c54943db54fffe7ce1d733ac561cba61489cd28fabec038957e16670b4c63682 /Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/notes-ru.md
+input brief c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d /Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json
+input style_guide f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5 ~/local-operator/i18n/style-guides/ru.md
+input glossary 0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8 ~/local-operator/i18n/glossary.md (task named style-guides/glossary.md, which does not exist)
+input desktop_relay_ru caf5b24e691507cc49e94142fe58afa8ff11f968ee7a2b771224b0ef9b234980 ~/local-operator/local_operator/i18n/catalogues/ru/relay.notifications.json

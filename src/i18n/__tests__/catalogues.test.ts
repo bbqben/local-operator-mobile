@@ -52,6 +52,8 @@ import signinContext from "@/i18n/catalogues/en/mobile.signin.context.json";
 import signin from "@/i18n/catalogues/en/mobile.signin.json";
 import teamBridgeContext from "@/i18n/catalogues/en/mobile.team_bridge.context.json";
 import teamBridge from "@/i18n/catalogues/en/mobile.team_bridge.json";
+import timeContext from "@/i18n/catalogues/en/mobile.time.context.json";
+import time from "@/i18n/catalogues/en/mobile.time.json";
 import relayChromeContext from "@/i18n/catalogues/en/relay.chrome.context.json";
 import relayChrome from "@/i18n/catalogues/en/relay.chrome.json";
 import relayComposerContext from "@/i18n/catalogues/en/relay.composer.context.json";
@@ -76,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 159, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens).
+		expected: 160, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens); fix/bridge-429 +1: list.catching_up, the calm rate-limit status (159 + 1 = 160, counted over the en JSON).
 	},
 	{
 		name: "mobile.signin",
@@ -125,13 +127,17 @@ const NAMESPACES = [
 		name: "mobile.projects",
 		messages: projects,
 		context: projectsContext,
-		expected: 32,
+		// O3-a +4: the list title and the detail screen's three section headings
+		// (32 + 4 = 36, counted over the en JSON).
+		expected: 36,
 	},
 	{
 		name: "mobile.schedules",
 		messages: schedules,
 		context: schedulesContext,
-		expected: 38,
+		// O3-a +4: the Wakes/Monitors section headings, bare and with their
+		// summary (38 + 4 = 42, counted over the en JSON).
+		expected: 42,
 	},
 	{
 		name: "mobile.account_routing",
@@ -187,6 +193,9 @@ const NAMESPACES = [
 		// `preferences.disabled_hint` (U9): 53 + 1 − 2 + 3 = 55.
 		// PR #272: +4 the agent/Bridge group headings and their guidance;
 		// count the authored notification catalogue, not only rendered switches.
+		// O3-a +6: inbox section headings (`section.waiting`, `waiting_count`)
+		// and the detail screen's title and three section headings: 59 + 6 = 65,
+		// counted over the en JSON.
 		// feat/notification-category-summaries: +6 the iOS category summary
 		// formats and hidden-preview placeholders (`category.*`), one pair per
 		// `aps.category` id (59 + 6 = 65).
@@ -194,13 +203,16 @@ const NAMESPACES = [
 		// "This Android device" titles and "Last active {date}" (65 + 3 = 68).
 		// PR #287 design D2: +5 the device state sentences
 		// (`device_state.{live,expired,unpaired,revoked,absent}`) (68 + 5 = 73).
-		expected: 73,
+		// Merge of origin/main (08025e10) into O3-a: both comment chains kept;
+		// O3-a's 6 + main's 6 + 3 + 5 over the shared 59 = 79, counted over the
+		// merged en JSON (no shared new key names).
+		expected: 79,
 	},
 	{
 		name: "mobile.session",
 		messages: session,
 		context: sessionContext,
-		expected: 89, // PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 8 = 89); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
+		expected: 91, // O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
 	},
 	{
 		/* The relay's own two namespaces, under its own keys. They are here rather
@@ -252,7 +264,7 @@ const NAMESPACES = [
 		name: "mobile.settings",
 		messages: settings,
 		context: settingsContext,
-		expected: 80, // Merge of origin/main (#258, 8ca71d54) into #261: the branch's 75 + main's 5 (80, counted over the merged en JSON). Branch: PR #261 round-1 remediation +1: Copy diagnostics' "Couldn't copy" state (74 + 1 = 75); M1 scope additions +4: Diagnostics tunnel id, tunnel address, Copy diagnostics and its copied state (70 + 4 = 74). Main: +4 the account card's `account.signed_in_radient` and the `sign_in_confirm` dialog (PR #258 R1 B1/m1); +1 `diagnostics.reason` (the raw stream-health reason row, Sherman's report). M3 S2b-1 +11: the own-tunnel section of Settings (59 + 11 = 70); +27: Settings screen literals keyed by the app/ scan (title, sections, rows, diagnostics, sign-out); +14: Settings expression literals (account card, status words, stream words, relay words)
+		expected: 81, // O3-a +1: the Notifications section heading (80 + 1 = 81). Merge of origin/main (#258, 8ca71d54) into #261: the branch's 75 + main's 5 (80, counted over the merged en JSON). Branch: PR #261 round-1 remediation +1: Copy diagnostics' "Couldn't copy" state (74 + 1 = 75); M1 scope additions +4: Diagnostics tunnel id, tunnel address, Copy diagnostics and its copied state (70 + 4 = 74). Main: +4 the account card's `account.signed_in_radient` and the `sign_in_confirm` dialog (PR #258 R1 B1/m1); +1 `diagnostics.reason` (the raw stream-health reason row, Sherman's report). M3 S2b-1 +11: the own-tunnel section of Settings (59 + 11 = 70); +27: Settings screen literals keyed by the app/ scan (title, sections, rows, diagnostics, sign-out); +14: Settings expression literals (account card, status words, stream words, relay words)
 	},
 	{
 		/* The conversations drawer's View options (TestFlight 906): the desktop's
@@ -275,6 +287,15 @@ const NAMESPACES = [
 		// +5: the More sheet's row labels (visual audit D5); +1 its Questions row
 		// (build 753); +1 the search pill's "Clear search" (TestFlight 906).
 		expected: 27,
+	},
+	{
+		/* The shared date/time words (O3-a): inbox and Team Bridge day buckets,
+		 *  relative ages and short duration units, one key per unit rather than
+		 *  per call site so every surface says "5m" the same way. */
+		name: "mobile.time",
+		messages: time,
+		context: timeContext,
+		expected: 23,
 	},
 	{
 		name: "relay.chrome",
@@ -497,15 +518,31 @@ describe("the English catalogues", () => {
 		 * kept; 972 on main (S4 dropped mobile.signin.diagnostics) + the branch's
 		 * 22 mobile.remote_sessions = 994, derived by summing the keys of all 24
 		 * merged en catalogue files (mobile.remote_sessions 22, mobile.signin 32). */
+		/* Rebase of O3-a onto origin/main (#271, 57b129c8): both comment chains
+		 * kept; O3-a: +40 English keys (mobile.time 23, mobile.notifications 6,
+		 * mobile.projects 4, mobile.schedules 4, mobile.session 2,
+		 * mobile.settings 1): 994 on main + 40 = 1034, derived by summing the keys
+		 * of all 25 en catalogue files (mobile.time 23, mobile.remote_sessions 22). */
 		/* PR #275 (background sending): +8 mobile.session (outbox captions,
 		 * Retry/Discard, three composer hints) + 2 mobile.sidebar (row outbox
 		 * lines) = 1004, derived by summing the keys of all 24 en catalogue
 		 * files (mobile.session 89, mobile.sidebar 27). */
+		/* Merge of origin/main (#275, b1fbb813) into O3-a: both comment chains
+		 * kept; 1034 on O3-a + #275's 10 (mobile.session 8, mobile.sidebar 2) =
+		 * 1044, derived by summing the keys of all 25 merged en catalogue files
+		 * (mobile.session 91, mobile.sidebar 27, mobile.time 23). */
 		// Remote Highlight operation-local refusals: +2 = 1006 (generator count).
 		// iOS notification category summaries/placeholders: +6 = 1012.
 		// fix/push-device-dedupe: +3 mobile.notifications.devices.* = 1015.
 		// PR #287 design D2: +5 mobile.notifications.device_state.* = 1020.
-		expect(total).toBe(1020);
+		/* Merge of origin/main (08025e10, #277-#287) into O3-a: both comment
+		 * chains kept; 1044 on O3-a + main's 16 since b1fbb813 (mobile.notifications
+		 * 14, mobile.remote_sessions 2) = 1060, derived by summing the keys of all
+		 * 25 merged en catalogue files (mobile.notifications 79). */
+		/* fix/bridge-429 (#297): + mobile.team_bridge.list.catching_up, the calm
+		 * "Catching up…" rate-limit status: 1060 + 1 = 1061, derived by summing
+		 * the keys of all 25 en catalogue files (mobile.team_bridge 160). */
+		expect(total).toBe(1061);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -666,6 +703,16 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the fr audit accepted it as kept Latin (i18n/audits/evidence/fr/m3-s2b2b-computers-setup/).",
 		"mobile.computers.setup.terminal_label":
 			"« Terminal » is the French word for the terminal, spelled as in English (as « Sections » for mobile.sidebar.sections); the fr audit accepted the set-up screen's command-block label (i18n/audits/evidence/fr/m3-s2b2b-computers-setup/).",
+		/* O3-a (headers): French spells these nouns as English does; the fr audit
+		 * passed each value verbatim. */
+		"mobile.notifications.detail.title":
+			"« Notification » is the French noun, spelled as in English (as « Notifications » for mobile.notifications.title); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
+		"mobile.notifications.detail.section_notification":
+			"« Notification » is the French noun for this section heading, spelled as in English; the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
+		"mobile.notifications.detail.section_message":
+			"« Message » is the French noun, spelled as in English (as « Messages » for relay.transcript.label.messages); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
+		"mobile.settings.section.notifications":
+			"« Notifications » is the French plural, spelled as in English (as mobile.notifications.title); the fr audit passed this Settings section header (i18n/audits/evidence/fr/mobile.settings/o3a-fr-b3177c/).",
 	},
 	/* Spanish preserves these placeholder-only templates: names and separators
 	 * have no English prose to translate. Each key remains explicitly listed. */
@@ -695,6 +742,9 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the es audit accepted it as kept Latin (i18n/audits/evidence/es/m3-s2b2b-computers-setup/).",
 		"mobile.computers.setup.terminal_label":
 			"«Terminal» is the Spanish word for the terminal, spelled as in English; the es audit accepted the set-up screen's command-block label, which has no article to agree (i18n/audits/evidence/es/m3-s2b2b-computers-setup/).",
+		/* O3-a (date/time): the abbreviated unit is the same symbol in Spanish. */
+		"mobile.time.short.minutes_spaced":
+			"«min» is the Spanish abbreviation of «minuto(s)» too, with no «de» after an abbreviated unit, so `{count, plural, one {# min} other {# min}}` is the correct Spanish value; the es audit passed it (i18n/audits/evidence/es/mobile.time/o3a-es-268e89/).",
 	},
 	"zh-CN": {
 		"mobile.settings.account.app_name":

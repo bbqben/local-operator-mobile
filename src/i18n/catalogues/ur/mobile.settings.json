@@ -78,5 +78,6 @@
 	"mobile.settings.diagnostics.address": "ٹنل کا پتہ",
 	"mobile.settings.diagnostics.copy": "تشخیصی معلومات کاپی کریں",
 	"mobile.settings.diagnostics.copied": "تشخیصی معلومات کاپی ہو گئیں",
-	"mobile.settings.diagnostics.copy_failed": "کاپی نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+	"mobile.settings.diagnostics.copy_failed": "کاپی نہیں ہو سکیں۔ دوبارہ کوشش کریں۔",
+	"mobile.settings.section.notifications": "اطلاعات"
 }

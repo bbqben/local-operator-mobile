@@ -45,6 +45,7 @@ import Animated, {
 } from "react-native-reanimated";
 import type { PromptImage } from "@/contracts";
 import { useClipboardImageOffer } from "@/features/session/attach-clipboard";
+import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
 import {
 	type AttachSource,
 	attachActions,
@@ -680,51 +681,6 @@ const ContextRow = ({
 /** The More sheet's row for a chip, in whichever of its three states it is. */
 const chipRowValue = (chip: ComposerChip): string | null =>
 	chip.kind === "loading" ? null : chip.text;
-
-/** iOS presents its picker from the current native controller, not the next
- * React state. Wait for the sheet's actual dismissal so it cannot take a newly
- * presented PHPicker down with it. Other platforms keep their immediate path.
- * The bounded fallback avoids a lost native callback hanging Attach forever.
- * Chrome branch (#163): preserved through the composer rewrite — the row still
- * closes the sheet, but the launch is deferred to `onDismiss` on iOS. */
-export function createAttachmentSheetHandoff() {
-	let pending: (() => void) | undefined;
-	let timer: ReturnType<typeof setTimeout> | undefined;
-	let chosen = false;
-	const clearPending = () => {
-		if (timer !== undefined) clearTimeout(timer);
-		timer = undefined;
-		pending = undefined;
-	};
-	const cancel = () => {
-		clearPending();
-		chosen = false;
-	};
-	const dismissed = () => {
-		const launch = pending;
-		// Consuming a selection is NOT reopening the sheet: queued row events
-		// after onDismiss/fallback must not launch a second, different picker.
-		clearPending();
-		launch?.();
-	};
-	return {
-		choose: (launch: () => void, platform: string) => {
-			// First iOS choice wins for this open, including the native dismissal
-			// window. Attach's explicit cancel() is the only re-admission point.
-			if (platform === "ios" && chosen) return;
-			cancel();
-			if (platform !== "ios") {
-				launch();
-				return;
-			}
-			chosen = true;
-			pending = launch;
-			timer = setTimeout(dismissed, 500);
-		},
-		dismissed,
-		cancel,
-	};
-}
 
 export const Composer = ({
 	controls,
@@ -2264,10 +2220,10 @@ export const Composer = ({
 			visible={attachSheetOpen}
 			onClose={() => setAttachSheetOpen(false)}
 			onDismiss={attachmentHandoff.dismissed}
-			/* The ratchet's own entry for this file is lower-case "attach": the
-			 * title is pre-existing debt, and capitalising it minted a NEW literal
-			 * that failed `check-strings`. Keying it is the payoff, not this fix. */
-			title="attach"
+			/* Keyed with the lower-case English it already shipped; Title-casing it
+			 * like the other `sheet_title.*` keys (visual audit D14) is a copy
+			 * decision left to design, not part of keying it. */
+			title={t("mobile.session.sheet_title.attach")}
 			testID={SURFACE.attachSheet}
 		>
 			<View className="py-1">

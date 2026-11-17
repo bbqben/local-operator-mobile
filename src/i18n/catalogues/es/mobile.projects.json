@@ -30,5 +30,9 @@
 	"mobile.projects.status.qa": "control de calidad",
 	"mobile.projects.status.validation": "validación",
 	"mobile.projects.write_receipt": "{kind, select, project {Proyecto {subject} {action, select, created {creado} completed {completado} reopened {reabierto} added {añadido} updated {actualizado} removed {quitado} deleted {eliminado} other {actualizado}}.} milestone {Hito {subject} {action, select, created {creado} completed {completado} reopened {reabierto} added {añadido} updated {actualizado} removed {quitado} deleted {eliminado} other {actualizado}}.} other {{subject} {action, select, created {creado} completed {completado} reopened {reabierto} added {añadido} updated {actualizado} removed {quitado} deleted {eliminado} other {actualizado}}.}}",
-	"mobile.projects.write_unknown_note": "No pudimos llegar a tu máquina, así que no sabemos si se guardó. Revisa el proyecto antes de volver a intentarlo."
+	"mobile.projects.write_unknown_note": "No pudimos llegar a tu máquina, así que no sabemos si se guardó. Revisa el proyecto antes de volver a intentarlo.",
+	"mobile.projects.title": "Proyectos",
+	"mobile.projects.section.progress": "progreso",
+	"mobile.projects.section.milestones": "hitos",
+	"mobile.projects.section.linked_sessions": "sesiones vinculadas"
 }

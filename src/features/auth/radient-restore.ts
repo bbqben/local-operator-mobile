@@ -3,6 +3,7 @@ import {
 	accessTokenNeedsRefresh,
 	handleExpired,
 	RadientAuthError,
+	SecureStoreUnavailableError,
 } from "@/connection";
 
 /**
@@ -121,6 +122,10 @@ export type RestoreOutcome = {
 	/** True when the credential was accepted and discovery was started. */
 	restored: boolean;
 	refusal: RestoreRefusal | null;
+	/** True when the keystore could not be READ (a locked phone): nothing is
+	 *  known about the grant, nothing was touched, and the caller retries once
+	 *  protected data is available (the next `active`). Never a sign-in. */
+	deferred?: true;
 };
 
 /**
@@ -146,7 +151,18 @@ export type RestoreOutcome = {
 export async function carryOutRestore(
 	deps: RestoreDeps,
 ): Promise<RestoreOutcome> {
-	const plan = planRestore(await deps.readOauth());
+	let stored: RadientTokens | null;
+	try {
+		stored = await deps.readOauth();
+	} catch (error) {
+		/* iOS relaunches the app on a locked phone (TestFlight update, silent
+		 * push). Reading that as "no grant" sent the reader to sign in again; the
+		 * grant is intact and readable as soon as the phone unlocks. */
+		if (error instanceof SecureStoreUnavailableError)
+			return { tokens: null, restored: false, refusal: null, deferred: true };
+		throw error;
+	}
+	const plan = planRestore(stored);
 	if (plan.kind === "none" || deps.isCancelled?.() === true) {
 		return { tokens: null, restored: false, refusal: null };
 	}
@@ -178,7 +194,11 @@ export async function carryOutRestore(
 		try {
 			refreshed = await deps.refresh(tokens);
 		} catch (error) {
-			if (isUnreachable(error)) {
+			/* Only a server-confirmed revoke (`invalid_grant`, or a 401) deletes the
+			 *  grant. A 5xx or an answer this build cannot read (`rejected`) says
+			 *  nothing about it, so it is kept and the reader offered a retry — a
+			 *  Radient outage used to sign everyone out who opened the app during it. */
+			if (isUnreachable(error) || isNotARevoke(error)) {
 				/* The credential is NOT deleted and nothing is written: there is nothing
 				 *  here the reader has to fix, and the next launch — or the retry this
 				 *  offers — is the thing that clears it. */
@@ -222,4 +242,11 @@ export async function carryOutRestore(
  *  token is exactly as valid as it was before the attempt. */
 function isUnreachable(error: unknown): boolean {
 	return error instanceof RadientAuthError && error.failure === "network";
+}
+
+/** Radient answered, but not with a revoke: `rejected` is every non-`invalid_grant`
+ *  error (`radient-oauth.ts`), which is a server or client fault, not a verdict on
+ *  this reader's grant. */
+function isNotARevoke(error: unknown): boolean {
+	return error instanceof RadientAuthError && error.failure === "rejected";
 }

@@ -1,0 +1,92 @@
+{
+ "record_kind": "independent i18n audit (mobile slice O3-a)",
+ "audit_id": "o3a-zhCN-sess",
+ "locale": "zh-CN",
+ "namespace": "mobile.session",
+ "audit_date": "2026-11-16",
+ "audited_at": "2026-11-16T01:30:27+00:00",
+ "key_count": 2,
+ "keys": [
+  "mobile.session.sheet_title.commands",
+  "mobile.session.sheet_title.attach"
+ ],
+ "draft_values": {
+  "mobile.session.sheet_title.commands": "命令",
+  "mobile.session.sheet_title.attach": "添加附件"
+ },
+ "input_route": {
+  "draft": "direct read by the auditor of the translator scratchpad file (it was not guardrail-blocked); the copy relayed by lane owner d5aaf8ba6ba5 was compared and is dict-equal",
+  "draft_path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+  "draft_file_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+  "draft_file_sha256_expected": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+  "draft_canonical_sha256": "cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee",
+  "draft_canonical_rule": "sha256(json.dumps(d, ensure_ascii=False, sort_keys=True)) over all 40 keys",
+  "relayed_copy_equal": true,
+  "english_context": "translation brief (direct read) cross-checked: brief english == en@26663e18 and sha256_english matches for every key"
+ },
+ "translator_session": "bb79330944ae",
+ "lane_owner_session": "d5aaf8ba6ba5",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "49772dd20be0",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt Model line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.session.json",
+   "sha256": "75e78620eec27ac22184772e2da65a3e555e87c979de563c154e188201820b99"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.session.context.json",
+   "sha256": "d318916fc0270d4a66d7edfc0a71fb2d4fb9d15abc0b96063570c362485f2e42"
+  },
+  "target": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/zh-CN/mobile.session.json",
+   "sha256": "6b88e3bd3b296f4036731fe4b763d079c64be536631a19522321793ca7630882",
+   "note": null
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+   "sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/zh-CN.md",
+   "sha256": "8f95d89debbd0af848e72e4805e256ef9566632e520a5c6d9b37928cd617142c"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "placeholders_icu": "all keys OK (names/kinds match en; plural arms other only)",
+  "nfc": "all NFC",
+  "cjk_latin_spacing": "no space between CJK and digits/#/placeholders",
+  "redaction_hits": 0,
+  "repo_validator": "NOT run (repo is read-only for this audit: no tests/builds); checks were done in Python, output in audit.log"
+ },
+ "verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "7363e2a67c449d24d26b198a366a3d8db41d58805682d993e48b8ff5d5544ac4"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "8296ab04a806a42a4d0bbbc346cf302d818daf02bff7019c3baf454b6b4907b3"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md holds the auditor's judgement; audit.log holds the actual Python check output from this session",
+ "ledger": "not written: the repo is read-only for this audit; the lane owner records the ledger row"
+}

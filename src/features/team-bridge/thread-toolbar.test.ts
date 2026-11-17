@@ -27,9 +27,7 @@ describe("attachment toolbar available-width layout", () => {
 		expect(composer).toContain('t("mobile.team_bridge.attachment.add")');
 		expect(composer).toContain('t("mobile.team_bridge.thread.send")');
 		expect(composer).toContain('t("mobile.team_bridge.thread.send_retry")');
-		expect(composer).toContain(
-			"images ? () => setAttachOpen(true) : undefined",
-		);
+		expect(composer).toContain("onAttach={images ? openAttach : undefined}");
 		expect(composer).toContain("images.remaining() === 0");
 		expect(composer).toContain("sendDisabled={!sendable}");
 		expect(composer).not.toContain("<Button");

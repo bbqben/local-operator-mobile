@@ -126,5 +126,21 @@
 	"mobile.projects.write_unknown_note": {
 		"role": "status",
 		"note": "Shown when a write got no answer. Must state that the outcome is UNKNOWN, never that nothing was saved."
+	},
+	"mobile.projects.title": {
+		"role": "heading",
+		"note": "Screen title of the projects list (navigation bar). One word, ~16 characters. No placeholders."
+	},
+	"mobile.projects.section.progress": {
+		"role": "heading",
+		"note": "Lower-case section heading on a project's detail screen, above its latest progress line. Lower case is the house style for these detail headings; follow your language's equivalent. ~16 characters. No placeholders."
+	},
+	"mobile.projects.section.milestones": {
+		"role": "heading",
+		"note": "Lower-case section heading on a project's detail screen, above its milestone list. ~16 characters. No placeholders."
+	},
+	"mobile.projects.section.linked_sessions": {
+		"role": "heading",
+		"note": "Lower-case section heading on a project's detail screen, above the conversations linked to it ('sessions' = conversations). ~20 characters. No placeholders."
 	}
 }

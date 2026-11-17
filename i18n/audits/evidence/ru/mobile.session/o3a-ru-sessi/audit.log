@@ -1,0 +1,44 @@
+# actual checker output, session 6bb2909e7a4f, 2026-11-15; namespace filter mobile.session
+mechanical errors: 0 keys: 40
+json valid sorted-order-as-brief: True
+NEG control drop few -> ['arms']
+NEG control rename ph -> ['placeholder']
+NEG control NFD -> ['nfc']
+NEG control redact -> ['redaction']
+mobile.session.sheet_title.commands: "команды" cells=7
+mobile.session.sheet_title.attach: "прикрепить" cells=10
+draft sha256 6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f == expected
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d
+brief en/context hash mismatches vs 26663e18 : 0
+input draft 6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f /Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/draft-ru.json
+input translator_notes c54943db54fffe7ce1d733ac561cba61489cd28fabec038957e16670b4c63682 /Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/notes-ru.md
+input brief c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d /Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json
+input style_guide f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5 ~/local-operator/i18n/style-guides/ru.md
+input glossary 0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8 ~/local-operator/i18n/glossary.md (task named style-guides/glossary.md, which does not exist)
+input desktop_relay_ru caf5b24e691507cc49e94142fe58afa8ff11f968ee7a2b771224b0ef9b234980 ~/local-operator/local_operator/i18n/catalogues/ru/relay.notifications.json
+
+# round 2, 2026-11-15, actual output of $LOCAL_OPERATOR_SCRATCHPAD/o3a-r2-check.py
+R2 draft sha256 e37f67d5830313d5dff27550e0fbb085460b08bd25cdc6b153fa38ab89a22dfd bytes 3699
+R1 baseline rebuilt from round-1 report tables: keys 40 sha256 6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f == R1 True
+keyset/order identical: True order== True
+changed 3 ['mobile.time.bucket.earlier_this_week', 'mobile.time.relative.days_ago_compact', 'mobile.session.sheet_title.commands']
+byte-identical 37
+mobile.time.bucket.earlier_this_week
+  en: Earlier this week
+  R1: Ранее на этой неделе
+  R2: За последние 7 дней
+  placeholders en=[] ru=[] match=True  arms=[]  NFC=True
+  cells: 19
+mobile.time.relative.days_ago_compact
+  en: {count, plural, one {#d ago} other {#d ago}}
+  R1: {count, plural, one {# дн. назад} few {# дн. назад} many {# дн. назад} other {# дн. назад}}
+  R2: {count, plural, one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}}
+  placeholders en=['count'] ru=['count'] match=True  arms=['few', 'many', 'one', 'other']  NFC=True
+  renders: 1→"1 день назад"(12) | 2→"2 дня назад"(11) | 4→"4 дня назад"(11) | 5→"5 дней назад"(12) | 6→"6 дней назад"(12) | 11→"11 дней назад"(13) | 21→"21 день назад"(13) | 22→"22 дня назад"(12)
+mobile.session.sheet_title.commands
+  en: commands
+  R1: команды
+  R2: слэш-команды
+  placeholders en=[] ru=[] match=True  arms=[]  NFC=True
+  cells: 12
+redaction hits 0 NBSP 0

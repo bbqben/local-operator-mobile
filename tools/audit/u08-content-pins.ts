@@ -197,8 +197,13 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * terminal page instead of re-serving the newest one. `--print`, staged. */
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
+	/* PR #251 D1: 24d93a0d (fixture-only) taught the mock relay to publish
+	 *  language config changes but left this pin at 99594b71's bytes (9bec3b7e…).
+	 *  This is sha256 of relay.ts exactly as committed in 24d93a0d, unchanged at
+	 *  this head; the tool's own reader (snapshotContent) reports the same value.
+	 *  The fixture moved, the U-08 scene did not. Not rendered evidence. */
 	"tools/mock-relay/relay.ts":
-		"9bec3b7e5c493832cb6b583ce8d9710f669709d45ac2808affe1cf7b6784d957",
+		"1bcbec5c8e80d2a5eb39eeecba8f19bb0fee10dd992941f50624cd1aba0ecfba",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -723,7 +728,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged app carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	app: "0eef54119604f176cb2e445670e92e74eeaf8f928cdfc23308a33ce166204597",
+	/* PR #290 (persist across updates), QA round 1 Q-1: the root layout mounts
+	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
+	 * adopted out of the sealed family) at boot. Re-derived with --print over
+	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
+	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2065,6 +2074,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (#271 remote-session view + #273 Radient Console copy), so it matches
 	 * neither parent. Re-derived with --print over the merged tree (run twice,
 	 * stable). Source identity only, NOT new rendered U-08 evidence. */
+	/* O3-a (headers and date/time copy), rebased onto origin/main (#271,
+	 * 57b129c8): the keyed sites, the 40 English keys with their audited
+	 * translations in all 7 locales, the generated projection, and the C1
+	 * English-pinned age wrappers. Derived LAST from the treeDigest contract by
+	 * an independent reader over the staged tree's git objects (not --print);
+	 * the same reader reproduced main's pin (c4df74ae…) from main's tree as a
+	 * control. Source identity only, NOT rendered U-08 evidence. */
+	/* O3-a CI fix: composer-layout.test.ts now pins the keyed attach title
+	 * instead of the retired literal (test-only src change). Same independent
+	 * reader over the staged tree; it reproduced the previous pin (6b528875…)
+	 * from a420c2c1 as a control. Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#271, 57b129c8) into fix/background-send-retry
 	 * (PR #275): both comment chains retained; the merged src carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
@@ -2073,6 +2093,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
 	 * keys in all 8 locales. Re-derived with --print over the working tree (run
 	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#275 background sending, b1fbb813) into O3-a:
+	 * both comment chains retained; the merged src carries both sides (the
+	 * key-union mobile.session catalogues in all 8 locales plus #275's outbox
+	 * sources), so it matches neither parent. Derived LAST by the same
+	 * independent treeDigest reader over the staged merge tree's git objects
+	 * (not --print); it reproduced main's pin (bab911c2…) from b1fbb813's tree
+	 * as a control. Source identity only, NOT rendered U-08 evidence. */
 	/* PR #280 round-1 remediation: capability-gated graphic Retry and the
 	 * operation-local remote document refusal, plus mounted failure tests.
 	 * Derived by --print; source admission only, not rendered U-08 evidence. */
@@ -2122,6 +2149,20 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * retained; only this pin conflicted. The merged src carries both sides, so
 	 * it matches neither parent. Re-derived with --print over the staged merged
 	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#277-#287, 08025e10) into O3-a: both comment
+	 * chains retained; the merged src carries both sides (O3-a's headers and
+	 * date/time copy plus main's notifications, Team Bridge and warm-sync
+	 * sources, and the key-union catalogues in all 8 locales), so it matches
+	 * neither parent. Derived LAST by the same independent treeDigest reader
+	 * over the staged merge tree's git objects (not --print); it reproduced
+	 * both parents' committed pins as controls. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* PR #251 D1 product remediation: Projects, Project detail and Settings
+	 * subscribe to `useLocaleFrame()` so a late language frame repaints their
+	 * keyed copy, plus two mounted locale-frame tests and the Q1 memo guard. No
+	 * catalogue, layout or class bytes move. Parent pin reproduced from HEAD's
+	 * git objects by treeDigest as the control; this value is --print over the
+	 * staged tree. Source identity only, NOT rendered U-08 evidence. */
 	/* Reader scroll hold (TestFlight 1139): Team Bridge thread viewport and the
 	 * agent transcript stop every programmatic bottom-follow from a drag or
 	 * momentum start until the reader's scroll rests; Team Bridge shows Jump
@@ -2139,16 +2180,103 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
 	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
 	 * source admission only, NOT rendered, native or device evidence. */
+	/* PR #290 (persist across updates): preferences move out of the sealed
+	 * device family into a file-backed preference store, keychain reads that
+	 * fail on a locked launch defer instead of resetting, and QA round 1's
+	 * Q-1/Q-2 (boot-time sidebar adoption, field-wise sidebar writes). Nothing
+	 * the U-08 scene renders changes. Re-derived with --print over the staged
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#289, f390fdda) into PR #290: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides, so
+	 * it matches neither parent. Re-derived with --print over the staged merged
+	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Final merge-gate merge of origin/main (#288-#293, 3393d313) into PR #251:
+	 * both comment chains retained; only this pin conflicted. The merged src
+	 * carries both sides (O3-a's locale frame, headers and date/time copy plus
+	 * main's reader scroll hold and persist-across-updates stores), so it
+	 * matches neither parent. Derived LAST by treeDigest over the staged merge
+	 * tree's git objects; the same reader reproduced both parents' committed
+	 * pins as controls. Source identity only, NOT rendered U-08 evidence. */
+	/* PR #251 harness-typecheck CI fix: the real-client language-control row
+	 * moved from tools/mock-relay/config-language.test.ts into
+	 * src/e2e/config-stream.e2e.test.ts (test file only; no production source
+	 * moves). Derived by an independent treeDigest reader over the commit's git
+	 * objects; it reproduced the parent's committed pin as the control, agreed
+	 * with --print, and a one-byte tamper of the moved test diverged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* TestFlight 1157 rest jitter: a reader's scroll that comes to rest is
+	 * never written afterwards (rest decides from the end event's offset and
+	 * only the end itself resumes following; a trailing event cannot
+	 * re-acquire a rest short of the end) in the Team Bridge viewport and the
+	 * agent transcript. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #296 round-1 remediation: only the end re-acquires a non-follower
+	 * (an anchoring shift is not the reader moving), shared rest slack, doc
+	 * fixes. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* Re-pinned 2026-11-17 for fix/bridge-429 with --print at the staged tree:
+	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
+	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
+	 * U-08 instrument or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence.
+	 * Re-pinned again 2026-11-17 for PR #297 round-1 remediation with --print
+	 * at the staged tree: the status moved into the section heading row, the
+	 * pure `section-status.ts`, store backoff fixes and their tests. No U-08
+	 * instrument or measured geometry moved. Source identity only. */
+	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
+	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
+	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
+	 * team-bridge/provider.tsx — push-token bookkeeping and hub-registration rate
+	 * discipline, no rendered component or copy changes. Re-derived with --print
+	 * over the staged tree; the other render roots printed unchanged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 merge of origin/main (2026-11-17): src re-derived with --print
+	 * over the merged tree, which carries both the #296 and #298 changes. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 round-2 remediation (R2-M1): the 429 clock-guard ceiling in
+	 * team-bridge/push.ts becomes the exact bound of the wait, plus its
+	 * regression test. No rendered component or copy changes. Re-derived with
+	 * --print over the staged tree. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
+	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
+	 * chains kept; only this pin conflicted. Re-derived with --print over the
+	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
+	 * `allowsRecording: true` (native audio-session argument; no rendered output).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
 	/* fix(mic): `src/stt/recorder.ts` hands `AudioRecorder` FLAT native options
 	 * (the shape `createRecordingOptions` builds) rather than a spread preset, so
 	 * iOS receives `outputFormat`/`audioQuality` and writes AAC instead of PCM in
 	 * the `.m4a`. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
-	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
-	 * `allowsRecording: true` (native audio-session argument; no rendered output).
-	 * Re-derived with --print over the staged tree; source admission only, NOT
-	 * rendered, native or device evidence. */
-	src: "c7a126b82f48b88281c797d52967728b770c90a92ae72268f379cc75e6ac5918",
+	/* Merge of origin/main (8a4d3048) into fix/mic-diagnosis: main's comment chain
+	 * kept above; only this pin conflicted, and the merged src carries both sides,
+	 * so it matches neither parent. Re-derived with --print over the staged merge
+	 * tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "e9ca8242b8bca2aea3d4cd8cf0ac53fb8e5cf4c4178868c255b180521804ee36",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

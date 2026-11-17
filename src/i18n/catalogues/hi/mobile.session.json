@@ -87,5 +87,7 @@
 	"mobile.session.outbox.composer_wait": "आपका पिछला संदेश अभी भेजा जा रहा है। उसके पहुँचने के बाद आप यह संदेश भेज सकेंगे।",
 	"mobile.session.pending_echo.discarded": "छोड़ दिया गया — हो सकता है यह पहले ही पहुँच गया हो · वापस लाने के लिए टैप करें",
 	"mobile.session.outbox.composer_stopped": "आपका पिछला संदेश भेजना रुक गया है। यह संदेश भेजने के लिए ऊपर उसे दोबारा भेजें या छोड़ें।",
-	"mobile.session.outbox.composer_discarding": "आपका पिछला संदेश छोड़ा जा रहा है। आप यह संदेश कुछ ही पल में भेज सकेंगे।"
+	"mobile.session.outbox.composer_discarding": "आपका पिछला संदेश छोड़ा जा रहा है। आप यह संदेश कुछ ही पल में भेज सकेंगे।",
+	"mobile.session.sheet_title.commands": "कमांड",
+	"mobile.session.sheet_title.attach": "संलग्न करें"
 }

@@ -51,6 +51,7 @@ vi.mock("@/connection", async (original) => ({
 vi.mock("@/connection/storage", async (original) => ({
 	...(await original<object>()),
 	thisDeviceOnlyAccessibility: async () => "synthetic-this-device-only",
+	backgroundReadableAccessibility: async () => "synthetic-after-first-unlock",
 }));
 const tokens = (access = "old"): RadientTokens => ({
 	access,

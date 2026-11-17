@@ -15,6 +15,7 @@ import {
 	listStore,
 	useConnection,
 	useListState,
+	useLocaleFrame,
 } from "@/features/auth/connection-provider";
 import {
 	confirmBodyFor,
@@ -123,6 +124,12 @@ export default function Notifications() {
 	const connectionGeneration = useListState(
 		(state) => state.connectionGeneration,
 	);
+	/* The section titles are `t()` readings cached in a `useMemo` below, so a
+	 * language frame needs BOTH halves `useLocaleFrame` documents: this
+	 * subscription re-renders the inbox, and the memo lists `language` so it
+	 * re-runs instead of handing back the previous language's headings
+	 * (review M1). */
+	const language = useLocaleFrame();
 	const enabled = notificationsEnabled(capabilities);
 	/* UNKNOWN IS NOT "NO". Before the first list frame, `capabilities` is an
 	 * empty bag: an absence there means "the relay has not spoken yet", so the
@@ -239,6 +246,7 @@ export default function Notifications() {
 		() => (response === null ? [] : inboxRows(response)),
 		[response],
 	);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` is a TRIGGER: `t()` reads the locale live, so the memo must re-run (see above)
 	const sections = useMemo(
 		() =>
 			response === null
@@ -248,7 +256,7 @@ export default function Notifications() {
 						title: section.title,
 						data: section.items,
 					})),
-		[response, inbox.nowMs],
+		[response, inbox.nowMs, language],
 	);
 	/**
 	 * The list's flat data: section headings and rows in reading order.

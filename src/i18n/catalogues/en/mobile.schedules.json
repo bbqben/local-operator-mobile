@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "Wakes are not supervised on this platform yet, so the wakes below only fire while a conversation is running.",
 	"mobile.schedules.supervisor.unverifiable": "Nothing supervises the wakes below, so they only fire while their conversation is running.",
 	"mobile.schedules.tail.failed": "{count} failed",
-	"mobile.schedules.truncated": "Showing {shown} of {total} conversations with {family, select, wakes {wakes} other {monitors}}."
+	"mobile.schedules.truncated": "Showing {shown} of {total} conversations with {family, select, wakes {wakes} other {monitors}}.",
+	"mobile.schedules.section.wakes": "Wakes",
+	"mobile.schedules.section.wakes_summary": "Wakes · {summary}",
+	"mobile.schedules.section.monitors": "Monitors",
+	"mobile.schedules.section.monitors_summary": "Monitors · {summary}"
 }

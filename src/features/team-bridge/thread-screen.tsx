@@ -20,6 +20,8 @@ import {
 	type ViewToken,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useLocaleFrame } from "@/features/auth/connection-provider";
+import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
 import { Markdown } from "@/features/session/components/markdown";
 import {
 	textSelectionContainerScroll,
@@ -27,7 +29,7 @@ import {
 	textSelectionContainerTouchCancel,
 	textSelectionContainerTouchEnd,
 } from "@/features/session/text-selection";
-import { t } from "@/i18n";
+import { activeLocale, type ShippedLocale, t } from "@/i18n";
 import { useUiStore } from "@/state/ui-store";
 import {
 	canSend,
@@ -195,9 +197,16 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 	highlight = null,
 	fadeMs = DURATIONS.draw,
 	onAnchorLayout,
+	locale,
 }: {
 	message: Message;
 	continuation: boolean;
+	/** The app language the row renders in. A PROP rather than an
+	 *  `activeLocale()` read because this row is `memo()`: a read inside it is
+	 *  only re-run when some other prop changes, so a language frame would leave
+	 *  painted rows with the previous language's times and copy (review M1).
+	 *  Passing it in makes the language part of the memo's comparison. */
+	locale: ShippedLocale;
 	/** The message an anchored open landed on: held for `ANCHOR_HIGHLIGHT_MS`,
 	 *  then fading over `fadeMs`. */
 	highlight?: "hold" | "fade" | null;
@@ -261,7 +270,10 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 							</Text>
 						)}
 						<Text className="text-meta text-ink-muted">
-							{model.messageTime(message.created_at)}
+							{/* The APP language, not the device default: with no locale
+							 *  `toLocaleTimeString` follows the device, so a Spanish-UI
+							 *  reader on an English device got English times. */}
+							{model.messageTime(message.created_at, locale)}
 						</Text>
 					</View>
 				)}
@@ -431,6 +443,17 @@ function ThreadContent({
 	const viewerFixture = useMemo(() => teamBridgeViewerFixture(), []);
 	const [, setDraftVersion] = useState(0);
 	const [attachOpen, setAttachOpen] = useState(false);
+	/* The attach sheet's picker launch waits for the sheet's native dismissal on
+	 *  iOS (`attach-handoff.ts` has the why): launching PHPicker on the same tick
+	 *  as the close presents it from a dismissing controller, and it never
+	 *  appears. Cancelled on unmount so a late `onDismiss` launches nothing. */
+	const attachHandoff = useRef(createAttachmentSheetHandoff()).current;
+	useEffect(() => () => attachHandoff.cancel(), [attachHandoff]);
+	const openAttach = () => {
+		// Explicit reopen is the only re-admission point for a fresh choice.
+		attachHandoff.cancel();
+		setAttachOpen(true);
+	};
 	const [attachNotice, setAttachNotice] = useState<string | null>(null);
 	const draftImages = useRef<HeldDraft | null>(null);
 	draftImages.current = syncDraft(
@@ -481,6 +504,17 @@ function ThreadContent({
 			notice: setAttachNotice,
 		});
 	};
+	/* Day dividers follow the app language: "Today"/"Yesterday" come from the
+	 * catalogue and the dated fallback is formatted in this same locale, so a
+	 * divider never mixes a translated word with a device-default date.
+	 *
+	 * `language` is the SUBSCRIPTION (`useLocaleFrame`, connection-provider.tsx):
+	 * `activeLocale()` reads the locale at call time but cannot re-render this
+	 * screen, so without it a language frame left the dividers, times and the
+	 * memoised rows in the previous language until unrelated state moved (review
+	 * M1). It is a TRIGGER in the memo below, the same shape as home.tsx's. */
+	const language = useLocaleFrame();
+	const locale = activeLocale();
 	/* "Today"/"Yesterday" dividers are derived from the clock. An unchanged
 	 *  poll no longer rebuilds the rows (Bridge thread flicker), so re-derive
 	 *  them when the local day turns over instead (design r1 D1). A timer that
@@ -499,10 +533,13 @@ function ThreadContent({
 		}, model.msUntilNextLocalDay(new Date()) + 1000);
 		return () => clearTimeout(timer);
 	}, [dayTick]);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: `today` is the day the labels are derived for.
+	/* Both `language` and `today` are TRIGGERS: `t()` reads the locale live and
+	 *  the labels are derived from `new Date()`, so neither appears in the body
+	 *  yet each must re-run the memo (merge of O3-a locale frame + #286 day turn). */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` and `today` are TRIGGERS (see above)
 	const items = useMemo(
-		() => model.threadItems(thread?.messages ?? [], new Date()),
-		[thread?.messages, today],
+		() => model.threadItems(thread?.messages ?? [], new Date(), locale),
+		[thread?.messages, locale, language, today],
 	);
 	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;
@@ -841,6 +878,7 @@ function ThreadContent({
 					onAnchorLayout={
 						item.message.id === highlightId ? measureRow : undefined
 					}
+					locale={locale}
 				/>
 			);
 		},
@@ -854,6 +892,7 @@ function ThreadContent({
 			highlightFading,
 			fadeMs,
 			measureRow,
+			locale,
 		],
 	);
 	const validDraft = routeId === "new" && !!target;
@@ -1260,9 +1299,7 @@ function ThreadContent({
 														: undefined
 												}
 												attachDisabled={!images || images.remaining() === 0}
-												onAttach={
-													images ? () => setAttachOpen(true) : undefined
-												}
+												onAttach={images ? openAttach : undefined}
 												// "Retry send" only when pressing it can succeed: while
 												// images block the send, the control is plain "Send" (D4).
 												sendLabel={
@@ -1316,6 +1353,7 @@ function ThreadContent({
 			<Sheet
 				visible={attachOpen}
 				onClose={() => setAttachOpen(false)}
+				onDismiss={attachHandoff.dismissed}
 				title={t("mobile.team_bridge.attachment.add")}
 				testID={SURFACE.teamBridgeAttachSheet}
 			>
@@ -1340,7 +1378,11 @@ function ThreadContent({
 							accessibilityLabel={text}
 							testID={teamBridgeAttachSourceId(source)}
 							onPress={() => {
-								void addImages(source);
+								// Closed first; the picker opens over a dismissed sheet.
+								setAttachOpen(false);
+								attachHandoff.choose(() => {
+									void addImages(source);
+								}, Platform.OS);
 							}}
 							style={{ minHeight: TOUCH_FLOOR }}
 						>

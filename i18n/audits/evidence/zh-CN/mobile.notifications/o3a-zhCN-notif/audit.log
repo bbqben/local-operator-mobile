@@ -1,0 +1,29 @@
+# audit.log — o3a-zhCN-notif — actual output of auditor Python checks, session 49772dd20be0, 2026-11-16T01:30:27+00:00
+draft raw sha256 8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128 (expected 8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128) match=True
+draft canonical sha256 json.dumps(ensure_ascii=False,sort_keys=True) cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee
+relayed copy == file content (dict equality): True; relayed canonical sha256 cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee
+MECH mobile.notifications.section.waiting: rendered='等待你处理' OK
+MECH mobile.notifications.section.waiting_count: rendered='等待你处理 · 59' OK
+MECH mobile.notifications.detail.title: rendered='通知' OK
+MECH mobile.notifications.detail.section_notification: rendered='通知' OK
+MECH mobile.notifications.detail.section_links: rendered='链接' OK
+MECH mobile.notifications.detail.section_message: rendered='消息' OK
+redaction scan pattern=/Users/|~/|@[\w.-]+\.\w+|\bsk-[A-Za-z0-9]|\bghp_|\bglpat-|[A-Fa-f0-9]{32,}|https?://|damian|token hits=0 []
+WIDTH mobile.notifications.section.waiting: sample='等待你处理' cells=10 en_hint_chars=20
+WIDTH mobile.notifications.section.waiting_count: sample='等待你处理 · 59' cells=15 en_hint_chars=None
+WIDTH mobile.notifications.detail.title: sample='通知' cells=4 en_hint_chars=16
+WIDTH mobile.notifications.detail.section_notification: sample='通知' cells=4 en_hint_chars=16
+WIDTH mobile.notifications.detail.section_links: sample='链接' cells=4 en_hint_chars=16
+WIDTH mobile.notifications.detail.section_message: sample='消息' cells=4 en_hint_chars=16
+
+# round 2 — actual output of auditor Python checks, session 49772dd20be0, 2026-11-16T01:38:01+00:00
+r1 baseline rebuilt from relayed copy; canonical sha256 cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee expected cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee
+r2 file sha256 953d337ff4c227f7f8d2ad7d95685af274bf9d15788a5907bda97499569e79a0 expected 953d337ff4c227f7f8d2ad7d95685af274bf9d15788a5907bda97499569e79a0 match=True
+r2 canonical sha256 f8c03d70917154568bb219ac124128b7a027a13384ef9ee0207c9e277b129f81
+r2 keyset equal to r1: True; count 40; key order equal: True
+changed keys vs r1: ['mobile.time.bucket.earlier_this_week', 'mobile.notifications.detail.section_notification']
+  mobile.time.bucket.earlier_this_week: r1='本周早些时候' r2='前几天'
+  mobile.notifications.detail.section_notification: r1='通知' r2='通知内容'
+byte-identical (UTF-8 value bytes) unchanged keys: 38/38
+  check mobile.time.bucket.earlier_this_week: NFC=True braces=0 cells=6 space=False trailing_punct=False redaction_hit=False
+  check mobile.notifications.detail.section_notification: NFC=True braces=0 cells=8 space=False trailing_punct=False redaction_hit=False

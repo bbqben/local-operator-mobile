@@ -85,6 +85,42 @@ export const serializeSelection = (selection: ThemeSelection): string =>
 	JSON.stringify({ v: VERSION, ...selection });
 
 /**
+ * The bytes to store when the reader changes `hydrated` into `next`, given the
+ * `stored` bytes the selection was read from.
+ *
+ * WHY NOT `serializeSelection(next)`. `parseSelection` maps a value this build
+ * cannot use — a theme id it does not ship (withheld by the contrast gate,
+ * renamed, or added by a NEWER build the reader ran before this one), a field
+ * from a later shape — to the default. Writing the parsed selection back would
+ * turn that display fallback into a stored reset: one tap on the mode and the
+ * reader's theme is gone for every later build too. So only the fields the
+ * reader actually changed are written; every other field, known or not, keeps
+ * its stored bytes. A version label from a newer build is not downgraded.
+ */
+export const serializeSelectionOver = (
+	stored: string | null,
+	hydrated: ThemeSelection,
+	next: ThemeSelection,
+): string => {
+	let record: Record<string, unknown> = {};
+	try {
+		const value: unknown = stored === null ? null : JSON.parse(stored);
+		if (typeof value === "object" && value !== null && !Array.isArray(value))
+			record = value as Record<string, unknown>;
+	} catch {
+		// Unparseable (or a legacy bare mode): nothing to preserve but the choice.
+	}
+	const out: Record<string, unknown> = { ...record };
+	for (const field of ["mode", "lightTheme", "darkTheme"] as const) {
+		if (next[field] !== hydrated[field] || !(field in record))
+			out[field] = next[field];
+	}
+	out.v =
+		typeof record.v === "number" && record.v > VERSION ? record.v : VERSION;
+	return JSON.stringify(out);
+};
+
+/**
  * A tap on a theme card. It fills that theme's slot; when the mode is FORCED to
  * the other side, it also switches the mode, so a tap always visibly does
  * something. Under `system` it only fills the slot, and the picker's caption

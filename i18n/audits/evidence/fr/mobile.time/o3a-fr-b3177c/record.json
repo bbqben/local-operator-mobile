@@ -1,0 +1,142 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3a-fr-b3177c",
+ "slice": "O3-a",
+ "locale": "fr",
+ "namespace": "mobile.time",
+ "audit_date": "2026-11-15",
+ "key_count": 23,
+ "keys_audited": [
+  "mobile.time.bucket.today",
+  "mobile.time.bucket.yesterday",
+  "mobile.time.bucket.earlier_this_week",
+  "mobile.time.bucket.earlier",
+  "mobile.time.relative.now",
+  "mobile.time.relative.just_now",
+  "mobile.time.relative.yesterday",
+  "mobile.time.relative.seconds_ago_compact",
+  "mobile.time.relative.minutes_ago",
+  "mobile.time.relative.hours_ago",
+  "mobile.time.relative.days_ago",
+  "mobile.time.relative.minutes_ago_compact",
+  "mobile.time.relative.hours_ago_compact",
+  "mobile.time.relative.days_ago_compact",
+  "mobile.time.short.seconds",
+  "mobile.time.short.minutes",
+  "mobile.time.short.hours",
+  "mobile.time.short.days",
+  "mobile.time.short.weeks",
+  "mobile.time.short.years",
+  "mobile.time.short.minutes_spaced",
+  "mobile.time.short.minutes_seconds",
+  "mobile.time.short.hours_minutes"
+ ],
+ "translator_session": "ebd00d285127",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "b3177ce4b009",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly from /Users/damian/.local-operator/sessions/ebd00d285127/scratchpad/o3a/draft-fr.json; the lane-owner relay was not used, but its canonical sha256 matches",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/ebd00d285127/scratchpad/o3a/draft-fr.json",
+   "sha256": "6e5b641259bd6f3b1e6a5de4c9fc5b0dfc4da2fb06f61f9d0bb6f4938e2642fd",
+   "canonical_json_sha256": "ac45e6cf4554f2f7582c13bd30142c8ca5ada6b6f5bd3a87c4b5b8cecd37d8fb"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.json",
+   "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.context.json",
+   "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+  },
+  "fr_shipped": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/fr/mobile.time.json",
+   "sha256": null,
+   "note": "absent at 26663e18 (new namespace)"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/fr.md",
+   "sha256": "ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_fr_categories": [
+   "one",
+   "many",
+   "other"
+  ],
+  "nfc": "pass",
+  "typographic_apostrophe": "pass",
+  "french_spacing": "pass (no : ; ! ? present)",
+  "redaction_marker_hits": 0,
+  "repo_validator": "not run (repo read-only per task; light-Python checker with negative controls used instead)"
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "FR-T1",
+   "FR-T2",
+   "FR-T3",
+   "FR-T4"
+  ]
+ },
+ "findings": [
+  {
+   "id": "FR-T1",
+   "severity": "MINOR",
+   "key": "mobile.time.relative.now",
+   "current": "à l’instant",
+   "problem": "11 chars vs the ~6 hint; translator flagged. Verified non-clipping: session-drawer stamp is shrink-0 and the title ellipsizes (list-row.tsx L524-535), so the cost is ~5 mono cells of title, not truncation. Team Bridge slot not inspected but already hosts 7-char date fallbacks.",
+   "suggestion": "Keep (matches shipped relay.notifications.age.now / tui.notifications.just_now). If design measures the drawer as too tight, the only idiomatic ≤7 form is « < 1 min » (7) — design call, not a translation defect."
+  },
+  {
+   "id": "FR-T2",
+   "severity": "MINOR",
+   "key": "mobile.time.relative.*_compact, short.minutes, short.weeks, short.years",
+   "current": "il y a 59 min (13/~10), il y a 59 s / 23 h / 30 j (11/~10), 59 min (6/~4), 51 sem. (7/~4), 12 ans (6/~4)",
+   "problem": "Over the width hints. Verified non-breaking: inbox clock and drawer stamp are single-line shrink-0 boxes; the siblings shrink. Wording is the correct short French; « il y a » must stay because relativeTime() also feeds the row's spoken label, where a bare « 59 min » reads as a duration.",
+   "suggestion": "No wording change. Compact == spaced is right: French does not glue « 5m » (reads as metres)."
+  },
+  {
+   "id": "FR-T3",
+   "severity": "NIT",
+   "key": "mobile.time.short.years",
+   "current": "many {# ans}",
+   "problem": "fr style guide §Plurals: many takes « de » before a full noun (« 1 000 000 de sessions »); « ans » is a noun, not an abbreviation like min/h/j/sem. Unreachable in practice.",
+   "suggestion": "{count, plural, one {# an} many {# d’ans} other {# ans}}"
+  },
+  {
+   "id": "FR-T4",
+   "severity": "NIT",
+   "key": "mobile.time (all unit strings)",
+   "current": "U+0020 between number and unit (« 2 h 07 min »)",
+   "problem": "French typography prefers a no-break space between a number and its unit. The shipped relay.notifications.age.* uses U+0020, and every render site is single-line, so there is no wrap risk.",
+   "suggestion": "No change in this slice; a corpus-wide U+00A0/U+202F decision belongs in the style guide."
+  }
+ ],
+ "artifacts": {
+  "report": "report.md",
+  "audit_log": "audit.log"
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

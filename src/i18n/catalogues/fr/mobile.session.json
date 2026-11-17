@@ -87,5 +87,7 @@
 	"mobile.session.outbox.composer_wait": "Votre message précédent est encore en cours d’envoi. Vous pourrez envoyer celui-ci une fois qu’il sera remis.",
 	"mobile.session.pending_echo.discarded": "abandonné — il est peut-être déjà arrivé · touchez pour le récupérer",
 	"mobile.session.outbox.composer_stopped": "L’envoi de votre message précédent s’est arrêté. Réessayez-le ou abandonnez-le ci-dessus pour envoyer celui-ci.",
-	"mobile.session.outbox.composer_discarding": "Abandon de votre message précédent. Vous pourrez envoyer celui-ci dans un instant."
+	"mobile.session.outbox.composer_discarding": "Abandon de votre message précédent. Vous pourrez envoyer celui-ci dans un instant.",
+	"mobile.session.sheet_title.commands": "commandes",
+	"mobile.session.sheet_title.attach": "joindre"
 }

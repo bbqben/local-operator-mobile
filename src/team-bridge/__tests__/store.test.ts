@@ -773,7 +773,9 @@ describe("account ownership and concurrent reconciliation", () => {
 		hub.directory = async () => {
 			throw new HubError({ kind: "unavailable", message: "Offline" });
 		};
-		await actions.loadOrganization(TENANT, { silent: true });
+		// `force`: a pull/Retry. A plain re-open inside DIRECTORY_TTL_MS reuses
+		// the held directory and would not ask (rate-limit.test.ts).
+		await actions.loadOrganization(TENANT, { silent: true, force: true });
 		expect(store.getState().orgs[TENANT]).toMatchObject({
 			peopleState: "error",
 			peopleError: { kind: "unavailable" },
@@ -1005,7 +1007,8 @@ describe("terminal authorization refusals", () => {
 			}
 			if (operation === "directory") {
 				hub.directory = denied;
-				await actions.loadOrganization(TENANT);
+				// Forced: the open account already holds a directory inside its TTL.
+				await actions.loadOrganization(TENANT, { force: true });
 			}
 			if (operation === "unread") {
 				hub.accountUnread = denied;

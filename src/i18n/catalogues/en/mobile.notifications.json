@@ -71,5 +71,11 @@
 	"mobile.notifications.primer.title": "Get notified when your agents finish",
 	"mobile.notifications.priority_high": "High",
 	"mobile.notifications.title": "Notifications",
-	"mobile.notifications.turn_on": "Turn on notifications"
+	"mobile.notifications.turn_on": "Turn on notifications",
+	"mobile.notifications.section.waiting": "Waiting on you",
+	"mobile.notifications.section.waiting_count": "Waiting on you · {count}",
+	"mobile.notifications.detail.title": "Notification",
+	"mobile.notifications.detail.section_notification": "Notification",
+	"mobile.notifications.detail.section_links": "Links",
+	"mobile.notifications.detail.section_message": "Message"
 }

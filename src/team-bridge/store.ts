@@ -28,6 +28,7 @@ import {
 	attachmentLimits,
 	clearAttachmentCache,
 } from "@/team-bridge/attachments";
+import { transientDelay } from "@/team-bridge/avatars";
 import { type HubClient, HubError, isHubError } from "@/team-bridge/client";
 import type {
 	Conversation,
@@ -61,6 +62,16 @@ export interface OrgData {
 	peopleState: LoadState;
 	peopleError: HubError | null;
 	refreshedAt: number | null;
+	/** When the directory last answered; drives `DIRECTORY_TTL_MS`. */
+	peopleRefreshedAt: number | null;
+	/**
+	 * The hub has refused this half with 429 at least twice in a row: the
+	 * Retry-After wait passed and the retry was refused again. Only then does the
+	 * list say "Catching up…" (calm, never an alert); a single 429 is waited out
+	 * silently. Held rows stay on screen either way.
+	 */
+	conversationsCatchingUp: boolean;
+	peopleCatchingUp: boolean;
 }
 
 export interface ThreadData {
@@ -143,6 +154,9 @@ const emptyOrg = (): OrgData => ({
 	peopleState: "idle",
 	peopleError: null,
 	refreshedAt: null,
+	peopleRefreshedAt: null,
+	conversationsCatchingUp: false,
+	peopleCatchingUp: false,
 });
 
 const emptyThread = (): ThreadData => ({
@@ -192,6 +206,64 @@ export const threadKey = (tenantId: string, conversationId: string): string =>
  * run never overlaps the next poll (`once` dedupes it if it did).
  */
 export const THREAD_RETRY_DELAYS_MS: readonly number[] = [1_000, 2_000, 4_000];
+
+/*
+ * RATE LIMITS (TestFlight 1157: the drawer showed "Radient refused the request
+ * (HTTP 429)." and "The people directory could not load.").
+ *
+ * The hub (agent-server `internal/middlewares/bridge_limiter.go`) keys every
+ * Team Bridge read bucket on the signed-in ACCOUNT, not the device: the list
+ * and thread reads share `conversation-reads` (120/min) and the directory
+ * shares `reads` (120/min) with the endpoint-avatar, settings and legacy
+ * inbox reads. The phone, the desktop app (an 8 s history poll per open
+ * channel, a 30 s account list poll) and every agent's bridge tool call
+ * (named-recipient and DM resolution each read the directory, uncached) all
+ * draw from those same two buckets. So the phone cannot assume it is the only
+ * caller: it must ask less, and when refused it must wait for the hub's
+ * `Retry-After` rather than re-ask on the next drawer open.
+ *
+ * Before this, every drawer open (and every docked-pane mount) re-read every
+ * conversation page AND the directory, a 429 became a sticky red banner with
+ * the raw HTTP sentence, and nothing retried until the reader pressed Retry,
+ * which re-asked at once, inside the same window.
+ */
+
+/**
+ * A drawer re-open inside this window reuses the held conversation list. 30 s
+ * is the desktop app's notification poll (`TEAM_BRIDGE_NOTIFY_POLL_MS`,
+ * local-operator-ui `src/shared/team-bridge-poll.ts`): the list is no staler
+ * than the desktop's own. An unread-count change seen by `refreshUnread` (the
+ * push and badge path) drops the reuse for that org, so a new message is
+ * re-read on the next open rather than up to 30 s later. Explicit refreshes
+ * (pull, Retry, after a send) bypass it.
+ */
+export const CONVERSATIONS_FRESH_MS = 30_000;
+
+/**
+ * How long a directory answer is reused. People and their agents change on
+ * the scale of org administration, not seconds; five minutes matches the
+ * desktop client's status cache (`STATUS_CACHE_TTL_S = 300`). Pull and Retry
+ * bypass it.
+ */
+export const DIRECTORY_TTL_MS = 5 * 60_000;
+
+/**
+ * The wait when a 429 carries no usable `Retry-After`. The hub always sends
+ * one (whole seconds, at most the 60 s window it enforces); this covers an
+ * edge or proxy refusal that strips it.
+ */
+export const RATE_LIMIT_FALLBACK_MS = 15_000;
+
+/**
+ * The longest any one wait grows to under consecutive refusals (each strike
+ * waits max(Retry-After, 2 × previous wait)). Above the hub's own 60 s window,
+ * so a hub that keeps refusing is asked at most every five minutes, and low
+ * enough that a recovered hub heals within one sitting.
+ */
+export const RATE_LIMIT_MAX_MS = 5 * 60_000;
+
+const isRateLimited = (error: unknown): error is HubError =>
+	isHubError(error) && error.kind === "rate_limited";
 
 export function createTeamBridgeStore(deps: {
 	hub: () => HubClient | null;
@@ -288,6 +360,89 @@ export function createTeamBridgeStore(deps: {
 				message: "Account scope retired.",
 			});
 	};
+	/*
+	 * Per-read backoff after a 429, keyed `conv:<tenant>`, `people:<tenant>` or
+	 * `thread:<key>`. Kept outside the published state because nothing renders
+	 * it; `strikes` is consecutive refusals, reset by any success. Invariant: no
+	 * read in a keyed family is sent before its `until` (checked by
+	 * `rate-limit.test.ts`).
+	 */
+	const backoff = new Map<
+		string,
+		{ until: number; waitMs: number; strikes: number }
+	>();
+	/** One pending silent retry per organization; replaced, never stacked. */
+	const retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+	const clock = () => (deps.now ?? Date.now)();
+	const backedOff = (key: string, at: number) =>
+		(backoff.get(key)?.until ?? 0) > at;
+	/** Record one refusal; returns the consecutive-strike count. */
+	function noteRateLimit(key: string, error: HubError, at: number): number {
+		/* Only success deletes a thread's record, and a thread the reader left
+		 * never succeeds again: without this prune its record lives for the whole
+		 * session, and a 429 on that thread hours later would start from a doubled
+		 * wait and a second strike. A record whose wait ended more than one cap
+		 * ago describes a refusal the hub has long forgotten. (Org records are
+		 * settled by every org load, so they need no prune.) */
+		for (const [other, record] of backoff) {
+			if (other.startsWith("thread:") && at - record.until > RATE_LIMIT_MAX_MS)
+				backoff.delete(other);
+		}
+		const prev = backoff.get(key);
+		const strikes = (prev?.strikes ?? 0) + 1;
+		const served = transientDelay(error.retryAfterMs, RATE_LIMIT_FALLBACK_MS);
+		const waitMs = Math.min(
+			prev ? Math.max(served, prev.waitMs * 2) : served,
+			RATE_LIMIT_MAX_MS,
+		);
+		backoff.set(key, { until: at + waitMs, waitMs, strikes });
+		return strikes;
+	}
+	function clearBackoff() {
+		backoff.clear();
+		for (const timer of retryTimers.values()) clearTimeout(timer);
+		retryTimers.clear();
+	}
+	/**
+	 * Schedule ONE silent re-read of an org for when its earliest backoff ends.
+	 * The retry is what makes a 429 invisible: the reader never has to press
+	 * anything, and a re-open meanwhile sends nothing (it is backed off too).
+	 */
+	function scheduleOrgRetry(tenantId: string) {
+		const at = clock();
+		/* A record whose wait already ENDED is a half nobody has re-read since:
+		 * every org load either deletes its half's record (success, fresh, non-429
+		 * error) or renews it (another 429). One survives only when a load SKIPPED
+		 * the half because it was still backed off when the load began, and the
+		 * wait ran out before that load finished, typically the retry timer firing
+		 * into a pull already in flight, which `once` merges away (review M1). It
+		 * is due now: clamp it to `at`, or the cold list stays a skeleton until
+		 * the reader pulls again. */
+		const ends = [`conv:${tenantId}`, `people:${tenantId}`]
+			.map((key) => backoff.get(key)?.until)
+			.filter((until): until is number => until !== undefined)
+			.map((until) => Math.max(until, at));
+		if (!ends.length) return;
+		const existing = retryTimers.get(tenantId);
+		if (existing) clearTimeout(existing);
+		const epoch = generation;
+		retryTimers.set(
+			tenantId,
+			setTimeout(
+				() => {
+					retryTimers.delete(tenantId);
+					if (closed || epoch !== generation) return;
+					// `ifStale`: re-read only the half that was refused (the other is fresh).
+					void actions.loadOrganization(tenantId, {
+						silent: true,
+						ifStale: true,
+					});
+				},
+				Math.min(...ends) - at,
+			),
+		);
+	}
+
 	const inFlight = new Map<string, Promise<void>>();
 	function once(
 		key: string,
@@ -551,16 +706,32 @@ export function createTeamBridgeStore(deps: {
 					const byTenant = new Map(
 						(answer.organizations ?? []).map((o) => [o.tenant_id, o.unread]),
 					);
-					store.setState((s) => ({
-						totalUnread: answer.total,
-						unreadKnown: true,
-						unreadFailed: false,
-						unreadReads: s.unreadReads + 1,
-						organizations: s.organizations.map((o) => ({
-							...o,
-							unread: byTenant.get(o.tenantId) ?? o.unread,
-						})),
-					}));
+					store.setState((s) => {
+						/* A changed count means the held list is behind (a new message,
+						 * maybe a new conversation): drop that org's list freshness so
+						 * the next drawer open re-reads it instead of reusing it for up to
+						 * `CONVERSATIONS_FRESH_MS` under a badge that disagrees with the
+						 * rows (review m2). Unchanged counts keep the reuse. */
+						let orgs = s.orgs;
+						for (const o of s.organizations) {
+							const next = byTenant.get(o.tenantId);
+							const held = orgs[o.tenantId];
+							if (next === undefined || next === o.unread) continue;
+							if (!held || held.refreshedAt === null) continue;
+							orgs = { ...orgs, [o.tenantId]: { ...held, refreshedAt: null } };
+						}
+						return {
+							totalUnread: answer.total,
+							unreadKnown: true,
+							unreadFailed: false,
+							unreadReads: s.unreadReads + 1,
+							orgs,
+							organizations: s.organizations.map((o) => ({
+								...o,
+								unread: byTenant.get(o.tenantId) ?? o.unread,
+							})),
+						};
+					});
 				} catch (error) {
 					if (!owned()) return;
 					// A gate failure (sign-in, plan) resets or re-gates the store, and
@@ -579,27 +750,62 @@ export function createTeamBridgeStore(deps: {
 		 * One organization's conversations (every page) and its people, in
 		 * parallel. A failure in one half is that section's own error state; the
 		 * other half still renders.
+		 *
+		 * Options (see the RATE LIMITS note above `CONVERSATIONS_FRESH_MS`):
+		 * - `ifStale`: a drawer/list mount. Conversations read within
+		 *   `CONVERSATIONS_FRESH_MS` are reused instead of re-read.
+		 * - `force`: the reader asked (pull, Retry). Bypasses the freshness window
+		 *   and the directory TTL, but never an active 429 backoff: re-asking
+		 *   inside the hub's `Retry-After` only extends the refusal.
+		 * Without `force`, the directory is reused for `DIRECTORY_TTL_MS`.
 		 */
 		loadOrganization(
 			tenantId: string,
-			options: { silent?: boolean } = {},
+			options: { silent?: boolean; ifStale?: boolean; force?: boolean } = {},
 		): Promise<void> {
 			return once(`org:${tenantId}`, async (owned) => {
 				const client = deps.hub();
 				if (!client) return;
 				const held = store.getState().orgs[tenantId];
+				const at = clock();
+				const convKey = `conv:${tenantId}`;
+				const peopleKey = `people:${tenantId}`;
+				const convFresh =
+					options.ifStale === true &&
+					options.force !== true &&
+					held?.conversationsState === "ready" &&
+					held.refreshedAt !== null &&
+					at - held.refreshedAt < CONVERSATIONS_FRESH_MS;
+				const peopleFresh =
+					options.force !== true &&
+					held?.peopleState === "ready" &&
+					held.peopleRefreshedAt !== null &&
+					at - held.peopleRefreshedAt < DIRECTORY_TTL_MS;
+				/* A fresh half whose wait has ENDED has nothing outstanding: forget its
+				 * refusal record, or a 429 on a pull over fresh rows would linger as a
+				 * strike and make an unrelated refusal an hour later say "Catching
+				 * up…" at once. A wait still running is kept: deleting it let the next
+				 * pull or Retry re-ask inside Retry-After (QA Q1; for the directory,
+				 * whose 5 min TTL spans a WAF wait, that was every re-open). */
+				if (convFresh && !backedOff(convKey, at)) backoff.delete(convKey);
+				if (peopleFresh && !backedOff(peopleKey, at)) backoff.delete(peopleKey);
+				const readConversations = !convFresh && !backedOff(convKey, at);
+				const readPeople = !peopleFresh && !backedOff(peopleKey, at);
+				if (!readConversations && !readPeople) return;
 				const silent =
 					options.silent === true && held?.conversationsState === "ready";
 				if (!silent) {
 					patchOrg(tenantId, {
-						conversationsState: "loading",
-						conversationsError: null,
-						...(held?.peopleState === "ready"
+						...(readConversations
+							? { conversationsState: "loading", conversationsError: null }
+							: {}),
+						...(!readPeople || held?.peopleState === "ready"
 							? {}
 							: { peopleState: "loading", peopleError: null }),
 					});
 				}
 				const conversations = (async () => {
+					if (!readConversations) return;
 					try {
 						const rows: Conversation[] = [];
 						let cursor: string | undefined;
@@ -641,21 +847,42 @@ export function createTeamBridgeStore(deps: {
 							}),
 							conversationsState: "ready",
 							conversationsError: null,
-							refreshedAt: (deps.now ?? Date.now)(),
+							conversationsCatchingUp: false,
+							refreshedAt: clock(),
 						});
+						backoff.delete(convKey);
 					} catch (error) {
 						if (!owned()) return;
 						if (gateFailure(error)) return;
+						if (isRateLimited(error)) {
+							/* Wait it out: rows held stay "ready" with no banner; with none
+							 * the skeleton stays up. The scheduled retry is the recovery. */
+							const strikes = noteRateLimit(convKey, error, clock());
+							patchOrg(tenantId, {
+								conversationsState:
+									held?.conversationsState === "ready" ? "ready" : "loading",
+								conversationsError: null,
+								conversationsCatchingUp: strikes > 1,
+							});
+							return;
+						}
 						const hubError = isHubError(error) ? error : null;
+						/* A different failure ends the rate-limit episode: the error
+						 * state speaks now, and "Catching up…" over a red error and its
+						 * Retry button would contradict it (review m1). The record goes
+						 * too, so a later 429 is a first, silent strike. */
+						backoff.delete(convKey);
 
 						/* A silent refresh that fails keeps the rows on screen. */
 						patchOrg(tenantId, {
 							conversationsState: "error",
 							conversationsError: hubError,
+							conversationsCatchingUp: false,
 						});
 					}
 				})();
 				const people = (async () => {
+					if (!readPeople) return;
 					try {
 						const answer = await client.directory(tenantId);
 						if (!owned()) return;
@@ -664,17 +891,34 @@ export function createTeamBridgeStore(deps: {
 							peopleIncomplete: answer.unavailable_count > 0,
 							peopleState: "ready",
 							peopleError: null,
+							peopleCatchingUp: false,
+							peopleRefreshedAt: clock(),
 						});
+						backoff.delete(peopleKey);
 					} catch (error) {
 						if (!owned()) return;
 						if (gateFailure(error)) return;
+						if (isRateLimited(error)) {
+							const strikes = noteRateLimit(peopleKey, error, clock());
+							patchOrg(tenantId, {
+								peopleState:
+									held?.peopleState === "ready" ? "ready" : "loading",
+								peopleError: null,
+								peopleCatchingUp: strikes > 1,
+							});
+							return;
+						}
+						// As for conversations above: a non-429 failure ends the episode.
+						backoff.delete(peopleKey);
 						patchOrg(tenantId, {
 							peopleState: "error",
 							peopleError: isHubError(error) ? error : null,
+							peopleCatchingUp: false,
 						});
 					}
 				})();
 				await Promise.all([conversations, people]);
+				if (owned()) scheduleOrgRetry(tenantId);
 			});
 		},
 
@@ -688,6 +932,8 @@ export function createTeamBridgeStore(deps: {
 			return once(`thread:${key}`, async (owned) => {
 				const client = deps.hub();
 				if (!client) return;
+				// The screen's 20 s poll must not re-ask inside the hub's Retry-After.
+				if (backedOff(`thread:${key}`, clock())) return;
 				const held = store.getState().threads[key];
 				if (held?.state !== "ready")
 					patchThread(key, { state: "loading", error: null });
@@ -697,6 +943,7 @@ export function createTeamBridgeStore(deps: {
 							limit: PAGE_SIZE,
 						});
 						if (!owned()) return;
+						backoff.delete(`thread:${key}`);
 						let incoming = page.messages;
 						const heldTail = held?.messages.at(-1)?.seq;
 						let oldestIncoming = incoming.reduce(
@@ -793,6 +1040,15 @@ export function createTeamBridgeStore(deps: {
 							await new Promise((resolve) => setTimeout(resolve, wait));
 							if (!owned()) return;
 							continue;
+						}
+						if (isRateLimited(error)) {
+							/* A 429 is the shared account bucket, not this thread: keep what
+							 * is held (or the skeleton) and let the next poll after the wait
+							 * read it. Never the raw "HTTP 429" warning. */
+							noteRateLimit(`thread:${key}`, error, clock());
+							if (held?.state !== "ready")
+								patchThread(key, { state: "loading", error: null });
+							return;
 						}
 						patchThread(key, {
 							state: "error",
@@ -1075,6 +1331,7 @@ export function createTeamBridgeStore(deps: {
 			closed = true;
 			generation += 1;
 			inFlight.clear();
+			clearBackoff();
 			clearAttachmentCache();
 			clearTeamBridgeDrafts();
 			// The remembered last conversation is the same account-scoped class (`last-target.ts`).
@@ -1086,6 +1343,8 @@ export function createTeamBridgeStore(deps: {
 			if (closed) return;
 			generation += 1;
 			inFlight.clear();
+			// The next account starts with no inherited waits or pending retries.
+			clearBackoff();
 			// Sign-out and account change both land here: the previous account's
 			// decoded images and unsent text drafts must not outlive it in memory.
 			clearAttachmentCache();

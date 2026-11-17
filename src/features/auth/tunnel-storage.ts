@@ -25,7 +25,11 @@ import {
 	type SecureStorageRefusal,
 } from "@/connection/secure-storage-refusal";
 import { configureStartupAuthorizationStorage } from "@/connection/startup-authorization";
-import { thisDeviceOnlyAccessibility } from "@/connection/storage";
+import {
+	backgroundReadableAccessibility,
+	SecureStoreUnavailableError,
+	thisDeviceOnlyAccessibility,
+} from "@/connection/storage";
 import { pushComputerHandles } from "@/features/session/warm-store";
 
 /**
@@ -58,6 +62,12 @@ import { pushComputerHandles } from "@/features/session/warm-store";
  * password leaves this module only into the field a reader is editing, and the tokens
  * only into the connection layer's own ref.
  */
+
+/** The keychain service of the background-readable credential items. Any
+ *  non-default name works; it only has to differ from expo's default (`app`),
+ *  where earlier builds wrote the same keys with `WHEN_UNLOCKED`. Never rename
+ *  it: a rename strands every migrated item under the old name. */
+export const BACKGROUND_READABLE_SERVICE = "lop.mobile.background";
 
 let adapter: SecureStoreAdapter | null = null;
 let storage: SecureStorage | null = null;
@@ -111,11 +121,23 @@ async function open(): Promise<TunnelStorage> {
 			adapter = persistent ? await expoSecureStore() : memorySecureStore();
 			// Private encryption keys must never migrate through a device backup. Set
 			// accessibility explicitly on the existing singleton, not a second keystore.
+			//
+			// AFTER_FIRST_UNLOCK (still THIS_DEVICE_ONLY): iOS relaunches the app on a
+			// locked phone after a TestFlight update and for silent pushes, and a
+			// WHEN_UNLOCKED grant read there as "never signed in". The new class needs
+			// a new keychain service, because expo-secure-store never changes the
+			// class of an existing item; items written by earlier builds under the
+			// default service are adopted on first read and never deleted before the
+			// copy is read back (`SecureStorage.getRaw`).
 			storage = new SecureStorage(
 				adapter,
 				persistent
 					? {
-							keychainAccessible: await thisDeviceOnlyAccessibility(),
+							keychainAccessible: await backgroundReadableAccessibility(),
+							keychainService: BACKGROUND_READABLE_SERVICE,
+							legacy: {
+								keychainAccessible: await thisDeviceOnlyAccessibility(),
+							},
 						}
 					: {},
 			);
@@ -215,7 +237,11 @@ export async function readStoredOauth(): Promise<RadientTokens | null> {
 			return null;
 		const record = await store.readOauth();
 		return record ? tokensFromOauthSet(record) : null;
-	} catch {
+	} catch (error) {
+		/* A keystore that cannot answer is NOT "no grant": the restore defers and
+		 * retries once the phone is unlocked (`carryOutRestore`), where returning
+		 * null used to land the reader on sign-in after a background relaunch. */
+		if (error instanceof SecureStoreUnavailableError) throw error;
 		return null;
 	}
 }
@@ -225,7 +251,11 @@ export async function readStoredOauth(): Promise<RadientTokens | null> {
  *  it to scope saved Radient computers to the account that used them; a keystore
  *  that refuses the read reports none, which lists them (the "unknown" rule). */
 export async function readStoredRadientAccount(): Promise<string | null> {
-	return (await readStoredOauth())?.account_id ?? null;
+	try {
+		return (await readStoredOauth())?.account_id ?? null;
+	} catch {
+		return null;
+	}
 }
 
 /** Persists the grant. Returns whether it can survive a restart, so a caller can tell

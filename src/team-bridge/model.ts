@@ -540,8 +540,8 @@ export function dayLabel(date: Date, now: Date, locale?: string): string {
 		new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
 	);
 	const key = dayKey(date);
-	if (key === today) return "Today";
-	if (key === yesterday) return "Yesterday";
+	if (key === today) return t("mobile.time.bucket.today");
+	if (key === yesterday) return t("mobile.time.bucket.yesterday");
 	const sameYear = date.getFullYear() === now.getFullYear();
 	return date.toLocaleDateString(locale, {
 		weekday: "long",
@@ -670,12 +670,12 @@ export function rowStamp(iso: string, now: Date, locale?: string): string {
 	const at = Date.parse(iso);
 	if (Number.isNaN(at)) return "";
 	const minutes = Math.floor((now.getTime() - at) / 60_000);
-	if (minutes < 1) return "now";
-	if (minutes < 60) return `${minutes}m`;
+	if (minutes < 1) return t("mobile.time.relative.now");
+	if (minutes < 60) return t("mobile.time.short.minutes", { count: minutes });
 	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h`;
+	if (hours < 24) return t("mobile.time.short.hours", { count: hours });
 	const days = Math.floor(hours / 24);
-	if (days < 7) return `${days}d`;
+	if (days < 7) return t("mobile.time.short.days", { count: days });
 	return new Date(at).toLocaleDateString(locale, {
 		month: "short",
 		day: "numeric",

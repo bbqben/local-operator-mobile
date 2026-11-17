@@ -155,9 +155,10 @@ describe("round 5 — regressions that fail if the fix is reverted", () => {
 		expect(SRC.match(/\{attachSheet\}/g) ?? []).toHaveLength(1);
 	});
 
-	it("keeps the attach title on the ratcheted literal rather than a new one", () => {
-		expect(SRC).toContain('title="attach"');
-		expect(SRC).not.toContain('title="Attach"');
+	it("keeps the attach title keyed, never a raw literal", () => {
+		// O3-a keyed this title, so the pin is the key; the guard is that no raw literal returns.
+		expect(SRC).toContain('title={t("mobile.session.sheet_title.attach")}');
+		expect(SRC).not.toMatch(/title="[Aa]ttach"/);
 	});
 
 	it("left no clearance margin from the removed absolute layer", () => {

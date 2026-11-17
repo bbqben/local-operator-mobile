@@ -23,6 +23,10 @@ import {
 	View,
 } from "react-native";
 import { countLabel } from "@/features/notifications/notifications-model";
+import {
+	conversationsStatus,
+	peopleStatus,
+} from "@/features/team-bridge/section-status";
 import { t } from "@/i18n";
 import { activeBridgeRoute } from "@/team-bridge/active-route";
 import type { Conversation } from "@/team-bridge/contract";
@@ -52,6 +56,7 @@ import { Screen } from "@/ui/components/screen";
 import { SectionHeader } from "@/ui/components/section-header";
 import { Sheet } from "@/ui/components/sheet";
 import { Skeleton } from "@/ui/components/skeleton";
+import { TEXT_END_CLASS } from "@/ui/direction";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { CONTROL_DISABLED_INK, cx } from "@/ui/variants";
 import { DefaultOnNoticeBanner } from "./default-on-notice-banner";
@@ -432,7 +437,11 @@ export function BridgeDirectory({
 	const org = tenantId ? state.orgs[tenantId] : undefined;
 	const selected = state.organizations.find((o) => o.tenantId === tenantId);
 	useEffect(() => {
-		if (tenantId) void actions.loadOrganization(tenantId);
+		// Every drawer open (and the docked pane) mounts this list. `ifStale` reuses
+		// a list read in the last 30 s and the directory's 5 min TTL, because the
+		// hub's read buckets are per ACCOUNT and shared with the desktop and every
+		// agent (TestFlight 1157's 429; see store.ts RATE LIMITS).
+		if (tenantId) void actions.loadOrganization(tenantId, { ifStale: true });
 	}, [actions, tenantId]);
 	const conversations = org?.conversations ?? [];
 	const people = org?.people ?? [];
@@ -496,20 +505,58 @@ export function BridgeDirectory({
 		) : empty ? (
 			<Text className="px-4 py-1.5 text-body-sm text-ink-dim">{empty}</Text>
 		) : null;
-	const heading = (text: string) => (
-		<View className="px-4">
-			<SectionHeader label={text} />
+	/* `status` is the section's "Catching up…" (a 429 that outlived its
+	 * Retry-After): calm copy, not an alert and no button, because the store is
+	 * already retrying on the hub's schedule. It rides the TRAILING side of the
+	 * heading row instead of a line of its own, so it appears and goes without
+	 * moving a single held row (design D1: a line in the flow shifted every row
+	 * 32 px twice). It uses the heading's own `mono-label` metrics under the same
+	 * `pb-1`, so the row is exactly the heading's height at every font scale, and
+	 * `flex-row` puts it on the end edge in RTL too. One line, truncating, so a
+	 * long translation at large text cannot grow the row either. */
+	const heading = (
+		text: string,
+		status?: { show: boolean | undefined; testID: string },
+	) => (
+		<View className="flex-row items-end gap-3 px-4">
+			<View className="shrink-0">
+				<SectionHeader label={text} />
+			</View>
+			{status?.show ? (
+				<Text
+					accessibilityLiveRegion="polite"
+					className={`min-w-0 flex-1 pb-1 ${TEXT_END_CLASS} text-mono-label text-ink-dim`}
+					numberOfLines={1}
+					testID={status.testID}
+				>
+					{t("mobile.team_bridge.list.catching_up")}
+				</Text>
+			) : null}
 		</View>
 	);
+	/* The pull spinner follows the reader's own pull, not the store's load
+	 * state: a cold 429 now holds "loading" for the whole wait (up to 5 min),
+	 * which kept the spinner up beside "Catching up…" (review m3). The pull's
+	 * promise settles as soon as its reads do, or at once when both halves are
+	 * inside a wait and nothing is sent. */
+	const [pulling, setPulling] = useState(false);
 	const retry = () => {
-		if (tenantId) void actions.loadOrganization(tenantId);
+		// The reader asked: bypass freshness and TTL (never an active 429 wait).
+		if (tenantId) void actions.loadOrganization(tenantId, { force: true });
+	};
+	const pull = () => {
+		if (!tenantId) return;
+		setPulling(true);
+		void actions
+			.loadOrganization(tenantId, { force: true })
+			.finally(() => setPulling(false));
 	};
 	const orgName = selected?.name ?? t("mobile.team_bridge.list.choose");
-	const conversationsLoading =
-		(!org ||
-			org.conversationsState === "idle" ||
-			org.conversationsState === "loading") &&
-		!conversations.length;
+	// Pure, so `rate-limit.test.ts` can pin them against the real store.
+	const conversationsSection = conversationsStatus(org);
+	const peopleSection = peopleStatus(org);
+	const conversationsLoading = conversationsSection.skeleton;
+	const peopleLoading = peopleSection.skeleton;
 	const multiOrg = state.organizations.length > 1;
 	return (
 		<DirectoryGroundContext.Provider value={ground}>
@@ -564,13 +611,7 @@ export function BridgeDirectory({
 				testID={SURFACE.teamBridgeSections}
 				contentContainerClassName="pb-6"
 				refreshControl={
-					<RefreshControl
-						refreshing={
-							org?.conversationsState === "loading" ||
-							org?.peopleState === "loading"
-						}
-						onRefresh={retry}
-					/>
+					<RefreshControl refreshing={pulling} onRefresh={pull} />
 				}
 			>
 				<DefaultOnNoticeBanner tenantId={tenantId} />
@@ -581,7 +622,7 @@ export function BridgeDirectory({
 				)}
 				{tenantId && (
 					<>
-						{org?.conversationsState === "error" && (
+						{conversationsSection.alert && org && (
 							<View className="gap-2 px-4 py-2">
 								<Text
 									accessibilityRole="alert"
@@ -601,7 +642,10 @@ export function BridgeDirectory({
 								</View>
 							</View>
 						)}
-						{heading(t("mobile.team_bridge.list.channels"))}
+						{heading(t("mobile.team_bridge.list.channels"), {
+							show: conversationsSection.catchingUp,
+							testID: SURFACE.teamBridgeConversationsCatchingUp,
+						})}
 						{/* The loading placeholder sits UNDER the first section it
 						 *  stands in for, and the Groups header waits for data: a
 						 *  skeleton floating above two empty headers read as content
@@ -636,8 +680,11 @@ export function BridgeDirectory({
 								)}
 							</>
 						)}
-						{heading(t("mobile.team_bridge.list.people"))}
-						{org?.peopleState === "loading" && !people.length && (
+						{heading(t("mobile.team_bridge.list.people"), {
+							show: peopleSection.catchingUp,
+							testID: SURFACE.teamBridgePeopleCatchingUp,
+						})}
+						{peopleLoading && (
 							<View
 								accessible
 								className="px-4 py-2"
@@ -646,7 +693,7 @@ export function BridgeDirectory({
 								<Skeleton lines={2} ground={ground} />
 							</View>
 						)}
-						{org?.peopleState === "error" && (
+						{peopleSection.alert && (
 							<View className="gap-2 px-4 py-2">
 								<Text
 									accessibilityRole="alert"

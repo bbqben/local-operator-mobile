@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { NotificationItem, NotificationsResponse } from "@/contracts";
 import {
 	canDismiss,
 	conversationName,
 	countLabel,
+	detailMetaLine,
 	hasUnread,
 	inboxEmpty,
 	inboxRows,
@@ -20,6 +21,7 @@ import {
 	toggleSelection,
 	unionTokens,
 } from "@/features/notifications/notifications-model";
+import { resetLocaleSource, setLocaleSource } from "@/i18n";
 
 function item(overrides: Partial<NotificationItem> = {}): NotificationItem {
 	return {
@@ -448,5 +450,67 @@ describe("the explicit read, then the re-read (QA round 3, Q8)", () => {
 				}),
 			).toBe("Selected: Run finished");
 		});
+	});
+});
+
+/* Review m1 (the C1 class): two fragments put a localized age beside English
+ * that stays unkeyed until slice O3-b — the spoken "High priority. …" row label
+ * and the detail's "<conversation> · Live · <age>" line. Under a non-en locale
+ * the age must render from the English catalogue so neither reads as a
+ * mixed-script, mixed-direction sentence. */
+const ENGLISH_ONLY = /^[\x20-\x7E\u00B7\u2014\u2019]*$/;
+const NOW = 1_792_926_900_000;
+const FIVE_MIN_AGO = NOW - 5 * 60_000;
+
+describe("C1-class fragments stay wholly English under a non-en locale", () => {
+	afterEach(resetLocaleSource);
+
+	it("negative control: under ur the standalone row age IS localized", () => {
+		/* Proves the locale source is live in this test: without it the English
+		 * assertions below would pass for the wrong reason. */
+		setLocaleSource(() => "ur");
+		const age = relativeTime(FIVE_MIN_AGO, NOW);
+		expect(age).not.toBe("");
+		expect(age).not.toMatch(ENGLISH_ONLY);
+	});
+
+	it("speaks the high-priority row label in English while ur is active", () => {
+		setLocaleSource(() => "ur");
+		const said = rowAccessibilityLabel({
+			selecting: false,
+			selected: false,
+			item: {
+				title: "Run finished",
+				priority: "high",
+				updated_at: FIVE_MIN_AGO,
+				session: { title: "Session one" },
+			},
+			nowMs: NOW,
+		});
+		expect(said).toBe("High priority. Run finished. Session one. 5m ago");
+		expect(said).toMatch(ENGLISH_ONLY);
+	});
+
+	it("renders the detail meta line in English while ur is active", () => {
+		setLocaleSource(() => "ur");
+		const line = detailMetaLine({
+			sessionTitle: "Session one",
+			live: true,
+			updatedAt: FIVE_MIN_AGO,
+			nowMs: NOW,
+		});
+		expect(line).toBe("Session one · Live · 5m ago");
+		expect(line).toMatch(ENGLISH_ONLY);
+	});
+
+	it("drops an absent age and an untitled name without a dangling separator", () => {
+		expect(
+			detailMetaLine({
+				sessionTitle: "",
+				live: false,
+				updatedAt: 0,
+				nowMs: NOW,
+			}),
+		).toBe("untitled");
 	});
 });
