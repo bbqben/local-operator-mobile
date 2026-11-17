@@ -2214,6 +2214,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
+	/* Re-pinned 2026-11-17 for fix/bridge-429 with --print at the staged tree:
+	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
+	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
+	 * U-08 instrument or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence.
+	 * Re-pinned again 2026-11-17 for PR #297 round-1 remediation with --print
+	 * at the staged tree: the status moved into the section heading row, the
+	 * pure `section-status.ts`, store backoff fixes and their tests. No U-08
+	 * instrument or measured geometry moved. Source identity only. */
+	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
 	 * handoff moves to src/features/session/attach-handoff.ts and drops its
 	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
@@ -2277,6 +2289,9 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * plural-arm tests). No runtime src/ change. Derived LAST with --print; the
 	 * control reproduced the parent's pin (00db2322…) from 9e357316. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
 	 * comment chains retained; only this pin conflicted. The merged src carries
 	 * the attach-handoff move and #298's push-registration changes, so it
@@ -2290,7 +2305,19 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * independent git-object treeDigest reader reproduced both parents'
 	 * committed pins (0bd9b5ee… and 4cbea3d6…) as controls and a one-byte
 	 * tamper diverged. Source identity only, NOT rendered U-08 evidence. */
-	src: "098c5daaca191a211883cccb226c1a3ba5a542dd82d7fcd6246a8546213dca2e",
+	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
+	 * chains kept; only this pin conflicted. Re-derived with --print over the
+	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* Convergence of PR #302 with main 8a4d3048 (#297 fix/bridge-429): both
+	 * chains above are kept (O3-b's, then main's bridge-429 merge comments).
+	 * Both sides touched src/i18n (catalogues.test.ts counts, catalogue.gen.ts),
+	 * so the merged src tree is not a plain union: the counts were re-derived
+	 * from the merged en/locale JSON and catalogue.gen.ts regenerated. Re-derived
+	 * LAST with --print over the staged merge tree; an independent git-object
+	 * treeDigest reader reproduced both parents' committed pins (098c5daa… and
+	 * 93e737b7…) as controls and a one-byte tamper diverged. Source identity
+	 * only, NOT rendered U-08 evidence. */
+	src: "1f1bf660c9f3c9313c5643a8388d55a11c994533eb26ccbdfd76db8f064a3c04",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

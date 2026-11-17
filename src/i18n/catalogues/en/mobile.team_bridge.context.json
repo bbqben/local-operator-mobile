@@ -307,6 +307,10 @@
 		"role": "button",
 		"note": "Team Bridge mobile UI: gate / upgrade. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Radient and Team Bridge are product names; Team is a plan name, not a translated generic team."
 	},
+	"mobile.team_bridge.list.catching_up": {
+		"role": "status",
+		"note": "Team Bridge mobile UI: list / calm status shown when Radient has asked the app to slow down (rate limit) for longer than one short wait. The app is already retrying on its own and any rows already loaded stay visible; there is no button. Not an error: keep it calm and brief, never mention HTTP, 429 or limits."
+	},
 	"mobile.team_bridge.list.channels": {
 		"role": "heading",
 		"note": "Team Bridge mobile UI: list / channels. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state."

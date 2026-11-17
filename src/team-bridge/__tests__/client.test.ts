@@ -166,6 +166,39 @@ describe("hub client", () => {
 		});
 	});
 
+	it("reads the edge WAF's 429 (error OBJECT, no Retry-After) as rate_limited with its body's wait", async () => {
+		// The exact body radient-infra's `rate-backend-edge` rule returns
+		// (pulumi/radient_infra/waf.py RATE_LIMIT_BODY): per source IP, 2000 per
+		// 5 min across api.radienthq.com. TestFlight 1157 showed this as the raw
+		// "HTTP 429" sentence because `error` is an object, not the hub's string.
+		const waf = {
+			error: {
+				type: "rate_limit_error",
+				code: "rate_limited",
+				message: "Too many requests from this address; retry in 300 seconds.",
+			},
+		};
+		const { impl } = fakeFetch([
+			() => json(429, waf),
+			() => json(429, { error: { code: "rate_limited" } }),
+		]);
+		const client = createHubClient({
+			accessToken: async () => "t",
+			fetchImpl: impl,
+		});
+		await expect(client.directory(TENANT)).rejects.toMatchObject({
+			kind: "rate_limited",
+			status: 429,
+			code: "rate_limited",
+			retryAfterMs: 300_000,
+		});
+		// No hint at all: still rate_limited, the store's fallback wait applies.
+		await expect(client.status()).rejects.toMatchObject({
+			kind: "rate_limited",
+			retryAfterMs: null,
+		});
+	});
+
 	it("fails closed on a payload this build cannot read", async () => {
 		const { impl } = fakeFetch([
 			() => ok({ conversations: [{ id: "x" }] }),
