@@ -2204,6 +2204,31 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* TestFlight 1157 rest jitter: a reader's scroll that comes to rest is
+	 * never written afterwards (rest decides from the end event's offset and
+	 * only the end itself resumes following; a trailing event cannot
+	 * re-acquire a rest short of the end) in the Team Bridge viewport and the
+	 * agent transcript. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #296 round-1 remediation: only the end re-acquires a non-follower
+	 * (an anchoring shift is not the reader moving), shared rest slack, doc
+	 * fixes. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
+	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
+	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
+	 * team-bridge/provider.tsx — push-token bookkeeping and hub-registration rate
+	 * discipline, no rendered component or copy changes. Re-derived with --print
+	 * over the staged tree; the other render roots printed unchanged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 merge of origin/main (2026-11-17): src re-derived with --print
+	 * over the merged tree, which carries both the #296 and #298 changes. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 round-2 remediation (R2-M1): the 429 clock-guard ceiling in
+	 * team-bridge/push.ts becomes the exact bound of the wait, plus its
+	 * regression test. No rendered component or copy changes. Re-derived with
+	 * --print over the staged tree. Source identity only, NOT rendered U-08
+	 * evidence. */
 	/* O3-b (English-first): Projects list/detail, the Tags sheet, the shared
 	 * sheet/dialog/skeleton labels and the row's plural counts render keyed
 	 * English (byte-identical copy), the Tags sheet subscribes to the locale
@@ -2221,7 +2246,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * pin (73fca3de…) from 39b5e3e5's tree as the control, agreed with --print,
 	 * and a one-byte tamper of ur/mobile.sidebar.json diverged. Source identity
 	 * only, NOT rendered U-08 evidence. */
-	src: "bd6ea75c53573bbd161122af5704c715ad7b2a9d8f3f560869630ed1c658d57a",
+	/* Convergence of PR #302 with main 2f635caf (#282, #296, #298): both chains
+	 * above are kept (main's rest-jitter and push-registration comments, then
+	 * O3-b's); main touched no src/ path the PR touches, so the merged src tree
+	 * is the union of both sides. Re-derived LAST with --print over the staged
+	 * merge tree; an independent git-object treeDigest reader reproduced both
+	 * parents' committed pins (bd6ea75c… and c62cf329…) as controls and a
+	 * one-byte tamper diverged. Source identity only, NOT rendered U-08
+	 * evidence. */
+	src: "a2cd4cfa39f480e3a669993ee893e556988d1541a8b7468c0a97c925fd91ea1d",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
