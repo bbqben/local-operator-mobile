@@ -18,7 +18,7 @@
  *
  * 1. **`authorization_unavailable`** (local-operator PR #4168): a newer Mac names
  *    the rate-limit case itself. It is in `REASON_POLICY` as the `retry`
- *    surface, so it never reaches this module as a terminal error.
+ *    surface, so it passes through `decide` untouched.
  * 2. **Legacy `authorization_refused` on a route that was recently healthy.** An
  *    older Mac cannot tell a 429 from a real refusal. But a real revocation or
  *    a lapsed plan does not clear by itself in two minutes, while a rate-limit

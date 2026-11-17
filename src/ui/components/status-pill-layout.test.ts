@@ -184,7 +184,8 @@ describe("Agents drawer header: the pill stays inside the pane", () => {
 		expect(DRAWER_PILL_ROW_CLASS).toContain("px-4"); // DRAWER_PILL_ROW_PADDING_PT
 		const pane = flat("features/sessions/conversations-pane.tsx");
 		expect(pane).toContain(
-			"<View className={DRAWER_PILL_ROW_CLASS}> <ConnectionPill state={pillState(streamHealth, stale)} message={staleNote({ stale, lastFrameAt }) ?? undefined} singleLine />",
+			// `pill` / `pillCarriesStale` come from `pill-state.ts` (PR #301 D1/D2).
+			"<View className={DRAWER_PILL_ROW_CLASS}> <ConnectionPill state={pill} message={pillCarriesStale ? (staleMessage ?? undefined) : undefined} singleLine />",
 		);
 	});
 });

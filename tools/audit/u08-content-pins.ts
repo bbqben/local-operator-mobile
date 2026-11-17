@@ -2214,7 +2214,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
-	src: "3703e0e2c0dea7c5bdc6037500cf5c9c14258368d3e39c9c695cb56002b5aa58",
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	src: "f7ce701f26b2c133e07b73b5e85bb0b0d9a7dabe67f3d3aa4cdb15f5908fc104",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
