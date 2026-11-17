@@ -23,8 +23,19 @@ const host = ({ web }: { web: boolean }) => {
 	const read = vi.fn();
 	const positioned = vi.fn();
 	const moves = vi.fn();
+	const newBelow = vi.fn();
 	let newest = 0;
+	// Timers run only when a test advances them (re-check, drag release).
+	const timers: Array<() => void> = [];
 	const v = createThreadViewport({
+		schedule: (run) => {
+			timers.push(run);
+			return () => {
+				const i = timers.indexOf(run);
+				if (i >= 0) timers.splice(i, 1);
+			};
+		},
+		newBelow,
 		scrollTo: (offset) => {
 			moves(offset);
 			const next = Math.min(offset, Math.max(0, content - viewport));
@@ -62,6 +73,14 @@ const host = ({ web }: { web: boolean }) => {
 		read,
 		positioned,
 		moves,
+		newBelow,
+		/** Run every pending timer once (re-check, drag-release grace). */
+		runTimers() {
+			for (const run of timers.splice(0)) run();
+		},
+		get timers() {
+			return timers.length;
+		},
 		set newest(seq: number) {
 			newest = seq;
 		},
@@ -217,6 +236,9 @@ describe("following after positioning", () => {
 	])("%s at the bottom still follows the next message", (_name, act) => {
 		const r = openLong();
 		act(r);
+		// TestFlight 1139: a reader's scroll holds the list until it rests;
+		// resting at the end resumes following (web: idle timer).
+		r.runTimers();
 		r.grow(2800);
 		expect(r.bottom).toBe(2800);
 	});
@@ -415,8 +437,11 @@ describe("late native end geometry", () => {
 		r.scrollTo(2309);
 		r.scrollTo(2250);
 		expect(r.moves).not.toHaveBeenCalled();
-		// Once the bounce actually returns to the tail, following can resume.
+		// Once the bounce returns to the tail and the drag is over (TestFlight
+		// 1139: never mid-gesture), following resumes.
 		r.scrollTo(2119);
+		r.h.onScrollEndDrag?.();
+		r.runTimers();
 		r.grow(2800);
 		expect(r.moves).toHaveBeenCalledWith(2201);
 	});
@@ -643,6 +668,116 @@ describe("a periodic unchanged refresh", () => {
 		for (let i = 0; i < 30; i += 1) tick(r);
 		expect(r.moves).not.toHaveBeenCalled();
 		expect(r.bottom).toBe(2718);
+	});
+});
+
+/*
+ * TestFlight 1139 (operator, verbatim): "when trying to scroll up it anchors
+ * me back to the bottom on each frame in a jitter until I apply enough scroll
+ * up force to break free". The first pixels of a drag sit inside FOLLOW_SLACK
+ * of the end, so `settle` kept `following` true and cleared `gesture`, and
+ * `position()` ignored the drag: every content-size event (virtualized rows
+ * mounting as the reader moves up), layout, admission recheck or #286's
+ * self re-check wrote the end offset back under the finger. Only a flick that
+ * crossed 44 pt between two scroll events escaped.
+ *
+ * The rule: once the reader starts a drag or momentum scroll, every
+ * programmatic follow and re-check is cancelled until the reader's OWN scroll
+ * comes to rest within the bottom threshold. New messages meanwhile raise the
+ * Jump to newest pill instead of moving the list.
+ */
+describe("a reader's drag is never fought (TestFlight 1139)", () => {
+	const dragUp = (r: ReturnType<typeof openLong>, by: number) => {
+		r.h.onScrollBeginDrag();
+		r.scrollTo(r.y - by);
+	};
+	it("zero programmatic writes after drag start, through every trigger", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		dragUp(r, 10); // still inside the 44 pt follow band
+		for (let i = 0; i < 20; i += 1) {
+			r.grow(2718 + i); // rows mounting / measuring under the finger
+			r.layout(599);
+			r.v.dataChanged(); // poll / admission recheck
+			r.runTimers(); // #286 re-check
+			r.scrollTo(r.y - 1);
+		}
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it("cancels a re-check already pending when the drag starts", () => {
+		const r = openLong(false);
+		r.grow(2800); // a new message: one write, re-check armed
+		r.moves.mockClear();
+		r.h.onScrollBeginDrag();
+		r.runTimers();
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it("momentum after the finger lifts is still the reader's scroll", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		dragUp(r, 5);
+		r.h.onScrollEndDrag?.();
+		r.h.onMomentumScrollBegin?.();
+		r.runTimers(); // the end-drag grace must not release during momentum
+		r.grow(2800);
+		r.scrollTo(r.y - 3);
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it("a new message while held shows the pill instead of moving", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		dragUp(r, 20);
+		r.newest = 81;
+		r.grow(2800);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.newBelow).toHaveBeenLastCalledWith(true);
+	});
+	it("resting within the threshold by the reader's own scroll resumes follow", () => {
+		const r = openLong(false);
+		dragUp(r, 20);
+		r.h.onScrollEndDrag?.();
+		r.runTimers(); // no momentum began: the drag is over
+		expect(r.v.following).toBe(true);
+		r.moves.mockClear();
+		r.grow(2800);
+		expect(r.moves).toHaveBeenCalledWith(2201);
+	});
+	it("resting above the threshold leaves the reader in history", () => {
+		const r = openLong(false);
+		dragUp(r, 300);
+		r.h.onScrollEndDrag?.();
+		r.h.onMomentumScrollBegin?.();
+		r.scrollTo(r.y - 200);
+		r.h.onMomentumScrollEnd?.();
+		expect(r.v.following).toBe(false);
+		r.moves.mockClear();
+		r.newest = 81;
+		r.grow(2800);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.newBelow).toHaveBeenLastCalledWith(true);
+	});
+	it("Jump to newest from the pill ends the hold and clears the pill", () => {
+		const r = openLong(false);
+		dragUp(r, 300);
+		r.h.onScrollEndDrag?.();
+		r.runTimers();
+		r.newest = 81;
+		r.grow(2800);
+		r.moves.mockClear();
+		r.v.jumpToNewest();
+		expect(r.moves).toHaveBeenCalledWith(2201);
+		expect(r.newBelow).toHaveBeenLastCalledWith(false);
+	});
+	it("web: a wheel near the end holds until the scroll goes idle", () => {
+		const r = openLong(true);
+		r.moves.mockClear();
+		r.h.onWheel?.();
+		r.scrollTo(r.y - 10);
+		r.grow(2730);
+		expect(r.moves).not.toHaveBeenCalled();
+		r.runTimers(); // idle: rested inside the band, so follow resumes
+		r.grow(2800);
+		expect(r.moves).toHaveBeenCalled();
 	});
 });
 

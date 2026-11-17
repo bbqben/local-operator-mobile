@@ -51,6 +51,10 @@ import {
 	canonicalRowKey,
 	visibleTranscriptEntries,
 } from "@/features/session/projection";
+import {
+	createReaderScrollHold,
+	type ReaderScrollHold,
+} from "@/features/session/reader-scroll-hold";
 import { reuseRows } from "@/features/session/row-identity";
 import { scrollAnchorFromHook } from "@/features/session/scroll-hook";
 import { beatLive, type SupplementBeat } from "@/features/session/supplements";
@@ -442,6 +446,18 @@ export const TranscriptList = ({
 	 *  one position). Read once — it is a statement about the page. */
 	const [scrollAnchor] = useState(scrollAnchorFromHook);
 	const atTail = useRef(scrollAnchor !== "top");
+	/* THE READER'S SCROLL IS NEVER FOUGHT (TestFlight 1139). `nextAtTail` keeps
+	 *  `atTail` true anywhere inside its 48 pt band, so without this every
+	 *  streamed row or layout commit clamped a drag's first points back to the
+	 *  end. While the hold is active `pinTail` does nothing; at rest, the last
+	 *  scroll event's `atTail` (the reader's own offset) decides, and only then
+	 *  is the end re-pinned. */
+	const pinTailRef = useRef<() => void>(() => {});
+	const [initialHold] = useState(() =>
+		createReaderScrollHold({ onRest: () => pinTailRef.current() }),
+	);
+	const scrollHold = useRef<ReaderScrollHold>(initialHold);
+	useEffect(() => () => scrollHold.current.dispose(), []);
 	/** Whether THIS MOUNT opens somewhere other than the tail — a saved offset to
 	 *  restore (`F-6.11` — Back preserves scroll) or the capture hook's `top`.
 	 *  `initialScrollIndex` is read once by the list, so the statement it feeds is
@@ -1255,18 +1271,22 @@ export const TranscriptList = ({
 		// only marks the touch as not-a-tap.
 		textSelectionContainerScroll();
 		releaseWebAnchor();
+		scrollHold.current.beginDrag();
 		presence?.setHeld(true);
 	}, [presence, releaseWebAnchor]);
 	const onScrollEndDrag = useCallback(() => {
+		scrollHold.current.endDrag();
 		presence?.setHeld(false);
 	}, [presence]);
 	/* The glide after a flick is still the reader's gesture: the presence counts
 	 *  movement only inside a drag or its momentum, which is what keeps the tail
 	 *  pin's own scrolls from raising the rail (round 1, U3). */
 	const onMomentumScrollBegin = useCallback(() => {
+		scrollHold.current.beginMomentum();
 		presence?.setCoasting(true);
 	}, [presence]);
 	const onMomentumScrollEnd = useCallback(() => {
+		scrollHold.current.endMomentum();
 		presence?.setCoasting(false);
 	}, [presence]);
 
@@ -1286,12 +1306,13 @@ export const TranscriptList = ({
 	 * changes the height is not a commit of this component's at all.
 	 */
 	const pinTail = useCallback(() => {
-		if (!atTail.current) return;
+		if (!atTail.current || scrollHold.current.active) return;
 		listRef.current?.scrollToOffset({
 			offset: TAIL_CLAMP_OFFSET_PT,
 			animated: false,
 		});
 	}, []);
+	pinTailRef.current = pinTail;
 	/* `Show less` on a message whose top has scrolled above the list (design
 	 *  follow-up to PR #235, D2): bring that top back to just under the list's
 	 *  edge, or leave the list alone when it is already on screen

@@ -2122,7 +2122,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * retained; only this pin conflicted. The merged src carries both sides, so
 	 * it matches neither parent. Re-derived with --print over the staged merged
 	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
-	src: "5f4980beaa878a0689cebaa2bfc3a5f4ff0f75b80d40945a3256dde4dcf9955d",
+	/* Reader scroll hold (TestFlight 1139): Team Bridge thread viewport and the
+	 * agent transcript stop every programmatic bottom-follow from a drag or
+	 * momentum start until the reader's scroll rests; Team Bridge shows Jump
+	 * to newest for arrivals meanwhile. Re-derived with --print; source
+	 * admission only, NOT rendered, native or device evidence. */
+	src: "d0bed104615488f9549056383de53328db814b3aa59bb77e4a96b199ea8dd19d",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

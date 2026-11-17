@@ -96,7 +96,25 @@ export type ThreadViewportOptions = {
 	now?: () => number;
 	/** Run `run` after `ms`; returns a cancel. Tests inject one. */
 	schedule?: (run: () => void, ms: number) => () => void;
+	/**
+	 * Newer messages arrived while the reader was not following (their own
+	 * scroll held the list, or they rest in history): show "Jump to newest"
+	 * instead of moving the list. `false` once they are back at the end.
+	 */
+	newBelow?: (present: boolean) => void;
 };
+
+/**
+ * How long after the finger lifts a momentum scroll may still begin before
+ * the drag counts as over. iOS and Android raise `onMomentumScrollBegin`
+ * right after `onScrollEndDrag`; until then the reader still owns the list.
+ */
+export const DRAG_RELEASE_MS = 120;
+/**
+ * Web has no drag/momentum events: a wheel, trackpad or scrollbar move is
+ * over once no scroll event has arrived for this long.
+ */
+export const WEB_IDLE_MS = 150;
 
 const monotonic = (): number =>
 	typeof globalThis.performance?.now === "function"
@@ -122,6 +140,8 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	let initial = true;
 	let following = true;
 	const setFollowing = (next: boolean) => {
+		// Back at the end by any route: nothing newer is waiting below.
+		if (next) setBelow(false);
 		if (next === following) return;
 		following = next;
 		options.followChanged?.(next);
@@ -183,6 +203,38 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		recheck = null;
 	};
 	let readSeq = 0;
+	/**
+	 * THE READER OWNS THE LIST (TestFlight 1139: "it anchors me back to the
+	 * bottom on each frame in a jitter until I apply enough scroll up force").
+	 * The first pixels of a drag sit inside FOLLOW_SLACK of the end, so the tail
+	 * check alone kept `following` true and every content-size, layout or
+	 * admission trigger — and the self re-check — wrote the end offset back
+	 * under the finger. From a drag or momentum start (native) or a wheel,
+	 * pointer, key or touch scroll (web) until that scroll comes to rest, no
+	 * programmatic follow runs at all; at rest, the reader's OWN offset decides:
+	 * within FOLLOW_SLACK of the end resumes following, anywhere else is
+	 * history. Only Jump to newest (an explicit reader request) overrides it.
+	 */
+	let held = false;
+	let momentum = false;
+	let release: (() => void) | null = null;
+	const cancelRelease = () => {
+		release?.();
+		release = null;
+	};
+	/** Newest seq the reader was following when they left the end. */
+	let seenNewest = 0;
+	let below = false;
+	const setBelow = (next: boolean) => {
+		if (next === below) return;
+		below = next;
+		options.newBelow?.(next);
+	};
+	/** Content arrived while not following: a newer message is the pill's cue. */
+	const noteArrivals = () => {
+		if (initial || (following && !held)) return;
+		if (options.newestSeq() > seenNewest) setBelow(true);
+	};
 
 	const finish = (atNewest: boolean) => {
 		if (!initial) return;
@@ -209,7 +261,9 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		}
 		const atTail = y + viewport >= measured - FOLLOW_SLACK;
 		if (atTail) {
-			if (landing) {
+			// A held list is the reader's: arriving near the end mid-scroll is
+			// not a request to be pinned (the decision waits for rest).
+			if (landing || held) {
 				lastY = y;
 				return;
 			}
@@ -230,6 +284,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	};
 
 	const position = () => {
+		if (held) return;
 		if (content === null || height <= 0 || !options.dataReady()) return;
 		if (!initial && !following) return;
 		const target = Math.max(0, content - height);
@@ -293,6 +348,44 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		landing = false;
 	};
 
+	/** The reader's scroll began: cancel every programmatic move. */
+	const hold = () => {
+		intent();
+		cancelRelease();
+		cancelRecheck();
+		requested = null;
+		if (!held && following) seenNewest = options.newestSeq();
+		held = true;
+		setFollowing(false);
+	};
+
+	/** The reader's scroll came to rest: their own offset decides. */
+	const rest = () => {
+		cancelRelease();
+		if (!held) return;
+		held = false;
+		momentum = false;
+		if (
+			!landing &&
+			lastY !== null &&
+			content !== null &&
+			lastY + height >= content - FOLLOW_SLACK
+		) {
+			setFollowing(true);
+			setBelow(false);
+			gesture = false;
+			// Settle the last few points to the exact end, now that the reader
+			// has let go inside the band.
+			position();
+		}
+	};
+
+	/** Web: the scroll is over once it has been idle for WEB_IDLE_MS. */
+	const webHold = () => {
+		hold();
+		release = schedule(rest, WEB_IDLE_MS);
+	};
+
 	const handlers = {
 		onLayout: (event: { nativeEvent: { layout: { height: number } } }) => {
 			height = event.nativeEvent.layout.height;
@@ -303,6 +396,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		onContentSizeChange: (_width: number, contentHeight: number) => {
 			content = contentHeight;
 			contentReady = options.dataReady();
+			noteArrivals();
 			position();
 		},
 		onScroll: (event: {
@@ -334,17 +428,38 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 				contentOffset.y >
 					Math.max(0, contentSize.height - height) + POSITION_SLACK;
 			settle(contentOffset.y, layoutMeasurement.height, contentSize.height);
+			// Web: each scroll event of a held move restarts its idle clock.
+			if (held && options.web) {
+				cancelRelease();
+				release = schedule(rest, WEB_IDLE_MS);
+			}
 			if (reconcile) position();
 		},
-		onScrollBeginDrag: intent,
+		// Web may raise a begin-drag with no end/momentum events after it, so
+		// there it releases on idle like a wheel; never a hold that cannot end.
+		onScrollBeginDrag: options.web ? webHold : hold,
+		onScrollEndDrag: () => {
+			// A momentum glide may begin right after the finger lifts; until it
+			// does (or does not), the reader still owns the list.
+			if (!held || momentum) return;
+			cancelRelease();
+			release = schedule(rest, DRAG_RELEASE_MS);
+		},
+		onMomentumScrollBegin: () => {
+			if (!held) hold();
+			cancelRelease();
+			momentum = true;
+		},
+		onMomentumScrollEnd: rest,
 		onTouchMove: intent,
 		...(options.web
 			? {
-					onWheel: intent,
+					onWheel: webHold,
 					// Covers the web scrollbar, which raises no wheel or key event.
-					onPointerDown: intent,
+					onPointerDown: webHold,
+					onTouchStart: webHold,
 					onKeyDown: (event: KeyIntentEvent) => {
-						if (SCROLL_KEYS.has(event.key) && !fromControl(event)) intent();
+						if (SCROLL_KEYS.has(event.key) && !fromControl(event)) webHold();
 					},
 				}
 			: {}),
@@ -376,6 +491,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 				lastY = now.y;
 				contentReady = options.dataReady();
 			}
+			noteArrivals();
 			position();
 		},
 		/** For thread states with no list layout to report (empty, no thread). */
@@ -395,6 +511,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		},
 		/** Load older: the reader is in history; a prepend must not pull them down. */
 		releaseFollow() {
+			if (following) seenNewest = options.newestSeq();
 			setFollowing(false);
 		},
 		/**
@@ -414,6 +531,11 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		/** The thread unmounted: drop a pending re-check. */
 		dispose() {
 			cancelRecheck();
+			cancelRelease();
+		},
+		/** Whether the reader's own scroll currently holds the list. */
+		get held() {
+			return held;
 		},
 		/** The list's visible height (0 before its first layout). */
 		get viewportHeight() {
@@ -429,8 +551,13 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		 */
 		jumpToNewest() {
 			if (content === null || height <= 0) return;
+			// An explicit request: it ends any hold and is never deduplicated.
+			cancelRelease();
+			held = false;
+			momentum = false;
 			landing = false;
 			setFollowing(true);
+			setBelow(false);
 			gesture = false;
 			write(Math.max(0, content - height));
 		},
