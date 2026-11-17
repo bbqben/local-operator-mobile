@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "En esta plataforma aún no se supervisan los despertares, así que los de abajo solo se disparan mientras una conversación está en marcha.",
 	"mobile.schedules.supervisor.unverifiable": "Nada supervisa los despertares de abajo, así que solo se disparan mientras su conversación está en marcha.",
 	"mobile.schedules.tail.failed": "{count, plural, one {# fallo} many {# de fallos} other {# fallos}}",
-	"mobile.schedules.truncated": "Mostrando {shown} de {total} conversaciones con {family, select, wakes {despertares} other {monitorizaciones}}."
+	"mobile.schedules.truncated": "Mostrando {shown} de {total} conversaciones con {family, select, wakes {despertares} other {monitorizaciones}}.",
+	"mobile.schedules.section.wakes": "Despertares",
+	"mobile.schedules.section.wakes_summary": "Despertares · {summary}",
+	"mobile.schedules.section.monitors": "Monitorizaciones",
+	"mobile.schedules.section.monitors_summary": "Monitorizaciones · {summary}"
 }

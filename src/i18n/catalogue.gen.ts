@@ -425,6 +425,10 @@ export type CatalogueKey =
 	| "mobile.notifications.detail.no_asks"
 	| "mobile.notifications.detail.nothing_to_dismiss"
 	| "mobile.notifications.detail.projects"
+	| "mobile.notifications.detail.section_links"
+	| "mobile.notifications.detail.section_message"
+	| "mobile.notifications.detail.section_notification"
+	| "mobile.notifications.detail.title"
 	| "mobile.notifications.device_state.absent"
 	| "mobile.notifications.device_state.expired"
 	| "mobile.notifications.device_state.live"
@@ -462,6 +466,8 @@ export type CatalogueKey =
 	| "mobile.notifications.primer.not_now"
 	| "mobile.notifications.primer.title"
 	| "mobile.notifications.priority_high"
+	| "mobile.notifications.section.waiting"
+	| "mobile.notifications.section.waiting_count"
 	| "mobile.notifications.title"
 	| "mobile.notifications.turn_on"
 	| "mobile.oauth.failed"
@@ -485,6 +491,9 @@ export type CatalogueKey =
 	| "mobile.projects.milestones.none"
 	| "mobile.projects.project_name_hint"
 	| "mobile.projects.remove_milestone_body"
+	| "mobile.projects.section.linked_sessions"
+	| "mobile.projects.section.milestones"
+	| "mobile.projects.section.progress"
 	| "mobile.projects.session_state.filed_by"
 	| "mobile.projects.session_state.missing"
 	| "mobile.projects.session_state.not_running"
@@ -498,6 +507,7 @@ export type CatalogueKey =
 	| "mobile.projects.status.planning"
 	| "mobile.projects.status.qa"
 	| "mobile.projects.status.validation"
+	| "mobile.projects.title"
 	| "mobile.projects.write_receipt"
 	| "mobile.projects.write_unknown_note"
 	| "mobile.refusal.action.add_credit"
@@ -587,6 +597,10 @@ export type CatalogueKey =
 	| "mobile.schedules.read_error.monitors"
 	| "mobile.schedules.read_error.wakes"
 	| "mobile.schedules.read_unreachable"
+	| "mobile.schedules.section.monitors"
+	| "mobile.schedules.section.monitors_summary"
+	| "mobile.schedules.section.wakes"
+	| "mobile.schedules.section.wakes_summary"
 	| "mobile.schedules.show_less.monitors"
 	| "mobile.schedules.show_less.wakes"
 	| "mobile.schedules.show_more.monitors"
@@ -673,6 +687,8 @@ export type CatalogueKey =
 	| "mobile.session.region.label_todos"
 	| "mobile.session.region.label_working"
 	| "mobile.session.region.more_below"
+	| "mobile.session.sheet_title.attach"
+	| "mobile.session.sheet_title.commands"
 	| "mobile.session.sheet_title.effort"
 	| "mobile.session.sheet_title.model"
 	| "mobile.session.sheet_title.status"
@@ -751,6 +767,7 @@ export type CatalogueKey =
 	| "mobile.settings.section.appearance"
 	| "mobile.settings.section.connection"
 	| "mobile.settings.section.diagnostics"
+	| "mobile.settings.section.notifications"
 	| "mobile.settings.sign_in_confirm.body"
 	| "mobile.settings.sign_in_confirm.confirm"
 	| "mobile.settings.sign_in_confirm.title"
@@ -1001,6 +1018,29 @@ export type CatalogueKey =
 	| "mobile.team_bridge.thread.send_retry"
 	| "mobile.team_bridge.title"
 	| "mobile.team_bridge.unread"
+	| "mobile.time.bucket.earlier"
+	| "mobile.time.bucket.earlier_this_week"
+	| "mobile.time.bucket.today"
+	| "mobile.time.bucket.yesterday"
+	| "mobile.time.relative.days_ago"
+	| "mobile.time.relative.days_ago_compact"
+	| "mobile.time.relative.hours_ago"
+	| "mobile.time.relative.hours_ago_compact"
+	| "mobile.time.relative.just_now"
+	| "mobile.time.relative.minutes_ago"
+	| "mobile.time.relative.minutes_ago_compact"
+	| "mobile.time.relative.now"
+	| "mobile.time.relative.seconds_ago_compact"
+	| "mobile.time.relative.yesterday"
+	| "mobile.time.short.days"
+	| "mobile.time.short.hours"
+	| "mobile.time.short.hours_minutes"
+	| "mobile.time.short.minutes"
+	| "mobile.time.short.minutes_seconds"
+	| "mobile.time.short.minutes_spaced"
+	| "mobile.time.short.seconds"
+	| "mobile.time.short.weeks"
+	| "mobile.time.short.years"
 	| "relay.chrome.drawer.close"
 	| "relay.chrome.drawer.library"
 	| "relay.chrome.drawer.open"
@@ -1398,6 +1438,10 @@ export type NoParamKey =
 	| "mobile.notifications.detail.no_asks"
 	| "mobile.notifications.detail.nothing_to_dismiss"
 	| "mobile.notifications.detail.projects"
+	| "mobile.notifications.detail.section_links"
+	| "mobile.notifications.detail.section_message"
+	| "mobile.notifications.detail.section_notification"
+	| "mobile.notifications.detail.title"
 	| "mobile.notifications.device_state.absent"
 	| "mobile.notifications.device_state.expired"
 	| "mobile.notifications.device_state.live"
@@ -1433,6 +1477,7 @@ export type NoParamKey =
 	| "mobile.notifications.primer.not_now"
 	| "mobile.notifications.primer.title"
 	| "mobile.notifications.priority_high"
+	| "mobile.notifications.section.waiting"
 	| "mobile.notifications.title"
 	| "mobile.notifications.turn_on"
 	| "mobile.oauth.failed"
@@ -1453,6 +1498,9 @@ export type NoParamKey =
 	| "mobile.projects.milestone_slash_note"
 	| "mobile.projects.milestones.none"
 	| "mobile.projects.project_name_hint"
+	| "mobile.projects.section.linked_sessions"
+	| "mobile.projects.section.milestones"
+	| "mobile.projects.section.progress"
 	| "mobile.projects.session_state.filed_by"
 	| "mobile.projects.session_state.missing"
 	| "mobile.projects.session_state.not_running"
@@ -1464,6 +1512,7 @@ export type NoParamKey =
 	| "mobile.projects.status.planning"
 	| "mobile.projects.status.qa"
 	| "mobile.projects.status.validation"
+	| "mobile.projects.title"
 	| "mobile.projects.write_unknown_note"
 	| "mobile.refusal.action.add_credit"
 	| "mobile.refusal.action.how_to"
@@ -1522,6 +1571,8 @@ export type NoParamKey =
 	| "mobile.schedules.read_error.monitors"
 	| "mobile.schedules.read_error.wakes"
 	| "mobile.schedules.read_unreachable"
+	| "mobile.schedules.section.monitors"
+	| "mobile.schedules.section.wakes"
 	| "mobile.schedules.show_less.monitors"
 	| "mobile.schedules.show_less.wakes"
 	| "mobile.schedules.state.disabled"
@@ -1590,6 +1641,8 @@ export type NoParamKey =
 	| "mobile.session.region.label_todos"
 	| "mobile.session.region.label_working"
 	| "mobile.session.region.more_below"
+	| "mobile.session.sheet_title.attach"
+	| "mobile.session.sheet_title.commands"
 	| "mobile.session.sheet_title.effort"
 	| "mobile.session.sheet_title.model"
 	| "mobile.session.sheet_title.status"
@@ -1662,6 +1715,7 @@ export type NoParamKey =
 	| "mobile.settings.section.appearance"
 	| "mobile.settings.section.connection"
 	| "mobile.settings.section.diagnostics"
+	| "mobile.settings.section.notifications"
 	| "mobile.settings.sign_in_confirm.body"
 	| "mobile.settings.sign_in_confirm.confirm"
 	| "mobile.settings.sign_in_confirm.title"
@@ -1876,6 +1930,13 @@ export type NoParamKey =
 	| "mobile.team_bridge.thread.send_error"
 	| "mobile.team_bridge.thread.send_retry"
 	| "mobile.team_bridge.title"
+	| "mobile.time.bucket.earlier"
+	| "mobile.time.bucket.earlier_this_week"
+	| "mobile.time.bucket.today"
+	| "mobile.time.bucket.yesterday"
+	| "mobile.time.relative.just_now"
+	| "mobile.time.relative.now"
+	| "mobile.time.relative.yesterday"
 	| "relay.chrome.drawer.close"
 	| "relay.chrome.drawer.library"
 	| "relay.chrome.drawer.open"
@@ -2315,6 +2376,10 @@ export type MessageParams = {
 	"mobile.notifications.detail.no_asks": NoParams;
 	"mobile.notifications.detail.nothing_to_dismiss": NoParams;
 	"mobile.notifications.detail.projects": NoParams;
+	"mobile.notifications.detail.section_links": NoParams;
+	"mobile.notifications.detail.section_message": NoParams;
+	"mobile.notifications.detail.section_notification": NoParams;
+	"mobile.notifications.detail.title": NoParams;
 	"mobile.notifications.device_state.absent": NoParams;
 	"mobile.notifications.device_state.expired": NoParams;
 	"mobile.notifications.device_state.live": NoParams;
@@ -2352,6 +2417,8 @@ export type MessageParams = {
 	"mobile.notifications.primer.not_now": NoParams;
 	"mobile.notifications.primer.title": NoParams;
 	"mobile.notifications.priority_high": NoParams;
+	"mobile.notifications.section.waiting": NoParams;
+	"mobile.notifications.section.waiting_count": { count: string | number };
 	"mobile.notifications.title": NoParams;
 	"mobile.notifications.turn_on": NoParams;
 	"mobile.oauth.failed": NoParams;
@@ -2375,6 +2442,9 @@ export type MessageParams = {
 	"mobile.projects.milestones.none": NoParams;
 	"mobile.projects.project_name_hint": NoParams;
 	"mobile.projects.remove_milestone_body": { name: string | number };
+	"mobile.projects.section.linked_sessions": NoParams;
+	"mobile.projects.section.milestones": NoParams;
+	"mobile.projects.section.progress": NoParams;
 	"mobile.projects.session_state.filed_by": NoParams;
 	"mobile.projects.session_state.missing": NoParams;
 	"mobile.projects.session_state.not_running": NoParams;
@@ -2388,6 +2458,7 @@ export type MessageParams = {
 	"mobile.projects.status.planning": NoParams;
 	"mobile.projects.status.qa": NoParams;
 	"mobile.projects.status.validation": NoParams;
+	"mobile.projects.title": NoParams;
 	"mobile.projects.write_receipt": { subject: string | number; action: string; kind: string };
 	"mobile.projects.write_unknown_note": NoParams;
 	"mobile.refusal.action.add_credit": NoParams;
@@ -2477,6 +2548,10 @@ export type MessageParams = {
 	"mobile.schedules.read_error.monitors": NoParams;
 	"mobile.schedules.read_error.wakes": NoParams;
 	"mobile.schedules.read_unreachable": NoParams;
+	"mobile.schedules.section.monitors": NoParams;
+	"mobile.schedules.section.monitors_summary": { summary: string | number };
+	"mobile.schedules.section.wakes": NoParams;
+	"mobile.schedules.section.wakes_summary": { summary: string | number };
 	"mobile.schedules.show_less.monitors": NoParams;
 	"mobile.schedules.show_less.wakes": NoParams;
 	"mobile.schedules.show_more.monitors": { hidden: number };
@@ -2563,6 +2638,8 @@ export type MessageParams = {
 	"mobile.session.region.label_todos": NoParams;
 	"mobile.session.region.label_working": NoParams;
 	"mobile.session.region.more_below": NoParams;
+	"mobile.session.sheet_title.attach": NoParams;
+	"mobile.session.sheet_title.commands": NoParams;
 	"mobile.session.sheet_title.effort": NoParams;
 	"mobile.session.sheet_title.model": NoParams;
 	"mobile.session.sheet_title.status": NoParams;
@@ -2641,6 +2718,7 @@ export type MessageParams = {
 	"mobile.settings.section.appearance": NoParams;
 	"mobile.settings.section.connection": NoParams;
 	"mobile.settings.section.diagnostics": NoParams;
+	"mobile.settings.section.notifications": NoParams;
 	"mobile.settings.sign_in_confirm.body": NoParams;
 	"mobile.settings.sign_in_confirm.confirm": NoParams;
 	"mobile.settings.sign_in_confirm.title": NoParams;
@@ -2891,6 +2969,29 @@ export type MessageParams = {
 	"mobile.team_bridge.thread.send_retry": NoParams;
 	"mobile.team_bridge.title": NoParams;
 	"mobile.team_bridge.unread": { count: number };
+	"mobile.time.bucket.earlier": NoParams;
+	"mobile.time.bucket.earlier_this_week": NoParams;
+	"mobile.time.bucket.today": NoParams;
+	"mobile.time.bucket.yesterday": NoParams;
+	"mobile.time.relative.days_ago": { count: number };
+	"mobile.time.relative.days_ago_compact": { count: number };
+	"mobile.time.relative.hours_ago": { count: number };
+	"mobile.time.relative.hours_ago_compact": { count: number };
+	"mobile.time.relative.just_now": NoParams;
+	"mobile.time.relative.minutes_ago": { count: number };
+	"mobile.time.relative.minutes_ago_compact": { count: number };
+	"mobile.time.relative.now": NoParams;
+	"mobile.time.relative.seconds_ago_compact": { count: number };
+	"mobile.time.relative.yesterday": NoParams;
+	"mobile.time.short.days": { count: number };
+	"mobile.time.short.hours": { count: number };
+	"mobile.time.short.hours_minutes": { minutes: string | number; hours: number };
+	"mobile.time.short.minutes": { count: number };
+	"mobile.time.short.minutes_seconds": { seconds: string | number; minutes: number };
+	"mobile.time.short.minutes_spaced": { count: number };
+	"mobile.time.short.seconds": { count: number };
+	"mobile.time.short.weeks": { count: number };
+	"mobile.time.short.years": { count: number };
 	"relay.chrome.drawer.close": NoParams;
 	"relay.chrome.drawer.library": NoParams;
 	"relay.chrome.drawer.open": NoParams;
@@ -3354,6 +3455,10 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.detail.no_asks": "No asks in this conversation.",
 	"mobile.notifications.detail.nothing_to_dismiss": "No updates from this conversation to dismiss.",
 	"mobile.notifications.detail.projects": "Projects",
+	"mobile.notifications.detail.section_links": "Links",
+	"mobile.notifications.detail.section_message": "Message",
+	"mobile.notifications.detail.section_notification": "Notification",
+	"mobile.notifications.detail.title": "Notification",
 	"mobile.notifications.device_state.absent": "Not in this computer's registry; it may register again.",
 	"mobile.notifications.device_state.expired": "Notifications are paused for this device until you sign in again.",
 	"mobile.notifications.device_state.live": "Registered with this computer.",
@@ -3391,6 +3496,8 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.primer.not_now": "Not now",
 	"mobile.notifications.primer.title": "Get notified when your agents finish",
 	"mobile.notifications.priority_high": "High",
+	"mobile.notifications.section.waiting": "Waiting on you",
+	"mobile.notifications.section.waiting_count": "Waiting on you · {count}",
 	"mobile.notifications.title": "Notifications",
 	"mobile.notifications.turn_on": "Turn on notifications",
 	"mobile.oauth.failed": "Sign-in could not finish. Try again.",
@@ -3414,6 +3521,9 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.projects.milestones.none": "no milestones",
 	"mobile.projects.project_name_hint": "1-64 characters: letters, digits, dot, underscore or hyphen. No spaces, and it can't start with a hyphen.",
 	"mobile.projects.remove_milestone_body": "Remove {name} from this project? The milestone goes for good. The project's sessions and its progress line are not touched.",
+	"mobile.projects.section.linked_sessions": "linked sessions",
+	"mobile.projects.section.milestones": "milestones",
+	"mobile.projects.section.progress": "progress",
 	"mobile.projects.session_state.filed_by": "filed by",
 	"mobile.projects.session_state.missing": "missing",
 	"mobile.projects.session_state.not_running": "not running",
@@ -3427,6 +3537,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.projects.status.planning": "planning",
 	"mobile.projects.status.qa": "qa",
 	"mobile.projects.status.validation": "validation",
+	"mobile.projects.title": "Projects",
 	"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {Created} completed {Completed} reopened {Reopened} added {Added} updated {Updated} removed {Removed} deleted {Deleted} other {Updated}} {subject}.} milestone {{action, select, created {Created} completed {Completed} reopened {Reopened} added {Added} updated {Updated} removed {Removed} deleted {Deleted} other {Updated}} milestone {subject}.} other {{action, select, created {Created} completed {Completed} reopened {Reopened} added {Added} updated {Updated} removed {Removed} deleted {Deleted} other {Updated}} {subject}.}}",
 	"mobile.projects.write_unknown_note": "We couldn't reach your computer, so we can't tell whether that was saved. Check the project before trying again.",
 	"mobile.refusal.action.add_credit": "Add credit",
@@ -3516,6 +3627,10 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.schedules.read_error.monitors": "The monitors on this machine could not be read.",
 	"mobile.schedules.read_error.wakes": "The wakes on this machine could not be read.",
 	"mobile.schedules.read_unreachable": "We couldn't read this machine's schedules just now.",
+	"mobile.schedules.section.monitors": "Monitors",
+	"mobile.schedules.section.monitors_summary": "Monitors · {summary}",
+	"mobile.schedules.section.wakes": "Wakes",
+	"mobile.schedules.section.wakes_summary": "Wakes · {summary}",
 	"mobile.schedules.show_less.monitors": "Show fewer monitors",
 	"mobile.schedules.show_less.wakes": "Show fewer wakes",
 	"mobile.schedules.show_more.monitors": "{hidden, plural, one {Show # more monitor} other {Show # more monitors}}",
@@ -3602,6 +3717,8 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.session.region.label_todos": "tasks",
 	"mobile.session.region.label_working": "activity",
 	"mobile.session.region.more_below": "more below · scroll ↓",
+	"mobile.session.sheet_title.attach": "attach",
+	"mobile.session.sheet_title.commands": "commands",
 	"mobile.session.sheet_title.effort": "Effort",
 	"mobile.session.sheet_title.model": "Model",
 	"mobile.session.sheet_title.status": "Tasks and agents",
@@ -3680,6 +3797,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.settings.section.appearance": "Appearance",
 	"mobile.settings.section.connection": "Connection",
 	"mobile.settings.section.diagnostics": "Diagnostics",
+	"mobile.settings.section.notifications": "Notifications",
 	"mobile.settings.sign_in_confirm.body": "This ends your current connection first. If you stop before sign-in finishes, you will need to connect to your computer again.",
 	"mobile.settings.sign_in_confirm.confirm": "Sign in",
 	"mobile.settings.sign_in_confirm.title": "Sign in with Radient?",
@@ -3930,6 +4048,29 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.thread.send_retry": "Retry send",
 	"mobile.team_bridge.title": "Team Bridge",
 	"mobile.team_bridge.unread": "{count, plural, one {# unread} other {# unread}}",
+	"mobile.time.bucket.earlier": "Earlier",
+	"mobile.time.bucket.earlier_this_week": "Earlier this week",
+	"mobile.time.bucket.today": "Today",
+	"mobile.time.bucket.yesterday": "Yesterday",
+	"mobile.time.relative.days_ago": "{count, plural, one {# d ago} other {# d ago}}",
+	"mobile.time.relative.days_ago_compact": "{count, plural, one {#d ago} other {#d ago}}",
+	"mobile.time.relative.hours_ago": "{count, plural, one {# h ago} other {# h ago}}",
+	"mobile.time.relative.hours_ago_compact": "{count, plural, one {#h ago} other {#h ago}}",
+	"mobile.time.relative.just_now": "just now",
+	"mobile.time.relative.minutes_ago": "{count, plural, one {# min ago} other {# min ago}}",
+	"mobile.time.relative.minutes_ago_compact": "{count, plural, one {#m ago} other {#m ago}}",
+	"mobile.time.relative.now": "now",
+	"mobile.time.relative.seconds_ago_compact": "{count, plural, one {#s ago} other {#s ago}}",
+	"mobile.time.relative.yesterday": "yesterday",
+	"mobile.time.short.days": "{count, plural, one {#d} other {#d}}",
+	"mobile.time.short.hours": "{count, plural, one {#h} other {#h}}",
+	"mobile.time.short.hours_minutes": "{hours, plural, one {#h} other {#h}} {minutes}m",
+	"mobile.time.short.minutes": "{count, plural, one {#m} other {#m}}",
+	"mobile.time.short.minutes_seconds": "{minutes, plural, one {#m} other {#m}} {seconds}s",
+	"mobile.time.short.minutes_spaced": "{count, plural, one {# min} other {# min}}",
+	"mobile.time.short.seconds": "{count, plural, one {#s} other {#s}}",
+	"mobile.time.short.weeks": "{count, plural, one {#w} other {#w}}",
+	"mobile.time.short.years": "{count, plural, one {#y} other {#y}}",
 	"relay.chrome.drawer.close": "Close navigation",
 	"relay.chrome.drawer.library": "Library",
 	"relay.chrome.drawer.open": "Open navigation",
@@ -4378,6 +4519,10 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.detail.no_asks": { role: "status", note: "Empty state under the asks header. Ends with a full stop." },
 	"mobile.notifications.detail.nothing_to_dismiss": { role: "status", note: "Empty state of the dismiss dialog when the conversation has no dismissable updates. Ends with a full stop." },
 	"mobile.notifications.detail.projects": { role: "heading", note: "Section header listing the projects a notification relates to." },
+	"mobile.notifications.detail.section_links": { role: "heading", note: "Section heading above the buttons that open links attached to a notification. Short heading, ~16 characters. No placeholders." },
+	"mobile.notifications.detail.section_message": { role: "heading", note: "Section heading above the quoted excerpt of the conversation message a notification points at. A noun, not the verb 'to message'. Short heading, ~16 characters. No placeholders." },
+	"mobile.notifications.detail.section_notification": { role: "heading", note: "Section heading above the notification's own body text on its detail screen (the message an agent sent with notify). Short heading, ~16 characters. No placeholders." },
+	"mobile.notifications.detail.title": { role: "heading", note: "Screen title of a single notification's detail screen (navigation bar). One word, ~16 characters. No placeholders." },
 	"mobile.notifications.device_state.absent": { role: "status", note: "Settings → Notifications: a status line for a device the connected computer's device list does not hold; the device may register itself again. 'Registry' means that list of devices, not an OS registry." },
 	"mobile.notifications.device_state.expired": { role: "status", note: "Settings → Notifications: the status line under a registered device whose sign-in lapsed; the computer stops sending to it until the person signs in on that device again." },
 	"mobile.notifications.device_state.live": { role: "status", note: "Settings → Notifications: the status line under a registered device whose registration with the connected computer is current. States only that the computer holds the registration; must NOT promise that notifications are delivered (neither the computer nor the phone can observe delivery)." },
@@ -4415,6 +4560,8 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.primer.not_now": { role: "button", note: "Secondary button of the first-run notifications sheet: declines for now. The sheet may be offered once more later. Short." },
 	"mobile.notifications.primer.title": { role: "heading", note: "Title of the first-run sheet that asks the reader to turn on notifications. Shown once on Home after a computer is first reached. \"Agents\" are the AI agents running on the reader's computer." },
 	"mobile.notifications.priority_high": { role: "status", note: "Badge on a notification the sender marked high priority. One word." },
+	"mobile.notifications.section.waiting": { role: "heading", note: "Pinned section heading at the top of the notifications inbox: the asks that are blocked on the reader. Short heading, ~20 characters. No placeholders." },
+	"mobile.notifications.section.waiting_count": { role: "heading", note: "The same pinned section heading with the number of items in it, e.g. 'Waiting on you · 3'. {count} is an integer shown as digits; no noun follows it, so no plural arms. Keep the middle dot separator." },
 	"mobile.notifications.title": { role: "heading", note: "Title of the notifications inbox screen." },
 	"mobile.notifications.turn_on": { role: "button", note: "The one label of every control that turns this phone's notifications on: the first-run sheet's primary button (raises the phone's permission dialog), the Settings › Notifications button, and the 'Notifications are off' row's button (opens this app's page in the system settings). Use the same words in all three places." },
 	"mobile.oauth.failed": { role: "status", note: "App sign-in failure when Android native transport or browser cannot complete. Cancellation is a separate existing state. No native error/URL/code is shown." },
@@ -4438,6 +4585,9 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.projects.milestones.none": { role: "meta", note: "Lower-case fragment shown where a milestone count would go when the relay reports zero total milestones. It is joined with a session count, so it carries no final full stop." },
 	"mobile.projects.project_name_hint": { role: "help", note: "The complete project-name grammar stated before the tap. Length range and allowed characters must stay exact: this sentence is the reader's only warning before a refusal." },
 	"mobile.projects.remove_milestone_body": { role: "confirm", note: "Destructive confirmation. Placeholder {name} is the milestone name (user text, may contain spaces). Says what goes and what stays." },
+	"mobile.projects.section.linked_sessions": { role: "heading", note: "Lower-case section heading on a project's detail screen, above the conversations linked to it ('sessions' = conversations). ~20 characters. No placeholders." },
+	"mobile.projects.section.milestones": { role: "heading", note: "Lower-case section heading on a project's detail screen, above its milestone list. ~16 characters. No placeholders." },
+	"mobile.projects.section.progress": { role: "heading", note: "Lower-case section heading on a project's detail screen, above its latest progress line. Lower case is the house style for these detail headings; follow your language's equivalent. ~16 characters. No placeholders." },
 	"mobile.projects.session_state.filed_by": { role: "status", note: "Lower-case two-word fragment marking a coordination row: the session filed the work rather than doing it. Never imply the row is a worker." },
 	"mobile.projects.session_state.missing": { role: "status", note: "Lower-case word for a linked session whose directory is gone. The link is still listed; this names its state." },
 	"mobile.projects.session_state.not_running": { role: "status", note: "Lower-case replacement for the relay's 'stopped' runtime state. The ordinary end of a session, not an error." },
@@ -4451,6 +4601,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.projects.status.planning": { role: "status", note: "Display label for the project status code planning; translate the label, not the underlying code. Shown in the create sheet as a selectable chip." },
 	"mobile.projects.status.qa": { role: "status", note: "Display label for the project status code qa; translate the label, not the underlying code. Shown in the create sheet as a selectable chip." },
 	"mobile.projects.status.validation": { role: "status", note: "Display label for the project status code validation; translate the label, not the underlying code. Shown in the create sheet as a selectable chip." },
+	"mobile.projects.title": { role: "heading", note: "Screen title of the projects list (navigation bar). One word, ~16 characters. No placeholders." },
 	"mobile.projects.write_receipt": { role: "status", note: "One-line success receipt. THREE PARAMETERS, all supplied by the screen: {action} is a stable CODE (created, completed, reopened, added, updated, removed, deleted) and never a rendered word — the catalogue turns it into the verb; {subject} is the BARE NAME of the thing acted on (user text, never a phrase such as 'milestone X', because a phrase composed in one language cannot be ordered or inflected by another); {kind} is a stable CODE for WHAT the subject names (project, milestone, other). Each locale supplies its own noun and its own word order — English verb-first, French naming the thing first with the participle last — which is why the action arms are repeated inside every kind arm: a locale has to be free to move the verb. other catches an unknown kind or an unknown action code. Ends with a full stop." },
 	"mobile.projects.write_unknown_note": { role: "status", note: "Shown when a write got no answer. Must state that the outcome is UNKNOWN, never that nothing was saved." },
 	"mobile.refusal.action.add_credit": { role: "button", note: "Button that opens the Radient billing page where the reader tops up their balance. No final full stop." },
@@ -4540,6 +4691,10 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.schedules.read_error.monitors": { role: "status", note: "The monitor store could not be read. Must name the failed family and must never read like an empty list." },
 	"mobile.schedules.read_error.wakes": { role: "status", note: "The wake store could not be read. Must name the failed family and must never read like an empty list." },
 	"mobile.schedules.read_unreachable": { role: "status", note: "A read failed with no sentence of its own, i.e. a transport drop. The connection surface owns the cause; this only says the read did not happen." },
+	"mobile.schedules.section.monitors": { role: "heading", note: "Section heading for the monitors list on the Schedules screen, shown alone when the monitors could not be read. A monitor watches one thing and reports changes. ~16 characters. No placeholders." },
+	"mobile.schedules.section.monitors_summary": { role: "heading", note: "Section heading for the monitors list with its summary, e.g. 'Monitors · 2 armed'. {summary} is an already-translated phrase built from other keys (mobile.schedules.summary.*); keep it after the separator. Keep the middle dot." },
+	"mobile.schedules.section.wakes": { role: "heading", note: "Section heading for the wakes list on the Schedules screen, shown alone when the wakes could not be read. A wake fires a prompt into a conversation at a time. ~16 characters. No placeholders." },
+	"mobile.schedules.section.wakes_summary": { role: "heading", note: "Section heading for the wakes list with its summary, e.g. 'Wakes · 3 scheduled · 1 failed'. {summary} is an already-translated phrase built from other keys (mobile.schedules.summary.*, tail.*); keep it after the separator. Keep the middle dot." },
 	"mobile.schedules.show_less.monitors": { role: "button", note: "Collapse control for the per-entry monitor disclosure. Shown only while expanded." },
 	"mobile.schedules.show_less.wakes": { role: "button", note: "Collapse control for the per-entry wake disclosure. Shown only while expanded." },
 	"mobile.schedules.show_more.monitors": { role: "button", note: "Expand control for hidden monitor rows. {hidden} is a positive integer driving the plural category; # is that number. The singular must read 'more monitor', not 'more monitors'." },
@@ -4626,6 +4781,8 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.session.region.label_todos": { role: "meta", note: "Lower-case noun spliced into {labels} of below_labels: the 'tasks' (todo list) band. Reuse the shipped tasks term." },
 	"mobile.session.region.label_working": { role: "meta", note: "Lower-case noun spliced into mobile.session.region.below_labels {labels} (joined with ' · '): names the 'activity' band that is scrolled out of view. Must read inside 'X below'. Lower case, one word if possible." },
 	"mobile.session.region.more_below": { role: "meta", note: "Cue under the capped activity region when more rows are hidden below and there are no region names to list. Keep the middle dot and the down arrow; lower case." },
+	"mobile.session.sheet_title.attach": { role: "heading", note: "Title of the bottom sheet offering attachment sources (photo, file, camera) in the composer: the verb 'attach' used as a title. Lower case as currently shipped (other sheet titles are Title case; a casing change is a separate design decision). ~16 characters. No placeholders." },
+	"mobile.session.sheet_title.commands": { role: "heading", note: "Title of the bottom sheet listing slash commands the reader can run in a conversation. Lower case as currently shipped (other sheet titles are Title case; a casing change is a separate design decision) — use your language's natural form. ~16 characters. No placeholders." },
 	"mobile.session.sheet_title.effort": { role: "heading", note: "Title of the sheet that lists the reasoning-effort levels to choose from. Title case in English." },
 	"mobile.session.sheet_title.model": { role: "heading", note: "Title of the sheet that lists the models to choose from. Title case in English." },
 	"mobile.session.sheet_title.status": { role: "heading", note: "Title of the sheet opened from the counts on the activity line above the composer; it lists the conversation's tasks and its sub-agents. Sentence-style capitalisation after the first word in English." },
@@ -4704,6 +4861,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.settings.section.appearance": { role: "heading", note: "Section header on Settings above the theme and text-size controls. One word." },
 	"mobile.settings.section.connection": { role: "heading", note: "Section header on Settings above the connection status and the computers list. One word." },
 	"mobile.settings.section.diagnostics": { role: "heading", note: "Section header on Settings above the read-only connection facts (route, stream, last error). One word." },
+	"mobile.settings.section.notifications": { role: "heading", note: "Settings section heading above the notification permission state and preferences. Same register as the other Settings section headings (Connection, Appearance, About). ~20 characters. No placeholders." },
 	"mobile.settings.sign_in_confirm.body": { role: "confirm", note: "Body of that dialog: starting Radient sign-in ends the current connection before the browser opens, and if the user abandons sign-in they must connect to their computer again. State the consequence plainly; do not promise the connection comes back." },
 	"mobile.settings.sign_in_confirm.confirm": { role: "button", note: "Confirm button of that dialog; it starts Radient sign-in. One or two words, sentence case." },
 	"mobile.settings.sign_in_confirm.title": { role: "confirm", note: "Title of the confirmation dialog opened by tapping the signed-out Settings account card while the phone has a working (direct or own-tunnel) connection. A question; keep it short. Radient is the product name; keep it in Latin script." },
@@ -4954,6 +5112,29 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.thread.send_retry": { role: "button", note: "Team Bridge mobile UI: thread / send retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.title": { role: "heading", note: "Team Bridge mobile UI: title. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.unread": { role: "status", note: "Team Bridge mobile UI: unread. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Parameters are caller-supplied names/counts or protocol selects; do not translate their identifiers. Preserve ICU plural/select syntax and all variants; names are not translated." },
+	"mobile.time.bucket.earlier": { role: "heading", note: "Notifications inbox section heading for items older than a week. One short word, keep under ~16 characters. No placeholders." },
+	"mobile.time.bucket.earlier_this_week": { role: "heading", note: "Notifications inbox section heading for items from two to six days ago (before yesterday, within the last week). Short heading, keep under ~24 characters. No placeholders." },
+	"mobile.time.bucket.today": { role: "heading", note: "Notifications inbox section heading and Team Bridge thread day divider for items from this local calendar day. Short heading, keep under ~16 characters. Sentence case. No placeholders." },
+	"mobile.time.bucket.yesterday": { role: "heading", note: "Notifications inbox section heading and Team Bridge thread day divider for items from the previous local calendar day. Short heading, keep under ~16 characters. No placeholders." },
+	"mobile.time.relative.days_ago": { role: "meta", note: "Relative age in whole days with a spaced abbreviated unit, e.g. '4 d ago', on computer rows and the Past list. {count} is an integer ≥ 1; # renders it. Keep the short unit; ~12 characters." },
+	"mobile.time.relative.days_ago_compact": { role: "meta", note: "Compact relative age in days, no space before the unit, e.g. '4d ago', in the notifications inbox row meta and a stale-connection note. {count} is an integer ≥ 2 in the inbox (1 reads 'yesterday'); # renders it. Narrow slot, ~10 characters." },
+	"mobile.time.relative.hours_ago": { role: "meta", note: "Relative age in whole hours with a spaced abbreviated unit, e.g. '3 h ago', on computer rows and the Past list. {count} is an integer ≥ 1; # renders it. Keep the short unit; ~12 characters." },
+	"mobile.time.relative.hours_ago_compact": { role: "meta", note: "Compact relative age in hours, no space before the unit, e.g. '3h ago', in the notifications inbox row meta and a stale-connection note. {count} is an integer ≥ 1; # renders it. Narrow slot, ~10 characters." },
+	"mobile.time.relative.just_now": { role: "meta", note: "Relative age for something under a minute old. Appears alone or after a separator, e.g. 'Asleep · just now' on a computer row, 'Last update just now'. Lower case in English because it sits mid-line. Keep under ~12 characters. No placeholders." },
+	"mobile.time.relative.minutes_ago": { role: "meta", note: "Relative age in whole minutes, e.g. '5 min ago' ('Asleep · 5 min ago' on a computer row, the Past list, a stale-connection note). {count} is an integer ≥ 1; # renders it. Keep the short unit; ~14 characters." },
+	"mobile.time.relative.minutes_ago_compact": { role: "meta", note: "Compact relative age in minutes, no space before the unit, e.g. '5m ago', in the notifications inbox row meta. {count} is an integer ≥ 1; # renders it. Narrow slot: keep the abbreviated unit, ~10 characters." },
+	"mobile.time.relative.now": { role: "meta", note: "Timestamp for something under a minute old, shown alone in a narrow row meta slot (session drawer rows, Team Bridge list rows). One lower-case word; keep it as short as possible (~6 characters). No placeholders." },
+	"mobile.time.relative.seconds_ago_compact": { role: "meta", note: "Compact relative age in seconds (5–59), e.g. '12s ago', in a stale-connection note. {count} is an integer; # renders it. 's' is an abbreviated unit: use your language's customary short form. Narrow slot, keep compact." },
+	"mobile.time.relative.yesterday": { role: "meta", note: "Relative age for a notification that is one day old, in the inbox row's narrow meta line and its screen-reader label. Lower case in English because it sits mid-line. No placeholders." },
+	"mobile.time.short.days": { role: "meta", note: "A bare duration in days, e.g. '2d': a schedule's due time, a session drawer row's time, a Team Bridge row stamp. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters." },
+	"mobile.time.short.hours": { role: "meta", note: "A bare duration in hours, e.g. '3h': a schedule's due time, a connection's age, a session drawer row's time, a Team Bridge row stamp. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters." },
+	"mobile.time.short.hours_minutes": { role: "meta", note: "An elapsed duration of an hour or more on a running transcript item, e.g. '2h 07m'. {hours} is an integer; # renders it. {minutes} is ALWAYS two digits, zero-padded ('07'); do not reformat it. Keep both unit abbreviations short and the order hours then minutes." },
+	"mobile.time.short.minutes": { role: "meta", note: "A bare duration in minutes, e.g. '5m': a schedule's 'in 5m', a connection's age, a Team Bridge row stamp. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters." },
+	"mobile.time.short.minutes_seconds": { role: "meta", note: "An elapsed duration under an hour on a running transcript item, e.g. '4m 07s'. {minutes} is an integer; # renders it. {seconds} is ALWAYS two digits, zero-padded ('07'), so the width never jitters as it ticks; do not reformat it. Keep both unit abbreviations short and the order minutes then seconds." },
+	"mobile.time.short.minutes_spaced": { role: "meta", note: "A bare age in minutes with a spaced unit on a session drawer row, e.g. '12 min' (the row's narrow time column). {count} is an integer ≥ 1; # renders it. Keep it ~7 characters." },
+	"mobile.time.short.seconds": { role: "meta", note: "A bare duration in seconds, e.g. '45s': elapsed time on a transcript, a schedule's 'in 45s', a connection's '12s'. {count} is an integer; # renders it. Use your language's customary one- or two-letter unit abbreviation; this is a tight token, ~4 characters." },
+	"mobile.time.short.weeks": { role: "meta", note: "A bare age in weeks on a session drawer row, e.g. '3w'. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters." },
+	"mobile.time.short.years": { role: "meta", note: "A bare age in years on a session drawer row, e.g. '2y'. {count} is an integer; # renders it. Customary short unit abbreviation; tight token, ~4 characters." },
 	"relay.chrome.drawer.close": { role: "button", note: "Mirrored verbatim from the core relay catalogue (local_operator/i18n/catalogues/en/relay.chrome.context.json). Owned relay SPA chrome for the borderless redesign (docs/design/mobile-relay-redesign.md). Accessible name of the close control inside the navigation drawer. Escape and a tap outside also close it; this is the visible, labelled path for touch screen-reader users." },
 	"relay.chrome.drawer.library": { role: "button", note: "Mirrored verbatim from the core relay catalogue (local_operator/i18n/catalogues/en/relay.chrome.context.json). Owned relay SPA chrome for the borderless redesign (docs/design/mobile-relay-redesign.md). Opens the asset library (files the agents produced). Hidden on a relay without the library capability, never shown disabled." },
 	"relay.chrome.drawer.open": { role: "button", note: "Mirrored verbatim from the core relay catalogue (local_operator/i18n/catalogues/en/relay.chrome.context.json). Owned relay SPA chrome for the borderless redesign (docs/design/mobile-relay-redesign.md). Accessible name of the ☰ button at the start of the conversation list's app bar; it opens the navigation drawer. Read by screen readers only; the glyph is not translated." },
@@ -5416,6 +5597,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "No hay preguntas en esta conversación.",
 		"mobile.notifications.detail.nothing_to_dismiss": "No hay actualizaciones de esta conversación que descartar.",
 		"mobile.notifications.detail.projects": "Proyectos",
+		"mobile.notifications.detail.section_links": "Enlaces",
+		"mobile.notifications.detail.section_message": "Mensaje",
+		"mobile.notifications.detail.section_notification": "Notificación",
+		"mobile.notifications.detail.title": "Notificación",
 		"mobile.notifications.device_state.absent": "No está en el registro de esta máquina; puede volver a registrarse.",
 		"mobile.notifications.device_state.expired": "Las notificaciones de este dispositivo están en pausa hasta que vuelvas a iniciar sesión.",
 		"mobile.notifications.device_state.live": "Registrado en esta máquina.",
@@ -5453,6 +5638,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "Ahora no",
 		"mobile.notifications.primer.title": "Recibe avisos cuando tus agentes terminen",
 		"mobile.notifications.priority_high": "Alta",
+		"mobile.notifications.section.waiting": "Te esperan",
+		"mobile.notifications.section.waiting_count": "Te esperan · {count}",
 		"mobile.notifications.title": "Notificaciones",
 		"mobile.notifications.turn_on": "Activar notificaciones",
 		"mobile.oauth.failed": "No se pudo completar el inicio de sesión. Inténtalo de nuevo.",
@@ -5476,6 +5663,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "sin hitos",
 		"mobile.projects.project_name_hint": "De 1 a 64 caracteres: letras, dígitos, punto, guion bajo o guion. Sin espacios, y no puede empezar por guion.",
 		"mobile.projects.remove_milestone_body": "¿Quitar {name} de este proyecto? El hito se borra para siempre. Las sesiones del proyecto y su línea de progreso no se tocan.",
+		"mobile.projects.section.linked_sessions": "sesiones vinculadas",
+		"mobile.projects.section.milestones": "hitos",
+		"mobile.projects.section.progress": "progreso",
 		"mobile.projects.session_state.filed_by": "registrada por",
 		"mobile.projects.session_state.missing": "ausente",
 		"mobile.projects.session_state.not_running": "detenida",
@@ -5489,6 +5679,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "planificación",
 		"mobile.projects.status.qa": "control de calidad",
 		"mobile.projects.status.validation": "validación",
+		"mobile.projects.title": "Proyectos",
 		"mobile.projects.write_receipt": "{kind, select, project {Proyecto {subject} {action, select, created {creado} completed {completado} reopened {reabierto} added {añadido} updated {actualizado} removed {quitado} deleted {eliminado} other {actualizado}}.} milestone {Hito {subject} {action, select, created {creado} completed {completado} reopened {reabierto} added {añadido} updated {actualizado} removed {quitado} deleted {eliminado} other {actualizado}}.} other {{subject} {action, select, created {creado} completed {completado} reopened {reabierto} added {añadido} updated {actualizado} removed {quitado} deleted {eliminado} other {actualizado}}.}}",
 		"mobile.projects.write_unknown_note": "No pudimos llegar a tu máquina, así que no sabemos si se guardó. Revisa el proyecto antes de volver a intentarlo.",
 		"mobile.refusal.action.add_credit": "Añadir crédito",
@@ -5578,6 +5769,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "No se pudieron leer las monitorizaciones de esta máquina.",
 		"mobile.schedules.read_error.wakes": "No se pudieron leer los despertares de esta máquina.",
 		"mobile.schedules.read_unreachable": "Ahora mismo no hemos podido leer las programaciones de esta máquina.",
+		"mobile.schedules.section.monitors": "Monitorizaciones",
+		"mobile.schedules.section.monitors_summary": "Monitorizaciones · {summary}",
+		"mobile.schedules.section.wakes": "Despertares",
+		"mobile.schedules.section.wakes_summary": "Despertares · {summary}",
 		"mobile.schedules.show_less.monitors": "Mostrar menos monitorizaciones",
 		"mobile.schedules.show_less.wakes": "Mostrar menos despertares",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, one {Mostrar # monitorización más} many {Mostrar # de monitorizaciones más} other {Mostrar # monitorizaciones más}}",
@@ -5664,6 +5859,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "tareas",
 		"mobile.session.region.label_working": "actividad",
 		"mobile.session.region.more_below": "más abajo · desplazar ↓",
+		"mobile.session.sheet_title.attach": "adjuntar",
+		"mobile.session.sheet_title.commands": "comandos",
 		"mobile.session.sheet_title.effort": "Esfuerzo",
 		"mobile.session.sheet_title.model": "Modelo",
 		"mobile.session.sheet_title.status": "Tareas y agentes",
@@ -5742,6 +5939,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "Apariencia",
 		"mobile.settings.section.connection": "Conexión",
 		"mobile.settings.section.diagnostics": "Diagnóstico",
+		"mobile.settings.section.notifications": "Notificaciones",
 		"mobile.settings.sign_in_confirm.body": "Esto cierra primero tu conexión actual. Si no terminas de iniciar sesión, tendrás que volver a conectarte a tu máquina.",
 		"mobile.settings.sign_in_confirm.confirm": "Iniciar sesión",
 		"mobile.settings.sign_in_confirm.title": "¿Iniciar sesión con Radient?",
@@ -5992,6 +6190,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "Reintentar envío",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, one {# sin leer} other {# sin leer}}",
+		"mobile.time.bucket.earlier": "Anteriores",
+		"mobile.time.bucket.earlier_this_week": "Esta semana",
+		"mobile.time.bucket.today": "Hoy",
+		"mobile.time.bucket.yesterday": "Ayer",
+		"mobile.time.relative.days_ago": "{count, plural, one {hace # d} other {hace # d}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, one {hace # d} other {hace # d}}",
+		"mobile.time.relative.hours_ago": "{count, plural, one {hace # h} other {hace # h}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, one {hace # h} other {hace # h}}",
+		"mobile.time.relative.just_now": "ahora mismo",
+		"mobile.time.relative.minutes_ago": "{count, plural, one {hace # min} other {hace # min}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, one {hace # min} other {hace # min}}",
+		"mobile.time.relative.now": "ahora",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, one {hace # s} other {hace # s}}",
+		"mobile.time.relative.yesterday": "ayer",
+		"mobile.time.short.days": "{count, plural, one {# d} other {# d}}",
+		"mobile.time.short.hours": "{count, plural, one {# h} other {# h}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, one {# h} other {# h}} {minutes} min",
+		"mobile.time.short.minutes": "{count, plural, one {# min} other {# min}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, one {# min} other {# min}} {seconds} s",
+		"mobile.time.short.minutes_spaced": "{count, plural, one {# min} other {# min}}",
+		"mobile.time.short.seconds": "{count, plural, one {# s} other {# s}}",
+		"mobile.time.short.weeks": "{count, plural, one {# sem} other {# sem}}",
+		"mobile.time.short.years": "{count, plural, one {# año} many {# de años} other {# años}}",
 		"relay.chrome.drawer.close": "Cerrar el menú de navegación",
 		"relay.chrome.drawer.library": "Biblioteca",
 		"relay.chrome.drawer.open": "Abrir el menú de navegación",
@@ -6438,6 +6659,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "Aucune question dans cette conversation.",
 		"mobile.notifications.detail.nothing_to_dismiss": "Aucune mise à jour de cette conversation à ignorer.",
 		"mobile.notifications.detail.projects": "Projets",
+		"mobile.notifications.detail.section_links": "Liens",
+		"mobile.notifications.detail.section_message": "Message",
+		"mobile.notifications.detail.section_notification": "Notification",
+		"mobile.notifications.detail.title": "Notification",
 		"mobile.notifications.device_state.absent": "Absent du registre de cet ordinateur ; il peut s’enregistrer à nouveau.",
 		"mobile.notifications.device_state.expired": "Les notifications sont suspendues pour cet appareil jusqu’à ce que vous vous reconnectiez.",
 		"mobile.notifications.device_state.live": "Enregistré auprès de cet ordinateur.",
@@ -6475,6 +6700,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "Plus tard",
 		"mobile.notifications.primer.title": "Soyez averti quand vos agents ont terminé",
 		"mobile.notifications.priority_high": "Élevée",
+		"mobile.notifications.section.waiting": "À traiter",
+		"mobile.notifications.section.waiting_count": "À traiter · {count}",
 		"mobile.notifications.title": "Notifications",
 		"mobile.notifications.turn_on": "Activer les notifications",
 		"mobile.oauth.failed": "La connexion n’a pas pu aboutir. Réessayez.",
@@ -6498,6 +6725,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "aucun jalon",
 		"mobile.projects.project_name_hint": "1 à 64 caractères : lettres, chiffres, point, tiret bas ou tiret. Aucun espace, et le nom ne peut pas commencer par un tiret.",
 		"mobile.projects.remove_milestone_body": "Retirer {name} de ce projet ? Le jalon sera définitivement supprimé. Les sessions du projet et sa ligne de progression ne seront pas modifiées.",
+		"mobile.projects.section.linked_sessions": "sessions liées",
+		"mobile.projects.section.milestones": "jalons",
+		"mobile.projects.section.progress": "progression",
 		"mobile.projects.session_state.filed_by": "classée par",
 		"mobile.projects.session_state.missing": "manquante",
 		"mobile.projects.session_state.not_running": "arrêtée",
@@ -6511,6 +6741,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "planification",
 		"mobile.projects.status.qa": "contrôle qualité",
 		"mobile.projects.status.validation": "validation",
+		"mobile.projects.title": "Projets",
 		"mobile.projects.write_receipt": "{kind, select, project {Projet {subject} {action, select, created {créé} completed {terminé} reopened {rouvert} added {ajouté} updated {mis à jour} removed {retiré} deleted {supprimé} other {mis à jour}}.} milestone {Jalon {subject} {action, select, created {créé} completed {terminé} reopened {rouvert} added {ajouté} updated {mis à jour} removed {retiré} deleted {supprimé} other {mis à jour}}.} other {{subject} {action, select, created {créé} completed {terminé} reopened {rouvert} added {ajouté} updated {mis à jour} removed {retiré} deleted {supprimé} other {mis à jour}}.}}",
 		"mobile.projects.write_unknown_note": "Impossible de joindre votre ordinateur : nous ne savons pas si la modification a été enregistrée. Vérifiez le projet avant de réessayer.",
 		"mobile.refusal.action.add_credit": "Ajouter du crédit",
@@ -6600,6 +6831,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "Impossible de lire les surveillances de cette machine.",
 		"mobile.schedules.read_error.wakes": "Impossible de lire les réveils de cette machine.",
 		"mobile.schedules.read_unreachable": "Impossible de lire les planifications de cette machine pour le moment.",
+		"mobile.schedules.section.monitors": "Surveillances",
+		"mobile.schedules.section.monitors_summary": "Surveillances · {summary}",
+		"mobile.schedules.section.wakes": "Réveils",
+		"mobile.schedules.section.wakes_summary": "Réveils · {summary}",
 		"mobile.schedules.show_less.monitors": "Afficher moins de surveillances",
 		"mobile.schedules.show_less.wakes": "Afficher moins de réveils",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, one {Afficher # surveillance de plus} many {Afficher # de surveillances de plus} other {Afficher # surveillances de plus}}",
@@ -6686,6 +6921,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "tâches",
 		"mobile.session.region.label_working": "activité",
 		"mobile.session.region.more_below": "la suite plus bas · défiler ↓",
+		"mobile.session.sheet_title.attach": "joindre",
+		"mobile.session.sheet_title.commands": "commandes",
 		"mobile.session.sheet_title.effort": "Effort",
 		"mobile.session.sheet_title.model": "Modèle",
 		"mobile.session.sheet_title.status": "Tâches et agents",
@@ -6764,6 +7001,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "Apparence",
 		"mobile.settings.section.connection": "Connexion",
 		"mobile.settings.section.diagnostics": "Diagnostic",
+		"mobile.settings.section.notifications": "Notifications",
 		"mobile.settings.sign_in_confirm.body": "Cela met d’abord fin à votre connexion actuelle. Si vous interrompez la connexion à Radient avant la fin, vous devrez vous reconnecter à votre ordinateur.",
 		"mobile.settings.sign_in_confirm.confirm": "Se connecter",
 		"mobile.settings.sign_in_confirm.title": "Se connecter avec Radient ?",
@@ -7014,6 +7252,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "Réessayer l’envoi",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, one {# non lu} other {# non lus}}",
+		"mobile.time.bucket.earlier": "Plus tôt",
+		"mobile.time.bucket.earlier_this_week": "Plus tôt cette semaine",
+		"mobile.time.bucket.today": "Aujourd’hui",
+		"mobile.time.bucket.yesterday": "Hier",
+		"mobile.time.relative.days_ago": "{count, plural, one {il y a # j} many {il y a # j} other {il y a # j}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, one {il y a # j} many {il y a # j} other {il y a # j}}",
+		"mobile.time.relative.hours_ago": "{count, plural, one {il y a # h} many {il y a # h} other {il y a # h}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, one {il y a # h} many {il y a # h} other {il y a # h}}",
+		"mobile.time.relative.just_now": "à l’instant",
+		"mobile.time.relative.minutes_ago": "{count, plural, one {il y a # min} many {il y a # min} other {il y a # min}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, one {il y a # min} many {il y a # min} other {il y a # min}}",
+		"mobile.time.relative.now": "à l’instant",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, one {il y a # s} many {il y a # s} other {il y a # s}}",
+		"mobile.time.relative.yesterday": "hier",
+		"mobile.time.short.days": "{count, plural, one {# j} many {# j} other {# j}}",
+		"mobile.time.short.hours": "{count, plural, one {# h} many {# h} other {# h}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, one {# h} many {# h} other {# h}} {minutes} min",
+		"mobile.time.short.minutes": "{count, plural, one {# min} many {# min} other {# min}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, one {# min} many {# min} other {# min}} {seconds} s",
+		"mobile.time.short.minutes_spaced": "{count, plural, one {# min} many {# min} other {# min}}",
+		"mobile.time.short.seconds": "{count, plural, one {# s} many {# s} other {# s}}",
+		"mobile.time.short.weeks": "{count, plural, one {# sem.} many {# sem.} other {# sem.}}",
+		"mobile.time.short.years": "{count, plural, one {# an} many {# ans} other {# ans}}",
 		"relay.chrome.drawer.close": "Fermer la navigation",
 		"relay.chrome.drawer.library": "Bibliothèque",
 		"relay.chrome.drawer.open": "Ouvrir la navigation",
@@ -7460,6 +7721,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "इस बातचीत में कोई सवाल नहीं।",
 		"mobile.notifications.detail.nothing_to_dismiss": "इस बातचीत से हटाने के लिए कोई अपडेट नहीं।",
 		"mobile.notifications.detail.projects": "प्रोजेक्ट",
+		"mobile.notifications.detail.section_links": "लिंक",
+		"mobile.notifications.detail.section_message": "संदेश",
+		"mobile.notifications.detail.section_notification": "विवरण",
+		"mobile.notifications.detail.title": "सूचना",
 		"mobile.notifications.device_state.absent": "इस कंप्यूटर की रजिस्ट्री में नहीं है; यह फिर से रजिस्टर हो सकता है।",
 		"mobile.notifications.device_state.expired": "जब तक आप दोबारा साइन इन नहीं करते, इस डिवाइस के लिए सूचनाएँ रुकी हुई हैं।",
 		"mobile.notifications.device_state.live": "इस कंप्यूटर के साथ रजिस्टर है।",
@@ -7497,6 +7762,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "अभी नहीं",
 		"mobile.notifications.primer.title": "जब आपके एजेंट काम पूरा करें, तब सूचना पाएँ",
 		"mobile.notifications.priority_high": "उच्च",
+		"mobile.notifications.section.waiting": "आपका इंतज़ार",
+		"mobile.notifications.section.waiting_count": "आपका इंतज़ार · {count}",
 		"mobile.notifications.title": "सूचनाएँ",
 		"mobile.notifications.turn_on": "सूचनाएँ चालू करें",
 		"mobile.oauth.failed": "साइन-इन पूरा नहीं हो सका। फिर से कोशिश करें।",
@@ -7520,6 +7787,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "कोई पड़ाव नहीं",
 		"mobile.projects.project_name_hint": "1-64 वर्ण: अक्षर, अंक, बिंदु (.), अंडरस्कोर (_) या हाइफ़न (-)। स्पेस नहीं, और हाइफ़न से शुरुआत नहीं हो सकती।",
 		"mobile.projects.remove_milestone_body": "{name} को इस प्रोजेक्ट से हटाएँ? पड़ाव हमेशा के लिए चला जाएगा। प्रोजेक्ट के सत्रों और उसकी प्रगति पंक्ति को छुआ नहीं जाएगा।",
+		"mobile.projects.section.linked_sessions": "जुड़े सत्र",
+		"mobile.projects.section.milestones": "पड़ाव",
+		"mobile.projects.section.progress": "प्रगति",
 		"mobile.projects.session_state.filed_by": "द्वारा दर्ज",
 		"mobile.projects.session_state.missing": "गायब",
 		"mobile.projects.session_state.not_running": "नहीं चल रहा",
@@ -7533,6 +7803,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "योजना",
 		"mobile.projects.status.qa": "QA",
 		"mobile.projects.status.validation": "सत्यापन",
+		"mobile.projects.title": "प्रोजेक्ट",
 		"mobile.projects.write_receipt": "{kind, select, project {“{subject}” प्रोजेक्ट {action, select, created {बनाया गया} completed {पूरा किया गया} reopened {फिर खोला गया} added {जोड़ा गया} updated {अपडेट किया गया} removed {हटाया गया} deleted {मिटाया गया} other {अपडेट किया गया}}।} milestone {“{subject}” पड़ाव {action, select, created {बनाया गया} completed {पूरा किया गया} reopened {फिर खोला गया} added {जोड़ा गया} updated {अपडेट किया गया} removed {हटाया गया} deleted {मिटाया गया} other {अपडेट किया गया}}।} other {“{subject}” {action, select, created {बनाया गया} completed {पूरा किया गया} reopened {फिर खोला गया} added {जोड़ा गया} updated {अपडेट किया गया} removed {हटाया गया} deleted {मिटाया गया} other {अपडेट किया गया}}।}}",
 		"mobile.projects.write_unknown_note": "आपके कंप्यूटर तक नहीं पहुँच सके, इसलिए यह नहीं बता सकते कि वह सहेजा गया या नहीं। दोबारा कोशिश करने से पहले प्रोजेक्ट जाँच लें।",
 		"mobile.refusal.action.add_credit": "क्रेडिट जोड़ें",
@@ -7622,6 +7893,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "इस मशीन के मॉनिटर पढ़े नहीं जा सके।",
 		"mobile.schedules.read_error.wakes": "इस मशीन की जागृतियाँ पढ़ी नहीं जा सकीं।",
 		"mobile.schedules.read_unreachable": "हम अभी इस मशीन के शेड्यूल नहीं पढ़ सके।",
+		"mobile.schedules.section.monitors": "मॉनिटर",
+		"mobile.schedules.section.monitors_summary": "मॉनिटर · {summary}",
+		"mobile.schedules.section.wakes": "जागृतियाँ",
+		"mobile.schedules.section.wakes_summary": "जागृतियाँ · {summary}",
 		"mobile.schedules.show_less.monitors": "कम मॉनिटर दिखाएँ",
 		"mobile.schedules.show_less.wakes": "कम जागृतियाँ दिखाएँ",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, one {# और मॉनिटर दिखाएँ} other {# और मॉनिटर दिखाएँ}}",
@@ -7708,6 +7983,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "कार्य",
 		"mobile.session.region.label_working": "गतिविधि",
 		"mobile.session.region.more_below": "नीचे और भी है · स्क्रॉल करें ↓",
+		"mobile.session.sheet_title.attach": "संलग्न करें",
+		"mobile.session.sheet_title.commands": "कमांड",
 		"mobile.session.sheet_title.effort": "प्रयास",
 		"mobile.session.sheet_title.model": "मॉडल",
 		"mobile.session.sheet_title.status": "कार्य और एजेंट",
@@ -7786,6 +8063,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "रूप-रंग",
 		"mobile.settings.section.connection": "कनेक्शन",
 		"mobile.settings.section.diagnostics": "डायग्नॉस्टिक्स",
+		"mobile.settings.section.notifications": "सूचनाएँ",
 		"mobile.settings.sign_in_confirm.body": "इससे पहले आपका मौजूदा कनेक्शन बंद हो जाएगा। अगर आप साइन इन पूरा नहीं करते, तो आपको अपने कंप्यूटर से फिर से कनेक्ट करना होगा।",
 		"mobile.settings.sign_in_confirm.confirm": "साइन इन करें",
 		"mobile.settings.sign_in_confirm.title": "Radient से साइन इन करें?",
@@ -8036,6 +8314,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "भेजने की फिर कोशिश करें",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, one {# अपठित} other {# अपठित}}",
+		"mobile.time.bucket.earlier": "पहले",
+		"mobile.time.bucket.earlier_this_week": "पिछले कुछ दिन",
+		"mobile.time.bucket.today": "आज",
+		"mobile.time.bucket.yesterday": "कल",
+		"mobile.time.relative.days_ago": "{count, plural, one {# दिन पहले} other {# दिन पहले}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, one {# दिन पहले} other {# दिन पहले}}",
+		"mobile.time.relative.hours_ago": "{count, plural, one {# घंटा पहले} other {# घंटे पहले}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, one {# घंटा पहले} other {# घंटे पहले}}",
+		"mobile.time.relative.just_now": "अभी-अभी",
+		"mobile.time.relative.minutes_ago": "{count, plural, one {# मिनट पहले} other {# मिनट पहले}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, one {# मिनट पहले} other {# मिनट पहले}}",
+		"mobile.time.relative.now": "अभी",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, one {# सेकंड पहले} other {# सेकंड पहले}}",
+		"mobile.time.relative.yesterday": "कल",
+		"mobile.time.short.days": "{count, plural, one {# दिन} other {# दिन}}",
+		"mobile.time.short.hours": "{count, plural, one {# घंटा} other {# घंटे}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, one {# घंटा} other {# घंटे}} {minutes} मिनट",
+		"mobile.time.short.minutes": "{count, plural, one {# मिनट} other {# मिनट}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, one {# मिनट} other {# मिनट}} {seconds} सेकंड",
+		"mobile.time.short.minutes_spaced": "{count, plural, one {# मिनट} other {# मिनट}}",
+		"mobile.time.short.seconds": "{count, plural, one {# सेकंड} other {# सेकंड}}",
+		"mobile.time.short.weeks": "{count, plural, one {# हफ़्ता} other {# हफ़्ते}}",
+		"mobile.time.short.years": "{count, plural, one {# साल} other {# साल}}",
 		"relay.chrome.drawer.close": "नेविगेशन बंद करें",
 		"relay.chrome.drawer.library": "लाइब्रेरी",
 		"relay.chrome.drawer.open": "नेविगेशन खोलें",
@@ -8482,6 +8783,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "В этой беседе нет вопросов.",
 		"mobile.notifications.detail.nothing_to_dismiss": "В этой беседе нет обновлений, которые можно скрыть.",
 		"mobile.notifications.detail.projects": "Проекты",
+		"mobile.notifications.detail.section_links": "Ссылки",
+		"mobile.notifications.detail.section_message": "Сообщение",
+		"mobile.notifications.detail.section_notification": "Уведомление",
+		"mobile.notifications.detail.title": "Уведомление",
 		"mobile.notifications.device_state.absent": "Нет в реестре этого компьютера; устройство может зарегистрироваться снова.",
 		"mobile.notifications.device_state.expired": "Уведомления для этого устройства приостановлены, пока вы снова не войдёте.",
 		"mobile.notifications.device_state.live": "Зарегистрировано на этом компьютере.",
@@ -8519,6 +8824,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "Не сейчас",
 		"mobile.notifications.primer.title": "Узнавайте, когда агенты закончат",
 		"mobile.notifications.priority_high": "Важно",
+		"mobile.notifications.section.waiting": "Ждут вас",
+		"mobile.notifications.section.waiting_count": "Ждут вас · {count}",
 		"mobile.notifications.title": "Уведомления",
 		"mobile.notifications.turn_on": "Включить уведомления",
 		"mobile.oauth.failed": "Не удалось завершить вход. Попробуйте ещё раз.",
@@ -8542,6 +8849,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "вех нет",
 		"mobile.projects.project_name_hint": "От 1 до 64 символов: буквы, цифры, точка, подчёркивание или дефис. Без пробелов. Имя не может начинаться с дефиса.",
 		"mobile.projects.remove_milestone_body": "Удалить веху «{name}» из этого проекта? Веха исчезнет навсегда. Сессии проекта и его строка прогресса не затрагиваются.",
+		"mobile.projects.section.linked_sessions": "связанные сессии",
+		"mobile.projects.section.milestones": "вехи",
+		"mobile.projects.section.progress": "прогресс",
 		"mobile.projects.session_state.filed_by": "завела работу",
 		"mobile.projects.session_state.missing": "не найдена",
 		"mobile.projects.session_state.not_running": "не запущена",
@@ -8555,6 +8865,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "планирование",
 		"mobile.projects.status.qa": "тестирование",
 		"mobile.projects.status.validation": "проверка",
+		"mobile.projects.title": "Проекты",
 		"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {Создан проект} completed {Завершён проект} reopened {Возобновлён проект} added {Добавлен проект} updated {Обновлён проект} removed {Удалён проект} deleted {Удалён проект} other {Обновлён проект}} «{subject}».} milestone {{action, select, created {Создана веха} completed {Завершена веха} reopened {Возобновлена веха} added {Добавлена веха} updated {Обновлена веха} removed {Удалена веха} deleted {Удалена веха} other {Обновлена веха}} «{subject}».} other {{action, select, created {Создано} completed {Завершено} reopened {Возобновлено} added {Добавлено} updated {Обновлено} removed {Удалено} deleted {Удалено} other {Обновлено}} «{subject}».}}",
 		"mobile.projects.write_unknown_note": "Не удалось связаться с компьютером, поэтому неизвестно, сохранилось ли изменение. Проверьте проект, прежде чем повторять попытку.",
 		"mobile.refusal.action.add_credit": "Пополнить баланс",
@@ -8644,6 +8955,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "Не удалось прочитать мониторы на этой машине.",
 		"mobile.schedules.read_error.wakes": "Не удалось прочитать пробуждения на этой машине.",
 		"mobile.schedules.read_unreachable": "Не удалось прочитать расписания этой машины.",
+		"mobile.schedules.section.monitors": "Мониторы",
+		"mobile.schedules.section.monitors_summary": "Мониторы · {summary}",
+		"mobile.schedules.section.wakes": "Пробуждения",
+		"mobile.schedules.section.wakes_summary": "Пробуждения · {summary}",
 		"mobile.schedules.show_less.monitors": "Показать меньше мониторов",
 		"mobile.schedules.show_less.wakes": "Показать меньше пробуждений",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, one {Показать ещё # монитор} few {Показать ещё # монитора} many {Показать ещё # мониторов} other {Показать ещё # монитора}}",
@@ -8730,6 +9045,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "задачи",
 		"mobile.session.region.label_working": "активность",
 		"mobile.session.region.more_below": "ещё ниже · прокрутить ↓",
+		"mobile.session.sheet_title.attach": "прикрепить",
+		"mobile.session.sheet_title.commands": "слэш-команды",
 		"mobile.session.sheet_title.effort": "Усилие",
 		"mobile.session.sheet_title.model": "Модель",
 		"mobile.session.sheet_title.status": "Задачи и агенты",
@@ -8808,6 +9125,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "Оформление",
 		"mobile.settings.section.connection": "Подключение",
 		"mobile.settings.section.diagnostics": "Диагностика",
+		"mobile.settings.section.notifications": "Уведомления",
 		"mobile.settings.sign_in_confirm.body": "Сначала текущее подключение будет завершено. Если прервать вход, придётся снова подключиться к компьютеру.",
 		"mobile.settings.sign_in_confirm.confirm": "Войти",
 		"mobile.settings.sign_in_confirm.title": "Войти через Radient?",
@@ -9058,6 +9376,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "Повторить отправку",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, one {# непрочитанное} few {# непрочитанных} many {# непрочитанных} other {# непрочитанных}}",
+		"mobile.time.bucket.earlier": "Ранее",
+		"mobile.time.bucket.earlier_this_week": "За последние 7 дней",
+		"mobile.time.bucket.today": "Сегодня",
+		"mobile.time.bucket.yesterday": "Вчера",
+		"mobile.time.relative.days_ago": "{count, plural, one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}}",
+		"mobile.time.relative.hours_ago": "{count, plural, one {# ч назад} few {# ч назад} many {# ч назад} other {# ч назад}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, one {# ч назад} few {# ч назад} many {# ч назад} other {# ч назад}}",
+		"mobile.time.relative.just_now": "только что",
+		"mobile.time.relative.minutes_ago": "{count, plural, one {# мин назад} few {# мин назад} many {# мин назад} other {# мин назад}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, one {# мин назад} few {# мин назад} many {# мин назад} other {# мин назад}}",
+		"mobile.time.relative.now": "сейчас",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, one {# сек назад} few {# сек назад} many {# сек назад} other {# сек назад}}",
+		"mobile.time.relative.yesterday": "вчера",
+		"mobile.time.short.days": "{count, plural, one {# дн.} few {# дн.} many {# дн.} other {# дн.}}",
+		"mobile.time.short.hours": "{count, plural, one {# ч} few {# ч} many {# ч} other {# ч}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, one {# ч} few {# ч} many {# ч} other {# ч}} {minutes} мин",
+		"mobile.time.short.minutes": "{count, plural, one {# мин} few {# мин} many {# мин} other {# мин}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, one {# мин} few {# мин} many {# мин} other {# мин}} {seconds} сек",
+		"mobile.time.short.minutes_spaced": "{count, plural, one {# мин} few {# мин} many {# мин} other {# мин}}",
+		"mobile.time.short.seconds": "{count, plural, one {# сек} few {# сек} many {# сек} other {# сек}}",
+		"mobile.time.short.weeks": "{count, plural, one {# нед.} few {# нед.} many {# нед.} other {# нед.}}",
+		"mobile.time.short.years": "{count, plural, one {# г.} few {# г.} many {# л.} other {# г.}}",
 		"relay.chrome.drawer.close": "Закрыть навигацию",
 		"relay.chrome.drawer.library": "Библиотека",
 		"relay.chrome.drawer.open": "Открыть навигацию",
@@ -9504,6 +9845,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "اس گفتگو میں کوئی سوال نہیں۔",
 		"mobile.notifications.detail.nothing_to_dismiss": "اس گفتگو سے ہٹانے کے لیے کوئی اپ ڈیٹ نہیں۔",
 		"mobile.notifications.detail.projects": "پروجیکٹس",
+		"mobile.notifications.detail.section_links": "لنکس",
+		"mobile.notifications.detail.section_message": "پیغام",
+		"mobile.notifications.detail.section_notification": "متن",
+		"mobile.notifications.detail.title": "اطلاع",
 		"mobile.notifications.device_state.absent": "اس کمپیوٹر کی رجسٹری میں نہیں ہے؛ یہ دوبارہ رجسٹر ہو سکتا ہے۔",
 		"mobile.notifications.device_state.expired": "جب تک آپ دوبارہ سائن اِن نہیں کرتے، اس ڈیوائس کے لیے اطلاعات رکی ہوئی ہیں۔",
 		"mobile.notifications.device_state.live": "اس کمپیوٹر کے ساتھ رجسٹرڈ ہے۔",
@@ -9541,6 +9886,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "ابھی نہیں",
 		"mobile.notifications.primer.title": "جب آپ کے ایجنٹ کام مکمل کریں تو اطلاع پائیں",
 		"mobile.notifications.priority_high": "اعلیٰ",
+		"mobile.notifications.section.waiting": "آپ کا انتظار",
+		"mobile.notifications.section.waiting_count": "آپ کا انتظار · {count}",
 		"mobile.notifications.title": "اطلاعات",
 		"mobile.notifications.turn_on": "اطلاعات آن کریں",
 		"mobile.oauth.failed": "سائن اِن مکمل نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
@@ -9564,6 +9911,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "کوئی سنگ میل نہیں",
 		"mobile.projects.project_name_hint": "لمبائی 1 سے 64 حروف؛ نام میں صرف انگریزی حروف، 0 سے 9 تک ہندسے، نقطہ، انڈر اسکور یا ہائفن ہو سکتے ہیں۔ خالی جگہ نہیں ہو سکتی، اور نام ہائفن سے شروع نہیں ہو سکتا۔",
 		"mobile.projects.remove_milestone_body": "اس پروجیکٹ سے “{name}” ہٹائیں؟ سنگ میل ہمیشہ کے لیے ہٹ جائے گا۔ پروجیکٹ کے سیشنز اور اس کی پیش رفت کی سطر متاثر نہیں ہوں گے۔",
+		"mobile.projects.section.linked_sessions": "جڑے ہوئے سیشنز",
+		"mobile.projects.section.milestones": "سنگ میل",
+		"mobile.projects.section.progress": "پیش رفت",
 		"mobile.projects.session_state.filed_by": "درج کرنے والا",
 		"mobile.projects.session_state.missing": "موجود نہیں",
 		"mobile.projects.session_state.not_running": "چل نہیں رہا",
@@ -9577,6 +9927,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "منصوبہ بندی",
 		"mobile.projects.status.qa": "معیار کی جانچ",
 		"mobile.projects.status.validation": "توثیق",
+		"mobile.projects.title": "پروجیکٹس",
 		"mobile.projects.write_receipt": "{kind, select, project {پروجیکٹ “{subject}” {action, select, created {بنایا گیا} completed {مکمل کیا گیا} reopened {دوبارہ کھولا گیا} added {شامل کیا گیا} updated {اپ ڈیٹ کیا گیا} removed {ہٹایا گیا} deleted {حذف کیا گیا} other {اپ ڈیٹ کیا گیا}}۔} milestone {سنگ میل “{subject}” {action, select, created {بنایا گیا} completed {مکمل کیا گیا} reopened {دوبارہ کھولا گیا} added {شامل کیا گیا} updated {اپ ڈیٹ کیا گیا} removed {ہٹایا گیا} deleted {حذف کیا گیا} other {اپ ڈیٹ کیا گیا}}۔} other {“{subject}” {action, select, created {بنایا گیا} completed {مکمل کیا گیا} reopened {دوبارہ کھولا گیا} added {شامل کیا گیا} updated {اپ ڈیٹ کیا گیا} removed {ہٹایا گیا} deleted {حذف کیا گیا} other {اپ ڈیٹ کیا گیا}}۔}}",
 		"mobile.projects.write_unknown_note": "ہم آپ کے کمپیوٹر تک نہیں پہنچ سکے، اس لیے نہیں بتا سکتے کہ یہ محفوظ ہوا یا نہیں۔ دوبارہ کوشش کرنے سے پہلے پروجیکٹ دیکھ لیں۔",
 		"mobile.refusal.action.add_credit": "کریڈٹ شامل کریں",
@@ -9666,6 +10017,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "اس مشین کی نگرانیاں پڑھی نہیں جا سکیں۔",
 		"mobile.schedules.read_error.wakes": "اس مشین کی بیداریاں پڑھی نہیں جا سکیں۔",
 		"mobile.schedules.read_unreachable": "ہم ابھی اس مشین کے شیڈول نہیں پڑھ سکے۔",
+		"mobile.schedules.section.monitors": "نگرانیاں",
+		"mobile.schedules.section.monitors_summary": "نگرانیاں · {summary}",
+		"mobile.schedules.section.wakes": "بیداریاں",
+		"mobile.schedules.section.wakes_summary": "بیداریاں · {summary}",
 		"mobile.schedules.show_less.monitors": "کم نگرانیاں دکھائیں",
 		"mobile.schedules.show_less.wakes": "کم بیداریاں دکھائیں",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, one {# مزید نگرانی دکھائیں} other {# مزید نگرانیاں دکھائیں}}",
@@ -9752,6 +10107,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "کام",
 		"mobile.session.region.label_working": "سرگرمی",
 		"mobile.session.region.more_below": "مزید نیچے · اسکرول کریں ↓",
+		"mobile.session.sheet_title.attach": "منسلک کریں",
+		"mobile.session.sheet_title.commands": "کمانڈز",
 		"mobile.session.sheet_title.effort": "شدت",
 		"mobile.session.sheet_title.model": "ماڈل",
 		"mobile.session.sheet_title.status": "کام اور ایجنٹس",
@@ -9830,6 +10187,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "ظاہری شکل",
 		"mobile.settings.section.connection": "کنکشن",
 		"mobile.settings.section.diagnostics": "تشخیص",
+		"mobile.settings.section.notifications": "اطلاعات",
 		"mobile.settings.sign_in_confirm.body": "اس سے پہلے آپ کا موجودہ کنکشن ختم ہو جائے گا۔ اگر آپ سائن ان مکمل نہیں کرتے تو آپ کو اپنے کمپیوٹر سے دوبارہ جڑنا ہوگا۔",
 		"mobile.settings.sign_in_confirm.confirm": "سائن ان کریں",
 		"mobile.settings.sign_in_confirm.title": "کیا Radient کے ساتھ سائن ان کریں؟",
@@ -10080,6 +10438,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "دوبارہ بھیجیں",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, one {# نا پڑھا گیا پیغام} other {# نا پڑھے گئے پیغامات}}",
+		"mobile.time.bucket.earlier": "پہلے",
+		"mobile.time.bucket.earlier_this_week": "پچھلے چند دن",
+		"mobile.time.bucket.today": "آج",
+		"mobile.time.bucket.yesterday": "کل",
+		"mobile.time.relative.days_ago": "{count, plural, one {# دن قبل} other {# دن قبل}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, one {# دن قبل} other {# دن قبل}}",
+		"mobile.time.relative.hours_ago": "{count, plural, one {# گھنٹہ قبل} other {# گھنٹے قبل}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, one {# گھنٹہ قبل} other {# گھنٹے قبل}}",
+		"mobile.time.relative.just_now": "ابھی ابھی",
+		"mobile.time.relative.minutes_ago": "{count, plural, one {# منٹ قبل} other {# منٹ قبل}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, one {# منٹ قبل} other {# منٹ قبل}}",
+		"mobile.time.relative.now": "ابھی",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, one {# سیکنڈ قبل} other {# سیکنڈ قبل}}",
+		"mobile.time.relative.yesterday": "کل",
+		"mobile.time.short.days": "{count, plural, one {# دن} other {# دن}}",
+		"mobile.time.short.hours": "{count, plural, one {# گھنٹہ} other {# گھنٹے}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, one {# گھنٹہ} other {# گھنٹے}} {minutes} منٹ",
+		"mobile.time.short.minutes": "{count, plural, one {# منٹ} other {# منٹ}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, one {# منٹ} other {# منٹ}} {seconds} سیکنڈ",
+		"mobile.time.short.minutes_spaced": "{count, plural, one {# منٹ} other {# منٹ}}",
+		"mobile.time.short.seconds": "{count, plural, one {# سیکنڈ} other {# سیکنڈ}}",
+		"mobile.time.short.weeks": "{count, plural, one {# ہفتہ} other {# ہفتے}}",
+		"mobile.time.short.years": "{count, plural, one {# سال} other {# سال}}",
 		"relay.chrome.drawer.close": "نیویگیشن بند کریں",
 		"relay.chrome.drawer.library": "لائبریری",
 		"relay.chrome.drawer.open": "نیویگیشن کھولیں",
@@ -10526,6 +10907,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "Không có câu hỏi nào trong cuộc trò chuyện này.",
 		"mobile.notifications.detail.nothing_to_dismiss": "Không có cập nhật nào từ cuộc trò chuyện này để bỏ qua.",
 		"mobile.notifications.detail.projects": "Dự án",
+		"mobile.notifications.detail.section_links": "Liên kết",
+		"mobile.notifications.detail.section_message": "Tin nhắn",
+		"mobile.notifications.detail.section_notification": "Nội dung",
+		"mobile.notifications.detail.title": "Thông báo",
 		"mobile.notifications.device_state.absent": "Không có trong danh sách đăng ký của máy tính này; thiết bị có thể đăng ký lại.",
 		"mobile.notifications.device_state.expired": "Thông báo cho thiết bị này đang tạm dừng cho đến khi bạn đăng nhập lại.",
 		"mobile.notifications.device_state.live": "Đã đăng ký với máy tính này.",
@@ -10563,6 +10948,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "Để sau",
 		"mobile.notifications.primer.title": "Nhận thông báo khi các agent của bạn hoàn tất",
 		"mobile.notifications.priority_high": "Cao",
+		"mobile.notifications.section.waiting": "Chờ bạn",
+		"mobile.notifications.section.waiting_count": "Chờ bạn · {count}",
 		"mobile.notifications.title": "Thông báo",
 		"mobile.notifications.turn_on": "Bật thông báo",
 		"mobile.oauth.failed": "Không thể hoàn tất đăng nhập. Hãy thử lại.",
@@ -10586,6 +10973,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "chưa có mốc",
 		"mobile.projects.project_name_hint": "1-64 ký tự: chữ cái, chữ số, dấu chấm, gạch dưới hoặc gạch nối. Không có dấu cách và không được bắt đầu bằng gạch nối.",
 		"mobile.projects.remove_milestone_body": "Xóa {name} khỏi dự án này? Mốc sẽ mất hẳn. Các phiên của dự án và dòng tiến độ vẫn giữ nguyên.",
+		"mobile.projects.section.linked_sessions": "phiên liên kết",
+		"mobile.projects.section.milestones": "các mốc",
+		"mobile.projects.section.progress": "tiến độ",
 		"mobile.projects.session_state.filed_by": "ghi nhận bởi",
 		"mobile.projects.session_state.missing": "không còn",
 		"mobile.projects.session_state.not_running": "không chạy",
@@ -10599,6 +10989,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "lập kế hoạch",
 		"mobile.projects.status.qa": "QA",
 		"mobile.projects.status.validation": "xác thực",
+		"mobile.projects.title": "Dự án",
 		"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {Đã tạo} completed {Đã hoàn thành} reopened {Đã mở lại} added {Đã thêm} updated {Đã cập nhật} removed {Đã xóa} deleted {Đã xóa} other {Đã cập nhật}} {subject}.} milestone {{action, select, created {Đã tạo} completed {Đã hoàn thành} reopened {Đã mở lại} added {Đã thêm} updated {Đã cập nhật} removed {Đã xóa} deleted {Đã xóa} other {Đã cập nhật}} mốc {subject}.} other {{action, select, created {Đã tạo} completed {Đã hoàn thành} reopened {Đã mở lại} added {Đã thêm} updated {Đã cập nhật} removed {Đã xóa} deleted {Đã xóa} other {Đã cập nhật}} {subject}.}}",
 		"mobile.projects.write_unknown_note": "Không kết nối được với máy tính của bạn nên chưa biết thay đổi đã được lưu hay chưa. Hãy kiểm tra dự án trước khi thử lại.",
 		"mobile.refusal.action.add_credit": "Nạp tín dụng",
@@ -10688,6 +11079,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "Không đọc được các giám sát trên máy này.",
 		"mobile.schedules.read_error.wakes": "Không đọc được các lần thức dậy trên máy này.",
 		"mobile.schedules.read_unreachable": "Vừa rồi không đọc được lịch trên máy này.",
+		"mobile.schedules.section.monitors": "Giám sát",
+		"mobile.schedules.section.monitors_summary": "Giám sát · {summary}",
+		"mobile.schedules.section.wakes": "Lần thức dậy",
+		"mobile.schedules.section.wakes_summary": "Lần thức dậy · {summary}",
 		"mobile.schedules.show_less.monitors": "Ẩn bớt giám sát",
 		"mobile.schedules.show_less.wakes": "Ẩn bớt lần thức dậy",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, other {Hiện thêm # giám sát}}",
@@ -10774,6 +11169,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "tác vụ",
 		"mobile.session.region.label_working": "hoạt động",
 		"mobile.session.region.more_below": "còn thêm bên dưới · cuộn ↓",
+		"mobile.session.sheet_title.attach": "đính kèm",
+		"mobile.session.sheet_title.commands": "lệnh",
 		"mobile.session.sheet_title.effort": "Mức suy luận",
 		"mobile.session.sheet_title.model": "Mô hình",
 		"mobile.session.sheet_title.status": "Tác vụ và tác nhân",
@@ -10852,6 +11249,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "Giao diện",
 		"mobile.settings.section.connection": "Kết nối",
 		"mobile.settings.section.diagnostics": "Chẩn đoán",
+		"mobile.settings.section.notifications": "Thông báo",
 		"mobile.settings.sign_in_confirm.body": "Thao tác này sẽ ngắt kết nối hiện tại trước. Nếu bạn không hoàn tất đăng nhập, bạn sẽ cần kết nối lại với máy tính của mình.",
 		"mobile.settings.sign_in_confirm.confirm": "Đăng nhập",
 		"mobile.settings.sign_in_confirm.title": "Đăng nhập bằng Radient?",
@@ -11102,6 +11500,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "Thử gửi lại",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, other {# chưa đọc}}",
+		"mobile.time.bucket.earlier": "Trước đó",
+		"mobile.time.bucket.earlier_this_week": "Vài ngày trước",
+		"mobile.time.bucket.today": "Hôm nay",
+		"mobile.time.bucket.yesterday": "Hôm qua",
+		"mobile.time.relative.days_ago": "{count, plural, other {# ngày trước}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, other {# ngày trước}}",
+		"mobile.time.relative.hours_ago": "{count, plural, other {# giờ trước}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, other {# giờ trước}}",
+		"mobile.time.relative.just_now": "vừa xong",
+		"mobile.time.relative.minutes_ago": "{count, plural, other {# phút trước}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, other {# ph trước}}",
+		"mobile.time.relative.now": "vừa xong",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, other {# giây trước}}",
+		"mobile.time.relative.yesterday": "hôm qua",
+		"mobile.time.short.days": "{count, plural, other {# ngày}}",
+		"mobile.time.short.hours": "{count, plural, other {# giờ}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, other {# giờ}} {minutes} phút",
+		"mobile.time.short.minutes": "{count, plural, other {# phút}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, other {# phút}} {seconds} giây",
+		"mobile.time.short.minutes_spaced": "{count, plural, other {# phút}}",
+		"mobile.time.short.seconds": "{count, plural, other {# giây}}",
+		"mobile.time.short.weeks": "{count, plural, other {# tuần}}",
+		"mobile.time.short.years": "{count, plural, other {# năm}}",
 		"relay.chrome.drawer.close": "Đóng điều hướng",
 		"relay.chrome.drawer.library": "Thư viện",
 		"relay.chrome.drawer.open": "Mở điều hướng",
@@ -11548,6 +11969,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.no_asks": "此对话中没有问题。",
 		"mobile.notifications.detail.nothing_to_dismiss": "此对话没有可忽略的更新。",
 		"mobile.notifications.detail.projects": "项目",
+		"mobile.notifications.detail.section_links": "链接",
+		"mobile.notifications.detail.section_message": "消息",
+		"mobile.notifications.detail.section_notification": "通知内容",
+		"mobile.notifications.detail.title": "通知",
 		"mobile.notifications.device_state.absent": "不在这台电脑的设备列表中；它可以重新注册。",
 		"mobile.notifications.device_state.expired": "此设备的通知已暂停，重新登录后恢复。",
 		"mobile.notifications.device_state.live": "已在这台电脑上注册。",
@@ -11585,6 +12010,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.primer.not_now": "以后再说",
 		"mobile.notifications.primer.title": "在你的智能体完成时收到通知",
 		"mobile.notifications.priority_high": "高",
+		"mobile.notifications.section.waiting": "等待你处理",
+		"mobile.notifications.section.waiting_count": "等待你处理 · {count}",
 		"mobile.notifications.title": "通知",
 		"mobile.notifications.turn_on": "开启通知",
 		"mobile.oauth.failed": "无法完成登录。请重试。",
@@ -11608,6 +12035,9 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.milestones.none": "无里程碑",
 		"mobile.projects.project_name_hint": "1-64个字符：字母、数字、点、下划线或连字符。不能包含空格，也不能以连字符开头。",
 		"mobile.projects.remove_milestone_body": "要从此项目中移除“{name}”吗？该里程碑将被永久移除。项目的会话和进度记录不受影响。",
+		"mobile.projects.section.linked_sessions": "关联会话",
+		"mobile.projects.section.milestones": "里程碑",
+		"mobile.projects.section.progress": "进度",
 		"mobile.projects.session_state.filed_by": "由会话登记",
 		"mobile.projects.session_state.missing": "缺失",
 		"mobile.projects.session_state.not_running": "未运行",
@@ -11621,6 +12051,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.status.planning": "规划中",
 		"mobile.projects.status.qa": "质量测试",
 		"mobile.projects.status.validation": "验证中",
+		"mobile.projects.title": "项目",
 		"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {已创建} completed {已完成} reopened {已重新打开} added {已添加} updated {已更新} removed {已移除} deleted {已删除} other {已更新}}项目“{subject}”。} milestone {{action, select, created {已创建} completed {已完成} reopened {已重新打开} added {已添加} updated {已更新} removed {已移除} deleted {已删除} other {已更新}}里程碑“{subject}”。} other {{action, select, created {已创建} completed {已完成} reopened {已重新打开} added {已添加} updated {已更新} removed {已移除} deleted {已删除} other {已更新}}“{subject}”。}}",
 		"mobile.projects.write_unknown_note": "无法连接此电脑，因此无法确认是否已保存。重试前先检查项目。",
 		"mobile.refusal.action.add_credit": "充值",
@@ -11710,6 +12141,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.schedules.read_error.monitors": "无法读取此机器上的监控。",
 		"mobile.schedules.read_error.wakes": "无法读取此机器上的唤醒。",
 		"mobile.schedules.read_unreachable": "刚才无法读取此机器的定时任务。",
+		"mobile.schedules.section.monitors": "监控",
+		"mobile.schedules.section.monitors_summary": "监控 · {summary}",
+		"mobile.schedules.section.wakes": "唤醒",
+		"mobile.schedules.section.wakes_summary": "唤醒 · {summary}",
 		"mobile.schedules.show_less.monitors": "收起部分监控",
 		"mobile.schedules.show_less.wakes": "收起部分唤醒",
 		"mobile.schedules.show_more.monitors": "{hidden, plural, other {再显示#个监控}}",
@@ -11796,6 +12231,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.region.label_todos": "任务",
 		"mobile.session.region.label_working": "动态",
 		"mobile.session.region.more_below": "下方还有内容 · 向下滚动 ↓",
+		"mobile.session.sheet_title.attach": "添加附件",
+		"mobile.session.sheet_title.commands": "命令",
 		"mobile.session.sheet_title.effort": "推理强度",
 		"mobile.session.sheet_title.model": "模型",
 		"mobile.session.sheet_title.status": "任务和智能体",
@@ -11874,6 +12311,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.settings.section.appearance": "外观",
 		"mobile.settings.section.connection": "连接",
 		"mobile.settings.section.diagnostics": "诊断",
+		"mobile.settings.section.notifications": "通知",
 		"mobile.settings.sign_in_confirm.body": "这会先结束你当前的连接。如果你没有完成登录，需要重新连接你的电脑。",
 		"mobile.settings.sign_in_confirm.confirm": "登录",
 		"mobile.settings.sign_in_confirm.title": "使用Radient登录？",
@@ -12124,6 +12562,29 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.thread.send_retry": "重试发送",
 		"mobile.team_bridge.title": "Team Bridge",
 		"mobile.team_bridge.unread": "{count, plural, other {# 条未读}}",
+		"mobile.time.bucket.earlier": "更早",
+		"mobile.time.bucket.earlier_this_week": "前几天",
+		"mobile.time.bucket.today": "今天",
+		"mobile.time.bucket.yesterday": "昨天",
+		"mobile.time.relative.days_ago": "{count, plural, other {#天前}}",
+		"mobile.time.relative.days_ago_compact": "{count, plural, other {#天前}}",
+		"mobile.time.relative.hours_ago": "{count, plural, other {#小时前}}",
+		"mobile.time.relative.hours_ago_compact": "{count, plural, other {#小时前}}",
+		"mobile.time.relative.just_now": "刚刚",
+		"mobile.time.relative.minutes_ago": "{count, plural, other {#分钟前}}",
+		"mobile.time.relative.minutes_ago_compact": "{count, plural, other {#分钟前}}",
+		"mobile.time.relative.now": "刚刚",
+		"mobile.time.relative.seconds_ago_compact": "{count, plural, other {#秒前}}",
+		"mobile.time.relative.yesterday": "昨天",
+		"mobile.time.short.days": "{count, plural, other {#天}}",
+		"mobile.time.short.hours": "{count, plural, other {#小时}}",
+		"mobile.time.short.hours_minutes": "{hours, plural, other {#小时}}{minutes}分",
+		"mobile.time.short.minutes": "{count, plural, other {#分钟}}",
+		"mobile.time.short.minutes_seconds": "{minutes, plural, other {#分}}{seconds}秒",
+		"mobile.time.short.minutes_spaced": "{count, plural, other {#分钟}}",
+		"mobile.time.short.seconds": "{count, plural, other {#秒}}",
+		"mobile.time.short.weeks": "{count, plural, other {#周}}",
+		"mobile.time.short.years": "{count, plural, other {#年}}",
 		"relay.chrome.drawer.close": "关闭导航",
 		"relay.chrome.drawer.library": "资料库",
 		"relay.chrome.drawer.open": "打开导航",

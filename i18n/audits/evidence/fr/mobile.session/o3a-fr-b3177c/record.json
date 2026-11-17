@@ -1,0 +1,83 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3a-fr-b3177c",
+ "slice": "O3-a",
+ "locale": "fr",
+ "namespace": "mobile.session",
+ "audit_date": "2026-11-15",
+ "key_count": 2,
+ "keys_audited": [
+  "mobile.session.sheet_title.commands",
+  "mobile.session.sheet_title.attach"
+ ],
+ "translator_session": "ebd00d285127",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "b3177ce4b009",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly from /Users/damian/.local-operator/sessions/ebd00d285127/scratchpad/o3a/draft-fr.json; the lane-owner relay was not used, but its canonical sha256 matches",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/ebd00d285127/scratchpad/o3a/draft-fr.json",
+   "sha256": "6e5b641259bd6f3b1e6a5de4c9fc5b0dfc4da2fb06f61f9d0bb6f4938e2642fd",
+   "canonical_json_sha256": "ac45e6cf4554f2f7582c13bd30142c8ca5ada6b6f5bd3a87c4b5b8cecd37d8fb"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.session.json",
+   "sha256": "75e78620eec27ac22184772e2da65a3e555e87c979de563c154e188201820b99"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.session.context.json",
+   "sha256": "d318916fc0270d4a66d7edfc0a71fb2d4fb9d15abc0b96063570c362485f2e42"
+  },
+  "fr_shipped": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/fr/mobile.session.json",
+   "sha256": "bc21ab61ec7fbe5511866b792f59f741b5bc5afcdffb3a6ff4a85fbb0cbe07fc",
+   "note": null
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/fr.md",
+   "sha256": "ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_fr_categories": [
+   "one",
+   "many",
+   "other"
+  ],
+  "nfc": "pass",
+  "typographic_apostrophe": "pass",
+  "french_spacing": "pass (no : ; ! ? present)",
+  "redaction_marker_hits": 0,
+  "repo_validator": "not run (repo read-only per task; light-Python checker with negative controls used instead)"
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "artifacts": {
+  "report": "report.md",
+  "audit_log": "audit.log"
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

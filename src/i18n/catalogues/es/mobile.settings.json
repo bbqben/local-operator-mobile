@@ -78,5 +78,6 @@
 	"mobile.settings.diagnostics.address": "Dirección del túnel",
 	"mobile.settings.diagnostics.copy": "Copiar diagnóstico",
 	"mobile.settings.diagnostics.copied": "Diagnóstico copiado",
-	"mobile.settings.diagnostics.copy_failed": "No se pudo copiar. Inténtalo de nuevo."
+	"mobile.settings.diagnostics.copy_failed": "No se pudo copiar. Inténtalo de nuevo.",
+	"mobile.settings.section.notifications": "Notificaciones"
 }

@@ -87,5 +87,7 @@
 	"mobile.session.outbox.composer_wait": "Tin nhắn trước của bạn vẫn đang được gửi. Bạn có thể gửi tin này sau khi tin trước đến nơi.",
 	"mobile.session.pending_echo.discarded": "đã bỏ — có thể tin đã đến nơi · chạm để đưa lại",
 	"mobile.session.outbox.composer_stopped": "Tin nhắn trước của bạn đã ngừng gửi. Hãy thử lại hoặc bỏ tin đó ở trên để gửi tin này.",
-	"mobile.session.outbox.composer_discarding": "Đang bỏ tin nhắn trước của bạn. Bạn có thể gửi tin này trong giây lát."
+	"mobile.session.outbox.composer_discarding": "Đang bỏ tin nhắn trước của bạn. Bạn có thể gửi tin này trong giây lát.",
+	"mobile.session.sheet_title.commands": "lệnh",
+	"mobile.session.sheet_title.attach": "đính kèm"
 }

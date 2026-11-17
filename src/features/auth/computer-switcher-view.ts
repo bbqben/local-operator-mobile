@@ -4,7 +4,7 @@ import type {
 	SavedCustomComputer,
 } from "@/connection/saved-computers";
 import { computersView } from "@/features/auth/computers-view";
-import { t } from "@/i18n";
+import { renderFor, t } from "@/i18n";
 import type { ErrorSurface } from "@/relay";
 import type { ConnectionPhase } from "@/state/connection-store";
 
@@ -202,14 +202,30 @@ export function switcherHealth(input: {
 }
 
 /** "2 h ago", for "Asleep · 2 h ago". Rounded coarse on purpose: a last-seen
- *  time is a hint, not a timestamp. */
+ *  time is a hint, not a timestamp.
+ *
+ *  WHY ENGLISH, EXPLICITLY. Its only caller is `healthLabel`'s "Asleep · …",
+ *  whose "Asleep" is still unkeyed English until slice O3-b keys the health
+ *  words. A localized age after an English word read as mixed-script,
+ *  mixed-direction text in `ur`, so the age is pinned to the English catalogue
+ *  and the label stays wholly English, exactly as before O3-a. */
 export function relativeAgo(then: number, now: number): string {
 	const minutes = Math.round((now - then) / 60_000);
-	if (minutes < 1) return "just now";
-	if (minutes < 60) return `${minutes} min ago`;
+	if (minutes < 1) return renderFor("mobile.time.relative.just_now", {}, "en");
+	if (minutes < 60)
+		return renderFor(
+			"mobile.time.relative.minutes_ago",
+			{ count: minutes },
+			"en",
+		);
 	const hours = Math.round(minutes / 60);
-	if (hours < 24) return `${hours} h ago`;
-	return `${Math.round(hours / 24)} d ago`;
+	if (hours < 24)
+		return renderFor("mobile.time.relative.hours_ago", { count: hours }, "en");
+	return renderFor(
+		"mobile.time.relative.days_ago",
+		{ count: Math.round(hours / 24) },
+		"en",
+	);
 }
 
 /** The health word a row shows. Never colour alone: the dot beside it is

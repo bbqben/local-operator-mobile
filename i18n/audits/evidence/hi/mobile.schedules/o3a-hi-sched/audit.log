@@ -1,0 +1,19 @@
+draft sha256 bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d
+json valid; keys 40 brief keys 40
+key order==brief True extra set() missing set()
+ICU structure mismatches vs en (args, plural arms, # count): []
+non-NFC: []
+ZWJ/ZWNJ/ZW* chars: []
+Devanagari digits: []
+redaction markers ([redacted]/REDACTED/***): []
+Latin letters outside ICU syntax: []
+nukta: इंतज़ार/हफ़्ता precomposed? ['0x91c', '0x93c'] ['0x93c', '0x94d']
+NEGATIVE CONTROL (4 seeded defects, expect 4+ flags): [('mobile.time.short.hours', 'mismatch'), ('mobile.time.short.hours', 'arms'), ('mobile.time.short.days', 'mismatch'), ('mobile.time.short.minutes_seconds', 'mismatch'), ('mobile.time.relative.now', 'parse error', "ValueError('substring not found')")]
+mobile.schedules.section.wakes: budget=16 max_cells=7 max_cp=9  | जागृतियाँ
+mobile.schedules.section.wakes_summary: budget=None max_cells=29 max_cp=32  | जागृतियाँ · 3 निर्धारित · 1 विफल
+mobile.schedules.section.monitors: budget=16 max_cells=6 max_cp=6  | मॉनिटर
+mobile.schedules.section.monitors_summary: budget=None max_cells=28 max_cp=29  | मॉनिटर · 3 निर्धारित · 1 विफल
+brief per-key en/context hash mismatches vs 26663e18: []
+core checkout HEAD (style guide/glossary/relay read from working tree): b42471d3935cb7e95d64428af27c32626665f4c0
+those files dirty?: ''

@@ -1,0 +1,75 @@
+{
+  "audit_id": "o3a-ur-set",
+  "slice": "O3-a",
+  "locale": "ur",
+  "namespace": "mobile.settings",
+  "audit_date": "2026-11-16",
+  "key_count": 1,
+  "keys": [
+    "mobile.settings.section.notifications"
+  ],
+  "input_route": "direct read of translator scratchpad draft (not blocked); en/context via git show 26663e18; shipped ur via git show 26663e18",
+  "translator_session": "bdbee2a271c1",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "966cb6dc566f",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "session system prompt \"Model:\" line; no fallback observed"
+  },
+  "input_hashes": {
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/bdbee2a271c1/scratchpad/o3a/draft-ur.json",
+      "sha256": "2ceedc0c2b53366bcbc2238cac66b488deade32abba4aa61a9572ea4eae617a7"
+    },
+    "translator_notes": {
+      "path": "/Users/damian/.local-operator/sessions/bdbee2a271c1/scratchpad/o3a/notes-ur.md",
+      "sha256": "010e795451918b45fa94ef91e5f5a21a76b19dbc1b7dc30d23e1ce30834ae65f"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "relay_ur": {
+      "path": "~/local-operator/local_operator/i18n/catalogues/ur/relay.notifications.json",
+      "sha256": "7136acd07a3ac277e07e48db1d2dc765497367d24df6ec2a4bcbb152068f3180"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/ur.md",
+      "sha256": "c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    },
+    "en": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.settings.json",
+      "sha256": "4646525ff23693af1ed772c00fadb4adcc54eb8c706383e2d1f00bc1a4fc667a"
+    },
+    "context": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.settings.context.json",
+      "sha256": "a800eb6898cf749d78af0cf5973ac39c43dda939840b3ae2339a1a42ca206684"
+    },
+    "ur_shipped": {
+      "path": "26663e18:src/i18n/catalogues/ur/mobile.settings.json",
+      "sha256": "ca7655367b7dfc85fafa3dbe877c3b2827a566c99e3a23c56cace68c4a90fe55"
+    }
+  },
+  "brief_key_hashes_verified": true,
+  "artifacts": {
+    "report.md": "9f361a118262da990c83f22ab153aec182e84e7356d2de7f3f675a8c017a090f",
+    "audit.log": "db8bd546c1c9b8223b8910cd2cf81ccab06ae190488def1e94fbb9709aadf234"
+  },
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "findings": [],
+  "code_findings_outside_translation_verdict": [],
+  "native_rendering": "unverified (no device/simulator frame)",
+  "repo_validator_run": false,
+  "ledger_append": "not performed — repo read-only per brief; ledger.py append is the manager/coder step",
+  "audit_notes_not_execution_log": "report.md is notes; audit.log is the actual check output"
+}

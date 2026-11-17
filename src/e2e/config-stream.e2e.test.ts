@@ -26,7 +26,7 @@ import {
 import type { AddressInfo } from "node:net";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
-
+import { createRelay, DEFAULT_PASSWORD } from "../../tools/mock-relay/relay";
 import { type CustomRoute, createRelayClient } from "../connection";
 import { startConfigStream } from "../features/auth/config-stream";
 import { createConfigStore } from "../state";
@@ -249,5 +249,76 @@ describe("a daemon that serves the route: baseline, then per-change frames", () 
 			"the first open failed transiently; the subscription reopened",
 		).toBeGreaterThanOrEqual(2);
 		expect(store.getState().supported).toBe(true);
+	});
+});
+
+/*
+ * The mock relay's live language control (`POST /__mock/config`), driven
+ * through the app's REAL client, subscription and store. Its wire contract is
+ * pinned in `tools/mock-relay/config-language.test.ts`; this row lives HERE
+ * because it imports production modules, and `tools/` is type-checked by
+ * `tools/tsconfig.json`, which has neither the app's `@/` alias nor its Expo
+ * ambient types. The app boundary resolves both, so the integration stays real.
+ */
+describe("the mock relay's live language control reaches the app", () => {
+	const relays: ReturnType<typeof createRelay>[] = [];
+	afterEach(async () => {
+		await Promise.all(relays.splice(0).map((relay) => relay.shutdown()));
+	});
+
+	/** One pump tick plus scheduling slack: how long a published change may take. */
+	const FRAME_DEADLINE_MS = 2_500;
+
+	it("lands the change in the app's real client, subscription and store", async () => {
+		const relay = createRelay({
+			scenario: "idle",
+			quiet: true,
+			language: "fr",
+		});
+		relays.push(relay);
+		const { url } = await relay.listen({ port: 0 });
+		const login = await fetch(`${url}/login`, {
+			method: "POST",
+			redirect: "manual",
+			headers: { "content-type": "application/x-www-form-urlencoded" },
+			body: `password=${encodeURIComponent(DEFAULT_PASSWORD)}`,
+		});
+		const cookie = login.headers.getSetCookie()[0]?.split(";")[0] ?? "";
+		expect(cookie).not.toBe("");
+		/* The client's injection seam: Node has no cookie jar, so the test plays
+		 * the platform jar by attaching the session cookie the login minted. */
+		const client = createRelayClient({
+			route: {
+				mode: "custom",
+				baseUrl: url,
+				allowInsecure: true,
+			} satisfies CustomRoute,
+			fetchImpl: (input, init) => {
+				const headers = new Headers(init?.headers);
+				headers.set("cookie", cookie);
+				return fetch(input, { ...init, headers });
+			},
+		});
+		const store = createConfigStore();
+		const handle = startConfigStream(client, store, { restartMs: 30 });
+		try {
+			await vi.waitFor(() => expect(store.getState().language).toBe("fr"), {
+				timeout: FRAME_DEADLINE_MS,
+			});
+			const change = await fetch(`${url}/__mock/config`, {
+				method: "POST",
+				signal: AbortSignal.timeout(2_500),
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ language: "ur" }),
+			});
+			expect(change.status).toBe(200);
+			await vi.waitFor(() => expect(store.getState().language).toBe("ur"), {
+				timeout: FRAME_DEADLINE_MS,
+			});
+			/* Two frames on one subscription: a reconnect would have re-seeded. */
+			expect(store.getState().frameCount).toBe(2);
+		} finally {
+			handle.stop();
+		}
 	});
 });

@@ -24,6 +24,7 @@ import {
 	type StreamHealth,
 	useConnection,
 	useConnectionState,
+	useLocaleFrame,
 } from "@/features/auth/connection-provider";
 import { diagnosticReason } from "@/features/auth/stream-health-reason";
 import { TransientNotice } from "@/features/auth/transient-notice";
@@ -118,6 +119,12 @@ export default function Settings() {
 		discovering,
 	} = useConnection();
 	const switcher = useComputerSwitcher();
+	/* A late backend language frame must repaint this screen's keyed copy
+	 * (D1, PR #251): `t()` reads the locale at call time but cannot re-render an
+	 * already-mounted screen, so without this subscription a `fr → ur` frame left
+	 * the old language on screen until a remount. The value is unused on purpose —
+	 * the subscription IS the fix (`useLocaleFrame`, connection-provider.tsx). */
+	useLocaleFrame();
 	const computers = useConnectionState((state) => state.computers);
 	const route = useConnectionState((state) => state.route);
 	const tunnelId = useConnectionState((state) => state.tunnelId);

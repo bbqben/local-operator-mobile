@@ -87,5 +87,7 @@
 	"mobile.session.outbox.composer_wait": "上一条消息仍在发送。送达后即可发送这一条。",
 	"mobile.session.pending_echo.discarded": "已放弃——可能已经送达 · 轻点放回",
 	"mobile.session.outbox.composer_stopped": "上一条消息已停止发送。请在上方重试或放弃它，再发送这一条。",
-	"mobile.session.outbox.composer_discarding": "正在放弃上一条消息。稍后即可发送这一条。"
+	"mobile.session.outbox.composer_discarding": "正在放弃上一条消息。稍后即可发送这一条。",
+	"mobile.session.sheet_title.commands": "命令",
+	"mobile.session.sheet_title.attach": "添加附件"
 }

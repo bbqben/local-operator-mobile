@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "На этой платформе у пробуждений пока нет супервизора, поэтому пробуждения ниже срабатывают, только пока идёт беседа.",
 	"mobile.schedules.supervisor.unverifiable": "У пробуждений ниже нет супервизора, поэтому они срабатывают, только пока идёт их беседа.",
 	"mobile.schedules.tail.failed": "{count, plural, one {# сбой} few {# сбоя} many {# сбоев} other {# сбоя}}",
-	"mobile.schedules.truncated": "Беседы с {family, select, wakes {пробуждениями} other {мониторами}}: показано {shown} из {total}."
+	"mobile.schedules.truncated": "Беседы с {family, select, wakes {пробуждениями} other {мониторами}}: показано {shown} из {total}.",
+	"mobile.schedules.section.wakes": "Пробуждения",
+	"mobile.schedules.section.wakes_summary": "Пробуждения · {summary}",
+	"mobile.schedules.section.monitors": "Мониторы",
+	"mobile.schedules.section.monitors_summary": "Мониторы · {summary}"
 }

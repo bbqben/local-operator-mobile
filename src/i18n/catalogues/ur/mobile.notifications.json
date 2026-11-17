@@ -71,5 +71,11 @@
 	"mobile.notifications.primer.title": "جب آپ کے ایجنٹ کام مکمل کریں تو اطلاع پائیں",
 	"mobile.notifications.priority_high": "اعلیٰ",
 	"mobile.notifications.title": "اطلاعات",
-	"mobile.notifications.turn_on": "اطلاعات آن کریں"
+	"mobile.notifications.turn_on": "اطلاعات آن کریں",
+	"mobile.notifications.section.waiting": "آپ کا انتظار",
+	"mobile.notifications.section.waiting_count": "آپ کا انتظار · {count}",
+	"mobile.notifications.detail.title": "اطلاع",
+	"mobile.notifications.detail.section_notification": "متن",
+	"mobile.notifications.detail.section_links": "لنکس",
+	"mobile.notifications.detail.section_message": "پیغام"
 }

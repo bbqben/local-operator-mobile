@@ -318,5 +318,9 @@
 	"mobile.settings.diagnostics.copy_failed": {
 		"role": "status",
 		"note": "Replaces the 'Copy diagnostics' button label for about two seconds when the phone's clipboard refused the text."
+	},
+	"mobile.settings.section.notifications": {
+		"role": "heading",
+		"note": "Settings section heading above the notification permission state and preferences. Same register as the other Settings section headings (Connection, Appearance, About). ~20 characters. No placeholders."
 	}
 }

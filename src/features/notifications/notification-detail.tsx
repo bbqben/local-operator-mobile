@@ -16,10 +16,10 @@ import { DismissReceipt } from "@/features/notifications/dismiss-receipt";
 import { noteInboxWrite } from "@/features/notifications/inbox-writes";
 import {
 	conversationName,
+	detailMetaLine,
 	OPEN_LABEL,
 	RETRY_LABEL,
 	readLoadedDetail,
-	relativeTime,
 	VANISHED_BODY,
 	VANISHED_TITLE,
 } from "@/features/notifications/notifications-model";
@@ -323,7 +323,7 @@ export default function NotificationDetail({ itemId }: { itemId: string }) {
 
 	return (
 		<Screen
-			title="Notification"
+			title={t("mobile.notifications.detail.title")}
 			testID={SCREEN.notificationDetail}
 			scroll={false}
 			headerLeading={
@@ -394,24 +394,28 @@ function DetailBody({
 					{item.title}
 				</Text>
 				<Text className="text-meta text-ink-dim">
-					{[
-						conversationName(session.title),
-						session.live || session.live_state === "live" ? "Live" : "",
-						relativeTime(item.updated_at, Date.now()),
-					]
-						.filter((part) => part !== "")
-						.join(" · ")}
+					{/* English until O3-b keys "Live" — see `detailMetaLine` (review m1). */}
+					{detailMetaLine({
+						sessionTitle: session.title,
+						live: session.live || session.live_state === "live",
+						updatedAt: item.updated_at,
+						nowMs: Date.now(),
+					})}
 				</Text>
 			</View>
 			{item.source === "notify" && (item.body_md ?? "") !== "" ? (
 				<View className="gap-2">
-					<SectionHeader label="Notification" />
+					<SectionHeader
+						label={t("mobile.notifications.detail.section_notification")}
+					/>
 					<Markdown text={item.body_md ?? ""} />
 				</View>
 			) : null}
 			{(item.links ?? []).length > 0 ? (
 				<View className="gap-2">
-					<SectionHeader label="Links" />
+					<SectionHeader
+						label={t("mobile.notifications.detail.section_links")}
+					/>
 					{(item.links ?? []).map((link) => (
 						<Button
 							key={`${link.label}:${link.url}`}
@@ -429,7 +433,9 @@ function DetailBody({
 			) : null}
 			{anchor !== null && anchor.excerpt.length > 0 ? (
 				<View className="gap-2">
-					<SectionHeader label="Message" />
+					<SectionHeader
+						label={t("mobile.notifications.detail.section_message")}
+					/>
 					<View className="rounded-md border-hairline bg-elevated p-3">
 						<Text className="text-body text-ink">{anchor.excerpt}</Text>
 					</View>

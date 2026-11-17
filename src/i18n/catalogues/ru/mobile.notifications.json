@@ -71,5 +71,11 @@
 	"mobile.notifications.primer.title": "Узнавайте, когда агенты закончат",
 	"mobile.notifications.priority_high": "Важно",
 	"mobile.notifications.title": "Уведомления",
-	"mobile.notifications.turn_on": "Включить уведомления"
+	"mobile.notifications.turn_on": "Включить уведомления",
+	"mobile.notifications.section.waiting": "Ждут вас",
+	"mobile.notifications.section.waiting_count": "Ждут вас · {count}",
+	"mobile.notifications.detail.title": "Уведомление",
+	"mobile.notifications.detail.section_notification": "Уведомление",
+	"mobile.notifications.detail.section_links": "Ссылки",
+	"mobile.notifications.detail.section_message": "Сообщение"
 }

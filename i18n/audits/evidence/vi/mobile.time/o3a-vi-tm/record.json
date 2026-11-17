@@ -1,0 +1,155 @@
+{
+  "audit_id": "o3a-vi-tm",
+  "slice": "O3-a",
+  "locale": "vi",
+  "namespace": "mobile.time",
+  "audit_date": "2026-11-15",
+  "key_count": 23,
+  "keys": [
+    "mobile.time.bucket.today",
+    "mobile.time.bucket.yesterday",
+    "mobile.time.bucket.earlier_this_week",
+    "mobile.time.bucket.earlier",
+    "mobile.time.relative.now",
+    "mobile.time.relative.just_now",
+    "mobile.time.relative.yesterday",
+    "mobile.time.relative.seconds_ago_compact",
+    "mobile.time.relative.minutes_ago",
+    "mobile.time.relative.hours_ago",
+    "mobile.time.relative.days_ago",
+    "mobile.time.relative.minutes_ago_compact",
+    "mobile.time.relative.hours_ago_compact",
+    "mobile.time.relative.days_ago_compact",
+    "mobile.time.short.seconds",
+    "mobile.time.short.minutes",
+    "mobile.time.short.hours",
+    "mobile.time.short.days",
+    "mobile.time.short.weeks",
+    "mobile.time.short.years",
+    "mobile.time.short.minutes_spaced",
+    "mobile.time.short.minutes_seconds",
+    "mobile.time.short.hours_minutes"
+  ],
+  "input_route": {
+    "draft": "direct file read of translator scratchpad (no guardrail block)",
+    "english_and_context": "git -C ~/local-operator-mobile show 26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/<ns>(.context).json",
+    "brief": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json"
+  },
+  "translator_session": "91a37cc70236",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "aecc48976d9d",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "Model line of this session's system prompt; no fallback observed"
+  },
+  "input_hashes": {
+    "en": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/mobile.time.json",
+      "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+    },
+    "context": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/mobile.time.context.json",
+      "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+    },
+    "vi_draft": {
+      "path": "/Users/damian/.local-operator/sessions/91a37cc70236/scratchpad/o3a/draft-vi.json",
+      "sha256": "ca3c9293bcfba23594221410bb6796b6891b28b11d4df8d72d91f95a261d6484",
+      "namespace_subset_sha256": "e66defa9387d7faaf183ce5cfb0264108468287eb2c707736a59db2793fa1884"
+    },
+    "vi_notes": {
+      "path": "/Users/damian/.local-operator/sessions/91a37cc70236/scratchpad/o3a/notes-vi.md",
+      "sha256": "610c409cba2218477c2193521f1c6b1dc9b0b3042278af4d3c75e994ca207dbc"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "vi_shipped": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/vi/mobile.time.json",
+      "sha256": null,
+      "note": "absent at this commit (new namespace)"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/vi.md",
+      "sha256": "e4901497ed553e2b2ae4a2660bf776adb787b89e11d7eb0f8d08f3da4b227888"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    },
+    "relay_notifications_vi": {
+      "path": "~/local-operator/local_operator/i18n/catalogues/vi/relay.notifications.json",
+      "sha256": "4d3a1db432bcf93697cb899957e7b852b87afe0315c1fa3e298c4e24931f2c5a"
+    }
+  },
+  "artifacts": {
+    "check_script": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/tools/check_vi.py",
+      "sha256": "094e16f5203857516ce755979d035e9267f7618abe9eaa2db28b7f915909ad0e"
+    },
+    "check_output": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/tools/check_vi.out",
+      "sha256": "0d79d3358521676faaa54f1e65f7b7f055c75d4f8b887f84cd95e465b96504ff"
+    },
+    "report.md": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/mobile.time/o3a-vi-tm/report.md",
+      "sha256": "492fdec544134290317aed8b8fe602ecddc774b925c5ff97b757cbd3cb1ff08e"
+    },
+    "audit.log": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/mobile.time/o3a-vi-tm/audit.log",
+      "sha256": "5345f42c291b1b344f22f6eb4282dcea6854193bbe6994c8bfc452d417a52361"
+    }
+  },
+  "checks": {
+    "json_valid": true,
+    "keys_match_brief": true,
+    "icu_parse": true,
+    "placeholders_identical": true,
+    "plural_other_only": true,
+    "nfc": true,
+    "redaction_hits": 0,
+    "wide_or_combining_glyphs": 0
+  },
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+      "VI-O3A-TM-m1"
+    ]
+  },
+  "findings": [
+    {
+      "id": "VI-O3A-TM-m1",
+      "severity": "MINOR",
+      "keys": [
+        "mobile.time.short.minutes_seconds",
+        "mobile.time.short.hours_minutes",
+        "mobile.time.short.seconds",
+        "mobile.time.short.minutes",
+        "mobile.time.short.hours",
+        "mobile.time.short.days",
+        "mobile.time.short.weeks",
+        "mobile.time.short.years",
+        "mobile.time.relative.now",
+        "mobile.time.relative.days_ago",
+        "mobile.time.relative.seconds_ago_compact",
+        "mobile.time.relative.minutes_ago_compact",
+        "mobile.time.relative.hours_ago_compact",
+        "mobile.time.relative.days_ago_compact"
+      ],
+      "current": "\"{minutes, plural, other {# phút}} {seconds} giây\" -> \"59 phút 59 giây\"; \"# giây\" -> \"45 giây\"; \"vừa xong\"",
+      "problem": "Over the context width hints: short.* 6-7 chars vs ~4; relative.now 8 vs ~6; *_ago_compact 11-13 vs ~10; days_ago 13 vs ~12. Worst case is the elapsed clock: working-line.tsx PhaseClock reserves elapsedLabel(3599) = \"59 phút 59 giây\" (15 mono cells vs en \"59m 59s\", 7) in a shrink-0 View. It does not overflow, but it takes ~8 more mono cells from the phase label beside it. The wording is the idiomatic vi register (vi Facebook/Google use \"5 phút\", \"3 giờ\", \"2 ngày\", \"3 tuần\"); Latin s/m/h would read as metres or chat slang. Does not gate.",
+      "suggestion": "Keep the draft. Ask design for one rendered vi frame of the working line at 360 dp. Only if the phase label truncates badly, the smallest change reuses relay's shipped \"ph\": minutes_seconds \"{minutes, plural, other {# ph}} {seconds} giây\" (13 cells at 59:59)."
+    }
+  ],
+  "audit_notes_not_execution_log": [
+    "bucket.earlier_this_week \"Vài ngày trước\": checked against notifications-model.ts timeBucket() at 26663e18 lines 135-141 (the task cited ~140). \"week\" means start-of-today minus 6 days up to start-of-yesterday, i.e. 2-6 local calendar days back, never the calendar week. \"Vài ngày trước\" (\"a few days ago\") is true for every item in that window on any weekday, Monday included. It does not collide with sidebar.section.week \"Tuần này\" (calendar), and Hôm nay / Hôm qua / Vài ngày trước / Trước đó reads naturally. No finding: the ru MAJOR / zh MINOR class does not recur.",
+    "Row-stamp reuse (note only; code fix deferred): session-projection.ts:400-409 and team-bridge/model.ts:615-620 render ages through short.* (\"12 phút\", \"3 giờ\", \"2 ngày\", \"3 tuần\", \"1 năm\") with no \"trước\". In vi a bare duration in a list time column is the established age convention (vi Facebook/Messenger stamps), so it reads as an age, not a duration. The draft needs nothing beyond the deferred code fix. The same tokens read correctly as durations in schedules due (\"sau 45 giây\" / \"trễ 2 giờ\"), elapsed time and the connection age.",
+    "Reuse verified byte-equal with relay.notifications vi: today/yesterday/earlier, age.now, age.minutes \"# ph trước\", age.hours, age.days. Mixed \"ph\" (minutes) vs spelled-out giờ/ngày in one ladder is inherited from shipped relay copy and is consistent across surfaces, so no finding.",
+    "now and just_now are both \"vừa xong\": correct. \"bây giờ\" would mean \"at present\", not an age."
+  ],
+  "ledger_recorded": false,
+  "ledger_note": "repo read-only for this task; not recorded"
+}

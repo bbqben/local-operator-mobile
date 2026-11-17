@@ -1,0 +1,101 @@
+# o3a-ur-time audit.log — actual output of this auditor's Python checks (eval kernel, session 966cb6dc566f), 2026-11-16T02:15:50Z
+# lines filtered to namespace mobile.time plus slice-wide checks
+mechanical check, draft sha256 2ceedc0c2b53366bcbc2238cac66b488deade32abba4aa61a9572ea4eae617a7
+keys draft 40 brief 40 missing [] extra []
+ok   mobile.time.bucket.today {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.bucket.yesterday {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.bucket.earlier_this_week {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.bucket.earlier {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.now {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.just_now {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.yesterday {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.seconds_ago_compact {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.minutes_ago {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.hours_ago {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.days_ago {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.minutes_ago_compact {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.hours_ago_compact {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.relative.days_ago_compact {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.seconds {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.minutes {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.hours {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.days {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.weeks {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.years {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.minutes_spaced {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.minutes_seconds {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+ok   mobile.time.short.hours_minutes {"sig_ok": true, "hash_count": true, "nfc": true, "ctrl": 0, "urdu_digits": false, "latin_letters": [], "ends_fullstop": false}
+
+# BIDI: rendered samples, first strong char (dir=auto base)
+mobile.time.bucket.today: آج  first_strong='آ'(AL) digit_initial=False cells=2
+mobile.time.bucket.yesterday: کل  first_strong='ک'(AL) digit_initial=False cells=2
+mobile.time.bucket.earlier_this_week: پچھلے چند دن  first_strong='پ'(AL) digit_initial=False cells=12
+mobile.time.bucket.earlier: پہلے  first_strong='پ'(AL) digit_initial=False cells=4
+mobile.time.relative.now: ابھی  first_strong='ا'(AL) digit_initial=False cells=4
+mobile.time.relative.just_now: ابھی ابھی  first_strong='ا'(AL) digit_initial=False cells=9
+mobile.time.relative.yesterday: کل  first_strong='ک'(AL) digit_initial=False cells=2
+mobile.time.relative.seconds_ago_compact: 1 سیکنڈ قبل | 2 سیکنڈ قبل | 12 سیکنڈ قبل  first_strong='س'(AL) digit_initial=True cells=12
+mobile.time.relative.minutes_ago: 1 منٹ قبل | 2 منٹ قبل | 12 منٹ قبل  first_strong='م'(AL) digit_initial=True cells=10
+mobile.time.relative.hours_ago: 1 گھنٹہ قبل | 2 گھنٹے قبل | 12 گھنٹے قبل  first_strong='گ'(AL) digit_initial=True cells=12
+mobile.time.relative.days_ago: 1 دن قبل | 2 دن قبل | 12 دن قبل  first_strong='د'(AL) digit_initial=True cells=9
+mobile.time.relative.minutes_ago_compact: 1 منٹ قبل | 2 منٹ قبل | 12 منٹ قبل  first_strong='م'(AL) digit_initial=True cells=10
+mobile.time.relative.hours_ago_compact: 1 گھنٹہ قبل | 2 گھنٹے قبل | 12 گھنٹے قبل  first_strong='گ'(AL) digit_initial=True cells=12
+mobile.time.relative.days_ago_compact: 1 دن قبل | 2 دن قبل | 12 دن قبل  first_strong='د'(AL) digit_initial=True cells=9
+mobile.time.short.seconds: 1 سیکنڈ | 2 سیکنڈ | 12 سیکنڈ  first_strong='س'(AL) digit_initial=True cells=8
+mobile.time.short.minutes: 1 منٹ | 2 منٹ | 12 منٹ  first_strong='م'(AL) digit_initial=True cells=6
+mobile.time.short.hours: 1 گھنٹہ | 2 گھنٹے | 12 گھنٹے  first_strong='گ'(AL) digit_initial=True cells=8
+mobile.time.short.days: 1 دن | 2 دن | 12 دن  first_strong='د'(AL) digit_initial=True cells=5
+mobile.time.short.weeks: 1 ہفتہ | 2 ہفتے | 12 ہفتے  first_strong='ہ'(AL) digit_initial=True cells=7
+mobile.time.short.years: 1 سال | 2 سال | 12 سال  first_strong='س'(AL) digit_initial=True cells=6
+mobile.time.short.minutes_spaced: 1 منٹ | 2 منٹ | 12 منٹ  first_strong='م'(AL) digit_initial=True cells=6
+mobile.time.short.minutes_seconds: 1 منٹ 07 سیکنڈ | 2 منٹ 07 سیکنڈ | 12 منٹ 07 سیکنڈ  first_strong='م'(AL) digit_initial=True cells=15
+mobile.time.short.hours_minutes: 1 گھنٹہ 07 منٹ | 2 گھنٹے 07 منٹ | 12 گھنٹے 07 منٹ  first_strong='گ'(AL) digit_initial=True cells=15
+digit-initial count 16
+all digit-initial first strong AL: True
+control chars total 0
+redaction hits (/redacted/i) in draft 0
+
+# negative controls (mutated copies; each must be detected)
+detected mobile.time.relative.hours_ago '{count, plural, one {# گھنٹہ قبل} few {# گھنٹے قبل}}'
+detected mobile.time.short.hours_minutes '{hours, plural, one {# گھنٹہ} other {# گھنٹے}} {mins} منٹ'
+detected mobile.time.bucket.today '\u200fآج'
+MISSED mobile.projects.title 'پروجیکٹس'
+control note: NFD(پروجیکٹس)==NFC (no decomposable char) -> invalid control replaced by NFD(آج)
+detected mobile.time.bucket.today (NFD) 'آج'
+
+# ICU plural categories (CLDR ur = one/other) in draft: ['one', 'other']
+# gender/inflection by arm: hours one=گھنٹہ other=گھنٹے; weeks one=ہفتہ other=ہفتے: True True
+
+# composition with shipped ur keys @26663e18
+ due.overdue h=1: 1 گھنٹہ سے تاخیر | due.ahead: 1 گھنٹہ بعد
+ due.overdue h=2: 2 گھنٹے سے تاخیر | due.ahead: 2 گھنٹے بعد
+ wakes_summary: بیداریاں · 3 شیڈول شدہ · 1 ناکام
+ monitors_summary: نگرانیاں · 2 فعال
+ waiting_count: آپ کا انتظار · 12
+ waiting_count bidi classes: AL AL WS AL AL WS AL AL AL AL AL AL WS ON WS EN EN
+ code-wrapped: 'Not answering — last update 12 سیکنڈ ago.' first strong= ('N', 'L')
+ code-wrapped: 'Last updated 5 منٹ قبل.' first strong= ('L', 'L')
+ code-wrapped: 'Asleep · 2 گھنٹے قبل' first strong= ('A', 'L')
+ code-wrapped: 'ابھی ابھی.' first strong= ('ا', 'AL')
+# widths (code points ~ cells per ur.md §Width), worst case 2-digit counts
+  OVER mobile.time.relative.seconds_ago_compact: 12 vs ~10  e.g. 12 سیکنڈ قبل
+  ok   mobile.time.relative.minutes_ago: 10 vs ~14  e.g. 12 منٹ قبل
+  ok   mobile.time.relative.hours_ago: 12 vs ~12  e.g. 12 گھنٹے قبل
+  ok   mobile.time.relative.days_ago: 9 vs ~12  e.g. 12 دن قبل
+  ok   mobile.time.relative.minutes_ago_compact: 10 vs ~10  e.g. 12 منٹ قبل
+  OVER mobile.time.relative.hours_ago_compact: 12 vs ~10  e.g. 12 گھنٹے قبل
+  ok   mobile.time.relative.days_ago_compact: 9 vs ~10  e.g. 12 دن قبل
+  OVER mobile.time.short.seconds: 8 vs ~4  e.g. 12 سیکنڈ
+  OVER mobile.time.short.minutes: 6 vs ~4  e.g. 12 منٹ
+  OVER mobile.time.short.hours: 8 vs ~4  e.g. 12 گھنٹے
+  OVER mobile.time.short.days: 5 vs ~4  e.g. 12 دن
+  OVER mobile.time.short.weeks: 7 vs ~4  e.g. 12 ہفتے
+  OVER mobile.time.short.years: 6 vs ~4  e.g. 12 سال
+  ok   mobile.time.short.minutes_spaced: 6 vs ~7  e.g. 12 منٹ
+  ok   mobile.time.relative.now: 4 vs ~6  e.g. ابھی
+  ok   mobile.time.relative.just_now: 9 vs ~12  e.g. ابھی ابھی
+  ok   mobile.time.bucket.earlier_this_week: 12 vs ~24  e.g. پچھلے چند دن
+  ok   mobile.notifications.section.waiting: 12 vs ~20  e.g. آپ کا انتظار
+  ok   mobile.projects.section.linked_sessions: 14 vs ~20  e.g. جڑے ہوئے سیشنز
+  minutes_seconds/hours_minutes worst: 15 15 vs en ~6-7 (no explicit budget)
+note: the first wakes/monitors_summary sample in the BIDI table used a synthetic {summary}; the composition section above uses the shipped ur summary keys.

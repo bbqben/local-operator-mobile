@@ -1,0 +1,113 @@
+{
+ "audit_id": "o3a-hi-sched",
+ "slice": "O3-a",
+ "locale": "hi",
+ "namespace": "mobile.schedules",
+ "audit_date": "2026-11-15",
+ "key_count": 4,
+ "keys": [
+  "mobile.schedules.section.wakes",
+  "mobile.schedules.section.wakes_summary",
+  "mobile.schedules.section.monitors",
+  "mobile.schedules.section.monitors_summary"
+ ],
+ "draft_values": {
+  "mobile.schedules.section.wakes": "जागृतियाँ",
+  "mobile.schedules.section.wakes_summary": "जागृतियाँ · {summary}",
+  "mobile.schedules.section.monitors": "मॉनिटर",
+  "mobile.schedules.section.monitors_summary": "मॉनिटर · {summary}"
+ },
+ "input_route": "Read directly from the translator session scratchpad (no guardrail block). en/context/shipped hi via `git -C ~/local-operator-mobile show 26663e18:<path>`. Style guide, glossary and relay hi from the clean working tree of ~/local-operator @ b42471d3935cb7e95d64428af27c32626665f4c0.",
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.schedules.json",
+   "sha256": "1f9edfffe611a553d9dc83235852396cf2eba0b5a7c903f30fb206493287985f"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.schedules.context.json",
+   "sha256": "aae99aed5ca846fa5d5e9b2cf0fcb665fcff4865f0709df3d8707c02468ca8bb"
+  },
+  "hi_shipped": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/hi/mobile.schedules.json",
+   "sha256": "8f2c93a7bd7ffdf75e2909c5399804e5a19a21d30505dc48e89abad1431d34ae"
+  },
+  "hi_draft": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/draft-hi.json",
+   "sha256": "bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9"
+  },
+  "per_key_brief_hashes": {
+   "mobile.schedules.section.wakes": {
+    "sha256_english": "6a39098c572efdcf796fabb9e99e73a99d55bb2c7771e3adc0f64f35a664e803",
+    "sha256_context": "8e09c92a668b06a7679da757f2e30442aea6ad9bbd52b0f0c9cf95dce3f04a4f"
+   },
+   "mobile.schedules.section.wakes_summary": {
+    "sha256_english": "60d7dcd21625e843327ef6de1b69fafac36ea0c903249c9658bfb08e32f8acb3",
+    "sha256_context": "2dceb46bdbeecae2fbfd41c5e4af217277c38cdd3f1c97b700d0fa53d43f255f"
+   },
+   "mobile.schedules.section.monitors": {
+    "sha256_english": "d2ea1516fbd01374939bec2235edd73d292d88ba61304d76f7285a3f81f22578",
+    "sha256_context": "1ac9920a98d0696d4f30d51a0cf2c05dca788f965247fe28f3774accf7a8ee85"
+   },
+   "mobile.schedules.section.monitors_summary": {
+    "sha256_english": "5efacb7c7ff1d8e7b8e6b42c8b3bfa85891ab102ccba8a047b316976f5e9ac77",
+    "sha256_context": "dff9d8768979ca0dcf613fd0ee1584a9f95d748984240b9fdf97b0c4a10601c7"
+   }
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/notes-hi.md",
+   "sha256": "eae4971902027646cb8badbeb638006511c71e59a16013a1f92841b839853abd"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/hi.md",
+   "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "relay_notifications_hi": {
+   "path": "~/local-operator/local_operator/i18n/catalogues/hi/relay.notifications.json",
+   "sha256": "8a7726aecb5c43747b2f207d4fbb02b0649cf5ae60a47b4835c6bbac6eaaf3cf"
+  }
+ },
+ "translator": {
+  "session": "ea3ea9b9290e",
+  "agent": "translator (lopdev)",
+  "model_claimed_in_notes": "anthropic/claude-opus-5-5"
+ },
+ "auditor": {
+  "agent": "i18n-auditor (lopdev)",
+  "session": "7f1fd014ba0d",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt \"Model: anthropic/claude-opus-5-5\"; no fallback observed",
+  "independent_from_translator_session": true,
+  "mt_service_used": false
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "notes": {
+  "xref-HI-T2": "Cross-reference: HI-T2 (mobile.time bundle). The draft's schedules keys are clean. The grammar slip comes from the shipped key mobile.schedules.due.ahead '{label} में' composing short.hours count=1. The follow-up belongs to code/that key and does not gate this slice."
+ },
+ "terminology_review": "'जागृतियाँ' (glossary wake→जागृति, shipped plural), 'मॉनिटर' (style guide: stored object → मॉनिटर). Middle dot and {summary} after the separator are kept.",
+ "ledger": "not appended: the task makes all repos read-only. Bundles are staged in scratch for the manager to land under i18n/audits/evidence/hi/<ns>/<audit-id>/ and append via ledger.py.",
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "a5d46a4a58df052c2ab07ffe98a577360d034b033e97cf10de3b5ff57d653e0f"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "b2e1357ffdedbd8f98231b64efc426e8eb7af3331dc4c135179764619473751b"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is reasoning and notes. audit.log is the actual stdout of the checks run in this session."
+}

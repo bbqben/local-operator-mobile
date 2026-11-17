@@ -197,8 +197,13 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * terminal page instead of re-serving the newest one. `--print`, staged. */
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
+	/* PR #251 D1: 24d93a0d (fixture-only) taught the mock relay to publish
+	 *  language config changes but left this pin at 99594b71's bytes (9bec3b7e…).
+	 *  This is sha256 of relay.ts exactly as committed in 24d93a0d, unchanged at
+	 *  this head; the tool's own reader (snapshotContent) reports the same value.
+	 *  The fixture moved, the U-08 scene did not. Not rendered evidence. */
 	"tools/mock-relay/relay.ts":
-		"9bec3b7e5c493832cb6b583ce8d9710f669709d45ac2808affe1cf7b6784d957",
+		"1bcbec5c8e80d2a5eb39eeecba8f19bb0fee10dd992941f50624cd1aba0ecfba",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -2069,6 +2074,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (#271 remote-session view + #273 Radient Console copy), so it matches
 	 * neither parent. Re-derived with --print over the merged tree (run twice,
 	 * stable). Source identity only, NOT new rendered U-08 evidence. */
+	/* O3-a (headers and date/time copy), rebased onto origin/main (#271,
+	 * 57b129c8): the keyed sites, the 40 English keys with their audited
+	 * translations in all 7 locales, the generated projection, and the C1
+	 * English-pinned age wrappers. Derived LAST from the treeDigest contract by
+	 * an independent reader over the staged tree's git objects (not --print);
+	 * the same reader reproduced main's pin (c4df74ae…) from main's tree as a
+	 * control. Source identity only, NOT rendered U-08 evidence. */
+	/* O3-a CI fix: composer-layout.test.ts now pins the keyed attach title
+	 * instead of the retired literal (test-only src change). Same independent
+	 * reader over the staged tree; it reproduced the previous pin (6b528875…)
+	 * from a420c2c1 as a control. Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (#271, 57b129c8) into fix/background-send-retry
 	 * (PR #275): both comment chains retained; the merged src carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
@@ -2077,6 +2093,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * phase-aware composer hint, the sign-out purge prefix and their catalogue
 	 * keys in all 8 locales. Re-derived with --print over the working tree (run
 	 * twice, stable). Source identity only, NOT new rendered U-08 evidence. */
+	/* Merge of origin/main (#275 background sending, b1fbb813) into O3-a:
+	 * both comment chains retained; the merged src carries both sides (the
+	 * key-union mobile.session catalogues in all 8 locales plus #275's outbox
+	 * sources), so it matches neither parent. Derived LAST by the same
+	 * independent treeDigest reader over the staged merge tree's git objects
+	 * (not --print); it reproduced main's pin (bab911c2…) from b1fbb813's tree
+	 * as a control. Source identity only, NOT rendered U-08 evidence. */
 	/* PR #280 round-1 remediation: capability-gated graphic Retry and the
 	 * operation-local remote document refusal, plus mounted failure tests.
 	 * Derived by --print; source admission only, not rendered U-08 evidence. */
@@ -2126,6 +2149,20 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * retained; only this pin conflicted. The merged src carries both sides, so
 	 * it matches neither parent. Re-derived with --print over the staged merged
 	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#277-#287, 08025e10) into O3-a: both comment
+	 * chains retained; the merged src carries both sides (O3-a's headers and
+	 * date/time copy plus main's notifications, Team Bridge and warm-sync
+	 * sources, and the key-union catalogues in all 8 locales), so it matches
+	 * neither parent. Derived LAST by the same independent treeDigest reader
+	 * over the staged merge tree's git objects (not --print); it reproduced
+	 * both parents' committed pins as controls. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* PR #251 D1 product remediation: Projects, Project detail and Settings
+	 * subscribe to `useLocaleFrame()` so a late language frame repaints their
+	 * keyed copy, plus two mounted locale-frame tests and the Q1 memo guard. No
+	 * catalogue, layout or class bytes move. Parent pin reproduced from HEAD's
+	 * git objects by treeDigest as the control; this value is --print over the
+	 * staged tree. Source identity only, NOT rendered U-08 evidence. */
 	/* Reader scroll hold (TestFlight 1139): Team Bridge thread viewport and the
 	 * agent transcript stop every programmatic bottom-follow from a drag or
 	 * momentum start until the reader's scroll rests; Team Bridge shows Jump
@@ -2153,7 +2190,21 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * retained; only this pin conflicted. The merged src carries both sides, so
 	 * it matches neither parent. Re-derived with --print over the staged merged
 	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
-	src: "4d31318748e90b2c443c28370c040ec9990b384b259745a61d3d2dffe98faaaa",
+	/* Final merge-gate merge of origin/main (#288-#293, 3393d313) into PR #251:
+	 * both comment chains retained; only this pin conflicted. The merged src
+	 * carries both sides (O3-a's locale frame, headers and date/time copy plus
+	 * main's reader scroll hold and persist-across-updates stores), so it
+	 * matches neither parent. Derived LAST by treeDigest over the staged merge
+	 * tree's git objects; the same reader reproduced both parents' committed
+	 * pins as controls. Source identity only, NOT rendered U-08 evidence. */
+	/* PR #251 harness-typecheck CI fix: the real-client language-control row
+	 * moved from tools/mock-relay/config-language.test.ts into
+	 * src/e2e/config-stream.e2e.test.ts (test file only; no production source
+	 * moves). Derived by an independent treeDigest reader over the commit's git
+	 * objects; it reproduced the parent's committed pin as the control, agreed
+	 * with --print, and a one-byte tamper of the moved test diverged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "c6c21aafd614bfe3ac2370634f4e6ec0c1a363523d7999bbf268d2b91d704219",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

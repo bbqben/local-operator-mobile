@@ -1,0 +1,179 @@
+{
+ "record_kind": "independent i18n audit (mobile slice O3-a)",
+ "audit_id": "o3a-zhCN-notif",
+ "locale": "zh-CN",
+ "namespace": "mobile.notifications",
+ "audit_date": "2026-11-16",
+ "audited_at": "2026-11-16T01:30:27+00:00",
+ "key_count": 6,
+ "keys": [
+  "mobile.notifications.section.waiting",
+  "mobile.notifications.section.waiting_count",
+  "mobile.notifications.detail.title",
+  "mobile.notifications.detail.section_notification",
+  "mobile.notifications.detail.section_links",
+  "mobile.notifications.detail.section_message"
+ ],
+ "draft_values": {
+  "mobile.notifications.section.waiting": "等待你处理",
+  "mobile.notifications.section.waiting_count": "等待你处理 · {count}",
+  "mobile.notifications.detail.title": "通知",
+  "mobile.notifications.detail.section_notification": "通知",
+  "mobile.notifications.detail.section_links": "链接",
+  "mobile.notifications.detail.section_message": "消息"
+ },
+ "input_route": {
+  "draft": "direct read by the auditor of the translator scratchpad file (it was not guardrail-blocked); the copy relayed by lane owner d5aaf8ba6ba5 was compared and is dict-equal",
+  "draft_path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+  "draft_file_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+  "draft_file_sha256_expected": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+  "draft_canonical_sha256": "cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee",
+  "draft_canonical_rule": "sha256(json.dumps(d, ensure_ascii=False, sort_keys=True)) over all 40 keys",
+  "relayed_copy_equal": true,
+  "english_context": "translation brief (direct read) cross-checked: brief english == en@26663e18 and sha256_english matches for every key",
+  "draft_round2": "direct read by the auditor of the translator scratchpad file; the round-1 baseline was rebuilt from the relayed copy and confirmed by its canonical sha256 cde876…",
+  "draft_canonical_sha256_round2": "f8c03d70917154568bb219ac124128b7a027a13384ef9ee0207c9e277b129f81"
+ },
+ "translator_session": "bb79330944ae",
+ "lane_owner_session": "d5aaf8ba6ba5",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "49772dd20be0",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt Model line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.notifications.json",
+   "sha256": "3b7438ad177efd0a75532e63bfed2298d70d2e498a66dae1d32fece9ee45b3ae"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.notifications.context.json",
+   "sha256": "77cdc2d82b3e1a5b5f34af56bd4759c1f39735a95596c9f6804add4bf6ac6f12"
+  },
+  "target": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/zh-CN/mobile.notifications.json",
+   "sha256": "bd0fb1de139bed79c328a989bacaf729bad269fde00c627364ffe63446e518f5",
+   "note": null
+  },
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+   "sha256": "953d337ff4c227f7f8d2ad7d95685af274bf9d15788a5907bda97499569e79a0",
+   "round": 2,
+   "previous_round1_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/zh-CN.md",
+   "sha256": "8f95d89debbd0af848e72e4805e256ef9566632e520a5c6d9b37928cd617142c"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "placeholders_icu": "all keys OK (names/kinds match en; plural arms other only)",
+  "nfc": "all NFC",
+  "cjk_latin_spacing": "no space between CJK and digits/#/placeholders",
+  "redaction_hits": 0,
+  "repo_validator": "NOT run (repo is read-only for this audit: no tests/builds); checks were done in Python, output in audit.log"
+ },
+ "verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "ZH-N1"
+  ],
+  "resolved_in_round2": [
+   "ZH-N1"
+  ]
+ },
+ "findings": [
+  {
+   "id": "ZH-N1",
+   "severity": "NIT",
+   "key": "mobile.notifications.detail.section_notification",
+   "current": "通知",
+   "problem": "The screen title (detail.title) directly above is also 通知, so the screen shows the same word twice. English does the same (\"Notification\"/\"Notification\"), so this is optional.",
+   "suggestion": "通知内容",
+   "round2_status": "resolved",
+   "round2_text": "通知内容"
+  }
+ ],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "141bcbfa50093b6003485f822a62bd38e9d08516f508d25d107aa6f397c057be"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "42661a55dfafc4e2a6bacb6c3d2d34323168156cc9d5ebcf1e9f2d04d92cb7d5"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md holds the auditor's judgement; audit.log holds the actual Python check output from this session",
+ "ledger": "not written: the repo is read-only for this audit; the lane owner records the ledger row",
+ "history": [
+  {
+   "round": 1,
+   "input_draft_file_sha256": "8ecdc5ced43efc97a73636f911d5fa1de14e8a5e12ad2f81c3a17f3e25eeb128",
+   "input_draft_canonical_sha256": "cde876eefdc47d382c7e317105ca2f929afcf0c091f5e80bfe6d58a98d4d66ee",
+   "verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+     "ZH-N1"
+    ]
+   }
+  },
+  {
+   "round": 2,
+   "date": "2026-11-16T01:38:01+00:00",
+   "scope": "only the 2 remediated keys (ZH-T1, ZH-N1); the other 38 keys were checked for byte identity",
+   "input_draft_path": "/Users/damian/.local-operator/sessions/bb79330944ae/scratchpad/o3a/draft-zh-CN.json",
+   "input_route": "direct read by the auditor of the translator scratchpad file; the round-1 baseline was rebuilt from the relayed copy and confirmed by its canonical sha256 cde876…",
+   "input_draft_file_sha256": "953d337ff4c227f7f8d2ad7d95685af274bf9d15788a5907bda97499569e79a0",
+   "input_draft_canonical_sha256": "f8c03d70917154568bb219ac124128b7a027a13384ef9ee0207c9e277b129f81",
+   "changed_keys": {
+    "mobile.notifications.detail.section_notification": {
+     "r1": "通知",
+     "r2": "通知内容",
+     "finding": "ZH-N1",
+     "judgement": "通知内容 names the body-text section accurately and no longer repeats the 通知 screen title. 8 cells against a ~16 hint. Resolved."
+    }
+   },
+   "all_changed_keys_in_draft": [
+    "mobile.time.bucket.earlier_this_week",
+    "mobile.notifications.detail.section_notification"
+   ],
+   "unchanged_byte_identical": "38/38",
+   "new_findings": [],
+   "verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+     "ZH-N1"
+    ],
+    "resolved_in_round2": [
+     "ZH-N1"
+    ]
+   }
+  }
+ ],
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "ZH-N1"
+  ],
+  "resolved_in_round2": [
+   "ZH-N1"
+  ]
+ },
+ "audit_round": 2,
+ "audit_date_round2": "2026-11-16T01:38:01+00:00"
+}

@@ -1,0 +1,277 @@
+{
+ "audit_id": "o3a-hi-time",
+ "slice": "O3-a",
+ "locale": "hi",
+ "namespace": "mobile.time",
+ "audit_date": "2026-11-15",
+ "key_count": 23,
+ "keys": [
+  "mobile.time.bucket.today",
+  "mobile.time.bucket.yesterday",
+  "mobile.time.bucket.earlier_this_week",
+  "mobile.time.bucket.earlier",
+  "mobile.time.relative.now",
+  "mobile.time.relative.just_now",
+  "mobile.time.relative.yesterday",
+  "mobile.time.relative.seconds_ago_compact",
+  "mobile.time.relative.minutes_ago",
+  "mobile.time.relative.hours_ago",
+  "mobile.time.relative.days_ago",
+  "mobile.time.relative.minutes_ago_compact",
+  "mobile.time.relative.hours_ago_compact",
+  "mobile.time.relative.days_ago_compact",
+  "mobile.time.short.seconds",
+  "mobile.time.short.minutes",
+  "mobile.time.short.hours",
+  "mobile.time.short.days",
+  "mobile.time.short.weeks",
+  "mobile.time.short.years",
+  "mobile.time.short.minutes_spaced",
+  "mobile.time.short.minutes_seconds",
+  "mobile.time.short.hours_minutes"
+ ],
+ "draft_values": {
+  "mobile.time.bucket.today": "आज",
+  "mobile.time.bucket.yesterday": "कल",
+  "mobile.time.bucket.earlier_this_week": "पिछले कुछ दिन",
+  "mobile.time.bucket.earlier": "पहले",
+  "mobile.time.relative.now": "अभी",
+  "mobile.time.relative.just_now": "अभी-अभी",
+  "mobile.time.relative.yesterday": "कल",
+  "mobile.time.relative.seconds_ago_compact": "{count, plural, one {# सेकंड पहले} other {# सेकंड पहले}}",
+  "mobile.time.relative.minutes_ago": "{count, plural, one {# मिनट पहले} other {# मिनट पहले}}",
+  "mobile.time.relative.hours_ago": "{count, plural, one {# घंटा पहले} other {# घंटे पहले}}",
+  "mobile.time.relative.days_ago": "{count, plural, one {# दिन पहले} other {# दिन पहले}}",
+  "mobile.time.relative.minutes_ago_compact": "{count, plural, one {# मिनट पहले} other {# मिनट पहले}}",
+  "mobile.time.relative.hours_ago_compact": "{count, plural, one {# घंटा पहले} other {# घंटे पहले}}",
+  "mobile.time.relative.days_ago_compact": "{count, plural, one {# दिन पहले} other {# दिन पहले}}",
+  "mobile.time.short.seconds": "{count, plural, one {# सेकंड} other {# सेकंड}}",
+  "mobile.time.short.minutes": "{count, plural, one {# मिनट} other {# मिनट}}",
+  "mobile.time.short.hours": "{count, plural, one {# घंटा} other {# घंटे}}",
+  "mobile.time.short.days": "{count, plural, one {# दिन} other {# दिन}}",
+  "mobile.time.short.weeks": "{count, plural, one {# हफ़्ता} other {# हफ़्ते}}",
+  "mobile.time.short.years": "{count, plural, one {# साल} other {# साल}}",
+  "mobile.time.short.minutes_spaced": "{count, plural, one {# मिनट} other {# मिनट}}",
+  "mobile.time.short.minutes_seconds": "{minutes, plural, one {# मिनट} other {# मिनट}} {seconds} सेकंड",
+  "mobile.time.short.hours_minutes": "{hours, plural, one {# घंटा} other {# घंटे}} {minutes} मिनट"
+ },
+ "input_route": "Read directly from the translator session scratchpad (no guardrail block). en/context/shipped hi via `git -C ~/local-operator-mobile show 26663e18:<path>`. Style guide, glossary and relay hi from the clean working tree of ~/local-operator @ b42471d3935cb7e95d64428af27c32626665f4c0.",
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.json",
+   "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.context.json",
+   "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+  },
+  "hi_shipped": {
+   "path": null,
+   "note": "new namespace; no shipped hi file at 26663e18"
+  },
+  "hi_draft": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/draft-hi.json",
+   "sha256": "bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9"
+  },
+  "per_key_brief_hashes": {
+   "mobile.time.bucket.today": {
+    "sha256_english": "2b065c7c9ce466e5ebcad757987d5d660ee4c9ea708bc62c43444b53334738ba",
+    "sha256_context": "afea64ee4f8a6582864687940d16cc199c51f0718d24f117ba205a32458c104c"
+   },
+   "mobile.time.bucket.yesterday": {
+    "sha256_english": "566181254b293aa66653e43313be9e39c12d44f9ac4fcd3236ef1e9c50a2903f",
+    "sha256_context": "fbbd3d30464256366ed58cf6a725072455a13b1dbe23d0f2655f81bc7b86d0a3"
+   },
+   "mobile.time.bucket.earlier_this_week": {
+    "sha256_english": "ec2f4ce70aa7f5d8db74332d93e2973bba197615185a13d3e52398e1b505efbe",
+    "sha256_context": "1d48946d30f1a49f9f496befd4763ea762d0df3ecf7e802c59d0ab596d5e1242"
+   },
+   "mobile.time.bucket.earlier": {
+    "sha256_english": "e10ae990740118886b011c218c7d0777c5c203954e0038747965ddbe5aea1744",
+    "sha256_context": "e654e0b93a4f5d4014c8820b9caec7b4a1e1ed03bb79dc32d94b6ec4643ba348"
+   },
+   "mobile.time.relative.now": {
+    "sha256_english": "ed5eb9a37e2d8231af3388319b941995f6dc8755c56043d0cc52b5fe405a87de",
+    "sha256_context": "c9397a75f12a8e5d3dca5b61e2eec3e659c1edf6c4f582ee518971d433fe7d72"
+   },
+   "mobile.time.relative.just_now": {
+    "sha256_english": "7ddb44d8a533a7535d85cedddf35d7f3414632ad4e10a0d7ca697723e1d97993",
+    "sha256_context": "3a893a736ff9049bcc605315366e8b636090a56597d75e5aaa9b36ab5db5bd2e"
+   },
+   "mobile.time.relative.yesterday": {
+    "sha256_english": "9523d9fbe79bcf3ee5f9f664a8041fa3cdba4b6b8bb902cb5ec335a5bf1ca769",
+    "sha256_context": "f89f5ee7ef3b6cb4b6be98ca939d41a09076cb6234fa07f5d371743a4df267e3"
+   },
+   "mobile.time.relative.seconds_ago_compact": {
+    "sha256_english": "2b0e68fd882814c676c69bcabac29c73bb30ca511d32cbef7a5a88ff9bb6b7cd",
+    "sha256_context": "faa9d31d699c297d486491ce7009da4337abe09891e291c31a565a51bcbc4a68"
+   },
+   "mobile.time.relative.minutes_ago": {
+    "sha256_english": "43537116d5ba23700f6c45558eec7987140b2c94a80eeb40fd879cdecc826f25",
+    "sha256_context": "a09e0e70cd58ba5afc0276f50fe782dd2aa4bf41b0516abe0cc40f4f4e961ecb"
+   },
+   "mobile.time.relative.hours_ago": {
+    "sha256_english": "7dcf07ec99a6d57084e4ac3991caf95184d40abc02442e5714f238489038a428",
+    "sha256_context": "26bb4c874b800741cdcfdf892641d9502ffc25621c2be3ed05d2d17ec8215631"
+   },
+   "mobile.time.relative.days_ago": {
+    "sha256_english": "81883718df02041196cf6de02b206cd2348f9ea25bd79f856e96bc34b52d83b4",
+    "sha256_context": "17a155e378c7bed38a3abcb55e04877097193e5378d295ee3dcf60143aac84ff"
+   },
+   "mobile.time.relative.minutes_ago_compact": {
+    "sha256_english": "680e49a1367960c551b1b0a15a0ac6cde931d257c09f4a63bb79c0abf4cfaaea",
+    "sha256_context": "586f7b00de4cbad310e58a1220139717c4ae3a8591b8d8441c55dbc26415bbb8"
+   },
+   "mobile.time.relative.hours_ago_compact": {
+    "sha256_english": "736485e421361165416d57f465cb0c48de20f190add436394a4a1c27d7bdee89",
+    "sha256_context": "13461e18e45cd4725900df24a6f8675c9a10fccfce9f6f54a7c4aa1e6976ee67"
+   },
+   "mobile.time.relative.days_ago_compact": {
+    "sha256_english": "2d1d32cbf6797aa3fe562da9d64296d446077e7b3132bee724bc454bee17baa0",
+    "sha256_context": "047c46983b42426e7b27cc6ee31c01a37fdc91320e3d1333e4118c83dd949e3e"
+   },
+   "mobile.time.short.seconds": {
+    "sha256_english": "ab03f3ad112f1af451fd85312e5442a006ec02017a7cb47165d008a4cd9aa79b",
+    "sha256_context": "c95e4b3468185691f135616471230476075447023db46e717d4af5815c6d414e"
+   },
+   "mobile.time.short.minutes": {
+    "sha256_english": "1f34bce778b341be4e73dd43b7c63106b5a54aaffe3b9b93045cba524f51084a",
+    "sha256_context": "caad5967ec6e237cfeb5a808841e5fae54e39d5f01f2aa33308965ab4e65da55"
+   },
+   "mobile.time.short.hours": {
+    "sha256_english": "2b0e1f5fec75fe5a0ccbe30fb471772e694a92e6b62631fa6269b6a0ca989337",
+    "sha256_context": "c15e1b9439c59ed7c0b4c4e8264cd75bab9be1b792582beedfb9263a653f6b54"
+   },
+   "mobile.time.short.days": {
+    "sha256_english": "1e1bfa63431aec7541dd1a4311aa8fc62c7f63d34f1039bf6a76531c6b6e47a8",
+    "sha256_context": "f42d28ec9ed994146a9a41c959ca62f040f2cd3509525031d899e1431ba8f3ae"
+   },
+   "mobile.time.short.weeks": {
+    "sha256_english": "f0cf4c10fd668f6b31c6c15d874956145b5e8319ff584bc91d81ff5115d979be",
+    "sha256_context": "11749d45a96d9acfccd248ada4ef97806bfe8e2e4cd0c187e3a96512e7b8d766"
+   },
+   "mobile.time.short.years": {
+    "sha256_english": "6a872192121aa6ae9071d55d0332470a23c7228aed464339d0c8d0786bac6558",
+    "sha256_context": "1fa63fb6933d1a53f56f72409bbd28b04b103baadf04b1a6ff4ba470ccd04513"
+   },
+   "mobile.time.short.minutes_spaced": {
+    "sha256_english": "678f561e2781e9d583e87a0288c8a4a7fdadce36439dbddf10853914f5cdd337",
+    "sha256_context": "3d7a9847c33f1f3a73bc442e2affe0e34bc60f0f36f77fa1ec914dd25a4c7b77"
+   },
+   "mobile.time.short.minutes_seconds": {
+    "sha256_english": "2aa888908fe9ba2ed71b5dd10916b2ad8ea736f53a5e5ea2a8b6ec312c77aa0a",
+    "sha256_context": "35a63ad25a00369f8b22d4b133f22cfd82d42b8fd79b15a231484d1202ab2180"
+   },
+   "mobile.time.short.hours_minutes": {
+    "sha256_english": "015eb1c6d31cac89609986dab1e8f18ece9dfc660c155f4446e2d0fc698ee214",
+    "sha256_context": "cf647ccdea514df258c416c8d150fbcf351fe3bcd6d239bf3c1a0f341ccce825"
+   }
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/notes-hi.md",
+   "sha256": "eae4971902027646cb8badbeb638006511c71e59a16013a1f92841b839853abd"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/hi.md",
+   "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "relay_notifications_hi": {
+   "path": "~/local-operator/local_operator/i18n/catalogues/hi/relay.notifications.json",
+   "sha256": "8a7726aecb5c43747b2f207d4fbb02b0649cf5ae60a47b4835c6bbac6eaaf3cf"
+  }
+ },
+ "translator": {
+  "session": "ea3ea9b9290e",
+  "agent": "translator (lopdev)",
+  "model_claimed_in_notes": "anthropic/claude-opus-5-5"
+ },
+ "auditor": {
+  "agent": "i18n-auditor (lopdev)",
+  "session": "7f1fd014ba0d",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt \"Model: anthropic/claude-opus-5-5\"; no fallback observed",
+  "independent_from_translator_session": true,
+  "mt_service_used": false
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "HI-T1",
+   "HI-T2",
+   "HI-T3"
+  ]
+ },
+ "findings": [
+  {
+   "id": "HI-T1",
+   "severity": "MINOR",
+   "keys": [
+    "mobile.time.relative.hours_ago",
+    "mobile.time.relative.hours_ago_compact"
+   ],
+   "current": "{count, plural, one {# घंटा पहले} other {# घंटे पहले}}",
+   "problem": "Before पहले ('ago') standard Hindi takes the oblique: 'एक घंटे पहले'; CLDR hi uses 'घंटे पहले' for one too. 'घंटा पहले' is common colloquially and matches shipped relay.notifications.age.hours, so it is not wrong, just less standard.",
+   "fix": "Optional: one {# घंटे पहले} other {# घंटे पहले}. If you change it, change relay.notifications.age.hours in the same wave so the two stay consistent. Otherwise keep as is. Does not gate."
+  },
+  {
+   "id": "HI-T2",
+   "severity": "MINOR",
+   "keys": [
+    "mobile.time.short.hours",
+    "mobile.schedules.due.ahead (shipped, composes it)"
+   ],
+   "current": "short.hours one {# घंटा}; due.ahead '{label} में' → '1 घंटा में'",
+   "problem": "The postposition में requires the oblique: '1 घंटे में'. dueLabel (schedules-copy.ts:114-141) passes short.hours count=1 into due.ahead when the due time is 90–119 min away, so '1 घंटा में' / 'अगली बार 1 घंटा में' is reachable. This is new in O3-a, because before it the token was the Latin '1h'. The bare uses (row stamp, '1 घंटा 05 मिनट') need the nominative, so short.hours itself is correct and cannot fix this.",
+   "fix": "Deferred to code/key: give dueLabel its own in-form (oblique) unit keys, or reword due.ahead into a form that takes the nominative. Do not change the short.hours one arm. Meaning stays clear; it is a one-count agreement slip in a 30-min window."
+  },
+  {
+   "id": "HI-T3",
+   "severity": "MINOR",
+   "keys": [
+    "mobile.time.short.seconds",
+    "mobile.time.short.minutes",
+    "mobile.time.short.hours",
+    "mobile.time.short.days",
+    "mobile.time.short.weeks",
+    "mobile.time.short.years",
+    "mobile.time.relative.minutes_ago_compact",
+    "mobile.time.relative.seconds_ago_compact",
+    "mobile.time.short.minutes_seconds",
+    "mobile.time.short.hours_minutes"
+   ],
+   "current": "e.g. '59 सेकंड' (8 cp/6 cells), '2 हफ़्ते' (9 cp), '59 मिनट पहले' (12 cp/11 cells), '59 मिनट 59 सेकंड' (16 cp)",
+   "problem": "These run over the ~4-char hint for short.* and the ~10 hint for *_compact. Overflow is not proven. The drawer time is shrink-0 next to a tail-ellipsized title (list-row.tsx:511-535), so the time never clips and the title loses width. The transcript clock reserves width from a localized 59:59 reference (working-line.tsx:317-324). team-bridge rowStamp has no .tsx consumer at 26663e18.",
+   "fix": "Keep the full words unless the designer's rendered frames show crowding. If they do, the customary short forms (CLDR hi short units) are '# से॰', '# मि॰', '# घं॰', e.g. '4 मि॰ 07 से॰'. Needs rendered proof, not a cell count."
+  }
+ ],
+ "notes": {
+  "C-ICU": "PASS: every plural is one/other (CLDR hi; one = 0 and 1). The घंटा/घंटे and हफ़्ता/हफ़्ते nominative split is correct for bare durations. सेकंड/मिनट/दिन/साल are invariant. Placeholders, '#' count and the zero-padded {seconds}/{minutes} text are identical to en.",
+  "C-KAL": "PASS: कल ('yesterday'/'tomorrow') is unambiguous. Every consumer is past-only: inbox buckets (timeBucket, notifications-model.ts:131-141), Team Bridge day dividers for earlier messages (team-bridge/model.ts:529-530), and inbox row meta for days===1 (notifications-model.ts:530-532). No future-date copy appears on those surfaces. This matches standard Hindi UI usage and shipped relay.notifications.section.yesterday.",
+  "C-WEEK": "PASS: bucket.earlier_this_week 'पिछले कुछ दिन' ('the last few days') is a rolling phrase. It matches the 2–6-day window (atMs >= todayStart-6*DAY_MS and < yesterday start; notifications-model.ts:135-141) on any weekday, and avoids the calendar-week reading that was MAJOR in ru. It sits under आज/कल and above पहले, so it reads as 'before yesterday'.",
+  "N1": "Note only, code fix deferred: short.minutes_spaced/hours/days/weeks/years act as row-stamp ages (session-projection.ts:400-409; team-bridge/model.ts:611-624). In Hindi, a bare '5 मिनट' reads as a duration, not an age. That ambiguity matches English '5m', so it is no translation defect. A dedicated *_ago row-stamp key would remove it.",
+  "N2": "Note, outside the slice: connection-view.ts:393 and :483 are still unkeyed English templates that embed agoLabel(). A hi reader would see 'Not answering — last update 12 सेकंड ago.' with mixed languages. This needs a code/key follow-up, not a translation change."
+ },
+ "terminology_review": "Bucket words आज/कल/पहले and अभी-अभी, # मिनट/घंटा/घंटे/दिन पहले are all consistent with shipped relay.notifications.",
+ "ledger": "not appended: the task makes all repos read-only. Bundles are staged in scratch for the manager to land under i18n/audits/evidence/hi/<ns>/<audit-id>/ and append via ledger.py.",
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "d3d8fe39bfc21d9391fbb6784e0d8b8089fdbfbfa7cfd7f5049c1335213429a9"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "c24dac8df04bbc80de0c4d0f6b5c2a62e6ce4d326fcd45ae6e40c64c05eefd77"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is reasoning and notes. audit.log is the actual stdout of the checks run in this session."
+}

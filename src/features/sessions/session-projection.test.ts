@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { SessionSummary } from "@/contracts";
 import {
@@ -16,6 +16,7 @@ import {
 	unreadBadgeCount,
 	visiblePeers,
 } from "@/features/sessions/session-projection";
+import { renderFor, resetLocaleSource, setLocaleSource } from "@/i18n";
 
 /**
  * The list's decisions, where a decision is not observable from a rendered frame.
@@ -608,5 +609,43 @@ describe("remote rows", () => {
 			{ deviceId: "d_a", label: "Alpha" },
 			{ deviceId: "d_b", label: "Beta" },
 		]);
+	});
+});
+
+/* C1 (ur audit): the age helpers sit inside English sentences that stay
+ * unkeyed until slice O3-b keys them, so under a non-en locale the age must
+ * still render from the English catalogue — no mixed-script sentence. */
+const ENGLISH_ONLY = /^[\x20-\x7E\u00B7\u2014\u2019]*$/;
+
+describe("the stale lines stay wholly English under a non-en locale", () => {
+	afterEach(resetLocaleSource);
+
+	it("keeps Last updated … English and still takes the just-now branch", () => {
+		setLocaleSource(() => "ur");
+		// Negative control: the ur age tokens are not Latin, and the ur "just now"
+		// is not the English text the old string comparison looked for.
+		expect(
+			renderFor(
+				"mobile.time.relative.seconds_ago_compact",
+				{ count: 12 },
+				"ur",
+			),
+		).not.toMatch(ENGLISH_ONLY);
+		expect(renderFor("mobile.time.relative.just_now", {}, "ur")).not.toBe(
+			"just now",
+		);
+		const long = staleNote({ stale: true, lastFrameAt: 1_000, now: 13_000 });
+		expect(long).toBe("Last updated 12s ago.");
+		expect(long).toMatch(ENGLISH_ONLY);
+		expect(
+			staleShortNote({ stale: true, lastFrameAt: 1_000, now: 13_000 }),
+		).toBe("12s ago.");
+		// The just-now branch is structural, so it triggers whatever the locale.
+		expect(
+			staleShortNote({ stale: true, lastFrameAt: 1_000, now: 2_000 }),
+		).toBe("Just now.");
+		expect(staleNote({ stale: true, lastFrameAt: 1_000, now: 2_000 })).toBe(
+			"Last updated just now.",
+		);
 	});
 });

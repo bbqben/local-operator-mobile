@@ -36,5 +36,9 @@
 	"mobile.schedules.supervisor.unsupported": "Nền tảng này chưa giám sát các lần thức dậy, nên các lần thức dậy bên dưới chỉ chạy khi cuộc trò chuyện đang chạy.",
 	"mobile.schedules.supervisor.unverifiable": "Không có gì giám sát các lần thức dậy bên dưới, nên chúng chỉ chạy khi cuộc trò chuyện của chúng đang chạy.",
 	"mobile.schedules.tail.failed": "{count} thất bại",
-	"mobile.schedules.truncated": "Đang hiện {shown} trên {total} cuộc trò chuyện có {family, select, wakes {lần thức dậy} other {giám sát}}."
+	"mobile.schedules.truncated": "Đang hiện {shown} trên {total} cuộc trò chuyện có {family, select, wakes {lần thức dậy} other {giám sát}}.",
+	"mobile.schedules.section.wakes": "Lần thức dậy",
+	"mobile.schedules.section.wakes_summary": "Lần thức dậy · {summary}",
+	"mobile.schedules.section.monitors": "Giám sát",
+	"mobile.schedules.section.monitors_summary": "Giám sát · {summary}"
 }

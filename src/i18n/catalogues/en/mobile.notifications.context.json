@@ -290,5 +290,29 @@
 	"mobile.notifications.turn_on": {
 		"role": "button",
 		"note": "The one label of every control that turns this phone's notifications on: the first-run sheet's primary button (raises the phone's permission dialog), the Settings › Notifications button, and the 'Notifications are off' row's button (opens this app's page in the system settings). Use the same words in all three places."
+	},
+	"mobile.notifications.section.waiting": {
+		"role": "heading",
+		"note": "Pinned section heading at the top of the notifications inbox: the asks that are blocked on the reader. Short heading, ~20 characters. No placeholders."
+	},
+	"mobile.notifications.section.waiting_count": {
+		"role": "heading",
+		"note": "The same pinned section heading with the number of items in it, e.g. 'Waiting on you · 3'. {count} is an integer shown as digits; no noun follows it, so no plural arms. Keep the middle dot separator."
+	},
+	"mobile.notifications.detail.title": {
+		"role": "heading",
+		"note": "Screen title of a single notification's detail screen (navigation bar). One word, ~16 characters. No placeholders."
+	},
+	"mobile.notifications.detail.section_notification": {
+		"role": "heading",
+		"note": "Section heading above the notification's own body text on its detail screen (the message an agent sent with notify). Short heading, ~16 characters. No placeholders."
+	},
+	"mobile.notifications.detail.section_links": {
+		"role": "heading",
+		"note": "Section heading above the buttons that open links attached to a notification. Short heading, ~16 characters. No placeholders."
+	},
+	"mobile.notifications.detail.section_message": {
+		"role": "heading",
+		"note": "Section heading above the quoted excerpt of the conversation message a notification points at. A noun, not the verb 'to message'. Short heading, ~16 characters. No placeholders."
 	}
 }

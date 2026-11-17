@@ -1,0 +1,93 @@
+{
+ "audit_id": "o3a-hi-set",
+ "slice": "O3-a",
+ "locale": "hi",
+ "namespace": "mobile.settings",
+ "audit_date": "2026-11-15",
+ "key_count": 1,
+ "keys": [
+  "mobile.settings.section.notifications"
+ ],
+ "draft_values": {
+  "mobile.settings.section.notifications": "सूचनाएँ"
+ },
+ "input_route": "Read directly from the translator session scratchpad (no guardrail block). en/context/shipped hi via `git -C ~/local-operator-mobile show 26663e18:<path>`. Style guide, glossary and relay hi from the clean working tree of ~/local-operator @ b42471d3935cb7e95d64428af27c32626665f4c0.",
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.settings.json",
+   "sha256": "4646525ff23693af1ed772c00fadb4adcc54eb8c706383e2d1f00bc1a4fc667a"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.settings.context.json",
+   "sha256": "a800eb6898cf749d78af0cf5973ac39c43dda939840b3ae2339a1a42ca206684"
+  },
+  "hi_shipped": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/hi/mobile.settings.json",
+   "sha256": "a25988035316f48bbde08fecbdf71c069588ee435fa035497546ab66e303a8df"
+  },
+  "hi_draft": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/draft-hi.json",
+   "sha256": "bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9"
+  },
+  "per_key_brief_hashes": {
+   "mobile.settings.section.notifications": {
+    "sha256_english": "788011833a5a0f22db90c91e8eb7bd8e9f5cd423354ff5ef8c338e7895f44ba9",
+    "sha256_context": "c3db503c637be32bcdfb2dfab01ab4651ddd963d40af50747ac4da697d8933b8"
+   }
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/ea3ea9b9290e/scratchpad/o3a/notes-hi.md",
+   "sha256": "eae4971902027646cb8badbeb638006511c71e59a16013a1f92841b839853abd"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/hi.md",
+   "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "relay_notifications_hi": {
+   "path": "~/local-operator/local_operator/i18n/catalogues/hi/relay.notifications.json",
+   "sha256": "8a7726aecb5c43747b2f207d4fbb02b0649cf5ae60a47b4835c6bbac6eaaf3cf"
+  }
+ },
+ "translator": {
+  "session": "ea3ea9b9290e",
+  "agent": "translator (lopdev)",
+  "model_claimed_in_notes": "anthropic/claude-opus-5-5"
+ },
+ "auditor": {
+  "agent": "i18n-auditor (lopdev)",
+  "session": "7f1fd014ba0d",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "session system prompt \"Model: anthropic/claude-opus-5-5\"; no fallback observed",
+  "independent_from_translator_session": true,
+  "mt_service_used": false
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "notes": {},
+ "terminology_review": "'सूचनाएँ' is the same plural noun as mobile.notifications.title and relay.notifications.title. It has the register of कनेक्शन/रूप-रंग/जानकारी.",
+ "ledger": "not appended: the task makes all repos read-only. Bundles are staged in scratch for the manager to land under i18n/audits/evidence/hi/<ns>/<audit-id>/ and append via ledger.py.",
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "506fb1d3c86e5ea132ad279c6ce52ee69a2db7b2b2eb37a1f2a207bb231e4535"
+  },
+  "log": {
+   "path": "audit.log",
+   "sha256": "97f2c946aa473b706c2e413de985ddd2ebc06d882b358cecc73f4307ebea10c9"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is reasoning and notes. audit.log is the actual stdout of the checks run in this session."
+}

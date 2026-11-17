@@ -78,5 +78,6 @@
 	"mobile.settings.diagnostics.address": "टनल का पता",
 	"mobile.settings.diagnostics.copy": "डायग्नॉस्टिक्स कॉपी करें",
 	"mobile.settings.diagnostics.copied": "डायग्नॉस्टिक्स कॉपी हो गए",
-	"mobile.settings.diagnostics.copy_failed": "कॉपी नहीं हो सका। फिर से कोशिश करें।"
+	"mobile.settings.diagnostics.copy_failed": "कॉपी नहीं हो सका। फिर से कोशिश करें।",
+	"mobile.settings.section.notifications": "सूचनाएँ"
 }

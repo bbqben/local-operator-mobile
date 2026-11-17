@@ -4,7 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import type { LinkedSession, ProjectMilestone, ProjectView } from "@/contracts";
-import { useConnection } from "@/features/auth/connection-provider";
+import {
+	useConnection,
+	useLocaleFrame,
+} from "@/features/auth/connection-provider";
 import {
 	deleteProjectBody,
 	draftKeptNote,
@@ -24,6 +27,7 @@ import {
 	writeUnknownNote,
 } from "@/features/projects/projects-copy";
 import { ProjectDetailStateMarkers } from "@/features/projects/projects-markers";
+import { t } from "@/i18n";
 import { useUiStore } from "@/state/ui-store";
 import {
 	CONTROL,
@@ -78,6 +82,12 @@ export default function ProjectDetail() {
 	const router = useRouter();
 	const { key } = useLocalSearchParams<{ key: string }>();
 	const { relay, refusal } = useConnection();
+	/* A late backend language frame must repaint this screen's keyed copy
+	 * (D1, PR #251): `t()` reads the locale at call time but cannot re-render an
+	 * already-mounted screen, so without this subscription a `fr → ur` frame left
+	 * the old language on screen until a remount. The value is unused on purpose —
+	 * the subscription IS the fix (`useLocaleFrame`, connection-provider.tsx). */
+	useLocaleFrame();
 	const showToast = useUiStore((state) => state.showToast);
 
 	const [project, setProject] = useState<ProjectView | null>(null);
@@ -367,7 +377,7 @@ export default function ProjectDetail() {
 
 					{project.progress.trim() !== "" ? (
 						<View className="gap-1">
-							<SectionHeader label="progress" />
+							<SectionHeader label={t("mobile.projects.section.progress")} />
 							<Text className="text-body-sm text-ink">{project.progress}</Text>
 						</View>
 					) : null}
@@ -384,7 +394,7 @@ export default function ProjectDetail() {
 					) : null}
 
 					<View>
-						<SectionHeader label="milestones" />
+						<SectionHeader label={t("mobile.projects.section.milestones")} />
 						{project.milestones.length === 0 ? (
 							<Text className="py-1 text-body-sm text-ink-dim">
 								No milestones.
@@ -417,7 +427,9 @@ export default function ProjectDetail() {
 					</View>
 
 					<View testID={SURFACE.projectLinks}>
-						<SectionHeader label="linked sessions" />
+						<SectionHeader
+							label={t("mobile.projects.section.linked_sessions")}
+						/>
 						{links.length === 0 ? (
 							<Text className="py-1 text-body-sm text-ink-dim">
 								No sessions linked.

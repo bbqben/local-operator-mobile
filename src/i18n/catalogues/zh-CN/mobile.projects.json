@@ -30,5 +30,9 @@
 	"mobile.projects.status.qa": "质量测试",
 	"mobile.projects.status.validation": "验证中",
 	"mobile.projects.write_receipt": "{kind, select, project {{action, select, created {已创建} completed {已完成} reopened {已重新打开} added {已添加} updated {已更新} removed {已移除} deleted {已删除} other {已更新}}项目“{subject}”。} milestone {{action, select, created {已创建} completed {已完成} reopened {已重新打开} added {已添加} updated {已更新} removed {已移除} deleted {已删除} other {已更新}}里程碑“{subject}”。} other {{action, select, created {已创建} completed {已完成} reopened {已重新打开} added {已添加} updated {已更新} removed {已移除} deleted {已删除} other {已更新}}“{subject}”。}}",
-	"mobile.projects.write_unknown_note": "无法连接此电脑，因此无法确认是否已保存。重试前先检查项目。"
+	"mobile.projects.write_unknown_note": "无法连接此电脑，因此无法确认是否已保存。重试前先检查项目。",
+	"mobile.projects.title": "项目",
+	"mobile.projects.section.progress": "进度",
+	"mobile.projects.section.milestones": "里程碑",
+	"mobile.projects.section.linked_sessions": "关联会话"
 }

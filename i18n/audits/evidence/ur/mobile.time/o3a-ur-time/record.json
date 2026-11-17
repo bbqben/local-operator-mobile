@@ -1,0 +1,168 @@
+{
+  "audit_id": "o3a-ur-time",
+  "slice": "O3-a",
+  "locale": "ur",
+  "namespace": "mobile.time",
+  "audit_date": "2026-11-16",
+  "key_count": 23,
+  "keys": [
+    "mobile.time.bucket.today",
+    "mobile.time.bucket.yesterday",
+    "mobile.time.bucket.earlier_this_week",
+    "mobile.time.bucket.earlier",
+    "mobile.time.relative.now",
+    "mobile.time.relative.just_now",
+    "mobile.time.relative.yesterday",
+    "mobile.time.relative.seconds_ago_compact",
+    "mobile.time.relative.minutes_ago",
+    "mobile.time.relative.hours_ago",
+    "mobile.time.relative.days_ago",
+    "mobile.time.relative.minutes_ago_compact",
+    "mobile.time.relative.hours_ago_compact",
+    "mobile.time.relative.days_ago_compact",
+    "mobile.time.short.seconds",
+    "mobile.time.short.minutes",
+    "mobile.time.short.hours",
+    "mobile.time.short.days",
+    "mobile.time.short.weeks",
+    "mobile.time.short.years",
+    "mobile.time.short.minutes_spaced",
+    "mobile.time.short.minutes_seconds",
+    "mobile.time.short.hours_minutes"
+  ],
+  "input_route": "direct read of translator scratchpad draft (not blocked); en/context via git show 26663e18; shipped ur via git show 26663e18",
+  "translator_session": "bdbee2a271c1",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "966cb6dc566f",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "session system prompt \"Model:\" line; no fallback observed"
+  },
+  "input_hashes": {
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/bdbee2a271c1/scratchpad/o3a/draft-ur.json",
+      "sha256": "2ceedc0c2b53366bcbc2238cac66b488deade32abba4aa61a9572ea4eae617a7"
+    },
+    "translator_notes": {
+      "path": "/Users/damian/.local-operator/sessions/bdbee2a271c1/scratchpad/o3a/notes-ur.md",
+      "sha256": "010e795451918b45fa94ef91e5f5a21a76b19dbc1b7dc30d23e1ce30834ae65f"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "relay_ur": {
+      "path": "~/local-operator/local_operator/i18n/catalogues/ur/relay.notifications.json",
+      "sha256": "7136acd07a3ac277e07e48db1d2dc765497367d24df6ec2a4bcbb152068f3180"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/ur.md",
+      "sha256": "c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    },
+    "en": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.time.json",
+      "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+    },
+    "context": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.time.context.json",
+      "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+    },
+    "ur_shipped": {
+      "path": "26663e18:src/i18n/catalogues/ur/mobile.time.json",
+      "sha256": null,
+      "note": "no ur mobile.time.json at 26663e18: new namespace created by O3-a"
+    }
+  },
+  "brief_key_hashes_verified": true,
+  "artifacts": {
+    "report.md": "f0030cda9dc153924a3a0a47de375b3c3ab4d88bcd7eaf86591cb6c4824b8fa1",
+    "audit.log": "dcd6dd224511c7fcc499842caf76dbdfb0bb553936c47cfec94fbebc1512633b"
+  },
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": [
+      "F1",
+      "F2"
+    ]
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "sev": "MINOR",
+      "ns": "mobile.time",
+      "keys": [
+        "mobile.time.short.seconds",
+        "mobile.time.short.minutes",
+        "mobile.time.short.hours",
+        "mobile.time.short.days",
+        "mobile.time.short.weeks",
+        "mobile.time.short.years",
+        "mobile.time.relative.seconds_ago_compact",
+        "mobile.time.relative.hours_ago_compact",
+        "mobile.time.short.minutes_seconds",
+        "mobile.time.short.hours_minutes"
+      ],
+      "current": "e.g. «12 گھنٹے» (8), «12 سیکنڈ قبل» (12), «12 منٹ 07 سیکنڈ» (15)",
+      "problem": "Over the sidecar width hints: short.* ~4 cells → 5–8; *_compact hours/seconds ~10 → 12; elapsed compounds 15 vs English 6. Urdu has no customary one-letter units, so no shorter idiomatic wording exists; sites at 26663e18 are shrink-0/flex (list-row.tsx:527, notifications.tsx:968), so the title shrinks rather than the time clipping. The stale short note (session-projection.ts, \"12 chars at 200%\") may wrap.",
+      "fix": "Keep the wording. Record a ur width exception for mobile.time.short.* / *_compact in i18n/style-guides/ur.md (as done for relay.health.reconnecting) and have the designer check the drawer row, transcript elapsed chip and stale note in a rendered RTL frame."
+    },
+    {
+      "id": "F2",
+      "sev": "MINOR",
+      "ns": "mobile.time",
+      "keys": [
+        "mobile.time.short.hours",
+        "mobile.schedules.due.overdue (shipped, not in draft)"
+      ],
+      "current": "short.hours one = «# گھنٹہ» composed by schedules-copy.ts dueLabel into shipped «{label} سے تاخیر» → «1 گھنٹہ سے تاخیر»",
+      "problem": "Before the postposition سے Urdu needs the oblique «1 گھنٹے سے تاخیر». The draft key is right for its standalone use (direct case «1 گھنٹہ»); the clash is the composition, reachable when 90–119 min overdue (dueLabel 5400≤|s|<7200 → count 1). «1 گھنٹہ بعد» (due.ahead) is fine.",
+      "fix": "Do not change the draft key. In a follow-up, reword shipped mobile.schedules.due.overdue so it takes the direct case, e.g. «{label} تاخیر» («1 گھنٹہ تاخیر» / «22 دن تاخیر»), or accept as colloquially tolerated."
+    }
+  ],
+  "code_findings_outside_translation_verdict": [
+    {
+      "id": "C1",
+      "sev": "MAJOR (code, outside the translation verdict)",
+      "ns": "mobile.time",
+      "sites": [
+        "src/features/session/connection-view.ts:393,483 `Not answering — last update ${agoLabel(s)} ago.` / `${name} isn’t answering — last seen ${agoLabel(..)} ago.`",
+        "src/features/sessions/session-projection.ts:~175 `Last updated ${phrase}.` and ~201 `${phrase === \"just now\" ? \"Just now\" : phrase}.`",
+        "src/features/auth/computer-switcher-view.ts:229 `Asleep · ${relativeAgo(..)}`"
+      ],
+      "problem": "O3-a localised the duration/age but left the surrounding sentence as an unkeyed English literal. ur now renders e.g. «Not answering — last update 12 سیکنڈ ago.» / «Last updated 5 منٹ قبل.» (first strong = L → LTR base under dir=auto, Urdu run shown reversed relative to the sentence; English \"ago\" wrapped round a bare Urdu unit), and `phrase === \"just now\"` compares against the translated value (never true outside en) and appends a Latin \".\" to Urdu. Before 26663e18 these were coherent Latin (`12s`, `5 min ago`). Affects every non-en locale.",
+      "fix": "Key the wrappers in this slice (e.g. mobile.session.stale.last_updated «آخری اپ ڈیٹ {age}», connection C3/C7 sentences with {age}), drop the English string comparison (select the capitalised form by rung, not by text), or keep those three call sites on the old Latin formatter until they are keyed."
+    },
+    {
+      "id": "C2",
+      "sev": "MINOR (render risk, unverified)",
+      "ns": "mobile.time",
+      "sites": [
+        "src/ui/components/list-row.tsx:527 time Text `text-mono-label`",
+        "src/ui/theme.css:140 `--text-mono-label--letter-spacing: 0.06em`, :277 `font-family: var(--font-mono)`"
+      ],
+      "problem": "The drawer row time now carries Urdu words («3 گھنٹے», «2 ہفتے») in a monospace face (no Arabic glyphs → fallback) with 0.06em tracking. Letter-spacing on a cursive script can break joins (iOS kern / some browsers). Not observed: no rendered frame exists.",
+      "fix": "Designer to capture an RTL frame (web + iOS) of the conversations drawer; if joins break, drop tracking/mono for that Text when direction is rtl."
+    },
+    {
+      "id": "C3",
+      "sev": "NIT (info, pre-existing logic)",
+      "ns": "mobile.time",
+      "sites": [
+        "src/features/notifications/notifications-model.ts relativeTime (rounded hours) vs timeBucket (calendar days, :137-147)"
+      ],
+      "problem": "A row 24–35 h old shows «کل» (relative.yesterday) even when its calendar bucket is «پچھلے چند دن». Same in English (\"yesterday\" under \"Earlier this week\"). Not a translation issue.",
+      "fix": "None required for ur; note for the coder."
+    }
+  ],
+  "native_rendering": "unverified (no device/simulator frame)",
+  "repo_validator_run": false,
+  "ledger_append": "not performed — repo read-only per brief; ledger.py append is the manager/coder step",
+  "audit_notes_not_execution_log": "report.md is notes; audit.log is the actual check output"
+}

@@ -2264,10 +2264,10 @@ export const Composer = ({
 			visible={attachSheetOpen}
 			onClose={() => setAttachSheetOpen(false)}
 			onDismiss={attachmentHandoff.dismissed}
-			/* The ratchet's own entry for this file is lower-case "attach": the
-			 * title is pre-existing debt, and capitalising it minted a NEW literal
-			 * that failed `check-strings`. Keying it is the payoff, not this fix. */
-			title="attach"
+			/* Keyed with the lower-case English it already shipped; Title-casing it
+			 * like the other `sheet_title.*` keys (visual audit D14) is a copy
+			 * decision left to design, not part of keying it. */
+			title={t("mobile.session.sheet_title.attach")}
 			testID={SURFACE.attachSheet}
 		>
 			<View className="py-1">

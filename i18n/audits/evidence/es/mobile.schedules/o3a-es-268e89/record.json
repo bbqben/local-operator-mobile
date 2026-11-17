@@ -1,0 +1,92 @@
+{
+  "audit_id": "o3a-es-268e89",
+  "slice": "O3-a",
+  "locale": "es",
+  "namespace": "mobile.schedules",
+  "audit_date": "2026-11-15",
+  "key_count": 4,
+  "keys_audited": [
+    "mobile.schedules.section.wakes",
+    "mobile.schedules.section.wakes_summary",
+    "mobile.schedules.section.monitors",
+    "mobile.schedules.section.monitors_summary"
+  ],
+  "translator_session": "073b2553cc4d",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "7a618dafc6fb",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "session system prompt \"Model:\" line; no fallback observed"
+  },
+  "input_route": "draft content relayed by the lane owner via hub message; file sha attested by the relayer, canonical-JSON sha verified by the auditor",
+  "input_hashes": {
+    "draft": {
+      "path": "/Users/damian/.local-operator/sessions/073b2553cc4d/scratchpad/o3a/draft-es.json",
+      "sha256": "268e896dd0aec526ccf2071764b1f15de2c09ea79940cea5337effc3d1718abf",
+      "sha256_source": "attested by relayer d5aaf8ba6ba5 (auditor read refused by guardrail)",
+      "canonical_json_sha256": "2db4f877d3ab6a721222aee47c1e42fb10d517b8d8f3bf3b8050baf40a5067e3",
+      "canonical_json_sha256_source": "verified by auditor"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "en": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.schedules.json",
+      "sha256": "1f9edfffe611a553d9dc83235852396cf2eba0b5a7c903f30fb206493287985f"
+    },
+    "context": {
+      "path": "26663e18:src/i18n/catalogues/en/mobile.schedules.context.json",
+      "sha256": "aae99aed5ca846fa5d5e9b2cf0fcb665fcff4865f0709df3d8707c02468ca8bb"
+    },
+    "es_shipped": {
+      "path": "26663e18:src/i18n/catalogues/es/mobile.schedules.json",
+      "sha256": "bf8afe000f506431789fb5df4654d700bf5935238eb1ba01f3aa1854936bd826"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/es.md",
+      "sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    }
+  },
+  "draft_values": {
+    "mobile.schedules.section.wakes": "Despertares",
+    "mobile.schedules.section.wakes_summary": "Despertares · {summary}",
+    "mobile.schedules.section.monitors": "Monitorizaciones",
+    "mobile.schedules.section.monitors_summary": "Monitorizaciones · {summary}"
+  },
+  "mechanical": {
+    "placeholder_mismatches": 0,
+    "icu_parse_errors": 0,
+    "non_es_selectors": 0,
+    "nfc_failures": 0,
+    "redaction_marker_hits": 0,
+    "ordenador_computadora_hits": 0
+  },
+  "findings": [],
+  "observations": [
+    "Out of scope (reused key, not in this draft): mobile.chrome.destination.schedules ships «Horarios», while glossary schedule → «programación» and mobile.schedules.read_unreachable says «programaciones». That is pre-existing drift; record it, not gating here.",
+    "Out of scope: the shipped summary keys add the noun («# monitorizaciones activas» for en «{count} armed»), so monitors_summary renders «Monitorizaciones · 2 monitorizaciones activas». The redundancy comes from the pre-existing summary key, not from this draft."
+  ],
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "artifacts": {
+    "report": {
+      "path": "/Users/damian/.local-operator/sessions/7a618dafc6fb/scratchpad/o3a-audit/es/mobile.schedules/o3a-es-268e89/report.md",
+      "sha256": "de36d4365f9895ad8ecb2db7cbf3806380655c7f5e9023c79dd9d8802a248c54"
+    },
+    "audit_log": {
+      "path": "/Users/damian/.local-operator/sessions/7a618dafc6fb/scratchpad/o3a-audit/es/mobile.schedules/o3a-es-268e89/audit.log",
+      "sha256": "dd471df63e4d12d52f5aef3205ee13317fb44c5c5e42f8d289169ee60688698a"
+    }
+  },
+  "audit_notes_not_execution_log": "report.md is audit notes; audit.log is the actual output of the auditor’s Python check run. No repo validator was run (task barred builds/tests). Ledger append is not done here (repo read-only); this bundle is scratch staging pending a tracked commit."
+}

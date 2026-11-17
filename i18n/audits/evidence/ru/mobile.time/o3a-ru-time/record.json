@@ -1,0 +1,207 @@
+{
+ "audit_id": "o3a-ru-time",
+ "locale": "ru",
+ "namespace": "mobile.time",
+ "slice": "O3-a",
+ "audit_date": "2026-11-15",
+ "key_count": 23,
+ "keys": [
+  "mobile.time.bucket.today",
+  "mobile.time.bucket.yesterday",
+  "mobile.time.bucket.earlier_this_week",
+  "mobile.time.bucket.earlier",
+  "mobile.time.relative.now",
+  "mobile.time.relative.just_now",
+  "mobile.time.relative.yesterday",
+  "mobile.time.relative.seconds_ago_compact",
+  "mobile.time.relative.minutes_ago",
+  "mobile.time.relative.hours_ago",
+  "mobile.time.relative.days_ago",
+  "mobile.time.relative.minutes_ago_compact",
+  "mobile.time.relative.hours_ago_compact",
+  "mobile.time.relative.days_ago_compact",
+  "mobile.time.short.seconds",
+  "mobile.time.short.minutes",
+  "mobile.time.short.hours",
+  "mobile.time.short.days",
+  "mobile.time.short.weeks",
+  "mobile.time.short.years",
+  "mobile.time.short.minutes_spaced",
+  "mobile.time.short.minutes_seconds",
+  "mobile.time.short.hours_minutes"
+ ],
+ "source_commit": "local-operator-mobile 26663e1864585a106a57bca6b0cbdfe54d97dd79",
+ "input_route": "direct read of the translator scratch draft (no guardrail block; relay not needed); en/context/shipped ru via git show at the source commit; brief sha256_english/sha256_context re-verified: 0 mismatches",
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.json",
+   "sha256": "d1a1959ffc039127d8d0042e9638566b95b0cdc9eac080f87a05cafd77ec59b5"
+  },
+  "context": {
+   "path": "local-operator-mobile@26663e18:src/i18n/catalogues/en/mobile.time.context.json",
+   "sha256": "22ff33660b12417037914675fe90a9a6bc56a1f79dfce360106f945e8c4b77da"
+  },
+  "ru_target_draft": {
+   "path": "/Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/draft-ru.json",
+   "sha256": "e37f67d5830313d5dff27550e0fbb085460b08bd25cdc6b153fa38ab89a22dfd"
+  },
+  "ru_shipped": {
+   "path": null,
+   "note": "namespace new in O3-a; no shipped ru file"
+  },
+  "translator_notes": {
+   "path": "/Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/notes-ru.md",
+   "sha256": "c54943db54fffe7ce1d733ac561cba61489cd28fabec038957e16670b4c63682"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+   "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/ru.md",
+   "sha256": "f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md (task named style-guides/glossary.md, which does not exist)",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "desktop_relay_ru": {
+   "path": "~/local-operator/local_operator/i18n/catalogues/ru/relay.notifications.json",
+   "sha256": "caf5b24e691507cc49e94142fe58afa8ff11f968ee7a2b771224b0ef9b234980"
+  },
+  "ru_target_draft_round1": {
+   "path": "/Users/damian/.local-operator/sessions/c35c2a6c2253/scratchpad/o3a/draft-ru.json (overwritten)",
+   "sha256": "6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f"
+  }
+ },
+ "draft_subset_sha256": "6939058243842309aee0c1261be2cc8aa4e70e7776100c606bed51b9bbf31ed4",
+ "translator": {
+  "session": "c35c2a6c2253"
+ },
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "6bb2909e7a4f",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt \"Model:\" line for this session; no fallback observed",
+  "independent_from_translator_session": true,
+  "mt_service_used": false
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "RU-T2",
+   "RU-T4"
+  ],
+  "resolved_finding_ids": [
+   "RU-T1",
+   "RU-T3"
+  ]
+ },
+ "mechanical": {
+  "icu_parse_errors": 0,
+  "placeholder_mismatches": 0,
+  "missing_ru_plural_categories": 0,
+  "nfc_violations": 0,
+  "redaction_marker_hits": 0,
+  "nbsp": 0,
+  "negative_controls": "drop-few, rename-placeholder, NFD, redaction each detected (see audit.log)"
+ },
+ "findings": [
+  {
+   "id": "RU-T1",
+   "severity": "MAJOR",
+   "key": "mobile.time.bucket.earlier_this_week",
+   "current": "Ранее на этой неделе",
+   "problem": "«на этой неделе» means the calendar week (Mon–Sun) to a Russian reader. timeBucket() (src/features/notifications/notifications-model.ts:134-146 @26663e18) uses a rolling window: todayStart-6*DAY_MS ≤ at < todayStart-DAY_MS, i.e. 2–6 calendar days ago. On Mon–Fri this bucket holds items from the previous calendar week, so the heading states the wrong week. Brief context also says \"two to six days ago\". Desktop tui.notifications.group_week carries the same latent defect (rolling <7 days, notifications_model.py:335) — pre-existing, not gated here, so the reuse precedent does not cure it.",
+   "fix": "«За последние 7 дней» (19 cells, ≤24); shorter alternative «Последние 7 дней» (16). Both are true of every item in the 2–6-day bucket and read naturally under «Сегодня»/«Вчера»."
+  },
+  {
+   "id": "RU-T2",
+   "severity": "MINOR",
+   "key": "mobile.time.short.* / *_compact / minutes_seconds",
+   "current": "«45 сек»(6) «5 мин»(5) «2 дн.»(5) «3 нед.»(6); «12 сек назад»(12) «5 мин назад»(11) «4 дн. назад»(11); «4 мин 07 сек»(12)",
+   "problem": "Over the sidecar hints (~4 cells for short.*, ~10 for compact). The hints are approximate (no maxCells in the context), the translator flagged them, and no compliant shorter form exists («м» = metres; bare «с» reads as a preposition; ru style guide names «сек»/«мин»). Not gating, but the narrow meta slots (drawer time column, inbox meta, running-transcript timer) are unrendered.",
+   "fix": "Keep the wording. The design lane should render the drawer, inbox and transcript timer in ru. If it fits, record a ru budget exception in the style guide like the wave-3 inbox entry; if it clips, take a layout fix, not truncation."
+  },
+  {
+   "id": "RU-T3",
+   "severity": "NIT",
+   "key": "mobile.time.relative.days_ago_compact",
+   "current": "{count, plural, one {# дн. назад} few {# дн. назад} many {# дн. назад} other {# дн. назад}}",
+   "problem": "CLDR-valid, but the inbox shows only 2–6 days here (1 = «вчера»), and «2 дня назад» is the same width as «2 дн. назад» (11 cells) and reads more naturally; «5 дней назад» is +1 cell. It also differs from days_ago and relay.notifications.age.days, which show the same concept.",
+   "fix": "Optionally reuse the days_ago arms: one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}."
+  },
+  {
+   "id": "RU-T4",
+   "severity": "NIT",
+   "key": "mobile.time.short.minutes_seconds, mobile.time.short.hours_minutes (and other number+unit strings)",
+   "current": "U+0020 between number and unit",
+   "problem": "Russian typography keeps a number on the same line as its unit. In the two-unit timers a wrap would split «4 мин / 07 сек».",
+   "fix": "Optionally use U+00A0 between # and the unit, and between the {seconds}/{minutes} placeholder and its unit. This is a byte-level change only."
+  }
+ ],
+ "notes": [
+  "Plurals: every key has one/few/many/other. days_ago `other` «дня» is correct: CLDR ru `other` covers fractions, and fractions take the genitive singular («1,5 дня»), as in the style-guide example «# сессии». Integer counts never reach it. Agreement holds in one «день», few «дня» and many «дней» (renders checked at 0/1/2/5/11/12/21/22/59).",
+  "Years: one/few/other «г.», many «л.» is the CLDR ru short duration-year pattern («1 г.», «2 г.», «5 л.», «11 л.», «21 г.»). Correct.",
+  "Row-stamp reuse (deferred code fix): session-projection.ts:401-409 and team-bridge/model.ts:612-620 show short.minutes_spaced / short.minutes / hours / days / weeks / years bare as ages. Bare «5 мин», «3 ч», «2 дн.», «3 нед.», «2 г.» are ordinary compact age stamps in Russian list UIs, and «сейчас» works for <1 min, so there is no ru-specific misreading. The same tokens also read correctly inside «через {label}» and «просрочено на {label}». Informational only.",
+  "Sources checked: «Сегодня», «Вчера», «Ранее», «только что», relay age.* and tui group_week/just_now all match the shipped ru copy the translator cites. relative.now «сейчас» is the idiomatic stamp for under a minute."
+ ],
+ "audit_notes_not_execution_log": "report.md is the audit judgment; audit.log is the actual checker output",
+ "ledger": "not appended: the repo is read-only for this audit; the lane owner appends via scripts/i18n/ledger.py using this record",
+ "artifacts": {
+  "report.md": {
+   "path": "/Users/damian/.local-operator/sessions/6bb2909e7a4f/scratchpad/o3a-audit/ru/mobile.time/o3a-ru-time/report.md",
+   "sha256": "ec835f1d3eba31fdecc81049e20f84e96a7a47ace9fb433a723796c27bfea542"
+  },
+  "audit.log": {
+   "path": "/Users/damian/.local-operator/sessions/6bb2909e7a4f/scratchpad/o3a-audit/ru/mobile.time/o3a-ru-time/audit.log",
+   "sha256": "7bbcb6c400efea465adbab8e6b02dd7a176bce2ff4c1ee908b9ad04c7ec95ca4"
+  }
+ },
+ "history": [
+  {
+   "round": 1,
+   "audit_date": "2026-11-15",
+   "draft_sha256": "6605a328d5db966ab42105e01c246aea9209f18afb56d0c063e7c489217ed83f",
+   "status": "changes_requested",
+   "finding_ids": [
+    "RU-T1",
+    "RU-T2",
+    "RU-T3",
+    "RU-T4"
+   ]
+  },
+  {
+   "round": 2,
+   "audit_date": "2026-11-15",
+   "scope": "3 changed keys (RU-T1, RU-T3, RU-S1); 37 others verified byte-identical",
+   "draft_sha256": "e37f67d5830313d5dff27550e0fbb085460b08bd25cdc6b153fa38ab89a22dfd",
+   "baseline_rebuild": "round-1 draft rebuilt from round-1 report.md key tables, re-serialised (indent=2, trailing newline); sha256 equals 6605a328…ed83f exactly",
+   "rejudged_keys": [
+    "mobile.time.bucket.earlier_this_week",
+    "mobile.time.relative.days_ago_compact"
+   ],
+   "closed": {
+    "RU-T1": "«За последние 7 дней» (19/24 cells) is true of every item in the rolling 2–6-day bucket (notifications-model.ts:134-146) and reads naturally under «Сегодня»/«Вчера». Closed.",
+    "RU-T3": "Full-word arms one день / few дня / many дней / other дня agree correctly (other = genitive singular for fractions). 11–12 cells in the inbox range 2–6, the same as round 1; RU-T2 still covers it. Closed."
+   },
+   "still_open": {
+    "RU-T2": "MINOR, still open: deferred to design render, not gating",
+    "RU-T4": "NIT, still open: optional NBSP"
+   },
+   "status": "passed",
+   "unresolved_blocker_major_count": 0,
+   "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "6bb2909e7a4f",
+    "model": "anthropic/claude-opus-5-5",
+    "actual_model_source": "harness system prompt \"Model:\" line for this session; no fallback observed",
+    "independent_from_translator_session": true,
+    "mt_service_used": false
+   },
+   "execution_log": "audit.log round-2 section (actual output of o3a-r2-check.py)"
+  }
+ ]
+}

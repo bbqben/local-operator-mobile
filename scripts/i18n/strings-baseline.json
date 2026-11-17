@@ -111,27 +111,6 @@
 		},
 		{
 			"file": "src/features/notifications/notification-detail.tsx",
-			"text": "Links",
-			"owner": "Mobile i18n",
-			"payoff": "Key this literal in the catalogue",
-			"ruleVersion": "copy-props-v1"
-		},
-		{
-			"file": "src/features/notifications/notification-detail.tsx",
-			"text": "Message",
-			"owner": "Mobile i18n",
-			"payoff": "Key this literal in the catalogue",
-			"ruleVersion": "copy-props-v1"
-		},
-		{
-			"file": "src/features/notifications/notification-detail.tsx",
-			"text": "Notification",
-			"owner": "Mobile i18n",
-			"payoff": "Key this literal in the catalogue",
-			"ruleVersion": "copy-props-v1"
-		},
-		{
-			"file": "src/features/notifications/notification-detail.tsx",
 			"text": "This item's message is no longer in the conversation.",
 			"owner": "Mobile i18n",
 			"payoff": "Key this literal in the catalogue",
@@ -268,24 +247,6 @@
 		},
 		{
 			"file": "src/features/projects/project-detail.tsx",
-			"text": "linked sessions",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/projects/project-detail.tsx",
-			"text": "milestones",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/projects/project-detail.tsx",
-			"text": "progress",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/projects/project-detail.tsx",
 			"text": "release cut",
 			"owner": "damianvtran",
 			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
@@ -302,12 +263,6 @@
 			"owner": "Mobile i18n",
 			"payoff": "Key this literal in the catalogue",
 			"ruleVersion": "copy-props-v1"
-		},
-		{
-			"file": "src/features/projects/projects.tsx",
-			"text": "Projects",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
 		},
 		{
 			"file": "src/features/projects/projects.tsx",
@@ -328,36 +283,6 @@
 			"owner": "Mobile i18n",
 			"payoff": "Key this literal in the catalogue",
 			"ruleVersion": "copy-props-v1"
-		},
-		{
-			"file": "src/features/schedules/schedules-copy.ts",
-			"text": "${Math.floor(magnitude / 3_600)}h",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/schedules/schedules-copy.ts",
-			"text": "${Math.floor(magnitude / 60)}m",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/schedules/schedules-copy.ts",
-			"text": "${Math.floor(magnitude / 86_400)}d",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/schedules/schedules-copy.ts",
-			"text": "${Math.floor(magnitude)}s",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/schedules/schedules.tsx",
-			"text": "Schedules",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
 		},
 		{
 			"file": "src/features/schedules/schedules.tsx",
@@ -492,12 +417,6 @@
 			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
 		},
 		{
-			"file": "src/features/session/components/composer.tsx",
-			"text": "attach",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
 			"file": "src/features/session/components/find-bar.tsx",
 			"text": "Close search",
 			"owner": "damianvtran",
@@ -566,12 +485,6 @@
 		{
 			"file": "src/features/session/components/slash-sheet.tsx",
 			"text": "Filter commands",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
-		},
-		{
-			"file": "src/features/session/components/slash-sheet.tsx",
-			"text": "commands",
 			"owner": "damianvtran",
 			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
 		},
@@ -848,12 +761,6 @@
 			"owner": "Mobile i18n",
 			"payoff": "Key this literal in the catalogue",
 			"ruleVersion": "copy-props-v1"
-		},
-		{
-			"file": "src/features/settings/notifications-section.tsx",
-			"text": "Notifications",
-			"owner": "damianvtran",
-			"payoff": "Key the literal under src/i18n/catalogues/en and render it through t(); `check-strings --update` then drops the entry."
 		},
 		{
 			"file": "src/features/settings/notifications-section.tsx",

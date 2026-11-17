@@ -1,0 +1,38 @@
+draft sha256 bf946fdd0ac568245599c8e6b3d29b66f63decc2a551f9a0c0ef352b580040d9
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d
+json valid; keys 40 brief keys 40
+key order==brief True extra set() missing set()
+ICU structure mismatches vs en (args, plural arms, # count): []
+non-NFC: []
+ZWJ/ZWNJ/ZW* chars: []
+Devanagari digits: []
+redaction markers ([redacted]/REDACTED/***): []
+Latin letters outside ICU syntax: []
+nukta: इंतज़ार/हफ़्ता precomposed? ['0x91c', '0x93c'] ['0x93c', '0x94d']
+NEGATIVE CONTROL (4 seeded defects, expect 4+ flags): [('mobile.time.short.hours', 'mismatch'), ('mobile.time.short.hours', 'arms'), ('mobile.time.short.days', 'mismatch'), ('mobile.time.short.minutes_seconds', 'mismatch'), ('mobile.time.relative.now', 'parse error', "ValueError('substring not found')")]
+mobile.time.bucket.today: budget=16 max_cells=2 max_cp=2  | आज
+mobile.time.bucket.yesterday: budget=16 max_cells=2 max_cp=2  | कल
+mobile.time.bucket.earlier_this_week: budget=24 max_cells=11 max_cp=13  | पिछले कुछ दिन
+mobile.time.bucket.earlier: budget=16 max_cells=3 max_cp=4  | पहले
+mobile.time.relative.now: budget=6 max_cells=3 max_cp=3  | अभी
+mobile.time.relative.just_now: budget=12 max_cells=7 max_cp=7  | अभी-अभी
+mobile.time.relative.yesterday: budget=None max_cells=2 max_cp=2  | कल
+mobile.time.relative.seconds_ago_compact: budget=None max_cells=10 max_cp=13  | 0 सेकंड पहले / 1 सेकंड पहले / 2 सेकंड पहले / 59 सेकंड पहले
+mobile.time.relative.minutes_ago: budget=14 max_cells=11 max_cp=12  | 0 मिनट पहले / 1 मिनट पहले / 2 मिनट पहले / 59 मिनट पहले
+mobile.time.relative.hours_ago: budget=12 max_cells=9 max_cp=12  | 0 घंटा पहले / 1 घंटा पहले / 2 घंटे पहले / 59 घंटे पहले
+mobile.time.relative.days_ago: budget=12 max_cells=10 max_cp=11  | 0 दिन पहले / 1 दिन पहले / 2 दिन पहले / 59 दिन पहले
+mobile.time.relative.minutes_ago_compact: budget=10 max_cells=11 max_cp=12 OVER | 0 मिनट पहले / 1 मिनट पहले / 2 मिनट पहले / 59 मिनट पहले
+mobile.time.relative.hours_ago_compact: budget=10 max_cells=9 max_cp=12  | 0 घंटा पहले / 1 घंटा पहले / 2 घंटे पहले / 59 घंटे पहले
+mobile.time.relative.days_ago_compact: budget=10 max_cells=10 max_cp=11  | 0 दिन पहले / 1 दिन पहले / 2 दिन पहले / 59 दिन पहले
+mobile.time.short.seconds: budget=4 max_cells=6 max_cp=8 OVER | 0 सेकंड / 1 सेकंड / 2 सेकंड / 59 सेकंड
+mobile.time.short.minutes: budget=4 max_cells=7 max_cp=7 OVER | 0 मिनट / 1 मिनट / 2 मिनट / 59 मिनट
+mobile.time.short.hours: budget=4 max_cells=5 max_cp=7 OVER | 0 घंटा / 1 घंटा / 2 घंटे / 59 घंटे
+mobile.time.short.days: budget=4 max_cells=6 max_cp=6 OVER | 0 दिन / 1 दिन / 2 दिन / 59 दिन
+mobile.time.short.weeks: budget=4 max_cells=6 max_cp=9 OVER | 0 हफ़्ता / 1 हफ़्ता / 2 हफ़्ते / 59 हफ़्ते
+mobile.time.short.years: budget=4 max_cells=6 max_cp=6 OVER | 0 साल / 1 साल / 2 साल / 59 साल
+mobile.time.short.minutes_spaced: budget=7 max_cells=7 max_cp=7  | 0 मिनट / 1 मिनट / 2 मिनट / 59 मिनट
+mobile.time.short.minutes_seconds: budget=None max_cells=14 max_cp=16  | 1 मिनट 07 सेकंड / 59 मिनट 59 सेकंड
+mobile.time.short.hours_minutes: budget=None max_cells=13 max_cp=15  | 1 घंटा 05 मिनट / 12 घंटे 59 मिनट
+brief per-key en/context hash mismatches vs 26663e18: []
+core checkout HEAD (style guide/glossary/relay read from working tree): b42471d3935cb7e95d64428af27c32626665f4c0
+those files dirty?: ''

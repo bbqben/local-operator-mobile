@@ -1,0 +1,104 @@
+{
+  "audit_id": "o3a-vi-ss",
+  "slice": "O3-a",
+  "locale": "vi",
+  "namespace": "mobile.session",
+  "audit_date": "2026-11-15",
+  "key_count": 2,
+  "keys": [
+    "mobile.session.sheet_title.commands",
+    "mobile.session.sheet_title.attach"
+  ],
+  "input_route": {
+    "draft": "direct file read of translator scratchpad (no guardrail block)",
+    "english_and_context": "git -C ~/local-operator-mobile show 26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/<ns>(.context).json",
+    "brief": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json"
+  },
+  "translator_session": "91a37cc70236",
+  "auditor": {
+    "agent": "i18n-auditor (team lopdev)",
+    "session": "aecc48976d9d",
+    "model": "anthropic/claude-opus-5-5",
+    "independent_from_translator_session": true,
+    "actual_model_source": "Model line of this session's system prompt; no fallback observed"
+  },
+  "input_hashes": {
+    "en": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/mobile.session.json",
+      "sha256": "75e78620eec27ac22184772e2da65a3e555e87c979de563c154e188201820b99"
+    },
+    "context": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/en/mobile.session.context.json",
+      "sha256": "d318916fc0270d4a66d7edfc0a71fb2d4fb9d15abc0b96063570c362485f2e42"
+    },
+    "vi_draft": {
+      "path": "/Users/damian/.local-operator/sessions/91a37cc70236/scratchpad/o3a/draft-vi.json",
+      "sha256": "ca3c9293bcfba23594221410bb6796b6891b28b11d4df8d72d91f95a261d6484",
+      "namespace_subset_sha256": "249055c238db92057ca24e22dd69029ddcffeb53dd1b51c5d45adba7e00b24a9"
+    },
+    "vi_notes": {
+      "path": "/Users/damian/.local-operator/sessions/91a37cc70236/scratchpad/o3a/notes-vi.md",
+      "sha256": "610c409cba2218477c2193521f1c6b1dc9b0b3042278af4d3c75e994ca207dbc"
+    },
+    "brief": {
+      "path": "/Users/damian/.local-operator/sessions/0c4d749da530/scratchpad/o3a/translation-brief.json",
+      "sha256": "c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d"
+    },
+    "vi_shipped": {
+      "path": "git:26663e1864585a106a57bca6b0cbdfe54d97dd79:src/i18n/catalogues/vi/mobile.session.json",
+      "sha256": "1fb59464f66ef8cf1853b8c10fd8a3bc03f22e3f14201a0fcd93d8aeb765f1e4"
+    },
+    "style_guide": {
+      "path": "~/local-operator/i18n/style-guides/vi.md",
+      "sha256": "e4901497ed553e2b2ae4a2660bf776adb787b89e11d7eb0f8d08f3da4b227888"
+    },
+    "glossary": {
+      "path": "~/local-operator/i18n/glossary.md",
+      "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+    },
+    "relay_notifications_vi": {
+      "path": "~/local-operator/local_operator/i18n/catalogues/vi/relay.notifications.json",
+      "sha256": "4d3a1db432bcf93697cb899957e7b852b87afe0315c1fa3e298c4e24931f2c5a"
+    }
+  },
+  "artifacts": {
+    "check_script": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/tools/check_vi.py",
+      "sha256": "094e16f5203857516ce755979d035e9267f7618abe9eaa2db28b7f915909ad0e"
+    },
+    "check_output": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/tools/check_vi.out",
+      "sha256": "0d79d3358521676faaa54f1e65f7b7f055c75d4f8b887f84cd95e465b96504ff"
+    },
+    "report.md": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/mobile.session/o3a-vi-ss/report.md",
+      "sha256": "f56fcbdd33e4ff52237d2fe10658f2709176510475e8432b344e549439905e54"
+    },
+    "audit.log": {
+      "path": "/Users/damian/.local-operator/sessions/aecc48976d9d/scratchpad/o3a-audit/vi/mobile.session/o3a-vi-ss/audit.log",
+      "sha256": "846e69f130040d5f4d100700a51f8f03c723b3118ea3687db5ceb42b10b1e1b3"
+    }
+  },
+  "checks": {
+    "json_valid": true,
+    "keys_match_brief": true,
+    "icu_parse": true,
+    "placeholders_identical": true,
+    "plural_other_only": true,
+    "nfc": true,
+    "redaction_hits": 0,
+    "wide_or_combining_glyphs": 0
+  },
+  "verdict": "passed",
+  "current_report_verdict": {
+    "status": "passed",
+    "unresolved_blocker_major_count": 0,
+    "finding_ids": []
+  },
+  "findings": [],
+  "audit_notes_not_execution_log": [
+    "sheet_title.commands \"lệnh\" and attach \"đính kèm\": lower case mirrors en as shipped. The context defers the casing change to design, and both words are the standard vi UI terms (shipped \"Tôi đã chạy lệnh\", \"đã đính kèm # hình ảnh\"). The sibling sheet titles (Mô hình, Mức suy luận) are sentence case, mirroring en, so no vi-specific finding."
+  ],
+  "ledger_recorded": false,
+  "ledger_note": "repo read-only for this task; not recorded"
+}

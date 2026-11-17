@@ -1,0 +1,33 @@
+# audit.log — mobile.notifications — o3a-fr-b3177c — generated 2026-11-16T01:15:10+00:00
+# Output of the auditor's light-Python checks, run in session b3177ce4b009 (eval kernel). Lines below are the printed results verbatim; the width table is filtered to this namespace.
+# o3a fr audit — mechanical checks (auditor session b3177ce4b009)
+draft file sha256 6e5b641259bd6f3b1e6a5de4c9fc5b0dfc4da2fb06f61f9d0bb6f4938e2642fd
+draft canonical sha256 (json.dumps sort_keys ensure_ascii=False) ac45e6cf4554f2f7582c13bd30142c8ca5ada6b6f5bd3a87c4b5b8cecd37d8fb
+brief sha256 c57d0b161780b9e12ffad7dec87a0d9b3da3ca1ea7d7eddc1ada9a4b7727f70d
+keys: brief 40 draft 40 missing [] extra []
+brief english/context hashes vs git show 26663e18 en + .context.json: mismatches = 0
+keys already present in shipped fr@26663e18 = 0
+per-key structural/typography problems: none (40/40 OK)
+ICU plural keys: 16 — all arms exactly {one,many,other}, # in every arm, args/shape identical to en
+NFC: all True | U+2019 count 3 | U+0027 count 0
+redaction marker "[redacted]" hits in draft = 0 | in notes-fr.md = 0
+space chars used: {'0x20'}
+negative control drop many -> ['arms']
+negative control rename var -> ['args']
+negative control unbalanced -> ['PARSE string index out of range']
+negative control ascii apostrophe -> ['apostrophe']
+positive control shipped relay.notifications.age.hours -> OK
+width table (worst realistic value; chars; budget from en context note; en rendering for comparison):
+  mobile.notifications.section.waiting: "À traiter" 9 | en "Waiting on you" 14 | budget 20 
+  mobile.notifications.section.waiting_count: "À traiter · 12" 14 | en "Waiting on you · 12" 19 | budget - 
+  mobile.notifications.detail.title: "Notification" 12 | en "Notification" 12 | budget 16 
+  mobile.notifications.detail.section_notification: "Notification" 12 | en "Notification" 12 | budget 16 
+  mobile.notifications.detail.section_links: "Liens" 5 | en "Links" 5 | budget 16 
+  mobile.notifications.detail.section_message: "Message" 7 | en "Message" 7 | budget 16 
+
+# Source observations (read via git show at 26663e18; excerpts summarised by the auditor, not command output verbatim):
+- git show 26663e18:src/ui/components/list-row.tsx L524-535: time <Text className="ms-auto shrink-0 text-mono-label text-ink-dim"> beside a title Text numberOfLines={1} ellipsizeMode="tail" -> session-drawer stamp never clips; a longer stamp ellipsizes the title instead
+- git show 26663e18:src/features/notifications/notifications.tsx L954-970: inbox clock <Text className="shrink-0 text-meta"> beside session label "min-w-0 flex-1" numberOfLines={1} -> inbox meta never clips/wraps
+- git show 26663e18:src/features/notifications/notifications-model.ts L510-533: relativeTime() (minutes/hours/days_ago_compact, yesterday, just_now) also feeds the row's spoken label parts
+- git show 26663e18:src/team-bridge/model.ts L611-624: rowStamp() uses relative.now / short.minutes|hours|days and falls back to toLocaleDateString(month short, day) for >=7 d (fr '15 nov.' = 7 chars); Team Bridge row styling NOT inspected
+- git show 26663e18:src/features/sessions/session-projection.ts L219-235 stalePhrase(): just_now / seconds_ago_compact / minutes_ago / hours_ago_compact / days_ago_compact
