@@ -11,9 +11,10 @@
   internal completions, open at `e4a402ec`); core #4101 (deferral).
 
 **Provenance.** Each citation is `repo@rev:path:line`, read with `git show <rev>:<path>`. Revisions:
-core `local-operator@9134015c` (the #4145 head; the cited files other than `mobile/daemon.py` are
-byte-identical at `origin/main` `da8f3f04`); cloud `agent-server@48970fd9`; this repository
-`@f390fdda`.
+core `local-operator@9134015c` (the #4145 head). The cited files other than `mobile/daemon.py`
+and `mobile/push_worker.py` are byte-identical at `origin/main` `da8f3f04`; `push_worker.py`
+carries #4145's own +136/−36 there. The `9134015c` pin is the one that matters.
+Cloud `agent-server@48970fd9`; this repository `@f390fdda`.
 
 ## The request
 
@@ -56,13 +57,34 @@ frame can forge them:
   (`:9080`), which already use it to stamp `owner_typed=False` on remote input (`:9069,:9111`).
 - **It is then dropped.** `h.prompt` receives no surface, so the transcript row and the completion
   carry none.
+
+**The phone reaches a runtime over three connection shapes, not one.** Only the first is the
+daemon-kind connection above:
+
+| Phone action | Path | What the runtime sees today |
+|---|---|---|
+| Prompt, steer or answer into a **live** session | `daemon.request` over the entry's control socket (`mobile/daemon.py:5873-5935`, auth at `:3205`) | `kind = "daemon"`, `locality = "remote"` |
+| Prompt that **wakes a cold** conversation | `continue_command` (`mobile/daemon.py:9722-9736`) → `engage_session_client` → `engage_runtime` → `launch._deliver`, which dials a plain `AttachClient` (`session/runtime/launch.py:1243-1246`; default `locality = "local"`, `mobile/attach_client.py:1089`) | `kind = "attach"`, `locality = "local"`, `surface = "terminal"` — indistinguishable from a terminal |
+| Answer to a **queued ask on a cold** conversation | `engage_session_client(..., locality="remote")` (`mobile/daemon.py:9857-9858`), then the answer op over that attach | `kind = "attach"`, `locality = "remote"` — indistinguishable from a mesh peer |
+
+Daemon-kind is not unique to the phone either. An absent or unknown `client` maps to `daemon`
+(`server.py:5292-5293`), so `lop send` (`mobile/peer_client.py:235`), `lop stop`
+(`session/runtime/control.py:354`) and the viewer client (`session/runtime/viewer_client.py:146`)
+are daemon-kind too, and `asks/surfaces.py:124-127` already names "a CLI carrier" as one. None of
+them sends `prompt`, `steer` or an answer op today, so this is latent. **No connection fact
+available today identifies the phone on all three paths.** The fix is a tag the mobile daemon
+declares itself (vocabulary below).
 - The precedent for keeping it is `asks/surfaces.stamp_answer_surface` (`asks/surfaces.py:107-133`),
   which stamps an ask answer from the connection rather than the frame. Its labels are tuned for
   consent, though: the phone and a mesh peer both read `remote`. Routing needs the raw kind.
 
 **Remote sessions.** A completion on a mesh node does not reach the phone at all today
-(`remote_attention.py:99-104`: "a remote completion does not reach the phone yet"). Phone commands
-target only this computer's own runtimes (`mobile/daemon.py:9662`).
+(`remote_attention.py:99-104`: "a remote completion does not reach the phone yet"). The phone
+**can** already command a mesh-owned session: the command route sends it to
+`admit_remote_command` before any local admission (`mobile/daemon.py:9566-9585` →
+`mobile/remote_sessions.py:574-600`), which opens a relayed viewer to the owner. That prompt
+arrives at the owner as a relayed `attach` and stamps `remote` there. This has no routing effect
+today, because remote completions do not push.
 
 ### Decision 1 — origin is the run's driver: the surface of the most recent human input
 
@@ -86,20 +108,51 @@ target only this computer's own runtimes (`mobile/daemon.py:9662`).
 **Answers to the brief:**
 
 - **Steering from the phone later counts.** It makes that run mobile-origin.
-- **A remote session started from the phone** cannot happen today. When remote completions gain a
-  push source, origin will be judged **on the head device**, the one that relayed the prompt. The
-  node's `mesh.json` will not be used for this.
+- **A remote session driven from the phone** already exists (§1, "Remote sessions"); its prompt
+  stamps `remote` on the owner, and that is harmless while remote completions do not push. When
+  they gain a push source, origin will be judged **on the head device**, the one that relayed the
+  prompt: `admit_remote_command` must then record "relayed for the phone" on the head, keyed by
+  the command id. The owner's stamp and the node's `mesh.json` will not be used for this, and the
+  relay keeps refusing to carry a `mobile` claim (vocabulary invariant below).
 - **Origin is per run.** It is sticky per conversation only for runs without human input.
 
-**Vocabulary**, derived from the connection only:
+**Vocabulary**, derived from the connection's auth-time facts only, first match wins:
 
 | Connection | Origin |
 |---|---|
-| `kind == "daemon"` | `mobile` (the native app or the phone web portal, both through the mobile daemon) |
+| `surface == "mobile"` (new; declared by the mobile daemon on every connection it opens for the phone) | `mobile` (the native app or the phone web portal, both through the mobile daemon) |
+| `kind == "daemon"`, `locality == "remote"` (a daemon that predates the tag; only the mobile daemon dials so, `mobile/daemon.py:3205`) | `mobile` |
 | `kind == "attach"`, `locality == "remote"` | `remote` |
 | `attach`, `surface == "desktop"` | `desktop` |
-| other `attach`, or the in-process owner TUI | `tui` |
-| none of the above | `unknown` |
+| other `attach` (`locality == "local"`) | `tui` |
+| a direct in-process `Session.prompt`/`steer` with no `input_surface` (the owner's own TUI) | `tui` |
+| `kind == "daemon"`, `locality == "local"` (`lop send`, `lop stop`, the viewer client, any CLI carrier) | `unknown` |
+
+**How the tag is declared, and why it cannot be forged from another device.**
+
+- **Discriminator: the mobile daemon's own client tag, not the phone's device identity.** The
+  device certificate (`operator_cert`, stage D, `mobile/daemon.py:3209-3212`) exists only on a
+  paired phone; a portal session authenticated by password has none. Every phone action does pass
+  through the mobile daemon, so the daemon is the one party that always knows.
+- **Where it is declared.** The daemon adds `surface: "mobile"` to the auth frame of every
+  connection it opens on the phone's behalf: its control socket (`mobile/daemon.py:3205`), its
+  viewer and throwaway `AttachClient`s (`:6098`, `:11020`) and the cold-answer dial (`:9857`). For
+  the cold-wake prompt, `PromptErrand` gains `surface` beside `input_mode`, which already rides the
+  wake path for the same reason (`session/runtime/launch.py:134-150`), and `launch._deliver`
+  passes it to its `AttachClient` (`:1243`). The empty default keeps every other producer
+  unchanged.
+- **Where it is read.** The runtime reads it once at auth time, next to the existing
+  `"desktop"` check (`server.py:5416-5418`), for any `kind`. It never reads it from an op frame.
+- **Invariant: only a process on this machine that holds the control key and is not relaying for
+  another device can declare `mobile`.** The mesh relay forwards a viewer's `surface` verbatim
+  (`network/dial.py:291-323`, `:385-387`), so slice 1b must make `dial_owner` drop a `mobile`
+  value. The relay already refuses to take `locality` from the frame for the same reason
+  (`:372-376`). **Check:** a unit test dials through `dial_owner` with `auth={"surface": "mobile"}`
+  and asserts that the owner records `remote`.
+- **The in-process owner (m1).** `Session.prompt` and `steer` default `input_surface="tui"`,
+  mirroring `owner_typed=True` (`session.py:10392`, `:10727`). The server always passes an explicit
+  value, so a phone-driven conversation then typed at the in-process owner flips to `tui`. It
+  never inherits `mobile`. "Inherit" applies only to runs with **no** human input.
 
 Other channels need no label of their own. Signal, Team Bridge, peers and `lop send` arrive as
 non-user inputs (`session/session.py:18159-18165`), so they inherit the last driver, as Decision 1
@@ -107,9 +160,9 @@ says. A channel-only conversation has no driver and is `unknown`.
 
 ## 2. Routing matrix
 
-Which surfaces fire for an item that has passed the existing gates: `unseen`; `notify`, including
-#4120's routine-silence; the master switch, categories and quiet hours (ADR 0008 §3.5 order of gates);
-and a live device. The defaults are shown. "Held" means ADR 0008 §3.3 rules 1–5: push only if you
+Which surfaces fire for an item that has passed the existing gates: `unseen`; for completions and
+errors, `notify` (including #4120's routine-silence), but **not** for needs-you items (§3); the master
+switch, categories and quiet hours (ADR 0008 §3.5 order of gates); and a live device. The defaults are shown. "Held" means ADR 0008 §3.3 rules 1–5: push only if you
 go away before you have seen it.
 
 **"Desktop" in this table means the existing desktop banner ladder.** That is the feed banner
@@ -129,15 +182,27 @@ on screen in an attended window raises nothing anywhere (rung 1, `desktop_feed.p
 | **Team Bridge** message to you | ADR 0008 §3.3 desk rule (cloud), unchanged | ← | ← |
 
 ¹ **Desktop for mobile-origin completions and errors.** The desktop stays silent; the row still lands
-unread in the sidebar, the inbox and the badge. If no live phone device would receive the push (the
-category is off, or no device is live, `push_worker.py:1617-1660`), the desktop banners as it does
-today, so that the item is never silent on every surface.
+unread in the sidebar, the inbox and the badge. If the phone would not emit, the desktop banners as it
+does today, so that the item is never silent on every surface. "Would not emit" is **one shared
+predicate**, `phone_would_emit(row, prefs)`, which both the desktop (core edit 4) and the worker's
+`_is_candidate` and `_preference_gate` call. It is false when `enabled` is off, when the row's
+category is off, when no live device wants it (`push_worker.py:1617-1660`), or when the worker's
+other candidate gates refuse the row. It is a pure function of the row and
+`push_devices.device_preferences(config_dir)`, which is a read-only file read, so the server
+process can call it. A second hand-written copy of the fallback is how the two would drift.
 
 ² **Needs you on the desktop is not suppressed for any origin.** Blocked work is the one place a
 duplicate is cheaper than a miss. The desktop's ask and approval banners are their own path
 (`notifications/store.py:151`, `ask:` refs), and this ADR does not touch them.
 
 **Departures from the brief's baseline, and why:**
+
+- **`unknown` presence pushes needs-you now (inherited from ADR 0008).** Read literally, the request
+  says to push "unless we can tell the user is not there", which would make `unknown` a desktop-only
+  column. This ADR keeps ADR 0008's reading instead: a stale, untrusted or missing report is treated
+  as not active (`0008:180`, `:244-245`). A blocked task the phone never hears about is the costlier
+  miss. If `unknown` turns out to fire while the operator is at the desk, the fix belongs in ADR
+  0008's predicate, not here.
 
 - **Mobile-origin needs-you pushes regardless of presence.** The brief's paraphrase says that
   needs-attention items "from any origin" push only when the desk is away. The operator's own
@@ -155,9 +220,25 @@ duplicate is cheaper than a miss. The desktop's ask and approval banners are the
 - **`notify` and `no_reply` (§14.2), and #4120: unchanged, and they run first.** The run's `notify`
   is computed once (`session.py:18444-18520`, stamped at `:20332`). It already silences wake and
   monitor runs, peer-only runs and `no_reply` ends. #4120 adds routine `ask_response`, `job_result`
-  and session-notice runs. Origin routing never turns a `notify = false` row back on. It only
-  decides **where** a `notify = true` row goes. #4120 and this ADR are orthogonal, and either can
-  merge first.
+  and session-notice runs. For **completions and errors**, origin routing never turns a
+  `notify = false` row back on. It only decides **where** a `notify = true` row goes.
+- **Needs-you is the one exception: it bypasses `notify`.** `notify` answers "was this run worth a
+  completion banner?", and it is false for exactly the runs that end on an open ask without a typed
+  prompt. `_finalize_attention_notify` (`session.py:18444-18522`) silences wake- and monitor-only
+  runs, peer-only runs, `no_reply` ends and proactive-vetoed runs (`:18500-18522`). #4120 adds
+  `job_result` and notice runs. The only "user is waiting" input it reads is `_has_awaiting_user`
+  (`:18431-18442`), which counts **queued typed messages**, not open asks. A wake run that ends on
+  `ask_user` would therefore never reach the phone, even when the desk is away. That case is the
+  request's "desktop/other started … ask/approval" exactly. So:
+  - the run end stamps `needs_user` **independently** of `notify`, as true when the session has an
+    open ask (`asks.store.open_asks`, `asks/store.py:1067`) at run end;
+  - a `needs_user` row is governed **only** by the new `attention` preference and the matrix's
+    needs-you rows. It never passes the `notify` gate and never the `completions` category
+    (§3, push-worker edits 1 and 4);
+  - its desktop side is unchanged: `notify` still decides the completion banner, and the ask has
+    its own banner (footnote 2).
+  #4120 is orthogonal for completions, and it does not reach needs-you rows by construction. Either
+  can merge first.
 - **#4101 deferral, and ADR 0008 rules 1–5: kept as the mechanism, narrowed in scope.**
   `_add_completion` sets `deferred_since` (`push_worker.py:994-1001`), `_settle_deferred` drops
   (`:1028-1087`) and `_due` releases (`:1262-1283`). That machinery now applies only to non-mobile
@@ -177,12 +258,23 @@ completions over today's focus rule. Folding origin into #4145 would add the run
 lands as **core slice 1b**, with these edits to `local_operator/mobile/push_worker.py` (lines at
 `9134015c`):
 
-1. **`_is_candidate` (`:882-894`).** After `unseen`, `notify` and `_desktop_would_announce`, add the
-   origin gate. Read `state["origin"]` and `state["kind"]`, which are new store columns (core edit 3
-   below).
+1. **`_is_candidate` (`:882-894`).** Read `state["origin"]` and `state["needs_user"]`, which are new
+   store columns (core edit 3 below), and `state["kind"]`, which already exists (`:894`). The gates
+   become, in order:
+   - `unseen`, as today.
+   - **Needs-you first.** If `needs_user` is set, the row is a candidate when `attention != "never"`,
+     **whatever `notify` says** (§3). It still passes `_desktop_would_announce`'s kind and
+     `session_may_announce` gates, so a hidden subagent's ask stays hidden.
+   - Otherwise `notify`, as today.
    - For `complete` or `retired`, the row is a candidate only if `origin == "mobile"` and
      `completions_scope == "phone"`, or if `completions_scope == "all"`.
    - For `error`, the row is a candidate whatever the origin, subject to `errors`.
+   - **The parity gate `_desktop_would_announce` (`:896-941`) splits by origin.** For a
+     mobile-origin row it skips only `notifications_enabled()` (`:931`). That is the desktop's own kill
+     switch, and a user who turned desktop banners off still wants the phone to hear about what they
+     started there. The kind gate and `session_may_announce` still apply. For every other row it is
+     unchanged. The split lives in the worker's call. `session_may_announce` itself
+     (`serving.py:534`) is not touched, because the desktop banner shares it.
    - A non-candidate resolves without an emit and the cursor advances. That is the existing
      resolve-without-emit path the module header describes (`:28-36`).
 2. **`_DeskGate.holds(kind)` (`:1956-1967`) becomes `holds(kind, origin)`.** It returns `False` when
@@ -190,39 +282,57 @@ lands as **core slice 1b**, with these edits to `local_operator/mobile/push_work
    `:998` passes the row's origin.
    - With `completions_scope == "all"`, non-mobile completions keep ADR 0008's hold. That is the
      "all" setting's meaning.
-   - With `attention == "always"`, `holds` is `False` for needs-you.
+   - With `attention == "always"`, `holds` is `False` for needs-you. With `"away"` (the default),
+     needs-you of non-mobile origin keeps ADR 0008's hold.
 3. **Mobile-origin items on screen.** Before the first attempt, resolve the item if
    `self._attending(session_id)` (`:1028-1087` already reads it). The card is in front of you on an
    attended desktop. This is rung 1, and it is the only presence fact that suppresses a
    mobile-origin push.
-4. **`_preference_gate` (`:1617-1660`).** Add `completions_scope` and `attention` to the
-   per-computer "any live device wants it" evaluation. Completion emits cannot target or exclude a
-   device (`:1640-1650`), so the most permissive live device wins, exactly as `completions` does
-   today.
+4. **`_preference_gate` (`:1617-1660`).** Add a third category. Today every non-`error` kind maps to
+   `completions` (`:1634-1636`), so "Agent finished: Off" would also mute an ask. A `needs_user` row
+   maps to **`attention`** instead, and it is wanted when the device's `attention != "never"`. It is
+   never judged by `completions`. Add `completions_scope` and `attention` to the per-computer "any
+   live device wants it" evaluation. Completion emits cannot target or exclude a device
+   (`:1640-1650`), so the most permissive live device wins, exactly as `completions` does today.
+   This `attention` key is unrelated to the existing `attention` emit type. That emit is a silent
+   badge correction (`:186-196`), and it stays governed by `enabled` alone (`:1638`).
 5. **Not changed:** `_due`, `_desk_gate` and its one-release legacy branch (`:707-726`), the burst
    and digest rules, and `_settle_deferred`'s seen-at-desk drop.
 
 **Other core edits in slice 1b, outside the push worker:**
 
-1. `server.py:8998` and `:9080`. Derive the origin from `authority` (Decision 1 vocabulary). Pass it
-   as `input_surface=` to `h.prompt` and `h.steer`, probed by signature exactly as `owner_typed` is.
-   Do the same in the `ask_answer` (`:9429`) and `approval_answer` (`:9334`) ops.
+1. `server.py:8998` and `:9080`. Derive the origin from `authority` (Decision 1 vocabulary), after
+   adding `surface == "mobile"` to the auth-time derivation (`:5416-5418`). Pass it as
+   `input_surface=` to `h.prompt` and `h.steer`, probed by signature exactly as `owner_typed` is.
+   Do the same in the `ask_answer` (`:9429`) and `approval_answer` (`:9334`) ops. On the mobile
+   side, the daemon declares `surface: "mobile"` on its four dial sites and `PromptErrand.surface`.
+   `network/dial.py` drops a forwarded `mobile` (Decision 1, "How the tag is declared").
 2. `Session`. Stamp `provider_payload["lop_input_surface"]` on the user row, beside
-   `REMOTE_PROMPT_KEY` (`session.py:418-430`). `_note_run_input` (`:18120-18183`) records the run's
-   latest stamp. The conversation's last driver is rebuilt on resume from the newest stamped row, in
+   `REMOTE_PROMPT_KEY` (`session.py:418-430`). `prompt` and `steer` take
+   `input_surface: str = "tui"` (the in-process owner's default, beside `owner_typed=True` at
+   `:10392`, `:10727`). `_note_run_input` (`:18120-18183`) records the run's latest stamp. The conversation's last driver is rebuilt on resume from the newest stamped row, in
    the same way as `_reconstruct_profile_trust` (`:468`).
-3. `AgentEndEvent`. Gains `origin` beside `notify` (`session.py:20332`). It is carried in the
-   `attention_completed` marker as `notify` is (`attention.py:1193`, `session.py:17854`). The
-   `completions` table gains `origin TEXT NOT NULL DEFAULT ''` by the existing `ALTER` pattern
-   (`attention.py:1607-1619`). It is written in `publish` and in the heal `UPDATE` (`:2284`). `''`
-   reads as `unknown`.
+3. `AgentEndEvent`. Gains `origin` and `needs_user` beside `notify` (`session.py:20332`).
+   `needs_user` is computed at run end from `asks.store.open_asks` (`asks/store.py:1067`), separately
+   from `_finalize_attention_notify` (§3). Both are carried in the `attention_completed` marker as
+   `notify` is (`local_operator/session/attention.py:1193`, `session.py:17854`). The `completions`
+   table gains `origin TEXT NOT NULL DEFAULT ''` and `needs_user INTEGER NOT NULL DEFAULT 0` by the
+   existing `ALTER` pattern (`local_operator/session/attention.py:1607-1619`). Both are written in
+   `publish` and in the heal `UPDATE` (`:2284`). `''` reads as `unknown`.
 4. `desktop_feed._focus_policy_for` (`desktop_feed.py:2039`) and `_announce_completion`
    (`serving.py:8184`). Return no banner for a mobile-origin `complete`, `retired` or `error` row
-   when a live device wants the category (footnote 1). Otherwise today's rule applies.
+   when `phone_would_emit` is true (footnote 1). That is the same predicate the worker calls, never
+   a re-derivation of "a live device wants the category". Otherwise today's rule applies.
 5. `push_devices.PREFERENCE_KEYS` (`mobile/push_devices.py:481`). Add `completions_scope`
    (`phone` | `all`, absent → `phone`) and `attention` (`away` | `always` | `never`, absent → `away`).
-   Advertise the capability `push_routing`, because the daemon refuses unknown keys
-   (`notification-preferences.ts:12-14,27-33`).
+   The model is boolean-only today, so this is a schema change, not just two names:
+   - The resolver `bool(stored.get(key, True))` (`:1082`) becomes a per-key table of allowed values
+     and absent-defaults. An unknown stored value resolves to that key's default, never to `True`.
+   - The validator's "must be true or false" check (`:1683-1686`) becomes per-key, and it refuses an
+     enum value outside the allowed set.
+   - `device_preferences`' return type `dict[str, dict[str, bool]]` (`:1085`) widens to match.
+   - The capability `push_routing` is advertised, because the daemon refuses unknown keys
+     (`:1679-1682`; `notification-preferences.ts:12-14,27-33`).
 
 ## 4. Settings on the phone
 
@@ -235,7 +345,7 @@ becomes:
 |---|---|---|
 | Notifications (master) | on / off | `enabled`, unchanged |
 | **Agent finished** | **Conversations I started on my phone** / All conversations / Off | Off = `completions: false`. Otherwise `completions: true` plus the new `completionsScope: "phone" \| "all"` (wire `completions_scope`) |
-| **Needs your attention** (questions and approvals) | **When I'm away from my computer** / Always / Never | new `attention: "away" \| "always" \| "never"` |
+| **Needs your attention** (questions and approvals) | **When I'm away from my computer** / Always / Never | new `attention: "away" \| "always" \| "never"`. Independent of "Agent finished": turning that row Off never mutes a question (§3, push-worker edit 4) |
 | Agent hit an error | **on** / off | `errors`, unchanged. Routing follows the matrix |
 | Show conversation name and preview | **on** / off | `previews`, unchanged |
 | Send to phone when I'm away for [1/**2**/5/10] min | per computer | ADR 0008 §3.5 `notifications.phone_away_after_s`, unchanged. It defines "away" for the rows above |
@@ -260,28 +370,43 @@ becomes:
 | Slice | Change |
 |---|---|
 | **1 — core (#4145)** | **None.** Merge as reviewed. |
-| **1b — core: origin + completion routing (new, M)** | Edits 1–5 and push-worker changes 1–4 in §3. **Acceptance (unit, injected clock and presence):** a phone prompt stamps `mobile` and a desktop attach stamps `desktop`; a phone steer into a desktop run flips that run; a wake run inherits; a legacy row reads `unknown`. A mobile-origin completion pushes while `desk_active` and is resolved when attending. A desktop-origin completion never pushes under `phone` and is held under `all`. A desktop-origin error is held and released on away. The desktop banner is silent for mobile-origin only while a device wants the category. Unknown preference values return 422 without the capability. **QA real path:** isolated HOME, serve plus daemon, one prompt over a `daemon`-kind connection and one over a desktop `attach`, with the transport stubbed to record emits. |
-| **1c — core: needs-you source (new, S→M)** | **Turns that end on an open ask:** stamp `needs_user` on the completion when `asks.store.open_asks` (`asks/store.py:1067`) is non-empty for the session at run end. Route it by the needs-you row, sent as a `completion` emit with "needs your answer" copy. This needs no cloud change. **Mid-turn approvals and parks** have no completion, so they need a new emit sourced from the projection the daemon already serves (`needs_attention`/`pending_kind`, `mobile/daemon.py:1761-1762`) and keyed by `request_id`. It depends on 3b. |
+| **1b — core: origin, completion routing and needs-you at run end (new, M)** | Edits 1–5 and push-worker changes 1–4 in §3, **including the `needs_user` stamp and its routing**, which an earlier draft put in 1c. 1b must not ship without it: today an ask reaches the phone only as an ordinary completion (`notification-preferences.ts:33`). 1b makes non-mobile completions non-candidates under the default `phone` scope, so on its own it would stop desktop-started asks reaching the phone at all. Putting the stamp in 1b closes that gap with the real mechanism, where an interim "keep open-ask rows as candidates" rule would be thrown away one slice later. **Acceptance (unit, injected clock and presence):** a phone prompt over the daemon socket stamps `mobile`, and so do a phone cold-wake prompt (`PromptErrand.surface`) and a cold ask answer; a desktop attach stamps `desktop`; a local `attach` stamps `tui`; a direct `Session.prompt` stamps `tui`; a daemon-kind `locality: local` connection stamps `unknown`; `dial_owner` with `surface: "mobile"` stamps `remote`; a phone steer into a desktop run flips that run; a phone-driven conversation then typed at the in-process owner flips to `tui`; a wake run inherits; a legacy row reads `unknown`. A mobile-origin completion pushes while `desk_active`, is resolved when attending, and still pushes with `notifications_enabled()` false. A desktop-origin completion never pushes under `phone` and is held under `all`. A desktop-origin error is held and released on away. **A wake run that ends on an open ask pushes when away, with `completions: false` and `notify = false`**; it is held while `desk_active` under `attention: away`, pushes at once under `always`, and never pushes under `never`. The desktop banner is silent for mobile-origin only while `phone_would_emit`. An enum preference value outside its set, and either new key without the capability, return 422. **QA real path:** isolated HOME, serve plus daemon, the transport stubbed to record emits. Prompts go over a `daemon`-kind connection, over the cold-wake path and over a desktop `attach`. One wake-driven run ends on `ask_user`. |
+| **1c — core: needs-you mid-turn (new, S→M)** | **Mid-turn approvals and parks** have no completion, so they need a new emit sourced from the projection the daemon already serves (`needs_attention`/`pending_kind`, `mobile/daemon.py:1761-1762`) and keyed by `request_id`. It is governed by the `attention` preference and the needs-you matrix rows, exactly like 1b's run-end stamp. It depends on 3b. There is no regression window here: mid-turn approvals do not reach the phone today either. The worker composes only completion, digest and the silent badge-correction `attention` emit (`push_worker.py:186-196`). |
 | **2 — local-operator-ui** | Unchanged. |
 | **3 — agent-server** | Unchanged. |
-| **3b — agent-server: `needs_you` emit type (new, S)** | Add a type next to `completion`/`attention`/`digest` (`internal/sessionpush/wire.go:24-28,236`), keyed by `request_id`, with a shared fixture. Only 1c's approval half depends on it. |
+| **3b — agent-server: `needs_you` emit type (new, S)** | Add a type next to `completion`/`attention`/`digest` (`internal/sessionpush/wire.go:24-28,236`), keyed by `request_id`, with a shared fixture. Only 1c depends on it. |
 | **4, 5** | Unchanged. |
 | **6 — local-operator-mobile** | Add the two §4 rows and the `push_routing` gate. Update the `notification-preferences.ts` header and `flows.md:663`. **Acceptance:** the settings component in loading, error, legacy-daemon (disabled) and set states; `wirePreferences` omits the keys without the capability; rendered before/after stills (design round). |
 
-**Order:** 1 → 1b → 6. 1b → 1c. 3b → 1c's approval half. #4120 is independent.
+**Order:** 1 → 1b; 6 merges **before or with** 1b; 3b → 1c. #4120 is independent.
+
+- **Why 6 is not after 1b.** 1b applies the new defaults as soon as it is released. "All
+  conversations", the R7 remedy, is reachable only from 6. Slice 6 is gated on the `push_routing`
+  capability, so it can ship first: until a daemon advertises the capability, its rows show
+  disabled. If 6 cannot ship in time, the window is accepted with a stated workaround and noted in
+  1b's release notes. The workaround is that the operator can leave "Agent finished" on, so that
+  phone-started work still pushes. Desktop-started completions are then silent on the phone until
+  6 lands.
+- **The F2 invariant.** No release may contain 1b without the `needs_user` stamp. That holds by
+  construction now that both are in one slice.
 
 ## 6. Risks to watch during rollout
 
 - **R7 — Fewer notifications is the point, and a miss is the failure.**
   - **Watch for:** the operator reporting "a desktop task I was waiting on finished and nothing
     told me" while away.
-  - **Remedy:** the "All conversations" choice exists for that. If it recurs with the defaults,
-    revisit treating `unknown` as non-mobile.
+  - **Remedy:** the "All conversations" choice exists for that. It is reachable once slice 6 is
+    out, and §5 orders 6 before or with 1b for this reason. If it recurs with the defaults, revisit
+    treating `unknown` as non-mobile.
 - **R8 — Mixed versions.** A runtime started before 1b keeps old code in memory, and its completions
   carry `origin = ''`, which reads as non-mobile. A phone-started conversation on such a runtime
   stops pushing completions until the runtime is replaced at the next update window.
   - **Why it is accepted:** it errs quiet, which is the policy's direction, and it lasts one
     runtime lifetime.
+  - **The daemon's own skew.** A mobile daemon that predates the `surface: "mobile"` tag still
+    reads as `mobile` on its live path (`daemon` plus `remote`, vocabulary row 2). Its cold-wake
+    prompts read `tui`, and its cold answers read `remote`. Both err quiet, and both end when the
+    daemon restarts on the new build.
 - **R9 — The web portal counts as mobile.** It reaches the runtime through the same mobile
   daemon. A portal opened on a laptop browser would therefore route as `mobile`.
   - **Why it is accepted:** the daemon is the phone surface by design.
