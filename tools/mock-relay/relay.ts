@@ -40,6 +40,10 @@ import type {
 	SessionProjection,
 	SessionSummary,
 } from "../../docs/relay/types.ts";
+/* The ONE source of the supported set: `POST /__mock/config` refuses anything
+ * outside it. `locale.ts` has no imports, so this pulls no app code into the
+ * relay process. */
+import { SUPPORTED_LOCALES } from "../../src/i18n/locale.ts";
 import type { FlagValue } from "../lib/args.ts";
 import { bool, list, num, parseArgs, str } from "../lib/args.ts";
 import type { Json } from "../lib/json.ts";
@@ -479,6 +483,27 @@ interface StreamOptions {
 		write: (chunk: string) => void;
 	}) => void;
 	duplicate?: () => StreamFrame | null;
+}
+
+/** A peer address on this machine (IPv4, IPv6, or IPv4-mapped IPv6 loopback). */
+function isLoopbackAddress(address: string | undefined): boolean {
+	if (address === undefined) return false;
+	const bare = address.replace(/^::ffff:/, "");
+	return bare === "::1" || /^127\./.test(bare);
+}
+
+/** An `Origin` header naming a loopback host (any port). */
+function isLoopbackOrigin(origin: string): boolean {
+	try {
+		const { hostname } = new URL(origin);
+		return (
+			hostname === "localhost" ||
+			hostname === "[::1]" ||
+			/^127\./.test(hostname)
+		);
+	} catch {
+		return false;
+	}
 }
 
 /**
@@ -2407,20 +2432,34 @@ export function createRelay(options: RelayOptions = {}) {
 		 * app renders whatever the baseline frame says, so a `404` here means every
 		 * browser run renders English.
 		 *
-		 * ONE frame, the baseline (`changed_keys: []`, never a replay), and no
-		 * further frames: `language` is run-level state that a rig sets BEFORE it
-		 * loads the app, and publishing a mid-stream change would need the scenario
-		 * machinery this route does not have. A rig that wants a different language
-		 * sets it and reopens the app, which is also what a real relay change looks
-		 * like to a cold start. */
+		 * The baseline (`changed_keys: []`, never a replay) at connect, then one
+		 * `changed_keys: ["language"]` frame per CHANGE made through
+		 * `POST /__mock/config` while this response is open — the mounted-switch
+		 * case, where a screen already rendered in one language must re-render in
+		 * another without a reload. Each stream remembers the language it last
+		 * SENT and the existing pump compares on every tick, so: no new subscriber
+		 * list or timer, cleanup is the pump's own, a closed stream is never
+		 * written to, and a write of the value already served publishes nothing.
+		 * Changes coalesce at the pump interval (700 ms by default): two switches
+		 * inside one tick publish only the last — fine for an awaited switch, not
+		 * an event-history fidelity claim. `--language` and `POST /__mock/scenario`
+		 * still set the language for the NEXT connect, as before. */
 		if (pathname === "/api/config/events" && method === "GET") {
+			let sentLanguage = state.language;
 			return openStream(req, res, {
 				kind: "config",
 				seed: {
 					event: "config",
-					data: { changed_keys: [], language: state.language },
+					data: { changed_keys: [], language: sentLanguage },
 				},
-				frames: () => null,
+				frames: () => {
+					if (state.language === sentLanguage) return null;
+					sentLanguage = state.language;
+					return {
+						event: "config",
+						data: { changed_keys: ["language"], language: sentLanguage },
+					};
+				},
 			});
 		}
 
@@ -4237,6 +4276,95 @@ export function createRelay(options: RelayOptions = {}) {
 					sendJson(res, 200, { scenario: next, language: state.language });
 					return;
 				}
+				if (pathname === "/__mock/config" && method === "POST") {
+					/* THE LIVE LANGUAGE CONTROL (mounted-switch evidence; see the
+					 *  `/api/config/events` route and `config-language.test.ts`).
+					 *
+					 *  Stricter than `/__mock/scenario`'s `language`, on purpose: that one
+					 *  forgives a typo as `en` so a capture never looks like a broken app,
+					 *  but a SWITCH that silently landed `en` would be captured as a real
+					 *  switch to the wrong language. So the body must be exactly
+					 *  `{language: <string>}` naming a supported locale after the relay's
+					 *  own canonicalization, and every check runs before anything moves.
+					 *
+					 *  It moves ONLY `state.language`: no world reset, no scenario change,
+					 *  no cookie rotation, no reconnect — open config streams publish the
+					 *  change themselves. It honours the scenario pin (two rigs, one
+					 *  world), and refuses a non-loopback peer or a foreign Origin: the
+					 *  relay can be bound wider with `--host`, and a page on another site
+					 *  could otherwise POST a simple-request body here. */
+					if (!isLoopbackAddress(req.socket.remoteAddress)) {
+						sendJson(res, 403, errorBody("loopback callers only"));
+						return;
+					}
+					const origin = req.headers.origin;
+					if (origin !== undefined && !isLoopbackOrigin(origin)) {
+						sendJson(res, 403, errorBody("foreign origin refused"));
+						return;
+					}
+					const raw = await readBody(req);
+					let body: unknown;
+					try {
+						body = JSON.parse(raw);
+					} catch {
+						sendJson(res, 400, errorBody("body must be JSON"));
+						return;
+					}
+					if (
+						!isRecord(body) ||
+						Array.isArray(body) ||
+						Object.keys(body).length !== 1 ||
+						typeof body.language !== "string"
+					) {
+						sendJson(
+							res,
+							400,
+							errorBody('body must be exactly {"language": "<tag>"}'),
+						);
+						return;
+					}
+					const tag = body.language;
+					const resolved = resolveHarnessLanguage(tag);
+					/* `resolveHarnessLanguage` falls back to `en` for an unparseable tag;
+					 *  only a tag that canonicalizes to ITSELF (modulo case and `_`) is a
+					 *  real request, so `!!` cannot become a switch to English. */
+					const sameTag =
+						resolved.toLowerCase() ===
+						tag.trim().replace(/_/g, "-").toLowerCase();
+					if (
+						!sameTag ||
+						!(SUPPORTED_LOCALES as readonly string[]).includes(resolved)
+					) {
+						sendJson(
+							res,
+							400,
+							errorBody(
+								`unsupported language '${tag}'; one of ${SUPPORTED_LOCALES.join(", ")}`,
+							),
+						);
+						return;
+					}
+					if (
+						state.pinnedBy !== null &&
+						state.pinnedBy !== clientId &&
+						Date.now() - state.pinnedAt < SCENARIO_CONTENTION_MS
+					) {
+						sendJson(
+							res,
+							409,
+							errorBody(
+								`another harness process ('${state.pinnedBy}') holds this ` +
+									"relay's scenario pin; the language is part of the world it " +
+									"is capturing. Use your own relay or wait for its release.",
+							),
+						);
+						return;
+					}
+					const changed = state.language !== resolved;
+					state.language = resolved;
+					sendJson(res, 200, { language: resolved, changed });
+					return;
+				}
 				if (pathname === "/__mock/fault" && method === "POST") {
 					const raw = await readBody(req);
 					const names: string[] = JSON.parse(raw || "{}").faults ?? [];
@@ -4588,6 +4716,7 @@ if (import.meta.main) {
 				"  --scenario <name>     initial scenario (default idle) — see --list",
 				"  --language <tag>      the RESOLVED language the config stream serves",
 				"                        (default en); `POST /__mock/scenario` can change it",
+				"                        before connect; `POST /__mock/config` switches it live",
 				"  --fault <name>        inject a fault; repeatable",
 				"  --record <dir>        write a request/response transcript on shutdown",
 				"  --fixtures <dir>      fixture corpus root (default <repo>/fixtures/relay)",
