@@ -19,5 +19,13 @@ def refile(name, new, add):
     s = s[:m.start()] + (add if add not in s else "") + m.group(1) + new + m.group(3) + s[m.end():]
 refile("package.json", pkg, '\t// --print re-pin (feat/pele-diagrams): adds `pele` 1.13.0 (pure JS, no native\n\t// code); the web bundle draws its diagrams with it, source admission only.\n')
 refile("pnpm-lock.yaml", lock, "")
+# design/tokens is in the render-tree table too (palette-rules.mjs rows).
+m = re.search(r'"design/tokens": "([0-9a-f]{64})"', printed)
+if m:
+    dt = m.group(1)
+    mm = re.search(r'("design/tokens":\s*\n?\s*")([0-9a-f]{64})(")', s)
+    if mm and mm.group(2) != dt:
+        s = s[:mm.start(2)] + dt + s[mm.end(2):]
+        print("design/tokens", dt[:12])
 open(p, "w").write(s)
 print("src", src[:12], "pkg", pkg[:12], "lock", lock[:12])
