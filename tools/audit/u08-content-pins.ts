@@ -2204,6 +2204,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* TestFlight 1157 rest jitter: a reader's scroll that comes to rest is
+	 * never written afterwards (rest decides from the end event's offset and
+	 * only the end itself resumes following; a trailing event cannot
+	 * re-acquire a rest short of the end) in the Team Bridge viewport and the
+	 * agent transcript. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #296 round-1 remediation: only the end re-acquires a non-follower
+	 * (an anchoring shift is not the reader moving), shared rest slack, doc
+	 * fixes. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
 	/* Re-pinned 2026-11-17 for fix/bridge-429 with --print at the staged tree:
 	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
 	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
@@ -2213,7 +2223,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * at the staged tree: the status moved into the section heading row, the
 	 * pure `section-status.ts`, store backoff fixes and their tests. No U-08
 	 * instrument or measured geometry moved. Source identity only. */
-	src: "6459ae2b741c07c3035d1c32f7f7b7ce112c6c68ecd864c63b4f86bd957536dc",
+	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "a32f83f084d80683da462fc03433b5964f505b463f81ec7e29dac89b87e48ed4",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
