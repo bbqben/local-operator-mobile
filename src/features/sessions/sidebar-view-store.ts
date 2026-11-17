@@ -59,12 +59,7 @@ export function createSidebarViewStore(
 			if (reading) return reading;
 			reading = storage()
 				.get(SIDEBAR_VIEW_KEY)
-				.then(
-					(raw) => parseSidebarView(raw),
-					// An unreadable store keeps the default: a view preference is never
-					// a reason not to draw the list.
-					() => DEFAULT_SIDEBAR_VIEW,
-				)
+				.then((raw) => parseSidebarView(raw))
 				.then((stored) => {
 					if (touched.size === 0) {
 						set({ view: stored, hydrated: true });
@@ -75,8 +70,16 @@ export function createSidebarViewStore(
 					for (const key of touched)
 						Object.assign(merged, { [key]: current[key] });
 					set({ view: merged, hydrated: true });
-					// The early tap wrote `current`; the disk must hold the merge.
+					// Early taps were held back (see `setView`); the disk gets the merge.
 					persist(merged);
+				})
+				.catch(() => {
+					/* An unreadable store (a locked background launch) is NOT an empty
+					 * one. It used to hydrate the default, after which any tap wrote
+					 * defaults over every stored field. Stay unhydrated — the list
+					 * still draws with the default — and let the next `hydrate` (the
+					 * app's next `active`) read again. */
+					reading = null;
 				});
 			return reading;
 		},
@@ -88,7 +91,10 @@ export function createSidebarViewStore(
 					touched.add(key);
 			}
 			set({ view: next });
-			persist(next);
+			/* Before the stored view is read, `next` was built from the DEFAULT, so
+			 *  writing it whole would store defaults over fields the reader never
+			 *  touched; hydration writes the merge instead. */
+			if (get().hydrated) persist(next);
 		},
 	}));
 }

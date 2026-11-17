@@ -17,10 +17,13 @@
  *   in the platform layer at the worst moment. The retry envelope, which can
  *   legitimately be megabytes, therefore belongs in DEVICE storage and is not
  *   stored here (see `relay/retry-envelope.ts`).
- * - **`WHEN_UNLOCKED_THIS_DEVICE_ONLY`, no `requireAuthentication`.** The
- *   accessibility level is set on every write; `requireAuthentication` is
- *   deliberately off because it would block a background refresh and force a
- *   sign-in the user would read as a bug.
+ * - **`AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY`, no `requireAuthentication`.** The
+ *   app owner passes the class (`backgroundReadableAccessibility`) so iOS can
+ *   relaunch the app on a locked phone — after a TestFlight update, for a silent
+ *   push — and still read the sign-in. Items an earlier build wrote as
+ *   `WHEN_UNLOCKED_THIS_DEVICE_ONLY` are moved over on first read (`getRaw`).
+ *   `requireAuthentication` is deliberately off because it would block a
+ *   background refresh and force a sign-in the user would read as a bug.
  * - **Never logged.** `describe()` exists so a diagnostic screen can say what is
  *   present without any value crossing the boundary.
  */
@@ -146,6 +149,32 @@ export class SecureStorageError extends Error {
 	}
 }
 
+/**
+ * The keystore could not ANSWER — distinct from "there is no item".
+ *
+ * WHY THIS IS ITS OWN ERROR. iOS refuses keychain reads with
+ * `errSecInteractionNotAllowed` while an item's protection class is not
+ * available (a `WHEN_UNLOCKED*` item on a locked phone), and TestFlight installs
+ * updates — and iOS relaunches apps for a silent push or background fetch —
+ * while the phone is locked. `read` used to map that to `null`, so the cold
+ * start concluded "never signed in" and the reader was sent to sign in again
+ * with a perfectly good grant still in the keychain (operator report,
+ * 2026-11-16; the install id had the same defect, fixed in mobile #287).
+ *
+ * Deliberately NOT a `SecureStorageError`: `openPrivateInstallation` treats that
+ * class as "positively malformed, reset it", and a locked keychain must never
+ * be reset. Callers that may defer (the Radient restore) catch this by class;
+ * everything else lets it propagate like any other I/O failure.
+ */
+export class SecureStoreUnavailableError extends Error {
+	override readonly name = "SecureStoreUnavailableError";
+	readonly key: string;
+	constructor(key: string, cause: unknown) {
+		super("The device keystore could not be read right now", { cause });
+		this.key = key;
+	}
+}
+
 /** Whether a credential set is present. Never carries the value. */
 export interface StoragePresence {
 	oauth: boolean;
@@ -161,19 +190,15 @@ export interface StoragePresence {
  *
  * Every read tolerates a corrupt item by returning `null` and deleting it: a
  * half-written value must degrade to "sign in again", never to a request signed
- * with a truncated token or a crash on a cold start.
+ * with a truncated token or a crash on a cold start. A keystore that cannot
+ * ANSWER is different: that throws `SecureStoreUnavailableError` and deletes
+ * nothing, because a locked phone is not a signed-out reader.
  */
 export class SecureStorage {
 	private readonly adapter: SecureStoreAdapter;
-	private readonly options: {
-		keychainAccessible?: string;
-		now?: () => number;
-	};
+	private readonly options: SecureStorageOptions;
 
-	constructor(
-		adapter: SecureStoreAdapter,
-		options: { keychainAccessible?: string; now?: () => number } = {},
-	) {
+	constructor(adapter: SecureStoreAdapter, options: SecureStorageOptions = {}) {
 		this.adapter = adapter;
 		this.options = options;
 	}
@@ -223,10 +248,7 @@ export class SecureStorage {
 	/** Unlike credential discovery, this read cannot interpret a locked keystore
 	 * as absence: that would admit a replacement scope over unfinished cleanup. */
 	async readStartupAuthorization(): Promise<StartupAuthorizationRecord | null> {
-		const raw = await this.adapter.getItemAsync(
-			SECURE_KEYS.startupAuthorization,
-			this.writeOptions(),
-		);
+		const raw = await this.getRaw(SECURE_KEYS.startupAuthorization);
 		if (raw === null) return null;
 		let value: unknown;
 		try {
@@ -284,10 +306,7 @@ export class SecureStorage {
 	/** Do not use credential discovery's corrupt-item fallback here. A lost or
 	 * malformed key must refuse decryption, never overwrite recoverable bytes. */
 	async readPrivateDataKey(): Promise<PrivateDataKey | null> {
-		const raw = await this.adapter.getItemAsync(
-			SECURE_KEYS.privateDataKey,
-			this.writeOptions(),
-		);
+		const raw = await this.getRaw(SECURE_KEYS.privateDataKey);
 		if (raw === null) return null;
 		let value: unknown;
 		try {
@@ -314,16 +333,7 @@ export class SecureStorage {
 	}
 
 	async clearPrivateDataKey(): Promise<void> {
-		await this.adapter.deleteItemAsync(
-			SECURE_KEYS.privateDataKey,
-			this.writeOptions(),
-		);
-		if (
-			(await this.adapter.getItemAsync(
-				SECURE_KEYS.privateDataKey,
-				this.writeOptions(),
-			)) !== null
-		)
+		if (!(await this.deleteEverywhere(SECURE_KEYS.privateDataKey)))
 			throw new SecureStorageError(
 				"Private key removal could not be confirmed",
 				SECURE_KEYS.privateDataKey,
@@ -348,10 +358,7 @@ export class SecureStorage {
 	async clearAll(): Promise<void> {
 		await Promise.all(
 			Object.values(SECURE_KEYS).map(async (key) => {
-				await this.adapter.deleteItemAsync(key, this.writeOptions());
-				if (
-					(await this.adapter.getItemAsync(key, this.writeOptions())) !== null
-				)
+				if (!(await this.deleteEverywhere(key)))
 					throw new SecureStorageError(
 						"Credential removal could not be confirmed",
 						key,
@@ -371,14 +378,10 @@ export class SecureStorage {
 		key: string,
 		parse: (value: unknown) => T | null,
 	): Promise<T | null> {
-		let raw: string | null;
-		try {
-			raw = await this.adapter.getItemAsync(key, this.writeOptions());
-		} catch {
-			/* A locked keystore (device not yet unlocked) reads as absent, which sends
-			 * the user to the sign-in screen rather than crashing a cold start. */
-			return null;
-		}
+		/* A keystore that cannot answer THROWS (`SecureStoreUnavailableError`); it
+		 * used to read as absent, which signed a reader out of a phone that was
+		 * merely locked. Only a positively corrupt item is removed below. */
+		const raw = await this.getRaw(key);
 		if (raw === null) return null;
 		let parsed: unknown;
 		try {
@@ -400,12 +403,87 @@ export class SecureStorage {
 				key,
 			);
 		}
+		/* No legacy delete here: reads prefer the current slot, removals clear
+		 * both (`deleteEverywhere`), and an adapter that ignores
+		 * `keychainService` (memory, web) would delete the value just written. */
 		await this.adapter.setItemAsync(key, raw, this.writeOptions());
+	}
+
+	/**
+	 * Reads `key`, adopting a copy an earlier build wrote under the legacy
+	 * service/class.
+	 *
+	 * WHY A SECOND SERVICE RATHER THAN RE-WRITING IN PLACE. expo-secure-store's
+	 * iOS `set` is `SecItemAdd`, falling back on `errSecDuplicateItem` to a
+	 * `SecItemUpdate` of the DATA ONLY (`SecureStoreModule.swift`, 57.0.4): an
+	 * existing item keeps its accessibility class forever, whatever
+	 * `keychainAccessible` a later write passes. The only way to change the class
+	 * is a new item, and delete-then-add would leave a window where a kill loses
+	 * the credential. So the new item lives under its own `keychainService`, is
+	 * written and READ BACK before the old one is deleted, and the old one stays
+	 * readable as a fallback until then — no step of the migration can lose it.
+	 * Reads do not filter on class (the query is service + account only), so the
+	 * fallback finds old items whatever class they were written with.
+	 */
+	private async getRaw(key: string): Promise<string | null> {
+		let raw: string | null;
+		try {
+			raw = await this.adapter.getItemAsync(key, this.writeOptions());
+		} catch (error) {
+			throw new SecureStoreUnavailableError(key, error);
+		}
+		if (raw !== null || !this.options.legacy) return raw;
+		let legacy: string | null;
+		try {
+			legacy = await this.adapter.getItemAsync(key, this.legacyOptions());
+		} catch (error) {
+			throw new SecureStoreUnavailableError(key, error);
+		}
+		if (legacy === null) return null;
+		try {
+			/* Re-check: a write that landed since the first read is newer than the
+			 * legacy copy and must not be overwritten by it. */
+			if (
+				(await this.adapter.getItemAsync(key, this.writeOptions())) === null
+			) {
+				await this.adapter.setItemAsync(key, legacy, this.writeOptions());
+				if (
+					(await this.adapter.getItemAsync(key, this.writeOptions())) === legacy
+				) {
+					await this.adapter.deleteItemAsync(key, this.legacyOptions());
+					/* An adapter that ignores `keychainService` (the memory and web
+					 * stores) has ONE slot, so that delete took the copy too. */
+					if (
+						(await this.adapter.getItemAsync(key, this.writeOptions())) === null
+					)
+						await this.adapter.setItemAsync(key, legacy, this.writeOptions());
+				}
+			}
+		} catch {
+			/* The old item is untouched; the next read tries again. */
+		}
+		return legacy;
+	}
+
+	/** Deletes `key` from the current and the legacy slot and reports whether both
+	 *  now read as absent. Sign-out must clear both, or a stale legacy copy would
+	 *  be adopted on the next read and resurrect a grant the reader removed. */
+	private async deleteEverywhere(key: string): Promise<boolean> {
+		await this.adapter.deleteItemAsync(key, this.writeOptions());
+		if ((await this.adapter.getItemAsync(key, this.writeOptions())) !== null)
+			return false;
+		if (!this.options.legacy) return true;
+		await this.adapter.deleteItemAsync(key, this.legacyOptions());
+		return (
+			(await this.adapter.getItemAsync(key, this.legacyOptions())) === null
+		);
 	}
 
 	private async remove(key: string): Promise<void> {
 		try {
 			await this.adapter.deleteItemAsync(key, this.writeOptions());
+			if (this.options.legacy)
+				await this.adapter.deleteItemAsync(key, this.legacyOptions());
 		} catch {
 			/* Best-effort: every caller of `remove` re-reads afterwards, and a failed
 			 * delete leaves a value that is still parseable or still ignored. */
@@ -419,8 +497,32 @@ export class SecureStorage {
 		const options: SecureStoreOptions = {};
 		if (this.options.keychainAccessible)
 			options.keychainAccessible = this.options.keychainAccessible;
+		if (this.options.keychainService)
+			options.keychainService = this.options.keychainService;
 		return options;
 	}
+
+	private legacyOptions(): SecureStoreOptions {
+		const options: SecureStoreOptions = {};
+		const legacy = this.options.legacy;
+		if (legacy?.keychainAccessible)
+			options.keychainAccessible = legacy.keychainAccessible;
+		if (legacy?.keychainService)
+			options.keychainService = legacy.keychainService;
+		return options;
+	}
+}
+
+export interface SecureStorageOptions {
+	/** The class every write uses (and the slot reads look in first). */
+	keychainAccessible?: string;
+	/** The keychain service of the current slot; `undefined` is expo's default. */
+	keychainService?: string;
+	/** Where an earlier build wrote the same keys. When set, a read that finds
+	 *  nothing in the current slot falls back to it and moves the item over
+	 *  without ever deleting it first (see `getRaw`). */
+	legacy?: { keychainAccessible?: string; keychainService?: string };
+	now?: () => number;
 }
 
 function parseOauth(value: unknown): RadientOAuthSet | null {
@@ -561,6 +663,25 @@ export async function expoSecureStore(): Promise<SecureStoreAdapter> {
 			module.setItemAsync(key, value, options),
 		deleteItemAsync: (key, options) => module.deleteItemAsync(key, options),
 	};
+}
+
+/**
+ * The class for items the app must read in the BACKGROUND: the Radient grant,
+ * the tunnel session, the startup-authorization record and the private-data key.
+ *
+ * `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY`: readable from the first unlock after a
+ * reboot until the next reboot, so a TestFlight update or a silent push that
+ * relaunches the app on a locked phone can still read the reader's sign-in.
+ * `THIS_DEVICE_ONLY` is kept, so an encrypted backup still cannot carry these to
+ * another phone. The owner chose this trade on 2026-11-16 (task "Keep sign-in
+ * and settings across updates": "Use AFTER_FIRST_UNLOCK where background access
+ * is needed"), superseding the cold start's earlier note that declined it.
+ */
+export async function backgroundReadableAccessibility(): Promise<string> {
+	const module = (await import("expo-secure-store")) as unknown as {
+		AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: string;
+	};
+	return module.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY;
 }
 
 /** The accessibility level every write uses, read from the platform so a future

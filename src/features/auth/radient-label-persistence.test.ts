@@ -13,6 +13,7 @@ vi.mock("@/connection", async (original) => {
 vi.mock("@/connection/storage", async (original) => ({
 	...(await original<object>()),
 	thisDeviceOnlyAccessibility: async () => "[redacted]-this-device-only",
+	backgroundReadableAccessibility: async () => "synthetic-after-first-unlock",
 }));
 
 import {

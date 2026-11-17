@@ -105,3 +105,47 @@ describe("sidebar view persistence", () => {
 		expect(reads).toBe(1);
 	});
 });
+
+/**
+ * A locked background launch (TestFlight update, silent push) can fail the read.
+ * That used to hydrate the DEFAULT, and the next tap stored defaults over every
+ * field the reader had set (operator report, 2026-11-16: settings lost on update).
+ */
+describe("sidebar view when the store cannot answer yet", () => {
+	it("stays unhydrated, writes nothing, and keeps the stored view once readable", async () => {
+		const disk = memoryStorage({
+			[SIDEBAR_VIEW_KEY]: JSON.stringify({
+				orderBy: "recent",
+				basis: "created",
+			}),
+		});
+		let locked = true;
+		const store = createSidebarViewStore(() => ({
+			get: (key) =>
+				locked
+					? Promise.reject(new Error("errSecInteractionNotAllowed"))
+					: disk.storage.get(key),
+			set: disk.storage.set,
+		}));
+
+		await store.getState().hydrate();
+		expect(store.getState().hydrated).toBe(false);
+		store.getState().setView({ ...DEFAULT_SIDEBAR_VIEW, showEnded: false });
+		await Promise.resolve();
+		expect(disk.writes).toEqual([]);
+
+		locked = false; // the next `active`
+		await store.getState().hydrate();
+		const expected: SidebarView = {
+			...DEFAULT_SIDEBAR_VIEW,
+			orderBy: "recent",
+			basis: "created",
+			showEnded: false,
+		};
+		expect(store.getState().view).toEqual(expected);
+		await Promise.resolve();
+		const relaunched = createSidebarViewStore(() => disk.storage);
+		await relaunched.getState().hydrate();
+		expect(relaunched.getState().view).toEqual(expected);
+	});
+});
