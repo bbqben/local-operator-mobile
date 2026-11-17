@@ -10,7 +10,11 @@ import {
 } from "@/features/auth/connection-provider";
 import { SwitchRow } from "@/features/sessions/sidebar-view-controls";
 import { t } from "@/i18n";
-import { deviceStateDescription, deviceTitle } from "@/notifications/devices";
+import {
+	deviceListEntries,
+	deviceStateDescription,
+} from "@/notifications/devices";
+import { readInstallRecord } from "@/notifications/install-id";
 import { readAvailability, requestPermission } from "@/notifications/native";
 import {
 	loadNotificationPreferences,
@@ -103,7 +107,12 @@ const hookAvailability = (): PushAvailability | null => {
 
 type DeviceListState =
 	| { kind: "loading" }
-	| { kind: "ready"; devices: PushDeviceRow[] }
+	| {
+			kind: "ready";
+			devices: PushDeviceRow[];
+			/** This phone's id on the routed computer, or null when unknown. */
+			thisDeviceId: string | null;
+	  }
 	/** The relay answered a refusal that says the route is not there. */
 	| { kind: "unsupported" }
 	/** The read failed for another reason — do not claim the route is absent. */
@@ -151,7 +160,15 @@ export const NotificationsSection = () => {
 		}
 		try {
 			const payload = await client.pushDevices();
-			setDeviceList({ kind: "ready", devices: payload.devices });
+			/* The web record is session-only (`install-id.ts`), so only a native
+			 * keystore's record may name a row "this phone". A failed read just
+			 * means no row is marked — the list itself still renders. */
+			const record = Platform.OS === "web" ? null : await readInstallRecord();
+			setDeviceList({
+				kind: "ready",
+				devices: payload.devices,
+				thisDeviceId: record?.device_id ?? null,
+			});
 		} catch (error) {
 			/* The relay's own 404 is a relay older than the route (S4a); anything
 			 * else — the edge's unknown-tunnel 404 (a dead tunnel) included — is a
@@ -431,14 +448,30 @@ export const NotificationsSection = () => {
 					No devices are registered with this computer yet.
 				</Text>
 			) : (
-				deviceList.devices.map((device) => (
-					<View key={device.device_id} className="gap-1">
-						<Text className="text-body-sm text-ink">{deviceTitle(device)}</Text>
-						<Text className="text-body-sm text-ink-dim">
-							{deviceStateDescription(device.state)}
-						</Text>
-					</View>
-				))
+				/* This phone first and named as such; every other device carries
+				 * when it was last active, so two phones of one model never render
+				 * as identical rows (operator report, 2026-11-16: 33 "iPhone" rows). */
+				/* Own `gap-3` wrapper: a three-line row needs more separation from
+				 * the next than the section's `gap-2` gives (design D4). The state
+				 * line is the one that matters when something is wrong, so it
+				 * outranks "Last active" in ink (design D5). */
+				<View className="gap-3">
+					{deviceListEntries(deviceList.devices, deviceList.thisDeviceId).map(
+						(entry) => (
+							<View key={entry.row.device_id} className="gap-1">
+								<Text className="text-body-sm text-ink">{entry.title}</Text>
+								{entry.detail !== null ? (
+									<Text className="text-body-sm text-ink-dim">
+										{entry.detail}
+									</Text>
+								) : null}
+								<Text className="text-body-sm text-ink-muted">
+									{deviceStateDescription(entry.row.state)}
+								</Text>
+							</View>
+						),
+					)}
+				</View>
 			)}
 		</View>
 	);
