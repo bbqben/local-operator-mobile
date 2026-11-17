@@ -258,7 +258,7 @@ describe("Team Bridge visual & semantic polish contracts", () => {
 		// The conversation skeleton comes AFTER the Channels header, and the
 		// Groups header renders only once conversations are not loading.
 		const channels = list.indexOf(
-			'heading(t("mobile.team_bridge.list.channels"))',
+			'heading(t("mobile.team_bridge.list.channels")',
 		);
 		const skeleton = list.indexOf(
 			"testID={SURFACE.teamBridgeConversationsLoading}",
@@ -336,5 +336,44 @@ describe("Team Bridge visual & semantic polish contracts", () => {
 		expect(threadSource).toContain(
 			'<View className="relative z-10 flex-row flex-wrap items-baseline gap-x-2">',
 		);
+	});
+});
+
+const STANDALONE_CATCHING_UP = /catchingUp\(SURFACE\./;
+const SKELETON_EXCLUDES_CATCHING_UP =
+	/!org\??\.(conversations|people)CatchingUp/;
+const SPINNER_FROM_LOAD_STATE = /refreshing=\{\s*org\?\.conversationsState/;
+
+describe("Team Bridge 429 status placement (PR #297 round 1)", () => {
+	it("Catching up rides each heading's trailing side, never a line of its own above held rows (design D1)", () => {
+		const list = flat(listSource);
+		expect(list).toContain(
+			'heading(t("mobile.team_bridge.list.channels"), { show: conversationsSection.catchingUp, testID: SURFACE.teamBridgeConversationsCatchingUp, })',
+		);
+		expect(list).toContain(
+			'heading(t("mobile.team_bridge.list.people"), { show: peopleSection.catchingUp, testID: SURFACE.teamBridgePeopleCatchingUp, })',
+		);
+		// The status shares the heading row and the heading's own type metrics,
+		// so the row height cannot change when it appears.
+		expect(list).toContain('<View className="flex-row items-end gap-3 px-4">');
+		expect(list).toContain(
+			// biome-ignore lint/suspicious/noTemplateCurlyInString: matching source text.
+			"className={`min-w-0 flex-1 pb-1 ${TEXT_END_CLASS} text-mono-label text-ink-dim`} numberOfLines={1}",
+		);
+		// No standalone body-sm status line anywhere in the list.
+		expect(list).not.toMatch(STANDALONE_CATCHING_UP);
+		// D2: a cold catch-up keeps the skeleton, so Groups stays held back.
+		expect(list).toContain(
+			"const conversationsLoading = conversationsSection.skeleton;",
+		);
+		expect(list).not.toMatch(SKELETON_EXCLUDES_CATCHING_UP);
+	});
+
+	it("the pull spinner follows the reader's pull, not a load held through a 429 wait (review m3)", () => {
+		const list = flat(listSource);
+		expect(list).toContain("refreshing={pulling}");
+		expect(list).toContain("onRefresh={pull}");
+		expect(list).toContain(".finally(() => setPulling(false))");
+		expect(list).not.toMatch(SPINNER_FROM_LOAD_STATE);
 	});
 });
