@@ -2204,13 +2204,27 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
+	/* TestFlight 1157 rest jitter: a reader's scroll that comes to rest is
+	 * never written afterwards (rest decides from the end event's offset and
+	 * only the end itself resumes following; a trailing event cannot
+	 * re-acquire a rest short of the end) in the Team Bridge viewport and the
+	 * agent transcript. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #296 round-1 remediation: only the end re-acquires a non-follower
+	 * (an anchoring shift is not the reader moving), shared rest slack, doc
+	 * fixes. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
 	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
 	 * handoff moves to src/features/session/attach-handoff.ts and drops its
 	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
 	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
 	 * renders changes. Re-derived with --print over the staged tree; source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "0c9c86d92622336c13cd7ebf427d7de6f8c42614ef322592d460ed26f3331ade",
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "0e0108b98832f6e553d7b6741f59a9989d0f215b8e5e9cc76ed35ad0a11f3783",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
