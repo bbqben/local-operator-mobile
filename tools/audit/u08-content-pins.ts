@@ -2226,7 +2226,25 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
 	 * chains kept; re-derived with --print over the staged merged tree. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "a32f83f084d80683da462fc03433b5964f505b463f81ec7e29dac89b87e48ed4",
+	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
+	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
+	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
+	 * team-bridge/provider.tsx — push-token bookkeeping and hub-registration rate
+	 * discipline, no rendered component or copy changes. Re-derived with --print
+	 * over the staged tree; the other render roots printed unchanged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 merge of origin/main (2026-11-17): src re-derived with --print
+	 * over the merged tree, which carries both the #296 and #298 changes. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 round-2 remediation (R2-M1): the 429 clock-guard ceiling in
+	 * team-bridge/push.ts becomes the exact bound of the wait, plus its
+	 * regression test. No rendered component or copy changes. Re-derived with
+	 * --print over the staged tree. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "cb56933b8d447a55dbbd32b2722028f3ba79530004d98dd084c2ccfc49eb4c4e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
