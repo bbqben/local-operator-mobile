@@ -2098,7 +2098,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * its mount hook, tests and six catalogue keys in all 8 locales. Nothing
 	 * the U-08 scene renders changes. Derived with --print over the committed
 	 * tree; source admission only, NOT rendered, native or device evidence. */
-	src: "84f0d7187b13c7bde8e67b6fd094404dd023370f32eaac01d7af44e9c9a8a399",
+	/* Bridge thread flicker: unchanged polls keep message identity (structural
+	 * sharing in mergeMessages, no publish in loadThread), a stable empty
+	 * people list, and no repeated native write for an in-flight target.
+	 * Round-1/2 remediation adds the day-turnover re-derive, a 250 ms
+	 * in-flight window and a once-per-target native re-check (reset by a
+	 * reported scroll). Re-derived with --print; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* PR #286 convergence with #285 (main 53fe98ec): both histories above;
+	 * the merged tree carries both, so it has neither parent's digest.
+	 * Derived from the staged merged tree with --print; source admission
+	 * only, NOT rendered, native or device evidence. */
+	src: "20c7cc36c69c8c2b4ab7d688b0c37985fb67e512c18da53d0a670fb3d0bb6462",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
