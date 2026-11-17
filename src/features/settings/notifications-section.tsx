@@ -1,5 +1,6 @@
+import Constants from "expo-constants";
 import { useCallback, useEffect, useState } from "react";
-import { Linking, Platform, Text, View } from "react-native";
+import { AppState, Linking, Platform, Text, View } from "react-native";
 import { useStore } from "zustand";
 
 import type { PushDeviceRow } from "@/contracts";
@@ -10,6 +11,10 @@ import {
 } from "@/features/auth/connection-provider";
 import { SwitchRow } from "@/features/sessions/sidebar-view-controls";
 import { t } from "@/i18n";
+import {
+	openChannelSettings,
+	readChannelBlocked,
+} from "@/notifications/channel-state";
 import {
 	deviceListEntries,
 	deviceStateDescription,
@@ -41,6 +46,7 @@ import {
 import { sessionPushStatusCopy } from "@/notifications/session-push-status";
 import { requestSessionPushRegistration } from "@/notifications/use-session-push-registration";
 import { isRelayMissing } from "@/relay";
+import { TEAM_BRIDGE_CHANNEL_ID } from "@/team-bridge/android-presentation";
 import { useTeamBridge } from "@/team-bridge/provider";
 import { teamBridgeFixture } from "@/testing/team-bridge-fixture";
 import { CONTROL, REGION } from "@/ui/a11y";
@@ -149,6 +155,28 @@ export const NotificationsSection = () => {
 		});
 		return () => {
 			cancelled = true;
+		};
+	}, []);
+
+	/* ADR 0010 S4 (§7 row 9): whether the reader switched the Team Bridge
+	 * channel off in Android's system settings. Re-read on every return to the
+	 * foreground, because the system page is where they change it and they come
+	 * back here from it. Always false off Android (`channel-state.ts`). */
+	const [bridgeChannelOff, setBridgeChannelOff] = useState(false);
+	useEffect(() => {
+		if (Platform.OS !== "android") return;
+		let cancelled = false;
+		const read = () =>
+			void readChannelBlocked(TEAM_BRIDGE_CHANNEL_ID).then((off) => {
+				if (!cancelled) setBridgeChannelOff(off);
+			});
+		read();
+		const subscription = AppState.addEventListener("change", (state) => {
+			if (state === "active") read();
+		});
+		return () => {
+			cancelled = true;
+			subscription.remove();
 		};
 	}, []);
 
@@ -409,6 +437,29 @@ export const NotificationsSection = () => {
 								onChange={(teamBridge) => void onPreference({ teamBridge })}
 								testID={CONTROL.settingsNotificationsTeamBridge}
 							/>
+							{preferences.teamBridge && bridgeChannelOff ? (
+								/* The app switch says on, the OS discards: say so, and
+								 *  link to the one place it can be turned back on. */
+								<View className="gap-2">
+									<Text className="text-body-sm text-ink-muted">
+										{t("mobile.notifications.preferences.bridge_system_off")}
+									</Text>
+									<Button
+										testID={CONTROL.settingsNotificationsBridgeChannelSettings}
+										variant="outline"
+										size="sm"
+										label={t(
+											"mobile.notifications.preferences.bridge_system_open",
+										)}
+										onPress={() =>
+											void openChannelSettings(
+												TEAM_BRIDGE_CHANNEL_ID,
+												Constants.expoConfig?.android?.package ?? "",
+											)
+										}
+									/>
+								</View>
+							) : null}
 							<Text className="text-body-sm text-ink-dim">
 								{t("mobile.notifications.preferences.bridge_note", {
 									all: t("mobile.team_bridge.thread.notify_all"),
