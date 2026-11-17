@@ -2210,7 +2210,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * re-acquire a rest short of the end) in the Team Bridge viewport and the
 	 * agent transcript. Re-derived with --print over the staged tree; source
 	 * admission only, NOT rendered, native or device evidence. */
-	src: "9e5e9a9b4acd844765f79a66845cbffa21bfd91dab1c176c888c13260e77ab95",
+	/* PR #296 round-1 remediation: only the end re-acquires a non-follower
+	 * (an anchoring shift is not the reader moving), shared rest slack, doc
+	 * fixes. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	src: "3703e0e2c0dea7c5bdc6037500cf5c9c14258368d3e39c9c695cb56002b5aa58",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

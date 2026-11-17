@@ -452,7 +452,8 @@ export const TranscriptList = ({
 	 *  streamed row or layout commit clamped a drag's first points back to the
 	 *  end. While the hold is active `pinTail` does nothing. At rest the tail is
 	 *  decided from the CURRENT offset, viewport and content height
-	 *  (`restRef` below, PR #289 Q1-2), and only then is the end re-pinned.
+	 *  (`restRef` below, PR #289 Q1-2): only a rest at the end (within 1 pt)
+	 *  resumes following, and nothing is written at rest (TestFlight 1157).
 	 *  Web holds too (M3): the operator reads agent sessions over the web
 	 *  relay as well. */
 	const restRef = useRef<() => void>(() => {});

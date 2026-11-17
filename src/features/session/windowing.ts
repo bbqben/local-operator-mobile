@@ -1,3 +1,5 @@
+import { REST_END_SLACK_PT } from "./reader-scroll-hold";
+
 /**
  * The transcript's windowing policy, as arithmetic rather than as vibes.
  *
@@ -241,16 +243,22 @@ export const nextAtTail = (input: {
 }): boolean => {
 	if (input.distanceToEnd < input.bandPt) {
 		if (input.wasAtTail) return true;
-		/* A reader AWAY from the tail re-enters it by MOVING down into the
-		 *  band, or by reaching the end itself (TestFlight 1157). A reader who
-		 *  came to rest inside the band, short of the end, chose that place:
-		 *  the platform's trailing scroll event at the same offset, or one
-		 *  forced by visible-content anchoring, used to re-acquire them, and
-		 *  the next row re-measure then pinned them to the end after their
-		 *  scroll had stopped. */
-		return (
-			input.distanceToEnd <= 1 || input.offsetY > input.previousOffsetY + 0.5
-		);
+		/* A reader who came to rest inside the band, short of the end, chose
+		 *  that place (TestFlight 1157); a trailing scroll event at the same
+		 *  offset used to re-acquire them, and the next re-measure pinned them.
+		 *  Only the END re-acquires a reader who is away from it. #296 round 1 also
+		 *  let a downward move into the band re-acquire, and QA (Q1-1) showed why that
+		 *  is wrong on native: when a row ABOVE the first visible one changes height,
+		 *  iOS maintainVisibleContentPosition moves the offset by the same amount and
+		 *  forces a scroll event. The offset went down, the distance to the end did
+		 *  not change, and the reader had not moved; re-acquiring there let the next
+		 *  re-measure write the end (2410 -> 2442). Every real reader move on native
+		 *  and web runs under the scroll hold (`reader-scroll-hold.ts`), whose rest
+		 *  decides follow; what reaches this path without a hold is a screen reader,
+		 *  focus, or the platform, and of those only arriving AT the end means "take
+		 *  me back to following".
+		 *  Same slack as the rest decision, so the two never drift (#296 R1-n1). */
+		return input.distanceToEnd <= REST_END_SLACK_PT;
 	}
 	if (!input.wasAtTail) return false;
 	const previousEnd = Math.max(

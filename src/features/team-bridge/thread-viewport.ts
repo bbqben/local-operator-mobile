@@ -191,8 +191,9 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	 * under the finger. From a drag or momentum start (native) or a wheel,
 	 * pointer, key or touch scroll (web) until that scroll comes to rest, no
 	 * programmatic follow runs at all; at rest, the reader's OWN offset decides:
-	 * within FOLLOW_SLACK of the end resumes following, anywhere else is
-	 * history. Only Jump to newest (an explicit reader request) overrides it.
+	 * only a rest at the end (within POSITION_SLACK) resumes following, and
+	 * nothing is written at rest (TestFlight 1157); anywhere else is history.
+	 * Only Jump to newest (an explicit reader request) overrides it.
 	 */
 	/** Newest seq the reader was following when they left the end. */
 	let seenNewest = 0;
@@ -232,18 +233,23 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			return;
 		}
 		const atTail = y + viewport >= measured - FOLLOW_SLACK;
-		/* RE-ACQUIRING IS A MOVE TOWARD THE END, NOT BEING NEAR IT (TestFlight
-		 *  1157). A reader who came to rest inside the band, short of the end,
-		 *  chose that place; the platform's trailing scroll event at the same
-		 *  offset (or one forced by visible-content anchoring) used to turn
-		 *  following back on, and the next row re-measure then wrote the end
-		 *  offset — "ends me in a different position than the smooth finish".
-		 *  A non-follower re-acquires only by moving down into the band or by
-		 *  reaching the end itself. */
-		const reacquires =
-			following ||
-			y + viewport >= measured - POSITION_SLACK ||
-			(lastY !== null && y > lastY + POSITION_SLACK);
+		/* BEING NEAR THE END IS NOT COMING BACK TO IT (TestFlight 1157). A
+		 *  reader who came to rest inside the band, short of the end, chose that
+		 *  place; the platform's trailing scroll event at the same offset used to
+		 *  turn following back on, and the next row re-measure wrote the end
+		 *  offset: "ends me in a different position than the smooth finish".
+		 *  Only the END re-acquires a reader who is away from it. #296 round 1 also
+		 *  let a downward move into the band re-acquire, and QA (Q1-1) showed why that
+		 *  is wrong on native: when a row ABOVE the first visible one changes height,
+		 *  iOS maintainVisibleContentPosition moves the offset by the same amount and
+		 *  forces a scroll event. The offset went down, the distance to the end did
+		 *  not change, and the reader had not moved; re-acquiring there let the next
+		 *  re-measure write the end (2410 -> 2442). Every real reader move on native
+		 *  and web runs under the scroll hold (`reader-scroll-hold.ts`), whose rest
+		 *  decides follow; what reaches this path without a hold is a screen reader,
+		 *  focus, or the platform, and of those only arriving AT the end means "take
+		 *  me back to following". */
+		const reacquires = following || y + viewport >= measured - POSITION_SLACK;
 		if (atTail && !reacquires) {
 			lastY = y;
 			return;

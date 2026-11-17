@@ -946,7 +946,9 @@ describe("a scroll that comes to rest stays where it stopped (TestFlight 1157)",
 		const r = openLong(false);
 		r.moves.mockClear();
 		r.h.onScrollBeginDrag();
-		r.scrollTo(2119 - 20); // the last event the throttle let through
+		// The last event the throttle let through was AT the end (#296 R1-m1:
+		// an in-band reading would be history either way, proving nothing).
+		r.scrollTo(2119);
 		r.h.onScrollEndDrag?.(r.event());
 		r.h.onMomentumScrollBegin?.();
 		r.silentMove(1800); // the glide carried on, unreported
@@ -972,7 +974,26 @@ describe("a scroll that comes to rest stays where it stopped (TestFlight 1157)",
 		r.grow(2800);
 		expect(r.moves).toHaveBeenCalledWith(2201);
 	});
-	it("a reader who scrolls back down into the band by hand still re-acquires", () => {
+	it("an anchoring shift after a rest short of the end re-acquires nothing (#296 Q1-1)", () => {
+		const r = openLong(false);
+		r.h.onScrollBeginDrag();
+		r.scrollTo(2119 - 20);
+		r.h.onScrollEndDrag?.(r.event());
+		r.runTimers();
+		r.moves.mockClear();
+		// A row ABOVE the first visible one grows 30 pt: iOS
+		// maintainVisibleContentPosition moves the offset by the same 30 and
+		// forces a scroll event. The reader did not move toward the end.
+		r.grow(2748);
+		r.scrollTo(2099 + 30);
+		// Then the newest row re-measures, and the admission recheck runs.
+		r.grow(2760);
+		r.v.dataChanged();
+		r.runTimers();
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.v.following).toBe(false);
+	});
+	it("a reader who scrolls back down to the end by hand still re-acquires", () => {
 		const r = openLong(false);
 		r.h.onScrollBeginDrag();
 		r.scrollTo(1500);
