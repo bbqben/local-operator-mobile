@@ -2094,7 +2094,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * alignment, so it has neither parent's digest. Derived from the staged
 	 * merged tree with --print; source admission only, NOT new rendered,
 	 * native or device evidence. */
-	src: "7c88eaab8efe28bb3df1feee65a1239cb149c66d38fcf5cfd8330c4375d61d50",
+	/* iOS notification category summaries: new `notifications/categories.ts`,
+	 * its mount hook, tests and six catalogue keys in all 8 locales. Nothing
+	 * the U-08 scene renders changes. Derived with --print over the committed
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#285, 53fe98ec) into fix/push-device-dedupe
+	 * (PR #287): the merged src carries both sides (#285 category summaries +
+	 * #287 install-id/device rows), so it matches neither parent. Re-derived
+	 * with --print over the staged merged tree (run twice, stable). Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "3a1ed7ad32a37cac370c6df9c2844909bef33cefd69741e8c6502b6e9c7e9ab4",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

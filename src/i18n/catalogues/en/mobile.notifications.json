@@ -1,6 +1,12 @@
 {
 	"mobile.notifications.answer": "Answer",
 	"mobile.notifications.back": "Back",
+	"mobile.notifications.category.completion_placeholder": "Agent update",
+	"mobile.notifications.category.completion_summary": "%u more from your agents",
+	"mobile.notifications.category.digest_placeholder": "Digest",
+	"mobile.notifications.category.digest_summary": "%u more from your digest",
+	"mobile.notifications.category.message_placeholder": "Team Bridge message",
+	"mobile.notifications.category.message_summary": "%u more from Team Bridge",
 	"mobile.notifications.channel.airy_whistle": "Airy whistle",
 	"mobile.notifications.channel.bubble_chord": "Bubble chord",
 	"mobile.notifications.channel.bubble_pulse": "Bubble pulse",

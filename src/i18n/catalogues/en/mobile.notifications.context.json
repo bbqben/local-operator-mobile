@@ -7,6 +7,30 @@
 		"role": "button",
 		"note": "Accessibility label of the icon-only back button in the inbox header."
 	},
+	"mobile.notifications.category.completion_placeholder": {
+		"role": "meta",
+		"note": "Generic placeholder iOS shows INSTEAD of a agent (finished-work) notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop."
+	},
+	"mobile.notifications.category.completion_summary": {
+		"role": "meta",
+		"note": "Summary line iOS writes under a stack of grouped agent (finished-work) notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop."
+	},
+	"mobile.notifications.category.digest_placeholder": {
+		"role": "meta",
+		"note": "Generic placeholder iOS shows INSTEAD of a digest notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop."
+	},
+	"mobile.notifications.category.digest_summary": {
+		"role": "meta",
+		"note": "Summary line iOS writes under a stack of grouped digest notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop."
+	},
+	"mobile.notifications.category.message_placeholder": {
+		"role": "meta",
+		"note": "Generic placeholder iOS shows INSTEAD of a Team Bridge message notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop."
+	},
+	"mobile.notifications.category.message_summary": {
+		"role": "meta",
+		"note": "Summary line iOS writes under a stack of grouped Team Bridge message notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop."
+	},
 	"mobile.notifications.channel.airy_whistle": {
 		"role": "meta",
 		"note": "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop."

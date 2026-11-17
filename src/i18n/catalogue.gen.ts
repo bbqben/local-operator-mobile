@@ -393,6 +393,12 @@ export type CatalogueKey =
 	| "mobile.library.title"
 	| "mobile.notifications.answer"
 	| "mobile.notifications.back"
+	| "mobile.notifications.category.completion_placeholder"
+	| "mobile.notifications.category.completion_summary"
+	| "mobile.notifications.category.digest_placeholder"
+	| "mobile.notifications.category.digest_summary"
+	| "mobile.notifications.category.message_placeholder"
+	| "mobile.notifications.category.message_summary"
 	| "mobile.notifications.channel.airy_whistle"
 	| "mobile.notifications.channel.bubble_chord"
 	| "mobile.notifications.channel.bubble_pulse"
@@ -1355,6 +1361,12 @@ export type NoParamKey =
 	| "mobile.library.title"
 	| "mobile.notifications.answer"
 	| "mobile.notifications.back"
+	| "mobile.notifications.category.completion_placeholder"
+	| "mobile.notifications.category.completion_summary"
+	| "mobile.notifications.category.digest_placeholder"
+	| "mobile.notifications.category.digest_summary"
+	| "mobile.notifications.category.message_placeholder"
+	| "mobile.notifications.category.message_summary"
 	| "mobile.notifications.channel.airy_whistle"
 	| "mobile.notifications.channel.bubble_chord"
 	| "mobile.notifications.channel.bubble_pulse"
@@ -2261,6 +2273,12 @@ export type MessageParams = {
 	"mobile.library.title": NoParams;
 	"mobile.notifications.answer": NoParams;
 	"mobile.notifications.back": NoParams;
+	"mobile.notifications.category.completion_placeholder": NoParams;
+	"mobile.notifications.category.completion_summary": NoParams;
+	"mobile.notifications.category.digest_placeholder": NoParams;
+	"mobile.notifications.category.digest_summary": NoParams;
+	"mobile.notifications.category.message_placeholder": NoParams;
+	"mobile.notifications.category.message_summary": NoParams;
 	"mobile.notifications.channel.airy_whistle": NoParams;
 	"mobile.notifications.channel.bubble_chord": NoParams;
 	"mobile.notifications.channel.bubble_pulse": NoParams;
@@ -3289,6 +3307,12 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.library.title": "Library",
 	"mobile.notifications.answer": "Answer",
 	"mobile.notifications.back": "Back",
+	"mobile.notifications.category.completion_placeholder": "Agent update",
+	"mobile.notifications.category.completion_summary": "%u more from your agents",
+	"mobile.notifications.category.digest_placeholder": "Digest",
+	"mobile.notifications.category.digest_summary": "%u more from your digest",
+	"mobile.notifications.category.message_placeholder": "Team Bridge message",
+	"mobile.notifications.category.message_summary": "%u more from Team Bridge",
 	"mobile.notifications.channel.airy_whistle": "Airy whistle",
 	"mobile.notifications.channel.bubble_chord": "Bubble chord",
 	"mobile.notifications.channel.bubble_pulse": "Bubble pulse",
@@ -4302,6 +4326,12 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.library.title": { role: "heading", note: "Title of the Library screens (the list and the single-asset view). 'Library' is the name of the feature that catalogues files and images from the user's conversations, not a building or a book collection; no final full stop." },
 	"mobile.notifications.answer": { role: "button", note: "Button on an ask in the inbox list that opens it to be answered. One word, imperative." },
 	"mobile.notifications.back": { role: "button", note: "Accessibility label of the icon-only back button in the inbox header." },
+	"mobile.notifications.category.completion_placeholder": { role: "meta", note: "Generic placeholder iOS shows INSTEAD of a agent (finished-work) notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop." },
+	"mobile.notifications.category.completion_summary": { role: "meta", note: "Summary line iOS writes under a stack of grouped agent (finished-work) notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop." },
+	"mobile.notifications.category.digest_placeholder": { role: "meta", note: "Generic placeholder iOS shows INSTEAD of a digest notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop." },
+	"mobile.notifications.category.digest_summary": { role: "meta", note: "Summary line iOS writes under a stack of grouped digest notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop." },
+	"mobile.notifications.category.message_placeholder": { role: "meta", note: "Generic placeholder iOS shows INSTEAD of a Team Bridge message notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop." },
+	"mobile.notifications.category.message_summary": { role: "meta", note: "Summary line iOS writes under a stack of grouped Team Bridge message notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop." },
 	"mobile.notifications.channel.airy_whistle": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.channel.bubble_chord": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.channel.bubble_pulse": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
@@ -5329,6 +5359,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Biblioteca",
 		"mobile.notifications.answer": "Responder",
 		"mobile.notifications.back": "Atrás",
+		"mobile.notifications.category.completion_placeholder": "Novedad del agente",
+		"mobile.notifications.category.completion_summary": "%u más de tus agentes",
+		"mobile.notifications.category.digest_placeholder": "Resumen",
+		"mobile.notifications.category.digest_summary": "%u más de tu resumen",
+		"mobile.notifications.category.message_placeholder": "Mensaje de Team Bridge",
+		"mobile.notifications.category.message_summary": "%u más de Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Silbido etéreo",
 		"mobile.notifications.channel.bubble_chord": "Acorde de burbujas",
 		"mobile.notifications.channel.bubble_pulse": "Pulso de burbuja",
@@ -6340,6 +6376,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Bibliothèque",
 		"mobile.notifications.answer": "Répondre",
 		"mobile.notifications.back": "Retour",
+		"mobile.notifications.category.completion_placeholder": "Mise à jour d'agent",
+		"mobile.notifications.category.completion_summary": "%u de plus de vos agents",
+		"mobile.notifications.category.digest_placeholder": "Résumé",
+		"mobile.notifications.category.digest_summary": "%u de plus de votre résumé",
+		"mobile.notifications.category.message_placeholder": "Message Team Bridge",
+		"mobile.notifications.category.message_summary": "%u de plus de Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Sifflement léger",
 		"mobile.notifications.channel.bubble_chord": "Accord de bulles",
 		"mobile.notifications.channel.bubble_pulse": "Bulle brève",
@@ -7351,6 +7393,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "लाइब्रेरी",
 		"mobile.notifications.answer": "उत्तर दें",
 		"mobile.notifications.back": "वापस",
+		"mobile.notifications.category.completion_placeholder": "एजेंट अपडेट",
+		"mobile.notifications.category.completion_summary": "आपके एजेंटों से %u और",
+		"mobile.notifications.category.digest_placeholder": "सारांश",
+		"mobile.notifications.category.digest_summary": "आपके सारांश से %u और",
+		"mobile.notifications.category.message_placeholder": "Team Bridge संदेश",
+		"mobile.notifications.category.message_summary": "Team Bridge से %u और",
 		"mobile.notifications.channel.airy_whistle": "हल्की सीटी",
 		"mobile.notifications.channel.bubble_chord": "बुलबुलों का सुर",
 		"mobile.notifications.channel.bubble_pulse": "बुलबुले की धड़कन",
@@ -8362,6 +8410,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Библиотека",
 		"mobile.notifications.answer": "Ответить",
 		"mobile.notifications.back": "Назад",
+		"mobile.notifications.category.completion_placeholder": "Обновление агента",
+		"mobile.notifications.category.completion_summary": "Ещё %u от ваших агентов",
+		"mobile.notifications.category.digest_placeholder": "Сводка",
+		"mobile.notifications.category.digest_summary": "Ещё %u из вашей сводки",
+		"mobile.notifications.category.message_placeholder": "Сообщение Team Bridge",
+		"mobile.notifications.category.message_summary": "Ещё %u из Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Лёгкий свист",
 		"mobile.notifications.channel.bubble_chord": "Аккорд пузырьков",
 		"mobile.notifications.channel.bubble_pulse": "Пузырьковый импульс",
@@ -9373,6 +9427,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "لائبریری",
 		"mobile.notifications.answer": "جواب دیں",
 		"mobile.notifications.back": "واپس",
+		"mobile.notifications.category.completion_placeholder": "ایجنٹ اپڈیٹ",
+		"mobile.notifications.category.completion_summary": "آپ کے ایجنٹس سے مزید %u",
+		"mobile.notifications.category.digest_placeholder": "خلاصہ",
+		"mobile.notifications.category.digest_summary": "آپ کے خلاصے سے مزید %u",
+		"mobile.notifications.category.message_placeholder": "Team Bridge پیغام",
+		"mobile.notifications.category.message_summary": "Team Bridge سے مزید %u",
 		"mobile.notifications.channel.airy_whistle": "ہلکی سیٹی",
 		"mobile.notifications.channel.bubble_chord": "بلبلوں کا سُر",
 		"mobile.notifications.channel.bubble_pulse": "بلبلے کی دھڑکن",
@@ -10384,6 +10444,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Thư viện",
 		"mobile.notifications.answer": "Trả lời",
 		"mobile.notifications.back": "Quay lại",
+		"mobile.notifications.category.completion_placeholder": "Cập nhật agent",
+		"mobile.notifications.category.completion_summary": "Thêm %u từ các agent của bạn",
+		"mobile.notifications.category.digest_placeholder": "Bản tóm tắt",
+		"mobile.notifications.category.digest_summary": "Thêm %u từ bản tóm tắt của bạn",
+		"mobile.notifications.category.message_placeholder": "Tin nhắn Team Bridge",
+		"mobile.notifications.category.message_summary": "Thêm %u từ Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Tiếng huýt nhẹ",
 		"mobile.notifications.channel.bubble_chord": "Hợp âm bong bóng",
 		"mobile.notifications.channel.bubble_pulse": "Nhịp bong bóng",
@@ -11395,6 +11461,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "资料库",
 		"mobile.notifications.answer": "回答",
 		"mobile.notifications.back": "返回",
+		"mobile.notifications.category.completion_placeholder": "智能体更新",
+		"mobile.notifications.category.completion_summary": "另有 %u 条来自你的智能体",
+		"mobile.notifications.category.digest_placeholder": "摘要",
+		"mobile.notifications.category.digest_summary": "另有 %u 条来自你的摘要",
+		"mobile.notifications.category.message_placeholder": "Team Bridge 消息",
+		"mobile.notifications.category.message_summary": "另有 %u 条来自 Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "轻盈口哨",
 		"mobile.notifications.channel.bubble_chord": "气泡和弦",
 		"mobile.notifications.channel.bubble_pulse": "气泡脉冲",
