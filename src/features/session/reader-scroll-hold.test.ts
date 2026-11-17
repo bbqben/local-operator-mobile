@@ -153,6 +153,20 @@ describe("reader scroll hold, web", () => {
 		r.hold.webHandlers.onPointerMove?.();
 		expect(r.hold.active).toBe(false);
 	});
+	it("touch holds through capture events; its pointercancel is ignored (R2-M1)", () => {
+		const r = harness(true);
+		const touch = { pointerType: "touch" };
+		r.hold.webHandlers.onTouchStartCapture?.();
+		r.hold.webHandlers.onPointerDown?.(touch);
+		r.hold.webHandlers.onTouchMoveCapture?.();
+		r.hold.webHandlers.onPointerCancel?.(touch); // the browser takes the pan
+		r.advance(300);
+		expect(r.hold.active).toBe(true);
+		r.hold.webHandlers.onTouchCancelCapture?.();
+		r.advance(WEB_IDLE_MS);
+		expect(r.hold.active).toBe(false);
+		expect(r.onRest).toHaveBeenCalledOnce();
+	});
 	it("pointercancel releases like pointerup", () => {
 		const r = harness(true);
 		r.hold.webHandlers.onPointerDown?.();

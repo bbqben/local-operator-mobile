@@ -814,6 +814,27 @@ describe("a reader's drag is never fought (TestFlight 1139)", () => {
 		r.advanceClock(WEB_IDLE_MS);
 		expect(r.v.held).toBe(false);
 	});
+	it("web: a touch pan survives the browser's pointercancel (R2-M1 / Q2-1)", () => {
+		const r = openLong(true);
+		r.moves.mockClear();
+		const touch = { pointerType: "touch" };
+		// The browser's real order for a touch pan: touchstart and pointerdown,
+		// a move, then pointercancel once it takes over the gesture to scroll.
+		r.h.onTouchStartCapture?.();
+		r.h.onPointerDown?.(touch);
+		r.h.onTouchMoveCapture?.();
+		r.h.onPointerMove?.(touch);
+		r.h.onPointerCancel?.(touch);
+		r.scrollTo(r.y - 10);
+		r.advanceClock(300); // the finger rests on the glass
+		r.grow(2760);
+		r.v.dataChanged();
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.v.held).toBe(true);
+		r.h.onTouchEndCapture?.();
+		r.advanceClock(WEB_IDLE_MS);
+		expect(r.v.held).toBe(false);
+	});
 	it("only messages newer than the reader's departure raise the pill (m1)", () => {
 		const r = openLong(false);
 		// Leaving the tail without a gesture (screen reader / scrollbar).

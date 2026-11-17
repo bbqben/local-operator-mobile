@@ -2132,7 +2132,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * hold, current-geometry tail at rest, web hold in the agent transcript).
 	 * Re-derived with --print over the staged tree; source admission only,
 	 * NOT rendered, native or device evidence. */
-	src: "da599933e2d4d00dec29164eb2cb7ce88c298d7ff022a8df7ddbadc70f97203c",
+	/* PR #289 round-2 remediation: web touch holds via touch capture events,
+	 * and a touch pointercancel is ignored. Re-derived with --print over the
+	 * staged tree; source admission only, NOT rendered, native or device
+	 * evidence. */
+	src: "d227769f6ff8520adac156ca6907464ce18f08934ab300a0260a5b6a2ce224ac",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

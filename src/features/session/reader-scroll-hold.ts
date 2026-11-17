@@ -20,13 +20,16 @@
  *   (`onMomentumScrollBegin`) holds. The hold rests on `onMomentumScrollEnd`,
  *   or DRAG_RELEASE_MS after `onScrollEndDrag` when no glide began.
  * - Web has no drag/momentum events. A wheel or scroll key holds until the
- *   list has been idle for WEB_IDLE_MS. A pointer (mouse, pen or TOUCH —
- *   browsers raise pointer events for touch too, so the touch props stay the
- *   text-selection wiring's) holds for as long as it is down, and rests
- *   WEB_IDLE_MS after it lifts (PR #289 M2: a finger resting mid-drag must not
- *   time out). A lost `pointerup` (released outside the window) cannot pin the
- *   hold forever: while down, the hold is renewed by pointer moves and scroll
- *   events, and otherwise rests after WEB_DOWN_SAFETY_MS.
+ *   list has been idle for WEB_IDLE_MS. A mouse or pen pointer, and a touch,
+ *   hold for as long as they are down, and rest WEB_IDLE_MS after they lift
+ *   (PR #289 M2: a finger resting mid-drag must not time out). TOUCH is held
+ *   through the touch CAPTURE events, not pointer events (R2-M1 / Q2-1): when
+ *   a touch pan starts, the browser takes the gesture over for native
+ *   scrolling and fires `pointercancel`, so a pointer-based hold dropped while
+ *   the finger was still on the glass. Capture props leave `onTouchStart` the
+ *   text-selection wiring's own. A lost up event cannot pin the hold forever:
+ *   while down, moves and scroll events renew it, and otherwise it rests after
+ *   WEB_DOWN_SAFETY_MS.
  */
 
 /**
@@ -91,12 +94,20 @@ export const isScrollKey = (event: KeyIntentEvent) =>
 	SCROLL_KEYS.has(event.key) && !fromControl(event);
 
 /** Web scroll-intent handlers; every one is absent on native. */
+/** The part of a DOM pointer event the hold reads. */
+export type PointerIntentEvent = { pointerType?: string };
+const isTouch = (event?: PointerIntentEvent) => event?.pointerType === "touch";
+
 export type ReaderScrollWebHandlers = Partial<{
 	onWheel: () => void;
-	onPointerDown: () => void;
-	onPointerMove: () => void;
-	onPointerUp: () => void;
-	onPointerCancel: () => void;
+	onPointerDown: (event?: PointerIntentEvent) => void;
+	onPointerMove: (event?: PointerIntentEvent) => void;
+	onPointerUp: (event?: PointerIntentEvent) => void;
+	onPointerCancel: (event?: PointerIntentEvent) => void;
+	onTouchStartCapture: () => void;
+	onTouchMoveCapture: () => void;
+	onTouchEndCapture: () => void;
+	onTouchCancelCapture: () => void;
 	onKeyDown: (event: KeyIntentEvent) => void;
 }>;
 
@@ -123,7 +134,11 @@ export function createReaderScrollHold(options: ReaderScrollHoldOptions) {
 	const schedule = options.schedule ?? timeout;
 	let active = false;
 	let momentum = false;
-	let down = false;
+	/** A mouse/pen pointer is down. */
+	let pointerDown = false;
+	/** A finger is on the list (touch capture events). */
+	let touching = false;
+	const isDown = () => pointerDown || touching;
 	let release: (() => void) | null = null;
 	const cancelRelease = () => {
 		release?.();
@@ -135,7 +150,8 @@ export function createReaderScrollHold(options: ReaderScrollHoldOptions) {
 	};
 	const rest = () => {
 		cancelRelease();
-		down = false;
+		pointerDown = false;
+		touching = false;
 		if (!active) return;
 		active = false;
 		momentum = false;
@@ -146,10 +162,17 @@ export function createReaderScrollHold(options: ReaderScrollHoldOptions) {
 		active = true;
 		options.onBegin?.();
 	};
+	const press = () => {
+		begin();
+		arm(WEB_DOWN_SAFETY_MS);
+	};
+	const lift = () => {
+		if (active && !isDown()) arm(WEB_IDLE_MS);
+	};
 	/** Web wheel / key / scrollbar: held until idle (or until a lift). */
 	const nudge = () => {
 		begin();
-		arm(down ? WEB_DOWN_SAFETY_MS : WEB_IDLE_MS);
+		arm(isDown() ? WEB_DOWN_SAFETY_MS : WEB_IDLE_MS);
 	};
 	return {
 		get active() {
@@ -162,7 +185,7 @@ export function createReaderScrollHold(options: ReaderScrollHoldOptions) {
 			// M1 / Q1-1).
 			momentum = false;
 			// Web may raise a begin-drag with no end/momentum after it.
-			if (options.web) arm(down ? WEB_DOWN_SAFETY_MS : WEB_IDLE_MS);
+			if (options.web) arm(isDown() ? WEB_DOWN_SAFETY_MS : WEB_IDLE_MS);
 		},
 		endDrag() {
 			if (!active || momentum) return;
@@ -180,31 +203,50 @@ export function createReaderScrollHold(options: ReaderScrollHoldOptions) {
 		 */
 		scrolled() {
 			if (!active || !options.web) return;
-			arm(down ? WEB_DOWN_SAFETY_MS : WEB_IDLE_MS);
+			arm(isDown() ? WEB_DOWN_SAFETY_MS : WEB_IDLE_MS);
 		},
 		/** Spread onto the list on web (empty on native). */
 		webHandlers: (options.web
 			? {
 					onWheel: nudge,
-					onPointerDown: () => {
-						begin();
-						down = true;
-						arm(WEB_DOWN_SAFETY_MS);
+					// Mouse and pen only: touch is held by the capture events below,
+					// and its `pointercancel` at pan start is the browser, not a lift.
+					onPointerDown: (event?: PointerIntentEvent) => {
+						if (isTouch(event)) return;
+						pointerDown = true;
+						press();
 					},
-					onPointerMove: () => {
-						if (!down) return;
-						begin();
-						arm(WEB_DOWN_SAFETY_MS);
+					onPointerMove: (event?: PointerIntentEvent) => {
+						if (isTouch(event) || !pointerDown) return;
+						press();
 					},
-					onPointerUp: () => {
-						if (!down) return;
-						down = false;
-						if (active) arm(WEB_IDLE_MS);
+					onPointerUp: (event?: PointerIntentEvent) => {
+						if (isTouch(event) || !pointerDown) return;
+						pointerDown = false;
+						lift();
 					},
-					onPointerCancel: () => {
-						if (!down) return;
-						down = false;
-						if (active) arm(WEB_IDLE_MS);
+					onPointerCancel: (event?: PointerIntentEvent) => {
+						if (isTouch(event) || !pointerDown) return;
+						pointerDown = false;
+						lift();
+					},
+					onTouchStartCapture: () => {
+						touching = true;
+						press();
+					},
+					onTouchMoveCapture: () => {
+						if (!touching) return;
+						press();
+					},
+					onTouchEndCapture: () => {
+						if (!touching) return;
+						touching = false;
+						lift();
+					},
+					onTouchCancelCapture: () => {
+						if (!touching) return;
+						touching = false;
+						lift();
 					},
 					onKeyDown: (event: KeyIntentEvent) => {
 						if (isScrollKey(event)) nudge();
@@ -216,7 +258,8 @@ export function createReaderScrollHold(options: ReaderScrollHoldOptions) {
 			cancelRelease();
 			active = false;
 			momentum = false;
-			down = false;
+			pointerDown = false;
+			touching = false;
 		},
 	};
 }
