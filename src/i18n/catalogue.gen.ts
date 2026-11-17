@@ -979,6 +979,15 @@ export type CatalogueKey =
 	| "mobile.team_bridge.profile.open"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reply_thread.count"
+	| "mobile.team_bridge.reply_thread.empty"
+	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.loading"
+	| "mobile.team_bridge.reply_thread.open"
+	| "mobile.team_bridge.reply_thread.open_unread"
+	| "mobile.team_bridge.reply_thread.reply"
+	| "mobile.team_bridge.reply_thread.retry"
+	| "mobile.team_bridge.reply_thread.title"
 	| "mobile.team_bridge.retry"
 	| "mobile.team_bridge.thread.access_retry"
 	| "mobile.team_bridge.thread.anchor_missing"
@@ -1893,6 +1902,12 @@ export type NoParamKey =
 	| "mobile.team_bridge.profile.message"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reply_thread.empty"
+	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.loading"
+	| "mobile.team_bridge.reply_thread.reply"
+	| "mobile.team_bridge.reply_thread.retry"
+	| "mobile.team_bridge.reply_thread.title"
 	| "mobile.team_bridge.retry"
 	| "mobile.team_bridge.thread.access_retry"
 	| "mobile.team_bridge.thread.anchor_missing"
@@ -2930,6 +2945,15 @@ export type MessageParams = {
 	"mobile.team_bridge.profile.open": { name: string | number };
 	"mobile.team_bridge.profile.opens_hint": NoParams;
 	"mobile.team_bridge.profile.title": NoParams;
+	"mobile.team_bridge.reply_thread.count": { count: number };
+	"mobile.team_bridge.reply_thread.empty": NoParams;
+	"mobile.team_bridge.reply_thread.error": NoParams;
+	"mobile.team_bridge.reply_thread.loading": NoParams;
+	"mobile.team_bridge.reply_thread.open": { count: number };
+	"mobile.team_bridge.reply_thread.open_unread": { count: number; unread: number };
+	"mobile.team_bridge.reply_thread.reply": NoParams;
+	"mobile.team_bridge.reply_thread.retry": NoParams;
+	"mobile.team_bridge.reply_thread.title": NoParams;
 	"mobile.team_bridge.retry": NoParams;
 	"mobile.team_bridge.thread.access_retry": NoParams;
 	"mobile.team_bridge.thread.anchor_missing": NoParams;
@@ -4009,6 +4033,15 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.profile.open": "View profile for {name}",
 	"mobile.team_bridge.profile.opens_hint": "Opens their profile",
 	"mobile.team_bridge.profile.title": "Profile",
+	"mobile.team_bridge.reply_thread.count": "{count, plural, one {# reply} other {# replies}}",
+	"mobile.team_bridge.reply_thread.empty": "No replies yet.",
+	"mobile.team_bridge.reply_thread.error": "This thread couldn't be loaded.",
+	"mobile.team_bridge.reply_thread.loading": "Loading thread…",
+	"mobile.team_bridge.reply_thread.open": "Open thread, {count, plural, one {# reply} other {# replies}}",
+	"mobile.team_bridge.reply_thread.open_unread": "Open thread, {count, plural, one {# reply} other {# replies}}, {unread, plural, one {# unread} other {# unread}}",
+	"mobile.team_bridge.reply_thread.reply": "Reply",
+	"mobile.team_bridge.reply_thread.retry": "Retry thread",
+	"mobile.team_bridge.reply_thread.title": "Thread",
 	"mobile.team_bridge.retry": "Retry",
 	"mobile.team_bridge.thread.access_retry": "Retry access",
 	"mobile.team_bridge.thread.anchor_missing": "That message is no longer available.",
@@ -5073,6 +5106,15 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.profile.open": { role: "button", note: "Accessibility label for the person or software-agent mark that opens its profile. {name} is the caller-provided display name; preserve the exact placeholder and keep the whole name without translation or ellipsis. This opens a profile, not a conversation." },
 	"mobile.team_bridge.profile.opens_hint": { role: "help", note: "Accessibility hint on a person or software-agent mark: activating it opens their profile. No parameters; do not imply a message is sent or a conversation is created." },
 	"mobile.team_bridge.profile.title": { role: "heading", note: "Profile sheet title for either a person or software agent, not their user-provided job title. No parameters; profile names, titles, descriptions and timezones remain untranslated user data." },
+	"mobile.team_bridge.reply_thread.count": { role: "meta", note: "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}." },
+	"mobile.team_bridge.reply_thread.empty": { role: "status", note: "A reply thread whose root message has no replies left to show." },
+	"mobile.team_bridge.reply_thread.error": { role: "status", note: "Shown when a reply thread could not be read from Radient; a retry button follows." },
+	"mobile.team_bridge.reply_thread.loading": { role: "status", note: "Shown while a reply thread loads." },
+	"mobile.team_bridge.reply_thread.open": { role: "button", note: "Accessible name of the control that opens a message's reply thread (Slack-style threads). Preserve {count}. 'Thread' means replies under one message, not the whole conversation." },
+	"mobile.team_bridge.reply_thread.open_unread": { role: "button", note: "Same control when some replies are unread by this reader. Preserve {count} and {unread}." },
+	"mobile.team_bridge.reply_thread.reply": { role: "button", note: "Composer label and placeholder for replying inside a thread. A verb: write a reply." },
+	"mobile.team_bridge.reply_thread.retry": { role: "button", note: "Retries loading a reply thread." },
+	"mobile.team_bridge.reply_thread.title": { role: "heading", note: "Screen title for one message's reply thread (the message and its replies). Not the whole conversation." },
 	"mobile.team_bridge.retry": { role: "button", note: "Team Bridge mobile UI: retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.thread.access_retry": { role: "button", note: "Team Bridge mobile UI: thread / access retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.thread.anchor_missing": { role: "status", note: "Team Bridge mobile UI: thread / anchor missing. Shown once, briefly, when a notification or link pointed at one message that was deleted or can no longer be seen; the thread is shown at its newest messages instead. Not shown when the message simply could not be loaded." },
@@ -6151,6 +6193,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Ver el perfil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Abre su perfil",
 		"mobile.team_bridge.profile.title": "Perfil",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# respuesta} other {# respuestas}}",
+		"mobile.team_bridge.reply_thread.empty": "Aún no hay respuestas.",
+		"mobile.team_bridge.reply_thread.error": "No se pudo cargar este hilo.",
+		"mobile.team_bridge.reply_thread.loading": "Cargando hilo…",
+		"mobile.team_bridge.reply_thread.open": "Abrir hilo, {count, plural, one {# respuesta} other {# respuestas}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Abrir hilo, {count, plural, one {# respuesta} other {# respuestas}}, {unread, plural, one {# sin leer} other {# sin leer}}",
+		"mobile.team_bridge.reply_thread.reply": "Responder",
+		"mobile.team_bridge.reply_thread.retry": "Reintentar hilo",
+		"mobile.team_bridge.reply_thread.title": "Hilo",
 		"mobile.team_bridge.retry": "Reintentar",
 		"mobile.team_bridge.thread.access_retry": "Reintentar acceso",
 		"mobile.team_bridge.thread.anchor_missing": "Ese mensaje ya no está disponible.",
@@ -7213,6 +7264,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Voir le profil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Ouvre son profil",
 		"mobile.team_bridge.profile.title": "Profil",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# réponse} other {# réponses}}",
+		"mobile.team_bridge.reply_thread.empty": "Aucune réponse pour l’instant.",
+		"mobile.team_bridge.reply_thread.error": "Impossible de charger ce fil.",
+		"mobile.team_bridge.reply_thread.loading": "Chargement du fil…",
+		"mobile.team_bridge.reply_thread.open": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}, {unread, plural, one {# non lue} other {# non lues}}",
+		"mobile.team_bridge.reply_thread.reply": "Répondre",
+		"mobile.team_bridge.reply_thread.retry": "Réessayer le fil",
+		"mobile.team_bridge.reply_thread.title": "Fil",
 		"mobile.team_bridge.retry": "Réessayer",
 		"mobile.team_bridge.thread.access_retry": "Réessayer l’accès",
 		"mobile.team_bridge.thread.anchor_missing": "Ce message n’est plus disponible.",
@@ -8275,6 +8335,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} की प्रोफ़ाइल देखें",
 		"mobile.team_bridge.profile.opens_hint": "उनकी प्रोफ़ाइल खोलता है",
 		"mobile.team_bridge.profile.title": "प्रोफ़ाइल",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# जवाब} other {# जवाब}}",
+		"mobile.team_bridge.reply_thread.empty": "अभी तक कोई जवाब नहीं।",
+		"mobile.team_bridge.reply_thread.error": "यह थ्रेड लोड नहीं हो सका।",
+		"mobile.team_bridge.reply_thread.loading": "थ्रेड लोड हो रहा है…",
+		"mobile.team_bridge.reply_thread.open": "थ्रेड खोलें, {count, plural, one {# जवाब} other {# जवाब}}",
+		"mobile.team_bridge.reply_thread.open_unread": "थ्रेड खोलें, {count, plural, one {# जवाब} other {# जवाब}}, {unread, plural, one {# अपठित} other {# अपठित}}",
+		"mobile.team_bridge.reply_thread.reply": "जवाब दें",
+		"mobile.team_bridge.reply_thread.retry": "थ्रेड फिर से लोड करें",
+		"mobile.team_bridge.reply_thread.title": "थ्रेड",
 		"mobile.team_bridge.retry": "फिर कोशिश करें",
 		"mobile.team_bridge.thread.access_retry": "पहुँच की फिर कोशिश करें",
 		"mobile.team_bridge.thread.anchor_missing": "वह संदेश अब उपलब्ध नहीं है।",
@@ -9337,6 +9406,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Посмотреть профиль: {name}",
 		"mobile.team_bridge.profile.opens_hint": "Открывает профиль",
 		"mobile.team_bridge.profile.title": "Профиль",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+		"mobile.team_bridge.reply_thread.empty": "Ответов пока нет.",
+		"mobile.team_bridge.reply_thread.error": "Не удалось загрузить эту ветку.",
+		"mobile.team_bridge.reply_thread.loading": "Загрузка ветки…",
+		"mobile.team_bridge.reply_thread.open": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}, {unread, plural, one {# непрочитанный} few {# непрочитанных} many {# непрочитанных} other {# непрочитанных}}",
+		"mobile.team_bridge.reply_thread.reply": "Ответить",
+		"mobile.team_bridge.reply_thread.retry": "Повторить загрузку ветки",
+		"mobile.team_bridge.reply_thread.title": "Ветка",
 		"mobile.team_bridge.retry": "Повторить",
 		"mobile.team_bridge.thread.access_retry": "Повторить проверку доступа",
 		"mobile.team_bridge.thread.anchor_missing": "Это сообщение больше недоступно.",
@@ -10399,6 +10477,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} کی پروفائل دیکھیں",
 		"mobile.team_bridge.profile.opens_hint": "ان کی پروفائل کھولتا ہے",
 		"mobile.team_bridge.profile.title": "پروفائل",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# جواب} other {# جوابات}}",
+		"mobile.team_bridge.reply_thread.empty": "ابھی تک کوئی جواب نہیں۔",
+		"mobile.team_bridge.reply_thread.error": "یہ تھریڈ لوڈ نہیں ہو سکا۔",
+		"mobile.team_bridge.reply_thread.loading": "تھریڈ لوڈ ہو رہا ہے…",
+		"mobile.team_bridge.reply_thread.open": "تھریڈ کھولیں، {count, plural, one {# جواب} other {# جوابات}}",
+		"mobile.team_bridge.reply_thread.open_unread": "تھریڈ کھولیں، {count, plural, one {# جواب} other {# جوابات}}، {unread, plural, one {# نا پڑھا گیا} other {# نا پڑھے گئے}}",
+		"mobile.team_bridge.reply_thread.reply": "جواب دیں",
+		"mobile.team_bridge.reply_thread.retry": "تھریڈ دوبارہ لوڈ کریں",
+		"mobile.team_bridge.reply_thread.title": "تھریڈ",
 		"mobile.team_bridge.retry": "دوبارہ کوشش کریں",
 		"mobile.team_bridge.thread.access_retry": "رسائی کی دوبارہ کوشش کریں",
 		"mobile.team_bridge.thread.anchor_missing": "وہ پیغام اب دستیاب نہیں ہے۔",
@@ -11461,6 +11548,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Xem hồ sơ của {name}",
 		"mobile.team_bridge.profile.opens_hint": "Mở hồ sơ của họ",
 		"mobile.team_bridge.profile.title": "Hồ sơ",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# phản hồi}}",
+		"mobile.team_bridge.reply_thread.empty": "Chưa có phản hồi nào.",
+		"mobile.team_bridge.reply_thread.error": "Không thể tải chuỗi này.",
+		"mobile.team_bridge.reply_thread.loading": "Đang tải chuỗi…",
+		"mobile.team_bridge.reply_thread.open": "Mở chuỗi, {count, plural, other {# phản hồi}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Mở chuỗi, {count, plural, other {# phản hồi}}, {unread, plural, other {# chưa đọc}}",
+		"mobile.team_bridge.reply_thread.reply": "Trả lời",
+		"mobile.team_bridge.reply_thread.retry": "Thử tải lại chuỗi",
+		"mobile.team_bridge.reply_thread.title": "Chuỗi",
 		"mobile.team_bridge.retry": "Thử lại",
 		"mobile.team_bridge.thread.access_retry": "Thử truy cập lại",
 		"mobile.team_bridge.thread.anchor_missing": "Tin nhắn đó không còn khả dụng.",
@@ -12523,6 +12619,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "查看{name}的个人资料",
 		"mobile.team_bridge.profile.opens_hint": "打开其个人资料",
 		"mobile.team_bridge.profile.title": "个人资料",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# 条回复}}",
+		"mobile.team_bridge.reply_thread.empty": "还没有回复。",
+		"mobile.team_bridge.reply_thread.error": "无法加载此话题。",
+		"mobile.team_bridge.reply_thread.loading": "正在加载话题…",
+		"mobile.team_bridge.reply_thread.open": "打开话题，{count, plural, other {# 条回复}}",
+		"mobile.team_bridge.reply_thread.open_unread": "打开话题，{count, plural, other {# 条回复}}，{unread, plural, other {# 条未读}}",
+		"mobile.team_bridge.reply_thread.reply": "回复",
+		"mobile.team_bridge.reply_thread.retry": "重新加载话题",
+		"mobile.team_bridge.reply_thread.title": "话题",
 		"mobile.team_bridge.retry": "重试",
 		"mobile.team_bridge.thread.access_retry": "重试访问",
 		"mobile.team_bridge.thread.anchor_missing": "该消息已不可用。",

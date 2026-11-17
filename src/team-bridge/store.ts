@@ -47,7 +47,15 @@ import {
 	organizationsFrom,
 	preferredOrganization,
 	type StatusRead,
+	sameValue,
 } from "@/team-bridge/model";
+import {
+	isReplyThreadPageFor,
+	type ReplyThreadTarget,
+	replyThreadKey,
+	rootAfterThreadRead,
+	withRoot,
+} from "@/team-bridge/reply-threads";
 import { clearTeamBridgeDrafts } from "@/team-bridge/thread-drafts";
 
 export type LoadState = "idle" | "loading" | "ready" | "error";
@@ -71,6 +79,18 @@ export interface ThreadData {
 	hasMore: boolean;
 	loadingOlder: boolean;
 	olderError: HubError | null;
+}
+
+/**
+ * One REPLY thread (`reply-threads.ts`): its root as the hub last served it and
+ * its replies oldest-first. Bodies, so it lives beside `threads` and resets
+ * with it on sign-out.
+ */
+export interface ReplyThreadData {
+	root: Message | null;
+	replies: Message[];
+	state: LoadState;
+	error: HubError | null;
 }
 
 export interface TeamBridgeState {
@@ -115,6 +135,8 @@ export interface TeamBridgeState {
 	attachments: AttachmentLimits | null;
 	orgs: Record<string, OrgData>;
 	threads: Record<string, ThreadData>;
+	/** Reply threads, keyed by `replyThreadKey`. */
+	replyThreads: Record<string, ReplyThreadData>;
 	/** The consent the status read served (eligible callers only). Held for the default-on notice's text. */
 	servedConsent: StatusConsent | null;
 	/** The notice to show for the selected organization, or null. Never set before dismissal was read. */
@@ -167,11 +189,27 @@ export const initialTeamBridgeState = (): TeamBridgeState => ({
 	attachments: null,
 	orgs: {},
 	threads: {},
+	replyThreads: {},
 	servedConsent: null,
 	defaultOnNotice: null,
 	defaultOnNoticeError: null,
 	defaultOnNoticeBusy: false,
 });
+
+const emptyReplyThread = (): ReplyThreadData => ({
+	root: null,
+	replies: [],
+	state: "idle",
+	error: null,
+});
+
+/**
+ * How many reply pages one load follows. The hub pages at 50 (max 100); ten
+ * pages is 500 replies, beyond any thread observed on the desktop. A thread
+ * still `has_more` after that shows what it holds rather than looping on a
+ * hub that never stops paging.
+ */
+export const REPLY_PAGE_LIMIT = 10;
 
 /** A history page this size; the hub clamps it anyway. */
 export const PAGE_SIZE = 50;
@@ -261,6 +299,62 @@ export function createTeamBridgeStore(deps: {
 				[tenantId]: { ...(s.orgs[tenantId] ?? emptyOrg()), ...change },
 			},
 		}));
+	}
+
+	function patchReplyThread(
+		key: string,
+		change: Partial<ReplyThreadData>,
+	): void {
+		store.setState((s) => ({
+			replyThreads: {
+				...s.replyThreads,
+				[key]: { ...(s.replyThreads[key] ?? emptyReplyThread()), ...change },
+			},
+		}));
+	}
+
+	/**
+	 * Put the hub's newest copy of a root wherever it is held: the open
+	 * conversation's timeline (so its row's count and badge move) and the reply
+	 * thread itself. `change` maps the HELD root; it never invents one.
+	 */
+	function patchRoot(
+		target: ReplyThreadTarget,
+		change: (root: Message) => Message,
+	): void {
+		store.setState((s) => {
+			const conversationKey = threadKey(target.tenantId, target.conversationId);
+			const held = s.threads[conversationKey];
+			const heldRoot = held?.messages.find((m) => m.id === target.rootId);
+			const replyKey = replyThreadKey(target);
+			const reply = s.replyThreads[replyKey];
+			const nextThreads =
+				held && heldRoot
+					? withRoot(held.messages, change(heldRoot), sameValue)
+					: held?.messages;
+			const nextReplyRoot = reply?.root ? change(reply.root) : reply?.root;
+			const threadsChanged = !!held && nextThreads !== held.messages;
+			const replyChanged = !!reply && nextReplyRoot !== reply.root;
+			if (!threadsChanged && !replyChanged) return s;
+			return {
+				...(threadsChanged && held && nextThreads
+					? {
+							threads: {
+								...s.threads,
+								[conversationKey]: { ...held, messages: nextThreads },
+							},
+						}
+					: {}),
+				...(replyChanged && reply
+					? {
+							replyThreads: {
+								...s.replyThreads,
+								[replyKey]: { ...reply, root: nextReplyRoot ?? null },
+							},
+						}
+					: {}),
+			};
+		});
 	}
 
 	function patchThread(key: string, change: Partial<ThreadData>): void {
@@ -1048,6 +1142,162 @@ export function createTeamBridgeStore(deps: {
 				last_read_seq: Math.max(c.last_read_seq, message.seq),
 				last_message_at: message.created_at,
 			}));
+			return message;
+		},
+
+		/**
+		 * Read one reply thread from its first reply, following the hub's
+		 * inclusive `next_after_seq` cursor. The served root replaces the
+		 * timeline's copy, which is how the root row's count and unread move
+		 * without the phone counting anything itself.
+		 */
+		loadReplyThread(target: ReplyThreadTarget): Promise<void> {
+			const key = replyThreadKey(target);
+			return once(`replies:${key}`, async (owned) => {
+				const client = deps.hub();
+				if (!client) return;
+				if (store.getState().replyThreads[key]?.state !== "ready")
+					patchReplyThread(key, { state: "loading", error: null });
+				try {
+					let root: Message | null = null;
+					let replies: Message[] = [];
+					let afterSeq: number | undefined;
+					for (let page = 0; page < REPLY_PAGE_LIMIT; page += 1) {
+						const answer = await client.listReplies(
+							target.tenantId,
+							target.conversationId,
+							target.rootId,
+							{ afterSeq, limit: PAGE_SIZE },
+						);
+						if (!owned()) return;
+						if (!isReplyThreadPageFor(answer, target))
+							throw new HubError({
+								kind: "malformed",
+								message: "Radient returned a different thread.",
+							});
+						root = answer.root;
+						replies = mergeMessages(replies, answer.replies);
+						const next = answer.next_after_seq;
+						// Inclusive cursor: it must move past what we hold, or stop.
+						if (
+							!answer.has_more ||
+							next === undefined ||
+							(afterSeq !== undefined && next <= afterSeq)
+						)
+							break;
+						afterSeq = next;
+					}
+					if (!root) return;
+					const held = store.getState().replyThreads[key];
+					const merged = mergeMessages(held?.replies ?? [], replies);
+					const servedRoot = root;
+					patchReplyThread(key, {
+						root:
+							held?.root && sameValue(held.root, servedRoot)
+								? held.root
+								: servedRoot,
+						replies: merged,
+						state: "ready",
+						error: null,
+					});
+					patchRoot(target, () => servedRoot);
+				} catch (error) {
+					if (!owned()) return;
+					if (gateFailure(error)) return;
+					patchReplyThread(key, {
+						state: "error",
+						error: isHubError(error)
+							? error
+							: new HubError({
+									kind: "unreachable",
+									message: "Couldn't reach Radient.",
+								}),
+					});
+				}
+			});
+		},
+
+		/**
+		 * Advance this reader's cursor for one reply thread to `seq` (the newest
+		 * reply actually displayed). The answer's count is applied to the root
+		 * as served; the account badge is re-read, because the hub rolls a thread
+		 * read into the conversation's unread. Never throws: `false` says the
+		 * write did not land, so the screen may try again; the badge simply
+		 * stays until a read succeeds.
+		 */
+		async markReplyThreadRead(
+			target: ReplyThreadTarget,
+			seq: number,
+		): Promise<boolean> {
+			if (closed) return false;
+			const client = deps.hub();
+			if (!client) return false;
+			const epoch = generation;
+			let answer: Awaited<ReturnType<HubClient["markThreadRead"]>>;
+			try {
+				answer = await client.markThreadRead(
+					target.tenantId,
+					target.conversationId,
+					target.rootId,
+					seq,
+				);
+			} catch (error) {
+				if (!closed && epoch === generation) gateFailure(error);
+				return false;
+			}
+			if (closed || epoch !== generation) return false;
+			patchRoot(target, (root) => rootAfterThreadRead(root, answer));
+			void actions.refreshUnread();
+			return true;
+		},
+
+		/**
+		 * Reply in a thread as the reader. Idempotent on `clientRef` like a
+		 * top-level send. The stored reply joins the reply thread only: the
+		 * hub keeps replies out of the conversation timeline, and so does the
+		 * phone. The thread is then re-read so the root's count comes from the
+		 * hub. Throws a `HubError` so the composer keeps the draft.
+		 */
+		async sendReply(
+			target: ReplyThreadTarget,
+			body: string,
+			clientRef: string,
+		): Promise<Message> {
+			requireLive();
+			const gate = store.getState().gate;
+			if (gate === "plan_required" || gate === "signed_out")
+				throw new HubError({
+					kind: gate === "plan_required" ? "plan" : "sign_in",
+					message: "Team Bridge is not available for this account.",
+				});
+			const client = deps.hub();
+			if (!client)
+				throw new HubError({ kind: "sign_in", message: "Sign in to Radient." });
+			const epoch = generation;
+			let message: Message;
+			try {
+				message = await client.send(target.tenantId, target.conversationId, {
+					clientRef,
+					body,
+					threadRootId: target.rootId,
+				});
+			} catch (error) {
+				if (!closed && epoch === generation) gateFailure(error);
+				throw error;
+			}
+			if (closed || epoch !== generation)
+				throw new HubError({
+					kind: "sign_in",
+					message: "Account changed while sending.",
+				});
+			const key = replyThreadKey(target);
+			patchReplyThread(key, {
+				replies: mergeMessages(
+					store.getState().replyThreads[key]?.replies ?? [],
+					[message],
+				),
+			});
+			void actions.loadReplyThread(target);
 			return message;
 		},
 
