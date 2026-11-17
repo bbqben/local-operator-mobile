@@ -12,7 +12,7 @@
  * allowsRecording == true cannot be set on iOS") throws for
  * `setAudioModeAsync({ allowsRecording: true })`, because `playsInSilentMode`
  * defaults to false. `startRecording` swallows every failure into `null`, so on a
- * device that throw read as "the microphone did not open" right after the reader
+ * device that throw read as the "Couldn’t start recording" line right after the reader
  * granted access. A fake that accepts any mode — which is what a plain mock does —
  * cannot see it. This one is a transcription of the native check, not a proof of
  * it: the real session needs a device build (named as a QA gap in the PR).
