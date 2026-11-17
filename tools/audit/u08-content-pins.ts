@@ -2214,12 +2214,49 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
+	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
+	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
+	 * team-bridge/provider.tsx — push-token bookkeeping and hub-registration rate
+	 * discipline, no rendered component or copy changes. Re-derived with --print
+	 * over the staged tree; the other render roots printed unchanged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 merge of origin/main (2026-11-17): src re-derived with --print
+	 * over the merged tree, which carries both the #296 and #298 changes. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 round-2 remediation (R2-M1): the 429 clock-guard ceiling in
+	 * team-bridge/push.ts becomes the exact bound of the wait, plus its
+	 * regression test. No rendered component or copy changes. Re-derived with
+	 * --print over the staged tree. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
 	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
 	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
 	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
 	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
 	 * admission only, NOT rendered, native or device evidence. */
-	src: "f7ce701f26b2c133e07b73b5e85bb0b0d9a7dabe67f3d3aa4cdb15f5908fc104",
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	src: "a675670a5f2d2fb055ef90b0c93d991da92eed9394e6be83be65ce607c77e554",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

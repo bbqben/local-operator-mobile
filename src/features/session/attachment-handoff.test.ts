@@ -1,44 +1,25 @@
 import { readFileSync } from "node:fs";
-import { stripTypeScriptTypes } from "node:module";
-import { runInNewContext } from "node:vm";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createAttachmentSheetHandoff } from "./attach-handoff";
 
 const OWNER_ATTACH_FINALLY = /finally\s*\{\s*setAttaching\(false\)/;
 const CANCEL_BEFORE_REOPEN =
 	/onPress=\{\(\) => \{\s*attachmentHandoff\.cancel\(\);\s*setAttachSheetOpen\(true\);/;
+const BRIDGE_CHOOSE =
+	/setAttachOpen\(false\);\s*attachHandoff\.choose\(\(\) => \{\s*void addImages\(source\);\s*\}, Platform\.OS\);/;
+const BRIDGE_CANCEL_BEFORE_REOPEN =
+	/attachHandoff\.cancel\(\);\s*setAttachOpen\(true\);/;
+const BRIDGE_DIRECT_LAUNCH =
+	/onPress=\{\(\) => \{\s*void addImages\(source\);\s*\}\}/;
+const HOME_DISMISS_SHOWN_LINE =
+	/onDismissError=\{\s*startup\.snapshot\.error == null && composerError !== null\s*\? \(\) => setComposerError\(null\)\s*: undefined\s*\}/;
 const source = readFileSync(
 	new URL("./components/composer.tsx", import.meta.url),
 	"utf8",
 );
-// Evaluate the actual production function without importing the native renderer.
-// No duplicated policy: source wiring below pins its use at the Sheet boundary.
-const SIGNATURE = "export function createAttachmentSheetHandoff()";
-const start = source.indexOf(SIGNATURE);
-if (start < 0) throw Error("production attachment handoff missing");
-// Balanced braces, not a neighbouring comment: the chrome branch moved every
-// comment below this function, and a comment marker silently sliced the wrong
-// region when it did.
-const end = (() => {
-	let depth = 0;
-	for (let i = source.indexOf("{", start); i < source.length; i++) {
-		if (source[i] === "{") depth++;
-		else if (source[i] === "}" && --depth === 0) return i + 1;
-	}
-	return -1;
-})();
-if (end < 0) throw Error("production attachment handoff missing");
-const js = stripTypeScriptTypes(
-	source.slice(start, end).replace("export ", ""),
-);
-const create = () =>
-	runInNewContext(`${js}; createAttachmentSheetHandoff()`, {
-		setTimeout,
-		clearTimeout,
-	}) as {
-		choose(launch: () => void, platform: string): void;
-		dismissed(): void;
-		cancel(): void;
-	};
+const create = () => createAttachmentSheetHandoff();
+const read = (path: string) =>
+	readFileSync(new URL(path, import.meta.url), "utf8");
 afterEach(() => vi.useRealTimers());
 describe("native attachment sheet handoff", () => {
 	it.each(["Home", "Session"])(
@@ -77,7 +58,7 @@ describe("native attachment sheet handoff", () => {
 			expect(session).not.toContain("onAttachStart");
 		},
 	);
-	it("cancel after fallback launch cannot clear an owner's running attach before finally", () => {
+	it("cancel after a launch cannot clear an owner's running attach before finally", () => {
 		vi.useFakeTimers();
 		let busy = false;
 		const handoff = create();
@@ -85,7 +66,7 @@ describe("native attachment sheet handoff", () => {
 			busy = true;
 		});
 		handoff.choose(launch, "ios");
-		vi.advanceTimersByTime(500);
+		handoff.dismissed();
 		expect(launch).toHaveBeenCalledOnce();
 		expect(busy).toBe(true);
 		handoff.cancel();
@@ -109,7 +90,7 @@ describe("native attachment sheet handoff", () => {
 		expect(library).toHaveBeenCalledOnce();
 		expect(documents).not.toHaveBeenCalled();
 	});
-	it("does not reset the first deadline or admit stale presses after fallback", () => {
+	it("admits no stale press however long the native dismissal takes", () => {
 		vi.useFakeTimers();
 		const handoff = create();
 		const library = vi.fn(),
@@ -117,7 +98,9 @@ describe("native attachment sheet handoff", () => {
 		handoff.choose(library, "ios");
 		vi.advanceTimersByTime(250);
 		handoff.choose(documents, "ios");
-		vi.advanceTimersByTime(250);
+		vi.advanceTimersByTime(5_000);
+		expect(library).not.toHaveBeenCalled();
+		handoff.dismissed();
 		expect(library).toHaveBeenCalledOnce();
 		expect(documents).not.toHaveBeenCalled();
 		handoff.choose(documents, "ios");
@@ -142,7 +125,7 @@ describe("native attachment sheet handoff", () => {
 		vi.runAllTimers();
 		expect(documents).toHaveBeenCalledOnce();
 	});
-	it("waits for native dismissal; a later fallback cannot launch twice", () => {
+	it("waits for native dismissal; a repeated onDismiss cannot launch twice", () => {
 		vi.useFakeTimers();
 		const handoff = create();
 		const launch = vi.fn();
@@ -153,15 +136,6 @@ describe("native attachment sheet handoff", () => {
 		handoff.dismissed();
 		expect(launch).toHaveBeenCalledTimes(1);
 		vi.runAllTimers();
-		handoff.dismissed();
-		expect(launch).toHaveBeenCalledTimes(1);
-	});
-	it("falls back after 500ms and consumes a late native dismissal exactly once", () => {
-		vi.useFakeTimers();
-		const handoff = create();
-		const launch = vi.fn();
-		handoff.choose(launch, "ios");
-		vi.advanceTimersByTime(500);
 		handoff.dismissed();
 		expect(launch).toHaveBeenCalledTimes(1);
 	});
@@ -178,7 +152,7 @@ describe("native attachment sheet handoff", () => {
 		vi.runAllTimers();
 		expect(launch).not.toHaveBeenCalled();
 	});
-	it("cancels an old pending choice when Attach reopens before 500ms", () => {
+	it("cancels an old pending choice when Attach reopens before dismissal", () => {
 		vi.useFakeTimers();
 		const handoff = create();
 		const stale = vi.fn();
@@ -206,6 +180,17 @@ describe("native attachment sheet handoff", () => {
 		vi.runAllTimers();
 		expect(launch).toHaveBeenCalledTimes(1);
 	});
+	it("iOS never launches before a late native dismissal (no timer race, TestFlight 1157)", () => {
+		vi.useFakeTimers();
+		const handoff = create();
+		const launch = vi.fn();
+		handoff.choose(launch, "ios");
+		// A busy JS thread stretches the sheet's exit past any fixed deadline.
+		vi.advanceTimersByTime(5_000);
+		expect(launch).not.toHaveBeenCalled();
+		handoff.dismissed();
+		expect(launch).toHaveBeenCalledOnce();
+	});
 	it("wires the real composer choice and native dismissal without changing close/layout", () => {
 		expect(source).toContain("onDismiss={attachmentHandoff.dismissed}");
 		expect(source).toContain("attachmentHandoff.choose(");
@@ -215,5 +200,37 @@ describe("native attachment sheet handoff", () => {
 		);
 		expect(source).toContain("() => onAttach(action.source)");
 		expect(source).toContain("onClose={() => setAttachSheetOpen(false)}");
+		// One shared rule: the composer imports it rather than keeping a copy.
+		expect(source).toContain(
+			'import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";',
+		);
+		expect(source).not.toContain(
+			"export function createAttachmentSheetHandoff",
+		);
+	});
+	/* Team Bridge's attach sheet launched PHPicker on the same tick as its close
+	 * (`void addImages(source)` straight from the row) — the race this module
+	 * exists for, with no wait at all. Pinned at the source boundary like the
+	 * composer's wiring above: rendering the thread screen needs the native
+	 * renderer this suite deliberately avoids. */
+	it("routes Team Bridge's attach sheet through the same native-dismissal handoff", () => {
+		const bridge = read("../team-bridge/thread-screen.tsx");
+		expect(bridge).toContain(
+			'import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";',
+		);
+		expect(bridge).toContain("onDismiss={attachHandoff.dismissed}");
+		expect(bridge).toMatch(BRIDGE_CHOOSE);
+		expect(bridge).toMatch(BRIDGE_CANCEL_BEFORE_REOPEN);
+		expect(bridge).toContain(
+			"useEffect(() => () => attachHandoff.cancel(), [attachHandoff]);",
+		);
+		// The row no longer launches directly.
+		expect(bridge).not.toMatch(BRIDGE_DIRECT_LAUNCH);
+	});
+	it("lets Home's reader dismiss a refused or failed pick's line, only while it is shown", () => {
+		const home = read("../home/home.tsx");
+		expect(home).toMatch(OWNER_ATTACH_FINALLY);
+		expect(home).toContain("setComposerError(composerCopy().attachError);");
+		expect(home).toMatch(HOME_DISMISS_SHOWN_LINE);
 	});
 });
