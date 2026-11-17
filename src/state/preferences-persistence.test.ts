@@ -4,6 +4,7 @@ import { hydrateWhenAvailable } from "./hydrate-when-available";
 import {
 	createPreferenceStore,
 	filePreferenceBackend,
+	PREFERENCES_DIRECTORY,
 	type PreferenceBackend,
 	type PreferenceFileSystem,
 } from "./preference-store";
@@ -123,23 +124,24 @@ describe("the file backend", () => {
 		return { fs, files };
 	}
 
+	/* The fake filesystem's path for the theme file, built from the module's own
+	 *  constants rather than written as a literal: a quoted `…/x.json` under src/
+	 *  is read as a fixture-corpus reference by `testing/__tests__/fixtures.test.ts`,
+	 *  and this path names the fake Documents directory, not the corpus. */
+	const THEME_FILE = `doc/${PREFERENCES_DIRECTORY}/${THEME_SELECTION_KEY}.json`;
+
 	it("round-trips and replaces a value, leaving no staging file", async () => {
 		const { fs, files } = fakeFs();
 		const backend = filePreferenceBackend(async () => fs);
 		await backend.set(THEME_SELECTION_KEY, "one");
 		await backend.set(THEME_SELECTION_KEY, "two");
 		expect(await backend.get(THEME_SELECTION_KEY)).toBe("two");
-		expect([...files.keys()]).toEqual([
-			"doc/lo-mobile-preferences/lo-mobile-appearance.json",
-		]);
+		expect([...files.keys()]).toEqual([THEME_FILE]);
 	});
 
 	it("reads the staged value when a kill landed between delete and move", async () => {
 		const { fs, files } = fakeFs();
-		files.set(
-			"doc/lo-mobile-preferences/lo-mobile-appearance.json.next",
-			CHOSEN,
-		);
+		files.set(`${THEME_FILE}.next`, CHOSEN);
 		expect(
 			await filePreferenceBackend(async () => fs).get(THEME_SELECTION_KEY),
 		).toBe(CHOSEN);

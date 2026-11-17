@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -8,7 +10,9 @@ import {
 import {
 	createSidebarViewStore,
 	type SidebarViewStorage,
+	startSidebarViewHydration,
 } from "@/features/sessions/sidebar-view-store";
+import { createPreferenceStore } from "@/state/preference-store";
 
 /** An in-memory device store: what the app's `deviceStore` is to this module. */
 function memoryStorage(seed: Record<string, string> = {}) {
@@ -147,5 +151,127 @@ describe("sidebar view when the store cannot answer yet", () => {
 		const relaunched = createSidebarViewStore(() => disk.storage);
 		await relaunched.getState().hydrate();
 		expect(relaunched.getState().view).toEqual(expected);
+	});
+});
+
+/** QA round 1, Q-2: a newer build's value must survive a tap on another field. */
+describe("sidebar view values this build cannot display", () => {
+	const NEWER = JSON.stringify({
+		v: 2,
+		orderBy: "future-order",
+		groupBy: "flat",
+		density: "compact",
+	});
+
+	it("keeps an unknown enum, an unknown key and a newer v through a tap on another field", async () => {
+		const disk = memoryStorage({ [SIDEBAR_VIEW_KEY]: NEWER });
+		const store = createSidebarViewStore(() => disk.storage);
+		await store.getState().hydrate();
+		// Displayed as the default it falls back to…
+		expect(store.getState().view.orderBy).toBe(DEFAULT_SIDEBAR_VIEW.orderBy);
+		store.getState().setView({ ...store.getState().view, showEnded: false });
+		await Promise.resolve();
+		// …but never stored as it.
+		const written = JSON.parse(disk.data.get(SIDEBAR_VIEW_KEY) as string);
+		expect(written).toMatchObject({
+			v: 2,
+			orderBy: "future-order",
+			groupBy: "flat",
+			density: "compact",
+			showEnded: false,
+		});
+	});
+
+	it("keeps it through an early tap merged at hydration too", async () => {
+		const disk = memoryStorage({ [SIDEBAR_VIEW_KEY]: NEWER });
+		const store = createSidebarViewStore(() => disk.storage);
+		const reading = store.getState().hydrate();
+		store.getState().setView({ ...DEFAULT_SIDEBAR_VIEW, showEnded: false });
+		await reading;
+		await Promise.resolve();
+		const written = JSON.parse(disk.data.get(SIDEBAR_VIEW_KEY) as string);
+		expect(written).toMatchObject({
+			orderBy: "future-order",
+			showEnded: false,
+		});
+	});
+
+	it("still writes a field the reader DID change back to the default", async () => {
+		const disk = memoryStorage({ [SIDEBAR_VIEW_KEY]: NEWER });
+		const store = createSidebarViewStore(() => disk.storage);
+		await store.getState().hydrate();
+		store.getState().setView({ ...store.getState().view, groupBy: "section" });
+		await Promise.resolve();
+		const written = JSON.parse(disk.data.get(SIDEBAR_VIEW_KEY) as string);
+		expect(written.groupBy).toBe("section");
+		expect(written.orderBy).toBe("future-order");
+	});
+});
+
+/**
+ * QA round 1, Q-1: the boot read adopts the view out of the sealed device
+ * family, so a sign-in purge before the drawer ever mounts no longer loses it.
+ */
+describe("sidebar view read at boot", () => {
+	it("adopts the earlier build's view before a purge, without the drawer mounting", async () => {
+		const file = memoryStorage();
+		const sealed = memoryStorage({
+			[SIDEBAR_VIEW_KEY]: JSON.stringify({ orderBy: "recent" }),
+		});
+		const preferences = createPreferenceStore({
+			primary: file.storage,
+			legacy: sealed.storage,
+		});
+		const store = createSidebarViewStore(() => preferences);
+		const listeners: (() => void)[] = [];
+		const stop = startSidebarViewHydration(store, (listener) => {
+			listeners.push(listener);
+			return () => undefined;
+		});
+		await store.getState().hydrate();
+		expect(store.getState().view.orderBy).toBe("recent");
+
+		sealed.data.clear(); // the sign-in purge (`clearAuthorizationData`)
+		const relaunched = createSidebarViewStore(() => preferences);
+		await relaunched.getState().hydrate();
+		expect(relaunched.getState().view.orderBy).toBe("recent");
+		stop();
+	});
+
+	it("is mounted at the root, ahead of the connection that can purge", () => {
+		/* The root layout is not renderable in Node; its source is the contract,
+		 *  as in `polish-secondary-screens.test.ts`. */
+		const layout = readFileSync(
+			fileURLToPath(new URL("../../../app/_layout.tsx", import.meta.url)),
+			"utf8",
+		);
+		const hydration = layout.indexOf("<SidebarViewHydration />");
+		expect(hydration).toBeGreaterThan(-1);
+		expect(hydration).toBeLessThan(layout.indexOf("<ConnectionProvider>"));
+	});
+
+	it("retries on active after a locked boot read", async () => {
+		let locked = true;
+		const disk = memoryStorage({
+			[SIDEBAR_VIEW_KEY]: JSON.stringify({ orderBy: "recent" }),
+		});
+		const store = createSidebarViewStore(() => ({
+			get: (key) =>
+				locked
+					? Promise.reject(new Error("errSecInteractionNotAllowed"))
+					: disk.storage.get(key),
+			set: disk.storage.set,
+		}));
+		let active: (() => void) | null = null;
+		startSidebarViewHydration(store, (listener) => {
+			active = listener;
+			return () => undefined;
+		});
+		await store.getState().hydrate();
+		expect(store.getState().hydrated).toBe(false);
+		locked = false;
+		(active as unknown as () => void)();
+		await store.getState().hydrate();
+		expect(store.getState().view.orderBy).toBe("recent");
 	});
 });

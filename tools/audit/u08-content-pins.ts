@@ -723,7 +723,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged app carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	app: "0eef54119604f176cb2e445670e92e74eeaf8f928cdfc23308a33ce166204597",
+	/* PR #290 (persist across updates), QA round 1 Q-1: the root layout mounts
+	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
+	 * adopted out of the sealed family) at boot. Re-derived with --print over
+	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
+	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2122,7 +2126,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * retained; only this pin conflicted. The merged src carries both sides, so
 	 * it matches neither parent. Re-derived with --print over the staged merged
 	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
-	src: "5f4980beaa878a0689cebaa2bfc3a5f4ff0f75b80d40945a3256dde4dcf9955d",
+	/* PR #290 (persist across updates): preferences move out of the sealed
+	 * device family into a file-backed preference store, keychain reads that
+	 * fail on a locked launch defer instead of resetting, and QA round 1's
+	 * Q-1/Q-2 (boot-time sidebar adoption, field-wise sidebar writes). Nothing
+	 * the U-08 scene renders changes. Re-derived with --print over the staged
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	src: "951b7a54b957081bfb6b59934690266719566f49719de26a44712fedfd2dfca8",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

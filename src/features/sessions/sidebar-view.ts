@@ -174,6 +174,49 @@ export function parseSidebarView(raw: string | null | undefined): SidebarView {
 export const serializeSidebarView = (view: SidebarView): string =>
 	JSON.stringify({ v: VERSION, ...view });
 
+const SIDEBAR_FIELDS = [
+	"orderBy",
+	"groupBy",
+	"basis",
+	"showEnded",
+	"hidden",
+] as const satisfies readonly (keyof SidebarView)[];
+
+/**
+ * Serialize `next` OVER the stored bytes, writing only the fields the reader
+ * changed relative to what was read (`hydrated`), plus any field the record
+ * lacks. QA round 1, Q-2: `parseSidebarView` turns a word this build does not
+ * know (a newer build's `orderBy: "future-order"`) into the default for
+ * DISPLAY, and writing the parsed view whole then stored that default — so a
+ * tap on any other field silently reset the newer build's choice. Unknown keys
+ * and a newer `v` are carried through for the same reason. The theme's
+ * `serializeSelectionOver` (`state/theme-preference.ts`) is the same rule.
+ */
+export const serializeSidebarViewOver = (
+	stored: string | null,
+	hydrated: SidebarView,
+	next: SidebarView,
+): string => {
+	let record: Record<string, unknown> = {};
+	try {
+		const value: unknown = stored === null ? null : JSON.parse(stored);
+		if (typeof value === "object" && value !== null && !Array.isArray(value))
+			record = value as Record<string, unknown>;
+	} catch {
+		// Unparseable: nothing to preserve but the reader's view.
+	}
+	const out: Record<string, unknown> = { ...record };
+	for (const field of SIDEBAR_FIELDS) {
+		// `hidden` is an array, so compare by value, not identity.
+		const changed =
+			JSON.stringify(next[field]) !== JSON.stringify(hydrated[field]);
+		if (changed || !(field in record)) out[field] = next[field];
+	}
+	out.v =
+		typeof record.v === "number" && record.v > VERSION ? record.v : VERSION;
+	return JSON.stringify(out);
+};
+
 /** Switch one section on or off, keeping the rest of the view. */
 export function toggleSidebarSection(
 	view: SidebarView,
