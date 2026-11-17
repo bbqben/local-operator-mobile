@@ -22,6 +22,7 @@ import { useSavedComputersHydration } from "@/features/auth/use-saved-computers-
 import { useDeepLinkResolution } from "@/features/deep-links/use-deep-link-resolution";
 import { NotificationPermissionPrimer } from "@/features/notifications/permission-primer-sheet";
 import { OutboxHost } from "@/features/session/outbox-host";
+import { useSidebarViewHydration } from "@/features/sessions/use-sidebar-view";
 import { WorkspaceDrawerProvider } from "@/features/sessions/workspace-drawer";
 import { useTeamBridgeDrawerAdapter } from "@/features/team-bridge/drawer-adapter";
 import { activeDirection, activeLocale } from "@/i18n";
@@ -55,6 +56,10 @@ export default function RootLayout() {
 	return (
 		<SafeAreaProvider>
 			<ThemeProvider>
+				{/* Before the connection: reads the sidebar view at boot, which also
+				 *  adopts it out of the sealed device family before any sign-in can
+				 *  purge that family (the theme is read the same way, by its provider). */}
+				<SidebarViewHydration />
 				<ConnectionProvider>
 					<TextScaleProvider>
 						<DirectionRoot>
@@ -162,6 +167,16 @@ const DirectionRoot = ({ children }: { children: ReactNode }) => {
  */
 const DeepLinkResolution = () => {
 	useDeepLinkResolution();
+	return null;
+};
+
+/**
+ * The sidebar view, read once at the root at boot (QA round 1, Q-1; see
+ * `startSidebarViewHydration`). Renders nothing; private for the same reason as
+ * `ThemedStatusBar`.
+ */
+const SidebarViewHydration = () => {
+	useSidebarViewHydration();
 	return null;
 };
 

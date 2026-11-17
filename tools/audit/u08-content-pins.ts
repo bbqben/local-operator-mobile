@@ -728,7 +728,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged app carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	app: "0eef54119604f176cb2e445670e92e74eeaf8f928cdfc23308a33ce166204597",
+	/* PR #290 (persist across updates), QA round 1 Q-1: the root layout mounts
+	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
+	 * adopted out of the sealed family) at boot. Re-derived with --print over
+	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
+	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2159,7 +2163,41 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * catalogue, layout or class bytes move. Parent pin reproduced from HEAD's
 	 * git objects by treeDigest as the control; this value is --print over the
 	 * staged tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "c3a7ef48806eec415fc8d3fac9262593c3edebfcbed8d71cc0a14290376c752a",
+	/* Reader scroll hold (TestFlight 1139): Team Bridge thread viewport and the
+	 * agent transcript stop every programmatic bottom-follow from a drag or
+	 * momentum start until the reader's scroll rests; Team Bridge shows Jump
+	 * to newest for arrivals meanwhile. Re-derived with --print; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #289 round-1 remediation: the Team Bridge viewport composes the shared
+	 * reader-scroll-hold (momentum reset on a caught glide, web pointer-down
+	 * hold, current-geometry tail at rest, web hold in the agent transcript).
+	 * Re-derived with --print over the staged tree; source admission only,
+	 * NOT rendered, native or device evidence. */
+	/* PR #289 round-2 remediation: web touch holds via touch capture events,
+	 * and a touch pointercancel is ignored. Re-derived with --print over the
+	 * staged tree; source admission only, NOT rendered, native or device
+	 * evidence. */
+	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
+	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
+	 * source admission only, NOT rendered, native or device evidence. */
+	/* PR #290 (persist across updates): preferences move out of the sealed
+	 * device family into a file-backed preference store, keychain reads that
+	 * fail on a locked launch defer instead of resetting, and QA round 1's
+	 * Q-1/Q-2 (boot-time sidebar adoption, field-wise sidebar writes). Nothing
+	 * the U-08 scene renders changes. Re-derived with --print over the staged
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#289, f390fdda) into PR #290: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides, so
+	 * it matches neither parent. Re-derived with --print over the staged merged
+	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Final merge-gate merge of origin/main (#288-#293, 3393d313) into PR #251:
+	 * both comment chains retained; only this pin conflicted. The merged src
+	 * carries both sides (O3-a's locale frame, headers and date/time copy plus
+	 * main's reader scroll hold and persist-across-updates stores), so it
+	 * matches neither parent. Derived LAST by treeDigest over the staged merge
+	 * tree's git objects; the same reader reproduced both parents' committed
+	 * pins as controls. Source identity only, NOT rendered U-08 evidence. */
+	src: "3439e86a89e5c7d187efc41ec915f2c55ed63e37b227c239e00667f737946269",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

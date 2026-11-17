@@ -4,6 +4,7 @@ import type { RadientTokens, TunnelSession } from "@/connection";
 import {
 	oauthSetFromTokens,
 	RadientAuthError,
+	SecureStoreUnavailableError,
 	sessionFromTunnelSet,
 	tokensFromOauthSet,
 	tunnelSetFromSession,
@@ -229,6 +230,45 @@ describe("carrying out the restore plan", () => {
 
 		expect(calls).toContain("clear");
 		expect(outcome.refusal?.surface).toBe("sign-in");
+	});
+
+	it("keeps the credential when Radient answers with a non-revoking error", async () => {
+		/* A 5xx or an unreadable 4xx says nothing about the grant: only
+		 * `invalid_grant` (or a 401) is a server-confirmed revoke. Deleting here
+		 * signed the reader out over an outage (operator report, 2026-11-16). */
+		const { calls, deps } = harness({
+			stored: lapsed(),
+			refresh: async () => {
+				throw new RadientAuthError("rejected", "server error", 503);
+			},
+		});
+
+		const outcome = await carryOutRestore(deps);
+
+		expect(calls).not.toContain("clear");
+		expect(outcome.restored).toBe(false);
+		expect(outcome.refusal?.surface).toBe("retry");
+	});
+
+	it("defers, rather than signing out, when the keychain cannot answer", async () => {
+		/* A locked phone (iOS relaunches the app in the background after a
+		 * TestFlight update) used to read as "no grant": a first run, the welcome
+		 * screen, and a sign-in the reader did not need. */
+		const { calls, deps } = harness({ refresh: async (t) => t });
+		const outcome = await carryOutRestore({
+			...deps,
+			readOauth: async () => {
+				throw new SecureStoreUnavailableError("lop.mobile.oauth", new Error());
+			},
+		});
+
+		expect(calls).toEqual([]);
+		expect(outcome).toEqual({
+			tokens: null,
+			restored: false,
+			refusal: null,
+			deferred: true,
+		});
 	});
 
 	it("refreshes, stores the rotated grant and starts discovery", async () => {
