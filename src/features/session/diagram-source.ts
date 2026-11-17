@@ -18,10 +18,63 @@ export const isDiagramBlock = (
 ): boolean =>
 	block.unterminated !== true && block.language.toLowerCase() === "mermaid";
 
-/** Below this the labels (14 pt at full size) are under ~10 pt and stop being
- *  readable on a phone; a diagram wider than the column at this scale scrolls
- *  sideways instead of shrinking further. */
-export const MIN_DIAGRAM_SCALE = 0.7;
+/** Below this the labels stop being readable on a phone: Pele's smallest labels
+ *  (edge labels, notes) are 12 pt at full size, so 0.85 keeps them near 10 pt and
+ *  node text near 12 pt. A diagram wider than the column at this scale scrolls
+ *  sideways, and the viewer (`diagram-viewer.tsx`) zooms it, instead of
+ *  shrinking further. (0.7 was the first value; the design round measured
+ *  8.4 pt labels at it, on diagrams as ordinary as a six-participant sequence.) */
+export const MIN_DIAGRAM_SCALE = 0.85;
+
+/** The most a diagram may cover once drawn, in square points, and the longest
+ *  side. `react-native-svg` draws a view as ONE native surface: on Android that
+ *  is a bitmap of the view's size (`SvgView.java` `Bitmap.createBitmap`, read in
+ *  react-native-svg 15.15.4), and a surface of tens of thousands of points
+ *  cannot be allocated or drawn. Pele accepts a 50,000-character source and
+ *  turns a few hundred nodes into a 137 x 55,768 pt picture, so the limit is
+ *  ours to set. 1.5 M pt² is 13.5 M px at 3x (54 MB), well under the ~100 MB
+ *  draw limit; 5,000 pt is 15,000 px at 3x, under the 16,384 px texture side
+ *  of current devices. A 60-node tree (1,268,616 pt²) and a 60-node chain
+ *  (4,716 pt tall) fit; a 100-node chain does not. Measured on Pele 1.13.0 at
+ *  `maxWidth` 340; NOT yet confirmed on a device. */
+export const MAX_DRAWN_AREA_PT = 1_500_000;
+export const MAX_DRAWN_SIDE_PT = 5_000;
+
+/** Whether a diagram of this natural size can be drawn at all, judged at the
+ *  smallest scale the inline view ever uses. */
+export const withinDrawBudget = (size: {
+	width: number;
+	height: number;
+}): boolean => {
+	const w = size.width * MIN_DIAGRAM_SCALE;
+	const h = size.height * MIN_DIAGRAM_SCALE;
+	return (
+		Number.isFinite(w) &&
+		Number.isFinite(h) &&
+		w <= MAX_DRAWN_SIDE_PT &&
+		h <= MAX_DRAWN_SIDE_PT &&
+		w * h <= MAX_DRAWN_AREA_PT
+	);
+};
+
+/** How the full-screen viewer sizes a drawing in a window: as large as fits the
+ *  window's width (never above 3x, so a tiny chart is not a poster), never below
+ *  the inline floor, and never past the draw budget. Pan and zoom do the rest. */
+export const viewerScale = (
+	size: { width: number; height: number },
+	windowWidth: number,
+): number => {
+	const fit =
+		Math.max(1, windowWidth - 2 * DIAGRAM_FRAME_PAD - 16) / size.width;
+	let scale = Math.min(3, Math.max(MIN_DIAGRAM_SCALE, fit));
+	const budget = Math.sqrt(MAX_DRAWN_AREA_PT / (size.width * size.height));
+	scale = Math.min(
+		scale,
+		budget,
+		MAX_DRAWN_SIDE_PT / Math.max(size.width, size.height),
+	);
+	return Math.max(0.1, scale);
+};
 
 export type DiagramLayout = {
 	scale: number;

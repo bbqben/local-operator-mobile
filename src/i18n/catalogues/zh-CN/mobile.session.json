@@ -92,7 +92,10 @@
 	"mobile.session.sheet_title.attach": "添加附件",
 	"mobile.session.diagram.label": "{type} 图表",
 	"mobile.session.diagram.label_titled": "{type} 图表：{title}",
-	"mobile.session.diagram.copy_hint": "复制图表源码",
 	"mobile.session.diagram.copied": "已复制",
-	"mobile.session.diagram.error": "无法绘制此图表，已改为显示源码。"
+	"mobile.session.diagram.error": "无法绘制此图表，已改为显示源码。",
+	"mobile.session.diagram.open_hint": "全屏打开图表，可缩放和平移",
+	"mobile.session.diagram.copy": "复制图表源码",
+	"mobile.session.diagram.close": "关闭图表",
+	"mobile.session.diagram.viewer": "图表查看器"
 }

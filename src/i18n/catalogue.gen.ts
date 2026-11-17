@@ -656,11 +656,14 @@ export type CatalogueKey =
 	| "mobile.session.composer.retained_instruction"
 	| "mobile.session.composer.retry_not_sent_storage"
 	| "mobile.session.conversation_details"
+	| "mobile.session.diagram.close"
 	| "mobile.session.diagram.copied"
-	| "mobile.session.diagram.copy_hint"
+	| "mobile.session.diagram.copy"
 	| "mobile.session.diagram.error"
 	| "mobile.session.diagram.label"
 	| "mobile.session.diagram.label_titled"
+	| "mobile.session.diagram.open_hint"
+	| "mobile.session.diagram.viewer"
 	| "mobile.session.empty.headline"
 	| "mobile.session.empty.next"
 	| "mobile.session.fallback_name"
@@ -1674,9 +1677,12 @@ export type NoParamKey =
 	| "mobile.session.composer.retained_instruction"
 	| "mobile.session.composer.retry_not_sent_storage"
 	| "mobile.session.conversation_details"
+	| "mobile.session.diagram.close"
 	| "mobile.session.diagram.copied"
-	| "mobile.session.diagram.copy_hint"
+	| "mobile.session.diagram.copy"
 	| "mobile.session.diagram.error"
+	| "mobile.session.diagram.open_hint"
+	| "mobile.session.diagram.viewer"
 	| "mobile.session.empty.headline"
 	| "mobile.session.empty.next"
 	| "mobile.session.fallback_name"
@@ -2707,11 +2713,14 @@ export type MessageParams = {
 	"mobile.session.composer.retained_instruction": NoParams;
 	"mobile.session.composer.retry_not_sent_storage": NoParams;
 	"mobile.session.conversation_details": NoParams;
+	"mobile.session.diagram.close": NoParams;
 	"mobile.session.diagram.copied": NoParams;
-	"mobile.session.diagram.copy_hint": NoParams;
+	"mobile.session.diagram.copy": NoParams;
 	"mobile.session.diagram.error": NoParams;
 	"mobile.session.diagram.label": { type: string | number };
 	"mobile.session.diagram.label_titled": { title: string | number; type: string | number };
+	"mobile.session.diagram.open_hint": NoParams;
+	"mobile.session.diagram.viewer": NoParams;
 	"mobile.session.empty.headline": NoParams;
 	"mobile.session.empty.next": NoParams;
 	"mobile.session.fallback_name": NoParams;
@@ -3842,11 +3851,14 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.session.composer.retained_instruction": "An earlier instruction may have been delivered. Retry that earlier instruction before sending your current draft.",
 	"mobile.session.composer.retry_not_sent_storage": "This retry attempt wasn’t sent. Couldn’t prepare the earlier instruction safely for retry. Try the earlier instruction again. Your current draft hasn’t been sent.",
 	"mobile.session.conversation_details": "Conversation details",
+	"mobile.session.diagram.close": "Close diagram",
 	"mobile.session.diagram.copied": "copied",
-	"mobile.session.diagram.copy_hint": "Copies the diagram source",
+	"mobile.session.diagram.copy": "Copy diagram source",
 	"mobile.session.diagram.error": "Couldn’t draw this diagram. Showing the source instead.",
 	"mobile.session.diagram.label": "{type} diagram",
 	"mobile.session.diagram.label_titled": "{type} diagram: {title}",
+	"mobile.session.diagram.open_hint": "Opens the diagram full screen to zoom and pan",
+	"mobile.session.diagram.viewer": "Diagram viewer",
 	"mobile.session.empty.headline": "Nothing here yet.",
 	"mobile.session.empty.next": "Send the first message below.",
 	"mobile.session.fallback_name": "session",
@@ -4962,11 +4974,14 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.session.composer.retained_instruction": { role: "confirm", note: "Notice above the composer when an earlier instruction is retained and may already have been delivered, so the user must retry it before sending the current draft. Two sentences." },
 	"mobile.session.composer.retry_not_sent_storage": { role: "status", note: "Only the current RETRY ATTEMPT was not dispatched because local safe-retry preparation failed. The original instruction may already have arrived: its separate retained-envelope warning and Retry earlier instruction action stay visible. Never imply the current draft was retried or disk space is the known cause. Never include raw storage errors." },
 	"mobile.session.conversation_details": { role: "heading", note: "The destination screen's own title, used as the label of the control that opens it — not an action verb. It must stay identical wherever that screen is named, including the sentence in mobile.home.options.fixed, so a reader recognises the same destination. No final full stop." },
+	"mobile.session.diagram.close": { role: "button", note: "Accessible name of the close button in the full-screen diagram viewer. Imperative, sentence case, no final full stop." },
 	"mobile.session.diagram.copied": { role: "status", note: "One lower-case word shown beside the diagram kind label ('mermaid · copied') after the source was copied. Mirrors the code block's copied marker. The middle dot separator is added by the app." },
-	"mobile.session.diagram.copy_hint": { role: "help", note: "Accessibility hint on a drawn diagram. Activating it copies the diagram's source text (Mermaid syntax) to the clipboard. Sentence case, no final full stop." },
+	"mobile.session.diagram.copy": { role: "button", note: "Accessible name of the icon button in a diagram's header that copies the diagram's source text (Mermaid syntax) to the clipboard. Imperative, sentence case, no final full stop." },
 	"mobile.session.diagram.error": { role: "status", note: "Shown above a code block when a diagram could not be drawn. The reason Pele gave follows on its own line in English and is not part of this string. Two short sentences." },
 	"mobile.session.diagram.label": { role: "meta", note: "Accessible name of a drawn diagram in the transcript when it has no title. {type} is the diagram kind as an English technical token (flowchart, sequence, state, class, er, gantt, pie…): keep it as written and never translate it. No final full stop." },
 	"mobile.session.diagram.label_titled": { role: "meta", note: "Accessible name of a drawn diagram that has a title or a first label. {type} is the English technical diagram kind (flowchart, sequence…): keep it as written. {title} is text written by the assistant, inserted unchanged. No final full stop." },
+	"mobile.session.diagram.open_hint": { role: "help", note: "Accessibility hint on a drawn diagram in the transcript. Activating it opens the diagram full screen, where it can be panned and (on iPhone) pinch-zoomed. Sentence case, no final full stop." },
+	"mobile.session.diagram.viewer": { role: "heading", note: "Accessible name of the full-screen diagram viewer dialog. A short noun phrase, sentence case, no final full stop." },
 	"mobile.session.empty.headline": { role: "status", note: "Empty-state headline for a session with no messages. Short, final full stop." },
 	"mobile.session.empty.next": { role: "help", note: "Empty-state follow-up pointing to the composer under the transcript. 'Below' refers to the composer's position." },
 	"mobile.session.fallback_name": { role: "meta", note: "Lower-case noun used as the header title of an untitled session and in \"Back to <name>\" when the conversation has no name. A bare noun meaning one conversation with the agent." },
@@ -6096,11 +6111,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Puede que ya se haya entregado una instrucción anterior. Reintenta enviarla antes de enviar tu borrador actual.",
 		"mobile.session.composer.retry_not_sent_storage": "Este intento de reenvío no se envió. No se pudo preparar de forma segura la instrucción anterior para volver a intentarlo. Vuelve a intentar enviar la instrucción anterior. Tu borrador actual no se ha enviado.",
 		"mobile.session.conversation_details": "Detalles de la conversación",
+		"mobile.session.diagram.close": "Cerrar el diagrama",
 		"mobile.session.diagram.copied": "copiado",
-		"mobile.session.diagram.copy_hint": "Copia el código fuente del diagrama",
+		"mobile.session.diagram.copy": "Copiar el código fuente del diagrama",
 		"mobile.session.diagram.error": "No se pudo dibujar este diagrama. Se muestra el código fuente.",
 		"mobile.session.diagram.label": "Diagrama {type}",
 		"mobile.session.diagram.label_titled": "Diagrama {type}: {title}",
+		"mobile.session.diagram.open_hint": "Abre el diagrama a pantalla completa para ampliar y desplazar",
+		"mobile.session.diagram.viewer": "Visor de diagramas",
 		"mobile.session.empty.headline": "Aún no hay nada aquí.",
 		"mobile.session.empty.next": "Envía el primer mensaje aquí abajo.",
 		"mobile.session.fallback_name": "sesión",
@@ -7214,11 +7232,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Une instruction précédente a peut-être été transmise. Réessayez d’envoyer cette instruction avant de transmettre votre brouillon actuel.",
 		"mobile.session.composer.retry_not_sent_storage": "Cette tentative de renvoi n’a pas été envoyée. Impossible de préparer en toute sécurité le renvoi de l’instruction précédente. Réessayez d’envoyer l’instruction précédente. Votre brouillon actuel n’a pas été envoyé.",
 		"mobile.session.conversation_details": "Détails de la conversation",
+		"mobile.session.diagram.close": "Fermer le diagramme",
 		"mobile.session.diagram.copied": "copié",
-		"mobile.session.diagram.copy_hint": "Copie la source du diagramme",
+		"mobile.session.diagram.copy": "Copier la source du diagramme",
 		"mobile.session.diagram.error": "Impossible de dessiner ce diagramme. La source est affichée à la place.",
 		"mobile.session.diagram.label": "Diagramme {type}",
 		"mobile.session.diagram.label_titled": "Diagramme {type} : {title}",
+		"mobile.session.diagram.open_hint": "Ouvre le diagramme en plein écran pour zoomer et se déplacer",
+		"mobile.session.diagram.viewer": "Visionneuse de diagramme",
 		"mobile.session.empty.headline": "Rien ici pour le moment.",
 		"mobile.session.empty.next": "Envoyez le premier message ci-dessous.",
 		"mobile.session.fallback_name": "session",
@@ -8332,11 +8353,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "हो सकता है कि पहले भेजा गया कोई निर्देश पहुँच चुका हो। अपना मौजूदा ड्राफ़्ट भेजने से पहले उस निर्देश को दोबारा भेजने की कोशिश करें।",
 		"mobile.session.composer.retry_not_sent_storage": "दोबारा भेजने का यह प्रयास नहीं भेजा गया। पिछले निर्देश को सुरक्षित रूप से दोबारा भेजने की तैयारी नहीं हो सकी। पिछले निर्देश को दोबारा भेजने की कोशिश करें। आपका मौजूदा ड्राफ़्ट नहीं भेजा गया है।",
 		"mobile.session.conversation_details": "बातचीत का विवरण",
+		"mobile.session.diagram.close": "आरेख बंद करें",
 		"mobile.session.diagram.copied": "कॉपी किया गया",
-		"mobile.session.diagram.copy_hint": "आरेख का स्रोत कॉपी करता है",
+		"mobile.session.diagram.copy": "आरेख का स्रोत कॉपी करें",
 		"mobile.session.diagram.error": "यह आरेख नहीं बनाया जा सका। इसके बजाय स्रोत दिखाया जा रहा है।",
 		"mobile.session.diagram.label": "{type} आरेख",
 		"mobile.session.diagram.label_titled": "{type} आरेख: {title}",
+		"mobile.session.diagram.open_hint": "ज़ूम और पैन करने के लिए आरेख को पूर्ण स्क्रीन पर खोलता है",
+		"mobile.session.diagram.viewer": "आरेख व्यूअर",
 		"mobile.session.empty.headline": "यहाँ अभी कुछ नहीं है।",
 		"mobile.session.empty.next": "नीचे पहला संदेश भेजें।",
 		"mobile.session.fallback_name": "सत्र",
@@ -9450,11 +9474,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Предыдущее указание, возможно, уже доставлено. Отправьте это указание ещё раз, прежде чем отправлять текущий черновик.",
 		"mobile.session.composer.retry_not_sent_storage": "Эта попытка повторной отправки не была отправлена. Не удалось безопасно подготовить предыдущее указание к повторной отправке. Повторите отправку предыдущего указания. Текущий черновик не отправлен.",
 		"mobile.session.conversation_details": "Детали беседы",
+		"mobile.session.diagram.close": "Закрыть диаграмму",
 		"mobile.session.diagram.copied": "скопировано",
-		"mobile.session.diagram.copy_hint": "Копирует исходный код диаграммы",
+		"mobile.session.diagram.copy": "Скопировать исходный код диаграммы",
 		"mobile.session.diagram.error": "Не удалось нарисовать диаграмму. Вместо неё показан исходный код.",
 		"mobile.session.diagram.label": "Диаграмма {type}",
 		"mobile.session.diagram.label_titled": "Диаграмма {type}: {title}",
+		"mobile.session.diagram.open_hint": "Открывает диаграмму на весь экран для масштабирования и прокрутки",
+		"mobile.session.diagram.viewer": "Просмотр диаграммы",
 		"mobile.session.empty.headline": "Здесь пока ничего нет.",
 		"mobile.session.empty.next": "Отправьте первое сообщение ниже.",
 		"mobile.session.fallback_name": "сессия",
@@ -10568,11 +10595,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "ممکن ہے پچھلی ہدایت پہنچ چکی ہو۔ موجودہ مسودہ بھیجنے سے پہلے پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔",
 		"mobile.session.composer.retry_not_sent_storage": "دوبارہ بھیجنے کی یہ کوشش نہیں بھیجی گئی۔ پچھلی ہدایت کو محفوظ طریقے سے دوبارہ بھیجنے کی تیاری نہیں ہو سکی۔ پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔ آپ کا موجودہ مسودہ نہیں بھیجا گیا۔",
 		"mobile.session.conversation_details": "گفتگو کی تفصیلات",
+		"mobile.session.diagram.close": "ڈایاگرام بند کریں",
 		"mobile.session.diagram.copied": "کاپی ہو گیا",
-		"mobile.session.diagram.copy_hint": "ڈایاگرام کا ماخذ کاپی کرتا ہے",
+		"mobile.session.diagram.copy": "ڈایاگرام کا ماخذ کاپی کریں",
 		"mobile.session.diagram.error": "یہ ڈایاگرام نہیں بنایا جا سکا۔ اس کی جگہ ماخذ دکھایا گیا ہے۔",
 		"mobile.session.diagram.label": "{type} ڈایاگرام",
 		"mobile.session.diagram.label_titled": "{type} ڈایاگرام: {title}",
+		"mobile.session.diagram.open_hint": "زوم اور پین کرنے کے لیے ڈایاگرام کو پوری اسکرین پر کھولتا ہے",
+		"mobile.session.diagram.viewer": "ڈایاگرام ویوور",
 		"mobile.session.empty.headline": "یہاں ابھی کچھ نہیں۔",
 		"mobile.session.empty.next": "نیچے پہلا پیغام بھیجیں۔",
 		"mobile.session.fallback_name": "سیشن",
@@ -11686,11 +11716,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Chỉ dẫn trước đó có thể đã được chuyển đến. Hãy thử gửi lại chỉ dẫn đó trước khi gửi bản nháp hiện tại.",
 		"mobile.session.composer.retry_not_sent_storage": "Lần thử gửi lại này chưa được gửi đi. Không thể chuẩn bị an toàn để gửi lại chỉ dẫn trước đó. Hãy thử gửi lại chỉ dẫn trước đó. Bản nháp hiện tại của bạn chưa được gửi.",
 		"mobile.session.conversation_details": "Chi tiết cuộc trò chuyện",
+		"mobile.session.diagram.close": "Đóng sơ đồ",
 		"mobile.session.diagram.copied": "đã sao chép",
-		"mobile.session.diagram.copy_hint": "Sao chép nguồn của sơ đồ",
+		"mobile.session.diagram.copy": "Sao chép nguồn của sơ đồ",
 		"mobile.session.diagram.error": "Không thể vẽ sơ đồ này. Đang hiển thị mã nguồn thay thế.",
 		"mobile.session.diagram.label": "Sơ đồ {type}",
 		"mobile.session.diagram.label_titled": "Sơ đồ {type}: {title}",
+		"mobile.session.diagram.open_hint": "Mở sơ đồ toàn màn hình để phóng to và di chuyển",
+		"mobile.session.diagram.viewer": "Trình xem sơ đồ",
 		"mobile.session.empty.headline": "Chưa có gì ở đây.",
 		"mobile.session.empty.next": "Gửi tin nhắn đầu tiên bên dưới.",
 		"mobile.session.fallback_name": "phiên",
@@ -12804,11 +12837,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "之前的指令可能已送达。先重试之前的指令，再发送当前草稿。",
 		"mobile.session.composer.retry_not_sent_storage": "本次重试未发送。无法安全地准备重试之前的指令。请重试之前的指令。你当前的草稿尚未发送。",
 		"mobile.session.conversation_details": "对话详情",
+		"mobile.session.diagram.close": "关闭图表",
 		"mobile.session.diagram.copied": "已复制",
-		"mobile.session.diagram.copy_hint": "复制图表源码",
+		"mobile.session.diagram.copy": "复制图表源码",
 		"mobile.session.diagram.error": "无法绘制此图表，已改为显示源码。",
 		"mobile.session.diagram.label": "{type} 图表",
 		"mobile.session.diagram.label_titled": "{type} 图表：{title}",
+		"mobile.session.diagram.open_hint": "全屏打开图表，可缩放和平移",
+		"mobile.session.diagram.viewer": "图表查看器",
 		"mobile.session.empty.headline": "暂无消息。",
 		"mobile.session.empty.next": "在下方发送第一条消息。",
 		"mobile.session.fallback_name": "会话",

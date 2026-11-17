@@ -92,7 +92,10 @@
 	"mobile.session.sheet_title.attach": "संलग्न करें",
 	"mobile.session.diagram.label": "{type} आरेख",
 	"mobile.session.diagram.label_titled": "{type} आरेख: {title}",
-	"mobile.session.diagram.copy_hint": "आरेख का स्रोत कॉपी करता है",
 	"mobile.session.diagram.copied": "कॉपी किया गया",
-	"mobile.session.diagram.error": "यह आरेख नहीं बनाया जा सका। इसके बजाय स्रोत दिखाया जा रहा है।"
+	"mobile.session.diagram.error": "यह आरेख नहीं बनाया जा सका। इसके बजाय स्रोत दिखाया जा रहा है।",
+	"mobile.session.diagram.open_hint": "ज़ूम और पैन करने के लिए आरेख को पूर्ण स्क्रीन पर खोलता है",
+	"mobile.session.diagram.copy": "आरेख का स्रोत कॉपी करें",
+	"mobile.session.diagram.close": "आरेख बंद करें",
+	"mobile.session.diagram.viewer": "आरेख व्यूअर"
 }

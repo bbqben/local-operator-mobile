@@ -6,6 +6,7 @@ import {
 } from "@/features/session/diagram-fixtures";
 import {
 	clearDiagramCache,
+	currentResult,
 	type DiagramResult,
 	peekDiagram,
 	renderDiagram,
@@ -86,6 +87,7 @@ const ALLOWED_PROPS = new Set([
 	"viewBox",
 ]);
 
+const LINK_PROP = /href|src/i;
 const BAD_VALUE = /var\(|url\(|javascript:|data:|vbscript:|<|>|\bon[a-z]+=/i;
 
 const walk = (
@@ -299,6 +301,48 @@ describe("the result cache", () => {
 	});
 });
 
+describe("what a block shows while a request is pending", () => {
+	it("keeps the last drawing for the same source, and nothing for another", async () => {
+		const source = DIAGRAM_SOURCES.flowchart ?? "";
+		const first = request(source, LIGHT);
+		const settled = { request: first, result: await renderDiagram(first) };
+		const next = request(source, DARK);
+		// A theme change: nothing cached for the new request yet.
+		expect(peekDiagram(next)).toBeUndefined();
+		expect(currentResult(undefined, settled, source)).toBe(settled.result);
+		// Another diagram in a reused row must not borrow it.
+		expect(
+			currentResult(undefined, settled, "flowchart LR\n  X --> Y"),
+		).toBeNull();
+		expect(currentResult(undefined, null, source)).toBeNull();
+	});
+
+	it("prefers a cached drawing to a settled one", async () => {
+		const source = DIAGRAM_SOURCES.state ?? "";
+		const cached = await renderDiagram(request(source));
+		const stale = { request: request(source, DARK), result: cached };
+		expect(currentResult(cached, stale, source)).toBe(cached);
+	});
+});
+
+describe("a diagram too big for a native surface", () => {
+	it("is refused with its size, and the block falls back to code", async () => {
+		const chain = `flowchart TD\n${Array.from({ length: 100 }, (_, i) => `  N${i} --> N${i + 1}`).join("\n")}`;
+		const result = await renderDiagram(request(chain));
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.reason).toBe("invalid");
+			expect(result.message).toContain("Too large to draw");
+		}
+	});
+
+	it("still draws a 60-node chain", async () => {
+		const chain = `flowchart TD\n${Array.from({ length: 60 }, (_, i) => `  N${i} --> N${i + 1}`).join("\n")}`;
+		const result = await renderDiagram(request(chain));
+		expect(result.ok).toBe(true);
+	});
+});
+
 describe("hostile diagrams (transcripts are model-written)", () => {
 	it("never lets a handler, script, link or URL reach the drawn tree", async () => {
 		for (const [name, source] of Object.entries(HOSTILE_SOURCES)) {
@@ -310,7 +354,7 @@ describe("hostile diagrams (transcripts are model-written)", () => {
 				(node) => {
 					for (const key of Object.keys(node.props)) {
 						expect(key.startsWith("on"), `${name} ${key}`).toBe(false);
-						expect(key, name).not.toMatch(/href|src/i);
+						expect(key, name).not.toMatch(LINK_PROP);
 					}
 				},
 				() => undefined,
@@ -410,6 +454,88 @@ describe("hostile diagrams (transcripts are model-written)", () => {
 			expect(() => prepareDiagramSvg(svg, options)).toThrow(DiagramSvgError);
 		});
 	}
+
+	describe("adversarial values stay linear", () => {
+		const prepare = (svg: string) => {
+			const started = performance.now();
+			let outcome: "drawn" | "refused" = "drawn";
+			try {
+				prepareDiagramSvg(svg, { theme: LIGHT, fontSize: 14 });
+			} catch {
+				outcome = "refused";
+			}
+			return { outcome, ms: performance.now() - started };
+		};
+
+		it("a 49,000-digit length", () => {
+			const digits = `${"1".repeat(49_000)}z`;
+			const run = prepare(
+				`<svg width="10" height="10"><rect x="${digits}" style="stroke-width:${digits}" width="1" height="1"/></svg>`,
+			);
+			expect(run.outcome).toBe("drawn");
+			// Was 1.7 s (quadratic) before the digit patterns stopped overlapping.
+			expect(run.ms).toBeLessThan(250);
+		});
+
+		it("a transform of repeated terms and spaces", () => {
+			const terms = `${"translate(1)  ".repeat(60)}x`;
+			const run = prepare(
+				`<svg width="10" height="10"><g transform="${terms}"/></svg>`,
+			);
+			expect(run.ms).toBeLessThan(250);
+		});
+
+		it("a chain of variables that each name the next many times", () => {
+			// Each level repeats the one below twelve times: 12^8 expansions if walked
+			// naively, 8 once the settled value is remembered.
+			const levels = ["--_v0:#112233"];
+			for (let level = 1; level <= 8; level += 1) {
+				const below = `var(--_v${level - 1})`;
+				levels.push(`--_v${level}:${Array(12).fill(below).join(" ")}`);
+			}
+			const run = prepare(
+				`<svg width="10" height="10" style="${levels.join(";")}"><rect fill="var(--_v1)" width="1" height="1"/></svg>`,
+			);
+			expect(run.outcome).toBe("drawn");
+			expect(run.ms).toBeLessThan(250);
+			const deep = prepare(
+				`<svg width="10" height="10" style="${levels.join(";")}"><rect fill="var(--_v8)" width="1" height="1"/></svg>`,
+			);
+			expect(deep.ms).toBeLessThan(250);
+		});
+	});
+
+	it("does not read inherited object keys as attributes or entities", () => {
+		const prepared = prepareDiagramSvg(
+			'<svg width="10" height="10"><rect constructor="1" toString="2" __proto__="3" x="1" y="1" width="2" height="2"/><text x="1" y="1">a&constructor;b&toString;c</text></svg>',
+			{ theme: LIGHT, fontSize: 14 },
+		);
+		const rect = prepared.root.children.find(
+			(child): child is SvgNode =>
+				typeof child !== "string" && child.tag === "rect",
+		);
+		expect(Object.keys(rect?.props ?? {}).sort()).toEqual([
+			"height",
+			"width",
+			"x",
+			"y",
+		]);
+		const text = prepared.root.children.find(
+			(child): child is SvgNode =>
+				typeof child !== "string" && child.tag === "text",
+		);
+		expect(text?.children).toEqual(["a&constructor;b&toString;c"]);
+	});
+
+	it("keeps only a viewBox of four real numbers", () => {
+		for (const box of ["1 1 1 1.2.3", "0 0 10", "a b c d", "0 0 -- 5"]) {
+			const prepared = prepareDiagramSvg(
+				`<svg width="10" height="10" viewBox="${box}"/>`,
+				{ theme: LIGHT, fontSize: 14 },
+			);
+			expect(prepared.root.props.viewBox).toBe("0 0 10 10");
+		}
+	});
 
 	it("bounds nesting and size", () => {
 		const options: PrepareOptions = { theme: LIGHT, fontSize: 14 };

@@ -92,7 +92,10 @@
 	"mobile.session.sheet_title.attach": "đính kèm",
 	"mobile.session.diagram.label": "Sơ đồ {type}",
 	"mobile.session.diagram.label_titled": "Sơ đồ {type}: {title}",
-	"mobile.session.diagram.copy_hint": "Sao chép nguồn của sơ đồ",
 	"mobile.session.diagram.copied": "đã sao chép",
-	"mobile.session.diagram.error": "Không thể vẽ sơ đồ này. Đang hiển thị mã nguồn thay thế."
+	"mobile.session.diagram.error": "Không thể vẽ sơ đồ này. Đang hiển thị mã nguồn thay thế.",
+	"mobile.session.diagram.open_hint": "Mở sơ đồ toàn màn hình để phóng to và di chuyển",
+	"mobile.session.diagram.copy": "Sao chép nguồn của sơ đồ",
+	"mobile.session.diagram.close": "Đóng sơ đồ",
+	"mobile.session.diagram.viewer": "Trình xem sơ đồ"
 }

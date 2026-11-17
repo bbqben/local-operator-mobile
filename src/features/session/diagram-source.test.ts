@@ -3,7 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
 	diagramLayout,
 	isDiagramBlock,
+	MAX_DRAWN_AREA_PT,
+	MAX_DRAWN_SIDE_PT,
 	MIN_DIAGRAM_SCALE,
+	viewerScale,
+	withinDrawBudget,
 } from "@/features/session/diagram-source";
 import { type Block, parseMarkdown } from "@/features/session/markdown";
 
@@ -76,17 +80,22 @@ describe("fitting a diagram to the column", () => {
 	});
 
 	it("shrinks to the column down to the floor", () => {
-		const layout = diagramLayout({ width: 400, height: 200 }, 300);
-		expect(layout.scale).toBeCloseTo(0.75, 5);
+		const layout = diagramLayout({ width: 340, height: 200 }, 300);
+		expect(layout.scale).toBeCloseTo(300 / 340, 5);
 		expect(layout.width).toBeCloseTo(300, 5);
 		expect(layout.scrolls).toBe(false);
+	});
+
+	it("keeps Pele's smallest labels readable at the floor", () => {
+		// Pele's smallest labels are 12 pt at full size.
+		expect(12 * MIN_DIAGRAM_SCALE).toBeGreaterThanOrEqual(10);
 	});
 
 	it("holds the floor and scrolls sideways beyond it", () => {
 		const layout = diagramLayout({ width: 800, height: 400 }, 300);
 		expect(layout.scale).toBe(MIN_DIAGRAM_SCALE);
-		expect(layout.width).toBeCloseTo(560, 5);
-		expect(layout.height).toBeCloseTo(280, 5);
+		expect(layout.width).toBeCloseTo(680, 5);
+		expect(layout.height).toBeCloseTo(340, 5);
 		expect(layout.scrolls).toBe(true);
 	});
 
@@ -94,5 +103,63 @@ describe("fitting a diagram to the column", () => {
 		const layout = diagramLayout({ width: 300, height: 100 }, 0);
 		expect(layout.scale).toBe(MIN_DIAGRAM_SCALE);
 		expect(Number.isFinite(layout.width)).toBe(true);
+	});
+});
+
+describe("the draw budget", () => {
+	it("draws what real diagrams measure (Pele 1.13.0 at maxWidth 340)", () => {
+		const measured = [
+			{ width: 452, height: 385 }, // 10-node tree
+			{ width: 1576, height: 466 }, // 30-node tree
+			{ width: 3210, height: 547 }, // 60-node tree
+			{ width: 78, height: 5548 }, // 60-node chain
+			{ width: 2442, height: 836 }, // 80-node random graph
+		];
+		for (const size of measured) expect(withinDrawBudget(size)).toBe(true);
+	});
+
+	it("refuses what a native view cannot hold", () => {
+		const hostile = [
+			{ width: 78, height: 9268 }, // 100-node chain
+			{ width: 5388, height: 628 }, // 100-node tree
+			{ width: 137, height: 55_768 }, // 600-node chain
+			{ width: 6865, height: 14_137 }, // 200 random nodes
+			{ width: Number.POSITIVE_INFINITY, height: 10 },
+			{ width: Number.NaN, height: 10 },
+		];
+		for (const size of hostile) expect(withinDrawBudget(size)).toBe(false);
+	});
+
+	it("never lets the viewer exceed the budget either", () => {
+		for (const size of [
+			{ width: 100, height: 100 },
+			{ width: 1576, height: 466 },
+			{ width: 78, height: 5548 },
+			{ width: 2442, height: 836 },
+		]) {
+			const scale = viewerScale(size, 390);
+			expect(size.width * scale * size.height * scale).toBeLessThanOrEqual(
+				MAX_DRAWN_AREA_PT + 1,
+			);
+			expect(Math.max(size.width, size.height) * scale).toBeLessThanOrEqual(
+				MAX_DRAWN_SIDE_PT + 1,
+			);
+		}
+	});
+});
+
+describe("the viewer's scale", () => {
+	it("fits the window's width, up to 3x", () => {
+		expect(viewerScale({ width: 100, height: 100 }, 390)).toBe(3);
+		expect(viewerScale({ width: 300, height: 100 }, 390)).toBeCloseTo(
+			(390 - 32) / 300,
+			5,
+		);
+	});
+
+	it("never goes below the inline floor for a wide diagram", () => {
+		expect(viewerScale({ width: 2000, height: 400 }, 390)).toBe(
+			MIN_DIAGRAM_SCALE,
+		);
 	});
 });

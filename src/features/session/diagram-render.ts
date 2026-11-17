@@ -1,3 +1,4 @@
+import { withinDrawBudget } from "./diagram-source";
 import { type PreparedDiagram, prepareDiagramSvg } from "./diagram-svg";
 import { PELE_FONT_SIZE } from "./diagram-theme";
 
@@ -90,10 +91,9 @@ const remember = (key: string, result: DiagramResult): void => {
 export const peekDiagram = (
 	request: DiagramRequest,
 ): DiagramResult | undefined => {
-	const key = cacheKey(request);
-	const hit = cache.get(key);
-	if (hit) remember(key, hit);
-	return hit;
+	// Read-only: this runs during render, so it must not reorder the cache.
+	// Recency is updated when a result settles (`remember`).
+	return cache.get(cacheKey(request));
 };
 
 /** Forget every settled diagram. Tests only; the cache is bounded in use. */
@@ -145,16 +145,22 @@ export const renderDiagram = async (
 			links: false,
 			images: false,
 		});
-		result = {
-			ok: true,
-			type: rendered.type,
-			prepared: prepareDiagramSvg(rendered.svg, {
-				theme: request.theme,
-				sansFamily: request.fonts.sans,
-				monoFamily: request.fonts.mono,
-				fontSize: PELE_FONT_SIZE,
-			}),
-		};
+		const prepared = prepareDiagramSvg(rendered.svg, {
+			theme: request.theme,
+			sansFamily: request.fonts.sans,
+			monoFamily: request.fonts.mono,
+			fontSize: PELE_FONT_SIZE,
+		});
+		// A native view is one surface the size of the drawing; past the budget it
+		// cannot be allocated, so the block shows its source instead (see
+		// `MAX_DRAWN_AREA_PT`).
+		result = withinDrawBudget(prepared)
+			? { ok: true, type: rendered.type, prepared }
+			: {
+					ok: false,
+					reason: "invalid",
+					message: `Too large to draw on a phone (${Math.round(prepared.width)} × ${Math.round(prepared.height)} pt).`,
+				};
 	} catch (error) {
 		const message =
 			error instanceof Error && error.message !== ""
@@ -165,3 +171,17 @@ export const renderDiagram = async (
 	remember(key, result);
 	return result;
 };
+
+/**
+ * What a block shows right now: the cached drawing if there is one, else the
+ * last settled result FOR THE SAME SOURCE (a theme change, a rotation or a width
+ * correction re-requests the same text — keep its drawing until the new one
+ * arrives rather than flash the code block), else nothing yet.
+ */
+export const currentResult = (
+	cached: DiagramResult | undefined,
+	settled: { request: DiagramRequest; result: DiagramResult } | null,
+	source: string,
+): DiagramResult | null =>
+	cached ??
+	(settled && settled.request.source === source ? settled.result : null);

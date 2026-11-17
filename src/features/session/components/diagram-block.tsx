@@ -1,13 +1,16 @@
 import * as Clipboard from "expo-clipboard";
 import {
+	lazy,
 	memo,
 	type ReactNode,
+	Suspense,
 	useContext,
 	useEffect,
 	useMemo,
 	useState,
 } from "react";
 import {
+	AccessibilityInfo,
 	Platform,
 	Pressable,
 	ScrollView,
@@ -15,9 +18,11 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import { DiagramGlyph } from "@/features/session/components/diagram-glyphs";
 import { useTextSelection } from "@/features/session/components/selectable-message";
 import { GroupInsetContext } from "@/features/session/components/trace-rail";
 import {
+	currentResult,
 	type DiagramRequest,
 	type DiagramResult,
 	peekDiagram,
@@ -55,15 +60,38 @@ import { DiagramSvgView } from "./diagram-svg-view";
  * entry and handed to Pele as concrete values, so a theme change (light, dark, any
  * custom palette) is a new request and a redraw, not a stale picture.
  *
- * GESTURES. The frame is one control: tap copies the diagram's source, the same
- * gesture as a code block, and a long press goes to the message's selection mode.
- * Inside it, a diagram wider than the column scrolls SIDEWAYS only, so a
- * one-finger vertical drag always scrolls the transcript. There is no pinch
- * viewer: this app has no zoom surface for an image either, and a new gesture
- * layer for one block type is not this change (see the pull request).
+ * GESTURES. Tapping the picture opens the full-screen viewer (pan, and pinch-zoom
+ * on iOS: `diagram-viewer.tsx`, built on the Team Bridge image viewer's pattern);
+ * a long press goes to the message's selection mode. The header's own button
+ * copies the source (the code block's gesture, moved off the picture so a tap
+ * on it can mean "look closer"). Inside the picture, a diagram wider than the
+ * column scrolls SIDEWAYS only, so a one-finger vertical drag always scrolls
+ * the transcript.
+ *
+ * THE FRAME IS `surface`, THE CODE BLOCK `sunken`: a figure on a card, a listing
+ * in a well. Same border, radius and header strip; Pele paints its own
+ * background as `surface`, so the card is the ground it was drawn for.
  */
 
+/** The viewer is its own module, loaded the first time a diagram is opened: most
+ *  diagrams are read in the transcript and never opened, and it brings the
+ *  modal stack and safe-area machinery with it. */
+const DiagramViewer = lazy(() =>
+	import("@/features/session/components/diagram-viewer").then((module) => ({
+		default: module.DiagramViewer,
+	})),
+);
+
 const WEB = Platform.OS === "web";
+
+/** How long the "copied" marker stays. */
+const COPIED_MS = 1500;
+
+/** The source as the control's spoken value: whole for any ordinary diagram,
+ *  cut at a length a screen reader can sensibly read. */
+const SPOKEN_LIMIT = 2000;
+const spoken = (source: string): string =>
+	source.length > SPOKEN_LIMIT ? `${source.slice(0, SPOKEN_LIMIT)}…` : source;
 
 /** Family names per target. Native: the platform sans (undefined, like the rest
  *  of the transcript's prose) and the bundled mono face. Web: the faces
@@ -114,8 +142,10 @@ function DiagramBlockView({
 	// A synchronous answer when this diagram was drawn before (a virtualised row
 	// mounting again), so the first frame is the diagram and not the code block.
 	const cached = peekDiagram(request);
-	const current =
-		cached ?? (settled && settled.request === request ? settled.result : null);
+	// A new request for the SAME source (a theme change, a rotation, a width the
+	// estimate got wrong) keeps the last drawing until the new one settles: the
+	// alternative is the code block for a frame, a 400 pt jump and back.
+	const current = currentResult(cached, settled, source);
 
 	useEffect(() => {
 		if (cached) return;
@@ -129,16 +159,39 @@ function DiagramBlockView({
 	}, [request, cached]);
 
 	const [copied, setCopied] = useState(false);
+	const [viewing, setViewing] = useState(false);
 	const { enter } = useTextSelection();
+	const { active } = useTheme();
+
+	// The marker is transient (the code block's comment says so; its own never
+	// clears): it resets after a beat, and with the source, so a new diagram in a
+	// reused row never wears the last one's "copied".
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `source` is the reset trigger, not a value read inside.
+	useEffect(() => setCopied(false), [source]);
+	useEffect(() => {
+		if (!copied) return;
+		const timer = setTimeout(() => setCopied(false), COPIED_MS);
+		return () => clearTimeout(timer);
+	}, [copied]);
 
 	if (!current) return <>{fallback}</>;
 	if (!current.ok) {
 		return (
 			<View className="gap-1">
-				<Text className="text-meta text-danger" style={LTR_TEXT}>
+				<Text className="text-meta text-danger">
 					{t("mobile.session.diagram.error")}
-					{current.message !== "" ? `\n${current.message}` : ""}
 				</Text>
+				{current.message !== "" ? (
+					// Pele's own words, English and verbatim: a parser diagnostic about the
+					// reader's source, not interface copy, so it keeps its own direction.
+					<Text
+						className="text-meta text-ink-dim"
+						style={LTR_TEXT}
+						numberOfLines={2}
+					>
+						{current.message}
+					</Text>
+				) : null}
 				{fallback}
 			</View>
 		);
@@ -156,9 +209,9 @@ function DiagramBlockView({
 
 	const drawing = (
 		<View
-			// The picture is one figure: its text is the source, which the control's
-			// label and the copy action expose; drawing every `<text>` to a screen
-			// reader would read the diagram out in paint order.
+			// The drawing is one figure; its words are the source, which the control
+			// below exposes as its value. Reading every `<text>` out in paint order
+			// would not be the diagram.
 			aria-hidden
 			style={{ width: layout.width, height: layout.height }}
 		>
@@ -166,34 +219,59 @@ function DiagramBlockView({
 		</View>
 	);
 
+	const marker = copied
+		? `${language} · ${t("mobile.session.diagram.copied")}`
+		: language;
+	const copy = () => {
+		void Clipboard.setStringAsync(source).then(() => {
+			setCopied(true);
+			AccessibilityInfo.announceForAccessibility(
+				t("mobile.session.diagram.copied"),
+			);
+		});
+	};
+
 	return (
-		<Pressable
-			accessibilityRole={ROLE.button}
-			accessibilityLabel={label}
-			accessibilityHint={t("mobile.session.diagram.copy_hint")}
-			// Same floor reasoning as the code block: a short diagram is under 44 pt.
-			style={{ minHeight: TOUCH_FLOOR }}
-			testID={CONTROL.diagramCopy}
-			onPress={() => {
-				void Clipboard.setStringAsync(source).then(() => setCopied(true));
-			}}
-			onLongPress={enter}
+		<View
+			className="overflow-hidden rounded-sm border border-hairline bg-surface"
 			onLayout={(event) => {
 				const width = Math.round(event.nativeEvent.layout.width);
 				if (width > 0 && width !== measured) setMeasured(width);
 			}}
 		>
-			<View className="overflow-hidden rounded-sm border border-hairline bg-surface">
-				<Text className="border-b border-hairline px-2 py-1 text-meta text-ink-dim">
-					{copied
-						? `${language} · ${t("mobile.session.diagram.copied")}`
-						: language}
-				</Text>
+			<View className="flex-row items-center border-b border-hairline ps-2">
+				<Text className="min-w-0 flex-1 text-meta text-ink-dim">{marker}</Text>
+				<Pressable
+					accessibilityRole={ROLE.button}
+					accessibilityLabel={t("mobile.session.diagram.copy")}
+					testID={CONTROL.diagramCopy}
+					onPress={copy}
+					className="items-center justify-center"
+					style={{ width: TOUCH_FLOOR, height: TOUCH_FLOOR }}
+				>
+					<DiagramGlyph
+						kind={copied ? "check" : "copy"}
+						color={active.colors["ink-dim"]}
+					/>
+				</Pressable>
+			</View>
+			<Pressable
+				accessibilityRole={ROLE.button}
+				accessibilityLabel={label}
+				accessibilityHint={t("mobile.session.diagram.open_hint")}
+				// The Mermaid source is the text alternative: the picture's words, in
+				// the order the author wrote them, for a reader who cannot see it.
+				accessibilityValue={{ text: spoken(source) }}
+				testID={CONTROL.diagramOpen}
+				onPress={() => setViewing(true)}
+				onLongPress={enter}
+			>
 				{layout.scrolls ? (
 					<ScrollView
 						horizontal
-						// Sideways only: vertical drags fall through to the transcript.
-						showsHorizontalScrollIndicator={false}
+						// Sideways only: vertical drags fall through to the transcript. The
+						// indicator is the cue that the figure continues past the edge.
+						showsHorizontalScrollIndicator
 						nestedScrollEnabled
 					>
 						<View style={{ padding: DIAGRAM_FRAME_PAD }}>{drawing}</View>
@@ -203,8 +281,16 @@ function DiagramBlockView({
 						{drawing}
 					</View>
 				)}
-			</View>
-		</Pressable>
+			</Pressable>
+			{viewing ? (
+				<Suspense fallback={null}>
+					<DiagramViewer
+						prepared={prepared}
+						onClose={() => setViewing(false)}
+					/>
+				</Suspense>
+			) : null}
+		</View>
 	);
 }
 

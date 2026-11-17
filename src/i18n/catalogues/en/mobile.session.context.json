@@ -371,10 +371,6 @@
 		"role": "meta",
 		"note": "Accessible name of a drawn diagram that has a title or a first label. {type} is the English technical diagram kind (flowchart, sequence…): keep it as written. {title} is text written by the assistant, inserted unchanged. No final full stop."
 	},
-	"mobile.session.diagram.copy_hint": {
-		"role": "help",
-		"note": "Accessibility hint on a drawn diagram. Activating it copies the diagram's source text (Mermaid syntax) to the clipboard. Sentence case, no final full stop."
-	},
 	"mobile.session.diagram.copied": {
 		"role": "status",
 		"note": "One lower-case word shown beside the diagram kind label ('mermaid · copied') after the source was copied. Mirrors the code block's copied marker. The middle dot separator is added by the app."
@@ -382,5 +378,21 @@
 	"mobile.session.diagram.error": {
 		"role": "status",
 		"note": "Shown above a code block when a diagram could not be drawn. The reason Pele gave follows on its own line in English and is not part of this string. Two short sentences."
+	},
+	"mobile.session.diagram.open_hint": {
+		"role": "help",
+		"note": "Accessibility hint on a drawn diagram in the transcript. Activating it opens the diagram full screen, where it can be panned and (on iPhone) pinch-zoomed. Sentence case, no final full stop."
+	},
+	"mobile.session.diagram.copy": {
+		"role": "button",
+		"note": "Accessible name of the icon button in a diagram's header that copies the diagram's source text (Mermaid syntax) to the clipboard. Imperative, sentence case, no final full stop."
+	},
+	"mobile.session.diagram.close": {
+		"role": "button",
+		"note": "Accessible name of the close button in the full-screen diagram viewer. Imperative, sentence case, no final full stop."
+	},
+	"mobile.session.diagram.viewer": {
+		"role": "heading",
+		"note": "Accessible name of the full-screen diagram viewer dialog. A short noun phrase, sentence case, no final full stop."
 	}
 }

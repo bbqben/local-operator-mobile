@@ -121,7 +121,7 @@ const decodeEntities = (value: string): string =>
 				? String.fromCodePoint(code)
 				: "";
 		}
-		return ENTITIES[body] ?? whole;
+		return Object.hasOwn(ENTITIES, body) ? (ENTITIES[body] as string) : whole;
 	});
 
 /**
@@ -257,12 +257,22 @@ type Scope = {
 	theme: Readonly<Record<string, string>>;
 	/** The root's own custom properties (`--_bg: var(--pele-bg, #fff)` …). */
 	own: Map<string, string>;
+	/** What each private variable resolved to, so a chain is walked once. */
+	settled: Map<string, string | null>;
+	/** Substitutions left for this document. A chain of variables that each name
+	 *  the next one many times grows as references^depth; the memo above makes
+	 *  Pele's own (short, linear) chains cheap and this ends anything else. */
+	steps: number;
 };
+
+const VAR_STEP_BUDGET = 400_000;
 
 /** Substitute every `var(--name, fallback)` in `value`; `null` when one cannot be
  *  resolved (no theme value, no private variable, no fallback). */
 const resolveVars = (value: string, scope: Scope, depth = 0): string | null => {
 	if (depth > MAX_VAR_DEPTH) return null;
+	scope.steps -= 1;
+	if (scope.steps < 0) return null;
 	let out = "";
 	let i = 0;
 	while (i < value.length) {
@@ -288,10 +298,19 @@ const resolveVars = (value: string, scope: Scope, depth = 0): string | null => {
 		const fallback =
 			comma === -1 ? undefined : value.slice(comma + 1, j - 1).trim();
 		if (!VAR_NAME.test(name)) return null;
-		const direct = scope.theme[name] ?? scope.own.get(name);
 		let resolved: string | null = null;
-		if (direct !== undefined) {
-			resolved = resolveVars(direct, scope, depth + 1);
+		const themed = Object.hasOwn(scope.theme, name)
+			? scope.theme[name]
+			: undefined;
+		if (themed !== undefined) {
+			resolved = resolveVars(themed, scope, depth + 1);
+		} else if (scope.own.has(name)) {
+			if (scope.settled.has(name)) {
+				resolved = scope.settled.get(name) ?? null;
+			} else {
+				resolved = resolveVars(scope.own.get(name) as string, scope, depth + 1);
+				scope.settled.set(name, resolved);
+			}
 		}
 		if (resolved === null && fallback !== undefined) {
 			resolved = resolveVars(fallback, scope, depth + 1);
@@ -305,18 +324,21 @@ const resolveVars = (value: string, scope: Scope, depth = 0): string | null => {
 
 /* ------------------------------------------------------- value validation */
 
-const LENGTH = /^-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?(?:px|pt)?$/i;
-const PERCENT_LENGTH = /^-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?(?:px|pt|%)?$/i;
-const NUMBER = /^-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?$/i;
+const LENGTH = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?(?:px|pt)?$/i;
+const PERCENT_LENGTH = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?(?:px|pt|%)?$/i;
+const NUMBER = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?$/i;
 const HEX_COLOUR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 const FUNCTIONAL_COLOUR = /^(?:rgb|rgba|hsl|hsla)\([0-9.,%\s/-]+\)$/i;
 const NAMED_COLOUR = /^[a-z]{3,24}$/i;
 const PATH_DATA = /^[MmLlHhVvCcSsQqTtAaZz0-9eE.,\s+-]*$/;
 const POINTS = /^[0-9eE.,\s+-]*$/;
+// Leading whitespace once, trailing whitespace once per term: two matchers over
+// the same spaces made this exponential on `translate(1)  translate(1)  x`.
 const TRANSFORM =
-	/^(?:\s*(?:translate|rotate|scale|matrix|skewX|skewY)\(\s*[-0-9eE.,\s+]*\)\s*)+$/;
+	/^\s*(?:(?:translate|rotate|scale|matrix|skewX|skewY)\([-0-9eE.,\s+]*\)\s*)+$/;
 const FAMILY = /^[A-Za-z0-9 ,'"_.-]+$/;
-const VIEW_BOX = /^\s*-?[\d.]+(?:[\s,]+-?[\d.]+){3}\s*$/;
+const VIEW_BOX =
+	/^\s*-?(?:\d+(?:\.\d*)?|\.\d+)(?:[\s,]+-?(?:\d+(?:\.\d*)?|\.\d+)){3}\s*$/;
 
 /** Anything that could make a native view fetch, run or navigate. Checked on
  *  every value as well as shape-validated, so a future change to a validator
@@ -575,7 +597,12 @@ export const prepareDiagramSvg = (
 	for (const [name, value] of rootStyle) {
 		if (name.startsWith("--")) own.set(name, value);
 	}
-	const scope: Scope = { theme: options.theme, own };
+	const scope: Scope = {
+		theme: options.theme,
+		own,
+		settled: new Map(),
+		steps: VAR_STEP_BUDGET,
+	};
 	const ctx: Context = { scope, options };
 
 	const rootColourSource = rootStyle.find(([name]) => name === "color")?.[1];
@@ -625,8 +652,8 @@ export const prepareDiagramSvg = (
 		const next: Inherited = { ...inherited };
 
 		const apply = (name: string, rawValue: string) => {
-			const spec = ATTRIBUTES[name];
-			if (!spec) return;
+			if (!Object.hasOwn(ATTRIBUTES, name)) return;
+			const spec = ATTRIBUTES[name] as [string, Kind];
 			const [prop, kind] = spec;
 			const resolved = resolveVars(rawValue, scope);
 			if (resolved === null) return;
@@ -642,7 +669,7 @@ export const prepareDiagramSvg = (
 		};
 
 		for (const [name, value] of element.attrs) {
-			if (name === "style" || name.startsWith("on")) continue;
+			if (name === "style") continue;
 			apply(name, value);
 		}
 		const style = element.attrs.get("style");
