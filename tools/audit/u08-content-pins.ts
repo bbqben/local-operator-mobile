@@ -2214,6 +2214,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
 	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
 	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
@@ -2229,7 +2239,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * regression test. No rendered component or copy changes. Re-derived with
 	 * --print over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
-	src: "c62cf329e6b0ca7736654266d7dc068f3d4dd4edb4516af4487c3aa12f063c82",
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
+	src: "4cbea3d6eec5ec09220b363f3459d254266f3f046f3175fcbdd6a0a8bba65f15",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
