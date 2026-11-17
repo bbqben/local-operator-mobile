@@ -2254,7 +2254,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * parents' committed pins (bd6ea75c… and c62cf329…) as controls and a
 	 * one-byte tamper diverged. Source identity only, NOT rendered U-08
 	 * evidence. */
-	src: "a2cd4cfa39f480e3a669993ee893e556988d1541a8b7468c0a97c925fd91ea1d",
+	/* PR #302 round-1 remediation (R1/Q1/Q2): SessionRow subscribes to the
+	 * locale frame so a mounted conversation row repaints its "new" marker,
+	 * count chips and tag announcement, plus a mounted fr → ur row test and a
+	 * per-locale plural-arm guard for the row counts. Derived LAST with --print
+	 * over the staged tree; an independent git-object treeDigest reader
+	 * reproduced the parent's pin (a2cd4cfa…) from c0c4d661 as the control,
+	 * agreed with --print, and a one-byte tamper of session-row.tsx diverged.
+	 * Source identity only, NOT rendered U-08 evidence. */
+	src: "00db2322767d4f244cd2a1bc3c93bd7944078f4c82b7099cdb77178fa47575cc",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

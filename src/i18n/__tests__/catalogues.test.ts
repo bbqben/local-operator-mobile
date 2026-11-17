@@ -998,6 +998,59 @@ describe("a four-form plural locale agrees with its own rules", () => {
 });
 
 /**
+ * The conversation row's count chips carry every plural arm their locale's own
+ * rules select (PR #302 QA Q1).
+ *
+ * The same failure as the Russian test above, widened to the three O3-b row
+ * counts and every shipped locale: a dropped arm falls back to `other` and still
+ * renders, so neither key parity nor a rendering spot check catches it — "21
+ * вопроса" reads as a count while being the wrong noun form. The REQUIRED arms
+ * come from `Intl.PluralRules(locale)`, the same rules the runtime selects with,
+ * so a locale whose CLDR data grows an arm (fr/es gained `many`) is held to it
+ * without editing this list.
+ */
+/** One plural arm of an ICU message, `many {…}` (the negative control drops it). */
+const MANY_ARM = / many \{[^}]*\}/;
+
+describe("the row count chips carry every plural arm of their locale", () => {
+	const ROW_COUNTS = [
+		"mobile.sidebar.row.asks",
+		"mobile.sidebar.row.agents",
+		"mobile.sidebar.row.todos",
+	] as const;
+
+	/** The plural categories `locale` selects that `value` has no arm for. */
+	const missingArms = (value: string, locale: string): string[] =>
+		new Intl.PluralRules(locale)
+			.resolvedOptions()
+			.pluralCategories.filter((arm) => !value.includes(`${arm} {`));
+
+	const messagesOf = (locale: ShippedLocale): Record<string, string> =>
+		locale === "en"
+			? (ENGLISH_MESSAGES as Record<string, string>)
+			: (CATALOGUES[locale] as Readonly<Record<string, string>>);
+
+	it.each(
+		SHIPPED_LOCALES.flatMap((locale) =>
+			ROW_COUNTS.map((key) => [locale, key] as const),
+		),
+	)("%s %s has an arm for every category", (locale, key) => {
+		const value = messagesOf(locale)[key];
+		expect(value, `${locale} ships ${key}`).toBeDefined();
+		expect(missingArms(value, locale)).toEqual([]);
+	});
+
+	it("would catch a dropped Russian `many` arm (negative control)", () => {
+		/* In memory only: the shipped value minus its `many` arm must be reported,
+		 *  or the check above is vacuous. */
+		const shipped = messagesOf("ru")["mobile.sidebar.row.asks"];
+		const dropped = shipped.replace(MANY_ARM, "");
+		expect(dropped).not.toBe(shipped);
+		expect(missingArms(dropped, "ru")).toEqual(["many"]);
+	});
+});
+
+/**
  * The account-routing seam, bound explicitly.
  *
  * That feature module cannot import the runtime: a plain-`node` CI entry pinned by
