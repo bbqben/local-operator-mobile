@@ -2139,7 +2139,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
 	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
 	 * source admission only, NOT rendered, native or device evidence. */
-	src: "a3c4d1005e169000c63ebabe77966b7c436fa89f86be4b87fdca0f5e911753bc",
+	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
+	 * `allowsRecording: true` (native audio-session argument; no rendered output).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	src: "6367de355a5413c421d48c8ec3c2d457c7478ab74d536b78e8f2dc8323a517d7",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
