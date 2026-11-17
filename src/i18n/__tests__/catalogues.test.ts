@@ -611,6 +611,14 @@ const PROJECT_TAG_EXAMPLE = {
 		"Valid ASCII tag examples with a comma separator; retaining the examples preserves the form's concrete input guidance.",
 };
 
+/* O3-b: the milestone target-date field accepts only ISO 8601, so its mask
+ * hint keeps the English letters where a locale has no unambiguous short form
+ * (the en context allows that; vi's audit notes NNNN-TT-NN would read Năm/Ngày
+ * ambiguously). Listed per locale so a later translation is still caught. */
+const ISO_DATE_MASK = (locale: string, bundle: string) => ({
+	"mobile.projects.milestone.target_date_placeholder": `ISO 8601 input-mask hint the date field enforces (year-month-day, hyphens); the ${locale} O3-b audit passed it unchanged (i18n/audits/evidence/${locale}/mobile.projects/${bundle}/).`,
+});
+
 /** The judged exceptions, per locale (no pending-translation ledger remains). */
 const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 	Record<ShippedLocale, Readonly<Record<string, string>>>
@@ -766,6 +774,7 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
 		"mobile.computers.setup.tui_label":
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the zh-CN audit accepted it as kept Latin (i18n/audits/evidence/zh-CN/m3-s2b2b-computers-setup/).",
+		...ISO_DATE_MASK("zh-CN", "o3b-zh-CN-50d18d"),
 	},
 	ru: {
 		"mobile.settings.account.app_name":
@@ -827,6 +836,7 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the vi audit accepted it as kept Latin (i18n/audits/evidence/vi/m3-s2b2b-computers-setup/).",
 		"mobile.computers.setup.terminal_label":
 			"Vietnamese developers say `Terminal`: a standard loanword, as the vi catalogue already keeps shell and loopback; the vi audit ruled terminal_label ACCEPT (i18n/audits/evidence/vi/m3-s2b2b-computers-setup/).",
+		...ISO_DATE_MASK("vi", "o3b-vi-a2593f"),
 	},
 	hi: {
 		"mobile.settings.account.app_name":

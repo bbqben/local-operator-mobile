@@ -12,13 +12,11 @@
  * ONLY the language through the config store's real reducer, and reads back
  * what painted.
  *
- * ENGLISH-FIRST CAVEAT. The sheet's new O3-b keys (`mobile.sidebar.tags.*`)
- * ship English-first, so for now every locale renders their English fallback
- * and fr/ur cannot be told apart through them. The repaint itself is proved on
- * the two keys the sheet renders that ARE translated (`relay.chrome.row.tags`
- * for the title, `mobile.common.try_again` for the pinned retry); the new keys
- * are asserted to paint the active locale's rendering, which tightens to a
- * real fr → ur difference as soon as their translations land.
+ * The repaint is proved on every key the sheet paints: the two pre-O3-b keys
+ * (`relay.chrome.row.tags` for the title, `mobile.common.try_again` for the
+ * pinned retry) and the O3-b `mobile.sidebar.tags.*` keys, now translated in
+ * all shipped locales. Each key is first guarded to differ between fr and ur
+ * (and ur from English), so an English fallback cannot pass as a repaint.
  */
 import {
 	act,
@@ -163,13 +161,14 @@ describe("a mounted Tags sheet repaints on a language frame", () => {
 
 		host.texts = [];
 		await act(async () => frame("ur", 3));
-		for (const key of TRANSLATED) {
-			// Guard the proof itself: the two locales must differ for this key.
+		for (const key of [...TRANSLATED, ...O3B]) {
+			// Guard the proof itself: the two locales must differ for this key, and
+			// ur must not be the English fallback (a missing translation would
+			// otherwise paint the same English in both frames).
 			expect(renderFor(key, {}, "ur")).not.toBe(renderFor(key, {}, "fr"));
+			expect(renderFor(key, {}, "ur")).not.toBe(renderFor(key, {}, "en"));
 			expect(host.texts).toContain(renderFor(key, {}, "ur"));
 			expect(host.texts).not.toContain(renderFor(key, {}, "fr"));
 		}
-		for (const key of O3B)
-			expect(host.texts).toContain(renderFor(key, {}, "ur"));
 	});
 });

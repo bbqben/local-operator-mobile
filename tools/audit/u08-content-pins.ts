@@ -2213,7 +2213,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * reproduced the parent's committed pin (c6c21aaf…) from main's tree as the
 	 * control, agreed with --print, and a one-byte tamper diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "73fca3debd264d3ec7fe0fcb33082d4d3bc806862cfc26378ee724d5e66f7720",
+	/* O3-b (translations): the 40 O3-b keys land in the 7 shipped locales'
+	 * mobile.common/projects/sidebar catalogues with the regenerated
+	 * catalogue.gen.ts, plus the zh-CN/vi ISO date-mask exemption and a tighter
+	 * fr → ur Tags-sheet repaint test. Derived LAST by an independent treeDigest
+	 * reader over the staged index's git objects; it reproduced the parent's
+	 * pin (73fca3de…) from 39b5e3e5's tree as the control, agreed with --print,
+	 * and a one-byte tamper of ur/mobile.sidebar.json diverged. Source identity
+	 * only, NOT rendered U-08 evidence. */
+	src: "bd6ea75c53573bbd161122af5704c715ad7b2a9d8f3f560869630ed1c658d57a",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

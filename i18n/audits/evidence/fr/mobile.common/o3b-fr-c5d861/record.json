@@ -1,0 +1,94 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-fr-c5d861",
+ "slice": "O3-b",
+ "locale": "fr",
+ "namespace": "mobile.common",
+ "audit_date": "2026-11-17",
+ "key_count": 2,
+ "keys_audited": [
+  "mobile.common.close",
+  "mobile.common.loading"
+ ],
+ "translator_session": "5009dab1a05f",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "c5d861950a8b",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly with ordinary file reads from /Users/damian/.local-operator/sessions/5009dab1a05f/scratchpad/o3b/draft-fr.json (core read_public_copy refuses mobile catalogue paths, so it was not used); English sources read via git show at 39b5e3e5",
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/5009dab1a05f/scratchpad/o3b/draft-fr.json",
+   "sha256": "2c3c8fbe1f1c92be3c131ceda4ff72e2c984a0984a5a3894965f64f6260c12ff",
+   "namespace_values_canonical_json_sha256": "d99ead247d56af945b3f5ad84b67f2ea4d02149af9893e2d7c28b2994fdb6835"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.json",
+   "sha256": "3c869836292710ccb7770ec5e493a64f8349e2420b2cc0e37be6b3a09b87b31e"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.context.json",
+   "sha256": "656ce9a70cc25fc6acaa2f04c2bbe55c90cde56d516e6960100df5cd1a399e7b"
+  },
+  "fr_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/fr/mobile.common.json",
+   "sha256": "04f6c9d30d07e62b82bf1c7326842d970d72914b5239cfdf67e8a620063ee75e",
+   "note": "existing shipped catalogue; draft keys are new (0 overlap)"
+  },
+  "fr_shipped_reference": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/fr/relay.chrome.json",
+   "sha256": "092846834cd5200dfec2b47332a94a6f26aecc482cf4bac5f5afbd0ae88154d0"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/fr.md",
+   "sha256": "ae1519ab7617d19aa826918d607de1d018595094166edbc18aa58f6a8f0a4226"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_fr_categories": [
+   "one",
+   "many",
+   "other"
+  ],
+  "nfc": "pass",
+  "typographic_apostrophe": "pass",
+  "french_spacing": "pass (U+202F before : ? and inside « »)",
+  "width_over_hint": [],
+  "repo_validator": "not run (draft is outside the repo and the repo is read-only for this audit; npm run i18n:check validates in-repo catalogues only). In-memory Python checker used, 9/9 negative controls caught."
+ },
+ "redaction_marker_hits": {
+  "draft": 0,
+  "english_sources": 0,
+  "brief": 2,
+  "brief_note": "both brief hits are the redaction_scan.pattern literal matching itself; no redacted content"
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "artifacts": {
+  "report": "report.md",
+  "audit_log": "audit.log"
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor’s notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

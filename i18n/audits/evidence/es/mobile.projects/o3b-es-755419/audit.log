@@ -1,0 +1,81 @@
+# audit.log o3b-es-755419 mobile.projects — actual commands run by auditor session 7554193aebc4 on 2026-11-17
+
+$ cd <worktree> && W=$PWD B=<brief> D=<draft> node /Users/damian/.local-operator/sessions/7554193aebc4/scratchpad/o3b-check/check-es.mjs   (imports src/i18n/messages.ts parseMessage/formatMessage/pluralCategory; all 40 keys)
+brief keys 40 draft keys 40
+missing [] extra []
+Intl es categories [ 'one', 'many', 'other' ]
+  render mobile.projects.empty.next null => "Crea uno con “Nuevo proyecto” o pide a un agente que abra uno." cat 
+  render mobile.projects.milestone.edit_label null => "Editar lanzamiento" cat 
+  render mobile.sidebar.tags.announcement null => "Etiquetas: Trabajo, Personal" cat 
+PLURAL mobile.sidebar.row.asks arms [ 'one', 'many', 'other' ]
+  render mobile.sidebar.row.asks 0 => "0 preguntas" cat other
+  render mobile.sidebar.row.asks 1 => "1 pregunta" cat one
+  render mobile.sidebar.row.asks 2 => "2 preguntas" cat other
+  render mobile.sidebar.row.asks 10 => "10 preguntas" cat other
+  render mobile.sidebar.row.asks 1000000 => "1000000 de preguntas" cat many
+  render mobile.sidebar.row.asks 1500000 => "1500000 preguntas" cat other
+  render mobile.sidebar.row.asks_not_blocker null => "2 preguntas, sin bloqueo" cat 
+PLURAL mobile.sidebar.row.agents arms [ 'one', 'many', 'other' ]
+  render mobile.sidebar.row.agents 0 => "0 agentes" cat other
+  render mobile.sidebar.row.agents 1 => "1 agente" cat one
+  render mobile.sidebar.row.agents 2 => "2 agentes" cat other
+  render mobile.sidebar.row.agents 10 => "10 agentes" cat other
+  render mobile.sidebar.row.agents 1000000 => "1000000 de agentes" cat many
+  render mobile.sidebar.row.agents 1500000 => "1500000 agentes" cat other
+PLURAL mobile.sidebar.row.todos arms [ 'one', 'many', 'other' ]
+  render mobile.sidebar.row.todos 0 => "0 tareas" cat other
+  render mobile.sidebar.row.todos 1 => "1 tarea" cat one
+  render mobile.sidebar.row.todos 2 => "2 tareas" cat other
+  render mobile.sidebar.row.todos 10 => "10 tareas" cat other
+  render mobile.sidebar.row.todos 1000000 => "1000000 de tareas" cat many
+  render mobile.sidebar.row.todos 1500000 => "1500000 tareas" cat other
+param/parse failures 0
+(node MODULE_TYPELESS_PACKAGE_JSON warning elided)
+
+$ python (session eval kernel): hash/redaction/typography/width/shipped-sibling checks
+$ shasum -a 256 brief draft
+63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe /Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json
+0f98a9560be01f834f3fd91e6efaa60787358ca86f679527ed3e92af4d705fa7 /Users/damian/.local-operator/sessions/a24fe2fed9e4/scratchpad/o3b/draft-es.json
+$ git -C /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a rev-parse HEAD -> 39b5e3e5343dc7302b99f731e5806cf82525d346
+# brief english vs worktree en catalogues: mismatches = []
+# en files: sha256 match brief / git blob at source_commit match / redaction hits
+  src/i18n/catalogues/en/mobile.common.json True True 0
+  src/i18n/catalogues/en/mobile.common.context.json True True 0
+  src/i18n/catalogues/en/mobile.projects.json True True 0
+  src/i18n/catalogues/en/mobile.projects.context.json True True 0
+  src/i18n/catalogues/en/mobile.sidebar.json True True 0
+  src/i18n/catalogues/en/mobile.sidebar.context.json True True 0
+  src/i18n/catalogues/en/relay.chrome.json True True 0
+  src/i18n/catalogues/en/relay.chrome.context.json True True 0
+# redaction pattern (?i)\[redacted[^\]]*\]|<redacted[^>]*>|\*\*\*redacted\*\*\*
+  draft hits 0 | brief raw hits 2 (pattern field matches itself) | brief hits excluding pattern field 0
+# NFC / typography scan of draft values (non-ASCII outside áéíóúñ¿¡“”…ü, straight quotes, "...", space before :;?!, double space)
+  issues 0
+# width: whole-value length > width_hint_chars
+   mobile.sidebar.tags.empty_next 25 > 24
+   mobile.sidebar.row.asks 75 > 10
+   mobile.sidebar.row.agents 69 > 10
+   mobile.sidebar.row.todos 66 > 10
+# plural arm rendered widths (count 1..99, max)
+   mobile.sidebar.row.asks {'one': 11, 'other': 12}
+   mobile.sidebar.row.agents {'one': 9, 'other': 10}
+   mobile.sidebar.row.todos {'one': 8, 'other': 9}
+# shipped es catalogue sha256 (git status)
+   mobile.common 55afb22bd6755965fd8db73ae0fc67167ef2012670e905c88b3dc6f1b1f62d80 clean
+   mobile.projects 68c034fef0eb45995466124b4d5b1c90ab5f5bc731ee2195440431529d9d2fd5 clean
+   mobile.sidebar 2d6b3732558b9fe6e2524f9ec60fdaf9bee7d50af4e8745c388cdf62ee523a2c clean
+   mobile.session 3f968cd4a42353ee1405eaed6310fb9aa5d68c72f8b7fb50708e659cd1b2da45 clean
+   relay.chrome 047c5dcfc70e0add879c896df3fcc811e95cf665e7d0041d6efd8261af215944 clean
+# shipped en->es for the sibling "We couldn't read X just now." pattern
+   mobile.home.folders_read_failed | We couldn't read this computer's folders just now. | Ahora mismo no hemos podido leer las carpetas de esta máquina.
+   mobile.home.models_read_failed | We couldn't read this computer's model list just now. | Ahora mismo no hemos podido leer la lista de modelos de esta máquina.
+   mobile.schedules.read_unreachable | We couldn't read this machine's schedules just now. | Ahora mismo no hemos podido leer las programaciones de esta máquina.
+   mobile.team_bridge.thread.anchor_missing | That message is no longer available. | Ese mensaje ya no está disponible.
+   mobile.agent_avatar.edit_hint | Change this picture in the desktop app | Cambia esta imagen en la aplicación de escritorio
+   mobile.computers.add | Add a computer | Añadir una máquina
+   relay.chrome.row.tags | Tags | Etiquetas
+   mobile.projects.create.title | New project | Nuevo proyecto
+   relay.transcript.label.ask | Ask | Pregunta
+   mobile.session.region.label_todos | tasks | tareas
+   mobile.chrome.drawer.open_count | Open conversations, {count, plural, one {# new conversation} other {# new conversations}} | Abrir conversaciones, {count, plural, one {# conversación nueva} other {# conversaciones nuevas}}
+   mobile.projects.remove_milestone_body | Remove {name} from this project? The milestone goes for good. The project's sessions and its progress line are not touched. | ¿Quitar {name} de este proyecto? El hito se borra para siempre. Las sesiones del proyecto y su línea de progreso no se tocan.
