@@ -2204,7 +2204,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "c6c21aafd614bfe3ac2370634f4e6ec0c1a363523d7999bbf268d2b91d704219",
+	/* TestFlight 1157 rest jitter: a reader's scroll that comes to rest is
+	 * never written afterwards (rest decides from the end event's offset and
+	 * only the end itself resumes following; a trailing event cannot
+	 * re-acquire a rest short of the end) in the Team Bridge viewport and the
+	 * agent transcript. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #296 round-1 remediation: only the end re-acquires a non-follower
+	 * (an anchoring shift is not the reader moving), shared rest slack, doc
+	 * fixes. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	src: "3703e0e2c0dea7c5bdc6037500cf5c9c14258368d3e39c9c695cb56002b5aa58",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
