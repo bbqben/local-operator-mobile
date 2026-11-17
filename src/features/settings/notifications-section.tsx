@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import { useCallback, useEffect, useState } from "react";
 import { AppState, Linking, Platform, Text, View } from "react-native";
 import { useStore } from "zustand";
@@ -452,10 +451,7 @@ export const NotificationsSection = () => {
 											"mobile.notifications.preferences.bridge_system_open",
 										)}
 										onPress={() =>
-											void openChannelSettings(
-												TEAM_BRIDGE_CHANNEL_ID,
-												Constants.expoConfig?.android?.package ?? "",
-											)
+											void openChannelSettings(TEAM_BRIDGE_CHANNEL_ID)
 										}
 									/>
 								</View>

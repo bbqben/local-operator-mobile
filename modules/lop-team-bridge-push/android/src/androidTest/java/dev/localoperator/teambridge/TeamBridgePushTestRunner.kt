@@ -157,10 +157,17 @@ class TeamBridgePushTestRunner : Instrumentation() {
       check(bitmap.getPixel(96, 14) == spec.background) { "$name background pixel" }
       // A corner is outside the circle: transparent, so the OS crop has no halo.
       check(Color.alpha(bitmap.getPixel(1, 1)) == 0) { "$name corner" }
-      // Something white was drawn (a glyph exists), unless the font lacks the script.
+      // Something light was drawn on the tone (a glyph exists). Measured as
+      // "every channel well above the background's", not "near-white": the
+      // silhouette is white at 90 % alpha (core's 230), so on tone 1 its
+      // blended green is ~237 and a >240 test missed it (CI, API 29 and 36).
       var ink = false
+      val bg = spec.background
       for (y in 40 until 152 step 2) for (x in 40 until 152 step 2) {
-        val p = bitmap.getPixel(x, y); if (Color.red(p) > 240 && Color.green(p) > 240 && Color.blue(p) > 240) { ink = true }
+        val p = bitmap.getPixel(x, y)
+        if (Color.red(p) - Color.red(bg) > 60 || Color.green(p) - Color.green(bg) > 60 || Color.blue(p) - Color.blue(bg) > 60) {
+          if (Color.red(p) >= Color.red(bg) && Color.green(p) >= Color.green(bg) && Color.blue(p) >= Color.blue(bg)) ink = true
+        }
       }
       check(ink) { "$name drew no glyph" }
       bitmap.recycle()

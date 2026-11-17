@@ -2263,7 +2263,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "93e737b750fa43af7c1d26d987a2e0ccc8382366f9a511e33a05a96a570edf1a",
+	/* ADR 0010 S2/S4 (feat/android-push-avatars): Android notification
+	 * parity — session channel ids, badge-0, channel state + a Settings line
+	 * shown only on Android when the Team Bridge channel is off, localised
+	 * channel copy, their tests. The web render tree is unchanged (the new
+	 * Settings line is Android-gated). Re-derived with --print over the staged
+	 * tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "8593fe29264c2b9bdfe8f62849259220eb084e797472154a1ff02269e2f5c522",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2290,8 +2296,11 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// config, not a U-08 web layout input.
 	// --print re-pin (PR #244 remediation round 1): comment-only edits — the
 	// Android warm-only claim and the exact-set native-config guard.
+	// --print re-pin (ADR 0010 S2): registers the Android-only
+	// `with-android-team-bridge-push` config plugin (notification receiver
+	// swap); native build config, not a U-08 web layout input.
 	"app.config.ts":
-		"c4b2be52f8a2802eda590a10971a2a624128b86e363f49bfd14ffe611a607d49",
+		"d4ebf2193a3ee15a84c765485a6be336022d97c82f3074a1b7bb57b5df81f43a",
 	"metro.config.js":
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module

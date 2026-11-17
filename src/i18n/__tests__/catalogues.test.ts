@@ -206,7 +206,10 @@ const NAMESPACES = [
 		// Merge of origin/main (08025e10) into O3-a: both comment chains kept;
 		// O3-a's 6 + main's 6 + 3 + 5 over the shared 59 = 79, counted over the
 		// merged en JSON (no shared new key names).
-		expected: 79,
+		// ADR 0010 S2/S4 (Android push parity): +5 the Team Bridge channel name
+		// and description, the conversation "me" name, and the Settings line and
+		// button for a channel switched off in Android settings (79 + 5 = 84).
+		expected: 84,
 	},
 	{
 		name: "mobile.session",
@@ -542,7 +545,11 @@ describe("the English catalogues", () => {
 		/* fix/bridge-429 (#297): + mobile.team_bridge.list.catching_up, the calm
 		 * "Catching up…" rate-limit status: 1060 + 1 = 1061, derived by summing
 		 * the keys of all 25 en catalogue files (mobile.team_bridge 160). */
-		expect(total).toBe(1061);
+		/* ADR 0010 S2/S4 (Android push parity): + 5 mobile.notifications keys
+		 * (channel.team_bridge{,_description}, team_bridge.self_name,
+		 * preferences.bridge_system_{off,open}): 1061 + 5 = 1066, as
+		 * `generate.ts --check` reports for the merged tree. */
+		expect(total).toBe(1066);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -652,6 +659,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -727,6 +736,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -753,6 +764,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		...PROJECT_NAME_EXAMPLE,
@@ -775,6 +788,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -805,6 +820,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -836,6 +853,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.row.a11y":
 			"Placeholder-only screen-reader label, `{name}, {status}, {reach}` — every part is a placeholder and the separators are commas; there is no prose to translate. The sibling a11y_active and a11y_connecting keys end in a translated word and are not identical.",
 		"mobile.computers.transport.radient":
@@ -866,6 +885,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Team Bridge is the unchanged product name in every locale, not an untranslated English sentence.",
 		"mobile.notifications.preferences.bridge_heading":
 			"Team Bridge is the same unchanged product name in this notification group heading; surrounding guidance remains translated.",
+		"mobile.notifications.channel.team_bridge":
+			"Team Bridge is the unchanged product name, here as the Android notification channel's name in system settings; the channel description beside it is translated.",
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		...PROJECT_NAME_EXAMPLE,

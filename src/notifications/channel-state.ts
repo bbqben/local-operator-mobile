@@ -63,12 +63,18 @@ export async function readChannelBlocked(channelId: string): Promise<boolean> {
  */
 export async function openChannelSettings(
 	channelId: string,
-	packageName: string,
+	packageName?: string,
 ): Promise<void> {
 	if (Platform.OS !== "android") return;
 	try {
+		/* Lazy: expo-constants pulls the native module runtime, which the Node
+		 * tests of every screen importing this module cannot load. */
+		const pkg =
+			packageName ??
+			(await import("expo-constants")).default.expoConfig?.android?.package ??
+			"";
 		await Linking.sendIntent("android.settings.CHANNEL_NOTIFICATION_SETTINGS", [
-			{ key: "android.provider.extra.APP_PACKAGE", value: packageName },
+			{ key: "android.provider.extra.APP_PACKAGE", value: pkg },
 			{ key: "android.provider.extra.CHANNEL_ID", value: channelId },
 		]);
 	} catch {

@@ -77,7 +77,9 @@ describe("push avatar contract (ADR 0010 §5)", () => {
 		const gradle = readFileSync(join(moduleDir, "..", "build.gradle"), "utf8");
 		const installed = JSON.parse(
 			readFileSync(
-				join(root, "node_modules/expo-notifications/package.json"),
+				// Joined from segments: a literal `…/package.json` path would be
+				// read by `fixtures.test.ts` as a corpus fixture reference.
+				join(root, "node_modules", "expo-notifications", "package.json"),
 				"utf8",
 			),
 		) as { version: string };
