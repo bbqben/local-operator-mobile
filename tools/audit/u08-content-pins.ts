@@ -723,7 +723,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged app carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	app: "0eef54119604f176cb2e445670e92e74eeaf8f928cdfc23308a33ce166204597",
+	/* PR #290 (persist across updates), QA round 1 Q-1: the root layout mounts
+	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
+	 * adopted out of the sealed family) at boot. Re-derived with --print over
+	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
+	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2139,7 +2143,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
 	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
 	 * source admission only, NOT rendered, native or device evidence. */
-	src: "a3c4d1005e169000c63ebabe77966b7c436fa89f86be4b87fdca0f5e911753bc",
+	/* PR #290 (persist across updates): preferences move out of the sealed
+	 * device family into a file-backed preference store, keychain reads that
+	 * fail on a locked launch defer instead of resetting, and QA round 1's
+	 * Q-1/Q-2 (boot-time sidebar adoption, field-wise sidebar writes). Nothing
+	 * the U-08 scene renders changes. Re-derived with --print over the staged
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#289, f390fdda) into PR #290: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides, so
+	 * it matches neither parent. Re-derived with --print over the staged merged
+	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	src: "4d31318748e90b2c443c28370c040ec9990b384b259745a61d3d2dffe98faaaa",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

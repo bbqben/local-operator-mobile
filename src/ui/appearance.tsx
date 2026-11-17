@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityInfo, useColorScheme } from "react-native";
 import { Uniwind, useCSSVariable } from "uniwind";
 
-import { deviceStore } from "@/features/session/device-storage";
+import { hydrateWhenAvailable } from "@/state/hydrate-when-available";
+import { preferenceStore, subscribeAppActive } from "@/state/preferences";
 import {
 	activeThemeId,
 	parseSelection,
-	serializeSelection,
+	serializeSelectionOver,
 	THEME_SELECTION_KEY,
 	type ThemeMode,
 	type ThemeSelection,
@@ -86,22 +87,33 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 	const hydrated = useUiStore((state) => state.themeHydrated);
 	const hydrate = useUiStore((state) => state.hydrateThemeSelection);
 
-	useEffect(() => {
-		let cancelled = false;
-		deviceStore
-			.get(THEME_SELECTION_KEY)
-			.then((raw) => {
-				if (!cancelled) hydrate(parseSelection(raw));
-			})
-			.catch(() => {
-				// An unreadable store keeps the default rather than blocking boot:
-				// appearance is a preference, never a reason not to render.
-				if (!cancelled) hydrate(parseSelection(null));
-			});
-		return () => {
-			cancelled = true;
-		};
-	}, [hydrate]);
+	/* What was last read or written: the bytes, and the selection they parsed
+	 *  to. The persist effect writes only what the reader changed relative to it
+	 *  (`serializeSelectionOver`), so a value this build cannot display is never
+	 *  overwritten by the default it displays instead. */
+	const stored = useRef<{
+		raw: string | null;
+		selection: ThemeSelection;
+	} | null>(null);
+
+	/* An unreadable store renders the default WITHOUT hydrating: the store stays
+	 *  unhydrated, so the persist effect below cannot write that default over the
+	 *  reader's choice, and the read is retried on the next `active` (a locked
+	 *  background launch is the case; see `hydrateWhenAvailable`). Appearance is
+	 *  still never a reason not to render. */
+	useEffect(
+		() =>
+			hydrateWhenAvailable({
+				read: () => preferenceStore.get(THEME_SELECTION_KEY),
+				onValue: (raw) => {
+					const selection = parseSelection(raw);
+					stored.current = { raw, selection };
+					hydrate(selection);
+				},
+				subscribeActive: subscribeAppActive,
+			}),
+		[hydrate],
+	);
 
 	useEffect(() => {
 		Uniwind.updateCSSVariables(
@@ -117,14 +129,21 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
 	useEffect(() => {
 		// Never before hydration: the default it holds would overwrite the choice
-		// it is about to read.
-		if (!hydrated) return;
-		deviceStore
-			.set(THEME_SELECTION_KEY, serializeSelection(selection))
-			.catch(() => {
-				// A failed write costs persistence across a relaunch, not the
-				// choice on screen, and there is nobody to tell mid-tap.
-			});
+		// it is about to read. Never for the selection just read, either: writing
+		// back what was read is how a display fallback became a stored reset.
+		const previous = stored.current;
+		if (!hydrated || previous === null || selection === previous.selection)
+			return;
+		const raw = serializeSelectionOver(
+			previous.raw,
+			previous.selection,
+			selection,
+		);
+		stored.current = { raw, selection };
+		preferenceStore.set(THEME_SELECTION_KEY, raw).catch(() => {
+			// A failed write costs persistence across a relaunch, not the
+			// choice on screen, and there is nobody to tell mid-tap.
+		});
 	}, [hydrated, selection]);
 
 	return children;

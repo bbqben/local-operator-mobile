@@ -6,7 +6,11 @@ import {
 	getStartupAuthorization,
 	StartupAuthorizationLifecycle,
 } from "./startup-authorization";
-import { memorySecureStore, SecureStorage } from "./storage";
+import {
+	memorySecureStore,
+	SecureStorage,
+	SecureStoreUnavailableError,
+} from "./storage";
 
 /**
  * The generation's job is to keep one identity's drafts away from the next
@@ -510,9 +514,11 @@ describe("startup authorization privacy boundary", () => {
 				vi.spyOn(f.adapter, "getItemAsync").mockRejectedValue(
 					new Error("locked"),
 				);
-				await expect(f.store.readStartupAuthorization()).rejects.toThrow(
-					"locked",
-				);
+				/* Typed, not swallowed: a locked keystore is "could not answer"
+				 * (`SecureStoreUnavailableError`), carrying the platform error. */
+				const read = f.store.readStartupAuthorization();
+				await expect(read).rejects.toBeInstanceOf(SecureStoreUnavailableError);
+				await expect(read).rejects.toHaveProperty("cause.message", "locked");
 			} else {
 				await f.store.writeStartupAuthorization({
 					version: 1,

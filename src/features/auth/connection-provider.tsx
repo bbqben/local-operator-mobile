@@ -144,7 +144,11 @@ import {
 import { openUsualComputer } from "./cold-start-computer";
 import { type ConfigStreamHandle, startConfigStream } from "./config-stream";
 import { createRadientAccess } from "./radient-access";
-import { adoptableSession, carryOutRestore } from "./radient-restore";
+import {
+	adoptableSession,
+	carryOutRestore,
+	RESTORE_UNREACHABLE_MESSAGE,
+} from "./radient-restore";
 import { beginRadientSignIn, type SignInState } from "./radient-sign-in";
 import {
 	failureSubject,
@@ -741,7 +745,9 @@ export const ConnectionProvider = ({
 	const revocationOwnerRef = useRef<symbol | null>(null);
 	/** The latest revision of the cold-start restore, so the retry a network failure
 	 *  offers can re-run the very function that offered it — see `restoreRadient`. */
-	const restoreRef = useRef<() => Promise<void>>(async () => undefined);
+	const restoreRef = useRef<() => Promise<{ deferred: boolean }>>(async () => ({
+		deferred: false,
+	}));
 	/** The latest `selectComputer`, for the cold start's computer restore. Read
 	 *  through a ref so the cold-start effect does not list it as a dependency: a
 	 *  new revision of the pick must never re-run the whole cold start. */
@@ -2242,6 +2248,16 @@ export const ConnectionProvider = ({
 				},
 				isCancelled: () => !admission.isCurrent(),
 			});
+			/* A pick happens in the foreground, so a keystore that cannot answer here
+			 *  is not the lock screen's to wait out: offer the retry, keep the grant. */
+			if (outcome.deferred)
+				return {
+					tokens: null,
+					refusal: {
+						surface: "retry",
+						displayableMessage: RESTORE_UNREACHABLE_MESSAGE,
+					},
+				};
 			return {
 				tokens: outcome.tokens,
 				refusal: outcome.refusal
@@ -2779,7 +2795,11 @@ export const ConnectionProvider = ({
 	 * set, so a reader whose session lapsed is TOLD that — never quietly shown a
 	 * first-run screen as though they had never signed in.
 	 */
-	const restoreRadient = useCallback(async () => {
+	const restoreRadient = useCallback(async (): Promise<{
+		/** The keystore could not be read (a locked phone): the cold start must
+		 *  retry on the next `active`, whatever state the launch reported. */
+		deferred: boolean;
+	}> => {
 		let ownsGrant = radientAccessRef.current?.capture();
 		const revision = connectionStore.getState().revision;
 		const authorizationRevision = startupAuthorizationLifecycle.getRevision();
@@ -2825,11 +2845,12 @@ export const ConnectionProvider = ({
 			},
 			isCancelled: () => !isCurrent() || !ownsGrant?.(),
 		});
-		if (!isCurrent() || !ownsGrant?.()) return;
+		if (!isCurrent() || !ownsGrant?.()) return { deferred: false };
+		if (outcome.deferred) return { deferred: true };
 		/* One-way latch no more: any restore that does not end accepted clears it, so a
 		 *  later arrival at `/` cannot inherit a stale "signed in" landing. */
 		if (!outcome.restored && mountedRef.current) setRestoredAccount(false);
-		if (outcome.refusal === null) return;
+		if (outcome.refusal === null) return { deferred: false };
 		/* Radient unreachable on a cold start is a typed failure (PR #261 U9): the
 		 *  same "Radient isn't responding" copy the mint path shows for the same
 		 *  cause, and a Last error instead of "None". Recorded with
@@ -2848,8 +2869,11 @@ export const ConnectionProvider = ({
 		 *  `restoreRef` holds the latest revision of this function, because the
 		 *  function is what offers the retry. */
 		if (outcome.refusal.surface === "retry") {
-			retryRef.current = () => restoreRef.current();
+			retryRef.current = async () => {
+				await restoreRef.current();
+			};
 		}
+		return { deferred: false };
 	}, [
 		refreshComputers,
 		revokeRadientGrant,
@@ -2947,16 +2971,22 @@ export const ConnectionProvider = ({
 		 * re-runs the Radient restore ONCE, on the first transition to `active`
 		 * (when the device is necessarily unlocked).
 		 *
-		 * Deliberately NOT done: relaxing the keychain class to AFTER_FIRST_UNLOCK.
-		 * That widens when the access grant is readable, a security trade the owner
-		 * decides, not a side effect of this fix. Only the Radient restore is
-		 * retried; an own-tunnel password read the lock refused is not (the screen
-		 * still asks for it, as on any launch without one). */
+		 * Since 2026-11-16 the owner chose AFTER_FIRST_UNLOCK for these items
+		 * (`backgroundReadableAccessibility`), so a locked read now fails only
+		 * before the first unlock after a reboot, or on the first background launch
+		 * after updating from a build that wrote them WHEN_UNLOCKED (the TestFlight
+		 * case the operator reported). Such a read no longer reports `null`: the
+		 * restore comes back `deferred`, and a deferred restore arms this retry
+		 * whatever `AppState` the launch reported, re-arming if the retry is
+		 * deferred again. Only the Radient restore is retried; an own-tunnel
+		 * password read the lock refused is not (the screen still asks for it, as
+		 * on any launch without one). */
 		const launchedInactive = AppState.currentState !== "active";
+		let restoreDeferred = false;
 		let resumeRetry: { remove: () => void } | null = null;
 		const retryRestoreOnFirstActive = () => {
 			/* `interrupted()`: the reader already acted during the cold start. */
-			if (!launchedInactive || interrupted()) return;
+			if ((!launchedInactive && !restoreDeferred) || interrupted()) return;
 			/* Restored something (a Radient grant, or a dialled own tunnel): there
 			 *  is nothing to retry. */
 			if (
@@ -2977,7 +3007,11 @@ export const ConnectionProvider = ({
 					connectionStore.getState().revision !== settledRevision
 				)
 					return;
-				void restoreRef.current();
+				void restoreRef.current().then((outcome) => {
+					if (!outcome.deferred || cancelled) return;
+					restoreDeferred = true;
+					retryRestoreOnFirstActive();
+				});
 			});
 		};
 		void (async () => {
@@ -3003,7 +3037,7 @@ export const ConnectionProvider = ({
 					}
 				}
 				/* Nothing of the reader's own to dial: the RECOMMENDED path's turn. */
-				if (!interrupted()) await restoreRadient();
+				if (!interrupted()) restoreDeferred = (await restoreRadient()).deferred;
 				if (!interrupted()) await restorePageRoute();
 				/* Last: open the computer the reader was on (or their only one) instead
 				 *  of parking a restored account on the picker every launch. Awaited
