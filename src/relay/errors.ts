@@ -195,6 +195,12 @@ export const GATEWAY_REASONS = [
 	"tunnel_disabled",
 	"billing_inactive",
 	"billing_lapsed",
+	/* local-operator PR #4168: Radient answered the computer's authorization check
+	 * with 429/408 (on 2026-11-17, its edge WAF's per-IP limit). The computer keeps
+	 * serving on its last good check for up to 10 minutes and sends this only
+	 * past that, with `Retry-After` = its next check. Before it, the same 429
+	 * arrived as `authorization_refused` and stopped every stream for good. */
+	"authorization_unavailable",
 ] as const;
 
 export type GatewayReason = (typeof GATEWAY_REASONS)[number];
@@ -246,6 +252,15 @@ const REASON_POLICY: Record<
 	 *  "Radient isn't responding", `refusal.ts`) — never "computer offline". No
 	 *  Retry-After: the gateway sends none for it, and no number was measured. */
 	server_unavailable: { surface: "retry", retry: "after-backoff" },
+	/* A wait, never a remedy: the computer names when it asks Radient again in
+	 *  `Retry-After`, which wins; 10 s is `control_plane_unreachable`'s floor for
+	 *  a gateway that sends none. The conversation reconnects through it silently
+	 *  (`isSilentGatewayWait`). */
+	authorization_unavailable: {
+		surface: "retry",
+		retry: "after-backoff",
+		retryAfterMs: 10_000,
+	},
 	/* The four inactive-tunnel causes are fixed OUTSIDE this phone (a top-up, a
 	 *  console toggle, the desktop's set-up), so they are the `console` surface
 	 *  and this layer never retries them; the copy names the one fix and offers

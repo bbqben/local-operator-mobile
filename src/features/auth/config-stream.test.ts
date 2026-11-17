@@ -102,3 +102,68 @@ describe("a woken reopen's baseline is a resync (PR #246 R3)", () => {
 		handle.stop();
 	});
 });
+
+/* Field report 2026-11-17 (TestFlight 1157): an older Mac answered a Radient
+ * rate limit with `503 authorization_refused`, and every stream stopped for good
+ * — nothing reopened until the operator acted 26 minutes later. */
+describe("a gateway refusal on a recently healthy route", () => {
+	beforeEach(() => vi.useFakeTimers());
+	afterEach(() => vi.useRealTimers());
+
+	const legacyRefused = () =>
+		new RelayError("gateway-refused", "copy", {
+			status: 503,
+			reason: "authorization_refused",
+			reasonRaw: "authorization_refused",
+			surface: "console",
+			retry: "never",
+		});
+
+	it("reconnects by itself instead of stopping", () => {
+		const { client, opened } = fakeClient();
+		const handle = startConfigStream(client, createConfigStore(), {
+			restartMs: 2_000,
+		});
+		opened[0]?.onState?.({ state: "open", attempt: 1 });
+		opened[0]?.onError?.(legacyRefused());
+		vi.advanceTimersByTime(20_000);
+		expect(opened.length).toBeGreaterThan(1);
+		handle.stop();
+	});
+
+	it("stops after 2 minutes of refusals, and a foreground re-arms it once", () => {
+		const { client, opened } = fakeClient();
+		const handle = startConfigStream(client, createConfigStore(), {
+			restartMs: 2_000,
+		});
+		opened[0]?.onState?.({ state: "open", attempt: 1 });
+		/* Refuse every reopen for 3 minutes. */
+		for (let elapsed = 0; elapsed < 180_000; elapsed += 1_000) {
+			const latest = opened.at(-1);
+			if (latest !== undefined && !(latest as { refused?: true }).refused) {
+				(latest as { refused?: true }).refused = true;
+				latest.onError?.(legacyRefused());
+			}
+			vi.advanceTimersByTime(1_000);
+		}
+		const stoppedAt = opened.length;
+		vi.advanceTimersByTime(600_000);
+		expect(opened).toHaveLength(stoppedAt);
+		/* The computer's answer can change without the phone changing: a return
+		 * to the foreground asks once more. */
+		expect(handle.wake(Date.now() + 60_000)).toBe(true);
+		expect(opened).toHaveLength(stoppedAt + 1);
+		handle.stop();
+	});
+
+	it("still stops at once on a route that never served", () => {
+		const { client, opened } = fakeClient();
+		const handle = startConfigStream(client, createConfigStore(), {
+			restartMs: 2_000,
+		});
+		opened[0]?.onError?.(legacyRefused());
+		vi.advanceTimersByTime(60_000);
+		expect(opened).toHaveLength(1);
+		handle.stop();
+	});
+});
