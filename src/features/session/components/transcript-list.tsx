@@ -1282,10 +1282,25 @@ export const TranscriptList = ({
 		scrollHold.current.beginDrag();
 		presence?.setHeld(true);
 	}, [presence, releaseWebAnchor]);
-	const onScrollEndDrag = useCallback(() => {
-		scrollHold.current.endDrag();
-		presence?.setHeld(false);
-	}, [presence]);
+	/* The rest offset from the drag/momentum END event (TestFlight 1157):
+	 *  scroll events can lag a glide, and the end events carry the offset the
+	 *  list actually stopped at. Content height keeps its own, newer source. */
+	const observeRest = useCallback(
+		(event?: NativeSyntheticEvent<NativeScrollEvent>) => {
+			const y = event?.nativeEvent?.contentOffset?.y;
+			if (typeof y === "number")
+				factsRef.current = { ...factsRef.current, offsetY: y };
+		},
+		[],
+	);
+	const onScrollEndDrag = useCallback(
+		(event?: NativeSyntheticEvent<NativeScrollEvent>) => {
+			observeRest(event);
+			scrollHold.current.endDrag();
+			presence?.setHeld(false);
+		},
+		[presence, observeRest],
+	);
 	/* The glide after a flick is still the reader's gesture: the presence counts
 	 *  movement only inside a drag or its momentum, which is what keeps the tail
 	 *  pin's own scrolls from raising the rail (round 1, U3). */
@@ -1293,10 +1308,14 @@ export const TranscriptList = ({
 		scrollHold.current.beginMomentum();
 		presence?.setCoasting(true);
 	}, [presence]);
-	const onMomentumScrollEnd = useCallback(() => {
-		scrollHold.current.endMomentum();
-		presence?.setCoasting(false);
-	}, [presence]);
+	const onMomentumScrollEnd = useCallback(
+		(event?: NativeSyntheticEvent<NativeScrollEvent>) => {
+			observeRest(event);
+			scrollHold.current.endMomentum();
+			presence?.setCoasting(false);
+		},
+		[presence, observeRest],
+	);
 
 	/**
 	 * Pin the list to its end, before the frame is painted.
@@ -1330,7 +1349,9 @@ export const TranscriptList = ({
 		});
 		atTail.current = atEnd;
 		scrollPlaces.set(sessionId, { offset: facts.offsetY, atTail: atEnd });
-		pinTail();
+		// No write at rest (TestFlight 1157): a reader at the end is already
+		// there, and one short of it stays where they stopped. The next growth
+		// pins a follower through the content-size path as usual.
 	};
 	/* `Show less` on a message whose top has scrolled above the list (design
 	 *  follow-up to PR #235, D2): bring that top back to just under the list's

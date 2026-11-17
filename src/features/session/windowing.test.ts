@@ -89,7 +89,25 @@ describe("nextAtTail", () => {
 				viewportPt: 118,
 			}),
 		).toBe(false);
+		// Coming back means MOVING down into the band (TestFlight 1157)...
+		expect(
+			nextAtTail({
+				...base,
+				wasAtTail: false,
+				distanceToEnd: 20,
+				previousOffsetY: base.offsetY - 120,
+			}),
+		).toBe(true);
+	});
+	it("a reader resting short of the end is not re-acquired by a trailing event (TestFlight 1157)", () => {
+		// The same offset reported again after the scroll stopped (a trailing
+		// event, or one forced by visible-content anchoring) is not the reader
+		// coming back; re-acquiring here let the next re-measure pin them.
 		expect(nextAtTail({ ...base, wasAtTail: false, distanceToEnd: 20 })).toBe(
+			false,
+		);
+		// ...or reaching the end itself.
+		expect(nextAtTail({ ...base, wasAtTail: false, distanceToEnd: 0.5 })).toBe(
 			true,
 		);
 	});

@@ -239,7 +239,19 @@ export const nextAtTail = (input: {
 	contentPt: number;
 	previousContentPt: number;
 }): boolean => {
-	if (input.distanceToEnd < input.bandPt) return true;
+	if (input.distanceToEnd < input.bandPt) {
+		if (input.wasAtTail) return true;
+		/* A reader AWAY from the tail re-enters it by MOVING down into the
+		 *  band, or by reaching the end itself (TestFlight 1157). A reader who
+		 *  came to rest inside the band, short of the end, chose that place:
+		 *  the platform's trailing scroll event at the same offset, or one
+		 *  forced by visible-content anchoring, used to re-acquire them, and
+		 *  the next row re-measure then pinned them to the end after their
+		 *  scroll had stopped. */
+		return (
+			input.distanceToEnd <= 1 || input.offsetY > input.previousOffsetY + 0.5
+		);
+	}
 	if (!input.wasAtTail) return false;
 	const previousEnd = Math.max(
 		0,

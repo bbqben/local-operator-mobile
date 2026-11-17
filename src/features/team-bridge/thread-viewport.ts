@@ -104,6 +104,14 @@ const timeout = (run: () => void, ms: number) => {
  */
 export const IN_FLIGHT_MS = 250;
 
+/** The part of a drag/momentum end event the rest decision reads. */
+export type ScrollEndEvent = {
+	nativeEvent?: {
+		contentOffset?: { y: number };
+		layoutMeasurement?: { height: number };
+	};
+};
+
 export function createThreadViewport(options: ThreadViewportOptions) {
 	let initial = true;
 	let following = true;
@@ -224,6 +232,22 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			return;
 		}
 		const atTail = y + viewport >= measured - FOLLOW_SLACK;
+		/* RE-ACQUIRING IS A MOVE TOWARD THE END, NOT BEING NEAR IT (TestFlight
+		 *  1157). A reader who came to rest inside the band, short of the end,
+		 *  chose that place; the platform's trailing scroll event at the same
+		 *  offset (or one forced by visible-content anchoring) used to turn
+		 *  following back on, and the next row re-measure then wrote the end
+		 *  offset — "ends me in a different position than the smooth finish".
+		 *  A non-follower re-acquires only by moving down into the band or by
+		 *  reaching the end itself. */
+		const reacquires =
+			following ||
+			y + viewport >= measured - POSITION_SLACK ||
+			(lastY !== null && y > lastY + POSITION_SLACK);
+		if (atTail && !reacquires) {
+			lastY = y;
+			return;
+		}
 		if (atTail) {
 			// A held list is the reader's: arriving near the end mid-scroll is
 			// not a request to be pinned (the decision waits for rest).
@@ -320,20 +344,43 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		setFollowing(false);
 	};
 
-	/** The reader's scroll came to rest: their own offset decides. */
+	/**
+	 * The reader's scroll came to rest: where it stopped is where it stays.
+	 *
+	 * NOTHING IS WRITTEN AT REST (TestFlight 1157: "there shouldn't be
+	 * something that is updating the scroll position after scroll completion,
+	 * it should smoothly stop"). #289 settled a rest anywhere inside the 44 pt
+	 * band to the exact end, and decided from `lastY`, which the list's 100 ms
+	 * `scrollEventThrottle` can leave a whole glide behind (see `observe`).
+	 * Now only a rest AT the end resumes following, and it needs no write: the
+	 * list is already there. A rest short of it is history; a newer message
+	 * raises Jump to newest instead of moving the reader.
+	 */
 	const onRest = () => {
 		if (
 			!landing &&
 			lastY !== null &&
 			content !== null &&
-			lastY + height >= content - FOLLOW_SLACK
+			lastY + height >= content - POSITION_SLACK
 		) {
 			setFollowing(true);
 			gesture = false;
-			// Settle the last few points to the exact end, now that the reader
-			// has let go inside the band.
-			position();
 		}
+	};
+
+	/**
+	 * Take the geometry a drag- or momentum-end event carries. The list's
+	 * `scrollEventThrottle` (100 ms) drops scroll events mid-glide, so the last
+	 * `onScroll` can be a glide behind where the list stopped; React Native's
+	 * end events carry the final offset. Only the offset and viewport are
+	 * taken: content height keeps its own, newer source (`onContentSizeChange`).
+	 */
+	const observe = (event?: ScrollEndEvent) => {
+		const native = event?.nativeEvent;
+		if (!native?.contentOffset) return;
+		lastY = native.contentOffset.y;
+		if (native.layoutMeasurement?.height)
+			height = native.layoutMeasurement.height;
 	};
 
 	/** One hold for both lists (PR #289 N1): `reader-scroll-hold.ts`. */
@@ -391,9 +438,15 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			if (reconcile) position();
 		},
 		onScrollBeginDrag: () => hold.beginDrag(),
-		onScrollEndDrag: () => hold.endDrag(),
+		onScrollEndDrag: (event?: ScrollEndEvent) => {
+			observe(event);
+			hold.endDrag();
+		},
 		onMomentumScrollBegin: () => hold.beginMomentum(),
-		onMomentumScrollEnd: () => hold.endMomentum(),
+		onMomentumScrollEnd: (event?: ScrollEndEvent) => {
+			observe(event);
+			hold.endMomentum();
+		},
 		onTouchMove: intent,
 		// Web: wheel, pointer (mouse, pen AND touch) and scroll keys hold the
 		// list; the scrollbar raises pointer events. Empty on native.
