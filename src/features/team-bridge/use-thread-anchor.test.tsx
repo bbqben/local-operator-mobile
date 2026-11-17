@@ -532,7 +532,16 @@ describe("the landing's own scroll does not retire Jump to newest (Q2-1)", () =>
 			dataReady: () => true,
 			web: true,
 			followChanged: (f) => result.followChanged(f),
+			// The reader's scroll holds the list until it goes idle (TestFlight
+			// 1139); the test runs that idle release by hand.
+			schedule: (run) => {
+				idle = run;
+				return () => {
+					if (idle === run) idle = null;
+				};
+			},
 		});
+		let idle: (() => void) | null = null;
 		v.handlers.onLayout({ nativeEvent: { layout: { height: 708 } } });
 		v.handlers.onContentSizeChange(0, 1100);
 		viewport.current = v;
@@ -561,6 +570,7 @@ describe("the landing's own scroll does not retire Jump to newest (Q2-1)", () =>
 		// The reader scrolls down to the real newest edge: follow resumes, pill retires.
 		await act(async () => v.handlers.onScrollBeginDrag());
 		await scroll(3892 - 708, 3892);
+		await act(async () => idle?.());
 		expect(v.following).toBe(true);
 		expect(result.showJump).toBe(false);
 	});

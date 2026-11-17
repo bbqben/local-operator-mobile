@@ -584,6 +584,10 @@ function ThreadContent({
 	}, [focused, active, admitted, conversationId, tenantId, actions]);
 	const list = useRef<FlatList<model.ThreadItem>>(null);
 	const [positioned, setPositioned] = useState(false);
+	/* A newer message arrived while the reader's own scroll held the list or
+	 *  they rest in history (TestFlight 1139): the pill offers the way down
+	 *  instead of the list yanking them there. */
+	const [newBelow, setNewBelow] = useState(false);
 	// The controller is created once per mounted thread, so it reads the latest
 	// render's thread through refs rather than a stale closure.
 	const newestSeq = useRef(0);
@@ -634,6 +638,7 @@ function ThreadContent({
 			dataReady: () => dataReady.current,
 			web: Platform.OS === "web",
 			followChanged: (following) => followChanged.current(following),
+			newBelow: setNewBelow,
 		});
 	// Admission need not change content height. Web can remeasure the committed
 	// rows now; native still waits for their own content measurement rather than
@@ -1052,6 +1057,9 @@ function ThreadContent({
 									 *  scroll keeps it so the reader can reach a long message's
 									 *  far handle (design R1, D3). Wraps — never replaces — the
 									 *  viewport's intent. */
+									/* Web touch scrolls hold the list through POINTER events
+									 *  (the viewport's handlers, PR #289), so these stay the
+									 *  text-selection wiring alone. */
 									onTouchStart={textSelectionContainerTouch}
 									onTouchEnd={textSelectionContainerTouchEnd}
 									onTouchCancel={textSelectionContainerTouchCancel}
@@ -1171,12 +1179,14 @@ function ThreadContent({
 									className="gap-2 pt-2"
 									testID={SURFACE.teamBridgeComposer}
 								>
-									{showJump ? (
+									{showJump || newBelow ? (
 										/* Above the dock's top edge, over the list's foot, so it
 										 *  rides the keyboard lift with the composer and takes no
-										 *  row from the transcript (no reflow when it goes). Only
-										 *  after an anchored open, until the reader is back at the
-										 *  newest edge; #208's ordinary reader never sees it. */
+										 *  row from the transcript (no reflow when it goes). After
+										 *  an anchored open, and (TestFlight 1139) when a newer
+										 *  message arrives while the reader is away from the end,
+										 *  instead of the list pulling them down; it goes once
+										 *  they are back at the newest edge. */
 										<View
 											pointerEvents="box-none"
 											className="absolute start-0 end-0 items-center pb-2"

@@ -2126,13 +2126,34 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * retained; only this pin conflicted. The merged src carries both sides, so
 	 * it matches neither parent. Re-derived with --print over the staged merged
 	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Reader scroll hold (TestFlight 1139): Team Bridge thread viewport and the
+	 * agent transcript stop every programmatic bottom-follow from a drag or
+	 * momentum start until the reader's scroll rests; Team Bridge shows Jump
+	 * to newest for arrivals meanwhile. Re-derived with --print; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* PR #289 round-1 remediation: the Team Bridge viewport composes the shared
+	 * reader-scroll-hold (momentum reset on a caught glide, web pointer-down
+	 * hold, current-geometry tail at rest, web hold in the agent transcript).
+	 * Re-derived with --print over the staged tree; source admission only,
+	 * NOT rendered, native or device evidence. */
+	/* PR #289 round-2 remediation: web touch holds via touch capture events,
+	 * and a touch pointercancel is ignored. Re-derived with --print over the
+	 * staged tree; source admission only, NOT rendered, native or device
+	 * evidence. */
+	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
+	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
+	 * source admission only, NOT rendered, native or device evidence. */
 	/* PR #290 (persist across updates): preferences move out of the sealed
 	 * device family into a file-backed preference store, keychain reads that
 	 * fail on a locked launch defer instead of resetting, and QA round 1's
 	 * Q-1/Q-2 (boot-time sidebar adoption, field-wise sidebar writes). Nothing
 	 * the U-08 scene renders changes. Re-derived with --print over the staged
 	 * tree; source admission only, NOT rendered, native or device evidence. */
-	src: "951b7a54b957081bfb6b59934690266719566f49719de26a44712fedfd2dfca8",
+	/* Merge of origin/main (#289, f390fdda) into PR #290: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides, so
+	 * it matches neither parent. Re-derived with --print over the staged merged
+	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	src: "4d31318748e90b2c443c28370c040ec9990b384b259745a61d3d2dffe98faaaa",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
