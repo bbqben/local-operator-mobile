@@ -1,0 +1,47 @@
+import sys
+p=sys.argv[1]+'/tools/mock-relay/scenarios.ts'
+s=open(p).read()
+marker='\tadd(\n\t\t"bridge-tool-row-compact",'
+assert marker in s
+scn='''\tadd(
+\t\t"prose-turns",
+\t\t"Scratch evidence scenario (not committed): a plain two-message prose turn, a quiet no_reply close, and a tool turn, each followed by a newer turn.",
+\t\t[],
+\t\t() => {
+\t\t\tconst base = structuredClone(everyKind);
+\t\t\tconst template = base.transcript.find((entry) => entry.kind === "tool");
+\t\t\tif (template === undefined) throw new Error("no tool row to clone");
+\t\t\ttype Row = SessionProjection["transcript"][number];
+\t\t\tconst at = (id: string, kind: Row["kind"], overrides: Partial<Row>): Row => ({
+\t\t\t\t...structuredClone(template),
+\t\t\t\tid, kind, tool_call_id: kind === "tool" ? id : "", tool_name: "", tool_state: "done",
+\t\t\t\ttext: "", summary: "", intent: "", diff_added: 0, diff_removed: 0, elapsed_s: 0,
+\t\t\t\terror: "", images: [], final: true, text_complete: true, details: {}, ...overrides,
+\t\t\t});
+\t\t\tconst long =
+\t\t\t\t"Retries in the sync client work in three layers.\\n\\n**1. Per-request.** Each call retries up to four times with exponential backoff (250 ms, 500 ms, 1 s, 2 s) and full jitter, but only for errors that are safe to repeat: connection resets, 502/503/504 and timeouts. A 4xx never retries.\\n\\n**2. Per-batch.** A batch that fails midway is resumed from its last acknowledged cursor, not restarted, so a flaky link cannot re-send rows the server already holds.\\n\\n**3. Per-session.** After three failed batches the session pauses and tells you why; it does not spin. Resuming clears the counters.\\n\\nThe settings live in `sync.retry`, and every layer logs its decision at debug level, so a support bundle shows which layer gave up.";
+\t\t\tconst projection = projectionFrom(base, {
+\t\t\t\tconversation_name: "Retry notes",
+\t\t\t\ttranscript: [
+\t\t\t\t\tat("p-u1", "user", { text: "Explain how retries work in the sync client." }),
+\t\t\t\t\tat("p-a1", "assistant", { text: long }),
+\t\t\t\t\tat("p-a2", "assistant", { text: "Want me to open a PR that documents this?" }),
+\t\t\t\t\tat("p-u2", "user", { text: "Not now. Anything quiet to report?" }),
+\t\t\t\t\tat("p-a3", "assistant", { text: "Nothing to report beyond the above." }),
+\t\t\t\t\tat("p-q1", "tool", { tool_name: "no_reply", summary: "no reply" }),
+\t\t\t\t\tat("p-u3", "user", { text: "Run the tests." }),
+\t\t\t\t\tat("p-t1", "tool", { tool_name: "bash", summary: "pnpm test", elapsed_s: 4 }),
+\t\t\t\t\tat("p-t2", "tool", { tool_name: "bash", summary: "pnpm lint", elapsed_s: 2 }),
+\t\t\t\t\tat("p-t3", "tool", { tool_name: "read", summary: "report.txt", elapsed_s: 1 }),
+\t\t\t\t\tat("p-a4", "assistant", { text: "All green: 7,295 tests passed." }),
+\t\t\t\t\tat("p-u4", "user", { text: "Thanks." }),
+\t\t\t\t\tat("p-a5", "assistant", { text: "Anytime." }),
+\t\t\t\t],
+\t\t\t});
+\t\t\treturn { projections: { [projection.session_id]: projection } };
+\t\t},
+\t);
+
+'''
+s=s.replace(marker, scn+marker,1)
+open(p,'w').write(s)
