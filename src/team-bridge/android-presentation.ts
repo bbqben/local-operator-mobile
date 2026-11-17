@@ -19,6 +19,7 @@
  */
 
 import { Platform } from "react-native";
+import { RADIENT_API_BASE } from "@/connection/discovery";
 import { t } from "@/i18n";
 import { loadNotifications } from "@/notifications/native";
 
@@ -29,6 +30,7 @@ export const TEAM_BRIDGE_CHANNEL_ID = "team-bridge";
 /** What the Kotlin module exposes (`LopTeamBridgePushModule.kt`). */
 interface NativeTeamBridgePush {
 	setPresentationStrings(selfName: string, hiddenPreview: string): void;
+	setHubOrigin(origin: string): void;
 	removeConversationShortcuts(): Promise<void>;
 }
 
@@ -56,6 +58,14 @@ export const presentationStrings = () => ({
 	 * preview placeholder (`categories.ts`), so both platforms say one thing. */
 	hiddenPreview: t("mobile.notifications.category.message_placeholder"),
 });
+
+/**
+ * The registered hub's origin: the ONLY origin the native side may fetch a
+ * push avatar photo from (ADR 0010 S5, `PushAvatarFetcher.kt`). A payload whose
+ * `sender.photo.url` names any other origin gets no request and so never sees
+ * the nonce. The production hub base, as the hub client uses it.
+ */
+export const hubOrigin = (): string => new URL(RADIENT_API_BASE).origin;
 
 /** The channel input, resolved in the reader's current language. */
 export const teamBridgeChannelInput = (
@@ -101,6 +111,11 @@ export async function ensureAndroidTeamBridgePresentation(): Promise<void> {
 		native.setPresentationStrings(strings.selfName, strings.hiddenPreview);
 	} catch {
 		/* The module keeps its English defaults. */
+	}
+	try {
+		native.setHubOrigin(hubOrigin());
+	} catch {
+		/* No origin: the native side draws initials only, never a photo. */
 	}
 }
 

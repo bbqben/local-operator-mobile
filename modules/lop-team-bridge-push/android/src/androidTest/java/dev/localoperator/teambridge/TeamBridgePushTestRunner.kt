@@ -55,6 +55,9 @@ class TeamBridgePushTestRunner : Instrumentation() {
       "sessionRemap" to ::sessionRemap,
       "foregroundRewrap" to ::foregroundRewrap,
       "expoExtensionPoints" to ::expoExtensionPoints,
+      "photoTargetRules" to ::photoTargetRules,
+      "photoFetchStub" to ::photoFetchStub,
+      "photoDecoratorFallback" to ::photoDecoratorFallback,
     )
     var passed = 0
     for ((i, case) in cases.withIndex()) {
@@ -286,5 +289,118 @@ class TeamBridgePushTestRunner : Instrumentation() {
     check(handle.invoke(service, ctx) is LoHandlingDelegate) { "handling override not reached" }
     // The suspend override's JVM shape: (Notification, NotificationBehaviorRecord, Continuation).
     check(ExpoPresentationDelegate::class.java.declaredMethods.any { it.name == "createNotification" && it.parameterTypes.size == 3 }) { "Expo renamed createNotification" }
+  }
+
+  // ---- ADR 0010 S5: the push-avatar photo, against a loopback stub hub ----
+
+  private val nonce = "AbCdEfGhIjKlMnOpQrStUv" // 22 chars, base64url alphabet
+
+  private fun photoTargetRules() {
+    val hub = "https://api.radienthq.com"
+    val ok = PushAvatarFetcher.Photo("https://api.radienthq.com/v1/push-avatars", nonce)
+    check(PushAvatarFetcher.target(ok, hub) != null)
+    // Another origin never gets a request (and so never sees the nonce).
+    check(PushAvatarFetcher.target(ok.copy(url = "https://evil.example/v1/push-avatars"), hub) == null)
+    check(PushAvatarFetcher.target(ok.copy(url = "https://api.radienthq.com:8443/v1/push-avatars"), hub) == null)
+    check(PushAvatarFetcher.target(ok.copy(url = "http://api.radienthq.com/v1/push-avatars"), hub) == null)
+    // The nonce is never accepted in a URL, and must be the 22-char shape.
+    check(PushAvatarFetcher.target(ok.copy(url = "https://api.radienthq.com/v1/push-avatars?n=$nonce"), hub) == null)
+    check(PushAvatarFetcher.target(ok.copy(nonce = "short"), hub) == null)
+    check(PushAvatarFetcher.target(ok.copy(nonce = "AbCdEfGhIjKlMnOpQrStU/"), hub) == null)
+    // No registered origin: initials only.
+    check(PushAvatarFetcher.target(ok, null) == null)
+    // Payload parsing carries the block through; absent stays null.
+    val withPhoto = BridgePushPayload.sender(JSONObject("""{"kind":"person","initials":"BC","tone":1,"photo":{"url":"https://api.radienthq.com/v1/push-avatars","nonce":"$nonce"}}"""))
+    check(withPhoto?.photo == ok) { "photo block lost" }
+    check(BridgePushPayload.sender(JSONObject("""{"kind":"person","initials":"BC","tone":1,"photo":{"url":5}}"""))?.photo == null)
+  }
+
+  /** A one-response-per-connection HTTP stub on 127.0.0.1. `respond` gets the
+   *  request head and writes the full response. */
+  private fun <T> stub(respond: (String, java.io.OutputStream) -> Unit, block: (String) -> T): T {
+    val server = java.net.ServerSocket(0, 8, java.net.InetAddress.getByName("127.0.0.1"))
+    val thread = Thread {
+      try {
+        while (!server.isClosed) {
+          val socket = server.accept()
+          try {
+            val reader = socket.getInputStream().bufferedReader()
+            val head = StringBuilder()
+            while (true) { val line = reader.readLine() ?: break; if (line.isEmpty()) break; head.append(line).append('\n') }
+            respond(head.toString(), socket.getOutputStream())
+            socket.getOutputStream().flush()
+          } catch (_: Throwable) {
+          } finally { socket.close() }
+        }
+      } catch (_: Throwable) {}
+    }.apply { isDaemon = true; start() }
+    try { return block("http://127.0.0.1:${server.localPort}") } finally { server.close(); thread.join(2_000) }
+  }
+
+  private fun png(color: Int): ByteArray {
+    val bmp = android.graphics.Bitmap.createBitmap(64, 64, android.graphics.Bitmap.Config.ARGB_8888).apply { eraseColor(color) }
+    return java.io.ByteArrayOutputStream().also { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }.toByteArray()
+  }
+
+  private fun respondBytes(out: java.io.OutputStream, status: String, body: ByteArray, extra: String = "") {
+    out.write("HTTP/1.1 $status\r\nContent-Type: image/png\r\nContent-Length: ${body.size}\r\n${extra}Connection: close\r\n\r\n".toByteArray())
+    out.write(body)
+  }
+
+  private fun photoFetchStub() {
+    val red = png(Color.RED)
+    var seenAuth: String? = null
+    var seenPath: String? = null
+    // 200 with the right header: the photo, centre-cropped to a circle.
+    stub({ head, out ->
+      seenPath = head.lineSequence().first()
+      seenAuth = head.lineSequence().firstOrNull { it.startsWith("Authorization:", ignoreCase = true) }
+      respondBytes(out, "200 OK", red)
+    }) { origin ->
+      val bmp = checkNotNull(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192)) { "stub 200 not used" }
+      check(bmp.getPixel(96, 96) == Color.RED) { "centre ${Integer.toHexString(bmp.getPixel(96, 96))}" }
+      check(Color.alpha(bmp.getPixel(1, 1)) == 0) { "corner not transparent" }
+    }
+    check(seenAuth?.trim() == "Authorization: PushAvatar $nonce") { "auth header" }
+    check(seenPath == "GET /v1/push-avatars HTTP/1.1") { "path carries no nonce: $seenPath" }
+
+    // The uniform 404: initials.
+    stub({ _, out -> respondBytes(out, "404 Not Found", ByteArray(0)) }) { origin ->
+      check(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192) == null)
+    }
+    // A redirect is NOT followed (it could carry the header elsewhere).
+    var followed = false
+    stub({ head, out ->
+      if (head.contains("/elsewhere")) { followed = true; respondBytes(out, "200 OK", red) }
+      else respondBytes(out, "302 Found", ByteArray(0), "Location: /elsewhere\r\n")
+    }) { origin ->
+      check(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192) == null)
+    }
+    check(!followed) { "redirect followed" }
+    // Not an image: decode fails, initials.
+    stub({ _, out -> respondBytes(out, "200 OK", "not a png".toByteArray()) }) { origin ->
+      check(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192) == null)
+    }
+    // Slower than the budget: initials, and the wait is bounded.
+    stub({ _, out -> Thread.sleep(1_500); respondBytes(out, "200 OK", red) }) { origin ->
+      val started = System.nanoTime()
+      check(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192, budgetMs = 500) == null)
+      val elapsed = (System.nanoTime() - started) / 1_000_000
+      check(elapsed < 1_400) { "budget not enforced: $elapsed ms" }
+    }
+  }
+
+  private fun photoDecoratorFallback() {
+    val withPhoto = body(sender = """{"kind":"person","initials":"bc","tone":1,"photo":{"url":"https://api.radienthq.com/v1/push-avatars","nonce":"$nonce"}}""")
+    var asked = 0
+    // Photo fetch fails: still the messaging look, with initials.
+    val out = TeamBridgeDecorator.decorate(ctx, bridgeNotification(withPhoto), expoBuilt(), photoFor = { asked++; null })
+    check(asked == 1) { "photo not attempted" }
+    if (Build.VERSION.SDK_INT >= 28) {
+      check(out.extras.getString(AndroidNotification.EXTRA_TEMPLATE) == AndroidNotification.MessagingStyle::class.java.name)
+    }
+    // No photo block: never fetched.
+    TeamBridgeDecorator.decorate(ctx, bridgeNotification(), expoBuilt(), photoFor = { asked++; null })
+    check(asked == 1) { "fetched without a photo block" }
   }
 }

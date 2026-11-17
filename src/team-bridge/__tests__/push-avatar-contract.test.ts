@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 
 /**
  * The phone's side of ADR 0010 §5's shared fixture (agent-server PR #399,
- * `internal/models/testdata/bridge_push_avatar_fixture.json` @ a02c6cc7, copied
- * byte-for-byte to the native module's androidTest assets so the emulator
+ * `internal/models/testdata/bridge_push_avatar_fixture.json`, as merged to
+ * agent-server main in 08b0cf15 (PR #399), copied byte-for-byte to the native module's androidTest assets so the emulator
  * runner renders the SAME rows).
  *
  * The phone computes neither initials nor tone; it draws what the cloud sends.

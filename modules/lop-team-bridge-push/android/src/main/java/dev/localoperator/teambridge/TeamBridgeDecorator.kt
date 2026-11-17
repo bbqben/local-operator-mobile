@@ -41,6 +41,10 @@ internal object TeamBridgeDecorator {
     notification: Notification,
     built: AndroidNotification,
     sdk: Int = Build.VERSION.SDK_INT,
+    /** The S5 photo, or null for initials. A seam so the instrumentation runner
+     *  can drive both paths without a network; production fetches under
+     *  `PushAvatarFetcher.BUDGET_MS` against the registered hub origin. */
+    photoFor: (BridgeSender) -> Bitmap? = { s -> PushAvatarFetcher.fetch(s.photo, HubOrigin.get(context), AVATAR_SIDE) },
   ): AndroidNotification {
     val content = notification.notificationRequest.content
     val push = BridgePushPayload.parse(content.body) ?: return built
@@ -61,7 +65,10 @@ internal object TeamBridgeDecorator {
 
     val title = content.title?.takeIf { it.isNotBlank() } ?: return builder.build()
     val text = content.text ?: ""
-    val avatar = AvatarRenderer.render(AvatarRenderer.spec(sender), AVATAR_SIDE)
+    // The photo when the sender has one and it arrives within budget; the
+    // initials/agent face otherwise (and for every failure), never a blank.
+    val avatar = (if (sender.photo != null) photoFor(sender) else null)
+      ?: AvatarRenderer.render(AvatarRenderer.spec(sender), AVATAR_SIDE)
     messaging(context, builder, push, title, text, content.subText, avatar, notification.originDate.time)
 
     if (tier == PresentationTier.CONVERSATION) {

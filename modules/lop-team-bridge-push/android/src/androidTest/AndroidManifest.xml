@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Test APK only: the push-avatar photo case serves a stub hub on
+       127.0.0.1 (ADR 0010 S5), which needs a socket (INTERNET) and plain
+       HTTP to loopback (cleartext, blocked by default since API 28). The
+       production fetcher still refuses http to any non-loopback host. -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <application android:usesCleartextTraffic="true" />
+</manifest>

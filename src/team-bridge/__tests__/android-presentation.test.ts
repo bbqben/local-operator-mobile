@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("react-native", () => ({ Platform: { OS: "android" } }));
 
 import {
+	hubOrigin,
 	presentationStrings,
 	TEAM_BRIDGE_CHANNEL_ID,
 	teamBridgeChannelInput,
@@ -58,5 +59,9 @@ describe("Team Bridge Android presentation", () => {
 	it("uses the iOS hidden-preview placeholder for the lock screen", () => {
 		// One sentence on both platforms (categories.ts registers the same key).
 		expect(presentationStrings().hiddenPreview).toBe("Team Bridge message");
+	});
+
+	it("hands the native photo fetcher the production hub origin only (ADR 0010 S5)", () => {
+		expect(hubOrigin()).toBe("https://api.radienthq.com");
 	});
 });

@@ -2269,7 +2269,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * channel copy, their tests. The web render tree is unchanged (the new
 	 * Settings line is Android-gated). Re-derived with --print over the staged
 	 * tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "8593fe29264c2b9bdfe8f62849259220eb084e797472154a1ff02269e2f5c522",
+	/* ADR 0010 S5 on the same branch: the hub origin handed to the native
+	 * photo fetcher and its test. Re-derived with --print; source identity
+	 * only, NOT rendered U-08 evidence. */
+	src: "19cb5f9d54afeba371aa5a0974fa524e961bbc1558989362e1468a621edb970c",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -18,7 +18,14 @@ import org.json.JSONObject
  *
  * Nothing here logs: title, preview and sender are message content (ADR 0010 §6).
  */
-internal data class BridgeSender(val kind: Kind, val initials: String, val tone: Int) {
+internal data class BridgeSender(
+  val kind: Kind,
+  val initials: String,
+  val tone: Int,
+  /** ADR 0010 S5: present only when the sender has a photo. Initials and
+   *  tone stay mandatory: they are the fallback for every photo failure. */
+  val photo: PushAvatarFetcher.Photo? = null,
+) {
   enum class Kind { PERSON, AGENT }
 }
 
@@ -93,7 +100,16 @@ internal object BridgePushPayload {
     }
     val tone = intOf(block.opt("tone"))?.takeIf { it in 0 until TONES } ?: return null
     val initials = if (kind == BridgeSender.Kind.AGENT) "" else cleanInitials(block.opt("initials"))
-    return BridgeSender(kind, initials, tone)
+    return BridgeSender(kind, initials, tone, photo(block.optJSONObject("photo")))
+  }
+
+  /** `{url, nonce}` strings, or null. Shape only: the origin, scheme and
+   *  nonce format are checked by `PushAvatarFetcher.target` before any I/O. */
+  fun photo(block: JSONObject?): PushAvatarFetcher.Photo? {
+    if (block == null) return null
+    val url = block.opt("url") as? String ?: return null
+    val nonce = block.opt("nonce") as? String ?: return null
+    return PushAvatarFetcher.Photo(url, nonce)
   }
 
   fun cleanInitials(value: Any?): String {
