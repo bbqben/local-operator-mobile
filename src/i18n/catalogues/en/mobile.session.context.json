@@ -362,5 +362,25 @@
 	"mobile.session.sheet_title.attach": {
 		"role": "heading",
 		"note": "Title of the bottom sheet offering attachment sources (photo, file, camera) in the composer: the verb 'attach' used as a title. Lower case as currently shipped (other sheet titles are Title case; a casing change is a separate design decision). ~16 characters. No placeholders."
+	},
+	"mobile.session.diagram.label": {
+		"role": "meta",
+		"note": "Accessible name of a drawn diagram in the transcript when it has no title. {type} is the diagram kind as an English technical token (flowchart, sequence, state, class, er, gantt, pie…): keep it as written and never translate it. No final full stop."
+	},
+	"mobile.session.diagram.label_titled": {
+		"role": "meta",
+		"note": "Accessible name of a drawn diagram that has a title or a first label. {type} is the English technical diagram kind (flowchart, sequence…): keep it as written. {title} is text written by the assistant, inserted unchanged. No final full stop."
+	},
+	"mobile.session.diagram.copy_hint": {
+		"role": "help",
+		"note": "Accessibility hint on a drawn diagram. Activating it copies the diagram's source text (Mermaid syntax) to the clipboard. Sentence case, no final full stop."
+	},
+	"mobile.session.diagram.copied": {
+		"role": "status",
+		"note": "One lower-case word shown beside the diagram kind label ('mermaid · copied') after the source was copied. Mirrors the code block's copied marker. The middle dot separator is added by the app."
+	},
+	"mobile.session.diagram.error": {
+		"role": "status",
+		"note": "Shown above a code block when a diagram could not be drawn. The reason Pele gave follows on its own line in English and is not part of this string. Two short sentences."
 	}
 }

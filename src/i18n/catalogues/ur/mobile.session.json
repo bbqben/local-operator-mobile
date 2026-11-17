@@ -89,5 +89,10 @@
 	"mobile.session.outbox.composer_stopped": "آپ کا پچھلا پیغام بھیجنا رک گیا ہے۔ یہ پیغام بھیجنے کے لیے اوپر اسے دوبارہ بھیجیں یا چھوڑ دیں۔",
 	"mobile.session.outbox.composer_discarding": "آپ کا پچھلا پیغام چھوڑا جا رہا ہے۔ آپ یہ پیغام کچھ ہی لمحے میں بھیج سکیں گے۔",
 	"mobile.session.sheet_title.commands": "کمانڈز",
-	"mobile.session.sheet_title.attach": "منسلک کریں"
+	"mobile.session.sheet_title.attach": "منسلک کریں",
+	"mobile.session.diagram.label": "{type} ڈایاگرام",
+	"mobile.session.diagram.label_titled": "{type} ڈایاگرام: {title}",
+	"mobile.session.diagram.copy_hint": "ڈایاگرام کا ماخذ کاپی کرتا ہے",
+	"mobile.session.diagram.copied": "کاپی ہو گیا",
+	"mobile.session.diagram.error": "یہ ڈایاگرام نہیں بنایا جا سکا۔ اس کی جگہ ماخذ دکھایا گیا ہے۔"
 }

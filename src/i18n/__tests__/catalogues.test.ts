@@ -214,7 +214,7 @@ const NAMESPACES = [
 		name: "mobile.session",
 		messages: session,
 		context: sessionContext,
-		expected: 91, // O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
+		expected: 96, // feat/pele-diagrams +5: the mermaid diagram block (label, titled label, copy hint, copied marker, could-not-draw notice); O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
 	},
 	{
 		/* The relay's own two namespaces, under its own keys. They are here rather
@@ -554,7 +554,9 @@ describe("the English catalogues", () => {
 		// PR #303 adds ten mobile.team_bridge.reply_thread keys (nine, plus
 		// reply_thread.more for the 500-reply continuation, review R2):
 		// 1101 + 10 = 1111, re-derived with generate.ts over the merged tree.
-		expect(total).toBe(1111);
+		// feat/pele-diagrams: +5 mobile.session.diagram.* on main's 1111 = 1116,
+		// re-derived with generate.ts over the merged tree.
+		expect(total).toBe(1116);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

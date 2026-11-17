@@ -524,6 +524,9 @@ export const CONTROL = {
 	connectionSignIn: "connection-sign-in",
 	connectionConsole: "connection-console",
 	codeBlockCopy: "code-block-copy",
+	/* A drawn diagram: the whole figure is one control that copies its source, the
+	 * same gesture as `codeBlockCopy`. */
+	diagramCopy: "diagram-copy",
 	/* --- the in-conversation find. One header lever, the sheet's own field, and
 	 *  the navigate bar's three controls. `findEdit` is the bar's count segment,
 	 *  which reopens the sheet with the query intact — deliberately NOT folded
