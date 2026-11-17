@@ -2204,7 +2204,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * objects; it reproduced the parent's committed pin as the control, agreed
 	 * with --print, and a one-byte tamper of the moved test diverged. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "c6c21aafd614bfe3ac2370634f4e6ec0c1a363523d7999bbf268d2b91d704219",
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "0c9c86d92622336c13cd7ebf427d7de6f8c42614ef322592d460ed26f3331ade",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
