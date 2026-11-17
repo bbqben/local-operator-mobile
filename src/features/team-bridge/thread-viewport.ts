@@ -92,7 +92,31 @@ export type ThreadViewportOptions = {
 	 * see there for why a layout event cannot be waited for.
 	 */
 	measure?: () => ScrollGeometry | null;
+	/** Monotonic clock for the in-flight write window (tests inject one). */
+	now?: () => number;
+	/** Run `run` after `ms`; returns a cancel. Tests inject one. */
+	schedule?: (run: () => void, ms: number) => () => void;
 };
+
+const monotonic = (): number =>
+	typeof globalThis.performance?.now === "function"
+		? globalThis.performance.now()
+		: Date.now();
+
+const timeout = (run: () => void, ms: number) => {
+	const timer = setTimeout(run, ms);
+	return () => clearTimeout(timer);
+};
+
+/**
+ * How long a native write counts as in flight. Long enough to collapse ONE
+ * burst of triggers (content size, layout and the admission recheck land in
+ * the same commit), short enough that a write iOS dropped without a scroll
+ * event is re-asserted by the next trigger (QA r1 Q1 / design D2). A
+ * programmatic move's event normally arrives within a frame or two, and the
+ * list's own `scrollEventThrottle` is 100 ms.
+ */
+export const IN_FLIGHT_MS = 250;
 
 export function createThreadViewport(options: ThreadViewportOptions) {
 	let initial = true;
@@ -132,6 +156,32 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 	 */
 	let contentReady = false;
 	let lastY: number | null = null;
+	/**
+	 * The offset last requested from a host that cannot read back (native),
+	 * until a scroll event reports where the host actually is. Native writes
+	 * are asynchronous, so between the write and its event every other
+	 * trigger — the admission recheck on each new `items`, an equal content
+	 * size, a keyboard/dock layout — saw the OLD `lastY` and wrote the same
+	 * offset again (Bridge thread flicker: two writes per new message, one per
+	 * extra trigger). Cleared by any scroll event, so a reader's move or a
+	 * host that settled elsewhere is never masked; a new target still writes.
+	 */
+	let requested: { target: number; at: number } | null = null;
+	const now = options.now ?? monotonic;
+	const schedule = options.schedule ?? timeout;
+	/**
+	 * One self re-check per un-confirmed native write (QA r2, Q1 residual).
+	 * Unchanged polls are silent now, so a write iOS drops INSIDE a new
+	 * message's burst may get no later trigger to re-assert it. The re-check
+	 * runs once per distinct target: a host that never reports can never turn
+	 * this into a periodic write loop — the flicker this file guards against.
+	 */
+	let recheck: (() => void) | null = null;
+	let rechecked: number | null = null;
+	const cancelRecheck = () => {
+		recheck?.();
+		recheck = null;
+	};
 	let readSeq = 0;
 
 	const finish = (atNewest: boolean) => {
@@ -164,7 +214,9 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 				return;
 			}
 			setFollowing(true);
-			gesture = false;
+			// A native end bounce is still the reader's gesture until it
+			// returns inside the content; do not correct its later frames.
+			if (y + viewport <= measured + POSITION_SLACK) gesture = false;
 		} else if (
 			lastY !== null &&
 			// Moving up is the reader leaving the tail, whatever moved it
@@ -205,8 +257,32 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			if (initial && contentReady) finish(true);
 			return;
 		}
+		if (
+			requested !== null &&
+			Math.abs(requested.target - target) <= POSITION_SLACK &&
+			now() - requested.at < IN_FLIGHT_MS
+		)
+			return;
+		write(target);
+	};
+
+	const write = (target: number) => {
 		const readBack = options.scrollTo(target);
+		requested = readBack ? null : { target, at: now() };
 		if (readBack) settle(readBack.y, readBack.viewport, readBack.content);
+		else if (
+			rechecked === null ||
+			Math.abs(rechecked - target) > POSITION_SLACK
+		) {
+			cancelRecheck();
+			recheck = schedule(() => {
+				recheck = null;
+				if (requested === null) return; // the host reported
+				rechecked = requested.target;
+				requested = null;
+				position();
+			}, IN_FLIGHT_MS);
+		}
 	};
 
 	const intent = () => {
@@ -238,7 +314,27 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 		}) => {
 			const { contentOffset, layoutMeasurement, contentSize } =
 				event.nativeEvent;
+			// The host has reported: whatever was requested is now grounded.
+			requested = null;
+			cancelRecheck();
+			// Only a host that REPORTS can re-enable a re-check for a target it
+			// has already had, so this cannot become a loop (QA r3 Q5).
+			rechecked = null;
+			// Native offset/visible-content anchoring can settle AFTER the final
+			// layout callback. That callback's correction is not proof that the
+			// host stayed there. Reconcile only an existing follower, without a
+			// reader gesture, and only against the current measured geometry:
+			// late events from an earlier layout must not move a history/anchor
+			// reader or undo a newer resize.
+			const reconcile =
+				following &&
+				!gesture &&
+				contentSize.height === content &&
+				layoutMeasurement.height === height &&
+				contentOffset.y >
+					Math.max(0, contentSize.height - height) + POSITION_SLACK;
 			settle(contentOffset.y, layoutMeasurement.height, contentSize.height);
+			if (reconcile) position();
 		},
 		onScrollBeginDrag: intent,
 		onTouchMove: intent,
@@ -315,6 +411,10 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			gesture = false;
 			landing = true;
 		},
+		/** The thread unmounted: drop a pending re-check. */
+		dispose() {
+			cancelRecheck();
+		},
 		/** The list's visible height (0 before its first layout). */
 		get viewportHeight() {
 			return height;
@@ -332,8 +432,7 @@ export function createThreadViewport(options: ThreadViewportOptions) {
 			landing = false;
 			setFollowing(true);
 			gesture = false;
-			const readBack = options.scrollTo(Math.max(0, content - height));
-			if (readBack) settle(readBack.y, readBack.viewport, readBack.content);
+			write(Math.max(0, content - height));
 		},
 	};
 }

@@ -10,7 +10,7 @@
 	"mobile.remote_sessions.command_ambiguous": "Máy sở hữu phiên có thể đã nhận lệnh nhưng chưa xác nhận. Kiểm tra cuộc trò chuyện trước khi thử lại để tránh gửi trùng.",
 	"mobile.remote_sessions.file_saving": "Đang lưu tệp…",
 	"mobile.remote_sessions.file_save_failed": "Không thể lưu tệp này. Hãy thử lại.",
-	"mobile.remote_sessions.retained_only": "Chưa thể xem trước các tệp do tác nhân tạo trong cuộc trò chuyện từ xa. Tài liệu đính kèm thì có thể lưu.",
+	"mobile.remote_sessions.retained_only": "Để xem trước Highlights, máy tính đang kết nối cần có phiên bản Local Operator mới hơn. Tạm thời hãy mở chúng trên máy tính sở hữu cuộc trò chuyện. Bạn vẫn có thể lưu tài liệu đính kèm.",
 	"mobile.remote_sessions.gate_unsupported": "Để mở cuộc trò chuyện từ xa, cần phiên bản Local Operator mới hơn trên máy tính này và trên máy sở hữu. Hãy cập nhật cả hai rồi thử lại.",
 	"mobile.remote_sessions.subtitle_owner": "{state} · Trên {owner}",
 	"mobile.remote_sessions.owner_only": "Hiện tại, phê duyệt, Dừng, đổi mô hình và lệnh gạch chéo chỉ hoạt động trên {owner}.",
@@ -20,5 +20,7 @@
 	"mobile.remote_sessions.health_quiet": "Cuộc trò chuyện này trên {owner} đã ngừng phản hồi — có thể đang bận hoặc bị kẹt. Việc gửi có thể báo lỗi nhưng vẫn đến nơi khi nó bắt kịp. Thử lại sẽ không gửi hai lần.",
 	"mobile.remote_sessions.health_ended": "Cuộc trò chuyện này đã kết thúc trên {owner}. Lịch sử vẫn được giữ ở đây để đọc.",
 	"mobile.remote_sessions.file_save_label": "Lưu {name}",
-	"mobile.remote_sessions.row_long_press_hint": "Thu hồi, di chuyển hoặc sao chép"
+	"mobile.remote_sessions.row_long_press_hint": "Thu hồi, di chuyển hoặc sao chép",
+	"mobile.remote_sessions.media_changed": "Nội dung đa phương tiện đã thay đổi hoặc quyền truy cập đã kết thúc khi đang tải xuống. Chưa mở nội dung nào. Hãy thử lại khi máy tính sở hữu cuộc trò chuyện sẵn sàng.",
+	"mobile.remote_sessions.supplement_needs_running": "Tệp này cần cuộc trò chuyện đang chạy trên máy tính sở hữu. Hãy mở tệp hoặc tiếp tục cuộc trò chuyện trên máy tính đó, rồi thử lại."
 }

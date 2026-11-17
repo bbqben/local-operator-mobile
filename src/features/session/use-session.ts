@@ -150,7 +150,10 @@ export interface SessionRuntime {
 	/** One recorded callout's bytes, by the row's own index. */
 	loadSupplementFile: (job: string, index: number) => Promise<ImageBytes>;
 	/** One supplement sound's bytes, by its `sounds[].attachment` digest. */
-	loadSupplementSound: (digest: string) => Promise<ImageBytes>;
+	loadSupplementSound: (
+		digest: string,
+		signal?: AbortSignal,
+	) => Promise<ImageBytes>;
 	/** `supplement_cancel|restart|steer` over the session command route — the
 	 *  same route every other mutation uses. */
 	supplementCommand: (
@@ -358,7 +361,22 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 	// while a same-session reconnect keeps its onscreen token continuously held.
 	useEffect(() => {
 		if (!hasSessionId(sessionId) || endpoints === null) return;
-		return warmSync.view(sessionId);
+		// Mounted does not mean onscreen while iOS suspends the app. Release
+		// only on background; reclaim on resume BEFORE reopening the live stream,
+		// so a push can seed the last-viewed session but never race its screen.
+		let release =
+			AppState.currentState === "background" ? null : warmSync.view(sessionId);
+		const subscription = AppState.addEventListener("change", (state) => {
+			if (state === "background") {
+				release?.();
+				release = null;
+			} else if (state === "active" && !release)
+				release = warmSync.view(sessionId);
+		});
+		return () => {
+			release?.();
+			subscription.remove();
+		};
 	}, [sessionId, endpoints]);
 	/** Cancels a held resume history read (`holdResumeRead`) on unmount. */
 	const heldHistoryRead = useRef<(() => void) | null>(null);
@@ -954,11 +972,11 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 	);
 
 	const loadSupplementSound = useCallback(
-		(digest: string): Promise<ImageBytes> => {
+		(digest: string, signal?: AbortSignal): Promise<ImageBytes> => {
 			if (endpoints === null) {
 				return Promise.reject(new Error("no relay route"));
 			}
-			return endpoints.supplementSound(sessionId, digest);
+			return endpoints.supplementSound(sessionId, digest, signal);
 		},
 		[endpoints, sessionId],
 	);

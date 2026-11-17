@@ -4,12 +4,15 @@ import {
 	apiVersionSupported,
 	chiefsOfStaff,
 	conversationTitle,
+	dayLabel,
 	dmWithAgent,
 	dmWithPerson,
 	draftCreateInput,
 	eligibility,
 	isPreview,
+	localDay,
 	mergeMessages,
+	msUntilNextLocalDay,
 	notifyOf,
 	organizationsFrom,
 	personRowState,
@@ -413,5 +416,30 @@ describe("thread items", () => {
 			message(3, ADA, "2026-10-21T09:00:00Z"),
 		]);
 		expect(merged.map((m) => m.seq)).toEqual([1, 3, 4]);
+	});
+
+	it("names the local day and the wait until the next one (design r1 D1)", () => {
+		const evening = new Date(2026, 10, 16, 23, 59, 30);
+		expect(localDay(evening)).toBe(localDay(new Date(2026, 10, 16, 0, 0, 1)));
+		expect(msUntilNextLocalDay(evening)).toBe(30_000);
+		const next = new Date(evening.getTime() + msUntilNextLocalDay(evening));
+		expect(localDay(next)).not.toBe(localDay(evening));
+		expect(dayLabel(evening, next)).toBe("Yesterday");
+	});
+
+	it("merging an equal page returns the held array and objects unchanged", () => {
+		const held = [
+			message(3, ADA, "2026-10-21T09:00:00Z"),
+			message(4, ADA, "2026-10-21T09:01:00Z"),
+		];
+		// Equal content in new objects, as every re-read of the hub answers.
+		const again = structuredClone(held);
+		expect(mergeMessages(held, again)).toBe(held);
+		// A changed field is a change; the untouched neighbour keeps its object.
+		const edited = [held[0], { ...structuredClone(held[1]), body: "edited" }];
+		const merged = mergeMessages(held, edited as typeof held);
+		expect(merged).not.toBe(held);
+		expect(merged[0]).toBe(held[0]);
+		expect(merged[1]?.body).toBe("edited");
 	});
 });

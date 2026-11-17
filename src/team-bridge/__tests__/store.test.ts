@@ -330,6 +330,93 @@ describe("team bridge store", () => {
 		expect(thread?.hasMore).toBe(false);
 	});
 
+	/*
+	 * Bridge thread flicker (operator report, build 1112/1130): the visible
+	 * thread re-reads its newest page on a timer, and the hub answers an
+	 * unchanged thread with equal content in NEW objects. Publishing that
+	 * answer handed the screen a new `messages` array and a new object for
+	 * every row, so the memoised rows, the FlatList's data and the viewport's
+	 * admission recheck all ran for a poll that changed nothing.
+	 */
+	it("an unchanged poll publishes nothing and keeps every message object", async () => {
+		const page = () => ({
+			messages: [
+				message(3, ADA, "2026-10-21T10:00:00Z"),
+				message(4, ADA, "2026-10-21T10:01:00Z"),
+			],
+			has_more: true,
+		});
+		const listMessages = vi.fn(async () => page());
+		const { store, actions } = createTeamBridgeStore({
+			hub: () => fakeHub({ listMessages }),
+			accessToken: async () => token(SELF),
+		});
+		await actions.loadThread(TENANT, "c1");
+		const before = store.getState().threads[threadKey(TENANT, "c1")];
+		const published = vi.fn();
+		const stop = store.subscribe(published);
+		for (let tick = 0; tick < 5; tick += 1)
+			await actions.loadThread(TENANT, "c1");
+		stop();
+		expect(listMessages).toHaveBeenCalledTimes(6);
+		expect(published).not.toHaveBeenCalled();
+		const after = store.getState().threads[threadKey(TENANT, "c1")];
+		expect(after).toBe(before);
+		expect(after?.messages).toBe(before?.messages);
+	});
+
+	it("an unchanged poll of an EMPTY thread publishes nothing either (QA r1 Q3)", async () => {
+		const listMessages = vi.fn(async () => ({ messages: [], has_more: false }));
+		const { store, actions } = createTeamBridgeStore({
+			hub: () => fakeHub({ listMessages }),
+			accessToken: async () => token(SELF),
+		});
+		await actions.loadThread(TENANT, "c1");
+		const before = store.getState().threads[threadKey(TENANT, "c1")];
+		expect(before?.state).toBe("ready");
+		const published = vi.fn();
+		const stop = store.subscribe(published);
+		for (let tick = 0; tick < 5; tick += 1)
+			await actions.loadThread(TENANT, "c1");
+		stop();
+		expect(published).not.toHaveBeenCalled();
+		expect(store.getState().threads[threadKey(TENANT, "c1")]).toBe(before);
+	});
+
+	it("a poll that changes one message replaces only that object, and appends a new one", async () => {
+		const edited = message(4, ADA, "2026-10-21T10:01:00Z");
+		const listMessages = vi
+			.fn()
+			.mockResolvedValueOnce({
+				messages: [
+					message(3, ADA, "2026-10-21T10:00:00Z"),
+					message(4, ADA, "2026-10-21T10:01:00Z"),
+				],
+				has_more: true,
+			})
+			.mockResolvedValueOnce({
+				messages: [
+					message(3, ADA, "2026-10-21T10:00:00Z"),
+					{ ...edited, body: `${edited.body} (edited)` },
+					message(5, ADA, "2026-10-21T10:02:00Z"),
+				],
+				has_more: true,
+			});
+		const { store, actions } = createTeamBridgeStore({
+			hub: () => fakeHub({ listMessages }),
+			accessToken: async () => token(SELF),
+		});
+		await actions.loadThread(TENANT, "c1");
+		const [three, four] =
+			store.getState().threads[threadKey(TENANT, "c1")]?.messages ?? [];
+		await actions.loadThread(TENANT, "c1");
+		const next = store.getState().threads[threadKey(TENANT, "c1")]?.messages;
+		expect(next?.map((m) => m.seq)).toEqual([3, 4, 5]);
+		expect(next?.[0]).toBe(three);
+		expect(next?.[1]).not.toBe(four);
+		expect(next?.[1]?.body).toContain("(edited)");
+	});
+
 	it("marking read clears the row and the account badge optimistically", async () => {
 		const hub = fakeHub();
 		const { store, actions } = createTeamBridgeStore({

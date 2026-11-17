@@ -180,6 +180,10 @@ function AnchorHighlight({
 	);
 }
 
+/** One empty directory for every render: a fresh `[]` per render was a new
+ *  `people` prop on every memoised row (Bridge thread flicker). */
+const NO_PEOPLE: readonly DirectoryMember[] = [];
+
 const ThreadMessageRow = memo(function ThreadMessageRow({
 	message,
 	continuation,
@@ -499,12 +503,33 @@ function ThreadContent({
 	 * M1). It is a TRIGGER in the memo below, the same shape as home.tsx's. */
 	const language = useLocaleFrame();
 	const locale = activeLocale();
-	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` is a TRIGGER: `t()` reads the locale live, so the memo must re-run (see above)
+	/* "Today"/"Yesterday" dividers are derived from the clock. An unchanged
+	 *  poll no longer rebuilds the rows (Bridge thread flicker), so re-derive
+	 *  them when the local day turns over instead (design r1 D1). A timer that
+	 *  fires late after a backgrounded app still lands on the new day. */
+	const [today, setToday] = useState(() => model.localDay(new Date()));
+	/* Re-armed on every FIRE, not on a day change: a timer that fires early
+	 *  (clock set back, timezone moved west) must still arm the next one
+	 *  (review r2 MINOR / QA r2 Q4). `setToday` with an unchanged day is a
+	 *  no-op render, so an early fire costs nothing. */
+	const [dayTick, setDayTick] = useState(0);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: each fire bumps `dayTick` to arm the next timer.
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setToday(model.localDay(new Date()));
+			setDayTick((tick) => tick + 1);
+		}, model.msUntilNextLocalDay(new Date()) + 1000);
+		return () => clearTimeout(timer);
+	}, [dayTick]);
+	/* Both `language` and `today` are TRIGGERS: `t()` reads the locale live and
+	 *  the labels are derived from `new Date()`, so neither appears in the body
+	 *  yet each must re-run the memo (merge of O3-a locale frame + #286 day turn). */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` and `today` are TRIGGERS (see above)
 	const items = useMemo(
 		() => model.threadItems(thread?.messages ?? [], new Date(), locale),
-		[thread?.messages, locale, language],
+		[thread?.messages, locale, language, today],
 	);
-	const people = state.orgs[tenantId]?.people ?? [];
+	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;
 	useEffect(() => {
 		// Cold push/deep links bypass the list, so no directory has hydrated yet.
@@ -615,10 +640,11 @@ function ThreadContent({
 	// The controller is created once; it reaches the latest hook callback here.
 	const followChanged = useRef(anchorState.followChanged);
 	followChanged.current = anchorState.followChanged;
-	const dataReady = useRef(false);
-	dataReady.current =
+	const readyForPosition =
 		!anchorState.pending &&
 		(!conversationId || !!thread?.messages.length || thread?.state === "ready");
+	const dataReady = useRef(false);
+	dataReady.current = readyForPosition;
 	if (!viewport.current)
 		viewport.current = createThreadViewport({
 			// Exact measured offset, not scrollToEnd's estimated frame offset.
@@ -634,6 +660,14 @@ function ThreadContent({
 			web: Platform.OS === "web",
 			followChanged: (following) => followChanged.current(following),
 		});
+	// Admission need not change content height. Web can remeasure the committed
+	// rows now; native still waits for their own content measurement rather than
+	// trusting a skeleton's geometry (the controller's contentReady guard).
+	useEffect(() => {
+		if (readyForPosition && items.length > 0) viewport.current?.dataChanged();
+	}, [items, readyForPosition]);
+	// The controller may hold one pending native re-check; never run it after unmount.
+	useEffect(() => () => viewport.current?.dispose(), []);
 	const {
 		showJump,
 		highlightId,
@@ -1017,7 +1051,12 @@ function ThreadContent({
 									 *  (PR #230 design D1; `pb-4` read ~30 pt, a visible step
 									 *  when switching screens). Not tighter: 12 pt puts
 									 *  descenders against the card's rounded top. */
-									contentContainerClassName="pb-2"
+									/* Grow only AFTER positioning: doing so for skeletons
+									 * can keep content height unchanged on admission and
+									 * suppress the measurement that reveals hidden rows. */
+									contentContainerClassName={
+										positioned ? "grow justify-end pb-2" : "pb-2"
+									}
 									keyboardShouldPersistTaps="handled"
 									onViewableItemsChanged={onViewableItemsChanged}
 									viewabilityConfig={viewabilityConfig}

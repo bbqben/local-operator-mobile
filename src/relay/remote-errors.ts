@@ -3,6 +3,11 @@ import { t } from "../i18n";
 /** Closed, server-owned failure vocabulary. A peer's permission refusal is not
  * phone authentication, and an ambiguous receipt must never authorize replay. */
 const REMOTE_ERRORS = {
+	remote_media_changed: { status: 409, key: "media_changed" },
+	remote_supplement_needs_running: {
+		status: 409,
+		key: "supplement_needs_running",
+	},
 	remote_owner_unresolved: { status: 503, key: "owner_unresolved" },
 	remote_unreachable: { status: 503, key: "unreachable" },
 	remote_unsupported: { status: 409, key: "unsupported" },

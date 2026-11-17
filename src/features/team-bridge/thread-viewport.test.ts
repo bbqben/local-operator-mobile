@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { createThreadViewport } from "./thread-viewport";
 
 const RELEASE = /releaseFollow\(\);/g;
+const FRESH_PEOPLE = /\?\.people \?\? \[\]/;
 const INITIAL_ANCHOR = /maintainVisibleContentPosition=\{\s*positioned/;
+const ADMISSION_RECHECK =
+	/useEffect\(\(\) => \{\s*if \(readyForPosition && items\.length > 0\) viewport\.current\?\.dataChanged\(\);\s*\}, \[items, readyForPosition\]\)/;
 
 /**
  * A scroll host that behaves like the list's real one: offsets clamp to
@@ -345,6 +348,304 @@ describe("read marks", () => {
 	});
 });
 
+describe("admission without a content-size change", () => {
+	it.each([true, false])(
+		"remeasures unchanged fitting content safely (web: %s)",
+		(web) => {
+			let ready = false;
+			const positioned = vi.fn();
+			const scrollTo = vi.fn(() => null);
+			const v = createThreadViewport({
+				web,
+				scrollTo,
+				positioned,
+				read: vi.fn(),
+				newestSeq: () => 7,
+				dataReady: () => ready,
+				measure: () => (web ? { y: 0, viewport: 888, content: 888 } : null),
+			});
+			v.handlers.onLayout({ nativeEvent: { layout: { height: 888 } } });
+			v.handlers.onContentSizeChange(471, 888);
+			ready = true;
+			// Admission is a React state transition, not a size transition.
+			v.dataChanged();
+			if (!web) {
+				// Native must not claim stale skeleton geometry as admitted rows.
+				expect(v.pending).toBe(true);
+				// Its container remains natural-sized until positioning, so the
+				// admitted fitting rows can report their own measurement.
+				v.handlers.onContentSizeChange(471, 400);
+			}
+			expect(v.pending).toBe(false);
+			expect(positioned).toHaveBeenCalledOnce();
+			expect(v.readSeq).toBe(7);
+			expect(scrollTo).not.toHaveBeenCalled();
+		},
+	);
+});
+
+describe("late native end geometry", () => {
+	it("reconciles a follower offset reported past the end after layout has settled", () => {
+		const r = openLong(false);
+		r.layout(700);
+		r.flush();
+		r.moves.mockClear();
+		// Native anchoring can report its offset after the layout correction.
+		// No further layout/content callback exists to trigger position().
+		r.scrollTo(2208);
+		r.flush();
+		expect(r.moves).toHaveBeenCalledWith(2018);
+		expect(r.bottom).toBe(2718);
+	});
+	it("reconciles an initial native landing that reports past the end", () => {
+		const r = host({ web: false });
+		r.layout(500);
+		r.grow(1000);
+		r.moves.mockClear();
+		r.scrollTo(690);
+		r.flush();
+		expect(r.moves).toHaveBeenCalledWith(500);
+		expect(r.bottom).toBe(1000);
+		expect(r.v.pending).toBe(false);
+	});
+	it("leaves a reader's bottom-edge bounce alone", () => {
+		const r = openLong(false);
+		r.h.onScrollBeginDrag();
+		r.moves.mockClear();
+		r.scrollTo(2309);
+		r.scrollTo(2250);
+		expect(r.moves).not.toHaveBeenCalled();
+		// Once the bounce actually returns to the tail, following can resume.
+		r.scrollTo(2119);
+		r.grow(2800);
+		expect(r.moves).toHaveBeenCalledWith(2201);
+	});
+	it("does not correct from a late event with pre-resize geometry", () => {
+		const r = openLong(false);
+		r.layout(700);
+		r.flush();
+		r.moves.mockClear();
+		r.h.onScroll({
+			nativeEvent: {
+				contentOffset: { y: 2309 },
+				layoutMeasurement: { height: 599 },
+				contentSize: { height: 2718 },
+			},
+		});
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it.each(["history", "anchor"])(
+		"does not reconcile a %s reader's offset",
+		(mode) => {
+			const r = openLong(false);
+			if (mode === "anchor") r.v.anchored();
+			else r.v.releaseFollow();
+			r.moves.mockClear();
+			r.scrollTo(2309);
+			expect(r.moves).not.toHaveBeenCalled();
+		},
+	);
+});
+
+/*
+ * Bridge thread flicker (operator report, builds 1112/1130): "about once a
+ * second another frame flickers in". Each signal an unchanged refresh can
+ * raise on the shipping handlers — the admission recheck (`dataChanged`, run
+ * for every new `items`), an equal content size, an equal layout, and a late
+ * native scroll event at the resting offset — is replayed on a synthetic
+ * periodic tick. None may write an offset. The #283 reconcile is included so
+ * a follower corrected once can never be bounced back and forth.
+ */
+describe("a periodic unchanged refresh", () => {
+	const tick = (r: ReturnType<typeof openLong>, content = 2718) => {
+		r.v.dataChanged();
+		r.grow(content);
+		r.layout(599);
+		r.h.onScroll({
+			nativeEvent: {
+				contentOffset: { y: r.y },
+				layoutMeasurement: { height: 599 },
+				contentSize: { height: content },
+			},
+		});
+		r.flush();
+	};
+	it.each([
+		["native", false],
+		["web", true],
+	])("writes no offset for a follower at the newest edge (%s)", (_, web) => {
+		const r = openLong(web);
+		r.moves.mockClear();
+		for (let i = 0; i < 30; i += 1) tick(r);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.bottom).toBe(2718);
+	});
+	it("a genuinely new message still follows, exactly once", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		tick(r, 2800);
+		expect(r.moves.mock.calls).toEqual([[2201]]);
+		expect(r.bottom).toBe(2800);
+		r.moves.mockClear();
+		for (let i = 0; i < 10; i += 1) tick(r, 2800);
+		expect(r.moves).not.toHaveBeenCalled();
+	});
+	it("never moves a reader on older history, through ticks and a new message", () => {
+		const r = openLong(false);
+		r.scrollTo(900);
+		r.moves.mockClear();
+		for (let i = 0; i < 10; i += 1) {
+			r.v.dataChanged();
+			r.grow(2718);
+			r.layout(599);
+		}
+		r.grow(2800);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.y).toBe(900);
+	});
+	/*
+	 * QA round 1 Q1 / design D2: a native write that iOS drops raises no
+	 * scroll event. The in-flight dedupe must only collapse the duplicates of
+	 * ONE burst of triggers, never strand the follower short of the end.
+	 */
+	it("re-asserts a dropped native write once the in-flight window has passed", () => {
+		let clock = 0;
+		const moves: number[] = [];
+		const v = createThreadViewport({
+			scrollTo: (offset) => {
+				moves.push(offset); // dropped: the host never moves, no event
+				return null;
+			},
+			positioned: vi.fn(),
+			read: vi.fn(),
+			newestSeq: () => 4,
+			dataReady: () => true,
+			web: false,
+			now: () => clock,
+		});
+		const scroll = (y: number, content: number) =>
+			v.handlers.onScroll({
+				nativeEvent: {
+					contentOffset: { y },
+					layoutMeasurement: { height: 599 },
+					contentSize: { height: content },
+				},
+			});
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		v.handlers.onContentSizeChange(390, 2718);
+		scroll(2119, 2718); // landed and positioned
+		moves.length = 0;
+		v.handlers.onContentSizeChange(390, 2800); // a new message
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		v.dataChanged();
+		expect(moves).toEqual([2201]); // one burst, one write
+		clock += 1000; // iOS dropped it: no event ever arrived
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		expect(moves).toEqual([2201, 2201]);
+	});
+	/*
+	 * QA round 2 (Q1 residual): with unchanged polls now silent, a write iOS
+	 * drops INSIDE the new message's burst may get no later trigger at all.
+	 * The controller re-checks once on its own, and only once per target, so
+	 * a host that never reports can never turn into a periodic write loop.
+	 */
+	const nativeDropping = () => {
+		const timers: Array<() => void> = [];
+		const moves: number[] = [];
+		let clock = 0;
+		const v = createThreadViewport({
+			scrollTo: (offset) => {
+				moves.push(offset);
+				return null;
+			},
+			positioned: vi.fn(),
+			read: vi.fn(),
+			newestSeq: () => 4,
+			dataReady: () => true,
+			web: false,
+			now: () => clock,
+			schedule: (run) => {
+				timers.push(run);
+				return () => {
+					const i = timers.indexOf(run);
+					if (i >= 0) timers.splice(i, 1);
+				};
+			},
+		});
+		const scroll = (y: number, content: number) =>
+			v.handlers.onScroll({
+				nativeEvent: {
+					contentOffset: { y },
+					layoutMeasurement: { height: 599 },
+					contentSize: { height: content },
+				},
+			});
+		v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		v.handlers.onContentSizeChange(390, 2718);
+		scroll(2119, 2718);
+		moves.length = 0;
+		timers.length = 0;
+		return {
+			v,
+			moves,
+			timers,
+			scroll,
+			advance(ms: number) {
+				clock += ms;
+				for (const run of timers.splice(0)) run();
+			},
+		};
+	};
+	it("re-checks a write dropped inside its burst with no later trigger, once", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		expect(r.moves).toEqual([2201]);
+		r.advance(300); // no event, no trigger: the controller re-asserts once
+		expect(r.moves).toEqual([2201, 2201]);
+		for (let i = 0; i < 20; i += 1) r.advance(300); // and never loops
+		expect(r.moves).toEqual([2201, 2201]);
+	});
+	it("a target that returns after a reported scroll gets its re-check again (QA r3 Q5)", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.advance(300); // dropped twice: re-checked once
+		expect(r.moves).toEqual([2201, 2201]);
+		// The host reports (the reader nudged it), then the same end comes back
+		// and that write is dropped too: it is re-checked again, still once.
+		r.scroll(2150, 2800);
+		r.v.handlers.onLayout({ nativeEvent: { layout: { height: 599 } } });
+		r.advance(300);
+		for (let i = 0; i < 10; i += 1) r.advance(300);
+		expect(r.moves).toEqual([2201, 2201, 2201, 2201]);
+	});
+	it("a scroll event before the re-check cancels it", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.scroll(2201, 2800);
+		r.advance(300);
+		expect(r.moves).toEqual([2201]);
+	});
+	it("dispose cancels a pending re-check", () => {
+		const r = nativeDropping();
+		r.v.handlers.onContentSizeChange(390, 2800);
+		r.v.dispose();
+		expect(r.timers).toHaveLength(0);
+	});
+	it("the #283 reconcile corrects a past-end report once and then rests", () => {
+		const r = openLong(false);
+		r.moves.mockClear();
+		// One late past-end report (native anchoring), then the periodic tick.
+		r.scrollTo(2309);
+		r.flush();
+		expect(r.moves.mock.calls).toEqual([[2119]]);
+		r.moves.mockClear();
+		for (let i = 0; i < 30; i += 1) tick(r);
+		expect(r.moves).not.toHaveBeenCalled();
+		expect(r.bottom).toBe(2718);
+	});
+});
+
 describe("screen wiring", () => {
 	const source = readFileSync(
 		new URL("./thread-screen.tsx", import.meta.url),
@@ -355,6 +656,23 @@ describe("screen wiring", () => {
 		expect(source.match(RELEASE)).toHaveLength(2);
 		expect(source).not.toContain("onScroll={");
 		expect(source).not.toContain("onContentSizeChange={");
+	});
+	it("re-arms the day-turnover timer on every fire and disposes the viewport (r2)", () => {
+		// Keyed on a fire counter, not the day: a timer that fires early (clock
+		// set back, timezone moved west) must still arm the next one.
+		expect(source).toContain("setDayTick((tick) => tick + 1)");
+		expect(source).toContain("}, [dayTick]);");
+		expect(source).toContain("viewport.current?.dispose()");
+	});
+	it("hands memoised rows a stable people list when the directory is absent", () => {
+		// `?? []` minted a new array per render, so every store publish (an
+		// unread refresh, a read receipt) re-rendered every message row.
+		expect(source).not.toMatch(FRESH_PEOPLE);
+		expect(source).toContain("?.people ?? NO_PEOPLE");
+	});
+	it("waits for positioned rows before growing the container, and rechecks admitted data", () => {
+		expect(source).toContain('positioned ? "grow justify-end pb-2" : "pb-2"');
+		expect(source).toMatch(ADMISSION_RECHECK);
 	});
 	it("keeps the heading semantic and scalable and the identity account scoped", () => {
 		// The heading is the session header's title style now (one line, two

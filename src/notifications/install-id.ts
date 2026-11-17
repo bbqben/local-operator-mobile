@@ -104,17 +104,61 @@ async function open(): Promise<SecureStoreAdapter> {
 	return adapter;
 }
 
-/** The stored record, or null. A corrupt or unreadable item reads as absent —
- *  and a fresh id is then minted by `ensureInstallRecord`, which is safe: the
- *  register contract upserts, so the worst case is one extra row a future list
- *  shows and the operator revokes. */
-export async function readInstallRecord(): Promise<InstallRecord | null> {
+/**
+ * The keystore could not ANSWER — distinct from "there is no record".
+ *
+ * WHY THIS IS ITS OWN ERROR, AND WHY IT MUST NOT MINT. The install id is this
+ * phone's identity on every computer it registers with: the daemon upserts on
+ * `(install_id, platform)`, so a new id is a new device row, a new push target
+ * in the cloud, and a way around a revoke. Before this error existed a failed
+ * keystore read was treated as "never minted", so any keystore error minted a
+ * fresh id — and when the write failed too (the same unavailable keystore), the
+ * NEXT attempt minted again. iOS, for one, refuses keychain reads and writes
+ * with `errSecInteractionNotAllowed` while the device is locked, and this item
+ * uses expo-secure-store's default `WHEN_UNLOCKED` accessibility. One iPhone
+ * left 33 rows on one computer, 32 of them registered once and never seen
+ * again, in bursts of up to six a second, while its original row kept
+ * re-registering in between (2026-11-15) — the signature of reads that failed
+ * intermittently while the stored record stayed intact. A registration that
+ * cannot read its identity now fails and is retried on the next attempt, when
+ * the keystore answers again.
+ */
+export class InstallRecordUnavailable extends Error {
+	constructor(cause?: unknown) {
+		super("The device's install record could not be read or saved");
+		this.name = "InstallRecordUnavailable";
+		if (cause !== undefined) (this as { cause?: unknown }).cause = cause;
+	}
+}
+
+/** Read the item, telling "absent" (null) apart from "could not read" (throws
+ *  `InstallRecordUnavailable`). A present-but-unparseable item reads as absent:
+ *  that is a deterministic fact about the stored bytes, not a transient
+ *  failure, so re-minting over it converges on one new id rather than forking. */
+async function readInstallRecordStrict(): Promise<InstallRecord | null> {
+	let raw: string | null;
 	try {
 		const store = await open();
-		const raw = await store.getItemAsync(INSTALL_RECORD_KEY);
-		if (raw === null) return null;
+		raw = await store.getItemAsync(INSTALL_RECORD_KEY);
+	} catch (error) {
+		throw new InstallRecordUnavailable(error);
+	}
+	if (raw === null) return null;
+	try {
 		const parsed: unknown = JSON.parse(raw);
 		return isRecord(parsed) ? parsed : null;
+	} catch {
+		return null;
+	}
+}
+
+/** The stored record, or null — for readers that only want to know what is
+ *  there (the sound prefetch). It never mints, so mapping "could not read" to
+ *  null is safe HERE; identity-bearing callers use `ensureInstallRecord`, which
+ *  refuses to guess. */
+export async function readInstallRecord(): Promise<InstallRecord | null> {
+	try {
+		return await readInstallRecordStrict();
 	} catch {
 		return null;
 	}
@@ -134,24 +178,55 @@ export async function writeInstallRecord(
 	}
 }
 
+/** The mint in flight, shared by concurrent callers. The registration effect,
+ *  Team Bridge and the generation counter can all ask for the identity in the
+ *  same tick on a first launch; without this each would read "absent" and mint
+ *  its own id. */
+let minting: Promise<InstallRecord> | null = null;
+
 /**
- * The record, minting the install id on first need.
+ * The record, minting the install id on first need — and ONLY on a keystore
+ * that answered "no record".
  *
  * The mint is `Crypto.randomUUID()` — the platform CSPRNG, no network, no
  * platform identifier (a device serial is exactly what the ADR does not want
- * here). It is idempotent: an existing record is returned untouched, so this is
- * safe to call from any surface that needs the device identity and cannot
- * double-mint under concurrent callers in one run — the second caller reads the
- * first's item before its own write would happen only under a true race, and
- * the register contract makes that harmless (a fresh id registers a fresh row;
- * the first one's row is the one the reader sees).
+ * here). It is idempotent: an existing record is returned untouched, and
+ * concurrent callers share one mint (`minting`).
+ *
+ * It THROWS `InstallRecordUnavailable` rather than hand out an identity it
+ * cannot stand behind: when the keystore cannot be read (the device is locked),
+ * and when a freshly minted record could not be saved on a platform that has a
+ * keystore — an unsaved id would be re-minted by the very next call, which is
+ * the fork this module exists to prevent (`InstallRecordUnavailable`'s note).
+ * The web runtime has no keystore and is session-scoped by design (module
+ * note), so its in-memory record is accepted as it always was.
  */
 export async function ensureInstallRecord(): Promise<InstallRecord> {
-	const existing = await readInstallRecord();
-	if (existing !== null) return existing;
-	const minted: InstallRecord = { v: 1, install_id: Crypto.randomUUID() };
-	await writeInstallRecord(minted);
-	return minted;
+	if (minting !== null) return minting;
+	const run = (async () => {
+		const existing = await readInstallRecordStrict();
+		if (existing !== null) return existing;
+		const minted: InstallRecord = { v: 1, install_id: Crypto.randomUUID() };
+		const saved = await writeInstallRecord(minted);
+		if (!saved.persistent && Platform.OS !== "web")
+			throw new InstallRecordUnavailable();
+		return minted;
+	})();
+	minting = run;
+	try {
+		return await run;
+	} finally {
+		if (minting === run) minting = null;
+	}
+}
+
+/** Drop the adapter and any mint in flight; tests swap the keystore under the
+ *  module with `adapterForTests`. */
+export function resetInstallRecordForTests(
+	adapterForTests: SecureStoreAdapter | null = null,
+): void {
+	adapter = adapterForTests;
+	minting = null;
 }
 
 /**

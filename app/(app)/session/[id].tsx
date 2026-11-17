@@ -96,6 +96,7 @@ import {
 	sessionControlPolicy,
 } from "@/features/session/remote-controls";
 import { RemoteSessionGate } from "@/features/session/remote-session-gate";
+import { sessionSupplementsAvailable } from "@/features/session/remote-supplements";
 import { sessionChipLabels } from "@/features/session/session-chips";
 import { sessionFactsFrom } from "@/features/session/state-marker";
 import { createScrollPresence } from "@/features/session/transcript-presence";
@@ -321,9 +322,13 @@ function Session() {
 	 *  command id against the rows (`pending-echo.ts`). */
 	const pendingEchoes = usePendingEchoes(sessionId, runtime.entries);
 
+	const supplementsAvailable = sessionSupplementsAvailable(
+		capabilities,
+		remoteConversation,
+	);
 	const sessionSupplements = useMemo(
-		() => (remoteConversation ? {} : runtime.supplements),
-		[remoteConversation, runtime.supplements],
+		() => (supplementsAvailable ? runtime.supplements : {}),
+		[supplementsAvailable, runtime.supplements],
 	);
 
 	/* The supplement block's host calls: one session-scoped client, built here
@@ -335,12 +340,14 @@ function Session() {
 			loadFile: runtime.loadSupplementFile,
 			loadSound: runtime.loadSupplementSound,
 			command: runtime.supplementCommand,
+			allowsCommand: (op) => controlPolicy.allows(`supplement_${op}`),
 		}),
 		[
 			runtime.loadSupplementDocument,
 			runtime.loadSupplementFile,
 			runtime.loadSupplementSound,
 			runtime.supplementCommand,
+			controlPolicy,
 		],
 	);
 
@@ -895,7 +902,9 @@ function Session() {
 	const transcriptNotice = pendingRecovery ? undefined : (
 		<>
 			{connectionBanner}
-			<RemoteFeatureNotice remote={remoteConversation} />
+			<RemoteFeatureNotice
+				remote={remoteConversation && !supplementsAvailable}
+			/>
 		</>
 	);
 	/* The pending rows sit after the last real row, inside the scroller: at the
@@ -1027,6 +1036,7 @@ function Session() {
 					supplementClient={sessionSupplementClient(
 						remoteConversation,
 						supplementClient,
+						capabilities,
 					)}
 					onOpenVideo={openVideo}
 					/* The image-gen card's Cancel is the composer's OWN stop path (the

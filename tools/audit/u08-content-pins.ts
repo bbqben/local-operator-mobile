@@ -67,6 +67,9 @@ const sha256 = (content: string | Uint8Array) =>
 
 /* --------------------------------------------------------------- the table -- */
 
+/* Background push refresh: re-derived with --print after the register fixture
+ * and warm-sync source changed. These hashes prove SOURCE IDENTITY ONLY, not
+ * rendered/native/device/battery evidence; no assertion or exemption changed. */
 export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-07 for PR #189 (audit fix 2) with --print: `auditCell` now
 	 *  brackets the unchanged `EXTRACT_PROBE` with `SPACING_REST_PROBE` and retakes
@@ -195,7 +198,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
 	"tools/mock-relay/relay.ts":
-		"fd8d5e9c17f3b7219024340b20934321980411f4b510c64aab0cde36ba9e8669",
+		"9bec3b7e5c493832cb6b583ce8d9710f669709d45ac2808affe1cf7b6784d957",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -214,7 +217,7 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	/* PR #207 round 5: omit the false head-pin flag, matching Core's wire.
 	 * Re-derived with --print from the staged tree; no capture assertion moved. */
 	"tools/mock-relay/scenarios.ts":
-		"26a2bc072de976ec16b3b0083efeb3367f2896dc573805fdd625b0b3232a8a1e",
+		"5b8c61f4d6763d968d9f1b78337b700c7f016a500836a33617efba06c3dbe133",
 	"tools/mock-relay/shape.ts":
 		"0ef0c342578ffaf4a7067d4427f10a999740152d6a56ec2da63d75697f08fb5b",
 	/* The startup evidence helper the fixture's relay imports. It has been loaded by
@@ -720,7 +723,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (PR #275): both comment chains retained; the merged app carries both
 	 * sides, so it matches neither parent. Re-derived with --print over the
 	 * merged tree. Source identity only, NOT new rendered U-08 evidence. */
-	app: "d4c15704e4c7d6daf91f7b6a1575ec5e849ba0be08f5a344ab48d25c9405eda7",
+	app: "0eef54119604f176cb2e445670e92e74eeaf8f928cdfc23308a33ce166204597",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2088,7 +2091,64 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * independent treeDigest reader over the staged merge tree's git objects
 	 * (not --print); it reproduced main's pin (bab911c2…) from b1fbb813's tree
 	 * as a control. Source identity only, NOT rendered U-08 evidence. */
-	src: "795de762078c3b9c01278a9c9a5f091222c618c77bd996e8fac1763288d95bfd",
+	/* PR #280 round-1 remediation: capability-gated graphic Retry and the
+	 * operation-local remote document refusal, plus mounted failure tests.
+	 * Derived by --print; source admission only, not rendered U-08 evidence. */
+	/* Push-background refresh: re-derived with --print after staging the full
+	 * mapping/coordinator/task and regression tests. SOURCE IDENTITY ONLY;
+	 * no rendered, native, device or battery proof is implied. */
+	/* PR #279 CI remediation round 3: the session AppState test-source helper
+	 * adds tracked src content. Re-derived with --print; source identity only, NOT
+	 * new rendered, native, device or battery proof. */
+	/* PR #280 convergence with #279: both histories retained above. Derived
+	 * from the staged merged tree with --print; source admission only, NOT
+	 * new rendered, native, device or battery evidence. */
+	/* List freshness recovery: --print over the changed provider and mounted
+	 * loopback tests. Healthy seeded streams have no periodic list deadline;
+	 * the U-08 scene, layout and instrument are unchanged. Source admission
+	 * only, NOT new rendered, native or device evidence. */
+	/* PR #283 convergence with #284 (main 93825691): the merged tree carries
+	 * #284's list-freshness provider change and #283's Team Bridge bottom
+	 * alignment, so it has neither parent's digest. Derived from the staged
+	 * merged tree with --print; source admission only, NOT new rendered,
+	 * native or device evidence. */
+	/* iOS notification category summaries: new `notifications/categories.ts`,
+	 * its mount hook, tests and six catalogue keys in all 8 locales. Nothing
+	 * the U-08 scene renders changes. Derived with --print over the committed
+	 * tree; source admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#285, 53fe98ec) into fix/push-device-dedupe
+	 * (PR #287): the merged src carries both sides (#285 category summaries +
+	 * #287 install-id/device rows), so it matches neither parent. Re-derived
+	 * with --print over the staged merged tree (run twice, stable). Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #287 round-1 remediation: device state sentences as catalogue keys
+	 * in all 8 locales, app-language "Last active" dates and row spacing/ink.
+	 * Re-derived with --print over the staged tree (run twice, stable). Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Bridge thread flicker: unchanged polls keep message identity (structural
+	 * sharing in mergeMessages, no publish in loadThread), a stable empty
+	 * people list, and no repeated native write for an in-flight target.
+	 * Round-1/2 remediation adds the day-turnover re-derive, a 250 ms
+	 * in-flight window and a once-per-target native re-check (reset by a
+	 * reported scroll). Re-derived with --print; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* PR #286 convergence with #285 (main 53fe98ec): both histories above;
+	 * the merged tree carries both, so it has neither parent's digest.
+	 * Derived from the staged merged tree with --print; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#286, 80645bc3) into PR #287: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides, so
+	 * it matches neither parent. Re-derived with --print over the staged merged
+	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (#277-#287, 08025e10) into O3-a: both comment
+	 * chains retained; the merged src carries both sides (O3-a's headers and
+	 * date/time copy plus main's notifications, Team Bridge and warm-sync
+	 * sources, and the key-union catalogues in all 8 locales), so it matches
+	 * neither parent. Derived LAST by the same independent treeDigest reader
+	 * over the staged merge tree's git objects (not --print); it reproduced
+	 * both parents' committed pins as controls. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	src: "ec9b8e39e9e6d183dde4528c22b9a032b8becc2b75010bf529dad0827c4b4667",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

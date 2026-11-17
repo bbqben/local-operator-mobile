@@ -393,6 +393,12 @@ export type CatalogueKey =
 	| "mobile.library.title"
 	| "mobile.notifications.answer"
 	| "mobile.notifications.back"
+	| "mobile.notifications.category.completion_placeholder"
+	| "mobile.notifications.category.completion_summary"
+	| "mobile.notifications.category.digest_placeholder"
+	| "mobile.notifications.category.digest_summary"
+	| "mobile.notifications.category.message_placeholder"
+	| "mobile.notifications.category.message_summary"
 	| "mobile.notifications.channel.airy_whistle"
 	| "mobile.notifications.channel.bubble_chord"
 	| "mobile.notifications.channel.bubble_pulse"
@@ -423,6 +429,14 @@ export type CatalogueKey =
 	| "mobile.notifications.detail.section_message"
 	| "mobile.notifications.detail.section_notification"
 	| "mobile.notifications.detail.title"
+	| "mobile.notifications.device_state.absent"
+	| "mobile.notifications.device_state.expired"
+	| "mobile.notifications.device_state.live"
+	| "mobile.notifications.device_state.revoked"
+	| "mobile.notifications.device_state.unpaired"
+	| "mobile.notifications.devices.last_active"
+	| "mobile.notifications.devices.this_android"
+	| "mobile.notifications.devices.this_iphone"
 	| "mobile.notifications.dismiss"
 	| "mobile.notifications.filter_label"
 	| "mobile.notifications.load_failed"
@@ -551,12 +565,14 @@ export type CatalogueKey =
 	| "mobile.remote_sessions.health_quiet"
 	| "mobile.remote_sessions.health_reconnecting"
 	| "mobile.remote_sessions.loading"
+	| "mobile.remote_sessions.media_changed"
 	| "mobile.remote_sessions.owner_only"
 	| "mobile.remote_sessions.owner_unresolved"
 	| "mobile.remote_sessions.retained_only"
 	| "mobile.remote_sessions.row_long_press_hint"
 	| "mobile.remote_sessions.session_missing"
 	| "mobile.remote_sessions.subtitle_owner"
+	| "mobile.remote_sessions.supplement_needs_running"
 	| "mobile.remote_sessions.title"
 	| "mobile.remote_sessions.unreachable"
 	| "mobile.remote_sessions.unsupported"
@@ -1390,6 +1406,12 @@ export type NoParamKey =
 	| "mobile.library.title"
 	| "mobile.notifications.answer"
 	| "mobile.notifications.back"
+	| "mobile.notifications.category.completion_placeholder"
+	| "mobile.notifications.category.completion_summary"
+	| "mobile.notifications.category.digest_placeholder"
+	| "mobile.notifications.category.digest_summary"
+	| "mobile.notifications.category.message_placeholder"
+	| "mobile.notifications.category.message_summary"
 	| "mobile.notifications.channel.airy_whistle"
 	| "mobile.notifications.channel.bubble_chord"
 	| "mobile.notifications.channel.bubble_pulse"
@@ -1420,6 +1442,13 @@ export type NoParamKey =
 	| "mobile.notifications.detail.section_message"
 	| "mobile.notifications.detail.section_notification"
 	| "mobile.notifications.detail.title"
+	| "mobile.notifications.device_state.absent"
+	| "mobile.notifications.device_state.expired"
+	| "mobile.notifications.device_state.live"
+	| "mobile.notifications.device_state.revoked"
+	| "mobile.notifications.device_state.unpaired"
+	| "mobile.notifications.devices.this_android"
+	| "mobile.notifications.devices.this_iphone"
 	| "mobile.notifications.dismiss"
 	| "mobile.notifications.filter_label"
 	| "mobile.notifications.load_failed"
@@ -1521,10 +1550,12 @@ export type NoParamKey =
 	| "mobile.remote_sessions.forbidden"
 	| "mobile.remote_sessions.gate_unsupported"
 	| "mobile.remote_sessions.loading"
+	| "mobile.remote_sessions.media_changed"
 	| "mobile.remote_sessions.owner_unresolved"
 	| "mobile.remote_sessions.retained_only"
 	| "mobile.remote_sessions.row_long_press_hint"
 	| "mobile.remote_sessions.session_missing"
+	| "mobile.remote_sessions.supplement_needs_running"
 	| "mobile.remote_sessions.title"
 	| "mobile.remote_sessions.unreachable"
 	| "mobile.remote_sessions.unsupported"
@@ -2313,6 +2344,12 @@ export type MessageParams = {
 	"mobile.library.title": NoParams;
 	"mobile.notifications.answer": NoParams;
 	"mobile.notifications.back": NoParams;
+	"mobile.notifications.category.completion_placeholder": NoParams;
+	"mobile.notifications.category.completion_summary": NoParams;
+	"mobile.notifications.category.digest_placeholder": NoParams;
+	"mobile.notifications.category.digest_summary": NoParams;
+	"mobile.notifications.category.message_placeholder": NoParams;
+	"mobile.notifications.category.message_summary": NoParams;
 	"mobile.notifications.channel.airy_whistle": NoParams;
 	"mobile.notifications.channel.bubble_chord": NoParams;
 	"mobile.notifications.channel.bubble_pulse": NoParams;
@@ -2343,6 +2380,14 @@ export type MessageParams = {
 	"mobile.notifications.detail.section_message": NoParams;
 	"mobile.notifications.detail.section_notification": NoParams;
 	"mobile.notifications.detail.title": NoParams;
+	"mobile.notifications.device_state.absent": NoParams;
+	"mobile.notifications.device_state.expired": NoParams;
+	"mobile.notifications.device_state.live": NoParams;
+	"mobile.notifications.device_state.revoked": NoParams;
+	"mobile.notifications.device_state.unpaired": NoParams;
+	"mobile.notifications.devices.last_active": { date: string | number };
+	"mobile.notifications.devices.this_android": NoParams;
+	"mobile.notifications.devices.this_iphone": NoParams;
 	"mobile.notifications.dismiss": NoParams;
 	"mobile.notifications.filter_label": NoParams;
 	"mobile.notifications.load_failed": NoParams;
@@ -2471,12 +2516,14 @@ export type MessageParams = {
 	"mobile.remote_sessions.health_quiet": { owner: string | number };
 	"mobile.remote_sessions.health_reconnecting": { owner: string | number };
 	"mobile.remote_sessions.loading": NoParams;
+	"mobile.remote_sessions.media_changed": NoParams;
 	"mobile.remote_sessions.owner_only": { owner: string | number };
 	"mobile.remote_sessions.owner_unresolved": NoParams;
 	"mobile.remote_sessions.retained_only": NoParams;
 	"mobile.remote_sessions.row_long_press_hint": NoParams;
 	"mobile.remote_sessions.session_missing": NoParams;
 	"mobile.remote_sessions.subtitle_owner": { owner: string | number; state: string | number };
+	"mobile.remote_sessions.supplement_needs_running": NoParams;
 	"mobile.remote_sessions.title": NoParams;
 	"mobile.remote_sessions.unreachable": NoParams;
 	"mobile.remote_sessions.unsupported": NoParams;
@@ -3376,6 +3423,12 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.library.title": "Library",
 	"mobile.notifications.answer": "Answer",
 	"mobile.notifications.back": "Back",
+	"mobile.notifications.category.completion_placeholder": "Agent update",
+	"mobile.notifications.category.completion_summary": "%u more from your agents",
+	"mobile.notifications.category.digest_placeholder": "Digest",
+	"mobile.notifications.category.digest_summary": "%u more from your digest",
+	"mobile.notifications.category.message_placeholder": "Team Bridge message",
+	"mobile.notifications.category.message_summary": "%u more from Team Bridge",
 	"mobile.notifications.channel.airy_whistle": "Airy whistle",
 	"mobile.notifications.channel.bubble_chord": "Bubble chord",
 	"mobile.notifications.channel.bubble_pulse": "Bubble pulse",
@@ -3406,6 +3459,14 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.detail.section_message": "Message",
 	"mobile.notifications.detail.section_notification": "Notification",
 	"mobile.notifications.detail.title": "Notification",
+	"mobile.notifications.device_state.absent": "Not in this computer's registry; it may register again.",
+	"mobile.notifications.device_state.expired": "Notifications are paused for this device until you sign in again.",
+	"mobile.notifications.device_state.live": "Registered with this computer.",
+	"mobile.notifications.device_state.revoked": "This device was revoked on this computer.",
+	"mobile.notifications.device_state.unpaired": "This computer is no longer paired.",
+	"mobile.notifications.devices.last_active": "Last active {date}",
+	"mobile.notifications.devices.this_android": "This Android device",
+	"mobile.notifications.devices.this_iphone": "This iPhone",
 	"mobile.notifications.dismiss": "Dismiss",
 	"mobile.notifications.filter_label": "Show",
 	"mobile.notifications.load_failed": "Couldn't load notifications",
@@ -3534,12 +3595,14 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.remote_sessions.health_quiet": "This conversation on {owner} has stopped responding — it may be busy or stuck. A send can show a failure and still arrive once it catches up. Retrying won’t send it twice.",
 	"mobile.remote_sessions.health_reconnecting": "This phone lost its connection and keeps trying. The conversation may still be running on {owner}; sending may fail until the connection is back.",
 	"mobile.remote_sessions.loading": "Checking this computer’s remote-session support…",
+	"mobile.remote_sessions.media_changed": "This media changed or access ended during download. Nothing was opened. Try again when the owner computer is available.",
 	"mobile.remote_sessions.owner_only": "Approvals, Stop, model changes and slash commands work only on {owner} for now.",
 	"mobile.remote_sessions.owner_unresolved": "The relay cannot confirm which computer owns this conversation. Refresh the sessions list and try again.",
-	"mobile.remote_sessions.retained_only": "Files the agent created can’t be previewed in remote conversations yet. Attached documents can be saved.",
+	"mobile.remote_sessions.retained_only": "Highlight previews need a newer Local Operator on the connected computer. Open them on the owner computer for now. Attached documents can still be saved.",
 	"mobile.remote_sessions.row_long_press_hint": "Recall, move or copy",
 	"mobile.remote_sessions.session_missing": "This conversation is no longer available on its owner computer. Refresh the sessions list.",
 	"mobile.remote_sessions.subtitle_owner": "{state} · On {owner}",
+	"mobile.remote_sessions.supplement_needs_running": "This file needs the conversation running on its owner computer. Open it there or resume the conversation there, then try again.",
 	"mobile.remote_sessions.title": "Remote conversation",
 	"mobile.remote_sessions.unreachable": "The owner computer is not reachable. Check that it is online, then try again.",
 	"mobile.remote_sessions.unsupported": "This action isn’t available in remote conversations yet. Use it on the owner computer.",
@@ -4424,6 +4487,12 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.library.title": { role: "heading", note: "Title of the Library screens (the list and the single-asset view). 'Library' is the name of the feature that catalogues files and images from the user's conversations, not a building or a book collection; no final full stop." },
 	"mobile.notifications.answer": { role: "button", note: "Button on an ask in the inbox list that opens it to be answered. One word, imperative." },
 	"mobile.notifications.back": { role: "button", note: "Accessibility label of the icon-only back button in the inbox header." },
+	"mobile.notifications.category.completion_placeholder": { role: "meta", note: "Generic placeholder iOS shows INSTEAD of a agent (finished-work) notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop." },
+	"mobile.notifications.category.completion_summary": { role: "meta", note: "Summary line iOS writes under a stack of grouped agent (finished-work) notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop." },
+	"mobile.notifications.category.digest_placeholder": { role: "meta", note: "Generic placeholder iOS shows INSTEAD of a digest notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop." },
+	"mobile.notifications.category.digest_summary": { role: "meta", note: "Summary line iOS writes under a stack of grouped digest notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop." },
+	"mobile.notifications.category.message_placeholder": { role: "meta", note: "Generic placeholder iOS shows INSTEAD of a Team Bridge message notification's text when the reader has hidden notification previews. Must stay generic: it never names a session, a person or message content. A short noun phrase, sentence case, no final full stop." },
+	"mobile.notifications.category.message_summary": { role: "meta", note: "Summary line iOS writes under a stack of grouped Team Bridge message notifications on the lock screen and in Notification Centre. Keep the literal %u exactly once: iOS replaces it with the number of OTHER notifications in the stack (1 or more). Phrase it so it reads correctly for any number (no singular/plural agreement on a noun), e.g. \"3 more from …\". No other % sequences, no final full stop." },
 	"mobile.notifications.channel.airy_whistle": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.channel.bubble_chord": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.channel.bubble_pulse": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
@@ -4454,6 +4523,14 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.detail.section_message": { role: "heading", note: "Section heading above the quoted excerpt of the conversation message a notification points at. A noun, not the verb 'to message'. Short heading, ~16 characters. No placeholders." },
 	"mobile.notifications.detail.section_notification": { role: "heading", note: "Section heading above the notification's own body text on its detail screen (the message an agent sent with notify). Short heading, ~16 characters. No placeholders." },
 	"mobile.notifications.detail.title": { role: "heading", note: "Screen title of a single notification's detail screen (navigation bar). One word, ~16 characters. No placeholders." },
+	"mobile.notifications.device_state.absent": { role: "status", note: "Settings → Notifications: a status line for a device the connected computer's device list does not hold; the device may register itself again. 'Registry' means that list of devices, not an OS registry." },
+	"mobile.notifications.device_state.expired": { role: "status", note: "Settings → Notifications: the status line under a registered device whose sign-in lapsed; the computer stops sending to it until the person signs in on that device again." },
+	"mobile.notifications.device_state.live": { role: "status", note: "Settings → Notifications: the status line under a registered device whose registration with the connected computer is current. States only that the computer holds the registration; must NOT promise that notifications are delivered (neither the computer nor the phone can observe delivery)." },
+	"mobile.notifications.device_state.revoked": { role: "status", note: "Settings → Notifications: the status line under a registered device that the person removed (revoked) on the connected computer; it receives nothing until restored there." },
+	"mobile.notifications.device_state.unpaired": { role: "status", note: "Settings → Notifications: the status line under a registered device when the connected computer reports it is no longer paired with this device. 'Paired' is the link between the computer and the app." },
+	"mobile.notifications.devices.last_active": { role: "meta", note: "Settings → Notifications: a secondary line under another registered device's name telling it apart from similar devices. {date} is a localized short date and time, e.g. \"Nov 15, 4:37 PM\"." },
+	"mobile.notifications.devices.this_android": { role: "heading", note: "Settings → Notifications: the title of the registered-device row that is the Android phone the reader is holding, listed first above the computer's other devices. Android is a product name, kept verbatim." },
+	"mobile.notifications.devices.this_iphone": { role: "heading", note: "Settings → Notifications: the title of the registered-device row that is the phone the reader is holding, listed first above the computer's other devices. iPhone is Apple's product name, kept verbatim." },
 	"mobile.notifications.dismiss": { role: "button", note: "Accessibility label of the icon-only button that clears a notification from the inbox. Imperative." },
 	"mobile.notifications.filter_label": { role: "meta", note: "Accessible label of the segmented control that chooses which notifications are listed (unread or all). One word; a verb used as a label." },
 	"mobile.notifications.load_failed": { role: "heading", note: "Title of the error alert when the inbox could not be loaded. The relay's own sentence follows as the alert body." },
@@ -4582,12 +4659,14 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.remote_sessions.health_quiet": { role: "status", note: "Status sheet, remote conversation, not responding. Keep {owner} unchanged. 'Retrying won't send it twice' is a safety promise; keep it." },
 	"mobile.remote_sessions.health_reconnecting": { role: "status", note: "Status sheet, remote conversation, phone reconnecting. Keep {owner} unchanged." },
 	"mobile.remote_sessions.loading": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
+	"mobile.remote_sessions.media_changed": { role: "status", note: "Operation-local remote Highlight refusal. Keep transcript and attached documents usable; never suggest signing out." },
 	"mobile.remote_sessions.owner_only": { role: "status", note: "Shown instead of unavailable controls in a remote conversation (approve/deny, stop, model and effort pickers, typed slash commands). {owner} is the owner computer's display name; keep it unchanged. Not an error: a current limit of remote conversations." },
 	"mobile.remote_sessions.owner_unresolved": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
-	"mobile.remote_sessions.retained_only": { role: "status", note: "Visible remote-only capability limit: retained input DocumentContent attachments are supported, generated supplement files and the Highlights feature are not. Highlights is a feature label, not search highlighting. Never imply uploads or local filesystem access." },
+	"mobile.remote_sessions.retained_only": { role: "status", note: "Fallback only for a connected relay without remote Highlight reads: update that computer or open on the owner computer. Retained attached documents remain supported. Highlights is the feature label." },
 	"mobile.remote_sessions.row_long_press_hint": { role: "help", note: "Screen-reader hint on a remote conversation row in the drawer: long-press opens recall/move/copy. Recall brings the conversation to this computer." },
 	"mobile.remote_sessions.session_missing": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.subtitle_owner": { role: "meta", note: "Session header subtitle for a remote conversation. {state} is the state word (Idle, Working, Not answering…); {owner} is the owner computer's display name. Keep both placeholders unchanged; no final full stop." },
+	"mobile.remote_sessions.supplement_needs_running": { role: "status", note: "Operation-local remote Highlight refusal. Keep transcript and attached documents usable; never suggest signing out." },
 	"mobile.remote_sessions.title": { role: "heading", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.unreachable": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
 	"mobile.remote_sessions.unsupported": { role: "status", note: "Remote conversation support or per-operation relay failure; owner means the mesh computer that holds the conversation, not the phone. Never suggest signing out or recalling the session." },
@@ -5486,6 +5565,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Biblioteca",
 		"mobile.notifications.answer": "Responder",
 		"mobile.notifications.back": "Atrás",
+		"mobile.notifications.category.completion_placeholder": "Novedad del agente",
+		"mobile.notifications.category.completion_summary": "%u más de tus agentes",
+		"mobile.notifications.category.digest_placeholder": "Resumen",
+		"mobile.notifications.category.digest_summary": "%u más de tu resumen",
+		"mobile.notifications.category.message_placeholder": "Mensaje de Team Bridge",
+		"mobile.notifications.category.message_summary": "%u más de Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Silbido etéreo",
 		"mobile.notifications.channel.bubble_chord": "Acorde de burbujas",
 		"mobile.notifications.channel.bubble_pulse": "Pulso de burbuja",
@@ -5516,6 +5601,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "Mensaje",
 		"mobile.notifications.detail.section_notification": "Notificación",
 		"mobile.notifications.detail.title": "Notificación",
+		"mobile.notifications.device_state.absent": "No está en el registro de esta máquina; puede volver a registrarse.",
+		"mobile.notifications.device_state.expired": "Las notificaciones de este dispositivo están en pausa hasta que vuelvas a iniciar sesión.",
+		"mobile.notifications.device_state.live": "Registrado en esta máquina.",
+		"mobile.notifications.device_state.revoked": "Este dispositivo se revocó en esta máquina.",
+		"mobile.notifications.device_state.unpaired": "Esta máquina ya no está vinculada.",
+		"mobile.notifications.devices.last_active": "Última actividad: {date}",
+		"mobile.notifications.devices.this_android": "Este dispositivo Android",
+		"mobile.notifications.devices.this_iphone": "Este iPhone",
 		"mobile.notifications.dismiss": "Descartar",
 		"mobile.notifications.filter_label": "Mostrar",
 		"mobile.notifications.load_failed": "No se pudieron cargar las notificaciones",
@@ -5644,12 +5737,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "Esta conversación en {owner} ha dejado de responder; puede estar ocupada o bloqueada. Un envío puede mostrar un error y llegar igualmente cuando se ponga al día. Reintentar no lo enviará dos veces.",
 		"mobile.remote_sessions.health_reconnecting": "Este teléfono perdió la conexión y sigue intentándolo. Puede que la conversación siga ejecutándose en {owner}; los envíos pueden fallar hasta que vuelva la conexión.",
 		"mobile.remote_sessions.loading": "Comprobando la compatibilidad con sesiones remotas…",
+		"mobile.remote_sessions.media_changed": "Este contenido multimedia cambió o se perdió el acceso durante la descarga. No se abrió nada. Vuelve a intentarlo cuando el equipo propietario esté disponible.",
 		"mobile.remote_sessions.owner_only": "Por ahora, las aprobaciones, Detener, los cambios de modelo y los comandos con barra solo funcionan en {owner}.",
 		"mobile.remote_sessions.owner_unresolved": "El relé no puede confirmar qué equipo es propietario de esta conversación. Actualiza la lista de sesiones y vuelve a intentarlo.",
-		"mobile.remote_sessions.retained_only": "Los archivos creados por el agente aún no se pueden previsualizar en conversaciones remotas. Los documentos adjuntos sí se pueden guardar.",
+		"mobile.remote_sessions.retained_only": "Las vistas previas de Highlights necesitan una versión más reciente de Local Operator en el equipo conectado. Por ahora, ábrelas en el equipo propietario. Los documentos adjuntos se pueden seguir guardando.",
 		"mobile.remote_sessions.row_long_press_hint": "Recuperar, mover o copiar",
 		"mobile.remote_sessions.session_missing": "Esta conversación ya no está disponible en su equipo propietario. Actualiza la lista de sesiones.",
 		"mobile.remote_sessions.subtitle_owner": "{state} · En {owner}",
+		"mobile.remote_sessions.supplement_needs_running": "Este archivo necesita que la conversación esté en ejecución en el equipo propietario. Ábrelo allí o reanuda la conversación allí y vuelve a intentarlo.",
 		"mobile.remote_sessions.title": "Conversación remota",
 		"mobile.remote_sessions.unreachable": "No se puede contactar con el equipo propietario. Comprueba que esté conectado y vuelve a intentarlo.",
 		"mobile.remote_sessions.unsupported": "Esta acción aún no está disponible en conversaciones remotas. Úsala en el equipo propietario.",
@@ -6532,6 +6627,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Bibliothèque",
 		"mobile.notifications.answer": "Répondre",
 		"mobile.notifications.back": "Retour",
+		"mobile.notifications.category.completion_placeholder": "Mise à jour d'agent",
+		"mobile.notifications.category.completion_summary": "%u de plus de vos agents",
+		"mobile.notifications.category.digest_placeholder": "Résumé",
+		"mobile.notifications.category.digest_summary": "%u de plus de votre résumé",
+		"mobile.notifications.category.message_placeholder": "Message Team Bridge",
+		"mobile.notifications.category.message_summary": "%u de plus de Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Sifflement léger",
 		"mobile.notifications.channel.bubble_chord": "Accord de bulles",
 		"mobile.notifications.channel.bubble_pulse": "Bulle brève",
@@ -6562,6 +6663,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "Message",
 		"mobile.notifications.detail.section_notification": "Notification",
 		"mobile.notifications.detail.title": "Notification",
+		"mobile.notifications.device_state.absent": "Absent du registre de cet ordinateur ; il peut s’enregistrer à nouveau.",
+		"mobile.notifications.device_state.expired": "Les notifications sont suspendues pour cet appareil jusqu’à ce que vous vous reconnectiez.",
+		"mobile.notifications.device_state.live": "Enregistré auprès de cet ordinateur.",
+		"mobile.notifications.device_state.revoked": "Cet appareil a été révoqué sur cet ordinateur.",
+		"mobile.notifications.device_state.unpaired": "Cet ordinateur n’est plus associé.",
+		"mobile.notifications.devices.last_active": "Dernière activité : {date}",
+		"mobile.notifications.devices.this_android": "Cet appareil Android",
+		"mobile.notifications.devices.this_iphone": "Cet iPhone",
 		"mobile.notifications.dismiss": "Ignorer",
 		"mobile.notifications.filter_label": "Afficher",
 		"mobile.notifications.load_failed": "Impossible de charger les notifications",
@@ -6690,12 +6799,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "Cette conversation sur {owner} ne répond plus — elle est peut-être occupée ou bloquée. Un envoi peut afficher un échec et arriver quand même une fois qu’elle a rattrapé son retard. Réessayer ne l’enverra pas deux fois.",
 		"mobile.remote_sessions.health_reconnecting": "Ce téléphone a perdu sa connexion et continue d’essayer. La conversation est peut-être toujours en cours sur {owner} ; l’envoi peut échouer jusqu’au retour de la connexion.",
 		"mobile.remote_sessions.loading": "Vérification de la prise en charge des sessions distantes…",
+		"mobile.remote_sessions.media_changed": "Ce média a changé ou l’accès a pris fin pendant le téléchargement. Rien n’a été ouvert. Réessayez lorsque l’ordinateur propriétaire sera disponible.",
 		"mobile.remote_sessions.owner_only": "Pour l’instant, les approbations, Arrêter, les changements de modèle et les commandes slash ne fonctionnent que sur {owner}.",
 		"mobile.remote_sessions.owner_unresolved": "Le relais ne peut pas confirmer quel ordinateur possède cette conversation. Actualisez la liste des sessions et réessayez.",
-		"mobile.remote_sessions.retained_only": "Les fichiers créés par l’agent ne peuvent pas encore être prévisualisés dans les conversations à distance. Les documents joints peuvent être enregistrés.",
+		"mobile.remote_sessions.retained_only": "Les aperçus des Highlights nécessitent une version plus récente de Local Operator sur l’ordinateur connecté. Ouvrez-les sur l’ordinateur propriétaire en attendant. Les documents joints peuvent toujours être enregistrés.",
 		"mobile.remote_sessions.row_long_press_hint": "Rapatrier, déplacer ou copier",
 		"mobile.remote_sessions.session_missing": "Cette conversation n’est plus disponible sur son ordinateur propriétaire. Actualisez la liste des sessions.",
 		"mobile.remote_sessions.subtitle_owner": "{state} · Sur {owner}",
+		"mobile.remote_sessions.supplement_needs_running": "Ce fichier nécessite que la conversation soit en cours sur son ordinateur propriétaire. Ouvrez-le là-bas ou reprenez-y la conversation, puis réessayez.",
 		"mobile.remote_sessions.title": "Conversation distante",
 		"mobile.remote_sessions.unreachable": "L’ordinateur propriétaire est injoignable. Vérifiez qu’il est en ligne, puis réessayez.",
 		"mobile.remote_sessions.unsupported": "Cette action n’est pas encore disponible dans les conversations à distance. Utilisez-la sur l’ordinateur propriétaire.",
@@ -7578,6 +7689,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "लाइब्रेरी",
 		"mobile.notifications.answer": "उत्तर दें",
 		"mobile.notifications.back": "वापस",
+		"mobile.notifications.category.completion_placeholder": "एजेंट अपडेट",
+		"mobile.notifications.category.completion_summary": "आपके एजेंटों से %u और",
+		"mobile.notifications.category.digest_placeholder": "सारांश",
+		"mobile.notifications.category.digest_summary": "आपके सारांश से %u और",
+		"mobile.notifications.category.message_placeholder": "Team Bridge संदेश",
+		"mobile.notifications.category.message_summary": "Team Bridge से %u और",
 		"mobile.notifications.channel.airy_whistle": "हल्की सीटी",
 		"mobile.notifications.channel.bubble_chord": "बुलबुलों का सुर",
 		"mobile.notifications.channel.bubble_pulse": "बुलबुले की धड़कन",
@@ -7608,6 +7725,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "संदेश",
 		"mobile.notifications.detail.section_notification": "विवरण",
 		"mobile.notifications.detail.title": "सूचना",
+		"mobile.notifications.device_state.absent": "इस कंप्यूटर की रजिस्ट्री में नहीं है; यह फिर से रजिस्टर हो सकता है।",
+		"mobile.notifications.device_state.expired": "जब तक आप दोबारा साइन इन नहीं करते, इस डिवाइस के लिए सूचनाएँ रुकी हुई हैं।",
+		"mobile.notifications.device_state.live": "इस कंप्यूटर के साथ रजिस्टर है।",
+		"mobile.notifications.device_state.revoked": "इस डिवाइस को इस कंप्यूटर पर रद्द कर दिया गया।",
+		"mobile.notifications.device_state.unpaired": "यह कंप्यूटर अब पेयर नहीं है।",
+		"mobile.notifications.devices.last_active": "अंतिम बार सक्रिय: {date}",
+		"mobile.notifications.devices.this_android": "यह Android डिवाइस",
+		"mobile.notifications.devices.this_iphone": "यह iPhone",
 		"mobile.notifications.dismiss": "हटाएँ",
 		"mobile.notifications.filter_label": "दिखाएँ",
 		"mobile.notifications.load_failed": "सूचनाएँ लोड नहीं हो सकीं",
@@ -7736,12 +7861,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "{owner} पर यह बातचीत जवाब नहीं दे रही — यह व्यस्त या अटकी हो सकती है। भेजने पर विफलता दिख सकती है, फिर भी संदेश बाद में पहुँच सकता है। दोबारा कोशिश करने से यह दो बार नहीं जाएगा।",
 		"mobile.remote_sessions.health_reconnecting": "इस फ़ोन का कनेक्शन टूट गया है और यह कोशिश कर रहा है। बातचीत शायद अब भी {owner} पर चल रही है; कनेक्शन लौटने तक भेजना विफल हो सकता है।",
 		"mobile.remote_sessions.loading": "इस कंप्यूटर पर दूरस्थ सत्रों का समर्थन जाँचा जा रहा है…",
+		"mobile.remote_sessions.media_changed": "डाउनलोड के दौरान यह मीडिया बदल गया या पहुँच समाप्त हो गई। कुछ भी नहीं खोला गया। स्वामी कंप्यूटर उपलब्ध होने पर फिर कोशिश करें।",
 		"mobile.remote_sessions.owner_only": "फ़िलहाल अनुमतियाँ, रोकें, मॉडल बदलना और स्लैश कमांड सिर्फ़ {owner} पर काम करते हैं।",
 		"mobile.remote_sessions.owner_unresolved": "रिले पुष्टि नहीं कर पा रहा कि यह बातचीत किस कंप्यूटर की है। सत्रों की सूची रीफ़्रेश करें और दोबारा कोशिश करें।",
-		"mobile.remote_sessions.retained_only": "एजेंट की बनाई फ़ाइलों का पूर्वावलोकन अभी रिमोट बातचीत में नहीं हो सकता। संलग्न दस्तावेज़ सहेजे जा सकते हैं।",
+		"mobile.remote_sessions.retained_only": "Highlights का पूर्वावलोकन देखने के लिए जुड़े कंप्यूटर पर Local Operator का नया संस्करण चाहिए। फ़िलहाल इन्हें स्वामी कंप्यूटर पर खोलें। संलग्न दस्तावेज़ अब भी सहेजे जा सकते हैं।",
 		"mobile.remote_sessions.row_long_press_hint": "वापस लाएँ, ले जाएँ या कॉपी करें",
 		"mobile.remote_sessions.session_missing": "यह बातचीत अब स्वामी कंप्यूटर पर उपलब्ध नहीं है। सत्रों की सूची रीफ़्रेश करें।",
 		"mobile.remote_sessions.subtitle_owner": "{state} · {owner} पर",
+		"mobile.remote_sessions.supplement_needs_running": "इस फ़ाइल के लिए बातचीत का उसके स्वामी कंप्यूटर पर चलना ज़रूरी है। फ़ाइल वहीं खोलें या बातचीत वहीं फिर शुरू करें, फिर कोशिश करें।",
 		"mobile.remote_sessions.title": "दूरस्थ बातचीत",
 		"mobile.remote_sessions.unreachable": "स्वामी कंप्यूटर से संपर्क नहीं हो पा रहा। जाँचें कि वह ऑनलाइन है, फिर दोबारा कोशिश करें।",
 		"mobile.remote_sessions.unsupported": "यह कार्रवाई अभी रिमोट बातचीत में उपलब्ध नहीं है। इसे मालिक कंप्यूटर पर इस्तेमाल करें।",
@@ -8624,6 +8751,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Библиотека",
 		"mobile.notifications.answer": "Ответить",
 		"mobile.notifications.back": "Назад",
+		"mobile.notifications.category.completion_placeholder": "Обновление агента",
+		"mobile.notifications.category.completion_summary": "Ещё %u от ваших агентов",
+		"mobile.notifications.category.digest_placeholder": "Сводка",
+		"mobile.notifications.category.digest_summary": "Ещё %u из вашей сводки",
+		"mobile.notifications.category.message_placeholder": "Сообщение Team Bridge",
+		"mobile.notifications.category.message_summary": "Ещё %u из Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Лёгкий свист",
 		"mobile.notifications.channel.bubble_chord": "Аккорд пузырьков",
 		"mobile.notifications.channel.bubble_pulse": "Пузырьковый импульс",
@@ -8654,6 +8787,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "Сообщение",
 		"mobile.notifications.detail.section_notification": "Уведомление",
 		"mobile.notifications.detail.title": "Уведомление",
+		"mobile.notifications.device_state.absent": "Нет в реестре этого компьютера; устройство может зарегистрироваться снова.",
+		"mobile.notifications.device_state.expired": "Уведомления для этого устройства приостановлены, пока вы снова не войдёте.",
+		"mobile.notifications.device_state.live": "Зарегистрировано на этом компьютере.",
+		"mobile.notifications.device_state.revoked": "Это устройство отозвано на этом компьютере.",
+		"mobile.notifications.device_state.unpaired": "Этот компьютер больше не сопряжён.",
+		"mobile.notifications.devices.last_active": "Последняя активность: {date}",
+		"mobile.notifications.devices.this_android": "Это устройство Android",
+		"mobile.notifications.devices.this_iphone": "Этот iPhone",
 		"mobile.notifications.dismiss": "Скрыть",
 		"mobile.notifications.filter_label": "Показать",
 		"mobile.notifications.load_failed": "Не удалось загрузить уведомления",
@@ -8782,12 +8923,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "Этот разговор на {owner} перестал отвечать — возможно, он занят или завис. Отправка может показать ошибку и всё же дойти, когда он догонит. Повторная попытка не отправит сообщение дважды.",
 		"mobile.remote_sessions.health_reconnecting": "Телефон потерял соединение и продолжает попытки. Разговор, возможно, всё ещё идёт на {owner}; отправка может не работать, пока соединение не восстановится.",
 		"mobile.remote_sessions.loading": "Проверяем поддержку удалённых сеансов…",
+		"mobile.remote_sessions.media_changed": "Во время загрузки медиафайл изменился или доступ к нему прекратился. Ничего не было открыто. Повторите попытку, когда компьютер-владелец будет доступен.",
 		"mobile.remote_sessions.owner_only": "Пока что одобрения, «Стоп», смена модели и слэш-команды работают только на {owner}.",
 		"mobile.remote_sessions.owner_unresolved": "Ретранслятор не может подтвердить, какому компьютеру принадлежит разговор. Обновите список сеансов и повторите попытку.",
-		"mobile.remote_sessions.retained_only": "Файлы, созданные агентом, пока нельзя просмотреть в удалённых разговорах. Вложенные документы можно сохранить.",
+		"mobile.remote_sessions.retained_only": "Для предпросмотра Highlights нужна более новая версия Local Operator на подключённом компьютере. Пока открывайте их на компьютере-владельце. Прикреплённые документы по-прежнему можно сохранять.",
 		"mobile.remote_sessions.row_long_press_hint": "Вернуть, переместить или скопировать",
 		"mobile.remote_sessions.session_missing": "Этот разговор больше недоступен на компьютере-владельце. Обновите список сеансов.",
 		"mobile.remote_sessions.subtitle_owner": "{state} · На {owner}",
+		"mobile.remote_sessions.supplement_needs_running": "Для этого файла беседа должна выполняться на компьютере-владельце. Откройте файл там или возобновите там беседу, затем повторите попытку.",
 		"mobile.remote_sessions.title": "Удалённый разговор",
 		"mobile.remote_sessions.unreachable": "Компьютер-владелец недоступен. Убедитесь, что он в сети, и повторите попытку.",
 		"mobile.remote_sessions.unsupported": "Это действие пока недоступно в удалённых разговорах. Выполните его на компьютере-владельце.",
@@ -9670,6 +9813,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "لائبریری",
 		"mobile.notifications.answer": "جواب دیں",
 		"mobile.notifications.back": "واپس",
+		"mobile.notifications.category.completion_placeholder": "ایجنٹ اپڈیٹ",
+		"mobile.notifications.category.completion_summary": "آپ کے ایجنٹس سے مزید %u",
+		"mobile.notifications.category.digest_placeholder": "خلاصہ",
+		"mobile.notifications.category.digest_summary": "آپ کے خلاصے سے مزید %u",
+		"mobile.notifications.category.message_placeholder": "Team Bridge پیغام",
+		"mobile.notifications.category.message_summary": "Team Bridge سے مزید %u",
 		"mobile.notifications.channel.airy_whistle": "ہلکی سیٹی",
 		"mobile.notifications.channel.bubble_chord": "بلبلوں کا سُر",
 		"mobile.notifications.channel.bubble_pulse": "بلبلے کی دھڑکن",
@@ -9700,6 +9849,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "پیغام",
 		"mobile.notifications.detail.section_notification": "متن",
 		"mobile.notifications.detail.title": "اطلاع",
+		"mobile.notifications.device_state.absent": "اس کمپیوٹر کی رجسٹری میں نہیں ہے؛ یہ دوبارہ رجسٹر ہو سکتا ہے۔",
+		"mobile.notifications.device_state.expired": "جب تک آپ دوبارہ سائن اِن نہیں کرتے، اس ڈیوائس کے لیے اطلاعات رکی ہوئی ہیں۔",
+		"mobile.notifications.device_state.live": "اس کمپیوٹر کے ساتھ رجسٹرڈ ہے۔",
+		"mobile.notifications.device_state.revoked": "اس ڈیوائس کو اس کمپیوٹر پر منسوخ کر دیا گیا۔",
+		"mobile.notifications.device_state.unpaired": "یہ کمپیوٹر اب پیئر نہیں ہے۔",
+		"mobile.notifications.devices.last_active": "آخری بار فعال: {date}",
+		"mobile.notifications.devices.this_android": "یہ Android ڈیوائس",
+		"mobile.notifications.devices.this_iphone": "یہ iPhone",
 		"mobile.notifications.dismiss": "ہٹائیں",
 		"mobile.notifications.filter_label": "دکھائیں",
 		"mobile.notifications.load_failed": "اطلاعات لوڈ نہیں ہو سکیں",
@@ -9828,12 +9985,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "{owner} پر یہ گفتگو جواب نہیں دے رہی — یہ مصروف یا اٹکی ہو سکتی ہے۔ بھیجنے پر ناکامی دکھ سکتی ہے پھر بھی پیغام بعد میں پہنچ سکتا ہے۔ دوبارہ کوشش کرنے سے یہ دو بار نہیں جائے گا۔",
 		"mobile.remote_sessions.health_reconnecting": "اس فون کا کنکشن ٹوٹ گیا ہے اور یہ کوشش کر رہا ہے۔ گفتگو شاید اب بھی {owner} پر چل رہی ہے؛ کنکشن واپس آنے تک بھیجنا ناکام ہو سکتا ہے۔",
 		"mobile.remote_sessions.loading": "اس کمپیوٹر پر دور دراز سیشن کی معاونت جانچی جا رہی ہے…",
+		"mobile.remote_sessions.media_changed": "ڈاؤن لوڈ کے دوران یہ میڈیا بدل گیا یا رسائی ختم ہو گئی۔ کچھ بھی نہیں کھولا گیا۔ مالک کمپیوٹر دستیاب ہونے پر دوبارہ کوشش کریں۔",
 		"mobile.remote_sessions.owner_only": "فی الحال منظوریاں، روکیں، ماڈل کی تبدیلی اور سلیش کمانڈز صرف {owner} پر کام کرتی ہیں۔",
 		"mobile.remote_sessions.owner_unresolved": "ریلے تصدیق نہیں کر پا رہا کہ یہ گفتگو کس کمپیوٹر کی ہے۔ سیشن کی فہرست تازہ کریں اور دوبارہ کوشش کریں۔",
-		"mobile.remote_sessions.retained_only": "ایجنٹ کی بنائی ہوئی فائلوں کا پیش منظر ابھی ریموٹ گفتگو میں نہیں دیکھا جا سکتا۔ منسلک دستاویزات محفوظ کی جا سکتی ہیں۔",
+		"mobile.remote_sessions.retained_only": "Highlights کے پیش منظر کے لیے منسلک کمپیوٹر پر Local Operator کا نیا ورژن درکار ہے۔ فی الحال انہیں مالک کمپیوٹر پر کھولیں۔ منسلک دستاویزات اب بھی محفوظ کی جا سکتی ہیں۔",
 		"mobile.remote_sessions.row_long_press_hint": "واپس لائیں، منتقل کریں یا کاپی کریں",
 		"mobile.remote_sessions.session_missing": "یہ گفتگو اب مالک کمپیوٹر پر دستیاب نہیں ہے۔ سیشن کی فہرست تازہ کریں۔",
 		"mobile.remote_sessions.subtitle_owner": "{state} · {owner} پر",
+		"mobile.remote_sessions.supplement_needs_running": "اس فائل کے لیے گفتگو کا مالک کمپیوٹر پر چلنا ضروری ہے۔ فائل وہیں کھولیں یا گفتگو وہیں دوبارہ جاری کریں، پھر کوشش کریں۔",
 		"mobile.remote_sessions.title": "دور دراز گفتگو",
 		"mobile.remote_sessions.unreachable": "مالک کمپیوٹر سے رابطہ نہیں ہو رہا۔ تصدیق کریں کہ وہ آن لائن ہے، پھر دوبارہ کوشش کریں۔",
 		"mobile.remote_sessions.unsupported": "یہ کارروائی ابھی ریموٹ گفتگو میں دستیاب نہیں ہے۔ اسے مالک کمپیوٹر پر استعمال کریں۔",
@@ -10716,6 +10875,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "Thư viện",
 		"mobile.notifications.answer": "Trả lời",
 		"mobile.notifications.back": "Quay lại",
+		"mobile.notifications.category.completion_placeholder": "Cập nhật agent",
+		"mobile.notifications.category.completion_summary": "Thêm %u từ các agent của bạn",
+		"mobile.notifications.category.digest_placeholder": "Bản tóm tắt",
+		"mobile.notifications.category.digest_summary": "Thêm %u từ bản tóm tắt của bạn",
+		"mobile.notifications.category.message_placeholder": "Tin nhắn Team Bridge",
+		"mobile.notifications.category.message_summary": "Thêm %u từ Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "Tiếng huýt nhẹ",
 		"mobile.notifications.channel.bubble_chord": "Hợp âm bong bóng",
 		"mobile.notifications.channel.bubble_pulse": "Nhịp bong bóng",
@@ -10746,6 +10911,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "Tin nhắn",
 		"mobile.notifications.detail.section_notification": "Nội dung",
 		"mobile.notifications.detail.title": "Thông báo",
+		"mobile.notifications.device_state.absent": "Không có trong danh sách đăng ký của máy tính này; thiết bị có thể đăng ký lại.",
+		"mobile.notifications.device_state.expired": "Thông báo cho thiết bị này đang tạm dừng cho đến khi bạn đăng nhập lại.",
+		"mobile.notifications.device_state.live": "Đã đăng ký với máy tính này.",
+		"mobile.notifications.device_state.revoked": "Thiết bị này đã bị thu hồi trên máy tính này.",
+		"mobile.notifications.device_state.unpaired": "Máy tính này không còn được ghép nối.",
+		"mobile.notifications.devices.last_active": "Hoạt động lần cuối: {date}",
+		"mobile.notifications.devices.this_android": "Thiết bị Android này",
+		"mobile.notifications.devices.this_iphone": "iPhone này",
 		"mobile.notifications.dismiss": "Bỏ qua",
 		"mobile.notifications.filter_label": "Hiển thị",
 		"mobile.notifications.load_failed": "Không thể tải thông báo",
@@ -10874,12 +11047,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "Cuộc trò chuyện này trên {owner} đã ngừng phản hồi — có thể đang bận hoặc bị kẹt. Việc gửi có thể báo lỗi nhưng vẫn đến nơi khi nó bắt kịp. Thử lại sẽ không gửi hai lần.",
 		"mobile.remote_sessions.health_reconnecting": "Điện thoại này mất kết nối và đang thử lại. Cuộc trò chuyện có thể vẫn đang chạy trên {owner}; việc gửi có thể thất bại cho đến khi kết nối trở lại.",
 		"mobile.remote_sessions.loading": "Đang kiểm tra khả năng hỗ trợ phiên từ xa…",
+		"mobile.remote_sessions.media_changed": "Nội dung đa phương tiện đã thay đổi hoặc quyền truy cập đã kết thúc khi đang tải xuống. Chưa mở nội dung nào. Hãy thử lại khi máy tính sở hữu cuộc trò chuyện sẵn sàng.",
 		"mobile.remote_sessions.owner_only": "Hiện tại, phê duyệt, Dừng, đổi mô hình và lệnh gạch chéo chỉ hoạt động trên {owner}.",
 		"mobile.remote_sessions.owner_unresolved": "Máy chuyển tiếp chưa thể xác nhận máy tính nào sở hữu cuộc trò chuyện này. Làm mới danh sách phiên rồi thử lại.",
-		"mobile.remote_sessions.retained_only": "Chưa thể xem trước các tệp do tác nhân tạo trong cuộc trò chuyện từ xa. Tài liệu đính kèm thì có thể lưu.",
+		"mobile.remote_sessions.retained_only": "Để xem trước Highlights, máy tính đang kết nối cần có phiên bản Local Operator mới hơn. Tạm thời hãy mở chúng trên máy tính sở hữu cuộc trò chuyện. Bạn vẫn có thể lưu tài liệu đính kèm.",
 		"mobile.remote_sessions.row_long_press_hint": "Thu hồi, di chuyển hoặc sao chép",
 		"mobile.remote_sessions.session_missing": "Cuộc trò chuyện này không còn trên máy tính sở hữu phiên. Hãy làm mới danh sách phiên.",
 		"mobile.remote_sessions.subtitle_owner": "{state} · Trên {owner}",
+		"mobile.remote_sessions.supplement_needs_running": "Tệp này cần cuộc trò chuyện đang chạy trên máy tính sở hữu. Hãy mở tệp hoặc tiếp tục cuộc trò chuyện trên máy tính đó, rồi thử lại.",
 		"mobile.remote_sessions.title": "Cuộc trò chuyện từ xa",
 		"mobile.remote_sessions.unreachable": "Không thể liên lạc với máy tính sở hữu phiên. Kiểm tra máy đang trực tuyến rồi thử lại.",
 		"mobile.remote_sessions.unsupported": "Thao tác này chưa khả dụng trong cuộc trò chuyện từ xa. Hãy dùng nó trên máy chủ sở hữu.",
@@ -11762,6 +11937,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.library.title": "资料库",
 		"mobile.notifications.answer": "回答",
 		"mobile.notifications.back": "返回",
+		"mobile.notifications.category.completion_placeholder": "智能体更新",
+		"mobile.notifications.category.completion_summary": "另有 %u 条来自你的智能体",
+		"mobile.notifications.category.digest_placeholder": "摘要",
+		"mobile.notifications.category.digest_summary": "另有 %u 条来自你的摘要",
+		"mobile.notifications.category.message_placeholder": "Team Bridge 消息",
+		"mobile.notifications.category.message_summary": "另有 %u 条来自 Team Bridge",
 		"mobile.notifications.channel.airy_whistle": "轻盈口哨",
 		"mobile.notifications.channel.bubble_chord": "气泡和弦",
 		"mobile.notifications.channel.bubble_pulse": "气泡脉冲",
@@ -11792,6 +11973,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.detail.section_message": "消息",
 		"mobile.notifications.detail.section_notification": "通知内容",
 		"mobile.notifications.detail.title": "通知",
+		"mobile.notifications.device_state.absent": "不在这台电脑的设备列表中；它可以重新注册。",
+		"mobile.notifications.device_state.expired": "此设备的通知已暂停，重新登录后恢复。",
+		"mobile.notifications.device_state.live": "已在这台电脑上注册。",
+		"mobile.notifications.device_state.revoked": "此设备已在这台电脑上被撤销。",
+		"mobile.notifications.device_state.unpaired": "这台电脑已不再配对。",
+		"mobile.notifications.devices.last_active": "上次活跃：{date}",
+		"mobile.notifications.devices.this_android": "这台 Android 设备",
+		"mobile.notifications.devices.this_iphone": "这台 iPhone",
 		"mobile.notifications.dismiss": "忽略",
 		"mobile.notifications.filter_label": "显示",
 		"mobile.notifications.load_failed": "无法加载通知",
@@ -11920,12 +12109,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.remote_sessions.health_quiet": "{owner} 上的此对话已停止响应——可能正忙或卡住了。发送可能显示失败，但赶上进度后仍会送达。重试不会重复发送。",
 		"mobile.remote_sessions.health_reconnecting": "此手机已断开连接，正在重试。对话可能仍在 {owner} 上运行；连接恢复前发送可能会失败。",
 		"mobile.remote_sessions.loading": "正在检查此电脑是否支持远程会话…",
+		"mobile.remote_sessions.media_changed": "下载期间，此媒体已更改或访问权限已失效。未打开任何内容。请在所属电脑可用时重试。",
 		"mobile.remote_sessions.owner_only": "目前，批准、停止、更换模型和斜杠命令仅能在 {owner} 上使用。",
 		"mobile.remote_sessions.owner_unresolved": "中继无法确认此对话属于哪台电脑。请刷新会话列表后重试。",
-		"mobile.remote_sessions.retained_only": "远程对话暂时无法预览智能体创建的文件。附加的文档可以保存。",
+		"mobile.remote_sessions.retained_only": "预览 Highlights 需要所连接的电脑安装更新版本的 Local Operator。暂时请在所属电脑上打开。附件文档仍可保存。",
 		"mobile.remote_sessions.row_long_press_hint": "召回、移动或复制",
 		"mobile.remote_sessions.session_missing": "此对话在所属电脑上已不可用。请刷新会话列表。",
 		"mobile.remote_sessions.subtitle_owner": "{state} · 在 {owner} 上",
+		"mobile.remote_sessions.supplement_needs_running": "此文件需要对话正在所属电脑上运行。请在那台电脑上打开文件，或恢复对话后重试。",
 		"mobile.remote_sessions.title": "远程对话",
 		"mobile.remote_sessions.unreachable": "无法连接会话所属电脑。请确认其在线，然后重试。",
 		"mobile.remote_sessions.unsupported": "远程对话暂不支持此操作。请在所属电脑上使用。",

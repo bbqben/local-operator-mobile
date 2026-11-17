@@ -196,7 +196,17 @@ const NAMESPACES = [
 		// O3-a +6: inbox section headings (`section.waiting`, `waiting_count`)
 		// and the detail screen's title and three section headings: 59 + 6 = 65,
 		// counted over the en JSON.
-		expected: 65,
+		// feat/notification-category-summaries: +6 the iOS category summary
+		// formats and hidden-preview placeholders (`category.*`), one pair per
+		// `aps.category` id (59 + 6 = 65).
+		// fix/push-device-dedupe: +3 the Settings device rows' "This iPhone" /
+		// "This Android device" titles and "Last active {date}" (65 + 3 = 68).
+		// PR #287 design D2: +5 the device state sentences
+		// (`device_state.{live,expired,unpaired,revoked,absent}`) (68 + 5 = 73).
+		// Merge of origin/main (08025e10) into O3-a: both comment chains kept;
+		// O3-a's 6 + main's 6 + 3 + 5 over the shared 59 = 79, counted over the
+		// merged en JSON (no shared new key names).
+		expected: 79,
 	},
 	{
 		name: "mobile.session",
@@ -302,7 +312,8 @@ const NAMESPACES = [
 		 *  plus round-1 remediation (10): the gate's own sentence, the header's
 		 *  owner subtitle, the owner-only control line, five owner-aware health
 		 *  sentences, the Save button's name and the row's long-press hint. */
-		expected: 22,
+		// +2 owner-routed Highlight refusal sentences.
+		expected: 24,
 	},
 ] as const;
 
@@ -520,7 +531,15 @@ describe("the English catalogues", () => {
 		 * kept; 1034 on O3-a + #275's 10 (mobile.session 8, mobile.sidebar 2) =
 		 * 1044, derived by summing the keys of all 25 merged en catalogue files
 		 * (mobile.session 91, mobile.sidebar 27, mobile.time 23). */
-		expect(total).toBe(1044);
+		// Remote Highlight operation-local refusals: +2 = 1006 (generator count).
+		// iOS notification category summaries/placeholders: +6 = 1012.
+		// fix/push-device-dedupe: +3 mobile.notifications.devices.* = 1015.
+		// PR #287 design D2: +5 mobile.notifications.device_state.* = 1020.
+		/* Merge of origin/main (08025e10, #277-#287) into O3-a: both comment
+		 * chains kept; 1044 on O3-a + main's 16 since b1fbb813 (mobile.notifications
+		 * 14, mobile.remote_sessions 2) = 1060, derived by summing the keys of all
+		 * 25 merged en catalogue files (mobile.notifications 79). */
+		expect(total).toBe(1060);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

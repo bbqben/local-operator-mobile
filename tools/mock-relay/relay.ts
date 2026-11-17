@@ -1306,7 +1306,10 @@ export function createRelay(options: RelayOptions = {}) {
 						file_sources: ["retained_document"],
 						audio_upload: false,
 						skill_invocation: false,
-						supplements: false,
+						supplements: world.remoteSupplements === true,
+						...(world.remoteSupplements
+							? { supplement_kinds: ["document", "file", "sound"] }
+							: {}),
 						document_upload: false,
 					};
 				}
@@ -2748,6 +2751,9 @@ export function createRelay(options: RelayOptions = {}) {
 				device_id: row.device_id,
 				device_key: `devkey-${(pushDeviceSeq * 2654435761).toString(16)}`,
 				registered_at: row.registered_at,
+				// Core #4050: the authenticated cloud binding's opaque push computer.
+				// This mock has one synthetic binding, never a saved-computer id.
+				computer_handle: "mock-computer-handle",
 			});
 			return;
 		}

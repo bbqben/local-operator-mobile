@@ -668,6 +668,7 @@ export interface Capabilities {
 		audio_upload?: boolean;
 		skill_invocation?: boolean;
 		supplements?: boolean;
+		supplement_kinds?: string[];
 		document_upload?: boolean;
 	};
 	/** An older relay omits this whole object; absence reads as `available:false`. */
@@ -1224,6 +1225,11 @@ export interface PushRegisterResponse {
 	device_id: string;
 	device_key: string;
 	registered_at: number;
+	/** The SAME opaque value as the `computer` field on this computer's
+	 *  attention and completion pushes (local-operator #4050, v0.106.0). Omitted
+	 *  when the daemon has no live, current cloud binding; absence means "no
+	 *  mapping", never "unchanged". */
+	computer_handle?: string;
 }
 
 /** One row of `GET /api/push/devices` (local-operator `push_devices.list_devices`).

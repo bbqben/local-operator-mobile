@@ -442,13 +442,16 @@ export class RelayEndpoints {
 	 * for, which is why it is `undefined` rather than `false`.
 	 */
 	async sessions(
-		options: { includePeers?: boolean } = {},
+		options: { includePeers?: boolean; signal?: AbortSignal } = {},
 	): Promise<Payload<"sessionListFrame">> {
 		return this.http.json("sessionListFrame", {
 			method: "GET",
 			path: `/api/sessions${query({
 				include_peers: options.includePeers ? "true" : undefined,
 			})}`,
+			// The background push refresh (`state/warm-sync.ts` `attention`) must
+			// be able to cut this read at the task's 25 s budget.
+			signal: options.signal,
 		});
 	}
 
@@ -1145,10 +1148,12 @@ export class RelayEndpoints {
 	async supplementSound(
 		sessionId: string,
 		digest: string,
+		signal?: AbortSignal,
 	): Promise<ImageBytes> {
 		const result = await this.http.bytes({
 			method: "GET",
 			path: `/api/sessions/${encodeURIComponent(sessionId)}/sound${query({ digest })}`,
+			signal,
 		});
 		return { bytes: result.bytes, mimeType: result.mimeType };
 	}
