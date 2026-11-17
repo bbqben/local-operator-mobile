@@ -2214,7 +2214,22 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
-	src: "3703e0e2c0dea7c5bdc6037500cf5c9c14258368d3e39c9c695cb56002b5aa58",
+	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
+	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
+	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
+	 * team-bridge/provider.tsx — push-token bookkeeping and hub-registration rate
+	 * discipline, no rendered component or copy changes. Re-derived with --print
+	 * over the staged tree; the other render roots printed unchanged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 merge of origin/main (2026-11-17): src re-derived with --print
+	 * over the merged tree, which carries both the #296 and #298 changes. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 round-2 remediation (R2-M1): the 429 clock-guard ceiling in
+	 * team-bridge/push.ts becomes the exact bound of the wait, plus its
+	 * regression test. No rendered component or copy changes. Re-derived with
+	 * --print over the staged tree. Source identity only, NOT rendered U-08
+	 * evidence. */
+	src: "c62cf329e6b0ca7736654266d7dc068f3d4dd4edb4516af4487c3aa12f063c82",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
