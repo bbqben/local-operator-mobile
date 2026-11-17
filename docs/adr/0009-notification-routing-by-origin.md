@@ -120,7 +120,7 @@ today, because remote completions do not push.
 
 | Connection | Origin |
 |---|---|
-| `surface == "mobile"` (new; declared by the mobile daemon on every connection it opens for the phone) | `mobile` (the native app or the phone web portal, both through the mobile daemon) |
+| `origin == "mobile"` (a new auth key, any `kind`; declared by the mobile daemon on every connection it opens for the phone that carries human input) | `mobile` (the native app or the phone web portal, both through the mobile daemon) |
 | `kind == "daemon"`, `locality == "remote"` (a daemon that predates the tag; only the mobile daemon dials so, `mobile/daemon.py:3205`) | `mobile` |
 | `kind == "attach"`, `locality == "remote"` | `remote` |
 | `attach`, `surface == "desktop"` | `desktop` |
@@ -134,21 +134,32 @@ today, because remote completions do not push.
   device certificate (`operator_cert`, stage D, `mobile/daemon.py:3209-3212`) exists only on a
   paired phone; a portal session authenticated by password has none. Every phone action does pass
   through the mobile daemon, so the daemon is the one party that always knows.
-- **Where it is declared.** The daemon adds `surface: "mobile"` to the auth frame of every
-  connection it opens on the phone's behalf: its control socket (`mobile/daemon.py:3205`), its
-  viewer and throwaway `AttachClient`s (`:6098`, `:11020`) and the cold-answer dial (`:9857`). For
-  the cold-wake prompt, `PromptErrand` gains `surface` beside `input_mode`, which already rides the
-  wake path for the same reason (`session/runtime/launch.py:134-150`), and `launch._deliver`
-  passes it to its `AttachClient` (`:1243`). The empty default keeps every other producer
-  unchanged.
-- **Where it is read.** The runtime reads it once at auth time, next to the existing
-  `"desktop"` check (`server.py:5416-5418`), for any `kind`. It never reads it from an op frame.
+- **Why a new key, not `surface` (R2-2).** `surface` is already in the mesh relay's forwarded
+  allowlist `AUTH_FIELDS` (`network/dial.py:322`, copied verbatim at `:385-387`). A relay built
+  before 1b would therefore pass a mesh peer's `surface: "mobile"` through to a runtime built after
+  it, whatever 1b's relay does. `origin` appears in no version of `AUTH_FIELDS`: all 9 revisions of
+  `network/dial.py` up to `9134015c` were checked. `dial_owner` builds its own frame and copies only
+  `AUTH_FIELDS` (`:368-387`), so every relay build refuses `origin` by construction. The runtime
+  reads no `origin` auth key today, so the name collides with nothing at auth.
+- **Where it is declared.** The daemon adds `origin: "mobile"` to the auth frame of **every dial
+  that carries human input** on the phone's behalf: its control socket (`mobile/daemon.py:3205`),
+  its viewer and throwaway `AttachClient`s (`:6098`, `:11020`) and the cold-answer dial (`:9857`).
+  The `retire_if_pristine` throwaway (`:6542`) sends no human input and needs no tag; tagging it
+  would be harmless. For the cold-wake prompt, `PromptErrand` gains `origin` beside `input_mode`,
+  which already rides the wake path for the same reason (`session/runtime/launch.py:134-150`), and
+  `launch._deliver` passes it to its `AttachClient` (`:1243`). The empty default keeps every other
+  producer unchanged.
+- **Where it is read (n7).** The runtime reads it once at auth time, next to the existing
+  `"desktop"` check (`server.py:5416-5418`), for any `kind`, into a **new `_ClientConn.origin`
+  field** (`server.py:2258`). It never reads it from an op frame. `conn.surface` is not touched:
+  its other consumers compare only against `"desktop"` (`server.py:5872`, `6355-6412`, `6591`,
+  `6664`, `7347`, `7388`), so a phone connection keeps reading as `terminal` there, which is
+  today's behaviour.
 - **Invariant: only a process on this machine that holds the control key and is not relaying for
-  another device can declare `mobile`.** The mesh relay forwards a viewer's `surface` verbatim
-  (`network/dial.py:291-323`, `:385-387`), so slice 1b must make `dial_owner` drop a `mobile`
-  value. The relay already refuses to take `locality` from the frame for the same reason
-  (`:372-376`). **Check:** a unit test dials through `dial_owner` with `auth={"surface": "mobile"}`
-  and asserts that the owner records `remote`.
+  another device can declare `mobile`.** The relay drops `origin` because it is not in
+  `AUTH_FIELDS`, in the same way it refuses to take `locality` from the frame (`:372-376`). Slice 1b
+  adds no relay code for this. **Check:** a unit test dials through `dial_owner` with
+  `auth={"origin": "mobile"}` and asserts that the owner records `remote`.
 - **The in-process owner (m1).** `Session.prompt` and `steer` default `input_surface="tui"`,
   mirroring `owner_typed=True` (`session.py:10392`, `:10727`). The server always passes an explicit
   value, so a phone-driven conversation then typed at the in-process owner flips to `tui`. It
@@ -230,8 +241,33 @@ duplicate is cheaper than a miss. The desktop's ask and approval banners are the
   (`:18431-18442`), which counts **queued typed messages**, not open asks. A wake run that ends on
   `ask_user` would therefore never reach the phone, even when the desk is away. That case is the
   request's "desktop/other started … ask/approval" exactly. So:
-  - the run end stamps `needs_user` **independently** of `notify`, as true when the session has an
-    open ask (`asks.store.open_asks`, `asks/store.py:1067`) at run end;
+  - the run end stamps `needs_user` **independently** of `notify`, as true only when an ask
+    **opened during this run** is still open at run end: a record in `asks.store.open_asks`
+    (`asks/store.py:1067`) whose `created_at` is at or after the run's start,
+    `int(self._run_started_at * 1000)` (`session.py:20964`, reset per run beside
+    `_run_answered_ask_ids` at `:20961` in `_run_turn_pipeline`, which is one turn plus its
+    auto-continuations). An ask still open from an earlier run does **not** stamp it again
+    (R2-1). A queued ask is durable so that the agent can move on (comment at
+    `mobile/daemon.py:9739-9741`), so every later wake, monitor, job or peer run in the
+    conversation also ends with it open. Each run publishes its own completion token, and the
+    worker emits per record (`push_worker.py:20-45`). A rule of "any open ask" would therefore
+    re-push the same question on every background tick, which is the spam quoted at
+    `push_worker.py:900-904`;
+    - **Why this rule.** Every ask is created inside a run: an ordinary ask by the `ask_user`
+      tool, and a relay by the watcher's own `AskQueue.enqueue_relay` (`asks/queue.py:648`, event
+      written to `self.session_dir` at `:738`). Both stamp `created_at` from the same process's
+      wall clock (`asks/queue.py:92`, `store.now_ms` at `asks/store.py:236`) that
+      `_run_started_at` reads.
+      The rule is therefore session-local, with no new column and no read of earlier
+      `attention.db` rows.
+    - **Rejected: comparing ask ids against the conversation's previous `needs_user` row.** That
+      needs an id-list column plus a session-side read of `attention.db` at run end. Its only gain
+      is the case below.
+    - **Accepted gap.** If a run opens an ask and dies before its run end, no `AgentEndEvent` is
+      written, so no row exists to stamp (today it loses the completion too). A later run then
+      does not announce that ask. The ask keeps its own desktop banner (footnote 2).
+      Revising an open ask (`EVENT_REVISED`) keeps its `created_at`, so a revision does not
+      re-announce it;
   - a `needs_user` row is governed **only** by the new `attention` preference and the matrix's
     needs-you rows. It never passes the `notify` gate and never the `completions` category
     (§3, push-worker edits 1 and 4);
@@ -263,7 +299,9 @@ lands as **core slice 1b**, with these edits to `local_operator/mobile/push_work
    become, in order:
    - `unseen`, as today.
    - **Needs-you first.** If `needs_user` is set, the row is a candidate when `attention != "never"`,
-     **whatever `notify` says** (§3). It still passes `_desktop_would_announce`'s kind and
+     **whatever `notify` says** (§3). The stamp already means "an ask opened during this run is
+     still open" (§3, R2-1), so the worker adds no dedup of its own: a later run that ends with the
+     same ask open carries `needs_user = 0` and falls through to the `notify` gate like any row. It still passes `_desktop_would_announce`'s kind and
      `session_may_announce` gates, so a hidden subagent's ask stays hidden.
    - Otherwise `notify`, as today.
    - For `complete` or `retired`, the row is a candidate only if `origin == "mobile"` and
@@ -302,19 +340,22 @@ lands as **core slice 1b**, with these edits to `local_operator/mobile/push_work
 **Other core edits in slice 1b, outside the push worker:**
 
 1. `server.py:8998` and `:9080`. Derive the origin from `authority` (Decision 1 vocabulary), after
-   adding `surface == "mobile"` to the auth-time derivation (`:5416-5418`). Pass it as
+   adding the `origin == "mobile"` auth key to the auth-time derivation (`:5416-5418`) as
+   `_ClientConn.origin`. Pass it as
    `input_surface=` to `h.prompt` and `h.steer`, probed by signature exactly as `owner_typed` is.
    Do the same in the `ask_answer` (`:9429`) and `approval_answer` (`:9334`) ops. On the mobile
-   side, the daemon declares `surface: "mobile"` on its four dial sites and `PromptErrand.surface`.
-   `network/dial.py` drops a forwarded `mobile` (Decision 1, "How the tag is declared").
+   side, the daemon declares `origin: "mobile"` on every dial that carries human input, and
+   `PromptErrand.origin` carries it on the cold-wake path. `network/dial.py` needs no change,
+   because `origin` is outside `AUTH_FIELDS` (Decision 1, "How the tag is declared").
 2. `Session`. Stamp `provider_payload["lop_input_surface"]` on the user row, beside
    `REMOTE_PROMPT_KEY` (`session.py:418-430`). `prompt` and `steer` take
    `input_surface: str = "tui"` (the in-process owner's default, beside `owner_typed=True` at
    `:10392`, `:10727`). `_note_run_input` (`:18120-18183`) records the run's latest stamp. The conversation's last driver is rebuilt on resume from the newest stamped row, in
    the same way as `_reconstruct_profile_trust` (`:468`).
 3. `AgentEndEvent`. Gains `origin` and `needs_user` beside `notify` (`session.py:20332`).
-   `needs_user` is computed at run end from `asks.store.open_asks` (`asks/store.py:1067`), separately
-   from `_finalize_attention_notify` (§3). Both are carried in the `attention_completed` marker as
+   `needs_user` is computed at run end from `asks.store.open_asks` (`asks/store.py:1067`), counting
+   only asks with `created_at >= int(self._run_started_at * 1000)` (§3, R2-1), separately from
+   `_finalize_attention_notify` (§3). Both are carried in the `attention_completed` marker as
    `notify` is (`local_operator/session/attention.py:1193`, `session.py:17854`). The `completions`
    table gains `origin TEXT NOT NULL DEFAULT ''` and `needs_user INTEGER NOT NULL DEFAULT 0` by the
    existing `ALTER` pattern (`local_operator/session/attention.py:1607-1619`). Both are written in
@@ -370,7 +411,7 @@ becomes:
 | Slice | Change |
 |---|---|
 | **1 — core (#4145)** | **None.** Merge as reviewed. |
-| **1b — core: origin, completion routing and needs-you at run end (new, M)** | Edits 1–5 and push-worker changes 1–4 in §3, **including the `needs_user` stamp and its routing**, which an earlier draft put in 1c. 1b must not ship without it: today an ask reaches the phone only as an ordinary completion (`notification-preferences.ts:33`). 1b makes non-mobile completions non-candidates under the default `phone` scope, so on its own it would stop desktop-started asks reaching the phone at all. Putting the stamp in 1b closes that gap with the real mechanism, where an interim "keep open-ask rows as candidates" rule would be thrown away one slice later. **Acceptance (unit, injected clock and presence):** a phone prompt over the daemon socket stamps `mobile`, and so do a phone cold-wake prompt (`PromptErrand.surface`) and a cold ask answer; a desktop attach stamps `desktop`; a local `attach` stamps `tui`; a direct `Session.prompt` stamps `tui`; a daemon-kind `locality: local` connection stamps `unknown`; `dial_owner` with `surface: "mobile"` stamps `remote`; a phone steer into a desktop run flips that run; a phone-driven conversation then typed at the in-process owner flips to `tui`; a wake run inherits; a legacy row reads `unknown`. A mobile-origin completion pushes while `desk_active`, is resolved when attending, and still pushes with `notifications_enabled()` false. A desktop-origin completion never pushes under `phone` and is held under `all`. A desktop-origin error is held and released on away. **A wake run that ends on an open ask pushes when away, with `completions: false` and `notify = false`**; it is held while `desk_active` under `attention: away`, pushes at once under `always`, and never pushes under `never`. The desktop banner is silent for mobile-origin only while `phone_would_emit`. An enum preference value outside its set, and either new key without the capability, return 422. **QA real path:** isolated HOME, serve plus daemon, the transport stubbed to record emits. Prompts go over a `daemon`-kind connection, over the cold-wake path and over a desktop `attach`. One wake-driven run ends on `ask_user`. |
+| **1b — core: origin, completion routing and needs-you at run end (new, M)** | Edits 1–5 and push-worker changes 1–4 in §3, **including the `needs_user` stamp and its routing**, which an earlier draft put in 1c. 1b must not ship without it: today an ask reaches the phone only as an ordinary completion (`notification-preferences.ts:33`). 1b makes non-mobile completions non-candidates under the default `phone` scope, so on its own it would stop desktop-started asks reaching the phone at all. Putting the stamp in 1b closes that gap with the real mechanism, where an interim "keep open-ask rows as candidates" rule would be thrown away one slice later. **Acceptance (unit, injected clock and presence):** a phone prompt over the daemon socket stamps `mobile`, and so do a phone cold-wake prompt (`PromptErrand.origin`) and a cold ask answer; a desktop attach stamps `desktop`; a local `attach` stamps `tui`; a direct `Session.prompt` stamps `tui`; a daemon-kind `locality: local` connection stamps `unknown`; `dial_owner` with `auth={"origin": "mobile"}` stamps `remote`; a phone steer into a desktop run flips that run; a phone-driven conversation then typed at the in-process owner flips to `tui`; a wake run inherits; a legacy row reads `unknown`. A mobile-origin completion pushes while `desk_active`, is resolved when attending, and still pushes with `notifications_enabled()` false. A desktop-origin completion never pushes under `phone` and is held under `all`. A desktop-origin error is held and released on away. **A wake run that ends on an open ask pushes when away, with `completions: false` and `notify = false`**; it is held while `desk_active` under `attention: away`, pushes at once under `always`, and never pushes under `never`. **A second wake run ending with the same ask still open does not push again**, and a later run that opens a new ask does push. The desktop banner is silent for mobile-origin only while `phone_would_emit`. An enum preference value outside its set, and either new key without the capability, return 422. **QA real path:** isolated HOME, serve plus daemon, the transport stubbed to record emits. Prompts go over a `daemon`-kind connection, over the cold-wake path and over a desktop `attach`. One wake-driven run ends on `ask_user`. |
 | **1c — core: needs-you mid-turn (new, S→M)** | **Mid-turn approvals and parks** have no completion, so they need a new emit sourced from the projection the daemon already serves (`needs_attention`/`pending_kind`, `mobile/daemon.py:1761-1762`) and keyed by `request_id`. It is governed by the `attention` preference and the needs-you matrix rows, exactly like 1b's run-end stamp. It depends on 3b. There is no regression window here: mid-turn approvals do not reach the phone today either. The worker composes only completion, digest and the silent badge-correction `attention` emit (`push_worker.py:186-196`). |
 | **2 — local-operator-ui** | Unchanged. |
 | **3 — agent-server** | Unchanged. |
@@ -403,7 +444,7 @@ becomes:
   stops pushing completions until the runtime is replaced at the next update window.
   - **Why it is accepted:** it errs quiet, which is the policy's direction, and it lasts one
     runtime lifetime.
-  - **The daemon's own skew.** A mobile daemon that predates the `surface: "mobile"` tag still
+  - **The daemon's own skew.** A mobile daemon that predates the `origin: "mobile"` tag still
     reads as `mobile` on its live path (`daemon` plus `remote`, vocabulary row 2). Its cold-wake
     prompts read `tui`, and its cold answers read `remote`. Both err quiet, and both end when the
     daemon restarts on the new build.
