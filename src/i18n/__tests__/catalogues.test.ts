@@ -78,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 159, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens).
+		expected: 160, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens); fix/bridge-429 +1: list.catching_up, the calm rate-limit status (159 + 1 = 160, counted over the en JSON).
 	},
 	{
 		name: "mobile.signin",
@@ -539,7 +539,10 @@ describe("the English catalogues", () => {
 		 * chains kept; 1044 on O3-a + main's 16 since b1fbb813 (mobile.notifications
 		 * 14, mobile.remote_sessions 2) = 1060, derived by summing the keys of all
 		 * 25 merged en catalogue files (mobile.notifications 79). */
-		expect(total).toBe(1060);
+		/* fix/bridge-429 (#297): + mobile.team_bridge.list.catching_up, the calm
+		 * "Catching up…" rate-limit status: 1060 + 1 = 1061, derived by summing
+		 * the keys of all 25 en catalogue files (mobile.team_bridge 160). */
+		expect(total).toBe(1061);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
