@@ -2224,7 +2224,28 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * covers both changes above, so it matches neither parent. Re-derived with
 	 * --print over the staged merge tree (src the only differing root); source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "0e0108b98832f6e553d7b6741f59a9989d0f215b8e5e9cc76ed35ad0a11f3783",
+	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
+	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
+	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
+	 * team-bridge/provider.tsx — push-token bookkeeping and hub-registration rate
+	 * discipline, no rendered component or copy changes. Re-derived with --print
+	 * over the staged tree; the other render roots printed unchanged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 merge of origin/main (2026-11-17): src re-derived with --print
+	 * over the merged tree, which carries both the #296 and #298 changes. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* PR #298 round-2 remediation (R2-M1): the 429 clock-guard ceiling in
+	 * team-bridge/push.ts becomes the exact bound of the wait, plus its
+	 * regression test. No rendered component or copy changes. Re-derived with
+	 * --print over the staged tree. Source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
+	src: "4cbea3d6eec5ec09220b363f3459d254266f3f046f3175fcbdd6a0a8bba65f15",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

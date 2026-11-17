@@ -24,6 +24,7 @@ import {
 	loadNotificationPreferences,
 	teamBridgeWanted,
 } from "@/notifications/notification-preferences";
+import { addPushTokenChangeListener } from "@/notifications/push-token-changes";
 import { type AvatarCache, createAvatarCache } from "@/team-bridge/avatars";
 import {
 	backgroundUnreadScope,
@@ -33,6 +34,8 @@ import {
 import { createHubClient, type HubClient } from "@/team-bridge/client";
 import { deviceNoticeDismissals } from "@/team-bridge/notice-dismissals";
 import {
+	createBackoffRetry,
+	createRegistrationMemory,
 	installTeamBridgeNotifications,
 	registerTeamBridgeDevice,
 	subscribeTeamBridgeReceived,
@@ -130,6 +133,14 @@ export function TeamBridgeProvider({ children }: { children: ReactNode }) {
 				}),
 			};
 		};
+		// Dedupe and backoff for THIS account's hub registration; a new account
+		// value starts clean (`push.ts`, RATE DISCIPLINE).
+		const registration = createRegistrationMemory();
+		// A trigger refused by the backoff gets one retry when it ends; `pushes`
+		// re-checks the preference, sign-in and lease, so a late fire is safe.
+		const backoffRetry = createBackoffRetry(registration, () => {
+			void pushes.register().catch(() => undefined);
+		});
 		const pushes = createPushLifecycle({
 			register: async (isCurrent) => {
 				/* The Team Bridge switch (Settings → Notifications) is app-only:
@@ -140,9 +151,16 @@ export function TeamBridgeProvider({ children }: { children: ReactNode }) {
 				const bound = await bindAccount();
 				if (!bound || !isCurrent()) return;
 				registeredHub = bound;
-				await registerTeamBridgeDevice(bound.hub, isCurrent);
+				const outcome = await registerTeamBridgeDevice(
+					bound.hub,
+					isCurrent,
+					registration,
+				);
+				if (outcome === "backoff" && isCurrent()) backoffRetry.arm();
 			},
 			unregister: async () => {
+				// Withdraw and sign-out: nothing may re-register this account.
+				backoffRetry.cancel();
 				const bound = registeredHub ?? (await bindAccount(true));
 				if (bound) {
 					const cleanup = createHubClient({
@@ -156,6 +174,9 @@ export function TeamBridgeProvider({ children }: { children: ReactNode }) {
 					await unregisterTeamBridgeDevice(cleanup);
 				}
 				registeredHub = null;
+				// The row is gone (or going): the next register must PUT, not
+				// skip as "unchanged". A pending backoff still stands.
+				registration.accepted = null;
 			},
 		});
 		const scope = createTeamBridgeStore({
@@ -170,6 +191,7 @@ export function TeamBridgeProvider({ children }: { children: ReactNode }) {
 			// never reads this cache (`src/team-bridge/avatars.ts`).
 			avatars: createAvatarCache(),
 			pushes,
+			backoffRetry,
 			registerPush: () => pushes.register(),
 			/** The Team Bridge switch turned off: DELETE this phone's hub
 			 *  registration, ordered after any PUT already in flight. */
@@ -200,6 +222,8 @@ export function TeamBridgeProvider({ children }: { children: ReactNode }) {
 			// rather than waiting for the collector, and retire reads in flight.
 			value.avatars.clear();
 			remove();
+			// Synchronously, so no backoff retry can fire across the boundary.
+			value.backoffRetry.cancel();
 			void value.pushes.retire().catch(() => undefined);
 		};
 	}, [value]);
@@ -243,7 +267,10 @@ export function TeamBridgeProvider({ children }: { children: ReactNode }) {
 		void loadNotifications()
 			.then((module) => {
 				if (!module || disposed) return;
-				tokenSubscription = module.addPushTokenListener(() => {
+				// Only a CHANGED token: every registration's own token read fires
+				// this event, and reacting to that echo is the loop that PUT
+				// ~20/s in builds 1139/1157 (`push-token-changes.ts`).
+				tokenSubscription = addPushTokenChangeListener(module, () => {
 					void value.registerPush().catch(() => undefined);
 				});
 			})
