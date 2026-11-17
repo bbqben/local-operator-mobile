@@ -2139,11 +2139,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
 	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
 	 * source admission only, NOT rendered, native or device evidence. */
+	/* fix(mic): `src/stt/recorder.ts` hands `AudioRecorder` FLAT native options
+	 * (the shape `createRecordingOptions` builds) rather than a spread preset, so
+	 * iOS receives `outputFormat`/`audioQuality` and writes AAC instead of PCM in
+	 * the `.m4a`. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
 	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
 	 * `allowsRecording: true` (native audio-session argument; no rendered output).
 	 * Re-derived with --print over the staged tree; source admission only, NOT
 	 * rendered, native or device evidence. */
-	src: "eca49a77098335933442478d35e0541b3bedf1e878618c2a0b1af5f1bcc9a0d0",
+	src: "c7a126b82f48b88281c797d52967728b770c90a92ae72268f379cc75e6ac5918",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

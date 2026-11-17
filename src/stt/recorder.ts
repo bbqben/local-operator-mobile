@@ -302,19 +302,39 @@ export async function startRecording(options?: {
 		 * play in silent mode: expo-audio's iOS `validateAudioMode` rejects
 		 * `allowsRecording: true` with `playsInSilentMode: false` (its default) as an
 		 * invalid mode, and the catch below turned that throw into the "Couldn’t start
-		 * recording" line straight after the reader granted access. Android ignores
-		 * both. */
+		 * recording" line straight after the reader granted access. On Android
+		 * `setAudioModeAsync` (build/ExpoAudio.js) drops `allowsRecording` and forwards
+		 * `playsInSilentMode`, whose native default is already true
+		 * (AudioRecords.kt), so the mode there is unchanged. */
 		await module.setAudioModeAsync({
 			allowsRecording: true,
 			playsInSilentMode: true,
 		});
+		const preset = module.RecordingPresets.HIGH_QUALITY;
 		const recorder = new module.AudioModule.AudioRecorder({
-			...module.RecordingPresets.HIGH_QUALITY,
+			/* FLAT, the way expo-audio's own `createRecordingOptions`
+			 * (build/utils/options.js — not exported from the package index) builds them
+			 * for this constructor. The native side reads top-level fields only
+			 * (ios/AudioRecords.swift `RecordingOptions`, android/…/AudioRecords.kt), so a
+			 * spread of the preset hands iOS no `outputFormat` and the recorder writes
+			 * uncompressed PCM inside the `.m4a`. Measured on a device (expo-audio 58,
+			 * iPhone): the nested preset wrote 535,528 bytes for 3 s, this flat object
+			 * 95,001 bytes (AAC). At the 120 s cap that is ~21 MB against the app's
+			 * 20 MB upload limit (`stt/transcribe.ts`). */
+			extension: preset.extension,
+			sampleRate: preset.sampleRate,
+			numberOfChannels: preset.numberOfChannels,
+			bitRate: preset.bitRate,
 			/* Drives the recording meter (design §2.5's fourth state carrier). Costs
 			 * one status field per read; a platform that ignores it leaves `metering`
 			 * undefined and `level()` answers null, so the meter degrades rather than
 			 * invents a level. */
 			isMeteringEnabled: true,
+			...(Platform.OS === "ios"
+				? preset.ios
+				: Platform.OS === "android"
+					? preset.android
+					: preset.web),
 		});
 		await recorder.prepareToRecordAsync();
 		recorder.record({ forDuration: MAX_RECORDING_SECONDS });
