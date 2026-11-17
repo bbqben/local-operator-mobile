@@ -301,8 +301,9 @@ export async function startRecording(options?: {
 		/* The iOS audio session has to allow recording before `record()`. It must ALSO
 		 * play in silent mode: expo-audio's iOS `validateAudioMode` rejects
 		 * `allowsRecording: true` with `playsInSilentMode: false` (its default) as an
-		 * invalid mode, and the catch below turned that throw into "the microphone did
-		 * not open" straight after the reader granted access. Android ignores both. */
+		 * invalid mode, and the catch below turned that throw into the "Couldn’t start
+		 * recording" line straight after the reader granted access. Android ignores
+		 * both. */
 		await module.setAudioModeAsync({
 			allowsRecording: true,
 			playsInSilentMode: true,
