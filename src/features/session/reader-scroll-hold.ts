@@ -94,9 +94,21 @@ export const isScrollKey = (event: KeyIntentEvent) =>
 	SCROLL_KEYS.has(event.key) && !fromControl(event);
 
 /** Web scroll-intent handlers; every one is absent on native. */
-/** The part of a DOM pointer event the hold reads. */
-export type PointerIntentEvent = { pointerType?: string };
-const isTouch = (event?: PointerIntentEvent) => event?.pointerType === "touch";
+/**
+ * The part of a pointer event the hold reads. React Native types the event as
+ * `NativeSyntheticEvent<NativePointerEvent>`, with `pointerType` on
+ * `nativeEvent`; react-native-web hands over React DOM's synthetic event,
+ * which carries it on both. `nativeEvent` is read first; the top-level field
+ * covers callers (and tests) that pass a bare event. Typing `nativeEvent`
+ * also gives the shape a property in common with RN's `PointerEvent`, which
+ * TypeScript's weak-type check requires (PR #289 R3, TS2769).
+ */
+export type PointerIntentEvent = {
+	pointerType?: string;
+	nativeEvent?: { pointerType?: string };
+};
+const isTouch = (event?: PointerIntentEvent) =>
+	(event?.nativeEvent?.pointerType ?? event?.pointerType) === "touch";
 
 export type ReaderScrollWebHandlers = Partial<{
 	onWheel: () => void;

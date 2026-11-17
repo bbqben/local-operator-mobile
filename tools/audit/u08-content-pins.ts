@@ -2136,7 +2136,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * and a touch pointercancel is ignored. Re-derived with --print over the
 	 * staged tree; source admission only, NOT rendered, native or device
 	 * evidence. */
-	src: "d227769f6ff8520adac156ca6907464ce18f08934ab300a0260a5b6a2ce224ac",
+	/* PR #289 round-3 remediation: typing only (PointerIntentEvent reads
+	 * nativeEvent.pointerType). Re-derived with --print over the staged tree;
+	 * source admission only, NOT rendered, native or device evidence. */
+	src: "a3c4d1005e169000c63ebabe77966b7c436fa89f86be4b87fdca0f5e911753bc",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
