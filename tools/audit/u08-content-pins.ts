@@ -2197,7 +2197,14 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * matches neither parent. Derived LAST by treeDigest over the staged merge
 	 * tree's git objects; the same reader reproduced both parents' committed
 	 * pins as controls. Source identity only, NOT rendered U-08 evidence. */
-	src: "3439e86a89e5c7d187efc41ec915f2c55ed63e37b227c239e00667f737946269",
+	/* PR #251 harness-typecheck CI fix: the real-client language-control row
+	 * moved from tools/mock-relay/config-language.test.ts into
+	 * src/e2e/config-stream.e2e.test.ts (test file only; no production source
+	 * moves). Derived by an independent treeDigest reader over the commit's git
+	 * objects; it reproduced the parent's committed pin as the control, agreed
+	 * with --print, and a one-byte tamper of the moved test diverged. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "c6c21aafd614bfe3ac2370634f4e6ec0c1a363523d7999bbf268d2b91d704219",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -20,13 +20,19 @@
  *     cookie rotation, no reconnect — and it honours the scenario pin's
  *     two-rigs-one-world refusal rather than bypassing it;
  *   - the app route keeps its normal auth.
+ *
+ * WHAT IS NOT HERE, AND WHY. That the change lands in the app's REAL client,
+ * subscription and store is asserted in `src/e2e/config-stream.e2e.test.ts`,
+ * not in this file. Everything under `tools/` is type-checked by
+ * `tools/tsconfig.json` (`pnpm e2e:typecheck`), which has neither the app's `@/`
+ * path alias nor its Expo ambient types; importing production modules from here
+ * drags them into that program, where their `@/` imports do not resolve and
+ * Expo's `ProcessEnv` augmentation (a required `NODE_ENV`) breaks unrelated
+ * harness files. Tests that need production code live in the app's boundary.
  */
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
-import { type CustomRoute, createRelayClient } from "../../src/connection";
-import { startConfigStream } from "../../src/features/auth/config-stream";
-import { createConfigStore } from "../../src/state";
 import { createRelay, DEFAULT_PASSWORD } from "./relay.ts";
 
 interface ConfigFrame {
@@ -211,39 +217,6 @@ describe("POST /__mock/config publishes a live language change", () => {
 		const reply = await rig.control("/__mock/config", { language: "zh_cn" });
 		expect(reply.status).toBe(200);
 		expect(await reply.json()).toEqual({ language: "zh-CN", changed: true });
-	});
-
-	it("lands the change in the app's real client, subscription and store", async () => {
-		const rig = await start("fr");
-		/* The client's injection seam: Node has no cookie jar, so the test plays
-		 * the platform jar by attaching the session cookie the login minted. */
-		const client = createRelayClient({
-			route: {
-				mode: "custom",
-				baseUrl: rig.url,
-				allowInsecure: true,
-			} satisfies CustomRoute,
-			fetchImpl: (input, init) => {
-				const headers = new Headers(init?.headers);
-				headers.set("cookie", rig.cookie);
-				return fetch(input, { ...init, headers });
-			},
-		});
-		const store = createConfigStore();
-		const handle = startConfigStream(client, store, { restartMs: 30 });
-		try {
-			await vi.waitFor(() => expect(store.getState().language).toBe("fr"), {
-				timeout: FRAME_DEADLINE_MS,
-			});
-			await rig.control("/__mock/config", { language: "ur" });
-			await vi.waitFor(() => expect(store.getState().language).toBe("ur"), {
-				timeout: FRAME_DEADLINE_MS,
-			});
-			/* Two frames on one subscription: a reconnect would have re-seeded. */
-			expect(store.getState().frameCount).toBe(2);
-		} finally {
-			handle.stop();
-		}
 	});
 });
 
