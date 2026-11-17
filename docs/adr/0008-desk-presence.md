@@ -11,6 +11,8 @@
   `claim_delivery`, and gates 1, 2 and 4 stay as they are. A pointer will be added to ADR 0006
   §2.3 once open PR #282, which edits the same file, has merged. Until then, this ADR is the
   amendment.
+- **Amended by:** [ADR 0009](0009-notification-routing-by-origin.md) (2026-11-17). Completions are now
+  routed by origin first, and the §3.3 desk rule applies only to needs-you items and errors.
 - **Related:** core #4101 (`347ed722`, the desktop-presence lease this builds on), core #4120 /
   mobile #282 (which completions are eligible to notify at all; not changed here)
 
