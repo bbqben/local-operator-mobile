@@ -179,6 +179,10 @@ function AnchorHighlight({
 	);
 }
 
+/** One empty directory for every render: a fresh `[]` per render was a new
+ *  `people` prop on every memoised row (Bridge thread flicker). */
+const NO_PEOPLE: readonly DirectoryMember[] = [];
+
 const ThreadMessageRow = memo(function ThreadMessageRow({
 	message,
 	continuation,
@@ -477,11 +481,30 @@ function ThreadContent({
 			notice: setAttachNotice,
 		});
 	};
+	/* "Today"/"Yesterday" dividers are derived from the clock. An unchanged
+	 *  poll no longer rebuilds the rows (Bridge thread flicker), so re-derive
+	 *  them when the local day turns over instead (design r1 D1). A timer that
+	 *  fires late after a backgrounded app still lands on the new day. */
+	const [today, setToday] = useState(() => model.localDay(new Date()));
+	/* Re-armed on every FIRE, not on a day change: a timer that fires early
+	 *  (clock set back, timezone moved west) must still arm the next one
+	 *  (review r2 MINOR / QA r2 Q4). `setToday` with an unchanged day is a
+	 *  no-op render, so an early fire costs nothing. */
+	const [dayTick, setDayTick] = useState(0);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: each fire bumps `dayTick` to arm the next timer.
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setToday(model.localDay(new Date()));
+			setDayTick((tick) => tick + 1);
+		}, model.msUntilNextLocalDay(new Date()) + 1000);
+		return () => clearTimeout(timer);
+	}, [dayTick]);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `today` is the day the labels are derived for.
 	const items = useMemo(
 		() => model.threadItems(thread?.messages ?? [], new Date()),
-		[thread?.messages],
+		[thread?.messages, today],
 	);
-	const people = state.orgs[tenantId]?.people ?? [];
+	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;
 	useEffect(() => {
 		// Cold push/deep links bypass the list, so no directory has hydrated yet.
@@ -618,6 +641,8 @@ function ThreadContent({
 	useEffect(() => {
 		if (readyForPosition && items.length > 0) viewport.current?.dataChanged();
 	}, [items, readyForPosition]);
+	// The controller may hold one pending native re-check; never run it after unmount.
+	useEffect(() => () => viewport.current?.dispose(), []);
 	const {
 		showJump,
 		highlightId,

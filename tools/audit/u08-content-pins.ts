@@ -2107,7 +2107,22 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * in all 8 locales, app-language "Last active" dates and row spacing/ink.
 	 * Re-derived with --print over the staged tree (run twice, stable). Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "55b5173f98f81da0c05f79b092ff31eaf18beaba0e01a3fe1fb914dcad1d672b",
+	/* Bridge thread flicker: unchanged polls keep message identity (structural
+	 * sharing in mergeMessages, no publish in loadThread), a stable empty
+	 * people list, and no repeated native write for an in-flight target.
+	 * Round-1/2 remediation adds the day-turnover re-derive, a 250 ms
+	 * in-flight window and a once-per-target native re-check (reset by a
+	 * reported scroll). Re-derived with --print; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* PR #286 convergence with #285 (main 53fe98ec): both histories above;
+	 * the merged tree carries both, so it has neither parent's digest.
+	 * Derived from the staged merged tree with --print; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (#286, 80645bc3) into PR #287: both comment chains
+	 * retained; only this pin conflicted. The merged src carries both sides, so
+	 * it matches neither parent. Re-derived with --print over the staged merged
+	 * tree (run twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	src: "5f4980beaa878a0689cebaa2bfc3a5f4ff0f75b80d40945a3256dde4dcf9955d",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
