@@ -1,0 +1,14 @@
+import { render } from 'pele';
+import fs from 'node:fs';
+const src = fs.readFileSync('/Users/bentran/workspace/repos/lo-mobile-pele-wt/src/features/session/diagram-fixtures.ts','utf8');
+const body = src.slice(src.indexOf('export const HOSTILE_SOURCES'));
+const H = eval('(' + body.slice(body.indexOf('{'), body.lastIndexOf('};')+1).replace(/\\\\/g,'\\\\') + ')');
+const vectors = [/<script/i,/\bon[a-z]+\s*=/i,/javascript:/i,/<foreignObject/i,/<a[\s>]/i,/<image/i,/\bhref\s*=/i,/url\(/i,/<style/i,/https?:\/\//i];
+for (const [k,v] of Object.entries(H)) {
+  for (const opts of [{}, {links:false,images:false}]) {
+    try { const {svg}=render(v,opts); const hits=vectors.filter(r=>r.test(svg)).map(String);
+      console.log(k.padEnd(16), JSON.stringify(opts).padEnd(30),'OK  len',svg.length,'vectors:',hits.join(' ')||'none'); }
+    catch(e){ console.log(k.padEnd(16), JSON.stringify(opts).padEnd(30),'ERR', e.constructor.name, e.message.slice(0,70)); }
+  }
+}
+try{ render('flowchart TD\n'+'A-->B\n'.repeat(20000)); }catch(e){console.log('huge', e.constructor.name, e.message.slice(0,80))}

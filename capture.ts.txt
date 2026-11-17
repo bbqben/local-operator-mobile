@@ -1,0 +1,44 @@
+import { createServer } from "node:http";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { extname, join } from "node:path";
+import { launchChrome } from "/Users/bentran/workspace/repos/lo-mobile-pele-wt/tools/lib/chrome.ts";
+import { sleep } from "/Users/bentran/workspace/repos/lo-mobile-pele-wt/tools/lib/cdp.ts";
+
+const [dir, outDir, tag, ...cases] = process.argv.slice(2);
+const MIME: Record<string, string> = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".json": "application/json", ".png": "image/png", ".ttf": "font/ttf" };
+const server = createServer((req, res) => {
+	const url = new URL(req.url ?? "/", "http://x");
+	let file = join(dir, decodeURIComponent(url.pathname));
+	if (!existsSync(file) || file.endsWith("/")) file = join(dir, "index.html");
+	try { const body = readFileSync(file); res.writeHead(200, { "content-type": MIME[extname(file)] ?? "application/octet-stream" }); res.end(body); } catch { res.writeHead(404); res.end(); }
+});
+await new Promise<void>((r) => server.listen(0, "127.0.0.1", () => r()));
+const port = (server.address() as { port: number }).port;
+const profile = join(process.env.CAPTURE_PROFILE_ROOT ?? "/tmp", `pele-chrome-profile-${tag}`);
+const chrome = await launchChrome({ profile });
+mkdirSync(outDir, { recursive: true });
+const log: string[] = [];
+try {
+	for (const theme of ["light", "dark"]) for (const c of cases) {
+		const page = await chrome.page("about:blank");
+		await page.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+		await page.send("Runtime.enable");
+		page.on("Runtime.exceptionThrown", (p) => log.push(`${c}/${theme} exception ${JSON.stringify(p).slice(0, 300)}`));
+		await page.send("Page.navigate", { url: `http://127.0.0.1:${port}/pele-preview?case=${c}&theme=${theme}` });
+		for (let i = 0; i < 60; i++) { await sleep(250); const ok = await page.evaluate(`!!document.querySelector('[data-testid="preview-root"]') && document.body.innerText.length > 20`).catch(() => false); if (ok) break; }
+		await sleep(2500);
+		const bg = await page.evaluate(`getComputedStyle(document.body).backgroundColor`);
+		const shot = await page.send("Page.captureScreenshot", { format: "png" });
+		const path = join(outDir, `${tag}-${c}-${theme}.png`);
+		writeFileSync(path, Buffer.from(String(shot.data), "base64"));
+		const svgCount = await page.evaluate(`document.querySelectorAll('svg text').length`);
+		log.push(`${path} bg=${bg} svgTextNodes=${svgCount}`);
+		await page.send("Target.closeTarget", { targetId: page.targetId }).catch(() => {});
+	}
+} finally {
+	const r = await chrome.close();
+	log.push(`chrome survivors=${r.survivors}`);
+	server.close();
+	try { rmSync(profile, { recursive: true }); } catch {}
+}
+console.log(log.join("\n"));

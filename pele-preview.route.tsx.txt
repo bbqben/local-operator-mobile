@@ -1,0 +1,38 @@
+// SCRATCH — never committed. Renders the real <Markdown> for the diagram proof.
+import { useEffect } from "react";
+import { ScrollView, View } from "react-native";
+import { Markdown } from "@/features/session/components/markdown";
+import { DIAGRAM_SOURCES } from "@/features/session/diagram-fixtures";
+import { useTheme } from "@/ui/appearance";
+
+const fence = (src: string) => `\`\`\`mermaid\n${src}\n\`\`\``;
+
+const CASES: Record<string, string> = {
+	flowchart: `Here is the release flow:\n\n${fence(DIAGRAM_SOURCES.flowchart ?? "")}\n\nThat is all.`,
+	sequence: `How a message travels:\n\n${fence(DIAGRAM_SOURCES.sequence ?? "")}\n\nThat is all.`,
+	state: `The run states:\n\n${fence(DIAGRAM_SOURCES.state ?? "")}\n\nThat is all.`,
+	invalid: `A broken one:\n\n${fence("flowchart TD\n  A[Start --> B")}\n\nThe source stays readable.`,
+	stream: `Drawing it now:\n\n\`\`\`mermaid\nflowchart TD\n  A[Start] --> B{Is it ready?}\n  B -- Yes --> C(Ship it)`,
+	wide: `A wide one:\n\n${fence(DIAGRAM_SOURCES.gantt ?? "")}`,
+	class: `Classes:\n\n${fence(DIAGRAM_SOURCES.class ?? "")}`,
+};
+
+export default function PelePreview() {
+	const { setPreference } = useTheme();
+	const query =
+		typeof window === "undefined"
+			? new URLSearchParams()
+			: new URLSearchParams(window.location.search);
+	const which = query.get("case") ?? "flowchart";
+	const mode = query.get("theme") === "dark" ? "dark" : "light";
+	useEffect(() => {
+		setPreference(mode);
+	}, [mode, setPreference]);
+	return (
+		<ScrollView className="flex-1 bg-canvas" contentContainerClassName="p-4">
+			<View testID="preview-root">
+				<Markdown text={CASES[which] ?? ""} />
+			</View>
+		</ScrollView>
+	);
+}
