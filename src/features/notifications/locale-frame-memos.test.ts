@@ -25,6 +25,10 @@ const thread = read("team-bridge", "thread-screen.tsx");
 const NEXT_DECLARATION = /\n(?:export |const |function |type |interface )/;
 /** `locale` destructured as a prop (its own line in the parameter list). */
 const LOCALE_PROP = /\blocale,\n/;
+/** Whole-identifier matches for the day-divider memo's two TRIGGERS, so
+ *  `todayKey` or `languages` in a dependency list cannot satisfy them. */
+const LANGUAGE_DEP = /\blanguage\b/;
+const TODAY_DEP = /\btoday\b/;
 
 /** Source with comments removed, so a doc comment that MENTIONS a call cannot
  *  satisfy or trip an assertion about code. */
@@ -76,10 +80,14 @@ describe("the Team Bridge thread re-resolves its copy on a language change", () 
 		expect(content).toContain("const language = useLocaleFrame();");
 	});
 
-	it("lists the language in the day-divider memo's dependencies", () => {
-		expect(dependencies(content, "const items = useMemo(")).toContain(
-			"language",
-		);
+	it("lists the language AND the day in the day-divider memo's dependencies", () => {
+		/* Both are TRIGGERS the memo body never reads (thread-screen.tsx): the
+		 * language re-resolves the `Today`/`Yesterday` words, the day re-buckets
+		 * the dividers at midnight. Dropping either compiles and lints clean, so
+		 * each needs its own guard (review Q1). */
+		const deps = dependencies(content, "const items = useMemo(");
+		expect(deps).toMatch(LANGUAGE_DEP);
+		expect(deps).toMatch(TODAY_DEP);
 	});
 
 	it("gives the memoised row its locale as a prop, not a live read", () => {

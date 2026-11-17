@@ -197,8 +197,13 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * terminal page instead of re-serving the newest one. `--print`, staged. */
 	/* Re-pinned 2026-11-15 for PR #271 with --print: the remote-conversation
 	 * mock scenarios (relay/scenarios) and the long-press S15 openers (matrix). */
+	/* PR #251 D1: 24d93a0d (fixture-only) taught the mock relay to publish
+	 *  language config changes but left this pin at 99594b71's bytes (9bec3b7e…).
+	 *  This is sha256 of relay.ts exactly as committed in 24d93a0d, unchanged at
+	 *  this head; the tool's own reader (snapshotContent) reports the same value.
+	 *  The fixture moved, the U-08 scene did not. Not rendered evidence. */
 	"tools/mock-relay/relay.ts":
-		"9bec3b7e5c493832cb6b583ce8d9710f669709d45ac2808affe1cf7b6784d957",
+		"1bcbec5c8e80d2a5eb39eeecba8f19bb0fee10dd992941f50624cd1aba0ecfba",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -2148,7 +2153,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * over the staged merge tree's git objects (not --print); it reproduced
 	 * both parents' committed pins as controls. Source identity only, NOT
 	 * rendered U-08 evidence. */
-	src: "ec9b8e39e9e6d183dde4528c22b9a032b8becc2b75010bf529dad0827c4b4667",
+	/* PR #251 D1 product remediation: Projects, Project detail and Settings
+	 * subscribe to `useLocaleFrame()` so a late language frame repaints their
+	 * keyed copy, plus two mounted locale-frame tests and the Q1 memo guard. No
+	 * catalogue, layout or class bytes move. Parent pin reproduced from HEAD's
+	 * git objects by treeDigest as the control; this value is --print over the
+	 * staged tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "c3a7ef48806eec415fc8d3fac9262593c3edebfcbed8d71cc0a14290376c752a",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

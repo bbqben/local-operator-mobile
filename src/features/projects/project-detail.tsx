@@ -4,7 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import type { LinkedSession, ProjectMilestone, ProjectView } from "@/contracts";
-import { useConnection } from "@/features/auth/connection-provider";
+import {
+	useConnection,
+	useLocaleFrame,
+} from "@/features/auth/connection-provider";
 import {
 	deleteProjectBody,
 	draftKeptNote,
@@ -79,6 +82,12 @@ export default function ProjectDetail() {
 	const router = useRouter();
 	const { key } = useLocalSearchParams<{ key: string }>();
 	const { relay, refusal } = useConnection();
+	/* A late backend language frame must repaint this screen's keyed copy
+	 * (D1, PR #251): `t()` reads the locale at call time but cannot re-render an
+	 * already-mounted screen, so without this subscription a `fr → ur` frame left
+	 * the old language on screen until a remount. The value is unused on purpose —
+	 * the subscription IS the fix (`useLocaleFrame`, connection-provider.tsx). */
+	useLocaleFrame();
 	const showToast = useUiStore((state) => state.showToast);
 
 	const [project, setProject] = useState<ProjectView | null>(null);
