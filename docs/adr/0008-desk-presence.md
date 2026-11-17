@@ -1,6 +1,6 @@
 # ADR 0008 — Desk presence: the phone waits while you are at your computer
 
-- **Status:** Proposed — 2026-11-16
+- **Status:** Proposed — 2026-11-16 (revised after review round 1, same day)
 - **Date:** 2026-11-16
 - **Deciders:** the operator (the setting, its default, and the lock rule); the maintaining team
   (where the signal lives, and the wire)
@@ -93,7 +93,7 @@ Team Bridge pushes are **not presence-gated at all**:
 | G3 | Screen **locked** | No signal. Behaves like G1 or G2 depending on focus. | Treat as away at once. |
 | G4 | **Display off**, or idle with no lock | No signal | Covered by idle time (the display sleeps only after idle). |
 | G5 | **System asleep** | Core on the same Mac sleeps too, so nothing is computed until wake. Then G1/G2 apply. A remote-paired backend lapses after 45 s, so it pushes. | Wake: flush using the post-wake idle. A remote backend should learn about sleep at once, not after 45 s. |
-| G6 | **TUI-only** user, or the app is closed | No lease, so not attended, so the phone is pushed at once. The TUI banner (rung 3) or the runtime banner (rung 4) also fires. **Duplicate.** | Same desk rule, from a core-side idle probe. |
+| G6 | **TUI-only** user, or the app is closed | No lease, so not attended, so the phone is pushed at once. The TUI banner (rung 3) or the runtime banner (rung 4) also fires. **Duplicate.** | TUI-only: same desk rule, from a core-side idle probe (slice 4). App closed **and** no TUI: **not fixed by this ADR**; the rung-4 duplicate stays (see slice 4 for why). |
 | G7 | **Multiple Macs** | Each computer's worker reads only its own backend's lease. A desktop app paired to a remote backend beats *that* backend, so it counts there. | Correct as is: a Mac whose app does not show B's work should not keep B's pushes. Team Bridge, being account-wide, needs "any desk active". |
 | G8 | **Phone in active use** | No `setNotificationHandler` (`src/notifications/native.ts:19-23`). Per Expo's documented default, a foreground arrival shows an OS banner with sound. | §3.4 |
 | G9 | **Team Bridge** at the desk | Immediate push plus desktop banner (§1.3). **Duplicate.** | Same desk rule, enforced in the cloud. |
@@ -139,13 +139,22 @@ Three options:
 | **B. Python core probes OS idle** | TUI-only use, and use with the app closed. macOS: `CGEventSourceSecondsSinceLastEventType` through ctypes, or `ioreg` `HIDIdleTime`. Spiked on this Mac 2026-11-16: both return sub-second values from a background process with no added dependency. Windows: `GetLastInputInfo`. Linux: logind `IdleHint`, otherwise unknown. | It reads the wrong machine whenever the core runs headless or remote, or as a Windows service in session 0. Those cases must report "unknown", which leans towards notifying. |
 | **C. Window focus (today)** | Nothing that A does not cover better | G1 and G2 |
 
-**Recommendation: A is the primary signal, B is the fallback for TUI or app-closed use, and C is
+**Recommendation: A is the primary signal, B is the fallback for TUI-only use, and C is
 kept only as the rung-1 "which conversation is on screen" fact.** Window focus remains the right
 answer to "is this card already on screen". It is the wrong answer to "is a person at this
 computer".
 
 **Privacy:** the wire carries only integer idle seconds, a `locked` boolean and the user's
-threshold. It never carries keystrokes, event types, foreground app names or input coordinates.
+threshold. Team Bridge reports also carry `bannered_through` (conversation ids and integer
+sequence numbers the hub already holds; §3.3 rule 4). The wire never carries keystrokes, event
+types, foreground app names or input coordinates.
+
+No receiver logs the idle reading. Core and cloud never write `idle_s`, `locked`, `last_input_at`
+or `away_at` to a log line, at any level. The existing per-row Info line in `BridgePushJob`
+(`agent-server@48970fd9:internal/services/bridge_push_job.go:84,199`) gains only an outcome value
+(`held`, `released_away`, `dropped_seen`), never the reading behind it. The daemon's diagnostics
+log `desk_active=<bool>` and nothing finer. A person's minute-by-minute activity is exactly the
+data this feature must not leave behind.
 
 ### 3.2 The one predicate
 
@@ -154,7 +163,8 @@ The desktop app sends the raw facts it measured. A receiver turns them into a de
 the answer:
 
 ```
-beat (sent with every presence beat, plus immediately on lock, unlock, suspend, resume and resign-active):
+beat (only to a backend that advertises features.desk_presence, see Version skew in §3.3;
+      sent with every presence beat, plus immediately on lock, unlock, suspend, resume and resign-active):
   idle_s        integer, from getSystemIdleTime()
   locked        bool: getSystemIdleState(away_after_s) == "locked", or a lock/suspend/resign event since the last unlock or resume
   idle_trusted  bool (see R2); false means the idle reading is unknown
@@ -176,9 +186,25 @@ trust rule. Core (Python) and cloud (Go) only evaluate `now < away_at` on a fres
 evaluation is short enough to be the same in both languages, and a shared fixture table enforces
 that (§4, acceptance tests).
 
-When several reports are live, aggregate with **any**. On one backend, take the latest `away_at`
-across the live leases; in the cloud, across the account's computers. If you are at any desk this
-backend serves, or for Team Bridge any desk at all, you are at a desk.
+When several reports are live, aggregate with **any**:
+`desk_active = any(desk_active(r) for r in fresh reports)`. On one backend that means across the
+live leases; in the cloud, across the account's computers. If you are at any desk this backend
+serves, or for Team Bridge any desk at all, you are at a desk. Each report is judged on its own,
+so an untrusted record never contributes: a Wayland report of `idle_s = 0` with
+`idle_trusted = false` cannot win a max and keep the desk "active". Rule 4's `last_input_at` is
+likewise read only from **trusted** fresh records (the max over them, or for Team Bridge the one
+install that surfaced the row).
+
+**Clock domain: wall clock, stamped by the receiver.** `received_at`, `last_input_at` and
+`away_at` are wall-clock epoch seconds (`time.time()` in core, `time.Now()` in Go). The core needs
+that because the reader is in another process: the HTTP server stamps the record, and the push
+daemon compares it with its own `time.time` clock
+(`local-operator@72dd603f:local_operator/mobile/push_worker.py:416`). This deliberately differs from
+the existing `PresenceClaim.seen_at`, which is `time.monotonic` inside the server process
+(`local_operator/server/utils/desktop_presence.py:87`). A monotonic value means nothing in
+another process, and on macOS it also stops during sleep, which is exactly when `away_at` must keep
+running. Copying the `seen_at` pattern would be a bug. Both processes run on the same machine, so
+"the receiver's own clock" is still a single clock and R6 holds.
 
 **Lock is 0 s:**
 - **Why:** locking is a deliberate "I'm leaving", and the operator's example is walking away with
@@ -194,8 +220,25 @@ At **arrival** (core: `_queue_completion`; cloud: outbox claim), for an item tha
 existing gates (unseen, `notify`, preferences, a live device):
 
 1. If `desk_active(now)` **and** this desk can banner the item, **hold** it. "Can banner" means
-   `presence.delivers(kind)` for completions, or `bridge_banners` in the report for Team Bridge.
-   This closes G1, G6 and G9.
+   `presence.delivers(kind)` for completions. For Team Bridge it means `bridge_banners` is true in
+   an active install's report. The app computes `bridge_banners` in main as the conjunction of
+   every **persistent** condition of `TeamBridgeNotifier.admits()`
+   (`local-operator-ui@3b3a8e4e:src/main/team-bridge-notifier.ts:678-694`) plus a live watcher:
+   - `options.show !== "never"`;
+   - `canNotify()` (today `Notification.isSupported()`);
+   - an authority is set, not `settling`, and its owner is the account the report is sent as;
+   - `!awaitingDocument`;
+   - **the renderer watcher is live.** The renderer hook
+     (`src/renderer/src/features/team-bridge/use-team-bridge-notifications.ts`) does the polling,
+     but main sends the report. So main stamps the time of the renderer's last completed poll, and
+     the watcher counts as live only when that stamp is within 2 × `TEAM_BRIDGE_NOTIFY_POLL_MS`
+     (`src/shared/team-bridge-poll.ts:2`) **and** the hook has finished its first seeding read
+     (`use-team-bridge-notifications.ts:26-32`). Before seeding, existing unread rows are absorbed
+     and raise nothing, so a desk in that state cannot banner them.
+
+   The per-request conditions of `admits()`, quiet-when-viewing and the seq fence, are not part of
+   `bridge_banners`. They are what rule 4's positive evidence observes instead. This closes G1, G6
+   (TUI-only) and G9.
 2. Otherwise **push now**. This covers G2 after the threshold, G3, G5, G10, and every unknown or
    stale report.
 
@@ -205,13 +248,33 @@ While **held**, check on every pass:
    Team Bridge.
 4. **Seen at the desk:** drop. The desktop *surfaced* the item, and there was **input after it**:
    `last_input_at > surfaced_at + SEEN_GRACE_S` (2 s).
-   - *Surfaced* means today's evidence. For completions, `_settle_deferred` either found
-     `delivered` (a banner claimed) or found `attending` (the card was on screen). The worker
-     records the time it first observed this in memory, on `_PendingEmit`, so `deliveries` needs
-     no schema change. For Team Bridge, surfaced means the message's `created_at` +
-     `TEAM_BRIDGE_NOTIFY_POLL_MS`, provided the report claimed `bridge_banners`.
+   - *Surfaced* is always a **positive observation**, never an inference from time.
+   - **Completions:** `_settle_deferred` found `delivered` (a banner claimed) or `attending` (the
+     card was on screen). The worker records the wall-clock time it first observed this in memory,
+     on `_PendingEmit`, so `deliveries` needs no schema change.
+   - **Team Bridge:** each install's report carries `bannered_through: {conversation_id: seq}`.
+     These are the seqs main persisted in `TeamBridgeNotifyStore.record`, which runs only after
+     `notification.show()` (`team-bridge-notifier.ts:626-634`; that is the store's only writer).
+     A row is surfaced on install X when X's fresh report has
+     `bannered_through[row.ConversationID] ≥ row.Seq`. A banner for seq N replaces the
+     conversation's earlier banner in place ("3 new messages", `team-bridge-notifier.ts:25-31`), so
+     it also covers earlier seqs. `surfaced_at` is the cloud's receive time of the **first** report
+     showing that. The app sends a report immediately after each `record`, so `surfaced_at` lags
+     `show()` by one request, not by a beat. Rule 4 then compares against the `last_input_at` of
+     **that same install**: input at another desk is not evidence that X's banner was seen.
+   - **Every other held Team Bridge row has no drop-on-input path.** That covers a row whose
+     conversation is missing from `bannered_through` (never bannered, absorbed by the seeding read,
+     refused by `admits()`, quiet because a focused window was showing it, or evicted by the
+     store's bound). Such a row leaves the hold only by rule 3 (read) or rule 5 (away). The
+     focused-and-viewing case is handled by rule 3: the open conversation advances the read cursor.
    - This replaces #4101's unconditional "announced means drop". That rule is what lets G2
      silence the phone after a banner shown to an empty desk.
+   - **What rule 4 cannot see.** `delivered` and `bannered_through` mean a banner was
+     *attempted*. `Notification.isSupported()` knows nothing about macOS Focus/DND, Windows Focus
+     Assist or a denied permission (`local_operator/session/runtime/presence.py:157-169`). So a
+     claim followed by any input is a **permanent** drop even when the OS hid the banner (R3).
+     Likewise, synthetic input after a real banner counts as "seen" (R1). Neither case is a
+     regression: #4101 drops on the claim alone, with no input needed.
 5. **Desk went away** (`not desk_active(now)`): release. The push carries the same burst and digest
    rules as today (`BURST_LIMIT`, `BURST_WINDOW_S`).
 
@@ -220,9 +283,39 @@ quiet. If it arrives and you stop touching the computer before you have seen it,
 `away_after` after your last input. If it arrives while you are away or the screen is locked, the
 phone gets it at once.
 
-**Version skew.** If a report carries no idle fields (a desktop app from before this change), the
-core falls back to today's focus rule unchanged for **one release**, so nothing regresses. After
-that, a missing field is read as unknown, which means notify.
+**Version skew, and why core ships first.** `PresenceBeat` inherits `Input`, which is
+`ConfigDict(extra="forbid")`
+(`local-operator@72dd603f:local_operator/server/routes/desktop_sessions.py:704-705,842-865`).
+A beat that carries an unknown field is therefore a **422**. The app swallows that
+(`.catch(() => undefined)`, `local-operator-ui@3b3a8e4e:src/main/desktop-feed.ts:500`), the lease
+lapses after 45 s, `attended` goes false, the desktop banner gate stops suppressing the
+conversation on screen (`server/utils/desktop_feed.py:2075`), and the phone gets everything. The
+new fields must never reach a core that has not declared it accepts them. So:
+
+- Core adds the four fields to `PresenceBeat` **and** advertises a new feature key,
+  `"desk_presence": 1`, next to `desktop_feed` / `desktop_presence`
+  (`local_operator/server/features.py:726-740`). The comment on the key records the 422 reason
+  above, which is why it is a key and not "additive optional".
+- The app adds the fields to the beat **only** when the backend it is connected to advertises
+  `desk_presence ≥ 1`. It reads that key from the same features answer, at the same point where it
+  already gates the feed on `desktop_feed` (`desktop-feed.ts:261`). The answer is re-read on
+  every feed connect, so a backend switch, upgrade or downgrade is picked up on reconnect.
+
+| App | Core it is paired with (local **or remote**) | Beat sent | Behaviour |
+|---|---|---|---|
+| old | old | today's | today's |
+| old | new | today's, no idle fields | the core falls back to today's focus rule for **one release**. After that, a report with no idle fields is read as unknown, which means notify. |
+| new | old, or remote without `desk_presence` | **today's, byte-identical** (the key is absent) | today's. No 422, no lapse. Desktop and phone behave exactly as before. |
+| new | new | with idle fields | this ADR |
+
+A remote backend is the common case for the third row: the app beats whichever backend it is
+paired with, and that backend's own features answer decides. The app never infers support from
+its own version or from the local core's version.
+
+The cloud route follows the same rule. An agent-server without `PUT /v1/bridge/desk-presence`
+answers 404. The app then stops sending it until the next sign-in or app launch, so a missing
+route costs one request rather than four a minute. Nothing regresses, because Team Bridge pushes
+are not presence-gated today (§1.3).
 
 ### 3.4 Phone in the foreground: in-app, not push
 
@@ -247,8 +340,11 @@ What changes is **presentation on the phone**:
     in core config as `notifications.phone_away_after_s`.
   - It is edited from desktop Settings → Notifications and from the phone's Settings →
     Notifications row for that computer, through a daemon route.
-  - The desktop app reads it and sends it as `away_after_s`. The core and the cloud therefore never
-    need the setting themselves; they read the deadline.
+  - The desktop app reads it and sends it as `away_after_s`. When a desktop report is present,
+    the cloud and the core evaluate only the deadline the report implies. The **exception** is the
+    core's TUI-only probe (slice 4): no desktop report exists to carry the threshold, so the core
+    reads `notifications.phone_away_after_s` from its own config. The key and its daemon route
+    therefore ship in the core slice (slice 1), before any client writes them.
 - **Order of gates.** Order: `enabled`, then `completions` / `errors` / `previews`
   (`push_devices.PREFERENCE_KEYS`), then quiet hours. These decide **whether** an item may go to
   the phone. This setting decides **when**: presence is checked only after the preference gates
@@ -263,35 +359,22 @@ What changes is **presentation on the phone**:
 ## 4. Implementation plan, by repository
 
 Sizes use the team's lanes: S is under 2 h, M is up to 3 h, L is 3–4 h. Each slice is one PR.
-Order: 1 → 2 → (3 ∥ 4) → 5.
 
-### Slice 1 — local-operator-ui: measure and report (M)
+**Order: core first** (M1, §3.3 Version skew). 1 → 2. 1 → 4. 3 → 5 (5 also needs 1's setting).
+6 needs 1 for its settings row and S9 for its handler. Every arrow is "may not merge before". No
+slice depends on a later one to avoid regressing, so the train can stop after any slice.
 
-- In `desktop-feed.ts`, the beat payload gains `idle_s`, `locked`, `idle_trusted` and
-  `away_after_s`, sampled in main from `powerMonitor` on every beat.
-  - Send an **immediate** beat on `lock-screen`, `unlock-screen`, `suspend`, `resume` and
-    `user-did-resign-active`. Today only the 15 s interval sends (`desktop-feed.ts:502-506`).
-  - `idle_trusted` (R2): true on macOS and Windows. On Linux, false until the app has once observed
-    `idle_s ≥ 30` since launch. A constant 0 would otherwise mean "always at the desk", which fails
-    in the unsafe direction.
-- The setting: a select in Settings → Notifications, kept in core config and read through the
-  existing config route.
-- Contract: the four fields are additive optional fields in `desktop-contract.ts`, mirrored from
-  core.
-- **Acceptance:** unit tests with an injected `powerMonitor` fake:
-  - idle, lock and unlock map to the fields;
-  - each event triggers exactly one immediate beat;
-  - on Linux, the trust latch flips at 30 s and not before;
-  - the settings select persists and shows four options with 2 as the default.
+### Slice 1 — core: accept, advertise, decide (L)
 
-  Render the Settings row (designer round).
-
-### Slice 2 — core: the predicate and the hold (M→L)
-
-- `desktop_presence.update` / `PresenceClaim` store the four fields and stamp `received_at`. Per
+- **Accept.** `PresenceBeat` gains `idle_s` (int ≥ 0), `locked`, `idle_trusted` (StrictBool) and
+  `away_after_s` (one of `{60,120,300,600}`), all optional. `Input` stays `extra="forbid"`.
+- **Advertise.** `"desk_presence": 1` in `server/features.py`, with a comment recording why this
+  is a key: an unadvertised field is a 422 that silently lapses the lease.
+- **Store.** `desktop_presence.update` / `PresenceClaim` store the four fields and stamp
+  `received_at` in **wall clock** (§3.2 Clock domain), never in `seen_at`'s monotonic domain. Per
   the existing comment (`desktop_presence.py:65-69`), missing fields are dropped rather than
-  retained. `read_delivery` aggregates `away_at` with max across live records and exposes
-  `DesktopPresence.desk_active(now)`, `desk_known` and `last_input_at`.
+  retained. `read_delivery` exposes `DesktopPresence.desk_active(now)` as `any` over the fresh
+  records, plus `desk_known`, and `last_input_at` taken from trusted records only (§3.2).
 - `push_worker`:
   - `_desktop_attended` becomes `desk_active`;
   - `_queue_completion` holds only if `desk_active` and `delivers(kind)`;
@@ -299,12 +382,15 @@ Order: 1 → 2 → (3 ∥ 4) → 5.
     `last_input_at > surfaced_at + SEEN_GRACE_S`;
   - `_due` releases on `not desk_active`;
   - the legacy fallback (§3.3) is kept for one release.
-- Config key `notifications.phone_away_after_s` with an allow-list `{60,120,300,600}`, plus the
-  daemon route the phone uses to read and write it.
+- **The setting.** Config key `notifications.phone_away_after_s` with the allow-list
+  `{60,120,300,600}`, plus the daemon route the phone uses to read and write it. It lives here,
+  first, so no later slice persists a key nobody has defined.
 - Shared conformance fixture `tests/fixtures/desk_presence_cases.json` (input report, receive time,
   now → active / unknown), copied byte-identical into agent-server. A test in each repo asserts the
   copy's sha256.
 - **Acceptance tests (unit, injected clock and presence):**
+  - a beat carrying the four fields is a 200, and a beat without them is a 200 (route tests);
+  - `features` carries `desk_presence: 1`;
   - G1: at the desk in another app, a completion is held, then dropped after a banner plus input.
   - G2: focused window, idle ≥ 120 s, the item is released. A banner to an empty desk does not
     drop it.
@@ -312,13 +398,92 @@ Order: 1 → 2 → (3 ∥ 4) → 5.
   - G10: desk active but `delivers(kind)` false means push now.
   - Stale report means push now.
   - A legacy report means the focus rule applies.
+  - An untrusted record with `idle_s = 0` beside a trusted idle one is not active (m3).
+  - The server stamps `received_at` and the daemon reads it under different processes' clocks;
+    the test injects `time.time` into both and no monotonic value crosses (m2).
   - A read during the hold means drop.
   - Burst and digest still fold released items.
 
   QA real path: isolated HOME, serve plus daemon, a synthetic presence beat over
-  `POST /v1/desktop/presence`, and the push transport stubbed to record emits.
+  `POST /v1/desktop/presence` with and without the new fields, and the push transport stubbed to
+  record emits.
 
-### Slice 3 — core: TUI / no-app fallback probe (S→M)
+### Slice 2 — local-operator-ui: measure and report (M)
+
+- In `desktop-feed.ts`, the beat payload gains `idle_s`, `locked`, `idle_trusted` and
+  `away_after_s`, sampled in main from `powerMonitor` on every beat, **only when the connected
+  backend advertises `desk_presence ≥ 1`**. The answer is read at feed connect, beside the existing
+  `desktop_feed` gate (`desktop-feed.ts:261`). Without the key the beat is byte-identical to today's.
+  - Send an **immediate** beat on `lock-screen`, `unlock-screen`, `suspend`, `resume` and
+    `user-did-resign-active`. Today only the 15 s interval sends (`desktop-feed.ts:502-506`).
+  - `idle_trusted` (R2): true on macOS and Windows. On Linux, false until the app has once observed
+    `idle_s ≥ 30` since launch. A constant 0 would otherwise mean "always at the desk", which fails
+    in the unsafe direction.
+- The setting: a select in Settings → Notifications, reading and writing slice 1's config key
+  through the existing config route.
+- Contract: the four fields in `desktop-contract.ts`, mirrored from core, typed as present only
+  under the feature key.
+- **Acceptance:** unit tests with an injected `powerMonitor` fake:
+  - idle, lock and unlock map to the fields;
+  - each event triggers exactly one immediate beat;
+  - **without `desk_presence` the beat carries none of the four fields** (new app, old or remote
+    core), and with it the beat carries all four;
+  - on Linux, the trust latch flips at 30 s and not before;
+  - the settings select persists and shows four options with 2 as the default.
+
+  Render the Settings row (designer round). QA real path: the new app against a backend
+  advertising the key, and against one that does not; the second keeps `attended` true across
+  three beats.
+
+### Slice 3 — agent-server (cloud): Team Bridge hold (M→L)
+
+- `PUT /v1/bridge/desk-presence` stores `{account, install_id, idle_s, locked, idle_trusted,
+  away_after_s, bridge_banners, bannered_through, received_at}` with the latest row per install.
+  The app sends it **every `PRESENCE_BEAT_S` (15 s)**, so a fresh report is one received within
+  `PRESENCE_TTL_S` (45 s) and three beats must be missed before a report is stale. That is the
+  same invariant as `presence.py:78-82`, and it keeps the shared fixture's constants identical in
+  both languages. The TTL collection expires a row after 2 × `PRESENCE_TTL_S`. `bannered_through`
+  is bounded to the 128 most recently recorded conversations; an absent conversation reads as "not
+  surfaced", which releases on away. A 404 from an older cloud stops the sender (§3.3).
+- **Repository change: holding is not a claim.** `ClaimOutbox` already does `$inc attempts`
+  atomically when it leases a row
+  (`agent-server@48970fd9:internal/repositories/bridge_push_repository.go:457-469`), and
+  `deliver` fails a row once `Attempts > 5` (`bridge_push_job.go:97`). A naive 15–30 s re-hold
+  would therefore fail every held row within a few minutes. Add `HoldOutbox(ctx, id, leaseID,
+  until, held)`. Conditioned on the current `lease_id`, it sets `state = pending`,
+  `next_attempt_at = until`, `$inc {attempts: -1, holds: 1}` (undoing the claim's increment in the
+  same write), and `$set` the per-recipient hold state below. The retry ladder's `attempts`
+  (`bridge_push_job.go:230-234`) then counts only real send attempts. `holds` is diagnostics only.
+- **Per recipient, not per row.** Rows are multi-recipient. In `BridgePushJob`, after
+  `canDeliver`'s existing checks, for each recipient:
+  - drop if the read cursor has passed the row (today), or if seen at the desk (§3.3 rule 4,
+    using `surfaced[recipient] = {install_id, surfaced_at}` stored on the row). A dropped
+    recipient is recorded on the row so a later pass never sends to it;
+  - **hold** if any fresh report for the recipient says `desk_active` and `bridge_banners`;
+  - otherwise send. Sends go into the existing per-device `delivered` set.
+
+  If any recipient is held, the row goes back through `HoldOutbox` with
+  `until = min(earliest held recipient's away_at, now + PRESENCE_BEAT_S)` and stays `Pending`.
+  Recipients already delivered are skipped on the next pass by the `delivered` set, as on a re-claim
+  today. Only when no recipient is held does the row finish as today.
+- The existing one-hour usefulness bound (`bridge_push_job.go:93`) still applies to held rows.
+  Accepted: an unread message held through more than an hour of active desk work was bannered to
+  you.
+- **No reading in logs** (§3.1 Privacy). Outcomes only.
+- **Acceptance:** Go table tests driven by the **same fixture file**:
+  - hold does not consume an attempt; 20 consecutive holds leave `attempts` unchanged and the row
+    `Pending`;
+  - a stale report means immediate send;
+  - multi-install: any active install holds;
+  - multi-recipient: a held recipient does not block or re-send to a delivered one;
+  - `bannered_through[c] ≥ seq` plus later input on the same install drops; input on another
+    install does not; no `bannered_through` entry plus input does not drop and releases on away;
+  - the read cursor drops a held row;
+  - an old client that sends no PUT sees today's behaviour (no report means push now).
+
+  Sandbox real path with two synthetic installs.
+
+### Slice 4 — core: TUI-only fallback probe (S→M)
 
 - `local_operator/session/runtime/desk_idle.py`:
   - macOS: ctypes `CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState,
@@ -327,44 +492,45 @@ Order: 1 → 2 → (3 ∥ 4) → 5.
   - Linux: logind `IdleHint`, otherwise unknown.
 - It runs **only** when no fresh desktop report exists, the core is on a local graphical session
   (not `SSH_CONNECTION`, not a session-0 service), and a TUI viewer is live. Its output is the same
-  report shape, so the predicate does not change.
+  report shape, with `away_after_s` read from `notifications.phone_away_after_s` (slice 1), so the
+  predicate does not change.
+- **App closed, no TUI: deliberately out of scope.** Rung 4 does claim before it banners
+  (`local_operator/notifications/delivery.py:301`), so rule 4's evidence would exist. But the push
+  worker has no `delivers(kind)` for rung 4. Holding without one is the G10 failure: a desk that
+  can banner nothing goes silent. That case keeps today's duplicate until rung 4 exposes what it
+  can deliver; adding that is a separate change.
 - **Acceptance:** per-OS unit tests with the native call faked; SSH or headless returns unknown
-  (notify); TUI-only G6 is held and then dropped after a rung-3 banner plus input.
+  (notify); TUI-only G6 is held and then dropped after a rung-3 banner plus input; no TUI and no
+  app means no probe and push now.
 
-### Slice 4 — agent-server (cloud): Team Bridge hold (M)
+### Slice 5 — local-operator-ui: Team Bridge desk report (S→M)
 
-- `PUT /v1/bridge/desk-presence` stores `{account, install_id, idle_s, locked, idle_trusted,
-  away_after_s, bridge_banners, received_at}` in a TTL collection that expires after 2 ×
-  `PRESENCE_TTL_S`. Only the latest row per install is kept. The desktop app sends it next to its
-  Team Bridge poll, authenticated with the account session it already holds, and immediately on
-  lock or resume.
-- In `BridgePushJob`, before `canDeliver`:
-  - if any fresh report for the recipient says `desk_active` and `bridge_banners`, **hold**. Set
-    `NextAttemptAt = min(away_at, now + 30 s)` **without** incrementing `Attempts`;
-  - drop if the read cursor has passed the row (today), or if seen at the desk (§3.3 rule 4);
-  - release when the desk is not active.
-- The existing one-hour usefulness bound (`bridge_push_job.go:93`) still applies to held rows.
-  Accepted: an unread message held through more than an hour of active desk work was bannered to
-  you.
-- **Acceptance:** Go table tests driven by the **same fixture file**:
-  - hold does not consume an attempt;
-  - a stale report means immediate send;
-  - multi-install: any active install holds;
-  - the read cursor drops a held row.
+- Main sends `PUT /v1/bridge/desk-presence` every 15 s while signed in, and immediately on lock,
+  unlock, suspend, resume, resign-active and after every `TeamBridgeNotifyStore.record`. It is
+  authenticated with the account session the app already holds.
+- `bridge_banners` exactly as §3.3 rule 1 defines it. That includes the renderer-poll stamp: the
+  hook tells main when each poll completes and when its first seeding read has finished.
+- `bannered_through` from `TeamBridgeNotifyStore`, the newest 128 entries for the signed-in
+  account. The store needs a read accessor; its file format does not change.
+- **Acceptance:** unit tests:
+  - `bridge_banners` is false for `show: "never"`, `!canNotify()`, a settling or mismatched
+    authority, `awaitingDocument`, a watcher with no poll for 60 s, and a watcher before its
+    seeding read, and true only when all hold;
+  - `bannered_through` advances only after `show()`; a refused `admits()` leaves it unchanged;
+  - a `record` sends one immediate report;
+  - a 404 stops the sender until the next sign-in.
 
-  Sandbox real path with two synthetic installs.
-
-### Slice 5 — local-operator-mobile (S, plus S9 dependency)
+### Slice 6 — local-operator-mobile (S, plus S9 dependency)
 
 - This ADR.
 - Settings → Notifications: a per-computer "Send to phone when I'm away…" row that reads and
-  writes the slice-2 route. Update `docs/ux/flows.md:663`.
+  writes slice 1's route. Update `docs/ux/flows.md:663`.
 - Foreground handler (§3.4), **gated on S9's in-app toast**.
 - **Acceptance:** Settings component tests for all four states (loading, error, set, default);
   handler tests (foreground, conversation on screen → nothing shown; other conversation → in-app
   toast, no OS banner); rendered before/after stills (design round).
 
-**Total:** roughly 2–3 engineering days across four repositories. Slices 1 and 2 alone close G1,
+**Total:** roughly 3 engineering days across four repositories. Slices 1 and 2 alone close G1,
 G2, G3, G4, G5 and G10 for agent completions, which is the operator's main case.
 
 ## 5. Risks to watch during rollout
@@ -374,17 +540,31 @@ G2, G3, G4, G5 and G10 for agent completions, which is the operator's main case.
   session) keeps the desk "active", so pushes are held while you are out.
   - **Watch:** daemon log lines `desk_active=true idle_s=<n>` against the operator's actual
     absence.
-  - **Fix if it happens:** source `HIDSystemState` instead.
+  - **Fix if it happens:** source `HIDSystemState` instead. Electron's `getSystemIdleTime` does
+    not expose that source, so this needs a native module in the app, or the core's ctypes probe
+    (slice 4) reporting on the app's behalf.
   - CDP-driven browser automation does not post OS events.
+  - **It also drops, not only holds.** Synthetic input that lands after a real banner satisfies
+    rule 4, so the item is dropped for good rather than held. For example, a remote-desktop
+    session keeps moving the pointer while you are out. That is no worse than #4101, which drops
+    on the banner claim alone.
 - **R2 — Linux/Wayland idle.** `getSystemIdleTime` has returned 0 under some Wayland compositors.
   The `idle_trusted` latch makes that case notify rather than hold forever.
   - **Settle it:** run a one-off on GNOME and KDE Wayland that leaves the machine untouched for
     60 s and reads the value.
-- **R3 — Holding when the desktop banner was suppressed by the OS.** macOS Focus, Windows Focus
-  Assist and denied permissions are invisible to `Notification.isSupported()`
-  (`presence.py:157-169`). In that state a user at the desk gets neither surface until they idle
-  out. This is accepted, because it is phone ≤ desktop. If it is reported, the setting is the
-  lever.
+- **R3 — The OS suppressed the desktop banner.** macOS Focus, Windows Focus Assist and denied
+  permissions are invisible to `Notification.isSupported()` (`presence.py:157-169`), so
+  `delivered` and `bannered_through` record an **attempt**. A user at the desk in that state sees
+  no banner. Their next input satisfies rule 4, and the phone push is dropped **permanently**.
+  Idling out does not bring it back, and no value of the setting changes that. What remains is the
+  unread mark: the sidebar, the badge and the next open surface still show it.
+  - **Accepted:** this is phone ≤ desktop, and no regression against #4101, which drops on the
+    claim alone.
+  - **Watch:** operator reports of "missed it while on Focus".
+  - **Fix if it is reported:** read the OS focus state where it is reachable (macOS
+    `INFocusStatusCenter`, Windows `SHQueryUserNotificationState`) and send `delivers = false`
+    while it is on. That moves the case to G10 (push now). It needs a native module, so it is not
+    in these slices.
 - **R4 — The 15 s beat cadence.** Activity that resumes is seen up to 15 s late. A push can land
   in the first 15 s after you sit down again; this is accepted. Lock and suspend send at once, so
   leaving is never late.
