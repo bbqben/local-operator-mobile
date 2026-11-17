@@ -51,6 +51,11 @@ import {
 	canonicalRowKey,
 	visibleTranscriptEntries,
 } from "@/features/session/projection";
+import {
+	createReaderScrollHold,
+	type ReaderScrollHold,
+	restsAtTail,
+} from "@/features/session/reader-scroll-hold";
 import { reuseRows } from "@/features/session/row-identity";
 import { scrollAnchorFromHook } from "@/features/session/scroll-hook";
 import { beatLive, type SupplementBeat } from "@/features/session/supplements";
@@ -442,6 +447,23 @@ export const TranscriptList = ({
 	 *  one position). Read once — it is a statement about the page. */
 	const [scrollAnchor] = useState(scrollAnchorFromHook);
 	const atTail = useRef(scrollAnchor !== "top");
+	/* THE READER'S SCROLL IS NEVER FOUGHT (TestFlight 1139). `nextAtTail` keeps
+	 *  `atTail` true anywhere inside its 48 pt band, so without this every
+	 *  streamed row or layout commit clamped a drag's first points back to the
+	 *  end. While the hold is active `pinTail` does nothing. At rest the tail is
+	 *  decided from the CURRENT offset, viewport and content height
+	 *  (`restRef` below, PR #289 Q1-2), and only then is the end re-pinned.
+	 *  Web holds too (M3): the operator reads agent sessions over the web
+	 *  relay as well. */
+	const restRef = useRef<() => void>(() => {});
+	const [initialHold] = useState(() =>
+		createReaderScrollHold({
+			web: Platform.OS === "web",
+			onRest: () => restRef.current(),
+		}),
+	);
+	const scrollHold = useRef<ReaderScrollHold>(initialHold);
+	useEffect(() => () => scrollHold.current.dispose(), []);
 	/** Whether THIS MOUNT opens somewhere other than the tail — a saved offset to
 	 *  restore (`F-6.11` — Back preserves scroll) or the capture hook's `top`.
 	 *  `initialScrollIndex` is read once by the list, so the statement it feeds is
@@ -1186,6 +1208,8 @@ export const TranscriptList = ({
 			const { contentOffset, contentSize, layoutMeasurement } =
 				event.nativeEvent;
 			const previousOffset = factsRef.current.offsetY;
+			// Web: a held scroll restarts the hold's idle clock.
+			scrollHold.current.scrolled();
 			if (webAnchor.current && contentOffset.y !== webAnchor.current.offset)
 				releaseWebAnchor();
 			// An actual transition to the top, not mount/layout/onStartReached.
@@ -1255,18 +1279,22 @@ export const TranscriptList = ({
 		// only marks the touch as not-a-tap.
 		textSelectionContainerScroll();
 		releaseWebAnchor();
+		scrollHold.current.beginDrag();
 		presence?.setHeld(true);
 	}, [presence, releaseWebAnchor]);
 	const onScrollEndDrag = useCallback(() => {
+		scrollHold.current.endDrag();
 		presence?.setHeld(false);
 	}, [presence]);
 	/* The glide after a flick is still the reader's gesture: the presence counts
 	 *  movement only inside a drag or its momentum, which is what keeps the tail
 	 *  pin's own scrolls from raising the rail (round 1, U3). */
 	const onMomentumScrollBegin = useCallback(() => {
+		scrollHold.current.beginMomentum();
 		presence?.setCoasting(true);
 	}, [presence]);
 	const onMomentumScrollEnd = useCallback(() => {
+		scrollHold.current.endMomentum();
 		presence?.setCoasting(false);
 	}, [presence]);
 
@@ -1286,12 +1314,24 @@ export const TranscriptList = ({
 	 * changes the height is not a commit of this component's at all.
 	 */
 	const pinTail = useCallback(() => {
-		if (!atTail.current) return;
+		if (!atTail.current || scrollHold.current.active) return;
 		listRef.current?.scrollToOffset({
 			offset: TAIL_CLAMP_OFFSET_PT,
 			animated: false,
 		});
 	}, []);
+	restRef.current = () => {
+		const facts = factsRef.current;
+		const atEnd = restsAtTail({
+			offsetY: facts.offsetY,
+			viewportPt: viewportRef.current,
+			contentPt: facts.contentPt,
+			bandPt: TAIL_BAND_PT,
+		});
+		atTail.current = atEnd;
+		scrollPlaces.set(sessionId, { offset: facts.offsetY, atTail: atEnd });
+		pinTail();
+	};
 	/* `Show less` on a message whose top has scrolled above the list (design
 	 *  follow-up to PR #235, D2): bring that top back to just under the list's
 	 *  edge, or leave the list alone when it is already on screen
@@ -1958,6 +1998,9 @@ export const TranscriptList = ({
 					onScrollEndDrag={onScrollEndDrag}
 					onMomentumScrollBegin={onMomentumScrollBegin}
 					onMomentumScrollEnd={onMomentumScrollEnd}
+					// Web: wheel, pointer (incl. touch) and scroll keys hold the
+					// list until idle (TestFlight 1139); empty on native.
+					{...scrollHold.current.webHandlers}
 					scrollEventThrottle={16}
 					onContentSizeChange={onContentSizeChange}
 					/* The two props that make the FIRST frame the one the reader came for.
