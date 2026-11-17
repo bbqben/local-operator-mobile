@@ -2214,6 +2214,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
 	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
 	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
@@ -2267,7 +2277,20 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * plural-arm tests). No runtime src/ change. Derived LAST with --print; the
 	 * control reproduced the parent's pin (00db2322…) from 9e357316. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "0bd9b5ee7dfc16993e3330e061180464880ee46dfbe83547b44a4dccc1345835",
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
+	/* Convergence of PR #302 with main e19eb9f1 (#299, #300): both chains
+	 * above are kept (O3-b's, then main's attach-picker merge comment); main
+	 * touched no src/ path the PR touches, so the merged src tree is the union
+	 * of both sides. Re-derived LAST with --print over the staged merge tree; an
+	 * independent git-object treeDigest reader reproduced both parents'
+	 * committed pins (0bd9b5ee… and 4cbea3d6…) as controls and a one-byte
+	 * tamper diverged. Source identity only, NOT rendered U-08 evidence. */
+	src: "098c5daaca191a211883cccb226c1a3ba5a542dd82d7fcd6246a8546213dca2e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
