@@ -89,7 +89,8 @@ describe("Team Bridge copy", () => {
 		// Exact merged attachment + consent + established key union; +2:
 		// `thread.jump_newest` and `thread.anchor_missing` (feat/bridge-last-target's
 		// anchored open). +1: `list.catching_up` (the calm rate-limit status).
-		expect(keys).toHaveLength(160);
+		// +9 mentions.* (@-mention suggestions): 160 + 9 = 169.
+		expect(keys).toHaveLength(169);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))

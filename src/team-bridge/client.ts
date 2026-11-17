@@ -42,8 +42,10 @@ import {
 	hubEnvelopeSchema,
 	hubErrorSchema,
 	type MemberInput,
+	type MentionRow,
 	type Message,
 	type MessagePage,
+	mentionRowsSchema,
 	messagePageSchema,
 	messageSchema,
 	type Notify,
@@ -842,8 +844,30 @@ export function createHubClient(deps: HubClientDeps) {
 		send(
 			tenantId: string,
 			conversationId: string,
-			input: { clientRef: string; body: string; attachmentIds?: string[] },
+			input: {
+				clientRef: string;
+				body: string;
+				attachmentIds?: string[];
+				mentions?: MentionRow[];
+			},
 		): Promise<Message> {
+			/*
+			 * Validated before the request: a malformed row fails here, not as a
+			 * 400 that throws the whole message away on the hub. Returned as a
+			 * REJECTION, never thrown synchronously, so every caller's
+			 * `await`/`.catch` path sees it like any other send failure.
+			 */
+			const parsed = input.mentions?.length
+				? mentionRowsSchema.safeParse(input.mentions)
+				: null;
+			if (parsed && !parsed.success)
+				return Promise.reject(
+					new HubError({
+						kind: "malformed",
+						message: "This message's mentions could not be sent.",
+					}),
+				);
+			const mentions = parsed?.data;
 			return request(
 				"POST",
 				`/conversations/${encodeURIComponent(conversationId)}/messages`,
@@ -861,6 +885,12 @@ export function createHubClient(deps: HubClientDeps) {
 						...(input.attachmentIds?.length
 							? { attachment_ids: input.attachmentIds }
 							: {}),
+						/*
+						 * Same rule: omitted unless non-empty. The hub publishes no
+						 * capability flag for mentions, so a message with none must
+						 * stay byte-identical to what every hub already accepts.
+						 */
+						...(mentions ? { mentions } : {}),
 					},
 				},
 			);

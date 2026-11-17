@@ -54,6 +54,31 @@ export const hubErrorSchema = z.looseObject({
 export const notifySchema = z.enum(["all", "mention", "mute"]);
 export type Notify = z.infer<typeof notifySchema>;
 
+/**
+ * One structured @-mention on a send (the hub's person send DTO `mentions[]`,
+ * agent-server `internal/requests/bridge_conversation.go`). An agent row names
+ * its endpoint; a person row must not. STRICT and bounded because this is an
+ * OUTGOING shape: a stray key or an 51st row would make the hub refuse the
+ * whole message, so it is refused here, before the network, with a message a
+ * test can read. Mirrors desktop `src/shared/desktop-contract.ts`.
+ */
+export const mentionRowSchema = z.discriminatedUnion("kind", [
+	z.strictObject({ kind: z.literal("human"), account_id: id }),
+	z.strictObject({ kind: z.literal("agent"), account_id: id, endpoint_id: id }),
+]);
+export type MentionRow = z.infer<typeof mentionRowSchema>;
+
+/** At most 50 rows, each member at most once (the hub's own bounds). */
+export const mentionRowsSchema = z
+	.array(mentionRowSchema)
+	.max(50)
+	.refine(
+		(rows) =>
+			new Set(rows.map((r) => `${r.kind}:${r.account_id}`)).size ===
+			rows.length,
+		{ message: "mentions must name each member once" },
+	);
+
 export const participantSchema = z.looseObject({
 	account_id: id,
 	kind: z.enum(["human", "agent"]),

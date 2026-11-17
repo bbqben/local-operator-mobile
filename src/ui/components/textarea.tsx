@@ -1,5 +1,11 @@
 import { useCallback, useRef, useState } from "react";
-import { Platform, Text, TextInput, View } from "react-native";
+import {
+	Platform,
+	Text,
+	TextInput,
+	type TextInputProps,
+	View,
+} from "react-native";
 
 import { ROLE, state } from "@/ui/a11y";
 import { useKeyboardAppearance, useTokenColor } from "@/ui/appearance";
@@ -71,6 +77,14 @@ export type TextareaProps = {
 	 *  the reader is about to type. Optional: every other caller leaves it out
 	 *  and the internal ref is used as before. */
 	fieldRef?: React.RefObject<TextInput | null>;
+	/** Caret and selection reports, for a composer that reads the text BEFORE
+	 *  the caret (Team Bridge @-mentions). Optional; unset changes nothing. */
+	onSelectionChange?: TextInputProps["onSelectionChange"];
+	/** A ONE-SHOT caret placement (after inserting a mention). The caller clears
+	 *  it on the next selection report: a permanently controlled `selection`
+	 *  fights the IME's own cursor while composing. Unset leaves the field
+	 *  uncontrolled, exactly as before. */
+	selection?: TextInputProps["selection"];
 	testID: string;
 };
 
@@ -159,6 +173,8 @@ export const Textarea = ({
 	onBlur,
 	autoFocus,
 	fieldRef,
+	onSelectionChange,
+	selection,
 	testID,
 }: TextareaProps) => {
 	const { effectiveScale } = useTextScale();
@@ -378,6 +394,8 @@ export const Textarea = ({
 					accessibilityState={state({ disabled })}
 					value={value}
 					onChangeText={onChangeText}
+					onSelectionChange={onSelectionChange}
+					selection={selection}
 					placeholder={placeholder}
 					placeholderTextColor={placeholderColour}
 					editable={!disabled}

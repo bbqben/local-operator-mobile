@@ -2263,7 +2263,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "93e737b750fa43af7c1d26d987a2e0ccc8382366f9a511e33a05a96a570edf1a",
+	/* feat/bridge-mention-suggestions: Team Bridge @-mention suggestion strip
+	 * (thread screen, composer field selection passthrough, Textarea props).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	src: "cf4f428b2fc55261c98ddc06a29dd4510b1eddf031065fa81b23f50a76fcdeb3",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

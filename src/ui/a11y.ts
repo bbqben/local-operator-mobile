@@ -823,6 +823,10 @@ export const SURFACE = {
 	teamBridgeImageViewer: "team-bridge-image-viewer",
 	teamBridgeChannelPreview: "team-bridge-channel-preview",
 	teamBridgeComposer: "team-bridge-composer",
+	/** The @-mention suggestion strip docked above the composer field. */
+	teamBridgeMentionStrip: "team-bridge-mention-strip",
+	/** The "won't be notified" line under the field after a non-member pick. */
+	teamBridgeMentionNotice: "team-bridge-mention-notice",
 	/** The composer's rounded shell, so its resting geometry is assertable. */
 	teamBridgeComposerShell: "team-bridge-composer-shell",
 	/** The shell's layout-free edge ring (clear at rest, focused edge), so
@@ -1273,6 +1277,9 @@ export const IDENTIFIER_FAMILIES: readonly string[] = [
 	"team-bridge-gate-",
 	"team-bridge-conversation-",
 	"team-bridge-person-",
+	// One @-mention suggestion row, keyed `kind:account_id` (a person and
+	// their agent share an account id, so the kind keeps them apart).
+	"team-bridge-mention-",
 	"team-bridge-chief-",
 	"team-bridge-org-",
 	"team-bridge-message-",
@@ -2447,6 +2454,8 @@ export const teamBridgeConversationId = (value: string): string =>
 	`team-bridge-conversation-${value}`;
 export const teamBridgePersonId = (value: string): string =>
 	`team-bridge-person-${value}`;
+export const teamBridgeMentionId = (value: string): string =>
+	`team-bridge-mention-${value}`;
 export const teamBridgeChiefId = (value: string): string =>
 	`team-bridge-chief-${value}`;
 export const teamBridgeOrganizationId = (value: string): string =>

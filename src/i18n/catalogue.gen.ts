@@ -964,6 +964,15 @@ export type CatalogueKey =
 	| "mobile.team_bridge.list.preview"
 	| "mobile.team_bridge.list.quiet"
 	| "mobile.team_bridge.list.self"
+	| "mobile.team_bridge.mentions.dismiss_notice"
+	| "mobile.team_bridge.mentions.invited"
+	| "mobile.team_bridge.mentions.no_endpoint"
+	| "mobile.team_bridge.mentions.not_member"
+	| "mobile.team_bridge.mentions.results_count"
+	| "mobile.team_bridge.mentions.row_label"
+	| "mobile.team_bridge.mentions.section_members"
+	| "mobile.team_bridge.mentions.section_org"
+	| "mobile.team_bridge.mentions.unavailable"
 	| "mobile.team_bridge.navigation.caption"
 	| "mobile.team_bridge.navigation.entry"
 	| "mobile.team_bridge.navigation.entry_loading"
@@ -1884,6 +1893,10 @@ export type NoParamKey =
 	| "mobile.team_bridge.list.preview"
 	| "mobile.team_bridge.list.quiet"
 	| "mobile.team_bridge.list.self"
+	| "mobile.team_bridge.mentions.dismiss_notice"
+	| "mobile.team_bridge.mentions.section_members"
+	| "mobile.team_bridge.mentions.section_org"
+	| "mobile.team_bridge.mentions.unavailable"
 	| "mobile.team_bridge.navigation.caption"
 	| "mobile.team_bridge.navigation.entry_loading"
 	| "mobile.team_bridge.navigation.entry_unavailable"
@@ -2917,6 +2930,15 @@ export type MessageParams = {
 	"mobile.team_bridge.list.preview": NoParams;
 	"mobile.team_bridge.list.quiet": NoParams;
 	"mobile.team_bridge.list.self": NoParams;
+	"mobile.team_bridge.mentions.dismiss_notice": NoParams;
+	"mobile.team_bridge.mentions.invited": { name: string | number };
+	"mobile.team_bridge.mentions.no_endpoint": { name: string | number };
+	"mobile.team_bridge.mentions.not_member": { name: string | number };
+	"mobile.team_bridge.mentions.results_count": { count: number };
+	"mobile.team_bridge.mentions.row_label": { name: string | number };
+	"mobile.team_bridge.mentions.section_members": NoParams;
+	"mobile.team_bridge.mentions.section_org": NoParams;
+	"mobile.team_bridge.mentions.unavailable": NoParams;
 	"mobile.team_bridge.navigation.caption": NoParams;
 	"mobile.team_bridge.navigation.entry": { count: number };
 	"mobile.team_bridge.navigation.entry_loading": NoParams;
@@ -3997,6 +4019,15 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.list.preview": "Preview · Join to read",
 	"mobile.team_bridge.list.quiet": "Notifications quiet",
 	"mobile.team_bridge.list.self": "you",
+	"mobile.team_bridge.mentions.dismiss_notice": "Dismiss",
+	"mobile.team_bridge.mentions.invited": "{name} hasn’t joined this conversation yet and won’t be notified.",
+	"mobile.team_bridge.mentions.no_endpoint": "{name} can’t be notified until the people list loads.",
+	"mobile.team_bridge.mentions.not_member": "{name} isn’t in this conversation and won’t be notified.",
+	"mobile.team_bridge.mentions.results_count": "{count, plural, one {# suggestion} other {# suggestions}}",
+	"mobile.team_bridge.mentions.row_label": "Mention {name}",
+	"mobile.team_bridge.mentions.section_members": "In this conversation",
+	"mobile.team_bridge.mentions.section_org": "Others in your organization",
+	"mobile.team_bridge.mentions.unavailable": "People list unavailable. Showing members of this conversation.",
 	"mobile.team_bridge.navigation.caption": "Your organization, even with your computer asleep",
 	"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # unread} other {Team Bridge · # unread}}",
 	"mobile.team_bridge.navigation.entry_loading": "Team Bridge · loading",
@@ -5062,6 +5093,15 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.list.preview": { role: "help", note: "Team Bridge mobile UI: list / preview. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.list.quiet": { role: "status", note: "Team Bridge mobile UI: list / quiet. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.list.self": { role: "help", note: "Team Bridge mobile UI: list / self. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
+	"mobile.team_bridge.mentions.dismiss_notice": { role: "button", note: "Team Bridge @-mention notice: dismiss button. Short verb." },
+	"mobile.team_bridge.mentions.invited": { role: "status", note: "Team Bridge @-mention notice after picking someone invited but not yet joined: no notification is sent. {name} is user data." },
+	"mobile.team_bridge.mentions.no_endpoint": { role: "status", note: "Team Bridge @-mention notice after picking an agent whose address is not known yet because the people list has not loaded: no notification is sent. {name} is user data." },
+	"mobile.team_bridge.mentions.not_member": { role: "status", note: "Team Bridge @-mention notice after picking someone who is not in the conversation: their name stays in the message but no notification is sent. {name} is user data. Do not imply an invite is sent." },
+	"mobile.team_bridge.mentions.results_count": { role: "status", note: "Team Bridge @-mention suggestions: spoken to screen readers when the suggestion list changes. Counts people and agents offered. Preserve the ICU plural." },
+	"mobile.team_bridge.mentions.row_label": { role: "button", note: "Team Bridge @-mention suggestions: accessibility label for one suggestion row. {name} is a person or agent display name (user data, never translated)." },
+	"mobile.team_bridge.mentions.section_members": { role: "heading", note: "Team Bridge @-mention suggestions: heading over people and agents who are members of the open conversation. Short; shown above the keyboard." },
+	"mobile.team_bridge.mentions.section_org": { role: "heading", note: "Team Bridge @-mention suggestions: heading over people and agents in the organization who are not in this conversation." },
+	"mobile.team_bridge.mentions.unavailable": { role: "status", note: "Team Bridge @-mention suggestions: shown when the organization directory has not loaded, so only conversation members can be suggested. No error code; calm tone." },
 	"mobile.team_bridge.navigation.caption": { role: "help", note: "Team Bridge mobile UI: navigation / caption. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.navigation.entry": { role: "help", note: "Team Bridge mobile UI: navigation / entry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Parameters are caller-supplied names/counts or protocol selects; do not translate their identifiers. Preserve ICU plural/select syntax and all variants; names are not translated." },
 	"mobile.team_bridge.navigation.entry_loading": { role: "button", note: "Team Bridge mobile UI: accessible name of the workspace drawer's Team Bridge mode button while the account's unread count has not been read yet. Says 'loading', never zero: the count is unknown, not empty. Keep the product name 'Team Bridge' untranslated." },
@@ -6141,6 +6181,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Vista previa · Únete para leer",
 		"mobile.team_bridge.list.quiet": "Notificaciones silenciadas",
 		"mobile.team_bridge.list.self": "tú",
+		"mobile.team_bridge.mentions.dismiss_notice": "Descartar",
+		"mobile.team_bridge.mentions.invited": "{name} aún no se ha unido a esta conversación y no recibirá una notificación.",
+		"mobile.team_bridge.mentions.no_endpoint": "No se puede notificar a {name} hasta que se cargue la lista de personas.",
+		"mobile.team_bridge.mentions.not_member": "{name} no está en esta conversación y no recibirá una notificación.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# sugerencia} other {# sugerencias}}",
+		"mobile.team_bridge.mentions.row_label": "Mencionar a {name}",
+		"mobile.team_bridge.mentions.section_members": "En esta conversación",
+		"mobile.team_bridge.mentions.section_org": "Otros en tu organización",
+		"mobile.team_bridge.mentions.unavailable": "La lista de personas no está disponible. Se muestran los miembros de esta conversación.",
 		"mobile.team_bridge.navigation.caption": "Tu organización, incluso con tu máquina en reposo",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # sin leer} other {Team Bridge · # sin leer}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · cargando",
@@ -7204,6 +7253,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Aperçu · Rejoignez le canal pour lire",
 		"mobile.team_bridge.list.quiet": "Notifications silencieuses",
 		"mobile.team_bridge.list.self": "vous",
+		"mobile.team_bridge.mentions.dismiss_notice": "Ignorer",
+		"mobile.team_bridge.mentions.invited": "{name} n’a pas encore rejoint cette conversation et ne sera pas notifié.",
+		"mobile.team_bridge.mentions.no_endpoint": "{name} ne pourra être notifié qu’une fois la liste des personnes chargée.",
+		"mobile.team_bridge.mentions.not_member": "{name} ne fait pas partie de cette conversation et ne sera pas notifié.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# proposition} other {# propositions}}",
+		"mobile.team_bridge.mentions.row_label": "Mentionner {name}",
+		"mobile.team_bridge.mentions.section_members": "Dans cette conversation",
+		"mobile.team_bridge.mentions.section_org": "Autres membres de votre organisation",
+		"mobile.team_bridge.mentions.unavailable": "Liste des personnes indisponible. Affichage des membres de cette conversation.",
 		"mobile.team_bridge.navigation.caption": "Votre organisation, même lorsque votre ordinateur est en veille",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # non lu} other {Team Bridge · # non lus}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · chargement",
@@ -8267,6 +8325,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "पूर्वावलोकन · पढ़ने के लिए जुड़ें",
 		"mobile.team_bridge.list.quiet": "सूचनाएँ शांत हैं",
 		"mobile.team_bridge.list.self": "आप",
+		"mobile.team_bridge.mentions.dismiss_notice": "खारिज करें",
+		"mobile.team_bridge.mentions.invited": "{name} अभी इस बातचीत में शामिल नहीं हुए हैं और उन्हें सूचना नहीं मिलेगी।",
+		"mobile.team_bridge.mentions.no_endpoint": "लोगों की सूची लोड होने तक {name} को सूचना नहीं भेजी जा सकती।",
+		"mobile.team_bridge.mentions.not_member": "{name} इस बातचीत में नहीं हैं और उन्हें सूचना नहीं मिलेगी।",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# सुझाव} other {# सुझाव}}",
+		"mobile.team_bridge.mentions.row_label": "{name} का उल्लेख करें",
+		"mobile.team_bridge.mentions.section_members": "इस बातचीत में",
+		"mobile.team_bridge.mentions.section_org": "आपके संगठन के अन्य लोग",
+		"mobile.team_bridge.mentions.unavailable": "लोगों की सूची उपलब्ध नहीं है। इस बातचीत के सदस्य दिखाए जा रहे हैं।",
 		"mobile.team_bridge.navigation.caption": "कंप्यूटर स्लीप में हो, तब भी आपका संगठन आपके साथ",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # अपठित} other {Team Bridge · # अपठित}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · लोड हो रहा है",
@@ -9330,6 +9397,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Предпросмотр · Вступите, чтобы читать",
 		"mobile.team_bridge.list.quiet": "Уведомления без звука",
 		"mobile.team_bridge.list.self": "вы",
+		"mobile.team_bridge.mentions.dismiss_notice": "Скрыть",
+		"mobile.team_bridge.mentions.invited": "{name} ещё не присоединился к этому разговору и не получит уведомление.",
+		"mobile.team_bridge.mentions.no_endpoint": "{name} нельзя уведомить, пока не загрузится список людей.",
+		"mobile.team_bridge.mentions.not_member": "{name} не участвует в этом разговоре и не получит уведомление.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# вариант} few {# варианта} many {# вариантов} other {# варианта}}",
+		"mobile.team_bridge.mentions.row_label": "Упомянуть: {name}",
+		"mobile.team_bridge.mentions.section_members": "В этом разговоре",
+		"mobile.team_bridge.mentions.section_org": "Другие в вашей организации",
+		"mobile.team_bridge.mentions.unavailable": "Список людей недоступен. Показаны участники этого разговора.",
 		"mobile.team_bridge.navigation.caption": "Ваша организация рядом, даже когда компьютер спит",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # непрочитанное} few {Team Bridge · # непрочитанных} many {Team Bridge · # непрочитанных} other {Team Bridge · # непрочитанных}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · загрузка",
@@ -10393,6 +10469,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "پیش نظارہ · پڑھنے کے لیے شامل ہوں",
 		"mobile.team_bridge.list.quiet": "اطلاعات خاموش ہیں",
 		"mobile.team_bridge.list.self": "آپ",
+		"mobile.team_bridge.mentions.dismiss_notice": "ختم کریں",
+		"mobile.team_bridge.mentions.invited": "{name} ابھی اس گفتگو میں شامل نہیں ہوئے اور انہیں اطلاع نہیں ملے گی۔",
+		"mobile.team_bridge.mentions.no_endpoint": "لوگوں کی فہرست لوڈ ہونے تک {name} کو اطلاع نہیں دی جا سکتی۔",
+		"mobile.team_bridge.mentions.not_member": "{name} اس گفتگو میں شامل نہیں ہیں اور انہیں اطلاع نہیں ملے گی۔",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# تجویز} other {# تجاویز}}",
+		"mobile.team_bridge.mentions.row_label": "{name} کا ذکر کریں",
+		"mobile.team_bridge.mentions.section_members": "اس گفتگو میں",
+		"mobile.team_bridge.mentions.section_org": "آپ کی تنظیم کے دیگر افراد",
+		"mobile.team_bridge.mentions.unavailable": "لوگوں کی فہرست دستیاب نہیں۔ اس گفتگو کے اراکین دکھائے جا رہے ہیں۔",
 		"mobile.team_bridge.navigation.caption": "کمپیوٹر سلیپ میں ہو، تب بھی آپ کی تنظیم آپ کے ساتھ",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # نا پڑھا گیا پیغام} other {Team Bridge · # نا پڑھے گئے پیغامات}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · لوڈ ہو رہا ہے",
@@ -11456,6 +11541,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Xem trước · Tham gia để đọc",
 		"mobile.team_bridge.list.quiet": "Thông báo im lặng",
 		"mobile.team_bridge.list.self": "bạn",
+		"mobile.team_bridge.mentions.dismiss_notice": "Bỏ qua",
+		"mobile.team_bridge.mentions.invited": "{name} chưa tham gia cuộc trò chuyện này và sẽ không nhận được thông báo.",
+		"mobile.team_bridge.mentions.no_endpoint": "Không thể thông báo cho {name} cho đến khi danh sách mọi người tải xong.",
+		"mobile.team_bridge.mentions.not_member": "{name} không có trong cuộc trò chuyện này và sẽ không nhận được thông báo.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, other {# gợi ý}}",
+		"mobile.team_bridge.mentions.row_label": "Nhắc đến {name}",
+		"mobile.team_bridge.mentions.section_members": "Trong cuộc trò chuyện này",
+		"mobile.team_bridge.mentions.section_org": "Những người khác trong tổ chức của bạn",
+		"mobile.team_bridge.mentions.unavailable": "Không có danh sách mọi người. Đang hiển thị thành viên của cuộc trò chuyện này.",
 		"mobile.team_bridge.navigation.caption": "Tổ chức luôn bên bạn, ngay cả khi máy tính đang ngủ",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} other {Team Bridge · # chưa đọc}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · đang tải",
@@ -12519,6 +12613,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "预览 · 加入后阅读",
 		"mobile.team_bridge.list.quiet": "通知已静音",
 		"mobile.team_bridge.list.self": "你",
+		"mobile.team_bridge.mentions.dismiss_notice": "关闭",
+		"mobile.team_bridge.mentions.invited": "{name} 尚未加入此对话，不会收到通知。",
+		"mobile.team_bridge.mentions.no_endpoint": "人员列表加载完成前，无法通知 {name}。",
+		"mobile.team_bridge.mentions.not_member": "{name} 不在此对话中，不会收到通知。",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, other {# 个建议}}",
+		"mobile.team_bridge.mentions.row_label": "提及 {name}",
+		"mobile.team_bridge.mentions.section_members": "此对话中",
+		"mobile.team_bridge.mentions.section_org": "你所在组织中的其他人",
+		"mobile.team_bridge.mentions.unavailable": "人员列表不可用，正在显示此对话的成员。",
 		"mobile.team_bridge.navigation.caption": "即使电脑休眠，也能与组织保持联系",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} other {Team Bridge · # 条未读}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · 正在加载",

@@ -18,7 +18,7 @@ import { CONTROL, ROLE, SURFACE, state } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { ChromeSurface } from "@/ui/components/chrome-surface";
 import { Heading } from "@/ui/components/heading";
-import { Textarea } from "@/ui/components/textarea";
+import { Textarea, type TextareaProps } from "@/ui/components/textarea";
 import { TOUCH_FLOOR, useCompactChrome } from "@/ui/layout";
 import { headerStacks } from "@/ui/size-class";
 import { useTextScale } from "@/ui/text-scale-provider";
@@ -134,6 +134,10 @@ export type BridgeComposerFieldProps = {
 	placeholder: string;
 	draft: string;
 	onDraftChange: (value: string) => void;
+	/** Caret reports and a one-shot caret placement for @-mentions
+	 *  (`mentions/use-mentions.ts`); both optional and passed straight through. */
+	onSelectionChange?: TextareaProps["onSelectionChange"];
+	selection?: TextareaProps["selection"];
 	/** A send is in flight: the field and both controls hold still. */
 	sending: boolean;
 	/** The accessible name of the add-image control ("Add image"). Absent when
@@ -191,6 +195,8 @@ export function BridgeComposerFieldView({
 	placeholder,
 	draft,
 	onDraftChange,
+	onSelectionChange,
+	selection,
 	sending,
 	attachLabel,
 	attachDisabled = false,
@@ -343,6 +349,8 @@ export function BridgeComposerFieldView({
 					placeholder={placeholder}
 					value={draft}
 					onChangeText={onDraftChange}
+					onSelectionChange={onSelectionChange}
+					selection={selection}
 					disabled={sending}
 					onFocus={onFocus}
 					onBlur={onBlur}
