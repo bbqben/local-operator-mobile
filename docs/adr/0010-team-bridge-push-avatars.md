@@ -1,8 +1,13 @@
 # ADR 0010 — Team Bridge push avatars, and Android parity for OS-dependent features
 
 - **Status:** Proposed — 2026-11-17
-- **Deciders:** the operator (the Apple portal capability, the agent-face rule in §5, and any
-  cloud capability-URL route); the maintaining team (everything else)
+- **Deciders:** the operator (the Apple portal capability and the cloud capability-URL route); the
+  maintaining team (everything else)
+- **Decisions recorded (2026-11-17):**
+  - **The S5 photo capability link is approved** by the operator (ask a-4eab), with the scoping in
+    §3 and §6: an opaque server-stored nonce, re-checked at serve time, in a redacted path segment.
+  - **Agent senders show the agent's own avatar, or an agent glyph** (manager decision, following
+    the operator's words). They never show the owner's face. See §5.
 - **Related:** [ADR 0006](0006-push-and-ack-sync.md) (push and ack sync),
   [ADR 0008](0008-desk-presence.md) (desk presence), [ADR 0009](0009-notification-routing-by-origin.md)
   (routing by origin); core `notification_avatar.py` (the desktop composite, Team Bridge agreement
@@ -11,7 +16,8 @@
 **Provenance.** Each citation is `path:line`. They were read at these revisions: this repository
 `origin/main@6d1f270e`; desktop `local-operator-ui@94d96837`; core `local-operator@b42471d3`; cloud
 `agent-server@origin/main 48970fd9`, read with `git show` because the shared checkout is detached and
-dirty; and the vendored `node_modules` of this repository: `expo-notifications@57.0.21`,
+dirty; the hosting repos `radient-environments@1cd3d37` and `radient-infra@ce41f73` (for §6's
+logging analysis); and the vendored `node_modules` of this repository: `expo-notifications@57.0.21`,
 `expo-secure-store@57.0.4` and `expo-modules-core@57.0.20`. This is a read-only investigation. Nothing
 here was run on a device or emulator. Each claim says whether it comes from the code or still needs
 a device to settle it.
@@ -40,10 +46,13 @@ a device to settle it.
    no custom messaging service exist. **Some cloud change is required** (§2).
 3. **Recommendation, in two steps.**
    - **Step 1:** draw initials on the device. The cloud adds an additive `sender` block (`kind`,
-     `initials`, `tone`). iOS draws it in a Notification Service Extension and donates an
+     `initials`, `tone`) and a `conv` block (`group`, `members`) so group and channel messages
+     render as groups, not DMs. iOS draws it in a Notification Service Extension and donates an
      `INSendMessageIntent`. Android draws it in an Expo presentation-delegate subclass, as
      `MessagingStyle` with a `Person` and a long-lived conversation shortcut.
-   - **Step 2:** photos, through a short-lived, recipient-bound capability URL that the cloud mints.
+   - **Step 2 (approved, a-4eab):** photos, through a short-lived capability URL that the cloud
+     mints. The URL carries only an opaque server-stored nonce, and the server re-checks the
+     recipient's access each time it serves.
    - Rejected: sharing the Radient bearer with the extension. The refresh token rotates on every use
      (`src/connection/radient-oauth.ts:507-509`), so a second process refreshing it would sign the
      reader out.
@@ -156,11 +165,24 @@ badged in the corner by iOS.
   3. Build `INPerson(personHandle: INPersonHandle(value: <opaque sender key>, type: .unknown),
      nameComponents: nil, displayName: title, image: INImage(imageData:), contactIdentifier: nil,
      customIdentifier: <opaque sender key>)`.
-  4. Build `INSendMessageIntent(recipients: nil, outgoingMessageType: .outgoingMessageText,
+  4. Build `INSendMessageIntent(recipients: <see below>, outgoingMessageType: .outgoingMessageText,
      content: nil, speakableGroupName: <group name for channels/groups, nil for DMs>,
      conversationIdentifier: "tb:<conversation>", serviceName: nil, sender: person, attachments: nil)`.
      Set `setImage(_:forParameterNamed: \.sender)`, donate it with `INInteraction(intent:,
      response: nil)` and `direction = .incoming`.
+     - **DM (`conv.group == false`):** `recipients: nil`. That is Apple's one-to-one shape.
+     - **Channel or group (`conv.group == true`):** iOS treats nil recipients as one-to-one and
+       then hides `speakableGroupName` (Apple, "Implementing communication notifications": "For
+       group message intents, provide an array that contains the other participants"). So set
+       `recipients` to **two** opaque placeholder `INPerson`s (the reader, `customIdentifier:
+       "tb:me"`, and `"tb:<conversation>:others"`, no names and no ids), which is enough for iOS to
+       treat the intent as a group. Also set
+       `intent.donationMetadata = INSendMessageIntentDonationMetadata()` with
+       `recipientCount = max(conv.members - 1, 2)`; Apple documents it as the stand-in for a full
+       list. Optionally call `setImage(_:forParameterNamed: \.speakableGroupName)` with a channel
+       glyph. No member ids are sent, so this keeps the §6 rule.
+     - **Settle on a simulator in S3:** a `group: true` push must show the group name and the sender
+       face; a `group: false` push must show the DM layout. Screenshots of both are the acceptance.
   5. Call `contentHandler(try request.content.updating(from: intent))`. If anything throws, deliver
      the original content. **Delivery never depends on the avatar.**
 - **Main app:** add `NSUserActivityTypes: ["INSendMessageIntent"]` to `Info.plist`. Add the
@@ -175,7 +197,7 @@ badged in the corner by iOS.
 |---|---|
 | Shared keychain access group, the extension reads the Radient grant | **Reject.** Radient rotates the refresh token on every use (`radient-oauth.ts:507-509`). An extension that refreshes races the app and can sign the reader out. Using the access token alone fails whenever it has expired. It would also re-home the grant one day after the `AFTER_FIRST_UNLOCK` keychain migration (`src/features/auth/tunnel-storage.ts:125-142`). |
 | Inline bytes in the payload | **Reject.** APNs and FCM cap the payload at 4 KB, and a 64 px PNG is 3–6 KB. |
-| **Signed short-lived capability URL** minted by the cloud per recipient device | **Recommend for step 2.** HMAC over (recipient account, tenant, sender identity, avatar hash, size, expiry ≤ 15 min). A new route that serves only that one derivative. It needs a deliberate exception to the "no query-string credential" rule at `routes.go:918-921`, so it is the **operator's call**. It works the same way on Android. |
+| **Short-lived capability URL** minted by the cloud per recipient device | **Step 2, approved by the operator (a-4eab, 2026-11-17).** The URL carries an **opaque server-stored nonce**: 128 random bits, base64url, in a **path segment** (`GET /v1/push-avatars/<nonce>`, never a query string). The server row holds (recipient account, recipient device, tenant, sender identity, avatar hash, size, expiry ≤ 15 min). A plain HMAC is rejected because it can only be verified if the URL carries those ids in clear, which breaks §6. The nonce is preferred over an AEAD-sealed token for three reasons. A sealed token of four ids is about 250 characters against the 4 KB APNs/FCM budget, where the nonce is 22. A row can be revoked on sign-out. And the serve path reads the database for its re-checks anyway (§6). The route serves that one derivative only. It is a deliberate, approved exception to the "no … credential … accepted" rule at `routes.go:918-921`, and works the same way on Android. |
 | **Initials rendered on the device** | **Step 1, and always the fallback.** No network and no secret. |
 
 - **Expo integration:**
@@ -236,12 +258,22 @@ response pipeline. **Keep data-only and build on the device.**
      extras and marshalled request, so taps, `getPresentedNotificationsAsync` and
      `dismissNotificationAsync` keep working (`ExpoNotificationBuilder.kt:117-148`).
   2. If `body.type == team_bridge_message` and a `sender` is present, recover the builder with
-     `Notification.Builder.recoverBuilder(context, n)` and change it:
-     - `MessagingStyle(me)`, with `addMessage(preview, sentTime, Person{name=title, icon=IconCompat(bitmap), key=<opaque sender key>})`;
-     - `setConversationTitle(subtitle)` and `setGroupConversation(kind != dm)`;
-     - `setShortcutId("tb:<conversation>")` and `setLocusId(LocusIdCompat("tb:<conversation>"))`;
-     - `setGroup("tb:<conversation>")`.
-  3. Before posting, call `ShortcutManagerCompat.pushDynamicShortcut` with a **long-lived** shortcut
+     `Notification.Builder.recoverBuilder(context, n)` and change it. `recoverBuilder` returns a
+     **platform** `android.app.Notification.Builder`, so every type below is a platform type, never
+     an AndroidX `*Compat` one. Mixing them doesn't compile, or is a no-op through reflection.
+     Gate by API level (the app's `minSdk` is 24, from React Native's `libs.versions.toml`):
+     - **API < 28:** return Expo's notification **unchanged**, apart from `setGroup` below.
+       `android.app.Person` and `MessagingStyle(Person)` don't exist there.
+     - **API 28–29:** `Notification.MessagingStyle(me: android.app.Person)` with
+       `addMessage(preview, sentTime, android.app.Person{name=title, icon=Icon.createWithBitmap(bitmap), key=<opaque sender key>})`,
+       `setConversationTitle(subtitle)` and `setGroupConversation(conv.group)`. Android shows the
+       face on the message, but there is no conversation section and no shortcut.
+     - **API 30+:** everything above, plus `setShortcutId("tb:<conversation>")` and
+       `setLocusId(android.content.LocusId("tb:<conversation>"))`. The notification becomes a
+       *conversation* only when it carries `MessagingStyle` and a long-lived shortcut, both from 30.
+     - At every level: `setGroup("tb:<conversation>")`, and the lock-screen rule in §7 row 14.
+  3. On **API 30+ only**, before posting, call `ShortcutManagerCompat.pushDynamicShortcut` (the
+     shortcut is a separate object, so Compat is fine here) with a **long-lived** shortcut
      for that id. It carries the same `Person`, `setLongLived(true)`, an intent that opens the app
      at the conversation deep link, and, on API 33+, `setExcludedFromSurfaces(SURFACE_LAUNCHER)` so
      conversation names don't appear in the launcher's long-press menu. On sign-out and account
@@ -265,8 +297,15 @@ response pipeline. **Keep data-only and build on the device.**
 - **Computed in the cloud and sent in the payload,** so Swift and Kotlin only draw:
   - `sender.initials`: core's rule exactly (first and last word, ≤ 2 Unicode letters or digits, NFC),
     in Go.
-  - `sender.tone`: `sha256("https://api.radienthq.com/v1\n" + account_id)[0] % 8`. That is the
-    same seed core uses for desktop banners, so a person has the **same colour on desktop and phone**.
+  - `sender.tone`: `sha256(<hub origin> + "\n" + account_id)[0] % 8`. `<hub origin>` is the
+    cloud's own **configured public API base** for that hub (`https://api.radienthq.com/v1` in
+    production), not a literal, because it must be the same string core uses as `origin` for that
+    hub (`team_bridge/client.py:1172, 3810`). Staging and self-hosted hubs then keep desktop and
+    phone colours equal. The shared fixture pins the production value and one non-production value.
+  - `conv.group`: `conversation.Kind != dm`. `conv.members`: `len(conversation.Members)`, capped at
+    999. Both are already in hand where the push is composed (`ComposeBridgePushNotification`,
+    `models/bridge_push.go:267-300`), so no extra read is needed. The phone uses them only for
+    group rendering (§3 step 4, §4 step 2).
   - **A shared fixture** (`{account_id, display_label} → {initials, tone}`, about 30 rows, including
     CJK, accents and single-word names) is checked into agent-server and asserted by Go, core's
     `test_notification_avatar.py` and this repository's tests. Drift then fails CI in each repo.
@@ -274,13 +313,13 @@ response pipeline. **Keep data-only and build on the device.**
   draws notification avatars outside app theming, and those tones were chosen to hold white text.
   Store it as tokens (`design/tokens`) so the Swift and Kotlin sources are generated, not
   hand-copied.
-- **Agents** (operator: "agents get the agent avatar or an agent glyph"): in step 2, the
-  **endpoint** avatar, matching in-app (`avatars.ts:70-76`). Otherwise an **agent glyph** (the
-  in-app agent mark) on the tone seeded by the owner's account id. `kind: "agent"` lets the
-  renderers choose.
-  > **Design call for the designer and operator.** The desktop composite instead draws the
-  > *owner's* face plus a corner agent marker (`notification_avatar.py:7-9, 441-445`). This note
-  > follows the operator's words for mobile and flags the desktop difference rather than changing it.
+- **Agents (decided 2026-11-17, manager decision):** an agent sender shows **the agent's own
+  avatar**, which is its **endpoint** avatar in step 2, matching in-app (`avatars.ts:70-76`).
+  Without one, it shows an **agent glyph** (the in-app agent mark) on the tone seeded by the owner's
+  account id. It never shows the owner's face. `kind: "agent"` lets the renderers choose.
+  > **Known difference, not changed here.** The desktop composite draws the *owner's* face plus a
+  > corner agent marker (`notification_avatar.py:7-9, 441-445`). Aligning the desktop is out of
+  > scope for this ADR.
 - **Not in scope:** the in-app initials rule differs (`avatar.tsx:47-62`). Aligning it is a separate
   visual change.
 
@@ -294,6 +333,46 @@ response pipeline. **Keep data-only and build on the device.**
 - **The capability URL is scoped** to the recipient account, a tenant they share with the sender
   (the existing `OpenAvatar` check), one hash, one size, ≤ 15 min, and GET only. It is served
   `private, no-store`. A leaked URL shows one org-visible face for minutes.
+  - **Token:** the opaque server-stored nonce in §3. The URL and payload carry no account,
+    tenant, endpoint or device id, in clear or sealed.
+  - **Re-checked at serve time:** no bearer is presented, so anyone holding the URL can fetch
+    it, and checks made only at mint would outlive a tenant removal by up to the TTL. On every GET
+    the handler loads the nonce row and serves **only if all of these still hold**:
+    1. not expired;
+    2. the recipient device registration is still active, which a sign-out removes;
+    3. the recipient and the sender **still share an ACTIVE tenant**, using the same check the
+       bearer route uses (`OpenAvatar`, `controllers/account_profile.go:216-265`);
+    4. the sender's **current** avatar hash equals the minted one, so a replaced or removed photo
+       is never served.
+    Any failure answers the same `404` with no body difference. Sign-out and account switch also
+    delete that device's nonce rows.
+  - **Logging:**
+    - **In the app's logs:** agent-server logs request paths only after `RedactRequestPath`. That
+      covers the request logger (`internal/middlewares/middleware.go:186-219`) and the central
+      error handler (`cmd/server/main.go:2808`). Its rules are the `tokenPathRules` table
+      (`middleware.go:74-84`). S5 **adds `{^/v1/push-avatars/[^/]+, "/v1/push-avatars/:token"}`**,
+      with a unit test beside `TestRedactRequestPathSurvivesEncodedControlBytes` covering the
+      case, slash and dot variants. The token is a path segment for exactly this reason, and a
+      query string is rejected.
+    - **On the platform:** `api.radienthq.com` is a **Cloudflare-proxied** host
+      (`radient-infra@ce41f73 pulumi/radient_infra/dns.py:138`, `PROXIED_HOSTS`) in front of the
+      shared AWS ALB `radient-prod-alb` in `ca-central-1`, with WAFv2 attached
+      (`radient-environments@1cd3d37 apps/agent-server/overlays/prod/ingress-patch.yaml`). It is
+      **not** Cloud Run, so `httpRequest.requestUrl` doesn't apply.
+      - **ALB access logs are not enabled in IaC.** The group's `load-balancer-attributes`
+        (`apps/agent-server/base/ingress.yaml`) have no `access_logs.s3.*`, and neither repository
+        has an `access_logs` key or a WAF logging configuration.
+      - **Two places can still see the full path.** WAF keeps `sampled_requests_enabled` on
+        (`waf.py:1192`), and AWS keeps those samples, with the request URI, for about 3 hours.
+        Cloudflare's edge analytics and security events can also show the path.
+      - **Accepted, as the review allows:** someone who can read those consoles could replay the
+        nonce within its ≤ 15 min TTL. The serve-time checks still apply, so the most they get is
+        one org-visible face.
+      - **Not verified live**, because no AWS or Cloudflare console read was made: whether access
+        logging was turned on outside IaC. A read-only
+        `aws elbv2 describe-load-balancer-attributes` and `aws wafv2 get-logging-configuration`
+        settle it before S5 ships. If either is on, add a redaction (WAF `redacted_fields` on
+        `uri_path`) or record the exposure here.
 - **No avatar bytes are persisted:**
   - iOS: the bytes live only in the donated intent. The system retains donated interactions;
     delete them on sign-out with `INInteraction.deleteAll`.
@@ -327,13 +406,14 @@ The legend for "Verify":
 | 4 | **Channels and importance** | `native.ts:120-165` (sound.* DEFAULT); `push.ts:186-196` (team-bridge HIGH) | **gap** | Session completion and error channels are **IMPORTANCE_DEFAULT: sound but no heads-up peek**. iOS shows a banner for the same push. The Team Bridge channel is HIGH but named in English only. The channel is created only after the Team Bridge provider mounts, and until then Expo's fallback "Miscellaneous" HIGH is used (`BaseNotificationBuilder.kt:62-75, 137-143`). | E: `dumpsys notification` channel listing. |
 | 5 | **Grouping** | cloud: bridge has no `tag` and no group; session `tag` = collapse id (`envelope.go:155-160`) | **gap** for bridge | Bridge: each message is its own notification. Android auto-bundles only at 4+ notifications, per app and not per conversation. iOS groups by `thread-id: tb:<conv>`. Fix: §4 `setGroup` plus `tag`. | E. |
 | 6 | **Tap-to-open deep link** | `native.ts:213-240`; `push.ts:235-242`; `payload.ts:44-75` | shared + real | Cold and warm both handled. Android `dataString`/JSON `body` handled explicitly. Expo queues responses until listeners attach (`ExpoHandlingDelegate.kt:167-173`). | E: tap via UiAutomator, then assert the route. |
-| 7 | **Badge** | `app-badge.ts:1-60` → `setBadgeCountAsync` → `ShortcutBadger` (`expo-notifications/…/badge/BadgeHelper.kt:13-19`) | real, but degraded | Numbers appear only on launchers ShortcutBadger supports (Samsung, some OEMs). Pixel and AOSP show a **dot** driven by channel `showBadge`. **This is expected and acceptable.** `background-task.ts:60-68` dismisses stale notifications on both platforms. Attention wakes are NORMAL priority and deferred in Doze (`envelope.go:149-153`), so badge clears lag on an idle phone. | D (launcher-specific). E for the dot. |
+| 7 | **Badge** | `app-badge.ts:1-60` → `setBadgeCountAsync` → `ShortcutBadger` (`expo-notifications/…/badge/BadgeHelper.kt:13-19`) | real, but degraded | Numbers appear only on launchers ShortcutBadger supports (Samsung, some OEMs). Pixel and AOSP show a **dot** driven by channel `showBadge`. **This is expected and acceptable.** `background-task.ts:60-68` dismisses stale notifications on both platforms. Attention wakes are NORMAL priority and deferred in Doze (`envelope.go:149-153`), so badge clears lag on an idle phone. **Android-only side effect (pre-existing):** Expo's `BadgeHelper.setBadgeCount(0)` calls `NotificationManager.cancelAll()` (`expo-notifications@57.0.21 …/badge/BadgeHelper.kt:13-17`), and `app-badge.ts:41-46` writes the summed count, 0 included. So when Team Bridge unread reaches 0 (for example, read on the desktop), **every** Local Operator notification is dismissed, session completion and error alerts included, and S2's conversation notifications too. iOS only clears the number. **Fix in S4:** on Android, never write 0 through `setBadgeCountAsync`. Dismiss only the `tb:*` notifications instead (`getPresentedNotificationsAsync` filtered on the Team Bridge payload, then `dismissNotificationAsync`), and leave the launcher dot to the channel. | D (launcher-specific). E for the dot, and E for the 0 case: post one session and one `tb:*` notification, drive unread to 0, then assert the session notification is still in `getActiveNotifications()`. |
 | 8 | **POST_NOTIFICATIONS (API 33+)** | `app.config.ts:356-362`; `permission.ts:49-60`; the primer and Settings call `requestPermission` | real | Expo maps never-asked to `undetermined` and asked-and-refused to `denied` (`expo-modules-core …/PermissionsService.kt:267-276`), so the primer shows on first run. **Divergence:** Android allows a second in-app request after one refusal, but the app treats `denied` as final and points to system settings. That is conservative and not a bug. Target API 36 means no auto-prompt on channel creation. | E: `pm revoke`/`grant` plus Maestro. |
 | 9 | **Notification preferences ↔ system channels** | `notification-preferences.ts:1-43`. Switches are honoured **by the sender** (daemon / hub registration). | **gap** (not in sync) | System settings list twelve sound-named channels plus "Team Bridge". Turning off "Soft pulse" mutes whichever category uses that sound. The app never reads channel state (no `getNotificationChannelAsync` in `src/`), so Settings can say "on" while the OS discards. **Recommendation:** read `getNotificationChannelAsync("team-bridge")` on foreground. If it is `NONE`, show the Team Bridge row as "Off in system settings" with a deep link (`ACTION_CHANNEL_NOTIFICATION_SETTINGS`), and don't re-PUT the registration. Don't try two-way sync: Android forbids an app from re-enabling a channel the user turned off. Sound channels stay sound channels, because ADR 0006's one-channel-per-sound is forced by Android (`sound-catalog.ts:14-26`). | E. |
 | 10 | **Desk presence (ADR 0008) and origin routing (ADR 0009)** | Decided in core, desktop and cloud. The phone's only parts are the Settings row and the foreground handler (ADR 0008 §3.4, Slice 6). The origin tag is the mobile *daemon's* client tag on the computer (ADR 0009 Decision 2). | shared | **No iOS-only code on the phone side.** AppState: Android never emits `inactive`, and every consumer treats only `background` as suspension (`use-session.ts:598`, `connection-provider.tsx:1521`), so that is benign. The one OS-dependent piece is foreground presentation, which is row 2's gap. The ADR 0008 §3.4 premise is corrected in §2.2. | E for the foreground handler, after the row 2 fix. |
 | 11 | **Background-safe send** | `src/features/session/outbox.ts:53-80`, `outbox-host.tsx:71` | shared JS, no native Android path | iOS: the persisted envelope plus foreground/launch resume and a silent-push drain. Android: "JS keeps running until the process is killed or Doze cuts the network". **No WorkManager and no foreground service**, so a send in flight during Doze or an app-standby restriction waits for the next open. That matches the stated iOS guarantee (resume on launch), so they are at parity, but neither platform truly sends in the background. Optional later: a `WorkManager` one-time job with a `CONNECTED` constraint that replays the persisted envelope. | E: `adb shell dumpsys deviceidle force-idle` while a send is pending, then exit Doze and assert delivery. |
 | 12 | **Keystore persistence across updates** | `storage.ts:1-29, 428-466, 680-690`; `tunnel-storage.ts:125-142`; `preference-store.ts:1-27`; `native-private-store.ts:78-80` | real (expo-secure-store) | `keychainAccessible` is **ignored on Android**. A new `keychainService` is a new Keystore alias and prefs prefix, so the legacy→new copy in `getRaw` works the same way. **Survives an app update:** Keystore keys and SharedPreferences persist. **Reinstall:** iOS Keychain items survive uninstall, but Android's don't (the code already refuses iOS survivors as authority, `device-storage.ts:5-8`). **Auto Backup:** the expo-secure-store plugin defaults `configureAndroidBackup: true` and excludes its prefs (`plugin/build/withSecureStore.js:8-32`). Without that, a restored ciphertext with no key would be **silently deleted and read as `null`**, which is "signed out" and not `SecureStoreUnavailableError` (`SecureStoreModule.kt:136-166`). Keystore invalidation behaves the same way, so on Android the "locked keychain" defence never triggers and a decrypt failure means sign-in again. **Install marker in `Paths.cache`:** Android's *Clear cache* (one tap in system settings) or storage pressure erases the sealed device family (drafts, envelopes). Theme survives, because it is in `Paths.document`. | E: install → sign in → `adb install -r` an upgraded APK → assert still signed in. Clear cache → assert the theme is kept and drafts are dropped. |
 | 13 | **File and photo picking** | `app.config.ts:325-362, 424-443`; PR #278 adds CAMERA, `plugins/with-android-optional-camera.js` | real | The system Photo Picker (API 33+, backported through Play services `PickVisualMedia` on older versions) needs no storage permission. The media and storage permissions are **blocked** and asserted absent by `scripts/ci/native-config.ts`. #278 makes CAMERA a runtime request at the press and makes the camera feature optional. Its Android Maestro flows (`e2e/maestro/chrome-proof/attachments*.yaml`) need to run on the emulator. | E (picker and camera on an emulator with a virtual camera). |
+| 14 | **Lock-screen privacy and notification categories** | iOS: `src/notifications/categories.ts:116-124` registers each category's `categorySummaryFormat` and `previewPlaceholder`. Android: no equivalent call. The channels are created without `lockscreenVisibility`. | **gap** | iOS honours the user's "Show Previews" setting and puts the placeholder in place of the body. Android has no category concept. The nearest controls are channel `lockscreenVisibility` and the notification's `setVisibility`/`setPublicVersion`. Under S2, `MessagingStyle` shows the sender, the face and the preview on the lock screen as the user's global "sensitive content" setting allows. The summary format has no Android counterpart; `setGroup` plus the shade's own count stands in. **Decision (S2):** every `team-bridge` notification gets `setVisibility(VISIBILITY_PRIVATE)` and a `setPublicVersion` with the title "Team Bridge" and an i18n "New message" body and no sender face. The secure lock screen then shows the same content as iOS's placeholder. | E: `adb shell locksettings set-pin`, lock, then a UiAutomator dump of the keyguard asserts no preview or sender text. |
 
 ### 7.2 Other recently shipped or in-flight rows (brief)
 
@@ -349,15 +429,15 @@ The legend for "Verify":
 
 | Slice | Repo / owner | Content | Acceptance |
 |---|---|---|---|
-| S1 cloud payload | agent-server (cloud coder) | Additive `sender{kind, initials, tone}` in `BridgePushData` (v stays 1). APNs gets `mutable-content: 1` on bridge pushes. FCM gets `tag`. The shared initials/tone fixture. | Golden payload tests updated (`push_transport_test.go:104` golden). The fixture is asserted in Go **and** core. Payload ≤ 4 KB with the maximum preview. No new logged fields. |
-| S2 Android presentation | mobile (coder) | In-repo config plugin plus `LoNotificationsService`, `LoPresentationDelegate` and `LoHandlingDelegate`. `MessagingStyle`, `Person` initials bitmap, long-lived shortcut, group. Foreground fix (row 2). i18n channel name. Shortcut and intent cleanup on sign-out. | Instrumentation test on API 29 and 36 (existing KVM job) posts a synthetic `RemoteMessage`. It asserts the `MessagingStyle` extras, shortcut id, group, the foreground show/quiet rule, and that the tap routes. Rendered shade screenshots: before/after, light and dark. A designer round. |
+| S1 cloud payload | agent-server (cloud coder) | Additive `sender{kind, initials, tone}` and `conv{group, members}` in `BridgePushData` (v stays 1). DMs send `group: false`, and the phone keeps `recipients` nil for them. APNs gets `mutable-content: 1` on bridge pushes. FCM gets `tag`. Tone is seeded from the configured hub origin (§5). The shared initials/tone fixture. | Golden payload tests updated (`push_transport_test.go:104` golden), **including its "one deliberate delta since b6c600fb" comment (`:100-102`)**, which now lists `mutable-content`, `tag`, `sender` and `conv` as deliberate deltas. Fixture rows for a DM, a group and a channel. The fixture is asserted in Go **and** core. Payload ≤ 4 KB with the maximum preview. No new logged fields. |
+| S2 Android presentation | mobile (coder) | In-repo config plugin plus `LoNotificationsService`, `LoPresentationDelegate` and `LoHandlingDelegate`. `MessagingStyle`, `Person` initials bitmap, long-lived shortcut, group. Foreground fix (row 2). i18n channel name. Shortcut and intent cleanup on sign-out. | Instrumentation test on API 29 and 36 (existing KVM job) posts a synthetic `RemoteMessage`. It asserts the platform `MessagingStyle` extras and `isGroupConversation` on both. On 36 it asserts the shortcut id and locus id; on 29 it asserts there is none. It also asserts the group, the foreground show/quiet rule, row 14's `VISIBILITY_PRIVATE` plus public version, and that the tap routes. A JVM unit test pins the API-gate function for 24, 27, 28, 29 and 30. Rendered shade screenshots: before/after, light and dark. A designer round. |
 | S3 iOS extension | mobile (coder) | `with-ios-notification-service` plugin, Swift NSE, `INSendMessageIntent` donation, `NSUserActivityTypes`, entitlement. Fastlane and `ios-signing.py` handle two targets. `native-config.ts` pins. | XCTest on the extension's pure parts (payload parse → `INPerson`). Simulator push via `xcrun simctl push` with `mutable-content` shows the avatar (screenshot). The signed IPA passes `verify` with the extension embedded. A TestFlight device check by the operator. |
-| S4 parity fixes | mobile (coder) | Row 4 (session channels to HIGH, which needs **new channel ids** because importance is fixed at creation), row 9 (channel-state read and system-settings link), row 12 (assert the backup rules in the merged manifest in `native-config.ts`). | Unit tests plus emulator `dumpsys` assertions. A UX round for the Settings row. |
-| S5 photos (step 2, operator-gated) | agent-server and mobile | Capability-URL route and minting. Extension and delegate fetch with a deadline and fall back to initials. | Route tests: expired, wrong recipient, foreign tenant, changed hash → 404. Device and simulator stills. |
+| S4 parity fixes | mobile (coder) | **Row 7: Android badge 0 must not cancel every session notification.** Skip the 0 write on Android and dismiss only the `tb:*` notifications. Row 4 (session channels to HIGH, which needs **new channel ids** because importance is fixed at creation), row 9 (channel-state read and system-settings link), row 12 (assert the backup rules in the merged manifest in `native-config.ts`). | Unit tests plus emulator `dumpsys` assertions, including row 7's 0-unread case: a session notification survives. A UX round for the Settings row. |
+| S5 photos (step 2, approved a-4eab) | agent-server and mobile | Nonce table and minting per recipient device. `GET /v1/push-avatars/:nonce` with the serve-time re-checks in §6. Nonce rows deleted on sign-out. A redactor rule in `tokenPathRules`. Extension and delegate fetch with a deadline and fall back to initials. | Route tests: expired, signed-out device, foreign tenant, **recipient removed from the tenant after mint**, changed or removed avatar after mint → the same 404. Redactor test: the nonce never appears in the request log or in the `main.go:2808` error line, for case, slash and dot variants. The read-only AWS logging check from §6 recorded. Device and simulator stills. |
 | S6 Android proof lane | mobile (QA) | Emulator jobs for rows 1, 2, 5, 6, 8, 9, 11, 12 and 13. An internal-track device pass for rows 3 and 7. | A QA matrix with actual outputs. |
 
-**Manual operator steps:** the three Apple portal actions in §3, deciding S5's capability-URL
-exception, and the agent-face design call in §5. Rows 3 and 7, and the S3 device check, can't be
+**Manual operator steps:** the three Apple portal actions in §3. The S5 capability-URL exception
+(a-4eab) and the agent-face rule (§5) are decided. Rows 3 and 7, and the S3 device check, can't be
 verified from this Mac.
 
 ## 9. Risks to watch during rollout
@@ -374,6 +454,11 @@ verified from this Mac.
   apps without `sender` keep today's look.
 - **Channel migration (S4):** new session channel ids orphan the old ones. Delete the old ids at
   start, as `LEGACY_ALERT_CHANNEL_ID` is today.
+- **Capability-URL exposure (S5):** the nonce is redacted in the app's logs, but WAF samples and
+  Cloudflare's edge can still see it (§6). Keep the TTL ≤ 15 min, and alert if the route's 404
+  rate rises sharply, which would point to replay or enumeration.
+- **Group rendering on iOS:** the placeholder-recipients approach (§3 step 4) depends on how iOS
+  decides group versus DM. Treat the S3 simulator stills for both layouts as a release gate.
 - **Unverified assumptions, and how to settle each:**
   - Communication Notifications on the App ID: the ASC read in §3.
   - The Android foreground gap (row 2): one emulator instrumentation run.
