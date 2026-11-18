@@ -102,37 +102,3 @@ describe("Input: placeholderDir applies only while the field is empty", () => {
 		expect(tag).toContain('dir="auto"');
 	});
 });
-
-/**
- * `Input.labelHidden` (UX pass, theme picker): the Theme screen's search field
- * printed "Search themes" twice, once as the label and once as the placeholder
- * directly under it. A search field may drop the DRAWN label; its accessible
- * name may not, so a screen reader still hears what the field is for.
- */
-describe("Input: labelHidden drops the drawn label, never the accessible name", () => {
-	const field = (labelHidden: boolean) =>
-		render(
-			h(Input, {
-				label: "Search themes",
-				labelHidden,
-				value: "",
-				onChangeText: () => {},
-				placeholder: "Search themes",
-				testID: "search",
-			}),
-			"ltr",
-		);
-
-	it("hidden: no visible label text, the field keeps its accessible name", () => {
-		const markup = field(true);
-		expect(markup).not.toContain(">Search themes<");
-		expect(inputTag(markup)).toContain('aria-label="Search themes"');
-		expect(inputTag(markup)).toContain('placeholder="Search themes"');
-	});
-
-	it("default: the label is drawn above the field, as before", () => {
-		const markup = field(false);
-		expect(markup).toContain(">Search themes<");
-		expect(inputTag(markup)).toContain('aria-label="Search themes"');
-	});
-});

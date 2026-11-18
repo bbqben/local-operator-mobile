@@ -20,30 +20,13 @@ import { type FieldState, fieldClasses } from "@/ui/variants";
  *   - **A placeholder is never the only label.** `label` is required and rendered
  *     as the accessible name; the placeholder is a hint, and the type reflects
  *     that by not allowing a placeholder-only field.
- *
- * The one narrowing is `labelHidden`, below: a SEARCH field whose placeholder
- * says the same words as its label may stop drawing the label. The accessible
- * name stays, and the type requires the placeholder that stands in for it.
  */
-export type InputProps = InputBaseProps &
-	(
-		| { labelHidden?: false; placeholder?: string }
-		| {
-				/** Draw no label above the field; it stays the accessible name. For
-				 *  a search field only, whose placeholder repeats the label word for
-				 *  word (the Theme picker's "Search themes" printed twice, UX pass)
-				 *  and whose results under it say what was searched. Requires the
-				 *  placeholder, so a sighted reader is never left with a bare box. */
-				labelHidden: true;
-				placeholder: string;
-		  }
-	);
-
-type InputBaseProps = {
+export type InputProps = {
 	/** The field's accessible name. Required: a placeholder cannot be one. */
 	label: string;
 	value: string;
 	onChangeText: (value: string) => void;
+	placeholder?: string;
 	/** The paragraph direction a placeholder that STARTS with a Latin token has to
 	 *  state for itself, from `useComposedDir()` (`@/ui/direction`) — opt-in like
 	 *  `Button.labelDir`; omitted, the field is unchanged.
@@ -82,7 +65,6 @@ type InputBaseProps = {
 
 export const Input = ({
 	label,
-	labelHidden = false,
 	value,
 	onChangeText,
 	placeholder,
@@ -127,9 +109,7 @@ export const Input = ({
 			{/* Visible label as well as the accessible name: a reader who can see the
 			 * field needs to know what it wants without reading the placeholder,
 			 * which disappears the moment they type. */}
-			{labelHidden ? null : (
-				<Text className="text-body-sm text-ink-muted">{label}</Text>
-			)}
+			<Text className="text-body-sm text-ink-muted">{label}</Text>
 			<TextInput
 				ref={resolvedRef}
 				className={fieldClasses(fieldState)}

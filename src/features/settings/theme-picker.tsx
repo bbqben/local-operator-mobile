@@ -110,9 +110,9 @@ export default function ThemePicker() {
 				<Input
 					testID={CONTROL.themePickerSearch}
 					label={t("mobile.settings.theme.search_label")}
-					/* The placeholder says the same words; drawing both printed
-					 *  "Search themes" twice (UX pass). Still the accessible name. */
-					labelHidden
+					/* The label stays drawn (components.md § 4: a placeholder is
+					 *  never the only label); the placeholder is a different hint,
+					 *  not the label's words again (UX pass; review round 1). */
 					placeholder={t("mobile.settings.theme.search_placeholder")}
 					value={query}
 					onChangeText={setQuery}

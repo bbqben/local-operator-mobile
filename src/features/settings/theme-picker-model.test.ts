@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { t } from "@/i18n";
+import { renderFor, SHIPPED_LOCALES, t } from "@/i18n";
 import { DEFAULT_SELECTION } from "@/state/theme-preference";
 import { THEMES } from "@/ui/tokens.gen";
 import {
@@ -119,22 +119,41 @@ describe("themeModeOptions: one mode order for both surfaces", () => {
 });
 
 describe("Theme picker search field", () => {
-	/* UX pass, theme picker: "Search themes" was drawn as a label AND as the
-	 * placeholder right under it. The field drops the drawn label and keeps it
-	 * as its accessible name (`Input.labelHidden`). */
-	it("draws no duplicate label and keeps the accessible name", () => {
-		const source = readFileSync(
-			new URL("./theme-picker.tsx", import.meta.url),
-			"utf8",
-		);
-		const field = source.slice(
-			source.lastIndexOf("<Input", source.indexOf("CONTROL.themePickerSearch")),
-			source.indexOf("/>", source.indexOf("CONTROL.themePickerSearch")),
-		);
-		expect(field).toContain("labelHidden");
+	/* UX pass, theme picker, then review round 1 (R1/Q2/D2): "Search themes" was
+	 * drawn as the label AND as the placeholder right under it. Hiding the label
+	 * made the placeholder the field's only visible label (components.md § 4 and
+	 * anti-pattern 14). The label stays; the placeholder is a different hint, the
+	 * way Library ("Search the library" / "Name, tag or words") and Past do it. */
+	const source = readFileSync(
+		new URL("./theme-picker.tsx", import.meta.url),
+		"utf8",
+	);
+	const at = source.indexOf("CONTROL.themePickerSearch");
+	const field = source.slice(
+		source.lastIndexOf("<Input", at),
+		source.indexOf("/>", at),
+	);
+
+	it("keeps the drawn label: no hidden-label mode", () => {
 		expect(field).toContain('label={t("mobile.settings.theme.search_label")}');
 		expect(field).toContain(
 			'placeholder={t("mobile.settings.theme.search_placeholder")}',
 		);
+		expect(field).not.toContain("labelHidden");
 	});
+
+	it.each(SHIPPED_LOCALES)(
+		"%s: the placeholder never repeats the label",
+		(locale) => {
+			const label = renderFor("mobile.settings.theme.search_label", {}, locale);
+			const hint = renderFor(
+				"mobile.settings.theme.search_placeholder",
+				{},
+				locale,
+			);
+			expect(hint.trim().toLocaleLowerCase(locale)).not.toBe(
+				label.trim().toLocaleLowerCase(locale),
+			);
+		},
+	);
 });
