@@ -1,4 +1,4 @@
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
 	Bell,
 	BellOff,
@@ -43,6 +43,10 @@ import * as model from "@/team-bridge/model";
 import { type ProfileSubject, senderSubject } from "@/team-bridge/profile";
 import { useTeamBridge, useTeamBridgeState } from "@/team-bridge/provider";
 import { setWatchedThread } from "@/team-bridge/push";
+import {
+	replyThreadPath,
+	replyThreadSummary,
+} from "@/team-bridge/reply-threads";
 import { threadKey } from "@/team-bridge/store";
 import {
 	readTeamBridgeDraft,
@@ -101,6 +105,7 @@ import {
 	ProfileSheet,
 	UnknownSenderAvatar,
 } from "./profile-card";
+import { ReplyThreadChip } from "./reply-thread-chip";
 import { parseThreadAnchor, type ThreadAnchor } from "./thread-anchor";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
 import { createThreadViewport, type ThreadViewport } from "./thread-viewport";
@@ -185,8 +190,9 @@ function AnchorHighlight({
  *  `people` prop on every memoised row (Bridge thread flicker). */
 const NO_PEOPLE: readonly DirectoryMember[] = [];
 
-const ThreadMessageRow = memo(function ThreadMessageRow({
+export const ThreadMessageRow = memo(function ThreadMessageRow({
 	message,
+	onOpenReplyThread,
 	continuation,
 	people,
 	hub,
@@ -220,8 +226,12 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 	initialViewerIndex?: number;
 	onOpenProfile: (subject: ProfileSubject) => void;
 	onDeliveryHelp: (opener: string) => void;
+	/** Opens this ROOT's reply thread. Absent where a row must not offer it
+	 *  (the reply thread's own rows: threads are one level deep). */
+	onOpenReplyThread?: (rootId: string) => void;
 }) {
 	const sender = model.senderLabel(message.sender, people);
+	const replies = onOpenReplyThread ? replyThreadSummary(message) : null;
 	// A sender the directory no longer knows renders a neutral silhouette + inert name.
 	const subject = senderSubject(message.sender, people);
 	const attachments = messageAttachments(message);
@@ -304,6 +314,15 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 					initialViewerIndex={initialViewerIndex}
 				/>
 				<MessageDelivery message={message} onHelp={onDeliveryHelp} />
+				{replies && onOpenReplyThread ? (
+					<ReplyThreadChip
+						rootId={message.id}
+						summary={replies}
+						people={people}
+						locale={locale}
+						onOpen={onOpenReplyThread}
+					/>
+				) : null}
 			</View>
 		</View>
 	);
@@ -835,6 +854,17 @@ function ThreadContent({
 		},
 		[deliveryHelpIdentity],
 	);
+	const router = useRouter();
+	/* Stable across renders so the memoised rows are not re-rendered by it. */
+	const openReplyThread = useCallback(
+		(rootId: string) => {
+			if (!conversationId) return;
+			router.push(
+				replyThreadPath({ tenantId, conversationId, rootId }) as never,
+			);
+		},
+		[router, tenantId, conversationId],
+	);
 	const renderItem = useCallback(
 		({ item }: { item: model.ThreadItem }) => {
 			if (item.type === "day")
@@ -867,6 +897,7 @@ function ThreadContent({
 					}
 					onOpenProfile={setProfile}
 					onDeliveryHelp={openDeliveryHelp}
+					onOpenReplyThread={openReplyThread}
 					highlight={
 						item.message.id === highlightId
 							? highlightFading
@@ -893,6 +924,7 @@ function ThreadContent({
 			fadeMs,
 			measureRow,
 			locale,
+			openReplyThread,
 		],
 	);
 	const validDraft = routeId === "new" && !!target;

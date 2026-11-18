@@ -743,7 +743,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
 	 * adopted out of the sealed family) at boot. Re-derived with --print over
 	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
-	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
+	/* PR #303 adds a Team Bridge reply-thread route, not an agent-session route
+	 * used by the U-08 probes. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	app: "34b1f3719abe4cf7c311f7b2c2e20d032b60a89d8fa15d13cd899076239f61b1",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2308,7 +2311,27 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * directory TTL and the photo budget is metered in requests sent (U5/D4).
 	 * Re-derived with --print over the staged tree; source identity only, NOT
 	 * rendered U-08 evidence. */
-	src: "e618f8e39d51fc42e03944a445a358b2ae16aa664ef2a68f0ae5ae9ae9a06338",
+	/* PR #303 adds reply counts, unread state and thread navigation to Team
+	 * Bridge, plus its copy and selectors. U-08's agent transcript and turn-bar
+	 * probes do not target that surface. Re-derived with --print over the staged
+	 * tree; source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main 08b819b5 keeps both comment chains and
+	 * both sides' source. --print over the staged merge gives a new src
+	 * digest; app is unchanged from the PR. Source admission only. */
+	/* PR #303 review round 1 remediation: reply-thread store/screen/chip,
+	 * the Team Bridge title's optional subtitle, and reply_thread copy in all
+	 * eight catalogues. No U-08 scene (agent transcript, turn bar) renders any
+	 * of it; app unchanged. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main f5498d3c (#302 O3-b i18n, #307 fixture
+	 * baselines, #308 CODEOWNERS): both comment chains and both sides' source
+	 * kept. --print over the staged merge moves only src; app unchanged.
+	 * Source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main 7a52b1a9 (#306 bridge transient/avatar
+	 * fixes): both comment chains and both sides' source kept. --print over
+	 * the staged merge moves only src; app unchanged. Source admission only,
+	 * NOT renewed rendered U-08 evidence. */
+	src: "bc0051cfe32622d971e9d0c8af56422bc017b8257d19c46783af3a93f597c7f3",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

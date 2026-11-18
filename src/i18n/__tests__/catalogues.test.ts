@@ -78,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 160, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens); fix/bridge-429 +1: list.catching_up, the calm rate-limit status (159 + 1 = 160, counted over the en JSON).
+		expected: 170, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2).
 	},
 	{
 		name: "mobile.signin",
@@ -551,7 +551,10 @@ describe("the English catalogues", () => {
 		 * all 25 merged en catalogue files (mobile.common 15, mobile.projects 59,
 		 * mobile.sidebar 42, mobile.team_bridge 160); every shipped locale also
 		 * sums to 1101. */
-		expect(total).toBe(1101);
+		// PR #303 adds ten mobile.team_bridge.reply_thread keys (nine, plus
+		// reply_thread.more for the 500-reply continuation, review R2):
+		// 1101 + 10 = 1111, re-derived with generate.ts over the merged tree.
+		expect(total).toBe(1111);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
