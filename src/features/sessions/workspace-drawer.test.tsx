@@ -150,6 +150,7 @@ const {
 	useWorkspaceDrawer,
 	modeBarLayout,
 	MODE_BADGE_INSET,
+	WorkspaceModeBar,
 } = await import("./workspace-drawer");
 const { MODE_SEGMENT_CHROME, MODE_SEGMENT_GAP, MODE_TRACK_INSET } =
 	await import("./mode-bar-fit");
@@ -642,6 +643,31 @@ describe("the mode bar measures before it splits into equal halves (#324)", () =
 		await act(async () => controller.open());
 		// No layout event yet on this mount: the remembered fit is the first frame.
 		expect(agentsClass()).toBe(EQUAL);
+	});
+
+	/* PR #333 review R1-2: the docked split pane's bar has no close button,
+	 *  so its track is wider than the drawer's. A fit remembered by one must
+	 *  not seed the other's first frame (an iPad resize from docked to
+	 *  drawer would otherwise paint one squeezed frame). */
+	it("does not seed the docked pane's bar from the drawer's fit", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		await measure(286);
+		expect(agentsClass()).toBe(EQUAL);
+		await act(async () => root.unmount());
+		host.classNames.clear();
+		root = createRoot(dom.container as Element);
+		await act(async () =>
+			root.render(
+				<WorkspaceModeBar
+					mode="agents"
+					onSelectMode={() => undefined}
+					bridgeBadge={adapter.bridgeBadge}
+				/>,
+			),
+		);
+		// No layout event yet on the docked bar: it starts proportional.
+		expect(agentsClass()).toBe(PROPORTIONAL);
 	});
 
 	it("does not reuse a fit measured at another text size", async () => {

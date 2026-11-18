@@ -182,7 +182,9 @@ export const WorkspaceModeBar = ({
 	const bridgeLabel = t("mobile.team_bridge.title");
 	const fit = useModeBarFit(
 		!largeText,
-		`${effectiveScale}\u0000${agentsLabel}\u0000${bridgeLabel}`,
+		/* The drawer's bar (with Close) and the docked pane's are different
+		 *  tracks, so their fits are remembered apart (PR #333 R1-2). */
+		`${onClose ? "drawer" : "docked"}\u0000${effectiveScale}\u0000${agentsLabel}\u0000${bridgeLabel}`,
 	);
 	const layout = modeBarLayout(largeText, fit.mode);
 	const agentsSelected = mode === "agents";

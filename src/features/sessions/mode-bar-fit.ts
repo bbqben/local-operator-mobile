@@ -63,17 +63,19 @@ type Fit = {
 };
 
 /**
- * The last fit any mode bar measured, and the text it measured (`key`).
+ * The last fit any mode bar measured, and what it measured (`key`).
  *
  * WHY REMEMBER IT. The drawer is a `Modal` that mounts its header on every
  * open, and `onLayout` answers a frame after the first paint, so a bar that
  * only trusted its own measurement would paint the proportional split and then
  * jump to equal halves on every open. Seeding the next mount with the last
- * fit for the same labels at the same text size makes that first frame
- * already right; only the first open after launch (still sliding in from off
- * screen unless Reduce Motion is on) pays the one-frame correction. A seed
- * from a different panel width is corrected by the next `onLayout` like a
- * rotation would be.
+ * fit for the same bar (drawer or docked pane), labels and text size makes
+ * that first frame already right; only the first open after launch (still
+ * sliding in from off screen; Reduce Motion shortens the slide) pays the
+ * correction. The bar is part of the key because the docked pane has no close
+ * button and so a wider track (PR #333 review R1-2): a fit from one never
+ * seeds the other. A seed from the same bar at a different window width is
+ * corrected by the next `onLayout` like a rotation would be.
  */
 let remembered: (Fit & { key: string }) | null = null;
 
@@ -85,15 +87,16 @@ export const forgetModeBarFit = (): void => {
 /**
  * Measures the mode track and its two labels and answers the layout to use.
  *
- * `key` names what was measured (the text scale and both label strings): a
- * remembered fit seeds a new mount only when its key matches. `enabled` is
+ * `key` names what was measured (the bar, the text scale and both label
+ * strings): a remembered fit seeds a new mount only when its key matches, and
+ * any other mount starts unmeasured, i.e. proportional. `enabled` is
  * false at large text, where the track wraps instead and nothing is measured.
  */
 export const useModeBarFit = (enabled: boolean, key: string) => {
 	const [fit, setFit] = useState<Fit>(() =>
 		remembered?.key === key
 			? remembered
-			: { track: remembered?.track ?? null, labels: [null, null] },
+			: { track: null, labels: [null, null] },
 	);
 	/* Remembered after commit rather than inside the setters: a state updater
 	 *  must stay pure (React may run it twice). Within one mount the labels are
