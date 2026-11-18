@@ -24,16 +24,25 @@ import {
 } from "react";
 import { useStore } from "zustand";
 import { createCommunityClient } from "@/community/client";
+import type { CommunityRow } from "@/community/model";
 import {
 	type CommunityState,
 	type CommunityStore,
+	communityRows,
 	createCommunityStore,
 } from "@/community/store";
 import { accountIdFromToken } from "@/connection/radient-identity";
 import { useConnection } from "@/features/auth/connection-provider";
 import { communityFixture } from "@/testing/community-fixture";
 
-const Context = createContext<CommunityStore | null>(null);
+/** Exported for render tests only, which mount a bare store without a
+ * connection; screens reach it through `useCommunity`. */
+export type CommunityScope = CommunityStore & {
+	fixture: boolean;
+	retire(): void;
+};
+export const CommunityContext = createContext<CommunityScope | null>(null);
+const Context = CommunityContext;
 
 export function CommunityProvider({ children }: { children: ReactNode }) {
 	const connection = useConnection();
@@ -62,6 +71,10 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
 		});
 		return {
 			...scope,
+			/* Read ONCE here, as the Team Bridge provider does: a pushed route
+			 * drops the `tb-fixture` query, so a later per-render read of
+			 * `location.search` would see a signed-out reader. */
+			fixture: fixture !== null,
 			retire() {
 				active = false;
 				scope.actions.close();
@@ -74,7 +87,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
 	return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
-export function useCommunity(): CommunityStore {
+export function useCommunity(): CommunityScope {
 	const value = useContext(Context);
 	if (!value) throw new Error("useCommunity outside CommunityProvider");
 	return value;
@@ -84,4 +97,25 @@ export function useCommunityState<T>(
 	selector: (state: CommunityState) => T,
 ): T {
 	return useStore(useCommunity().store, selector);
+}
+
+/**
+ * The switcher's and directory's joined-community rows, memoized.
+ *
+ * WHY NOT `useCommunityState(communityRows)`: `communityRows` builds a NEW
+ * array on every call, and `useStore` (useSyncExternalStore) compares
+ * snapshots by identity, so that selector never settles and React aborts with
+ * "Maximum update depth exceeded" (#185), seen as a blank screen in the
+ * exported web build. The three inputs are store references that only change
+ * when the store writes them; the rows are derived from them.
+ */
+export function useCommunityRows(): CommunityRow[] {
+	const joined = useCommunityState((s) => s.communities.data.joined);
+	const channels = useCommunityState((s) => s.channels);
+	const directs = useCommunityState((s) => s.directs);
+	return useMemo(
+		() =>
+			communityRows({ communities: { data: { joined } }, channels, directs }),
+		[joined, channels, directs],
+	);
 }

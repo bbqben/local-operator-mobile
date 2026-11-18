@@ -13,8 +13,11 @@ import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { communityEnabled } from "@/community/flag";
 import { communityGroup } from "@/community/model";
-import { useCommunity, useCommunityState } from "@/community/provider";
-import { communityRows } from "@/community/store";
+import {
+	useCommunity,
+	useCommunityRows,
+	useCommunityState,
+} from "@/community/provider";
 import { t } from "@/i18n";
 import { CONTROL, communityRowId, SURFACE } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
@@ -33,7 +36,7 @@ export function CommunitySwitcherGroup({
 	const { actions } = useCommunity();
 	const enabled = communityEnabled();
 	const listState = useCommunityState((s) => s.communities.state);
-	const rows = useCommunityState(communityRows);
+	const rows = useCommunityRows();
 	const [query, setQuery] = useState("");
 	const ink = useTokenColor("ink-dim");
 	useEffect(() => {

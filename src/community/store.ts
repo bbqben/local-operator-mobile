@@ -50,6 +50,7 @@ import {
 	type Attempt,
 	attemptStateFromError,
 	type BridgeSelection,
+	type CommunityRow,
 	communityUnread,
 	mergeMessages,
 	retryKeepsKey,
@@ -859,7 +860,13 @@ export function createCommunityStore(deps: {
 export type CommunityStore = ReturnType<typeof createCommunityStore>;
 
 /** The switcher row data for each joined community (unread from its channel list). */
-export function communityRows(state: CommunityState) {
+export function communityRows(
+	state: Pick<CommunityState, "channels" | "directs"> & {
+		communities: {
+			data: Pick<CommunityState["communities"]["data"], "joined">;
+		};
+	},
+): CommunityRow[] {
 	return state.communities.data.joined.map((community) => ({
 		communityId: community.id,
 		name: community.name,

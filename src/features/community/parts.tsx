@@ -14,10 +14,10 @@ import type { ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
 import type { CommunityError } from "@/community/client";
 import { communityEnabled } from "@/community/flag";
+import { useCommunity } from "@/community/provider";
 import { useConnection } from "@/features/auth/connection-provider";
 import { countLabel } from "@/features/notifications/notifications-model";
 import { t } from "@/i18n";
-import { communityFixture } from "@/testing/community-fixture";
 import { state as a11yState, CONTROL, ROLE } from "@/ui/a11y";
 import { BackButton } from "@/ui/components/back-button";
 import { Button } from "@/ui/components/button";
@@ -68,8 +68,8 @@ export function CommunityFrame({
 	children: ReactNode;
 }) {
 	const connection = useConnection();
-	const signedIn =
-		Boolean(connection.radientAccountId) || communityFixture() !== null;
+	const { fixture } = useCommunity();
+	const signedIn = Boolean(connection.radientAccountId) || fixture;
 	const open = communityEnabled() && signedIn;
 	return (
 		<Screen

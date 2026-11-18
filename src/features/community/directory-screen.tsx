@@ -8,8 +8,11 @@ import { useRouter } from "expo-router";
 import { Globe } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { useCommunity, useCommunityState } from "@/community/provider";
-import { communityRows } from "@/community/store";
+import {
+	useCommunity,
+	useCommunityRows,
+	useCommunityState,
+} from "@/community/provider";
 import { t } from "@/i18n";
 import { communityFeaturedId, communityRowId, SCREEN } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
@@ -39,7 +42,7 @@ function Directory() {
 	const router = useRouter();
 	const { actions } = useCommunity();
 	const list = useCommunityState((s) => s.communities);
-	const rows = useCommunityState(communityRows);
+	const rows = useCommunityRows();
 	const [joining, setJoining] = useState<string | null>(null);
 	const ink = useTokenColor("ink-dim");
 	useEffect(() => {
