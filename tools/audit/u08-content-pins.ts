@@ -761,8 +761,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * of the reader's own transcript turn, solved >= 1.25:1 on canvas), with its
 	 * rule in `palette-rules.mjs` and the regenerated preset. No existing role's
 	 * value moved. Identity only, NOT rendered U-08 evidence. */
+	/* Re-pinned 2026-11-18 with --print from main: PR #292's diagram viewer added
+	 * its rows to `palette-rules.mjs` (`CONTROLS`, components.md § 14) and the
+	 * preset/preview layers regenerate from them. No existing role's value moved.
+	 * Identity only, NOT rendered or native evidence. */
 	"design/tokens":
-		"505afe475a6bd4f05c9673940f123fd273e18c98171f3d676a9fb7e037ba2291",
+		"42025bdc49dcf5c92bd8a8690d509cdfedd8c1b72133532aa247088e8d04bbe0",
 	public: "fffab05c9f1bcb5a820ec6fc62f853d005db87e152bca97fe3e22337aa85851b",
 	/* Re-pinned 2026-10-29 for the i18n policy PR itself: this branch changes only
 	 * `src/i18n/locale.ts` (the SUPPORTED/SHIPPED split), adds `src/i18n/key-shape.ts`
@@ -2337,6 +2341,29 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * hides changed. Re-derived with --print over the staged rebased tree
 	 * (run twice, stable); source identity only, NOT rendered, native or device
 	 * evidence. */
+	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
+	 * `allowsRecording: true` (native audio-session argument; no rendered output).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* fix(mic): `src/stt/recorder.ts` hands `AudioRecorder` FLAT native options
+	 * (the shape `createRecordingOptions` builds) rather than a spread preset, so
+	 * iOS receives `outputFormat`/`audioQuality` and writes AAC instead of PCM in
+	 * the `.m4a`. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (fa7dd36e, #303) into fix/mic-diagnosis: main's chain
+	 * kept above; only this pin conflicted, and the merged src carries both sides,
+	 * so it matches neither parent. Re-derived with --print over the staged merge
+	 * tree. Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (5aced823, #292 Pele diagrams, #295 prose condensing,
+	 * #274 runtime) into fix/mic-diagnosis: main's chain kept above, our two
+	 * fix(mic) notes re-applied; the merged src carries both sides, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (run
+	 * twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* #294 added one test module under `src/` (attach-sheet hand-off), and the
+	 * `src` root digest covers every tracked file there, test files included, so
+	 * the pin went stale with no shipped change. Re-derived with --print at main
+	 * 8f7989ea after #294; source identity only, NOT rendered, native or device
+	 * evidence. */
 	/* fix(team-bridge): warm notification tap lands its thread (#304 QA R4
 	 * Q1): the Bridge thread viewport trusts a measurement of the rows now
 	 * admitted, the thread's metadata loading block is laid over the list,
@@ -2349,7 +2376,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * the message area is otherwise blank (#315 design D1). Thread screen and
 	 * viewport only; --print over the staged tree (run twice, stable) moves
 	 * only src; app unchanged. Source identity only, NOT rendered evidence. */
-	src: "e00d77d175f7d6f177f16a7e8ea08ba535169141bbbe67521b92b81ec0fb8fcd",
+	/* Merge of origin/main (f3418c8a: #291 mic, #294 attach hand-off, #316/#318
+	 * U-08 re-pins) into fix/thread-warm-landing: main's chain kept first, then
+	 * this PR's two team-bridge notes; the merged src carries both sides, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (run twice, stable). Source identity only, NOT rendered evidence. */
+	src: "7ba37d1627b0b8b8b576a04930bc179efd2c9e20ae68574cce0523c93d6cdf25",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2382,10 +2414,13 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module
 	// `expo-task-manager` ~57.0.22, which the web bundle never renders.
+	// Re-pinned 2026-11-18 with --print: since the last pin of these two the only
+	// dependency move is PR #292's `pele` in `package.json` and its resolver
+	// entries in the lockfile. Identity only, not a U-08 web layout input.
 	"package.json":
-		"c9011119d489c35125f16e87abbd0db196a3dabbca646dfc5c5d6aa3e47ebb0a",
+		"065ddef424dc993a53265d5374d99be43072ec0bc6b9aee062e6c6ac2b4024ca",
 	"pnpm-lock.yaml":
-		"c9ef7b9d08ab6f4389036570907591411b6104a9bfb2e6ae75bb101399348540",
+		"6d2fd091ae30a21f5c70cc40d212e7f2bd41de9ad9b5b86960fe7e98f21d47f9",
 	"pnpm-workspace.yaml":
 		"1457b9b1a5ad6f9f7adf765d6b3adbaca44c8c938f4e9ccd525579dadae34ba3",
 };
