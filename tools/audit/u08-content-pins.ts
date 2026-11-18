@@ -48,8 +48,19 @@
  * same commit passes this guard. The table cannot pin the file that contains it,
  * and nothing outside the repository checks the pair. That is inherent to a
  * same-repo tripwire — what protects the proof is that the re-pin is a visible
- * line in a reviewable diff, not that the tool catches its own author. The suite
- * proves the pins match the tree they were committed with, and nothing more.
+ * line in a reviewable diff, not that the tool catches its own author.
+ *
+ * WHO RE-PINS WHAT. The executable proof (u08-geometry-proof.ts, dispatch-only,
+ * including `--preflight-only`) is the one gate that compares the live tree with
+ * the committed RENDER_TREE/INPUT_TREE/RENDER_FILE tables, and it refuses on any
+ * difference. The unit suite does NOT: it proves the admission logic against a
+ * baseline derived from its own fixture (pinTablesFrom), so an ordinary feature
+ * PR that edits `src/`, `app/`, fixtures or dependencies does not re-pin here.
+ * Re-pin those roots deliberately, with --print, when a U-08 proof is about to
+ * be dispatched against the new scene — that line is the reviewed decision. The
+ * suite still holds INSTRUMENT_PINS to the live files (an edit to the measuring
+ * code re-pins in the same PR) and holds the table KEYS to the drivers' import
+ * closure.
  * The ORIGINAL_* constants in u08-geometry-proof.ts are a different thing and are
  * never re-pinned — they identify the captured historical packet, not the
  * instrument that runs today.
@@ -2434,7 +2445,62 @@ const hasMissingUnder = (content: RepositoryContent, root: string) =>
 		(path) => path.startsWith(`${root}/`) && isPinnedContentPath(path),
 	);
 
-export function contentDrift(content: RepositoryContent): Drift[] {
+/** The four tables as one value, so a caller can judge content against a
+ * baseline other than the committed one.
+ *
+ * WHY THIS EXISTS. Until this was split out, the unit suite judged its fixture
+ * against the committed tables, which made "committed `src` pin == the PR's
+ * `src`" a PR-time gate: every PR that touched app source had to re-pin, and
+ * concurrent PRs collided on that one line (98 of the 116 first-parent merges to
+ * main between 2026-10-18 and 2026-11-17 edited this file). The suite's question
+ * is "does the admission logic admit and refuse the right edits?", which needs
+ * a baseline it controls, not today's tree. The proof's question is "is this the
+ * scene that was reviewed?", which needs the committed tables — so the default
+ * below stays COMMITTED_PINS and the dispatch preflight is unchanged. */
+export interface PinTables {
+	readonly instrument: Readonly<Record<string, string>>;
+	readonly renderTree: Readonly<Record<string, string>>;
+	readonly inputTree: Readonly<Record<string, string>>;
+	readonly renderFile: Readonly<Record<string, string>>;
+}
+
+/** The trust root: the only tables the executable proof ever checks against. */
+export const COMMITTED_PINS: PinTables = {
+	instrument: INSTRUMENT_PINS,
+	renderTree: RENDER_TREE_PINS,
+	inputTree: INPUT_TREE_PINS,
+	renderFile: RENDER_FILE_PINS,
+};
+
+/** Tables with the committed KEYS and digests read from `content`, using the
+ * same per-file and per-root digests the verdict uses. Test-only by intent: it
+ * gives the suite a baseline equal to its own fixture. Re-pinning stays
+ * `--print` plus a reviewed edit; nothing writes these values back. A path with
+ * no readable content keeps the sentinel "absent" so it can never match. */
+export function pinTablesFrom(content: RepositoryContent): PinTables {
+	const files = (keys: Readonly<Record<string, string>>) =>
+		Object.fromEntries(
+			Object.keys(keys).map((path) => [
+				path,
+				content.files.get(path) ?? "absent",
+			]),
+		);
+	const roots = (keys: Readonly<Record<string, string>>) =>
+		Object.fromEntries(
+			Object.keys(keys).map((root) => [root, treeDigest(content, root)]),
+		);
+	return {
+		instrument: files(INSTRUMENT_PINS),
+		renderTree: roots(RENDER_TREE_PINS),
+		inputTree: roots(INPUT_TREE_PINS),
+		renderFile: files(RENDER_FILE_PINS),
+	};
+}
+
+export function contentDrift(
+	content: RepositoryContent,
+	pins: PinTables = COMMITTED_PINS,
+): Drift[] {
 	const drift: Drift[] = [];
 	for (const path of [...content.missing].filter(isPinnedContentPath).sort())
 		drift.push({
@@ -2443,15 +2509,15 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 			pinned: "tracked",
 			actual: "absent",
 		});
-	for (const [path, pinned] of Object.entries(INSTRUMENT_PINS)) {
+	for (const [path, pinned] of Object.entries(pins.instrument)) {
 		if (content.missing.has(path)) continue;
 		const actual = content.files.get(path) ?? "absent";
 		if (actual !== pinned)
 			drift.push({ kind: "instrument", scope: path, pinned, actual });
 	}
 	const roots: [Record<string, string>, DriftKind][] = [
-		[RENDER_TREE_PINS, "render-tree"],
-		[INPUT_TREE_PINS, "input-tree"],
+		[pins.renderTree, "render-tree"],
+		[pins.inputTree, "input-tree"],
 	];
 	for (const [table, kind] of roots)
 		for (const [root, pinned] of Object.entries(table)) {
@@ -2459,7 +2525,7 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 			const actual = treeDigest(content, root);
 			if (actual !== pinned) drift.push({ kind, scope: root, pinned, actual });
 		}
-	for (const [path, pinned] of Object.entries(RENDER_FILE_PINS)) {
+	for (const [path, pinned] of Object.entries(pins.renderFile)) {
 		if (content.missing.has(path)) continue;
 		const actual = content.files.get(path) ?? "absent";
 		if (actual !== pinned)
@@ -2468,11 +2534,15 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 	return drift;
 }
 
-/** Refuse before any browser work; the message must let an operator act. */
+/** Refuse before any browser work; the message must let an operator act.
+ * `pins` exists only so the suite can prove admission against its fixture's own
+ * baseline; the proof calls this with no arguments, i.e. the live tree against
+ * COMMITTED_PINS, fail-closed. */
 export function assertPinnedContent(
 	content: RepositoryContent = snapshotContent(),
+	pins: PinTables = COMMITTED_PINS,
 ) {
-	const drift = contentDrift(content);
+	const drift = contentDrift(content, pins);
 	if (drift.length === 0) return;
 	throw new Error(
 		[
