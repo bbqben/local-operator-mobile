@@ -2355,7 +2355,18 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * into PR #305: both comment chains retained; the merged src carries both
 	 * sides' source, so it matches neither parent. Re-derived with --print over
 	 * the staged merge tree; source identity only, NOT rendered U-08 evidence. */
-	src: "7a6d46c3d9bc1a45f2008b63f947788946be13fde5d0897ffd9cc0e38d2a6022",
+	/* fix(session): a prose turn keeps its handover messages outside the turn bar
+	 * (`turn-condensing.ts` only). The U-08 scene's measured geometry is not
+	 * edited; the one source module that decides which rows a condensed turn
+	 * hides changed. Re-derived with --print over the staged rebased tree
+	 * (run twice, stable); source identity only, NOT rendered, native or device
+	 * evidence. */
+	/* Merge #2 of origin/main 5aced823 (#295 prose-turn condensing, #274
+	 * frame copy) into PR #305: both comment chains retained; the merged src
+	 * carries both sides' source, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree; source identity only, NOT rendered
+	 * U-08 evidence. */
+	src: "9dd724de5d602e0b1e5dc96053f90714c1699aa1670425c06ac0f61ea1f905e6",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -432,6 +432,42 @@ export interface TranscriptMerge {
 }
 
 /**
+ * A shared row's two copies: which one the reader sees.
+ *
+ * THE FRAME IS THE LIVE AUTHORITY, with one exception the wire names itself. The
+ * relay's frame-size fallback (`cap_projection_frame`, the last tier of
+ * `local_operator/mobile/projection.py`) truncates a row's `text` to fit the
+ * frame and marks it `text_complete: false` — measured against a real session,
+ * a 3012-character answer reaches the phone as its first 199 characters plus
+ * `…`. That row is not a preview the reader can open: no screen reads
+ * `text_complete` for display, so a frame copy that replaced a complete page
+ * copy left the reader looking at a shortened answer the device already held in
+ * full, with nothing saying it had been cut (the page read is never text-capped).
+ *
+ * So the page's copy wins when the frame's is marked incomplete AND the page's
+ * is complete AND longer — exactly the shape of "the frame truncated text the
+ * page has whole". Every other case keeps the frame's copy, the streaming tail
+ * included: a row still being written is incomplete too, and its growing text is
+ * longer than the page's older copy, so the live version stays the one rendered.
+ */
+const heldRow = (
+	page: TranscriptEntry,
+	frame: TranscriptEntry | undefined,
+): TranscriptEntry => {
+	if (frame === undefined) return page;
+	if (
+		!frame.text_complete &&
+		page.text_complete &&
+		page.text.length > frame.text.length
+	) {
+		// The frame's other fields stay: it is the live row, and only its text was
+		// cut. The text is the page's, so the row is complete again.
+		return { ...frame, text: page.text, text_complete: true };
+	}
+	return frame;
+};
+
+/**
  * The rows to render: ONE list, from the first paint, out of the two sources
  * the screen holds.
  *
@@ -532,7 +568,7 @@ export const mergeTranscript = (
 	const head = insertedAfter.get(-1);
 	if (head !== undefined) rows.push(...head);
 	history.forEach((row, at) => {
-		rows.push(live.get(at) ?? row);
+		rows.push(heldRow(row, live.get(at)));
 		const after = insertedAfter.get(at);
 		if (after !== undefined) rows.push(...after);
 	});
