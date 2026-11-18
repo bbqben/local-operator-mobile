@@ -50,10 +50,12 @@ import {
 import { threadKey } from "@/team-bridge/store";
 import {
 	readTeamBridgeDraft,
+	type TeamBridgeDraft,
 	teamBridgeDraftKey,
 	writeTeamBridgeDraft,
 } from "@/team-bridge/thread-drafts";
 import { teamBridgeViewerFixture } from "@/testing/team-bridge-fixture";
+import { threadViewportTrace } from "@/testing/thread-viewport-trace";
 import {
 	state as a11yState,
 	CONTROL,
@@ -97,6 +99,14 @@ import { BridgeComposerDock } from "./composer-dock";
 import { BridgeThreadDrawerButton } from "./drawer-adapter";
 import { BridgeGate } from "./gate";
 import { useRememberedThread } from "./last-target-hooks";
+import { buildMentionCandidates, memberKeys } from "./mentions/candidates";
+import {
+	MentionNotice,
+	MentionStrip,
+	mentionNoticeText,
+} from "./mentions/mention-strip";
+import { serializeMentions } from "./mentions/tokens";
+import { useMentions } from "./mentions/use-mentions";
 import { MessageDelivery } from "./message-delivery";
 import { createMessageSender } from "./message-sender";
 import {
@@ -108,7 +118,11 @@ import {
 import { ReplyThreadChip } from "./reply-thread-chip";
 import { parseThreadAnchor, type ThreadAnchor } from "./thread-anchor";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
-import { createThreadViewport, type ThreadViewport } from "./thread-viewport";
+import {
+	createThreadViewport,
+	showsMetadataOverlay,
+	type ThreadViewport,
+} from "./thread-viewport";
 import { useThreadAnchor } from "./use-thread-anchor";
 
 const single = (value: string | string[] | undefined): string =>
@@ -383,13 +397,14 @@ function ThreadContent({
 			}),
 		[accountId, tenantId, conversationId, routeId, target],
 	);
-	const [draft, setDraftState] = useState(() =>
+	const [composerDraft, setDraftState] = useState(() =>
 		readTeamBridgeDraft(draftStorageKey),
 	);
+	const draft = composerDraft.text;
 	const setDraft = useCallback(
-		(next: string) => {
+		(next: TeamBridgeDraft) => {
 			setDraftState(next);
-			writeTeamBridgeDraft(draftStorageKey, next);
+			writeTeamBridgeDraft(draftStorageKey, next.text, next.tokens);
 		},
 		[draftStorageKey],
 	);
@@ -562,6 +577,36 @@ function ThreadContent({
 	);
 	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;
+	/*
+	 * @-mention candidates, from what is already held: the cached directory
+	 * (kept through a 429 or any other error, so it is used whenever it is
+	 * non-empty, whatever `peopleState` says) and this conversation's members.
+	 * Opening the strip never fetches (`mentions/candidates.ts`).
+	 *
+	 * NONE IN A DRAFT DM. Before the first send creates it there is no
+	 * membership to resolve a mention against, and an agent member may start
+	 * INVITED (awaiting acceptance), which the hub would refuse for the whole
+	 * message. The recipient of a 1:1 is notified by the message itself, so
+	 * nothing is lost; suggestions appear once the conversation exists.
+	 */
+	const mentionCandidates = useMemo(
+		() =>
+			conversation
+				? buildMentionCandidates({
+						conversation,
+						people,
+						selfAccountId: state.selfAccountId,
+					})
+				: [],
+		[conversation, people, state.selfAccountId],
+	);
+	const directoryMissing = !!conversation && people.length === 0;
+	const mentions = useMentions({
+		value: composerDraft,
+		setValue: setDraft,
+		candidates: mentionCandidates,
+		directoryMissing,
+	});
 	useEffect(() => {
 		// Cold push/deep links bypass the list, so no directory has hydrated yet.
 		// Resolve live names on this path too instead of exposing stale labels or
@@ -612,6 +657,7 @@ function ThreadContent({
 		});
 		return () => subscription.remove();
 	}, []);
+	const suspendMentions = mentions.suspend;
 	useFocusEffect(
 		useCallback(() => {
 			focusNow.current = true;
@@ -619,9 +665,10 @@ function ThreadContent({
 			return () => {
 				focusNow.current = false;
 				setFocused(false);
+				suspendMentions();
 				setWatchedThread(null);
 			};
-		}, []),
+		}, [suspendMentions]),
 	);
 	useEffect(() => {
 		if (!focused || !active || !admitted || !conversationId) return;
@@ -680,6 +727,13 @@ function ThreadContent({
 		(!conversationId || !!thread?.messages.length || thread?.state === "ready");
 	const dataReady = useRef(false);
 	dataReady.current = readyForPosition;
+	// Which rows a content measurement describes (`dataKey`): keys, not the
+	// array, so a 20 s poll that returns the same rows keeps a measurement valid.
+	const itemsKey = useRef("");
+	itemsKey.current = useMemo(
+		() => items.map((item) => item.key).join("\n"),
+		[items],
+	);
 	if (!viewport.current)
 		viewport.current = createThreadViewport({
 			// Exact measured offset, not scrollToEnd's estimated frame offset.
@@ -692,6 +746,8 @@ function ThreadContent({
 			read: () => rendered.current(),
 			newestSeq: () => newestSeq.current,
 			dataReady: () => dataReady.current,
+			dataKey: () => itemsKey.current,
+			trace: threadViewportTrace,
 			web: Platform.OS === "web",
 			followChanged: (following) => followChanged.current(following),
 			newBelow: setNewBelow,
@@ -702,6 +758,17 @@ function ThreadContent({
 	useEffect(() => {
 		if (readyForPosition && items.length > 0) viewport.current?.dataChanged();
 	}, [items, readyForPosition]);
+	// Proof-only (`thread-viewport-trace.ts`): the screen-level flips that move
+	// the list, alongside the viewport's own events. Null outside the proof job.
+	useEffect(() => {
+		threadViewportTrace?.("screen", {
+			admitted,
+			metadataLoading,
+			readyForPosition,
+			anchorPending: anchorState.pending,
+			items: items.length,
+		});
+	}, [admitted, metadataLoading, readyForPosition, anchorState.pending, items]);
 	// The controller may hold one pending native re-check; never run it after unmount.
 	useEffect(() => () => viewport.current?.dispose(), []);
 	const {
@@ -781,9 +848,21 @@ function ThreadContent({
 			images?.attachmentIds() ?? [],
 		);
 		const settle = images?.beginSend(ids);
+		/*
+		 * Only notifying tokens of ACTIVE members, filtered at the last moment:
+		 * the hub refuses the whole message for any other row, so a member who
+		 * left after the pick cannot turn this send into a 400.
+		 */
+		const currentConversation = store
+			.getState()
+			.orgs[tenantId]?.conversations.find((c) => c.id === conversationId);
+		const mentionRows = serializeMentions(
+			composerDraft.tokens,
+			memberKeys(currentConversation?.members, "active"),
+		);
 		try {
-			if (await sender.current?.(body, ids)) {
-				setDraft("");
+			if (await sender.current?.(body, ids, mentionRows)) {
+				setDraft({ text: "", tokens: [] });
 				images?.clearSent();
 				setAttachNotice(null);
 			}
@@ -1004,9 +1083,25 @@ function ThreadContent({
 					</View>
 				) : (
 					<>
-						{metadataLoading && (
+						{/* LAID OVER the list, like the anchor walk's loading block
+						 *  below: a warm notification tap mounts the thread before the
+						 *  org's conversations resolve, and in normal layout this block
+						 *  took ~120 pt from the list while it loaded, so the list
+						 *  re-laid out under rows it was still landing (#304 QA R4
+						 *  Q1). Laid over, it pushes nothing down, so it shows only where
+						 *  the area is otherwise blank (`showsMetadataOverlay`): never
+						 *  over the preview or the list's own loading/empty/error block
+						 *  (#315 design D1), nor over positioned rows. */}
+						{showsMetadataOverlay({
+							metadataLoading,
+							content: preview || admitted || validDraft,
+							list: !preview && (admitted || validDraft),
+							rows: items.length,
+							positioned,
+						}) && (
 							<View
-								className="gap-3 p-4"
+								pointerEvents="none"
+								className="absolute start-0 end-0 top-0 gap-3 p-4"
 								testID={SURFACE.teamBridgeThreadLoading}
 							>
 								<Skeleton lines={3} />
@@ -1315,6 +1410,14 @@ function ThreadContent({
 													{attachNotice}
 												</Text>
 											)}
+											{mentions.view ? (
+												<MentionStrip
+													view={mentions.view}
+													directoryMissing={directoryMissing}
+													onPick={mentions.pick}
+													shadow={jumpShadow}
+												/>
+											) : null}
 											<BridgeComposerField
 												glass={chromeGlass}
 												label={t("mobile.team_bridge.thread.message")}
@@ -1323,7 +1426,9 @@ function ThreadContent({
 												 *  never wrap or cut (`BridgeComposerField`). */
 												placeholder={t("mobile.team_bridge.thread.message")}
 												draft={draft}
-												onDraftChange={setDraft}
+												onDraftChange={mentions.onChangeText}
+												onSelectionChange={mentions.onSelectionChange}
+												selection={mentions.selection}
 												sending={sending}
 												attachLabel={
 													images
@@ -1344,6 +1449,12 @@ function ThreadContent({
 													void send();
 												}}
 											/>
+											{mentions.notice ? (
+												<MentionNotice
+													text={mentionNoticeText(mentions.notice)}
+													onDismiss={mentions.dismissNotice}
+												/>
+											) : null}
 										</>
 									)}
 								</BridgeComposerDock>

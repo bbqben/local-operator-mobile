@@ -78,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 170, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2).
+		expected: 179, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, counted over the merged en JSON.
 	},
 	{
 		name: "mobile.signin",
@@ -551,12 +551,19 @@ describe("the English catalogues", () => {
 		 * all 25 merged en catalogue files (mobile.common 15, mobile.projects 59,
 		 * mobile.sidebar 42, mobile.team_bridge 160); every shipped locale also
 		 * sums to 1101. */
+		/* feat/bridge-mention-suggestions (#305) adds the nine
+		 * mobile.team_bridge.mentions.* keys for @-mention suggestions; merged with
+		 * main's 1101: 1101 + 9 = 1110, derived by summing the keys of all 25 merged
+		 * en catalogue files (mobile.team_bridge 169). */
 		// PR #303 adds ten mobile.team_bridge.reply_thread keys (nine, plus
 		// reply_thread.more for the 500-reply continuation, review R2):
 		// 1101 + 10 = 1111, re-derived with generate.ts over the merged tree.
 		// feat/pele-diagrams: +8 mobile.session.diagram.* on main's 1111 = 1119,
 		// re-derived with generate.ts over the merged tree.
-		expect(total).toBe(1119);
+		// Merge of main into #305 (feat/bridge-mention-suggestions): +9
+		// mobile.team_bridge.mentions.* on main's 1119 = 1128, re-derived with
+		// generate.ts over the merged tree.
+		expect(total).toBe(1128);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

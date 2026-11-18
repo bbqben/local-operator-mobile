@@ -761,6 +761,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * of the reader's own transcript turn, solved >= 1.25:1 on canvas), with its
 	 * rule in `palette-rules.mjs` and the regenerated preset. No existing role's
 	 * value moved. Identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main b9cc5ce5 into PR #305: main's #292 (Pele diagrams)
+	 * added a rule to `palette-rules.mjs` but left this pin at its parent's
+	 * digest, so main itself fails the identity check. Re-derived with --print
+	 * over the staged merge tree; #305 does not touch design/tokens. Identity
+	 * only, NOT rendered U-08 evidence. */
 	/* Re-pinned 2026-11-18 with --print from main: PR #292's diagram viewer added
 	 * its rows to `palette-rules.mjs` (`CONTROLS`, components.md § 14) and the
 	 * preset/preview layers regenerate from them. No existing role's value moved.
@@ -2335,6 +2340,25 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * fixes): both comment chains and both sides' source kept. --print over
 	 * the staged merge moves only src; app unchanged. Source admission only,
 	 * NOT renewed rendered U-08 evidence. */
+	/* feat/bridge-mention-suggestions: Team Bridge @-mention suggestion strip
+	 * (thread screen, composer field selection passthrough, Textarea props).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* PR #305 UX round-1 remediation (U1, plus design D2/D3): thread drafts
+	 * persist picked mention spans beside the text, the mention hook restores
+	 * them without reopening the strip, the notice's Dismiss meets TOUCH_FLOOR
+	 * and the bridge-off avatar drops its opacity wrapper. Re-derived with
+	 * --print over the staged tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main into PR #305 (feat/bridge-mention-suggestions):
+	 * both comment chains retained; only this pin conflicted. The merged src
+	 * carries main's changes and #305's mention changes, so it matches neither
+	 * parent. Re-derived with --print over the staged merge tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main b9cc5ce5 (#303 reply threads, #292 Pele diagrams)
+	 * into PR #305: both comment chains retained; the merged src carries both
+	 * sides' source, so it matches neither parent. Re-derived with --print over
+	 * the staged merge tree; source identity only, NOT rendered U-08 evidence. */
 	/* fix(session): a prose turn keeps its handover messages outside the turn bar
 	 * (`turn-condensing.ts` only). The U-08 scene's measured geometry is not
 	 * edited; the one source module that decides which rows a condensed turn
@@ -2359,11 +2383,55 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * fix(mic) notes re-applied; the merged src carries both sides, so it matches
 	 * neither parent. Re-derived with --print over the staged merge tree (run
 	 * twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Merge #2 of origin/main 5aced823 (#295 prose-turn condensing, #274
+	 * frame copy) into PR #305: both comment chains retained; the merged src
+	 * carries both sides' source, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree; source identity only, NOT rendered
+	 * U-08 evidence. */
+	/* Merge #3 of origin/main 5095bf0b (#291 mic fix) into PR #305: both
+	 * comment chains retained; the merged src carries both sides' source, so it
+	 * matches neither parent. Re-derived with --print over the staged merge tree;
+	 * source identity only, NOT rendered U-08 evidence. */
+	/* #294 added one test module under `src/` (attach-sheet hand-off), and the
+	 * `src` root digest covers every tracked file there, test files included, so
+	 * the pin went stale with no shipped change. Re-derived with --print at main
+	 * 8f7989ea after #294; source identity only, NOT rendered, native or device
+	 * evidence. */
+	/* Merge #4 of origin/main f3418c8a (#316, #294, #318 re-pins) into PR
+	 * #305: both comment chains retained; the merged src carries both sides'
+	 * source, so it matches neither parent. Re-derived with --print over the
+	 * staged merge tree; source identity only, NOT rendered U-08 evidence. */
+	/* fix(team-bridge): warm notification tap lands its thread (#304 QA R4
+	 * Q1): the Bridge thread viewport trusts a measurement of the rows now
+	 * admitted, the thread's metadata loading block is laid over the list,
+	 * and a proof-only trace seam (`src/testing/thread-viewport-trace.ts`,
+	 * null when committed). The U-08 scene (agent session screen) is not
+	 * edited. --print over the staged tree moves only src (main's own src had
+	 * already drifted from this pin: 4a26b236… at 5aced823); app unchanged.
+	 * Source admission only, NOT rendered, native or device evidence. */
+	/* fix(team-bridge): the laid-over metadata loading block shows only where
+	 * the message area is otherwise blank (#315 design D1). Thread screen and
+	 * viewport only; --print over the staged tree (run twice, stable) moves
+	 * only src; app unchanged. Source identity only, NOT rendered evidence. */
+	/* Merge of origin/main (f3418c8a: #291 mic, #294 attach hand-off, #316/#318
+	 * U-08 re-pins) into fix/thread-warm-landing: main's chain kept first, then
+	 * this PR's two team-bridge notes; the merged src carries both sides, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (run twice, stable). Source identity only, NOT rendered evidence. */
+	/* Merge of origin/main 52ca6f24 (#305 mention suggestions) into
+	 * fix/thread-warm-landing (#315): main's chain kept first, then this PR's
+	 * notes; the merged src carries both sides, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree. Source identity
+	 * only, NOT rendered evidence. */
 	/* fix/home-splash-stuck: Home's recovery decision moved to
 	 * `src/features/home/home-recovery.ts` (+ its test) so the connecting splash
 	 * yields to a live route. Re-derived with --print. Source identity only, NOT
 	 * rendered U-08 evidence. */
-	src: "274e89908e1c75f74c5e7007be43da6f37e637f5233273cb14502c3b94d72c96",
+	/* Merge of origin/main ad73454d into fix/home-splash-stuck (#327): main's
+	 * chain kept first, then this PR's home-recovery note; the merged src
+	 * carries both sides, so it matches neither parent. Re-derived with --print
+	 * over the staged merge tree. Source identity only, NOT rendered evidence. */
+	src: "84c397477e0e9a1b32022d4eceb337ad2cb136ad503ae45d3ef8ef908871414d",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2390,6 +2458,10 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// config, not a U-08 web layout input.
 	// --print re-pin (PR #244 remediation round 1): comment-only edits — the
 	// Android warm-only claim and the exact-set native-config guard.
+	// Merge of origin/main b9cc5ce5 into PR #305: main's #292 (Pele diagrams)
+	// added one dependency (package.json + pnpm-lock.yaml) without re-pinning
+	// them, so main itself fails this check; re-derived with --print over the
+	// staged merge tree. #305 touches neither file. Not a U-08 web layout input.
 	"app.config.ts":
 		"c4b2be52f8a2802eda590a10971a2a624128b86e363f49bfd14ffe611a607d49",
 	"metro.config.js":
