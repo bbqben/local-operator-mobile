@@ -40,6 +40,7 @@ import {
 	notificationsEnabled,
 } from "@/features/notifications/notifications-model";
 import { NotificationsOffRow } from "@/features/notifications/notifications-off-row";
+import { listRefreshing } from "@/features/sessions/list-refreshing";
 import { SessionMoveSheet } from "@/features/sessions/move-sheet";
 import {
 	pillCarriesStaleNote,
@@ -978,7 +979,15 @@ export const ConversationsPane = ({
 				data={items}
 				keyExtractor={itemKey}
 				refreshControl={
-					<RefreshControl refreshing={busy} onRefresh={onRefresh} />
+					<RefreshControl
+						/* Not `busy` alone: a live route can still be awaiting startup
+						 *  admission (`list-refreshing.ts`, PR #327 review m1). */
+						refreshing={listRefreshing({
+							busy,
+							connected: routed && relay() !== null,
+						})}
+						onRefresh={onRefresh}
+					/>
 				}
 				ListHeaderComponent={
 					inListStale || (hiddenSections > 0 && !emptiedByView) ? (

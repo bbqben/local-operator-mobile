@@ -18,8 +18,11 @@
  * So "restoring" is now derived from the same live fact the header chip
  * reads (`connected` = a route whose phase is usable and whose client is
  * published): an in-flight attempt only shows the spinner while there is no
- * live route to show instead. No timer or cap — the live state is the answer.
- * Every other branch keeps its original order: a refusal or an offline device
+ * live route to show instead. This module adds no timer of its own: hiding the
+ * spinner is not a licence for the wait behind it to be unbounded, and the
+ * held steps are bounded at their source (the picker drain gives up after
+ * `PICKER_DRAIN_BOUND_MS`, `picker-privacy.ts`), so admission still returns
+ * and `busy` still clears on a live route. Every other branch keeps its original order: a refusal or an offline device
  * still outranks a quiet composer.
  */
 import type { HomeRecoveryKind } from "./home-splash";

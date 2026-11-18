@@ -108,8 +108,13 @@ vi.mock("expo-file-system", () => ({
 	},
 	File: class {},
 }));
+/* A no-op sweep by default; the bounded-drain case (PR #327 review M1) swaps in
+ *  the real module so admission runs through the real picker drain. */
+const pickerCache = vi.hoisted(() => ({
+	clear: async (): Promise<void> => {},
+}));
 vi.mock("@/features/session/picker-cache", () => ({
-	clearNativePickerCache: async () => {},
+	clearNativePickerCache: () => pickerCache.clear(),
 }));
 /* `AppState` drives the background-launch restore retry (review R1-M2): the
  *  launch state is read once at the cold start and `change` listeners are
@@ -1106,6 +1111,54 @@ describe("startup authorization is admitted by the route (R1-1)", () => {
 			nativePlatform.OS = "web";
 		}
 	});
+	/* PR #327 review M1: every native admission runs the picker drain
+	 *  (`prepareOrdinaryPrivateStorage → clearNativePickerCache`). One picker that
+	 *  never settles (#300) used to hold admission forever — `busy` stuck true
+	 *  under a live route, the TestFlight "Connecting to Mac…" splash. */
+	it("admits the route and clears busy past an image picker that never settles", async () => {
+		const actual = await vi.importActual<
+			typeof import("@/features/session/picker-cache")
+		>("@/features/session/picker-cache");
+		const { pickerPrivacy } = await import("@/features/session/picker-privacy");
+		const mock = await relay();
+		transport(mock.origin);
+		durable.oauth = oauth;
+		nativePlatform.OS = "ios";
+		const storage = new SecureStorage(memorySecureStore());
+		configureStartupAuthorizationStorage({
+			read: () => storage.readStartupAuthorization(),
+			write: (record) => storage.writeStartupAuthorization(record),
+		});
+		await mount();
+		// Earlier cases may have left the singleton withdrawn; this one needs a
+		// picker genuinely in flight, as a reader's open library sheet is.
+		pickerPrivacy.reopen();
+		let settle = () => {};
+		let launched = false;
+		const stuck = pickerPrivacy
+			.run(
+				() =>
+					new Promise<null>((resolve) => {
+						launched = true;
+						settle = () => resolve(null);
+					}),
+			)
+			.catch(() => null);
+		expect(launched).toBe(true);
+		pickerCache.clear = actual.clearNativePickerCache;
+		try {
+			await act(async () => {
+				await latest.selectComputer(computer("a"));
+			});
+			expect(latest.busy).toBe(false);
+			expect(getStartupAuthorization()).not.toBeNull();
+		} finally {
+			settle();
+			await stuck;
+			pickerCache.clear = async () => {};
+			nativePlatform.OS = "web";
+		}
+	}, 15_000);
 	it("survives a failing list REST endpoint with a healthy stream", async () => {
 		const mock = await relay({ sessionsFailure: true });
 		transport();
@@ -3127,10 +3180,6 @@ describe("Radient discovery before a route exists (PR #120 QA round 1, Q1)", () 
 		await act(async () => {
 			picking = latest.selectComputer(target);
 		});
-		await until(() => connectionStore.getState().phase === "live");
-		await until(() => latest.relay() !== null);
-		// The provider's own flags: the attempt has not returned.
-		expect(latest.busy).toBe(true);
 		const recovery = () =>
 			homeRecoveryKind({
 				busy: latest.busy,
@@ -3140,12 +3189,21 @@ describe("Radient discovery before a route exists (PR #120 QA round 1, Q1)", () 
 				offline: false,
 				refusal: latest.refusal,
 			});
-		// What the chip shows (live) is what Home shows: no spinner.
-		expect(recovery()).toBeNull();
-		held.resolve();
-		await act(async () => {
-			await picking;
-		});
+		/* Released in `finally` (QA round 1, Q1): a failed assertion must fail this
+		 *  case alone, not leave the admission tail held for the rest of the file. */
+		try {
+			await until(() => connectionStore.getState().phase === "live");
+			await until(() => latest.relay() !== null);
+			// The provider's own flags: the attempt has not returned.
+			expect(latest.busy).toBe(true);
+			// What the chip shows (live) is what Home shows: no spinner.
+			expect(recovery()).toBeNull();
+		} finally {
+			held.resolve();
+			await act(async () => {
+				await picking;
+			});
+		}
 		expect(latest.busy).toBe(false);
 		expect(recovery()).toBeNull();
 	});
