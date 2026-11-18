@@ -109,7 +109,11 @@ import {
 import { ReplyThreadChip } from "./reply-thread-chip";
 import { parseThreadAnchor, type ThreadAnchor } from "./thread-anchor";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
-import { createThreadViewport, type ThreadViewport } from "./thread-viewport";
+import {
+	createThreadViewport,
+	showsMetadataOverlay,
+	type ThreadViewport,
+} from "./thread-viewport";
 import { useThreadAnchor } from "./use-thread-anchor";
 
 const single = (value: string | string[] | undefined): string =>
@@ -1030,9 +1034,17 @@ function ThreadContent({
 						 *  org's conversations resolve, and in normal layout this block
 						 *  took ~120 pt from the list while it loaded, so the list
 						 *  re-laid out under rows it was still landing (#304 QA R4
-						 *  Q1). Shown only while no rows are on screen; rows that are
-						 *  already positioned are the better loading state. */}
-						{metadataLoading && !(positioned && items.length > 0) && (
+						 *  Q1). Laid over, it pushes nothing down, so it shows only where
+						 *  the area is otherwise blank (`showsMetadataOverlay`): never
+						 *  over the preview or the list's own loading/empty/error block
+						 *  (#315 design D1), nor over positioned rows. */}
+						{showsMetadataOverlay({
+							metadataLoading,
+							content: preview || admitted || validDraft,
+							list: !preview && (admitted || validDraft),
+							rows: items.length,
+							positioned,
+						}) && (
 							<View
 								pointerEvents="none"
 								className="absolute start-0 end-0 top-0 gap-3 p-4"

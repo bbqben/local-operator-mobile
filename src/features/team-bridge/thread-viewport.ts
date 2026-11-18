@@ -110,6 +110,35 @@ export type ThreadViewportTrace = (
 	detail: Record<string, unknown>,
 ) => void;
 
+/**
+ * Whether the thread screen lays its metadata loading block ("Loading
+ * conversation…") over the message area.
+ *
+ * The block is absolutely positioned (#304 QA R4 Q1: in normal layout it took
+ * height from the list mid-landing), so it no longer pushes anything down —
+ * which means it must never share the area with content that has its own
+ * place there, or the two overlap (#315 design D1). It shows only when:
+ * - nothing else occupies the area yet (`content` false: neither the list nor
+ *   the not-joined preview is mounted), or
+ * - the list holds rows it has not positioned yet (`initialRowsHidden`), so
+ *   the area paints empty and the block stands in for them.
+ * Never over the not-joined preview (title, help, Join), nor over the list's
+ * own empty/loading/error block (`rows` 0), nor over positioned rows.
+ */
+export function showsMetadataOverlay(state: {
+	metadataLoading: boolean;
+	/** The list or the not-joined preview is mounted in the message area. */
+	content: boolean;
+	/** The list is the mounted content (not the preview). */
+	list: boolean;
+	rows: number;
+	positioned: boolean;
+}): boolean {
+	if (!state.metadataLoading) return false;
+	if (!state.content) return true;
+	return state.list && state.rows > 0 && !state.positioned;
+}
+
 /** The hold timings live with the shared hold (`reader-scroll-hold.ts`). */
 export { DRAG_RELEASE_MS, WEB_IDLE_MS };
 

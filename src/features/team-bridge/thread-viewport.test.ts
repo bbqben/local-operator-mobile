@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
 	createThreadViewport,
 	DRAG_RELEASE_MS,
+	showsMetadataOverlay,
 	WEB_IDLE_MS,
 } from "./thread-viewport";
 
@@ -1108,6 +1109,51 @@ describe("a scroll that comes to rest stays where it stopped (TestFlight 1157)",
 	});
 });
 
+describe("metadata loading overlay (#315 design D1)", () => {
+	// The block is laid OVER the message area, so it may show only where that
+	// area is otherwise blank; anything with its own place there would overlap.
+	const loading = {
+		metadataLoading: true,
+		content: true,
+		list: true,
+		rows: 0,
+		positioned: false,
+	};
+	it("shows before the list or preview mounts", () => {
+		expect(
+			showsMetadataOverlay({ ...loading, content: false, list: false }),
+		).toBe(true);
+	});
+	it("stands in for rows the list holds back until positioned", () => {
+		expect(showsMetadataOverlay({ ...loading, rows: 3 })).toBe(true);
+	});
+	it("never covers the list's own loading, empty or error block", () => {
+		// rows 0 is every ListEmptyComponent state: "Loading messages…", the
+		// empty copy and the error copy alike.
+		expect(showsMetadataOverlay(loading)).toBe(false);
+		expect(showsMetadataOverlay({ ...loading, positioned: true })).toBe(false);
+	});
+	it("never covers the not-joined preview", () => {
+		expect(showsMetadataOverlay({ ...loading, list: false })).toBe(false);
+		expect(showsMetadataOverlay({ ...loading, list: false, rows: 3 })).toBe(
+			false,
+		);
+	});
+	it("never covers positioned rows, and needs metadata loading", () => {
+		expect(
+			showsMetadataOverlay({ ...loading, rows: 3, positioned: true }),
+		).toBe(false);
+		expect(
+			showsMetadataOverlay({
+				...loading,
+				metadataLoading: false,
+				content: false,
+				list: false,
+			}),
+		).toBe(false);
+	});
+});
+
 describe("screen wiring", () => {
 	const source = readFileSync(
 		new URL("./thread-screen.tsx", import.meta.url),
@@ -1140,6 +1186,10 @@ describe("screen wiring", () => {
 		// In normal layout the block took height from the list while a warm
 		// tap's metadata loaded, re-laying out rows mid-landing.
 		expect(source).toMatch(METADATA_OVERLAY);
+		// Gated by the D1 predicate with the screen's real mount conditions.
+		expect(source).toContain("content: preview || admitted || validDraft,");
+		expect(source).toContain("list: !preview && (admitted || validDraft),");
+		expect(source).not.toContain("metadataLoading && !(positioned");
 		expect(source).toContain("dataKey: () => itemsKey.current");
 		// Proof-only sink: wired from the seam module, never a logger here.
 		expect(source).toContain("trace: threadViewportTrace");

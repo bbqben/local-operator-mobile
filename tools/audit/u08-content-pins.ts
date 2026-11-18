@@ -2345,7 +2345,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * edited. --print over the staged tree moves only src (main's own src had
 	 * already drifted from this pin: 4a26b236… at 5aced823); app unchanged.
 	 * Source admission only, NOT rendered, native or device evidence. */
-	src: "c91be0d2af40d34fc09918630e663de07f357ddb8d3206349bdc2e35aa84f2c8",
+	/* fix(team-bridge): the laid-over metadata loading block shows only where
+	 * the message area is otherwise blank (#315 design D1). Thread screen and
+	 * viewport only; --print over the staged tree (run twice, stable) moves
+	 * only src; app unchanged. Source identity only, NOT rendered evidence. */
+	src: "e00d77d175f7d6f177f16a7e8ea08ba535169141bbbe67521b92b81ec0fb8fcd",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
