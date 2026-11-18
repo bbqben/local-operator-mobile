@@ -1,0 +1,130 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-zh-CN-50d18d",
+ "slice": "O3-b",
+ "locale": "zh-CN",
+ "namespace": "mobile.common",
+ "audit_date": "2026-11-17",
+ "key_count": 2,
+ "keys_audited": [
+  "mobile.common.close",
+  "mobile.common.loading"
+ ],
+ "translator_session": "2c2bf5244f04",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "50d18d99f4dc",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly from the translator scratchpad path via an ordinary file read (read_public_copy refuses mobile catalogue paths); English/context read via git show at source_commit and ordinary file reads in the worktree",
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "source_branch": "feat/i18n-o3b-projects-tags",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/2c2bf5244f04/scratchpad/o3b/draft-zh-CN.json",
+   "sha256": "a379691b714b9a61a972386540c0414277611ef3aed17a76fa9bfd02433cbf57",
+   "canonical_json_sha256": "4365cd5b567bce026709c307276ac497da2f549473d0ea2cc0908fad31da8868"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.json",
+   "sha256": "3c869836292710ccb7770ec5e493a64f8349e2420b2cc0e37be6b3a09b87b31e"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.context.json",
+   "sha256": "656ce9a70cc25fc6acaa2f04c2bbe55c90cde56d516e6960100df5cd1a399e7b"
+  },
+  "zh-CN_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/zh-CN/mobile.common.json",
+   "sha256": "5b4c314924ccbe676c114ba3c79b2c4d64c21921d250f4e34acaabfaf066bc2c",
+   "note": "existing namespace; none of the audited keys present"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/zh-CN.md",
+   "sha256": "8f95d89debbd0af848e72e4805e256ef9566632e520a5c6d9b37928cd617142c"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  },
+  "consistency_references": {
+   "zh-CN/mobile.common.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.common.json",
+    "sha256": "5b4c314924ccbe676c114ba3c79b2c4d64c21921d250f4e34acaabfaf066bc2c"
+   },
+   "zh-CN/mobile.projects.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.projects.json",
+    "sha256": "70c346caade924a01af883a2f0da5f22b4785e06086615ed9dc8c87a17f3004e"
+   },
+   "zh-CN/mobile.sidebar.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.sidebar.json",
+    "sha256": "e79a5fd505411e5f68718abd3475221c1725623f4c5d66a91c9c8a852ca16abc"
+   },
+   "zh-CN/relay.chrome.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/relay.chrome.json",
+    "sha256": "ead09845311695bd01a73f7627ffada9c292d52499bbd2e2164b5b23f3452bf2"
+   },
+   "zh-CN/mobile.session.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.session.json",
+    "sha256": "d41c64e0f9444288b58230298ebb8ab10d75f56d4b7bb0b28e302ce6f4b1da4a"
+   },
+   "zh-CN/mobile.agent_avatar.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.agent_avatar.json",
+    "sha256": "58b1b921cb4d3d96cb9c43cac4396ea180416e27605fbde1f87df56679da7533"
+   },
+   "zh-CN/mobile.computers.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.computers.json",
+    "sha256": "7c0514af7ef1741d1f445c1bf196b3eab98d8734a27b7c74cf0e7f5e2d2cd0d3"
+   },
+   "zh-CN/mobile.refusal.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.refusal.json",
+    "sha256": "b0c7e5bc61759b6c40cbb05040c7e3bbebefbfd94f5371f85a230cb95e0cfb9f"
+   },
+   "zh-CN/mobile.notifications.json": {
+    "path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.notifications.json",
+    "sha256": "75fa748f7f5eaa524ba319c08eb062b033b0d40840e0f0dfeff061dd7585d4ac"
+   },
+   "core zh-CN/relay.session.tags.json": {
+    "path": "~/local-operator/local_operator/i18n/catalogues/zh-CN/relay.session.tags.json",
+    "sha256": "5521d89a950a2e2e551644c0b2e79364b9af5e99d2fe346ad65eb5ad58cf3da5"
+   }
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_zh_categories": [
+   "other"
+  ],
+  "plural_keys_in_namespace": [],
+  "nfc": "pass",
+  "half_width_punct_in_han_prose": "none",
+  "quotes": "“” only",
+  "width": "all within hints",
+  "redaction_marker_hits": 0,
+  "redaction_scan_note": "pattern from brief: draft 0, 8 en/context files 0; brief 2 hits are self-matches inside its own redaction_scan.pattern field",
+  "repo_validator": "not run (worktree read-only for this audit; draft not in catalogue tree); light-Python checker with 4 negative controls + 1 positive control used instead",
+  "rtl": "n/a (zh-CN is LTR)"
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "artifacts": {
+  "report": "report.md",
+  "audit_log": "audit.log"
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

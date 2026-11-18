@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "Réactivez des sections ou les sessions terminées, ou réinitialisez l’affichage.",
 	"mobile.sidebar.empty_by_view.reset": "Réinitialiser l’affichage",
 	"mobile.sidebar.outbox_sending": "Envoi d’un message…",
-	"mobile.sidebar.outbox_failed": "Envoi du message arrêté"
+	"mobile.sidebar.outbox_failed": "Envoi du message arrêté",
+	"mobile.sidebar.tags.remove_all": "Retirer tous les tags",
+	"mobile.sidebar.tags.remove_all_title": "Retirer tous les tags ?",
+	"mobile.sidebar.tags.remove_all_body": "Toutes les catégories seront retirées de cette conversation. Les catégories elles-mêmes restent dans l’application de bureau.",
+	"mobile.sidebar.tags.remove_all_confirm": "Retirer",
+	"mobile.sidebar.tags.saving": "Enregistrement…",
+	"mobile.sidebar.tags.load_failed_title": "Catégories non chargées",
+	"mobile.sidebar.tags.load_failed_body": "Impossible de lire la liste des catégories pour le moment. Réessayez dans un instant.",
+	"mobile.sidebar.tags.empty_headline": "Pas encore de catégorie.",
+	"mobile.sidebar.tags.empty_next": "À créer sur ordinateur.",
+	"mobile.sidebar.tags.announcement": "Tags : {names}",
+	"mobile.sidebar.row.new": "nouvelle",
+	"mobile.sidebar.row.asks": "{count, plural, one {# question} many {# de questions} other {# questions}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}, sans blocage",
+	"mobile.sidebar.row.agents": "{count, plural, one {# agent} many {# d’agents} other {# agents}}",
+	"mobile.sidebar.row.todos": "{count, plural, one {# tâche} many {# de tâches} other {# tâches}}"
 }

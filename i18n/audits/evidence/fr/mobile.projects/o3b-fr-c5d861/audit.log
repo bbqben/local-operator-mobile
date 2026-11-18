@@ -1,0 +1,49 @@
+# o3b-fr-c5d861 mobile.projects: actual printed output of the checks run in session c5d861950a8b (eval kernel + shell), shared across the three fr O3-b namespaces
+
+## checker on draft
+errors: []
+control 'drop key': CAUGHT ["keyset missing={'mobile.common.close'} extra=set()"]
+control 'rename placeholder': CAUGHT ["mobile.projects.milestone.edit_label: placeholders en=['name'] fr=['nom']"]
+control 'drop many arm': CAUGHT ["mobile.sidebar.row.todos: missing fr categories ['many']"]
+control 'few arm': CAUGHT ["mobile.sidebar.row.agents: non-fr categories ['few']"]
+control 'unbalanced': CAUGHT ['mobile.sidebar.row.asks: ICU parse unclosed plural']
+control 'ascii apostrophe': CAUGHT ['mobile.projects.detail.gone: ASCII apostrophe']
+control 'no nnbsp before ?': CAUGHT ['mobile.sidebar.tags.remove_all_title: missing U+202F before : ; ! ?']
+control 'redaction': CAUGHT ['mobile.common.close: redaction marker']
+control 'three dots': CAUGHT ['mobile.sidebar.tags.saving: three dots']
+## source/brief/hash checks
+$ cd /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a && git rev-parse HEAD && git branch --show-current
+39b5e3e5343dc7302b99f731e5806cf82525d346
+feat/i18n-o3b-projects-tags
+[exit 0]
+$ shasum -a 256 /Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json /Users/damian/.local-operator/sessions/5009dab1a05f/scratchpad/o3b/draft-fr.json
+63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe  /Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json
+2c3c8fbe1f1c92be3c131ceda4ff72e2c984a0984a5a3894965f64f6260c12ff  /Users/damian/.local-operator/sessions/5009dab1a05f/scratchpad/o3b/draft-fr.json
+[exit 0]
+src/i18n/catalogues/en/mobile.common.json: sha256@39b5e3e5=3c869836292710ccb7770ec5e493a64f8349e2420b2cc0e37be6b3a09b87b31e brief=3c869836292710ccb7770ec5e493a64f8349e2420b2cc0e37be6b3a09b87b31e match=True blob=a7611cfd1881fc92668fccc805f3dc8ef0302485 brief_blob=a7611cfd1881fc92668fccc805f3dc8ef0302485 match=True
+src/i18n/catalogues/en/mobile.common.context.json: sha256@39b5e3e5=656ce9a70cc25fc6acaa2f04c2bbe55c90cde56d516e6960100df5cd1a399e7b brief=656ce9a70cc25fc6acaa2f04c2bbe55c90cde56d516e6960100df5cd1a399e7b match=True blob=3a2ac4f9fecaafa87e2f3a7182f7d6ba857b4a97 brief_blob=3a2ac4f9fecaafa87e2f3a7182f7d6ba857b4a97 match=True
+src/i18n/catalogues/en/mobile.projects.json: sha256@39b5e3e5=9634fad1aeb854d8ca241dd5ca147561cf83d6781d47ae83c68830899e564994 brief=9634fad1aeb854d8ca241dd5ca147561cf83d6781d47ae83c68830899e564994 match=True blob=ae5adbe9346e73e75e66cb5a9ee046613d5450b3 brief_blob=ae5adbe9346e73e75e66cb5a9ee046613d5450b3 match=True
+src/i18n/catalogues/en/mobile.projects.context.json: sha256@39b5e3e5=493bfbb754c70531825a8c6287f5b06fc79f01c37bebb052d8ce5c319c9f0a8b brief=493bfbb754c70531825a8c6287f5b06fc79f01c37bebb052d8ce5c319c9f0a8b match=True blob=42034efea06823f7c9bdcf0a5f99e37c40e538fb brief_blob=42034efea06823f7c9bdcf0a5f99e37c40e538fb match=True
+src/i18n/catalogues/en/mobile.sidebar.json: sha256@39b5e3e5=d82f1edb95afd7a3cc1bbc37e8f188deb7e43e14cd75888b0b1b24022a27e87f brief=d82f1edb95afd7a3cc1bbc37e8f188deb7e43e14cd75888b0b1b24022a27e87f match=True blob=44aa511fe6fd0d508527c1b892c4efdce1db0d4f brief_blob=44aa511fe6fd0d508527c1b892c4efdce1db0d4f match=True
+src/i18n/catalogues/en/mobile.sidebar.context.json: sha256@39b5e3e5=9c641054a2f00348908213451bf6786149a5678af9da91dff3c5d04ed3d43979 brief=9c641054a2f00348908213451bf6786149a5678af9da91dff3c5d04ed3d43979 match=True blob=b7b1dc73f607f0dcb4d13bc0d670fa44bf856411 brief_blob=b7b1dc73f607f0dcb4d13bc0d670fa44bf856411 match=True
+src/i18n/catalogues/en/relay.chrome.json: sha256@39b5e3e5=043941b6b3b8057cf28b7bef84546aed91ba4f1e3c46fa0fede3a83e3fd004c3 brief=043941b6b3b8057cf28b7bef84546aed91ba4f1e3c46fa0fede3a83e3fd004c3 match=True blob=0e11e28914f8ba6f0231f32537c6b936aae146cf brief_blob=0e11e28914f8ba6f0231f32537c6b936aae146cf match=True
+src/i18n/catalogues/en/relay.chrome.context.json: sha256@39b5e3e5=148d0f626af76802adf2467ab40630cdac076eaa7fb308ed0dc838760bb2d9f2 brief=148d0f626af76802adf2467ab40630cdac076eaa7fb308ed0dc838760bb2d9f2 match=True blob=6919cd80612305ece4a5b2e3da36826ada9a5178 brief_blob=6919cd80612305ece4a5b2e3da36826ada9a5178 match=True
+brief english vs source@39b5e3e5 mismatches: []
+redaction marker hits: draft=0 english_sources=0 brief=2 (pattern (?i)\[redacted[^\]]*\]|<redacted[^>]*>|\*\*\*redacted\*\*\*)
+fr shipped src/i18n/catalogues/fr/mobile.common.json sha256=04f6c9d30d07e62b82bf1c7326842d970d72914b5239cfdf67e8a620063ee75e keys=13 overlap_with_draft=[]
+fr shipped src/i18n/catalogues/fr/mobile.projects.json sha256=8b3f18e5c3d6bc524af05688197de4911f7e188d853e5ac1b661db8513b7ac7e keys=36 overlap_with_draft=[]
+fr shipped src/i18n/catalogues/fr/mobile.sidebar.json sha256=3e5b3b9f098f6073c2c7fbf22c58b885c564201482d12df0adf5b47e77f3d39a keys=27 overlap_with_draft=[]
+fr shipped src/i18n/catalogues/fr/relay.chrome.json sha256=092846834cd5200dfec2b47332a94a6f26aecc482cf4bac5f5afbd0ae88154d0 keys=20 overlap_with_draft=[]
+reused: mobile.projects.create.title fr='Nouveau projet'; relay.chrome.row.tags fr='Tags'; mobile.common.save fr='Enregistrer'
+## width vs hint (chars; U+202F counted as 1)
+OVER ('mobile.sidebar.row.asks', 2, '2 questions', 11, 10)
+OVER ('mobile.sidebar.row.asks', 9, '9 questions', 11, 10)
+OVER ('mobile.sidebar.row.asks', 12, '12 questions', 12, 10)
+OVER ('mobile.sidebar.row.asks', 99, '99 questions', 12, 10)
+OVER ('mobile.sidebar.row.asks', 1000000, '1\u202f000\u202f000 de questions', 22, 10)
+OVER ('mobile.sidebar.row.agents', 1000000, '1\u202f000\u202f000 d’agents', 18, 10)
+OVER ('mobile.sidebar.row.todos', 1000000, '1\u202f000\u202f000 de tâches', 19, 10)
+over-hint count: 7
+namespaces: Counter({'mobile.projects': 23, 'mobile.sidebar': 15, 'mobile.common': 2})
+brief hit at 21709: '178"\n    }\n  },\n  "redaction_scan": {\n    "pattern": "(?i)\\\\[redacted[^\\\\]]*\\\\]|<red'
+brief hit at 21729: 'edaction_scan": {\n    "pattern": "(?i)\\\\[redacted[^\\\\]]*\\\\]|<redacted[^>]*>|\\\\*\\\\*'

@@ -1,0 +1,134 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-es-755419",
+ "slice": "O3-b",
+ "locale": "es",
+ "namespace": "mobile.projects",
+ "audit_date": "2026-11-17",
+ "key_count": 23,
+ "keys_audited": [
+  "mobile.projects.list.load_failed",
+  "mobile.projects.empty.headline",
+  "mobile.projects.empty.next",
+  "mobile.projects.detail.gone",
+  "mobile.projects.detail.title_fallback",
+  "mobile.projects.detail.load_failed",
+  "mobile.projects.detail.milestones_empty",
+  "mobile.projects.detail.sessions_empty",
+  "mobile.projects.detail.delete",
+  "mobile.projects.detail.delete_confirm",
+  "mobile.projects.milestone.add",
+  "mobile.projects.milestone.edit_title",
+  "mobile.projects.milestone.add_submit",
+  "mobile.projects.milestone.remove",
+  "mobile.projects.milestone.remove_confirm",
+  "mobile.projects.milestone.name",
+  "mobile.projects.milestone.name_placeholder",
+  "mobile.projects.milestone.target_date",
+  "mobile.projects.milestone.target_date_placeholder",
+  "mobile.projects.milestone.target_date_help",
+  "mobile.projects.milestone.reopen_hint",
+  "mobile.projects.milestone.complete_hint",
+  "mobile.projects.milestone.edit_label"
+ ],
+ "translator_session": "a24fe2fed9e4",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "7554193aebc4",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly from the translator scratchpad path below with ordinary file reads; read_public_copy was not attempted (the manager brief states it refuses mobile catalogue paths — not independently re-verified here); shipped es catalogues and en inputs also read as ordinary files from the worktree",
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "source_branch": "feat/i18n-o3b-projects-tags",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/a24fe2fed9e4/scratchpad/o3b/draft-es.json",
+   "sha256": "0f98a9560be01f834f3fd91e6efaa60787358ca86f679527ed3e92af4d705fa7",
+   "canonical_json_sha256": "c99fe0149efbda9233c137667ffce0563e6fd92823060c21b8a6d1a7850130e7"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.projects.json",
+   "sha256": "9634fad1aeb854d8ca241dd5ca147561cf83d6781d47ae83c68830899e564994"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.projects.context.json",
+   "sha256": "493bfbb754c70531825a8c6287f5b06fc79f01c37bebb052d8ce5c319c9f0a8b"
+  },
+  "es_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/es/mobile.projects.json",
+   "sha256": "68c034fef0eb45995466124b4d5b1c90ab5f5bc731ee2195440431529d9d2fd5",
+   "note": "existing es catalogue; new O3-b keys absent from it"
+  },
+  "es_shipped_compared": {
+   "mobile.common": "55afb22bd6755965fd8db73ae0fc67167ef2012670e905c88b3dc6f1b1f62d80",
+   "mobile.projects": "68c034fef0eb45995466124b4d5b1c90ab5f5bc731ee2195440431529d9d2fd5",
+   "mobile.sidebar": "2d6b3732558b9fe6e2524f9ec60fdaf9bee7d50af4e8745c388cdf62ee523a2c",
+   "mobile.session": "3f968cd4a42353ee1405eaed6310fb9aa5d68c72f8b7fb50708e659cd1b2da45",
+   "relay.chrome": "047c5dcfc70e0add879c896df3fcc811e95cf665e7d0041d6efd8261af215944"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/es.md",
+   "sha256": "77b9227213802d14c74d4298d6b346ad842bbf2a5ca3b9d46fc6144430d26c3e"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass (repo runtime parser src/i18n/messages.ts parseMessage; param name/kind maps equal to English for all keys)",
+  "cldr_es_categories": [
+   "one",
+   "many",
+   "other"
+  ],
+  "nfc": "pass",
+  "typography": "pass (curly quotes, U+2026 ellipsis, ¿…?)",
+  "redaction_marker_hits": 0,
+  "redaction_note": "draft 0; en inputs 0 each; brief 0 after excluding redaction_scan.pattern (which matches itself: 2 raw hits)",
+  "repo_validator": "not run (scripts/i18n/generate.ts --check validates repo catalogues and the draft is not in the repo; repo read-only per task). The repo runtime parser was used instead via a scratch node script."
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "ES-P1",
+   "ES-P2"
+  ]
+ },
+ "findings": [
+  {
+   "id": "ES-P1",
+   "severity": "MINOR",
+   "key": "mobile.projects.detail.gone",
+   "current": "Ese proyecto ya no existe.",
+   "problem": "Context: shown on a 404 when the project was deleted OR renamed elsewhere. English hedges (\"no longer there\"); \"ya no existe\" asserts deletion, which is false after a rename and may make the operator think the row is gone for good. Shipped es renders the same hedge as \"ya no está disponible\" (mobile.team_bridge.thread.anchor_missing, mobile.session.subagent.unavailable_headline).",
+   "suggestion": "Ese proyecto ya no está disponible."
+  },
+  {
+   "id": "ES-P2",
+   "severity": "NIT",
+   "key": "mobile.projects.list.load_failed, mobile.projects.detail.load_failed",
+   "current": "No pudimos leer tus proyectos ahora mismo. / No pudimos leer ese proyecto ahora mismo.",
+   "problem": "Correct and natural, but the three shipped siblings of the identical English pattern \"We couldn't read X just now.\" use \"Ahora mismo no hemos podido leer …\" (mobile.home.folders_read_failed, mobile.home.models_read_failed, mobile.schedules.read_unreachable). Shipped es is itself mixed (\"No pudimos iniciar sesión\"), so non-gating.",
+   "suggestion": "Ahora mismo no hemos podido leer tus proyectos. / Ahora mismo no hemos podido leer ese proyecto."
+  }
+ ],
+ "artifacts": {
+  "report": "report.md",
+  "audit_log": "audit.log"
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

@@ -1,0 +1,70 @@
+# audit.log for o3b-ur-ec27f8 mobile.common — actual command output (not notes)
+$ git -C ~/local-operator-mobile/.worktrees/i18n-m3-s2a rev-parse HEAD  -> 39b5e3e5343dc7302b99f731e5806cf82525d346 (branch feat/i18n-o3b-projects-tags)
+$ shasum -a 256 <brief> <draft>  (originals and scratch copies)
+63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe  translation-brief.json (original + copy)
+dbc9e98f8ca45c6a9b88c7f16d0071b4e2dbe86ed4a3ce3395dc34460b2e1ade  draft-ur.json (original + copy)
+$ node_modules/.bin/tsx /Users/damian/.local-operator/sessions/ec27f8bf0ab6/scratchpad/o3b-audit/work/check.ts /Users/damian/.local-operator/sessions/ec27f8bf0ab6/scratchpad/o3b-audit/work   (check.ts sha256 8f5eafa9d7d34f87ec01c8623017853cbafadf9735b460e16fdfee1de33a2ae4, output sha256 a352a7f254110f64bbf531173a312addb279fcab63cff32fc5e03ea37e1c05ef)
+ur CLDR categories: one,other
+keys brief=40 draft=40 missing=0 extra=0
+ok   mobile.common.close g=8/~12  leadLatinOrPh=false firstStrong=ب 
+ok   mobile.common.loading g=13/~16  leadLatinOrPh=false firstStrong=ل 
+ok   mobile.projects.list.load_failed g=36  leadLatinOrPh=false firstStrong=ہ 
+ok   mobile.projects.empty.headline g=23/~32  leadLatinOrPh=false firstStrong=ا 
+ok   mobile.projects.empty.next g=73  leadLatinOrPh=false firstStrong=ش 
+      render: شروع کرنے کے لیے “نیا پروجیکٹ” دبائیں، یا کسی ایجنٹ سے ایک بنانے کو کہیں۔
+ok   mobile.projects.detail.gone g=29  leadLatinOrPh=false firstStrong=ی 
+ok   mobile.projects.detail.title_fallback g=7/~16  leadLatinOrPh=false firstStrong=پ 
+ok   mobile.projects.detail.load_failed g=32  leadLatinOrPh=false firstStrong=ہ 
+ok   mobile.projects.detail.milestones_empty g=18/~24  leadLatinOrPh=false firstStrong=ک 
+ok   mobile.projects.detail.sessions_empty g=23/~28  leadLatinOrPh=false firstStrong=ک 
+ok   mobile.projects.detail.delete g=16/~24  leadLatinOrPh=false firstStrong=پ 
+ok   mobile.projects.detail.delete_confirm g=8/~12  leadLatinOrPh=false firstStrong=ح 
+ok   mobile.projects.milestone.add g=17/~24  leadLatinOrPh=false firstStrong=س 
+ok   mobile.projects.milestone.edit_title g=22/~24  leadLatinOrPh=false firstStrong=س 
+ok   mobile.projects.milestone.add_submit g=9/~12  leadLatinOrPh=false firstStrong=ش 
+ok   mobile.projects.milestone.remove g=14/~24  leadLatinOrPh=false firstStrong=س 
+ok   mobile.projects.milestone.remove_confirm g=6/~12  leadLatinOrPh=false firstStrong=ہ 
+ok   mobile.projects.milestone.name g=3  leadLatinOrPh=false firstStrong=ن 
+ok   mobile.projects.milestone.name_placeholder g=10/~20  leadLatinOrPh=false firstStrong=پ 
+ok   mobile.projects.milestone.target_date g=12/~20  leadLatinOrPh=false firstStrong=ہ 
+ok   mobile.projects.milestone.target_date_placeholder g=10  leadLatinOrPh=false firstStrong=س 
+ok   mobile.projects.milestone.target_date_help g=36  leadLatinOrPh=false firstStrong=ت 
+ok   mobile.projects.milestone.reopen_hint g=27  leadLatinOrPh=false firstStrong=س 
+ok   mobile.projects.milestone.complete_hint g=31  leadLatinOrPh=false firstStrong=س 
+ok   mobile.projects.milestone.edit_label g=39  leadLatinOrPh=false firstStrong=س 
+      render: سنگ میل “Work, Research” میں ترمیم کریں
+ok   mobile.sidebar.tags.remove_all g=16/~24  leadLatinOrPh=false firstStrong=ت 
+ok   mobile.sidebar.tags.remove_all_title g=17/~28  leadLatinOrPh=false firstStrong=ت 
+ok   mobile.sidebar.tags.remove_all_body g=83  leadLatinOrPh=false firstStrong=ا 
+ok   mobile.sidebar.tags.remove_all_confirm g=6/~12  leadLatinOrPh=false firstStrong=ہ 
+ok   mobile.sidebar.tags.saving g=16/~12 OVER(16>12) leadLatinOrPh=false firstStrong=م 
+ok   mobile.sidebar.tags.load_failed_title g=26/~32  leadLatinOrPh=false firstStrong=آ 
+ok   mobile.sidebar.tags.load_failed_body g=68  leadLatinOrPh=false firstStrong=ہ 
+ok   mobile.sidebar.tags.empty_headline g=20/~28  leadLatinOrPh=false firstStrong=ا 
+ok   mobile.sidebar.tags.empty_next g=21/~24  leadLatinOrPh=false firstStrong=ڈ 
+ok   mobile.sidebar.tags.announcement g=20  leadLatinOrPh=false firstStrong=ٹ 
+      render: ٹیگز: Work, Research
+ok   mobile.sidebar.row.new g=3/~8  leadLatinOrPh=false firstStrong=ن 
+ok   mobile.sidebar.row.asks g=8/6/8/9/~10  leadLatinOrPh=true firstStrong=c 
+      render: 0 سوالات | 1 سوال | 2 سوالات | 99 سوالات
+ok   mobile.sidebar.row.asks_not_blocker g=50  leadLatinOrPh=true firstStrong=a 
+      render: 2 سوالات، رکاوٹ نہیں — ایجنٹ کام جاری رکھے ہوئے ہے
+ok   mobile.sidebar.row.agents g=8/7/8/9/~10  leadLatinOrPh=true firstStrong=c 
+      render: 0 ایجنٹس | 1 ایجنٹ | 2 ایجنٹس | 99 ایجنٹس
+ok   mobile.sidebar.row.todos g=5/5/5/6/~10  leadLatinOrPh=true firstStrong=c 
+      render: 0 کام | 1 کام | 2 کام | 99 کام
+negctl param rename: caught
+negctl broken ICU: caught
+negctl bidi ctl: caught
+negctl marker: caught
+negctl danda: caught
+redaction: draft=0 brief_raw=2 brief_excl_pattern_field=0
+FAIL rows: 0
+mobile.common 0
+mobile.common.context 0
+mobile.projects 0
+mobile.projects.context 0
+mobile.sidebar 0
+mobile.sidebar.context 0
+relay.chrome 0
+relay.chrome.context 0

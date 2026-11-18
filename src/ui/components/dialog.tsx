@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ScopedVariables } from "uniwind";
+import { t } from "@/i18n";
 import { haptic } from "@/lib/haptics";
 import { CONTROL, ROLE, SURFACE } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
@@ -130,7 +131,7 @@ export const Dialog = ({
 								backgroundColor: drawsDim ? scrimColour : "transparent",
 							}}
 							accessibilityRole={ROLE.button}
-							accessibilityLabel="Cancel"
+							accessibilityLabel={t("mobile.common.cancel")}
 							testID={CONTROL.dialogScrim}
 							onPress={onCancel}
 						/>
@@ -188,7 +189,7 @@ export const Dialog = ({
 								</ScrollView>
 								<View className="mt-4 flex-row justify-end gap-2">
 									<Button
-										label="Cancel"
+										label={t("mobile.common.cancel")}
 										variant="quiet"
 										testID={CONTROL.dialogCancel}
 										onPress={onCancel}

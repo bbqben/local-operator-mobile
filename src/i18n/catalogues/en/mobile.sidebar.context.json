@@ -106,5 +106,65 @@
 	"mobile.sidebar.outbox_failed": {
 		"role": "status",
 		"note": "Small line in danger colour on a conversation row in the conversation list when the phone stopped trying to deliver a message to that conversation and needs the user (Retry or Discard inside the conversation). Delivery is UNKNOWN: must not claim the message was definitely not received. Also read aloud as part of the row."
+	},
+	"mobile.sidebar.tags.remove_all": {
+		"role": "button",
+		"note": "Destructive button in the conversation Tags sheet that clears every category from this conversation (opens a confirm). Keep under ~24 characters. No placeholders."
+	},
+	"mobile.sidebar.tags.remove_all_title": {
+		"role": "heading",
+		"note": "Title of the confirm dialog opened by Remove all tags. Question, keep under ~28 characters. No placeholders."
+	},
+	"mobile.sidebar.tags.remove_all_body": {
+		"role": "help",
+		"note": "Body of the Remove all tags confirm dialog: the assignment is cleared, the categories are not deleted. Two sentences. No placeholders."
+	},
+	"mobile.sidebar.tags.remove_all_confirm": {
+		"role": "confirm",
+		"note": "Destructive confirm button of the Remove all tags dialog. One verb, keep under ~12 characters. No placeholders."
+	},
+	"mobile.sidebar.tags.saving": {
+		"role": "status",
+		"note": "Muted progress word shown beside a tag row (and under Remove all tags) while the write is in flight. Keep the single ellipsis character. Keep under ~12 characters. No placeholders."
+	},
+	"mobile.sidebar.tags.load_failed_title": {
+		"role": "heading",
+		"note": "Title of the error alert in the Tags sheet when the category list could not be read. No final period. Keep under ~32 characters. No placeholders."
+	},
+	"mobile.sidebar.tags.load_failed_body": {
+		"role": "help",
+		"note": "Body of the error alert in the Tags sheet; a pinned Try again button follows. Two short sentences, blameless. No placeholders."
+	},
+	"mobile.sidebar.tags.empty_headline": {
+		"role": "heading",
+		"note": "Empty-state headline in the Tags sheet when no tag categories exist. Short sentence, keep under ~28 characters; shown at 200% text in a ~300 pt sheet. No placeholders."
+	},
+	"mobile.sidebar.tags.empty_next": {
+		"role": "help",
+		"note": "Empty-state second line in the Tags sheet: categories are created in the desktop app, not on the phone. Very short (the 200% frame cut a longer line); keep under ~24 characters. No placeholders."
+	},
+	"mobile.sidebar.tags.announcement": {
+		"role": "meta",
+		"note": "Screen-reader name of a conversation row's tag line. {names} is the operator's own category names joined with \", \" (user data, never translated). Keep the placeholder; the \"Tags\" word should match relay.chrome.row.tags."
+	},
+	"mobile.sidebar.row.new": {
+		"role": "status",
+		"note": "Accent marker on a conversation row with unread activity. One lowercase word, keep under ~8 characters (sits in a crowded meta strip). No placeholders."
+	},
+	"mobile.sidebar.row.asks": {
+		"role": "meta",
+		"note": "Count chip on a conversation row: open asks (questions/approvals queued for the operator). Monospace meta strip, never truncated: keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them."
+	},
+	"mobile.sidebar.row.asks_not_blocker": {
+		"role": "meta",
+		"note": "Screen-reader name of the asks chip. {asks} is the already-formatted count (mobile.sidebar.row.asks, e.g. \"2 asks\"); \"not a blocker\" says the agent keeps working, it is NOT waiting. Keep the placeholder."
+	},
+	"mobile.sidebar.row.agents": {
+		"role": "meta",
+		"note": "Count chip on a conversation row: running subagents. Monospace meta strip that yields at large text; keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them."
+	},
+	"mobile.sidebar.row.todos": {
+		"role": "meta",
+		"note": "Count chip on a conversation row: open todo items in the conversation's task list. Monospace meta strip that yields at large text; keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them."
 	}
 }

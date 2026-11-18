@@ -11,5 +11,7 @@
 	"mobile.common.not_found.action": "سیشنز میں واپس جائیں",
 	"mobile.common.copy": "کاپی کریں",
 	"mobile.common.copied": "کاپی ہو گیا",
-	"mobile.common.copy_command_hint": "یہ “{label}” والی کمانڈ کاپی کرتا ہے"
+	"mobile.common.copy_command_hint": "یہ “{label}” والی کمانڈ کاپی کرتا ہے",
+	"mobile.common.close": "بند کریں",
+	"mobile.common.loading": "لوڈ ہو رہا ہے"
 }

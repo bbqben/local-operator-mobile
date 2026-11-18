@@ -200,7 +200,7 @@ export default function Schedules() {
 					<Alert severity="error">{refused ?? readUnreachable()}</Alert>
 					<Button
 						testID={CONTROL.schedulesRetry}
-						label="Try again"
+						label={t("mobile.common.try_again")}
 						onPress={() => void load()}
 						variant="outline"
 						size="sm"

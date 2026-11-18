@@ -1,0 +1,111 @@
+# audit.log — o3b-ru-ea41a6 (mobile.sidebar); actual execution output, auditor session ea41a6f7ac32
+# shared run covering all three O3-b ru namespaces (one draft file); the namespace filter is applied in record.json.
+$ shasum -a 256 /Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json /Users/damian/.local-operator/sessions/480843838cb0/scratchpad/o3b/draft-ru.json
+63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe  /Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json
+f49c395230b8eea8b2906874866fcc83eb2883daf978fff58bc4c41a48696315  /Users/damian/.local-operator/sessions/480843838cb0/scratchpad/o3b/draft-ru.json
+$ cd /Users/damian/.local-operator/sessions/ea41a6f7ac32/scratchpad/o3b-audit && python3 check_ru.py   # ICU parser with 3 negative controls, en-at-source hash check, typography, widths, redaction scan
+brief sha256 63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe
+draft sha256 f49c395230b8eea8b2906874866fcc83eb2883daf978fff58bc4c41a48696315
+worktree HEAD 39b5e3e5343dc7302b99f731e5806cf82525d346
+draft source_commit 39b5e3e5343dc7302b99f731e5806cf82525d346 match
+draft brief_sha256 match True
+  en src/i18n/catalogues/en/mobile.common.json sha256 3c8698362927 ok
+  en src/i18n/catalogues/en/mobile.common.context.json sha256 656ce9a70cc2 ok
+  en src/i18n/catalogues/en/mobile.projects.json sha256 9634fad1aeb8 ok
+  en src/i18n/catalogues/en/mobile.projects.context.json sha256 493bfbb754c7 ok
+  en src/i18n/catalogues/en/mobile.sidebar.json sha256 d82f1edb95af ok
+  en src/i18n/catalogues/en/mobile.sidebar.context.json sha256 9c641054a2f0 ok
+  en src/i18n/catalogues/en/relay.chrome.json sha256 043941b6b3b8 ok
+  en src/i18n/catalogues/en/relay.chrome.context.json sha256 148d0f626af7 ok
+brief keys 40 draft keys 40
+missing [] extra []
+brief english != source []
+placeholder/ICU failures 0
+NEG ctl missing few -> ["plural arms ['many', 'one', 'other'] != one/few/many/other"]
+NEG ctl renamed ph -> ["placeholder set ['name'] vs ['nom']"]
+NEG ctl unbalanced -> ["parse ['unclosed plural count']"]
+typography scan done
+  width mobile.common.close 7/12 ok
+  width mobile.common.loading 8/16 ok
+  width mobile.projects.empty.headline 18/32 ok
+  width mobile.projects.detail.title_fallback 6/16 ok
+  width mobile.projects.detail.milestones_empty 8/24 ok
+  width mobile.projects.detail.sessions_empty 21/28 ok
+  width mobile.projects.detail.delete 14/24 ok
+  width mobile.projects.detail.delete_confirm 7/12 ok
+  width mobile.projects.milestone.add 13/24 ok
+  width mobile.projects.milestone.edit_title 13/24 ok
+  width mobile.projects.milestone.add_submit 8/12 ok
+  width mobile.projects.milestone.remove 12/24 ok
+  width mobile.projects.milestone.remove_confirm 7/12 ok
+  width mobile.projects.milestone.name_placeholder 11/20 ok
+  width mobile.projects.milestone.target_date 12/20 ok
+  width mobile.sidebar.tags.remove_all 14/24 ok
+  width mobile.sidebar.tags.remove_all_title 15/28 ok
+  width mobile.sidebar.tags.remove_all_confirm 5/12 ok
+  width mobile.sidebar.tags.saving 11/12 ok
+  width mobile.sidebar.tags.load_failed_title 24/32 ok
+  width mobile.sidebar.tags.empty_headline 19/28 ok
+  width mobile.sidebar.tags.empty_next 24/24 ok
+  width mobile.sidebar.row.new 5/8 ok
+  width mobile.sidebar.row.asks one n=5 "5 вопрос" 8/10 ok
+  width mobile.sidebar.row.asks one n=25 "25 вопрос" 9/10 ok
+  width mobile.sidebar.row.asks few n=5 "5 вопроса" 9/10 ok
+  width mobile.sidebar.row.asks few n=25 "25 вопроса" 10/10 ok
+  width mobile.sidebar.row.asks many n=5 "5 вопросов" 10/10 ok
+  width mobile.sidebar.row.asks many n=25 "25 вопросов" 11/10 OVER
+  width mobile.sidebar.row.asks other n=5 "5 вопроса" 9/10 ok
+  width mobile.sidebar.row.asks other n=25 "25 вопроса" 10/10 ok
+  width mobile.sidebar.row.agents one n=5 "5 агент" 7/10 ok
+  width mobile.sidebar.row.agents one n=25 "25 агент" 8/10 ok
+  width mobile.sidebar.row.agents few n=5 "5 агента" 8/10 ok
+  width mobile.sidebar.row.agents few n=25 "25 агента" 9/10 ok
+  width mobile.sidebar.row.agents many n=5 "5 агентов" 9/10 ok
+  width mobile.sidebar.row.agents many n=25 "25 агентов" 10/10 ok
+  width mobile.sidebar.row.agents other n=5 "5 агента" 8/10 ok
+  width mobile.sidebar.row.agents other n=25 "25 агента" 9/10 ok
+  width mobile.sidebar.row.todos one n=5 "5 задача" 8/10 ok
+  width mobile.sidebar.row.todos one n=25 "25 задача" 9/10 ok
+  width mobile.sidebar.row.todos few n=5 "5 задачи" 8/10 ok
+  width mobile.sidebar.row.todos few n=25 "25 задачи" 9/10 ok
+  width mobile.sidebar.row.todos many n=5 "5 задач" 7/10 ok
+  width mobile.sidebar.row.todos many n=25 "25 задач" 8/10 ok
+  width mobile.sidebar.row.todos other n=5 "5 задачи" 8/10 ok
+  width mobile.sidebar.row.todos other n=25 "25 задачи" 9/10 ok
+redaction hits draft 0
+redaction hits brief raw 2 ['[redacted[^\\\\]', '<redacted[^>']
+redaction hits brief excl. redaction_scan field 0
+redaction hits en files at source commit 0
+
+$ python3 consistency_ru.py   # shipped-ru glossary/register comparison at worktree HEAD 39b5e3e5
+mobile.projects.create.title = Новый проект
+relay.chrome.row.tags = Теги
+mobile.projects.create.name = Имя
+mobile.projects.milestones.none = вех нет
+mobile.projects.section.linked_sessions = связанные сессии
+mobile.projects.remove_milestone_body = Удалить веху «{name}» из этого проекта? Веха исчезнет навсегда. Сессии проекта и его строка прогресса не затрагиваются.
+mobile.agent_avatar.edit_hint = Изменить это изображение можно в приложении для компьютера
+relay.transcript.label.ask = Вопрос
+mobile.session.region.label_todos = задачи
+mobile.chrome.drawer.open_count = Открыть беседы, {count, plural, one {# новая беседа} few {# новые беседы} many {# новых бесед} other {# новой беседы}}
+mobile.home.picker.loading = Загрузка…
+mobile.computers.refusal.retry_next = Обычно это временный сбой сети. Повторите попытку чуть позже.
+-- shipped ru for EN "couldn't read ... just now":
+  mobile.home.folders_read_failed: "We couldn't read this computer's folders just now." -> 'Не удалось прочитать папки этого компьютера.'
+  mobile.home.models_read_failed: "We couldn't read this computer's model list just now." -> 'Не удалось прочитать список моделей этого компьютера.'
+  mobile.schedules.read_unreachable: "We couldn't read this machine's schedules just now." -> 'Не удалось прочитать расписания этой машины.'
+-- shipped ru values starting "Сейчас не удалось": 0
+-- shipped ru containing "срез": []
+-- core web relay.session.tags.remove_all = удалить все теги | empty_hint = создайте категорию в настольном приложении или в терминале
+
+$ sed -n 315,335p src/ui/components/list-row.tsx | grep -n shrink   (in /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a)
+4:					className="shrink-0 text-mono-sm text-ink-dim"
+14:				<Text className="shrink-0 text-mono-sm text-ink-dim">
+19:				<Text className="shrink-0 text-mono-sm text-ink-dim">
+# repo validator (npm run i18n:check) NOT run: it validates the repo's catalogue files, the draft is not in the repo, and this audit is read-only on the worktree (no node_modules in the worktree either).
+# read route: ordinary file reads of the draft, brief and catalogues (core read_public_copy refuses mobile catalogue paths); no MT/translation service used.
+
+# post-check correction (auditor): checker sampled n=5 and n=25 only; by arithmetic every two-digit count in the many arm ("10 вопросов") is 11 chars. RU-S3 wording corrected; severity unchanged.
+many n=10: "10 вопросов" len=11
+many n=11: "11 вопросов" len=11
+many n=20: "20 вопросов" len=11

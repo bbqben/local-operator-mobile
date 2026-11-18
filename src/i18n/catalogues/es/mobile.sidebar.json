@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "Vuelve a activar secciones o sesiones finalizadas, o restablece la vista.",
 	"mobile.sidebar.empty_by_view.reset": "Restablecer vista",
 	"mobile.sidebar.outbox_sending": "Enviando un mensaje…",
-	"mobile.sidebar.outbox_failed": "El mensaje dejó de enviarse"
+	"mobile.sidebar.outbox_failed": "El mensaje dejó de enviarse",
+	"mobile.sidebar.tags.remove_all": "Quitar las etiquetas",
+	"mobile.sidebar.tags.remove_all_title": "¿Quitar todas las etiquetas?",
+	"mobile.sidebar.tags.remove_all_body": "Esto quita todas las categorías de esta conversación. Las categorías siguen existiendo en la aplicación de escritorio.",
+	"mobile.sidebar.tags.remove_all_confirm": "Quitar",
+	"mobile.sidebar.tags.saving": "Guardando…",
+	"mobile.sidebar.tags.load_failed_title": "Tus categorías no se cargaron",
+	"mobile.sidebar.tags.load_failed_body": "No pudimos leer la lista de categorías ahora mismo. Inténtalo de nuevo en un momento.",
+	"mobile.sidebar.tags.empty_headline": "Aún no hay categorías.",
+	"mobile.sidebar.tags.empty_next": "Créalas en tu máquina.",
+	"mobile.sidebar.tags.announcement": "Etiquetas: {names}",
+	"mobile.sidebar.row.new": "nueva",
+	"mobile.sidebar.row.asks": "{count, plural, one {# pregunta} many {# de preguntas} other {# preguntas}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}, sin bloqueo",
+	"mobile.sidebar.row.agents": "{count, plural, one {# agente} many {# de agentes} other {# agentes}}",
+	"mobile.sidebar.row.todos": "{count, plural, one {# tarea} many {# de tareas} other {# tareas}}"
 }
