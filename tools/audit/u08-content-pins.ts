@@ -2291,7 +2291,24 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * #301's tunnel-transient changes, so it matches neither parent.
 	 * Re-derived with --print over the staged merge tree (src the only
 	 * differing root); source identity only, NOT rendered U-08 evidence. */
-	src: "d428cbf7b74af931ca3b63ecd52514006fdec626a571477fb2735b8986c9d970",
+	/* Re-pinned 2026-11-17 for fix/bridge-transient with --print at the staged
+	 * tree: Team Bridge keeps held rows on every transient failure (store),
+	 * holds hash-pinned endpoint photos and caps photo reads at 4 in flight
+	 * (avatars), and the drawer reads photos only for on-screen rows
+	 * (avatar-viewport, profile-card, list-screen scroll signal). No U-08
+	 * instrument, copy or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* PR #306 remediation: per-half transient recovery, bounded cancellable
+	 * viewport photo reads and endpoint authorization on admission. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Convergence with upstream #301: both histories preserved; the combined
+	 * source identity was re-derived. This is NOT rendered U-08 evidence. */
+	/* PR #306 round-2 remediation: an expired 429 yielding to fresh rows clears
+	 * Catching up (R2-1), endpoint photos reuse a verified read for the
+	 * directory TTL and the photo budget is metered in requests sent (U5/D4).
+	 * Re-derived with --print over the staged tree; source identity only, NOT
+	 * rendered U-08 evidence. */
+	src: "e618f8e39d51fc42e03944a445a358b2ae16aa664ef2a68f0ae5ae9ae9a06338",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
