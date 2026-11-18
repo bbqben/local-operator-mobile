@@ -29,6 +29,7 @@ import {
 } from "react-native";
 import { t } from "@/i18n";
 import { ROLE, SURFACE, teamBridgeMentionId } from "@/ui/a11y";
+import { TOUCH_FLOOR } from "@/ui/layout";
 import { cx } from "@/ui/variants";
 import { ProfileSubjectAvatar, UnknownSenderAvatar } from "../profile-card";
 import type { MentionCandidateRow } from "./candidates";
@@ -101,16 +102,14 @@ export function MentionRow({
 					)}
 					style={{ minHeight: MENTION_ROW_PT }}
 				>
-					<View className={row.bridgeOff ? "opacity-60" : undefined}>
-						{row.profile ? (
-							<ProfileSubjectAvatar
-								subject={{ person: row.profile, agent: row.kind === "agent" }}
-								size="sm"
-							/>
-						) : (
-							<UnknownSenderAvatar kind={row.kind} size="sm" />
-						)}
-					</View>
+					{row.profile ? (
+						<ProfileSubjectAvatar
+							subject={{ person: row.profile, agent: row.kind === "agent" }}
+							size="sm"
+						/>
+					) : (
+						<UnknownSenderAvatar kind={row.kind} size="sm" />
+					)}
 					<View className="min-w-0 flex-1">
 						<Text
 							numberOfLines={1}
@@ -244,8 +243,9 @@ export function MentionNotice({
 			<Pressable
 				accessibilityRole={ROLE.button}
 				onPress={onDismiss}
-				hitSlop={12}
-				className="px-2 py-1"
+				// Hit slop cannot extend beyond the row on native and isn't applied on web.
+				style={{ minHeight: TOUCH_FLOOR, minWidth: TOUCH_FLOOR }}
+				className="items-center justify-center px-2 py-1"
 			>
 				<Text className="text-meta font-medium text-accent">
 					{t("mobile.team_bridge.mentions.dismiss_notice")}

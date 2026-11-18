@@ -8,6 +8,13 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import { describe, expect, it, vi } from "vitest";
+import {
+	clearTeamBridgeDrafts,
+	readTeamBridgeDraft,
+	type TeamBridgeDraft,
+	teamBridgeDraftKey,
+	writeTeamBridgeDraft,
+} from "@/team-bridge/thread-drafts";
 import { installDomShim } from "@/testing/dom-shim";
 import { SURFACE, teamBridgeMentionId } from "@/ui/a11y";
 import type { MentionCandidateRow } from "./candidates";
@@ -21,6 +28,7 @@ import {
 	mentionGroups,
 	mentionNoticeText,
 } from "./mention-strip";
+import { serializeMentions } from "./tokens";
 import { useMentions } from "./use-mentions";
 
 /*
@@ -90,7 +98,7 @@ const strip = (
 	onPick: (row: MentionCandidateRow) => void,
 ) => elements(MentionStripView({ view, directoryMissing, onPick }));
 const SERIALIZE_ACTIVE =
-	/serializeMentions\(\s*mentions\.tokens,\s*memberKeys\(conversation\?\.members, "active"\),?\s*\)/;
+	/serializeMentions\(\s*composerDraft\.tokens,\s*memberKeys\(currentConversation\?\.members, "active"\),?\s*\)/;
 const CANDIDATES_NEED_CONVERSATION =
 	/conversation\s*\?\s*buildMentionCandidates\(/;
 const PHYSICAL_SPACING = /\b(pl|pr|ml|mr|left|right)-\d/;
@@ -182,18 +190,31 @@ describe("MentionStripView", () => {
 
 describe("useMentions", () => {
 	type Hook = ReturnType<typeof useMentions>;
-	const mount = (rows: MentionCandidateRow[], initial = "") => {
+	/*
+	 * `persist` stands in for the thread screen's draft wiring: the screen seeds
+	 * its state from `readTeamBridgeDraft(key)` on mount and writes every
+	 * `setValue` back under the same key, so a remount under a key is exactly
+	 * what a drawer channel switch (unmount + remount) does to the composer.
+	 */
+	const mount = (
+		rows: MentionCandidateRow[],
+		initial: TeamBridgeDraft = { text: "", tokens: [] },
+		persist?: (next: TeamBridgeDraft) => void,
+	) => {
 		const dom = installDomShim();
 		const root = createRoot(dom.container as Element);
-		const state = { text: initial, hook: null as Hook | null };
-		const setText = vi.fn((next: string) => {
-			state.text = next;
+		const state = { value: initial, hook: null as Hook | null };
+		const setValue = vi.fn((next: TeamBridgeDraft) => {
+			state.value = next;
+			persist?.(next);
 			render();
 		});
+		// Text-only replacement the hook did not make (restore, clear after send).
+		const setText = (text: string) => setValue({ text, tokens: [] });
 		function Probe() {
 			state.hook = useMentions({
-				text: state.text,
-				setText,
+				value: state.value,
+				setValue,
 				candidates: rows,
 				directoryMissing: false,
 			});
@@ -214,10 +235,10 @@ describe("useMentions", () => {
 		expect(m.hook().view?.flat).toHaveLength(3);
 		act(() => m.hook().onChangeText("hi @be"));
 		act(() => m.hook().pick(ben));
-		expect(m.state.text).toBe("hi @Ben Tran ");
+		expect(m.state.value.text).toBe("hi @Ben Tran ");
 		expect(m.hook().selection).toEqual({ start: 13, end: 13 });
 		expect(m.hook().view).toBeNull();
-		expect(m.hook().tokens).toHaveLength(1);
+		expect(m.state.value.tokens).toHaveLength(1);
 		// The platform reports the caret: the one-shot is released.
 		act(() =>
 			m.hook().onSelectionChange({
@@ -231,27 +252,56 @@ describe("useMentions", () => {
 		const m = mount(all);
 		act(() => m.hook().onChangeText("@tar"));
 		act(() => m.hook().pick(tara));
-		expect(m.state.text).toBe("@Tara Bentley ");
+		expect(m.state.value.text).toBe("@Tara Bentley ");
 		expect(m.hook().notice).toEqual({
 			label: "Tara Bentley",
 			reason: "not_member",
 		});
-		expect(m.hook().tokens[0]?.notify).toBe(false);
+		expect(m.state.value.tokens[0]?.notify).toBe(false);
 		// Deleting the mention retires its notice with it.
 		act(() => m.hook().onChangeText("@Tara Bentley"));
 		act(() => m.hook().onChangeText("@Tara Bentle"));
-		expect(m.state.text).toBe("");
+		expect(m.state.value.text).toBe("");
 		expect(m.hook().notice).toBeNull();
 		act(() => m.root.unmount());
+	});
+	it("U1: a picked mention survives a thread switch A→B→A and still reaches the wire", () => {
+		clearTeamBridgeDrafts();
+		const key = (routeId: string) =>
+			teamBridgeDraftKey({ accountId: "acct_me", tenantId: "tnt_1", routeId });
+		const visit = (routeId: string) =>
+			mount(all, readTeamBridgeDraft(key(routeId)), (next) =>
+				writeTeamBridgeDraft(key(routeId), next.text, next.tokens),
+			);
+		const a = visit("bcv_general");
+		act(() => a.hook().onChangeText("hi @be"));
+		act(() => a.hook().pick(ben));
+		act(() => a.root.unmount());
+		const b = visit("bcv_ops");
+		expect(b.state.value).toEqual({ text: "", tokens: [] });
+		act(() => b.hook().onChangeText("ops note"));
+		act(() => b.root.unmount());
+		const back = visit("bcv_general");
+		expect(back.state.value.text).toBe("hi @Ben Tran ");
+		expect(back.state.value.tokens).toHaveLength(1);
+		// Restoring must not reopen the strip on its own.
+		expect(back.hook().view).toBeNull();
+		// Keep typing after the restore: the pick still rides the edit.
+		act(() => back.hook().onChangeText("hi @Ben Tran see this"));
+		expect(
+			serializeMentions(back.state.value.tokens, new Set(["human:a_ben"])),
+		).toEqual([{ kind: "human", account_id: "a_ben" }]);
+		act(() => back.root.unmount());
+		clearTeamBridgeDrafts();
 	});
 	it("a draft cleared after send drops every token", () => {
 		const m = mount(all);
 		act(() => m.hook().onChangeText("@be"));
 		act(() => m.hook().pick(ben));
-		expect(m.hook().tokens).toHaveLength(1);
+		expect(m.state.value.tokens).toHaveLength(1);
 		// The screen clears the draft itself after a send (not through the hook).
 		act(() => m.setText(""));
-		expect(m.hook().tokens).toEqual([]);
+		expect(m.state.value.tokens).toEqual([]);
 		expect(m.hook().view).toBeNull();
 		act(() => m.root.unmount());
 	});

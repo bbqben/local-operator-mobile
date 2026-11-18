@@ -123,6 +123,7 @@ const draft = (text: string, caret = text.length): MentionDraft => ({
 	text,
 	tokens: [],
 	caret,
+	queryEnabled: true,
 	dismissedAt: null,
 });
 const type = (from: MentionDraft, next: string) => {
@@ -131,6 +132,14 @@ const type = (from: MentionDraft, next: string) => {
 };
 
 describe("the strip opens and closes like desktop", () => {
+	it("ignores a passive caret update after restore until the text changes", () => {
+		const restored = { ...draft("hi @be", 0), queryEnabled: false };
+		expect(mentionView({ ...restored, caret: 6 }, candidates)).toBeNull();
+		expect(mentionView(type(restored, restored.text), candidates)).toBeNull();
+		expect(
+			mentionView(type(restored, "hi @ben"), candidates)?.query.query,
+		).toBe("ben");
+	});
 	it("@ in an empty composer and after a space opens it, everyone listed", () => {
 		expect(mentionView(type(draft(""), "@"), candidates)?.flat.length).toBe(
 			candidates.length,

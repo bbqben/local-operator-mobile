@@ -3,20 +3,16 @@
  * the one-shot selection, and the "not notified" notice. Every rule is in
  * `mention-state.ts`; this hook only holds the values between renders.
  *
- * TEXT OWNERSHIP. The thread screen keeps owning the draft (it persists it to
- * the per-conversation draft store and clears it after a send). This hook
- * takes the current text and the screen's setter, and routes every field edit
- * through `editDraft` first, so the token map can never disagree with the text
- * the field shows. Text the hook did not see (a restored draft, a clear after
- * send) is reconciled by `rebaseTokens` on the next render: a restored draft is
- * plain text with no structured mention, which is honest about what a send
- * will notify.
+ * The thread screen owns and persists text and picked spans together. Caret,
+ * selection, suggestion visibility and notices belong only to this visit:
+ * restoring text can emit selection events without any reader interaction.
  */
 import { useCallback, useMemo, useRef, useState } from "react";
 import type {
 	NativeSyntheticEvent,
 	TextInputSelectionChangeEventData,
 } from "react-native";
+import type { TeamBridgeDraft } from "@/team-bridge/thread-drafts";
 import { type MentionCandidateRow, notifiable } from "./candidates";
 import type { MentionCandidate } from "./matcher";
 import {
@@ -26,7 +22,6 @@ import {
 	nextDismissed,
 	pickMention,
 } from "./mention-state";
-import { rebaseTokens } from "./tokens";
 
 export type MentionNotice = {
 	label: string;
@@ -34,41 +29,47 @@ export type MentionNotice = {
 };
 
 export function useMentions(input: {
-	text: string;
-	setText: (next: string) => void;
+	value: TeamBridgeDraft;
+	setValue: (next: TeamBridgeDraft) => void;
 	candidates: readonly MentionCandidateRow[];
 	/** The organization directory has never answered (see `mentionView`). */
 	directoryMissing: boolean;
 }) {
-	const { text, setText, candidates, directoryMissing } = input;
+	const { value, setValue, candidates, directoryMissing } = input;
+	const { text, tokens } = value;
 	const draft = useRef<MentionDraft>({
 		text,
-		tokens: [],
+		tokens,
 		caret: text.length,
+		queryEnabled: false,
 		dismissedAt: null,
 	});
-	// A text change the hook did not make (restore, clear after send).
-	if (draft.current.text !== text) {
-		draft.current = {
-			text,
-			tokens: rebaseTokens(draft.current.text, text, draft.current.tokens),
-			caret: text.length,
-			dismissedAt: null,
-		};
-	}
 	const [, rerender] = useState(0);
 	const [selection, setSelection] = useState<number | null>(null);
 	const [notice, setNotice] = useState<MentionNotice | null>(null);
+	// An external clear after send must not carry across any interaction state.
+	if (draft.current.text !== text || draft.current.tokens !== tokens) {
+		draft.current = {
+			text,
+			tokens,
+			caret: text.length,
+			queryEnabled: false,
+			dismissedAt: null,
+		};
+		setSelection(null);
+		setNotice(null);
+	}
 
 	const commit = useCallback(
 		(next: MentionDraft, oneShot: number | null) => {
 			const dismissedAt = nextDismissed(next, candidates);
 			draft.current = { ...next, dismissedAt };
 			if (oneShot !== null) setSelection(oneShot);
-			if (next.text !== text) setText(next.text);
+			if (next.text !== text || next.tokens !== tokens)
+				setValue({ text: next.text, tokens: next.tokens });
 			else rerender((n) => n + 1);
 		},
-		[candidates, setText, text],
+		[candidates, setValue, text, tokens],
 	);
 
 	const onChangeText = useCallback(
@@ -91,6 +92,16 @@ export function useMentions(input: {
 		[selection],
 	);
 
+	const suspend = useCallback(() => {
+		draft.current = {
+			...draft.current,
+			queryEnabled: false,
+			dismissedAt: null,
+		};
+		setSelection(null);
+		setNotice(null);
+		rerender((n) => n + 1);
+	}, []);
 	const view = mentionView(draft.current, candidates, directoryMissing);
 
 	const pick = useCallback(
@@ -143,8 +154,7 @@ export function useMentions(input: {
 		onSelectionChange,
 		/** Pass to the field: a one-shot caret placement, else undefined. */
 		selection: selectionProp,
-		/** The current token map, for `serializeMentions` at send. */
-		tokens: draft.current.tokens,
+		suspend,
 		notice: liveNotice,
 		dismissNotice,
 	};

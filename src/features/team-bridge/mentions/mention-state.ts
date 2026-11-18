@@ -28,7 +28,9 @@ import {
 
 export type MentionDraft = {
 	text: string;
-	tokens: MentionToken[];
+	tokens: readonly MentionToken[];
+	/** Passive selection/layout events on a restored draft must not open the strip. */
+	queryEnabled: boolean;
 	/** Where the caret is believed to be, in UTF-16 units of `text`. */
 	caret: number;
 	/**
@@ -99,6 +101,7 @@ export function editDraft(
 				text: whole.text,
 				tokens: whole.tokens,
 				caret: whole.caret,
+				queryEnabled: true,
 				dismissedAt: draft.dismissedAt,
 				selection: whole.caret,
 			};
@@ -108,6 +111,7 @@ export function editDraft(
 		text: next,
 		tokens: rebaseTokens(before, next, draft.tokens),
 		caret: next.length - suffix,
+		queryEnabled: true,
 		dismissedAt: draft.dismissedAt,
 		selection: null,
 	};
@@ -115,6 +119,7 @@ export function editDraft(
 
 /** The `@query` being typed, unless it belongs to a placed mention. */
 export function activeQuery(draft: MentionDraft): MentionQuery | null {
+	if (!draft.queryEnabled) return null;
 	const caret = Math.min(draft.caret, draft.text.length);
 	const query = findMentionQuery(draft.text, caret);
 	if (!query) return null;
@@ -189,6 +194,7 @@ export function pickMention(
 		text: edit.text,
 		tokens: edit.tokens,
 		caret: edit.caret,
+		queryEnabled: draft.queryEnabled,
 		dismissedAt: null,
 		selection: edit.caret,
 	};

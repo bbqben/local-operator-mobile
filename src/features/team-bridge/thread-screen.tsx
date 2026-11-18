@@ -46,6 +46,7 @@ import { setWatchedThread } from "@/team-bridge/push";
 import { threadKey } from "@/team-bridge/store";
 import {
 	readTeamBridgeDraft,
+	type TeamBridgeDraft,
 	teamBridgeDraftKey,
 	writeTeamBridgeDraft,
 } from "@/team-bridge/thread-drafts";
@@ -372,13 +373,14 @@ function ThreadContent({
 			}),
 		[accountId, tenantId, conversationId, routeId, target],
 	);
-	const [draft, setDraftState] = useState(() =>
+	const [composerDraft, setDraftState] = useState(() =>
 		readTeamBridgeDraft(draftStorageKey),
 	);
+	const draft = composerDraft.text;
 	const setDraft = useCallback(
-		(next: string) => {
+		(next: TeamBridgeDraft) => {
 			setDraftState(next);
-			writeTeamBridgeDraft(draftStorageKey, next);
+			writeTeamBridgeDraft(draftStorageKey, next.text, next.tokens);
 		},
 		[draftStorageKey],
 	);
@@ -576,8 +578,8 @@ function ThreadContent({
 	);
 	const directoryMissing = !!conversation && people.length === 0;
 	const mentions = useMentions({
-		text: draft,
-		setText: setDraft,
+		value: composerDraft,
+		setValue: setDraft,
 		candidates: mentionCandidates,
 		directoryMissing,
 	});
@@ -631,6 +633,7 @@ function ThreadContent({
 		});
 		return () => subscription.remove();
 	}, []);
+	const suspendMentions = mentions.suspend;
 	useFocusEffect(
 		useCallback(() => {
 			focusNow.current = true;
@@ -638,9 +641,10 @@ function ThreadContent({
 			return () => {
 				focusNow.current = false;
 				setFocused(false);
+				suspendMentions();
 				setWatchedThread(null);
 			};
-		}, []),
+		}, [suspendMentions]),
 	);
 	useEffect(() => {
 		if (!focused || !active || !admitted || !conversationId) return;
@@ -805,13 +809,16 @@ function ThreadContent({
 		 * the hub refuses the whole message for any other row, so a member who
 		 * left after the pick cannot turn this send into a 400.
 		 */
+		const currentConversation = store
+			.getState()
+			.orgs[tenantId]?.conversations.find((c) => c.id === conversationId);
 		const mentionRows = serializeMentions(
-			mentions.tokens,
-			memberKeys(conversation?.members, "active"),
+			composerDraft.tokens,
+			memberKeys(currentConversation?.members, "active"),
 		);
 		try {
 			if (await sender.current?.(body, ids, mentionRows)) {
-				setDraft("");
+				setDraft({ text: "", tokens: [] });
 				images?.clearSent();
 				setAttachNotice(null);
 			}

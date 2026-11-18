@@ -2267,7 +2267,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (thread screen, composer field selection passthrough, Textarea props).
 	 * Re-derived with --print over the staged tree; source admission only, NOT
 	 * rendered, native or device evidence. */
-	src: "cf4f428b2fc55261c98ddc06a29dd4510b1eddf031065fa81b23f50a76fcdeb3",
+	/* PR #305 UX round-1 remediation (U1, plus design D2/D3): thread drafts
+	 * persist picked mention spans beside the text, the mention hook restores
+	 * them without reopening the strip, the notice's Dismiss meets TOUCH_FLOOR
+	 * and the bridge-off avatar drops its opacity wrapper. Re-derived with
+	 * --print over the staged tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "e97975b6291706d8abffb89c364fdfed7b31ffbeda29c29efcb9727f769508e5",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
