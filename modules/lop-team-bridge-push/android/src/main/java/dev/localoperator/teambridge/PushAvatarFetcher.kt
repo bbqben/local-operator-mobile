@@ -85,8 +85,9 @@ internal object PushAvatarFetcher {
    * apart, far past most servers' keep-alive (Node's 5 s, a load balancer's
    * idle timeout), while OkHttp keeps an idle socket for 5 min. OkHttp 4.9
    * health-checks a pooled socket for a GET only locally (`isHealthy` skips
-   * the EOF probe unless the method is not GET), so the next photo is written
-   * to a socket the server already closed and fails at once — and with
+   * the EOF probe unless the method is not GET, and even then probes only a
+   * socket idle for >= 10 s, `IDLE_CONNECTION_HEALTHY_NS`), so the next photo
+   * is written to a socket the server already closed and fails at once — and with
    * `retryOnConnectionFailure(false)` (kept: one attempt, one nonce
    * presentation, inside the budget) nothing recovers it. The sender's face
    * then silently became initials for every photo push after the first in a
