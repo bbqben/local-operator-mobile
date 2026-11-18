@@ -11,10 +11,12 @@ import {
 	checkAndroidBadging,
 	checkAndroidManifest,
 	checkIosInfoPlist,
+	EXPO_NOTIFICATIONS_RECEIVER,
 	IOS_EXCEPTION_DOMAINS,
 	IOS_FORBIDDEN_KEYS,
 	LAUNCHER_LABEL,
 	summarize,
+	TEAM_BRIDGE_RECEIVER,
 } from "./native-config";
 
 /**
@@ -77,6 +79,11 @@ const validManifest = (): string => `<?xml version="1.0" encoding="utf-8"?>
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <application android:name=".MainApplication" android:label="@string/app_name" android:usesCleartextTraffic="true" android:theme="@style/AppTheme">
     <activity android:name=".MainActivity" android:exported="true"/>
+    <receiver android:name="dev.localoperator.teambridge.LoNotificationsService" android:enabled="true" android:exported="false">
+      <intent-filter android:priority="-1">
+        <action android:name="expo.modules.notifications.NOTIFICATION_EVENT"/>
+      </intent-filter>
+    </receiver>
   </application>
 </manifest>
 `;
@@ -236,6 +243,35 @@ describe("checkAndroidManifest", () => {
 		expect(checkAndroidManifest(validManifest())).toEqual([]);
 	});
 
+	it("reports a manifest without the Team Bridge receiver (ADR 0010 S2)", () => {
+		const manifest = validManifest().replace(
+			"dev.localoperator.teambridge.LoNotificationsService",
+			"some.other.Receiver",
+		);
+		expect(fields(checkAndroidManifest(manifest))).toEqual([
+			`receiver[${TEAM_BRIDGE_RECEIVER}]`,
+		]);
+	});
+
+	it("reports Expo's own receiver surviving the merge, which could win dispatch", () => {
+		const manifest = validManifest().replace(
+			"  </application>",
+			`    <receiver android:name="${EXPO_NOTIFICATIONS_RECEIVER}" android:exported="false"/>\n  </application>`,
+		);
+		expect(fields(checkAndroidManifest(manifest))).toEqual([
+			`receiver[${EXPO_NOTIFICATIONS_RECEIVER}]`,
+		]);
+	});
+
+	it("is not satisfied by a commented-out receiver", () => {
+		const manifest = validManifest()
+			.replace("<receiver android:name", "<!-- <receiver android:name")
+			.replace("</receiver>", "</receiver> -->");
+		expect(fields(checkAndroidManifest(manifest))).toEqual([
+			`receiver[${TEAM_BRIDGE_RECEIVER}]`,
+		]);
+	});
+
 	it("tolerates attribute order and whitespace variations AGP may write", () => {
 		const manifest = validManifest().replace(
 			'android:usesCleartextTraffic="true"',
@@ -301,6 +337,7 @@ describe("checkAndroidManifest", () => {
 		expect(fields(checkAndroidManifest("<manifest/>"))).toEqual([
 			"AndroidManifest.xml",
 			`uses-permission[${ANDROID_LOCAL_NETWORK_PERMISSION}]`,
+			`receiver[${TEAM_BRIDGE_RECEIVER}]`,
 		]);
 	});
 

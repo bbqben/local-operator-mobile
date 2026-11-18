@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useIsFocused, useRouter } from "expo-router";
 import { Bell, BellDot } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TextInput } from "react-native";
@@ -62,6 +62,7 @@ import {
 	homeChips,
 	homeFolderChip,
 } from "@/features/home/picker-model";
+import { signedOutLanding } from "@/features/home/signed-out-landing";
 import { useHomeDrawer } from "@/features/home/use-home-drawer";
 import { startupEchoes } from "@/features/new-session/startup-echoes";
 import {
@@ -169,6 +170,7 @@ export default function Home({
 	notice = null,
 }: HomeProps) {
 	const router = useRouter();
+	const focused = useIsFocused();
 	const layout = useLayout();
 	const split = layout.split;
 
@@ -588,19 +590,23 @@ export default function Home({
 	 * screen's comment (store docs + the harness's cells); the refusal clause is
 	 * what keeps a revoked credential's surface on the screen that renders it. */
 	useEffect(() => {
-		if (
-			coldStartSettled &&
-			!busy &&
-			!routed &&
-			refusal === null &&
-			savedTunnel === null &&
-			phase === "signed-out"
-		) {
-			router.replace(restoredAccount ? "/tunnels" : "/welcome");
-		}
+		/* Only while Home is the route on screen: see `signed-out-landing.ts`
+		 * (a cold Team Bridge tap's thread sits on top of Home). */
+		const landing = signedOutLanding({
+			focused,
+			coldStartSettled,
+			busy,
+			routed,
+			refusal,
+			savedTunnel,
+			phase,
+			restoredAccount,
+		});
+		if (landing !== null) router.replace(landing);
 	}, [
 		busy,
 		coldStartSettled,
+		focused,
 		phase,
 		refusal,
 		restoredAccount,
