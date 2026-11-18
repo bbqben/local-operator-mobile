@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { sidebarWidthFor } from "@/ui/size-class";
 import { TOUCH_TARGET } from "@/ui/tokens.gen";
 import {
+	MODE_FIT_MARGIN,
 	MODE_SEGMENT_CHROME,
 	MODE_SEGMENT_GAP,
 	MODE_TRACK_INSET,
@@ -37,9 +38,17 @@ describe("modeBarSegmentMode (issue #324)", () => {
 		);
 	});
 
-	it("treats an exact fit as a fit and one point short as not", () => {
-		expect(modeBarSegmentMode(198, [65, 97], 4)).toBe("equal");
-		expect(modeBarSegmentMode(197, [65, 97], 4)).toBe("proportional");
+	/* PR #333 QA Q1-1: a MEASURED exact fit is not a fit. react-native-web's
+	 *  `onLayout` reports `offsetWidth`, rounded to the nearest pixel: the
+	 *  selected "Team Bridge" is 79.11 px and reports 79, so at 322 px the old
+	 *  rule saw 2 × (79 + 18) + 4 = 198 ≤ 198, chose halves with a 79 px label
+	 *  box and the label wrapped after "Team". Each segment keeps
+	 *  MODE_FIT_MARGIN (1 pt) of slack, more than the ±0.5 px rounding. */
+	it("leaves each half a 1 pt margin: a measured exact fit stays proportional", () => {
+		expect(MODE_FIT_MARGIN).toBe(1);
+		expect(modeBarSegmentMode(198, [65, 97], 4)).toBe("proportional");
+		expect(modeBarSegmentMode(199, [65, 97], 4)).toBe("proportional");
+		expect(modeBarSegmentMode(200, [65, 97], 4)).toBe("equal");
 	});
 
 	it("stays proportional until the track and every label are measured", () => {

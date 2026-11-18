@@ -87,11 +87,14 @@ export const useOptionalWorkspaceDrawer = () =>
  * EQUAL HALVES WHEN BOTH LABELS FIT (issue #324, the operator's decision; it
  * supersedes D1-2/D2-1 for that case only). Content-sized segments read as
  * lopsided on a roomy phone — 125 vs 157 pt on a 402 pt iPhone — so when
- * `2 × the wider segment + gap ≤ the inner track` the segments are `flex-1`
- * halves (141 pt each there). When it does not hold — 320 pt Android, where
- * 2 × 97 + 4 = 198 pt against a 196 pt track, or a long translation — they
- * keep sizing from their content (`grow`, basis auto) and share only the slack
- * (D1-2/U1-1/Q1-2), so "Team Bridge" still never wraps there. The widths are
+ * `2 × (the wider segment + 1 pt margin) + gap ≤ the inner track` the segments
+ * are `flex-1` halves (141 pt each there). The 1 pt (`MODE_FIT_MARGIN`)
+ * absorbs measurement rounding: without it a measured exact fit wrapped the
+ * selected "Team Bridge" at 322 px on web (PR #333 QA Q1-1). When it does not
+ * hold — 320 pt Android, where 2 × (97 + 1) + 4 = 200 pt against a 196 pt
+ * track, or a long translation — they keep sizing from their content (`grow`,
+ * basis auto) and share only the slack (D1-2/U1-1/Q1-2), so at 100 % text
+ * "Team Bridge" still stays on one line there. The widths are
  * MEASURED (`mode-bar-fit.ts`), never assumed: the proportional split is the
  * fallback and the layout until the measurement lands.
  *

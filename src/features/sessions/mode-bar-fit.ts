@@ -15,10 +15,18 @@ export const MODE_SEGMENT_GAP = 4;
 /** What a segment adds around its label: the content's `px-2` on both sides
  *  (16) and its 1 pt `border` on both sides (2). */
 export const MODE_SEGMENT_CHROME = 18;
+/** Slack each segment keeps beyond its measured label (PR #333 QA Q1-1).
+ *  react-native-web's `onLayout` reports `offsetWidth`, which rounds to the
+ *  nearest pixel (measured: the selected "Team Bridge" is 79.11 px and
+ *  reports 79), and native snaps layout to device pixels. Without slack a
+ *  measured exact fit chose halves whose label box was 0.11 px too narrow,
+ *  and "Team Bridge" wrapped at 322 px. 1 pt covers the ±0.5 px rounding. */
+export const MODE_FIT_MARGIN = 1;
 
 /**
- * `"equal"` when every segment's natural width fits in an equal share of the
- * track (`n × widest + gaps ≤ track`), otherwise `"proportional"`.
+ * `"equal"` when every segment's natural width, plus `MODE_FIT_MARGIN`, fits
+ * in an equal share of the track (`n × (widest + margin) + gaps ≤ track`),
+ * otherwise `"proportional"`.
  *
  * `track` is the track's INNER width (inside its padding); `segments` are each
  * segment's natural width (label plus `MODE_SEGMENT_CHROME`). Anything not yet
@@ -38,7 +46,8 @@ export const modeBarSegmentMode = (
 		if (width === null || !(width > 0)) return "proportional";
 		widest = Math.max(widest, width);
 	}
-	const needed = segments.length * widest + (segments.length - 1) * gap;
+	const needed =
+		segments.length * (widest + MODE_FIT_MARGIN) + (segments.length - 1) * gap;
 	return needed <= track ? "equal" : "proportional";
 };
 
