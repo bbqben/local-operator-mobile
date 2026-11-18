@@ -202,6 +202,21 @@ describe("a start that throws leaves a development diagnostic (issue #323)", () 
 		});
 	});
 
+	it("redacts a whole path, spaces and non-ASCII segments included (round 1, n1)", async () => {
+		dev.__DEV__ = true;
+		calls.prepareFailure = new Error(
+			"Cannot open /var/mobile/Library/Application Support/rec/prise de son é.m4a (code 2)",
+		);
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+		const { startRecording } = await import("@/stt/recorder");
+		expect(await startRecording({ permission: "granted" })).toBeNull();
+		expect(warn).toHaveBeenCalledWith("[stt] recorder did not start", {
+			stage: "prepare",
+			name: "Error",
+			message: "Cannot open <path>",
+		});
+	});
+
 	it("stays silent in a release build", async () => {
 		dev.__DEV__ = false;
 		const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);

@@ -38,9 +38,13 @@ type AudioModule = typeof import("expo-audio");
  *  literal in the body is recompiled every time. */
 const LEADING_DOT = /^\./;
 const URI_QUERY = /[?#]/;
-/** A file URI or an absolute path with at least one directory: the recording's
- *  location on the device, which a diagnostic has no use for. */
-const FILE_PATH = /(?:file:\/\/)?\/(?:[\w.-]+\/)+[\w.-]*/g;
+/** A file URI or an absolute path, and everything after it: the recording's
+ *  location on the device, which a diagnostic has no use for. A path segment may
+ *  hold spaces or any script (`Application Support`, a localized folder), so no
+ *  character class can say where it ends; the message is cut at its start
+ *  instead (round 1, n1). The look-behind keeps `and/or` and the `//` of a URL
+ *  scheme other than `file:` from counting as a path. */
+const FILE_PATH = /(?:file:\/\/|(?<![\w.:/])\/).*$/s;
 
 /** Where `startRecording` was when it threw — the one fact the reader's line
  *  ("Couldn’t start recording") cannot carry and a developer needs (issue #323). */
