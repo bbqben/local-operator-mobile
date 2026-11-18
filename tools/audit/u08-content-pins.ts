@@ -2272,7 +2272,26 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* ADR 0010 S5 on the same branch: the hub origin handed to the native
 	 * photo fetcher and its test. Re-derived with --print; source identity
 	 * only, NOT rendered U-08 evidence. */
-	src: "19cb5f9d54afeba371aa5a0974fa524e961bbc1558989362e1468a621edb970c",
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #297, 8a4d3048) into PR #301: both comment
+	 * chains retained; only this pin conflicted (no other file is touched by
+	 * both sides). The merged src carries #297's Team Bridge 429 changes and
+	 * #301's tunnel-transient changes, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree (src the only
+	 * differing root); source identity only, NOT rendered U-08 evidence. */
+	/* PR #304 converges with #301: keep both source histories and pin their
+	 * combined src tree. This is source identity only, not rendered evidence. */
+	src: "453af57334c94f634d7aa6947026bb3fbed11f8fbdbfe5dc64582c5744784a01",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

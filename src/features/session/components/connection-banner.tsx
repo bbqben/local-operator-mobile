@@ -1,8 +1,9 @@
 import { Text, View } from "react-native";
 
-import type {
-	ConnectionAction,
-	ConnectionView,
+import {
+	bannerGlyph,
+	type ConnectionAction,
+	type ConnectionView,
 } from "@/features/session/connection-view";
 import { ROLE, SURFACE } from "@/ui/a11y";
 import { Button } from "@/ui/components";
@@ -48,12 +49,6 @@ const TONE_INK: Record<ConnectionView["tone"], string> = {
 	danger: "text-danger",
 };
 
-const GLYPH: Record<ConnectionView["tone"], string> = {
-	info: "◌",
-	warning: "!",
-	danger: "!",
-};
-
 export const ConnectionBanner = ({
 	view,
 	onAction,
@@ -75,7 +70,7 @@ export const ConnectionBanner = ({
 		>
 			<View className="flex-row items-start gap-2">
 				<Text className={cx("text-mono", TONE_INK[view.tone])} aria-hidden>
-					{GLYPH[view.tone]}
+					{bannerGlyph(view)}
 				</Text>
 				<Text className="flex-1 text-body-sm text-ink">{view.text}</Text>
 			</View>
