@@ -2286,6 +2286,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* ADR 0010 S2/S4 (feat/android-push-avatars): Android notification
+	 * parity — session channel ids, badge-0, channel state + a Settings line
+	 * shown only on Android when the Team Bridge channel is off, localised
+	 * channel copy, their tests. The web render tree is unchanged (the new
+	 * Settings line is Android-gated). Re-derived with --print over the staged
+	 * tree. Source identity only, NOT rendered U-08 evidence. */
+	/* ADR 0010 S5 on the same branch: the hub origin handed to the native
+	 * photo fetcher and its test. Re-derived with --print; source identity
+	 * only, NOT rendered U-08 evidence. */
 	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
 	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
 	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
@@ -2423,7 +2432,24 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * notes; the merged src carries both sides, so it matches neither parent.
 	 * Re-derived with --print over the staged merge tree. Source identity
 	 * only, NOT rendered evidence. */
-	src: "f222da7cea830d21c416bba7862c52a268e517cc2c9aef1e9d43d82c6de22932",
+	/* PR #304 converges with #301: keep both source histories and pin their
+	 * combined src tree. This is source identity only, not rendered evidence. */
+	/* PR #304 converges with main 198ac368 (#306, #310): both histories
+	 * preserved; the combined src tree re-derived with --print. Source identity
+	 * only, NOT rendered U-08 evidence. */
+	/* PR #304 QA R5 Q10: a source contract test for the native photo
+	 * fetcher's connection reuse (`push-avatar-contract.test.ts`); no render
+	 * input moved. Re-derived with --print; source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* PR #304 convergence #2 with main 52ca6f24 (#303, #292, #295, #274,
+	 * #291, #294, #305, #316, #318): both comment chains and both sides' source
+	 * kept; the merged src matches neither parent. Re-derived with --print over
+	 * the staged merge tree. Source identity only, NOT rendered U-08 evidence. */
+	/* PR #304 convergence #3 with main ad73454d (#315 thread warm landing):
+	 * main's chain kept first, then this PR's notes; both sides' source kept,
+	 * so the merged src matches neither parent. Re-derived with --print over
+	 * the staged merge tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "503653e694cfde21730aa340f192670b29976f767f80893666aa6820530e01da",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2450,12 +2476,15 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// config, not a U-08 web layout input.
 	// --print re-pin (PR #244 remediation round 1): comment-only edits — the
 	// Android warm-only claim and the exact-set native-config guard.
+	// --print re-pin (ADR 0010 S2): registers the Android-only
+	// `with-android-team-bridge-push` config plugin (notification receiver
+	// swap); native build config, not a U-08 web layout input.
 	// Merge of origin/main b9cc5ce5 into PR #305: main's #292 (Pele diagrams)
 	// added one dependency (package.json + pnpm-lock.yaml) without re-pinning
 	// them, so main itself fails this check; re-derived with --print over the
 	// staged merge tree. #305 touches neither file. Not a U-08 web layout input.
 	"app.config.ts":
-		"c4b2be52f8a2802eda590a10971a2a624128b86e363f49bfd14ffe611a607d49",
+		"d4ebf2193a3ee15a84c765485a6be336022d97c82f3074a1b7bb57b5df81f43a",
 	"metro.config.js":
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module
