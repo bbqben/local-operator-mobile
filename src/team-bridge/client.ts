@@ -215,6 +215,30 @@ function queryString(query: Query | undefined): string {
 	return text ? `?${text}` : "";
 }
 
+/*
+ * The edge WAF's rate block (radient-infra `pulumi/radient_infra/waf.py`,
+ * `RATE_LIMIT_BODY`): `{"error":{"type":"rate_limit_error","code":
+ * "rate_limited","message":"…retry in 300 seconds."}}`. It is NOT the hub's
+ * shape (`error` is an object), so `hubErrorSchema` refuses it, and AWS WAF
+ * cannot send `Retry-After`: the body sentence is the only wait it states.
+ * Its `rate-backend-edge` rule counts every request to api.radienthq.com per
+ * source IP (2000 per 5 min), so a phone on the same network as a busy
+ * desktop shares that bucket. TestFlight 1157's "HTTP 429" was this body.
+ */
+const EDGE_RETRY_SECONDS = /retry in (\d{1,5}) seconds?/i;
+function edgeRateLimit(
+	body: unknown,
+): { code: string; retryAfterMs: number | null } | null {
+	if (!body || typeof body !== "object") return null;
+	const error = (body as { error?: unknown }).error;
+	if (!error || typeof error !== "object") return null;
+	const { code, message } = error as { code?: unknown; message?: unknown };
+	if (code !== "rate_limited") return null;
+	const seconds =
+		typeof message === "string" ? EDGE_RETRY_SECONDS.exec(message)?.[1] : null;
+	return { code, retryAfterMs: seconds ? Number(seconds) * 1000 : null };
+}
+
 /** Read the hub's error body, tolerating a non-JSON one. */
 async function errorFrom(response: Response): Promise<HubError> {
 	let code: string | null = null;
@@ -225,9 +249,18 @@ async function errorFrom(response: Response): Promise<HubError> {
 	});
 	let field: string | null = null;
 	let rule: string | null = null;
+	let waitMs = retryAfterMs(response);
 	try {
-		const parsed = hubErrorSchema.safeParse(await response.json());
-		if (parsed.success) {
+		const body: unknown = await response.json();
+		const edge = response.status === 429 ? edgeRateLimit(body) : null;
+		if (edge) {
+			// Keep the localized sentence: the WAF's English is never shown, and
+			// the store waits out a 429 rather than displaying any message.
+			code = edge.code;
+			waitMs ??= edge.retryAfterMs;
+		}
+		const parsed = edge ? null : hubErrorSchema.safeParse(body);
+		if (parsed?.success) {
 			code = parsed.data.code ?? null;
 			if (parsed.data.error) message = parsed.data.error;
 			const details = parsed.data.details;
@@ -246,7 +279,7 @@ async function errorFrom(response: Response): Promise<HubError> {
 		code,
 		field,
 		rule,
-		retryAfterMs: retryAfterMs(response),
+		retryAfterMs: waitMs,
 	});
 }
 

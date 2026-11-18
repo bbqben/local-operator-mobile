@@ -76,6 +76,7 @@
 	"mobile.team_bridge.gate.update_help": "Эта версия не поддерживает сервис Team Bridge. Обновите приложение, чтобы продолжить.",
 	"mobile.team_bridge.gate.update_required": "Требуется обновление",
 	"mobile.team_bridge.gate.upgrade": "Перейти на Team",
+	"mobile.team_bridge.list.catching_up": "Обновляем…",
 	"mobile.team_bridge.list.channels": "Каналы",
 	"mobile.team_bridge.list.channels_empty": "Каналов пока нет.",
 	"mobile.team_bridge.list.chief_role": "Руководитель аппарата",

@@ -2217,6 +2217,28 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (an anchoring shift is not the reader moving), shared rest slack, doc
 	 * fixes. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
+	/* Re-pinned 2026-11-17 for fix/bridge-429 with --print at the staged tree:
+	 * Team Bridge rate-limit handling (store backoff/TTL, client WAF 429 parse,
+	 * the list's "Catching up…" line, its catalogue key and two testIDs). No
+	 * U-08 instrument or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence.
+	 * Re-pinned again 2026-11-17 for PR #297 round-1 remediation with --print
+	 * at the staged tree: the status moved into the section heading row, the
+	 * pure `section-status.ts`, store backoff fixes and their tests. No U-08
+	 * instrument or measured geometry moved. Source identity only. */
+	/* Merge of origin/main (77f32584, #296) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* iOS attach picker fix (split from PR #278, no camera): the attach-sheet
+	 * handoff moves to src/features/session/attach-handoff.ts and drops its
+	 * 500 ms iOS timer, Team Bridge's attach sheet launches through it, and
+	 * Home's composer error line gains a Dismiss. Nothing the U-08 scene
+	 * renders changes. Re-derived with --print over the staged tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #296) into the attach picker fix: the src digest
+	 * covers both changes above, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
 	/* PR #298 (push-registration loop fix, 2026-11-17), round-1 remediation:
 	 * src moves for notifications/push-token-changes.ts, notifications/native.ts,
 	 * notifications/use-session-push-registration.ts, team-bridge/push.ts and
@@ -2232,11 +2254,43 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * regression test. No rendered component or copy changes. Re-derived with
 	 * --print over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
+	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
+	 * chains kept; re-derived with --print over the staged merged tree. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (PR #298, 2f635caf) into the attach picker fix: both
+	 * comment chains retained; only this pin conflicted. The merged src carries
+	 * the attach-handoff move and #298's push-registration changes, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (src the only differing root); source identity only, NOT rendered
+	 * U-08 evidence. */
+	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
+	 * chains kept; only this pin conflicted. Re-derived with --print over the
+	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #297, 8a4d3048) into PR #301: both comment
+	 * chains retained; only this pin conflicted (no other file is touched by
+	 * both sides). The merged src carries #297's Team Bridge 429 changes and
+	 * #301's tunnel-transient changes, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree (src the only
+	 * differing root); source identity only, NOT rendered U-08 evidence. */
 	/* PR #303 adds reply counts, unread state and thread navigation to Team
 	 * Bridge, plus its copy and selectors. U-08's agent transcript and turn-bar
 	 * probes do not target that surface. Re-derived with --print over the staged
 	 * tree; source admission only, NOT renewed rendered U-08 evidence. */
-	src: "787b42d3bdbb6effef723a47ce000d28984c6e70f4d0aa2143f194771fae2437",
+	/* PR #303 convergence with main 08b819b5 keeps both comment chains and
+	 * both sides' source. --print over the staged merge gives a new src
+	 * digest; app is unchanged from the PR. Source admission only. */
+	src: "6bf0170cdfcb85e9e495e6b124516ef80a2be8e564f670ef5e88bffebd51e8ab",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

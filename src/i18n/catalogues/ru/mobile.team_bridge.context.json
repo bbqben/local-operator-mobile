@@ -387,6 +387,10 @@
 		"role": "heading",
 		"note": "Fixed message-delivery explanation for every state/category. Conditional rephrasing is general guidance, not a retry action or per-category evasion advice. No raw reasons, scores, identifiers, blame or promised acceptance."
 	},
+	"mobile.team_bridge.list.catching_up": {
+		"role": "status",
+		"note": "Team Bridge mobile UI: list / calm status shown when Radient has asked the app to slow down (rate limit) for longer than one short wait. The app is already retrying on its own and any rows already loaded stay visible; there is no button. Not an error: keep it calm and brief, never mention HTTP, 429 or limits."
+	},
 	"mobile.team_bridge.reply_thread.count": {
 		"role": "meta",
 		"note": "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}."

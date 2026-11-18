@@ -76,6 +76,7 @@
 	"mobile.team_bridge.gate.update_help": "This version cannot read the Team Bridge service. Update the app to continue.",
 	"mobile.team_bridge.gate.update_required": "Update required",
 	"mobile.team_bridge.gate.upgrade": "Upgrade to Team",
+	"mobile.team_bridge.list.catching_up": "Catching up…",
 	"mobile.team_bridge.list.channels": "Channels",
 	"mobile.team_bridge.list.channels_empty": "No channels yet.",
 	"mobile.team_bridge.list.chief_role": "Chief of staff",

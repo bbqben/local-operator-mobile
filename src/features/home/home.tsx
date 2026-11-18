@@ -1064,6 +1064,15 @@ export default function Home({
 				showResume={false}
 				onResume={() => undefined}
 				error={startup.snapshot.error ?? composerError}
+				/* The attach/paste line is the reader's to dismiss, as on the session
+				 *  view. Offered only while it is the line SHOWN: a startup error
+				 *  outranks it above, and a Dismiss that cleared the hidden line
+				 *  would be a control that visibly does nothing. */
+				onDismissError={
+					startup.snapshot.error == null && composerError !== null
+						? () => setComposerError(null)
+						: undefined
+				}
 				queuedCount={startup.snapshot.queue.length}
 				/* The folder is data, not an element: the composer's meta line
 				 *  decides whether it paints the path or only the folder glyph

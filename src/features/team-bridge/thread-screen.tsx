@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocaleFrame } from "@/features/auth/connection-provider";
+import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
 import { Markdown } from "@/features/session/components/markdown";
 import {
 	textSelectionContainerScroll,
@@ -460,6 +461,17 @@ function ThreadContent({
 	const viewerFixture = useMemo(() => teamBridgeViewerFixture(), []);
 	const [, setDraftVersion] = useState(0);
 	const [attachOpen, setAttachOpen] = useState(false);
+	/* The attach sheet's picker launch waits for the sheet's native dismissal on
+	 *  iOS (`attach-handoff.ts` has the why): launching PHPicker on the same tick
+	 *  as the close presents it from a dismissing controller, and it never
+	 *  appears. Cancelled on unmount so a late `onDismiss` launches nothing. */
+	const attachHandoff = useRef(createAttachmentSheetHandoff()).current;
+	useEffect(() => () => attachHandoff.cancel(), [attachHandoff]);
+	const openAttach = () => {
+		// Explicit reopen is the only re-admission point for a fresh choice.
+		attachHandoff.cancel();
+		setAttachOpen(true);
+	};
 	const [attachNotice, setAttachNotice] = useState<string | null>(null);
 	const draftImages = useRef<HeldDraft | null>(null);
 	draftImages.current = syncDraft(
@@ -1318,9 +1330,7 @@ function ThreadContent({
 														: undefined
 												}
 												attachDisabled={!images || images.remaining() === 0}
-												onAttach={
-													images ? () => setAttachOpen(true) : undefined
-												}
+												onAttach={images ? openAttach : undefined}
 												// "Retry send" only when pressing it can succeed: while
 												// images block the send, the control is plain "Send" (D4).
 												sendLabel={
@@ -1374,6 +1384,7 @@ function ThreadContent({
 			<Sheet
 				visible={attachOpen}
 				onClose={() => setAttachOpen(false)}
+				onDismiss={attachHandoff.dismissed}
 				title={t("mobile.team_bridge.attachment.add")}
 				testID={SURFACE.teamBridgeAttachSheet}
 			>
@@ -1398,7 +1409,11 @@ function ThreadContent({
 							accessibilityLabel={text}
 							testID={teamBridgeAttachSourceId(source)}
 							onPress={() => {
-								void addImages(source);
+								// Closed first; the picker opens over a dismissed sheet.
+								setAttachOpen(false);
+								attachHandoff.choose(() => {
+									void addImages(source);
+								}, Platform.OS);
 							}}
 							style={{ minHeight: TOUCH_FLOOR }}
 						>

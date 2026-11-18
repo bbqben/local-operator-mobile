@@ -76,6 +76,7 @@
 	"mobile.team_bridge.gate.update_help": "Cette version ne peut pas accéder au service Team Bridge. Mettez l’application à jour pour continuer.",
 	"mobile.team_bridge.gate.update_required": "Mise à jour requise",
 	"mobile.team_bridge.gate.upgrade": "Passer à Team",
+	"mobile.team_bridge.list.catching_up": "Mise à jour en cours…",
 	"mobile.team_bridge.list.channels": "Canaux",
 	"mobile.team_bridge.list.channels_empty": "Aucun canal pour le moment.",
 	"mobile.team_bridge.list.chief_role": "Chef de cabinet",

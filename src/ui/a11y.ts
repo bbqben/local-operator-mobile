@@ -836,6 +836,9 @@ export const SURFACE = {
 	 *  its rest and focus colours are assertable apart from the shell box. */
 	teamBridgeComposerRing: "team-bridge-composer-ring",
 	teamBridgeConversationsLoading: "team-bridge-conversations-loading",
+	/** Calm "Catching up…" status after a 429 outlived its Retry-After. */
+	teamBridgeConversationsCatchingUp: "team-bridge-conversations-catching-up",
+	teamBridgePeopleCatchingUp: "team-bridge-people-catching-up",
 	teamBridgeDayDivider: "team-bridge-day-divider",
 	teamBridgeDefaultOnNotice: "team-bridge-default-on-notice",
 	teamBridgeGateSkeleton: "team-bridge-gate-skeleton",

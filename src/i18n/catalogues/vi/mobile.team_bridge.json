@@ -76,6 +76,7 @@
 	"mobile.team_bridge.gate.update_help": "Phiên bản này không hỗ trợ dịch vụ Team Bridge. Hãy cập nhật ứng dụng để tiếp tục.",
 	"mobile.team_bridge.gate.update_required": "Cần cập nhật",
 	"mobile.team_bridge.gate.upgrade": "Nâng cấp lên Team",
+	"mobile.team_bridge.list.catching_up": "Đang cập nhật…",
 	"mobile.team_bridge.list.channels": "Kênh",
 	"mobile.team_bridge.list.channels_empty": "Chưa có kênh nào.",
 	"mobile.team_bridge.list.chief_role": "Chánh văn phòng",

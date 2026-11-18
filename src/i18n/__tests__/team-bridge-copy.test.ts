@@ -88,8 +88,8 @@ describe("Team Bridge copy", () => {
 		);
 		// Exact merged attachment + consent + established key union; +2:
 		// `thread.jump_newest` and `thread.anchor_missing` (feat/bridge-last-target's
-		// anchored open); +9: the reply-thread keys (`reply_thread.*`).
-		expect(keys).toHaveLength(168);
+		// anchored open); +1: `list.catching_up`; +9: `reply_thread.*`.
+		expect(keys).toHaveLength(169);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))
