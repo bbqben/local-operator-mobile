@@ -64,6 +64,7 @@ import {
 } from "@/features/notifications/notifications-model";
 import { useConversationDismiss } from "@/features/notifications/use-conversation-dismiss";
 import {
+	type InboxFilter,
 	skippedSentence,
 	useNotifications,
 } from "@/features/notifications/use-notifications";
@@ -392,6 +393,16 @@ export default function Notifications() {
 	 *  `bottomInset="child"`). The pinned footer pays it, but only while it holds
 	 *  something: an idle list keeps scrolling under the home indicator (#321). */
 	const insets = useSafeAreaInsets();
+	/* One empty region serves both tabs, so a tab change would keep the other
+	 *  tab's offset: at 320 pt / 200 %, "Show all notifications" pressed after
+	 *  scrolling down opened All mid-sentence, with the Unread/All control above
+	 *  the viewport (design review D1). Both of the region's tab controls scroll
+	 *  it back to the top first; not a remount, so the indicator still slides. */
+	const emptyScrollRef = useRef<ScrollView>(null);
+	const setEmptyFilter = (next: InboxFilter) => {
+		emptyScrollRef.current?.scrollTo({ y: 0, animated: false });
+		inbox.setFilter(next);
+	};
 	const receiptShowing = dismissReceiptShowing(dismissAll.phase);
 	const footerShowing = selecting || receiptShowing;
 
@@ -489,17 +500,18 @@ export default function Notifications() {
 				 *  from "Show all notifications", and without the control there was no
 				 *  way back to Unread but leaving the screen. */
 				<ScrollView
+					ref={emptyScrollRef}
 					className="flex-1"
 					contentContainerClassName="grow gap-2 px-4 pt-3"
 				>
-					<SegmentedFilter value={inbox.filter} onChange={inbox.setFilter} />
+					<SegmentedFilter value={inbox.filter} onChange={setEmptyFilter} />
 					{inbox.filter === "unread" ? (
 						<EmptyState
 							headline={ALL_CAUGHT_UP_TITLE}
 							next={ALL_CAUGHT_UP_BODY}
 							action={{
 								label: "Show all notifications",
-								onPress: () => inbox.setFilter("all"),
+								onPress: () => setEmptyFilter("all"),
 								testID: CONTROL.inboxFilterAll,
 							}}
 							testID={EMPTY.notifications}

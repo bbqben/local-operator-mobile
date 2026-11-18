@@ -244,6 +244,10 @@ const GROWING_WRAPPER =
 const GROWING_CONTENT =
 	/<ScrollView\b[^>]*\bcontentContainerClassName="(?:[^"]* )?grow(?: [^"]*)?"/;
 const SCROLLING_PROP = /^\s*scrolling$/gm;
+const EMPTY_SCROLL_REF = /<ScrollView\b[^>]*\bref=\{emptyScrollRef\}/;
+const TOP_ON_TAB_CHANGE =
+	/const setEmptyFilter = \(next: InboxFilter\) => \{\s*emptyScrollRef\.current\?\.scrollTo\(\{ y: 0, animated: false \}\);\s*inbox\.setFilter\(next\);/;
+const EMPTY_TAB_CONTROLS = /setEmptyFilter\b/g;
 const FILTER_TAG = /<SegmentedFilter\b/g;
 
 function emptyBranch(): string {
@@ -275,6 +279,19 @@ describe("the empty inbox's layout (#321)", () => {
 		expect(GROWING_CONTENT.test(branch)).toBe(true);
 		/* Both sentences opt out of `flex-1`'s zero basis. */
 		expect(branch.match(SCROLLING_PROP)?.length).toBe(2);
+	});
+
+	it("opens each tab at the top, not at the other tab's scroll offset (design D1)", () => {
+		/* One region serves both tabs. "Show all notifications" pressed after
+		 *  scrolling down at 320 pt / 200 % landed the All tab mid-sentence, with
+		 *  the Unread/All control above the viewport. Both of the region's tab
+		 *  controls (the filter and "Show all") scroll it to its top first; not a
+		 *  remount, which would also cut the segmented indicator's slide. */
+		const branch = emptyBranch();
+		expect(EMPTY_SCROLL_REF.test(branch)).toBe(true);
+		expect(TOP_ON_TAB_CHANGE.test(source)).toBe(true);
+		expect(branch.match(EMPTY_TAB_CONTROLS)?.length).toBe(2);
+		expect(branch).not.toContain("inbox.setFilter");
 	});
 
 	it("keeps the Unread/All filter on BOTH empty tabs", () => {
