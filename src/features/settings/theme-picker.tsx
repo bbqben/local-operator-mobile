@@ -20,6 +20,7 @@ import {
 	type PickerSection,
 	pickerColumns,
 	pickerSections,
+	themeModeOptions,
 } from "./theme-picker-model";
 
 /**
@@ -87,23 +88,11 @@ export default function ThemePicker() {
 					label={t("mobile.settings.theme.mode_label")}
 					value={selection.mode}
 					onChange={setPreference}
-					options={[
-						{
-							value: "system",
-							label: t("mobile.settings.theme.mode_system"),
-							testID: CONTROL.themePickerModeSystem,
-						},
-						{
-							value: "light",
-							label: t("mobile.settings.theme.mode_light"),
-							testID: CONTROL.themePickerModeLight,
-						},
-						{
-							value: "dark",
-							label: t("mobile.settings.theme.mode_dark"),
-							testID: CONTROL.themePickerModeDark,
-						},
-					]}
+					options={themeModeOptions({
+						system: CONTROL.themePickerModeSystem,
+						light: CONTROL.themePickerModeLight,
+						dark: CONTROL.themePickerModeDark,
+					})}
 				/>
 				<Text
 					className="text-body-sm text-ink-dim"

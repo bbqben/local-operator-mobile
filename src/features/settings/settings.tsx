@@ -77,6 +77,7 @@ import {
 	retryTargetMatches,
 } from "./refusal-in-view";
 import { SidebarSettingsSection } from "./sidebar-section";
+import { themeModeOptions } from "./theme-picker-model";
 import { ThemeRow } from "./theme-row";
 import { useRefusalReveal } from "./use-refusal-reveal";
 
@@ -539,7 +540,7 @@ export default function Settings() {
 					 *  and proofs that drive it are unchanged. */}
 					{/* VISIBLE LABELS (visual audit D15). Both segmented controls had
 					 *  an accessible name and no visible one, so a sighted reader met
-					 *  "System / Dark / Light" directly above "System / 100% / 150% /
+					 *  "System / Light / Dark" directly above "System / 100% / 150% /
 					 *  200%" and had to infer which was which from the options. The
 					 *  label is the control's own accessible name, drawn — so the two
 					 *  cannot drift (WCAG 2.5.3) — and hidden from assistive tech,
@@ -555,23 +556,11 @@ export default function Settings() {
 							label={t("mobile.settings.theme.mode_label")}
 							value={theme}
 							onChange={setPreference}
-							options={[
-								{
-									value: "system",
-									label: t("mobile.settings.theme.mode_system"),
-									testID: CONTROL.settingsThemeSystem,
-								},
-								{
-									value: "dark",
-									label: t("mobile.settings.theme.mode_dark"),
-									testID: CONTROL.settingsThemeDark,
-								},
-								{
-									value: "light",
-									label: t("mobile.settings.theme.mode_light"),
-									testID: CONTROL.settingsThemeLight,
-								},
-							]}
+							options={themeModeOptions({
+								system: CONTROL.settingsThemeSystem,
+								light: CONTROL.settingsThemeLight,
+								dark: CONTROL.settingsThemeDark,
+							})}
 						/>
 					</View>
 					<ThemeRow />
