@@ -280,7 +280,15 @@ response pipeline. **Keep data-only and build on the device.**
   3. On **API 30+ only**, before posting, call `ShortcutManagerCompat.pushDynamicShortcut` (the
      shortcut is a separate object, so Compat is fine here) with a **long-lived** shortcut
      for that id. It carries the same `Person`, `setLongLived(true)`, an intent that opens the app
-     at the conversation deep link. It is **not** excluded from the launcher: the platform never
+     at the conversation deep link. **Its icon is the conversation's face, not the message's:** on
+     API 31+ the shade draws the shortcut icon on every row that names the shortcut, and the
+     shortcut is republished per message, so a sender face there made every row of a group show
+     whoever spoke last (UX U7 / design D3, PR #304). A **DM** shortcut keeps the other person's
+     face. A **group or channel** (`conv.group == true`) shortcut gets one fixed face for every
+     message, lucide `Users` (the in-app group glyph) in white on the kit's light `ink-dim`
+     (`#656056`, 6.2:1, no sender tone; the payload cannot tell a channel from a group). Each
+     sender's face stays on the `MessagingStyle` message `Person`, with `setGroupConversation(true)`
+     and the conversation title (`ConversationShortcuts.shortcutFace`). It is **not** excluded from the launcher: the platform never
      stores a shortcut marked `setExcludedFromSurfaces(SURFACE_LAUNCHER)` (AOSP
      `ShortcutPackage.pushDynamicShortcut` keeps it only as transient AppSearch state), so on
      API 33+ no conversation existed and the notification fell back to plain `MessagingStyle`

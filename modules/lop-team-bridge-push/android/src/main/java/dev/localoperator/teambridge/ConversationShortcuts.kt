@@ -44,7 +44,26 @@ internal object ConversationShortcuts {
   fun deepLink(push: BridgePush): Uri =
     Uri.parse("localoperator://team-bridge/${Uri.encode(push.tenantId)}/${Uri.encode(push.conversationId)}")
 
-  fun publish(context: Context, push: BridgePush, label: String, sender: Person, avatar: Bitmap): Boolean {
+  /**
+   * The shortcut's icon (UX U7 / design D3, PR #304). On API 31+ the shade
+   * draws the SHORTCUT's icon on every notification row that names it, not
+   * each message's Person icon. One shortcut serves a whole conversation and is
+   * republished per message, so in a group or channel a sender face here made
+   * EVERY row show whoever spoke last. A group/channel shortcut therefore gets
+   * the fixed conversation face (`AvatarRenderer.CONVERSATION_SPEC`), the same
+   * pixels for every message; each sender's face stays on the MessagingStyle
+   * Person (`TeamBridgeDecorator.messaging`). A DM has one other person, so
+   * their face is the conversation's face. A missing `conv` block (an older
+   * cloud) is treated as a DM, as `setGroupConversation` already does.
+   */
+  fun shortcutFace(push: BridgePush, senderFace: Bitmap): Bitmap =
+    if (push.conv?.group == true) {
+      AvatarRenderer.render(AvatarRenderer.CONVERSATION_SPEC, senderFace.width)
+    } else {
+      senderFace
+    }
+
+  fun publish(context: Context, push: BridgePush, label: String, sender: Person, senderFace: Bitmap): Boolean {
     val launch = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return false
     val intent = launch.apply {
       // A shortcut intent must carry an action, and VIEW + data is what the
@@ -57,7 +76,7 @@ internal object ConversationShortcuts {
       .setLongLived(true)
       .setLocusId(LocusIdCompat(push.conversationKey))
       .setPerson(sender)
-      .setIcon(IconCompat.createWithBitmap(avatar))
+      .setIcon(IconCompat.createWithBitmap(shortcutFace(push, senderFace)))
       .setIntent(intent)
       // Never setExcludedFromSurfaces: see NOT EXCLUDED FROM THE LAUNCHER above.
       .build()

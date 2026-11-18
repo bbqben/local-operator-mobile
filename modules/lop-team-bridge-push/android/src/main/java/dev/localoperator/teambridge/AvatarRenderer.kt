@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import java.text.Normalizer
@@ -56,6 +57,9 @@ internal object AvatarRenderer {
      *  silhouette, as core draws, rather than a tofu box or a guessed letter. */
     object Person : Glyph()
     object Agent : Glyph()
+    /** A group or channel conversation (U7/D3, PR #304): lucide `Users`, the
+     *  glyph the in-app list draws for a group row (`ConversationKindGlyph`). */
+    object Group : Glyph()
   }
 
   data class Spec(val background: Int, val glyph: Glyph)
@@ -71,6 +75,24 @@ internal object AvatarRenderer {
     }
     return Spec(background, glyph)
   }
+
+  /**
+   * The face of a group/channel CONVERSATION, as opposed to a sender
+   * (UX U7 / design D3, PR #304). On API 31+ the shade draws the conversation
+   * SHORTCUT's icon on every row that names the shortcut, so a shortcut
+   * republished with each message's sender face made every earlier row show
+   * the latest sender. A group shortcut therefore carries this fixed face,
+   * identical for every message; senders keep their faces on the
+   * MessagingStyle Person. The payload cannot tell a channel from a group
+   * (`BridgeConv` has only `group`), so both draw `Users`.
+   *
+   * Background: the kit's light `ink-dim` (#656056, `src/ui/tokens.gen.ts`), a
+   * warm neutral that is no sender tone, so it never reads as a person. White
+   * ink on it is 6.2:1, and the disc stays distinct on light and dark shades,
+   * the same reason the sender palette is the light one.
+   */
+  val CONVERSATION_BACKGROUND: Int = 0xFF656056.toInt()
+  val CONVERSATION_SPEC: Spec = Spec(CONVERSATION_BACKGROUND, Glyph.Group)
 
   /** Text size as a share of the side: core's 0.33 measured with a badge to
    *  clear; centred with no badge there is room for a little more. */
@@ -107,6 +129,7 @@ internal object AvatarRenderer {
         canvas.restore()
       }
       Glyph.Agent -> drawAgent(canvas, s, ink)
+      Glyph.Group -> drawGroup(canvas, s, ink)
     }
     return bitmap
   }
@@ -135,5 +158,45 @@ internal object AvatarRenderer {
     canvas.drawLine(x(20f), y(14f), x(22f), y(14f), ink)
     canvas.drawLine(x(9f), y(13f), x(9f), y(15f), ink)
     canvas.drawLine(x(15f), y(13f), x(15f), y(15f), ink)
+  }
+
+  /**
+   * lucide `Users` (1.49.0, the in-app group glyph) from its 24-unit geometry:
+   * head `circle 9,7 r4`, body `M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,
+   * the second person's shoulder `M22 21v-2a4 4 0 0 0-3-3.87` and head arc
+   * `M16 3.128a4 4 0 0 1 0 7.744`. Same stroke rules and scale as `drawAgent`.
+   * Every arc has radius 4; its centre is solved from the SVG endpoints, so
+   * `arcTo`/`drawArc` on the centre's oval draws the icon's own curve.
+   */
+  private fun drawGroup(canvas: Canvas, s: Float, ink: Paint) {
+    val unit = s * 0.030f
+    val ox = s / 2f - 12f * unit
+    val oy = s / 2f - 12f * unit
+    fun x(v: Float) = ox + v * unit
+    fun y(v: Float) = oy + v * unit
+    ink.style = Paint.Style.STROKE
+    ink.strokeWidth = 2f * unit
+    ink.strokeCap = Paint.Cap.ROUND
+    ink.strokeJoin = Paint.Join.ROUND
+    canvas.drawCircle(x(9f), y(7f), 4f * unit, ink)
+    val body = Path().apply {
+      moveTo(x(16f), y(21f))
+      lineTo(x(16f), y(19f))
+      arcTo(RectF(x(8f), y(15f), x(16f), y(23f)), 0f, -90f, false)
+      lineTo(x(6f), y(15f))
+      arcTo(RectF(x(2f), y(15f), x(10f), y(23f)), 270f, -90f, false)
+      lineTo(x(2f), y(21f))
+    }
+    canvas.drawPath(body, ink)
+    // `a4 4 0 0 0 -3-3.87` from (22, 19): centre (18, 19), so 0° to -75.5°.
+    val shoulder = Path().apply {
+      moveTo(x(22f), y(21f))
+      lineTo(x(22f), y(19f))
+      arcTo(RectF(x(14f), y(15f), x(22f), y(23f)), 0f, -75.5f, false)
+    }
+    canvas.drawPath(shoulder, ink)
+    // `a4 4 0 0 1 0 7.744` from (16, 3.128): the small clockwise arc, centre
+    // (15, 7) (offset sqrt(16 - 3.872^2) = 1.004), so -75.5° through 0° to 75.5°.
+    canvas.drawArc(RectF(x(11f), y(3f), x(19f), y(11f)), -75.5f, 151f, false, ink)
   }
 }

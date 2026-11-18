@@ -212,6 +212,21 @@ class TeamBridgePushTestRunner : Instrumentation() {
       check(published) { "launcher-capable fixture failed to publish on API $sdk" }
       check(published == (out.shortcutId == "tb:c1")) { "shortcut id ${out.shortcutId} vs published $published" }
       check(published == (out.locusId?.id == "tb:c1")) { "locus ${out.locusId}" }
+      // U7/D3 (PR #304): the shade draws the SHORTCUT's icon on every row of a
+      // conversation, so a group shortcut must not wear the latest sender's
+      // face. A published ShortcutInfo comes back with its icon stripped, so
+      // the choice is checked at `shortcutFace`, the one place `publish` takes
+      // its icon from.
+      val benFace = AvatarRenderer.render(AvatarRenderer.spec(BridgeSender(BridgeSender.Kind.PERSON, "bc", 1)), 192)
+      val adaFace = AvatarRenderer.render(AvatarRenderer.spec(BridgeSender(BridgeSender.Kind.PERSON, "al", 5)), 192)
+      val conversationFace = AvatarRenderer.render(AvatarRenderer.CONVERSATION_SPEC, 192)
+      val groupPush = checkNotNull(BridgePushPayload.parse(body()))
+      val dmPush = checkNotNull(BridgePushPayload.parse(body(conv = """{"group":false,"members":2}""")))
+      val fromBen = ConversationShortcuts.shortcutFace(groupPush, benFace)
+      val fromAda = ConversationShortcuts.shortcutFace(groupPush, adaFace)
+      check(fromBen.sameAs(fromAda) && fromBen.sameAs(conversationFace)) { "group shortcut icon follows the sender" }
+      check(!fromBen.sameAs(benFace)) { "group shortcut wears a sender face" }
+      check(ConversationShortcuts.shortcutFace(dmPush, benFace) === benFace) { "DM shortcut lost the person's face" }
     }
     // Forced MESSAGING tier on a 30+ device: no shortcut at all.
     if (sdk >= 30) {

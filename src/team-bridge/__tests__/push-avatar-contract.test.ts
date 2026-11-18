@@ -63,6 +63,11 @@ const kotlinPalette = (): number[] => {
 const TONES_CONST = /const val TONES = 8\b/;
 const COMMENT_LINE = /^\s*(\*|\/\/|\/\*)/;
 const LAUNCHER_EXCLUSION = /setExcludedFromSurfaces|SURFACE_LAUNCHER/;
+const SET_ICON = /\.setIcon\(/g;
+const GROUP_FACE_BRANCH =
+	/if \(push\.conv\?\.group == true\) \{\s*AvatarRenderer\.render\(AvatarRenderer\.CONVERSATION_SPEC,/;
+const CONVERSATION_SPEC_DECL =
+	/val CONVERSATION_SPEC: Spec = Spec\(CONVERSATION_BACKGROUND, Glyph\.Group\)/;
 
 /** The native parser's initials rule, restated for the fixture check. */
 const DRAWABLE = /^[\p{L}\p{N}]{1,2}$/u;
@@ -104,6 +109,31 @@ describe("push avatar contract (ADR 0010 §5)", () => {
 		expect(code).toContain("pushDynamicShortcut");
 		expect(code).toContain(".setLongLived(true)");
 		expect(code).not.toMatch(LAUNCHER_EXCLUSION);
+	});
+
+	it("gives a group shortcut a fixed conversation face, not the sender's (U7/D3, PR #304)", () => {
+		// On API 31+ the shade draws the conversation SHORTCUT's icon on every
+		// row naming it. The shortcut is republished per message, so a sender
+		// face there made every row of a group show the latest sender. The
+		// emulator runner's `decorateMessaging` checks the pixels; this pins the
+		// source so the regression fails without an emulator.
+		const code = kotlin("ConversationShortcuts.kt")
+			.split("\n")
+			.filter((line) => !COMMENT_LINE.test(line))
+			.join("\n");
+		expect(code).toContain(
+			".setIcon(IconCompat.createWithBitmap(shortcutFace(push, senderFace)))",
+		);
+		expect(code.match(SET_ICON)).toHaveLength(1);
+		const face = code.slice(
+			code.indexOf("fun shortcutFace("),
+			code.indexOf("fun publish("),
+		);
+		expect(face).toMatch(GROUP_FACE_BRANCH);
+		// The conversation face is a fixed spec: no sender input reaches it.
+		const renderer = kotlin("AvatarRenderer.kt");
+		expect(renderer).toMatch(CONVERSATION_SPEC_DECL);
+		expect(kotlinPalette()).not.toContain(0xff656056);
 	});
 
 	it("bounds the parsed tone by the palette size", () => {
