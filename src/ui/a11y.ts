@@ -176,7 +176,6 @@ export const CONTROL = {
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeAttach: "team-bridge-attach",
 	teamBridgeBack: "team-bridge-back",
-	teamBridgeReplyThreadBack: "team-bridge-reply-thread-back",
 	teamBridgeReplyThreadRetry: "team-bridge-reply-thread-retry",
 	/** A Bridge thread's leading workspace-drawer button (Team Bridge mode). */
 	teamBridgeMenu: "team-bridge-menu",

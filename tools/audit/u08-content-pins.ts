@@ -732,7 +732,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
 	 * adopted out of the sealed family) at boot. Re-derived with --print over
 	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
-	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
+	/* PR #303 adds a Team Bridge reply-thread route, not an agent-session route
+	 * used by the U-08 probes. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	app: "34b1f3719abe4cf7c311f7b2c2e20d032b60a89d8fa15d13cd899076239f61b1",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2229,7 +2232,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * regression test. No rendered component or copy changes. Re-derived with
 	 * --print over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
-	src: "c62cf329e6b0ca7736654266d7dc068f3d4dd4edb4516af4487c3aa12f063c82",
+	/* PR #303 adds reply counts, unread state and thread navigation to Team
+	 * Bridge, plus its copy and selectors. U-08's agent transcript and turn-bar
+	 * probes do not target that surface. Re-derived with --print over the staged
+	 * tree; source admission only, NOT renewed rendered U-08 evidence. */
+	src: "787b42d3bdbb6effef723a47ce000d28984c6e70f4d0aa2143f194771fae2437",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
