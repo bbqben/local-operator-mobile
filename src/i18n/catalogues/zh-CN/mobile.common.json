@@ -11,5 +11,7 @@
 	"mobile.common.not_found.action": "返回会话列表",
 	"mobile.common.copy": "复制",
 	"mobile.common.copied": "已复制",
-	"mobile.common.copy_command_hint": "复制“{label}”命令"
+	"mobile.common.copy_command_hint": "复制“{label}”命令",
+	"mobile.common.close": "关闭",
+	"mobile.common.loading": "正在加载"
 }

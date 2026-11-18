@@ -48,8 +48,19 @@
  * same commit passes this guard. The table cannot pin the file that contains it,
  * and nothing outside the repository checks the pair. That is inherent to a
  * same-repo tripwire — what protects the proof is that the re-pin is a visible
- * line in a reviewable diff, not that the tool catches its own author. The suite
- * proves the pins match the tree they were committed with, and nothing more.
+ * line in a reviewable diff, not that the tool catches its own author.
+ *
+ * WHO RE-PINS WHAT. The executable proof (u08-geometry-proof.ts, dispatch-only,
+ * including `--preflight-only`) is the one gate that compares the live tree with
+ * the committed RENDER_TREE/INPUT_TREE/RENDER_FILE tables, and it refuses on any
+ * difference. The unit suite does NOT: it proves the admission logic against a
+ * baseline derived from its own fixture (pinTablesFrom), so an ordinary feature
+ * PR that edits `src/`, `app/`, fixtures or dependencies does not re-pin here.
+ * Re-pin those roots deliberately, with --print, when a U-08 proof is about to
+ * be dispatched against the new scene — that line is the reviewed decision. The
+ * suite still holds INSTRUMENT_PINS to the live files (an edit to the measuring
+ * code re-pins in the same PR) and holds the table KEYS to the drivers' import
+ * closure.
  * The ORIGINAL_* constants in u08-geometry-proof.ts are a different thing and are
  * never re-pinned — they identify the captured historical packet, not the
  * instrument that runs today.
@@ -732,7 +743,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
 	 * adopted out of the sealed family) at boot. Re-derived with --print over
 	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
-	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
+	/* PR #303 adds a Team Bridge reply-thread route, not an agent-session route
+	 * used by the U-08 probes. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	app: "34b1f3719abe4cf7c311f7b2c2e20d032b60a89d8fa15d13cd899076239f61b1",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -2263,6 +2277,60 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #297, 8a4d3048) into PR #301: both comment
+	 * chains retained; only this pin conflicted (no other file is touched by
+	 * both sides). The merged src carries #297's Team Bridge 429 changes and
+	 * #301's tunnel-transient changes, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree (src the only
+	 * differing root); source identity only, NOT rendered U-08 evidence. */
+	/* Re-pinned 2026-11-17 for fix/bridge-transient with --print at the staged
+	 * tree: Team Bridge keeps held rows on every transient failure (store),
+	 * holds hash-pinned endpoint photos and caps photo reads at 4 in flight
+	 * (avatars), and the drawer reads photos only for on-screen rows
+	 * (avatar-viewport, profile-card, list-screen scroll signal). No U-08
+	 * instrument, copy or measured geometry moved. Source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* PR #306 remediation: per-half transient recovery, bounded cancellable
+	 * viewport photo reads and endpoint authorization on admission. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Convergence with upstream #301: both histories preserved; the combined
+	 * source identity was re-derived. This is NOT rendered U-08 evidence. */
+	/* PR #306 round-2 remediation: an expired 429 yielding to fresh rows clears
+	 * Catching up (R2-1), endpoint photos reuse a verified read for the
+	 * directory TTL and the photo budget is metered in requests sent (U5/D4).
+	 * Re-derived with --print over the staged tree; source identity only, NOT
+	 * rendered U-08 evidence. */
+	/* PR #303 adds reply counts, unread state and thread navigation to Team
+	 * Bridge, plus its copy and selectors. U-08's agent transcript and turn-bar
+	 * probes do not target that surface. Re-derived with --print over the staged
+	 * tree; source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main 08b819b5 keeps both comment chains and
+	 * both sides' source. --print over the staged merge gives a new src
+	 * digest; app is unchanged from the PR. Source admission only. */
+	/* PR #303 review round 1 remediation: reply-thread store/screen/chip,
+	 * the Team Bridge title's optional subtitle, and reply_thread copy in all
+	 * eight catalogues. No U-08 scene (agent transcript, turn bar) renders any
+	 * of it; app unchanged. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main f5498d3c (#302 O3-b i18n, #307 fixture
+	 * baselines, #308 CODEOWNERS): both comment chains and both sides' source
+	 * kept. --print over the staged merge moves only src; app unchanged.
+	 * Source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main 7a52b1a9 (#306 bridge transient/avatar
+	 * fixes): both comment chains and both sides' source kept. --print over
+	 * the staged merge moves only src; app unchanged. Source admission only,
+	 * NOT renewed rendered U-08 evidence. */
 	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
 	 * `allowsRecording: true` (native audio-session argument; no rendered output).
 	 * Re-derived with --print over the staged tree; source admission only, NOT
@@ -2272,11 +2340,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * iOS receives `outputFormat`/`audioQuality` and writes AAC instead of PCM in
 	 * the `.m4a`. Re-derived with --print over the staged tree; source admission
 	 * only, NOT rendered, native or device evidence. */
-	/* Merge of origin/main (8a4d3048) into fix/mic-diagnosis: main's comment chain
+	/* Merge of origin/main (fa7dd36e, #303) into fix/mic-diagnosis: main's chain
 	 * kept above; only this pin conflicted, and the merged src carries both sides,
 	 * so it matches neither parent. Re-derived with --print over the staged merge
 	 * tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "e9ca8242b8bca2aea3d4cd8cf0ac53fb8e5cf4c4178868c255b180521804ee36",
+	src: "c03984074586f11a2304e9fcf1f7c33e37ba6d7c240c2d43ba23b247d7a5b21c",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2430,7 +2498,62 @@ const hasMissingUnder = (content: RepositoryContent, root: string) =>
 		(path) => path.startsWith(`${root}/`) && isPinnedContentPath(path),
 	);
 
-export function contentDrift(content: RepositoryContent): Drift[] {
+/** The four tables as one value, so a caller can judge content against a
+ * baseline other than the committed one.
+ *
+ * WHY THIS EXISTS. Until this was split out, the unit suite judged its fixture
+ * against the committed tables, which made "committed `src` pin == the PR's
+ * `src`" a PR-time gate: every PR that touched app source had to re-pin, and
+ * concurrent PRs collided on that one line (98 of the 116 first-parent merges to
+ * main between 2026-10-18 and 2026-11-17 edited this file). The suite's question
+ * is "does the admission logic admit and refuse the right edits?", which needs
+ * a baseline it controls, not today's tree. The proof's question is "is this the
+ * scene that was reviewed?", which needs the committed tables — so the default
+ * below stays COMMITTED_PINS and the dispatch preflight is unchanged. */
+export interface PinTables {
+	readonly instrument: Readonly<Record<string, string>>;
+	readonly renderTree: Readonly<Record<string, string>>;
+	readonly inputTree: Readonly<Record<string, string>>;
+	readonly renderFile: Readonly<Record<string, string>>;
+}
+
+/** The trust root: the only tables the executable proof ever checks against. */
+export const COMMITTED_PINS: PinTables = {
+	instrument: INSTRUMENT_PINS,
+	renderTree: RENDER_TREE_PINS,
+	inputTree: INPUT_TREE_PINS,
+	renderFile: RENDER_FILE_PINS,
+};
+
+/** Tables with the committed KEYS and digests read from `content`, using the
+ * same per-file and per-root digests the verdict uses. Test-only by intent: it
+ * gives the suite a baseline equal to its own fixture. Re-pinning stays
+ * `--print` plus a reviewed edit; nothing writes these values back. A path with
+ * no readable content keeps the sentinel "absent" so it can never match. */
+export function pinTablesFrom(content: RepositoryContent): PinTables {
+	const files = (keys: Readonly<Record<string, string>>) =>
+		Object.fromEntries(
+			Object.keys(keys).map((path) => [
+				path,
+				content.files.get(path) ?? "absent",
+			]),
+		);
+	const roots = (keys: Readonly<Record<string, string>>) =>
+		Object.fromEntries(
+			Object.keys(keys).map((root) => [root, treeDigest(content, root)]),
+		);
+	return {
+		instrument: files(INSTRUMENT_PINS),
+		renderTree: roots(RENDER_TREE_PINS),
+		inputTree: roots(INPUT_TREE_PINS),
+		renderFile: files(RENDER_FILE_PINS),
+	};
+}
+
+export function contentDrift(
+	content: RepositoryContent,
+	pins: PinTables = COMMITTED_PINS,
+): Drift[] {
 	const drift: Drift[] = [];
 	for (const path of [...content.missing].filter(isPinnedContentPath).sort())
 		drift.push({
@@ -2439,15 +2562,15 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 			pinned: "tracked",
 			actual: "absent",
 		});
-	for (const [path, pinned] of Object.entries(INSTRUMENT_PINS)) {
+	for (const [path, pinned] of Object.entries(pins.instrument)) {
 		if (content.missing.has(path)) continue;
 		const actual = content.files.get(path) ?? "absent";
 		if (actual !== pinned)
 			drift.push({ kind: "instrument", scope: path, pinned, actual });
 	}
 	const roots: [Record<string, string>, DriftKind][] = [
-		[RENDER_TREE_PINS, "render-tree"],
-		[INPUT_TREE_PINS, "input-tree"],
+		[pins.renderTree, "render-tree"],
+		[pins.inputTree, "input-tree"],
 	];
 	for (const [table, kind] of roots)
 		for (const [root, pinned] of Object.entries(table)) {
@@ -2455,7 +2578,7 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 			const actual = treeDigest(content, root);
 			if (actual !== pinned) drift.push({ kind, scope: root, pinned, actual });
 		}
-	for (const [path, pinned] of Object.entries(RENDER_FILE_PINS)) {
+	for (const [path, pinned] of Object.entries(pins.renderFile)) {
 		if (content.missing.has(path)) continue;
 		const actual = content.files.get(path) ?? "absent";
 		if (actual !== pinned)
@@ -2464,11 +2587,15 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 	return drift;
 }
 
-/** Refuse before any browser work; the message must let an operator act. */
+/** Refuse before any browser work; the message must let an operator act.
+ * `pins` exists only so the suite can prove admission against its fixture's own
+ * baseline; the proof calls this with no arguments, i.e. the live tree against
+ * COMMITTED_PINS, fail-closed. */
 export function assertPinnedContent(
 	content: RepositoryContent = snapshotContent(),
+	pins: PinTables = COMMITTED_PINS,
 ) {
-	const drift = contentDrift(content);
+	const drift = contentDrift(content, pins);
 	if (drift.length === 0) return;
 	throw new Error(
 		[

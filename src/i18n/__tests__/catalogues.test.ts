@@ -78,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 160, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens); fix/bridge-429 +1: list.catching_up, the calm rate-limit status (159 + 1 = 160, counted over the en JSON).
+		expected: 170, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2).
 	},
 	{
 		name: "mobile.signin",
@@ -96,7 +96,7 @@ const NAMESPACES = [
 		name: "mobile.common",
 		messages: common,
 		context: commonContext,
-		expected: 13, // M3 S2b-1 +3: the command block's Copy / Copied / copy hint (10 + 3 = 13); +4: the not-found screen (app/ scan)
+		expected: 15, // O3-b +2: the shared sheet Close and skeleton Loading labels (13 + 2 = 15, counted over the en JSON). M3 S2b-1 +3: the command block's Copy / Copied / copy hint (10 + 3 = 13); +4: the not-found screen (app/ scan)
 	},
 	{
 		name: "mobile.composer_input",
@@ -129,7 +129,9 @@ const NAMESPACES = [
 		context: projectsContext,
 		// O3-a +4: the list title and the detail screen's three section headings
 		// (32 + 4 = 36, counted over the en JSON).
-		expected: 36,
+		// O3-b +23: the list's error/empty copy (3) and Project detail plus its
+		// milestone editor (20) (36 + 23 = 59, counted over the en JSON).
+		expected: 59,
 	},
 	{
 		name: "mobile.schedules",
@@ -273,7 +275,7 @@ const NAMESPACES = [
 		name: "mobile.sidebar",
 		messages: sidebar,
 		context: sidebarContext,
-		expected: 27, // PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
+		expected: 42, // O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
 	},
 	{
 		/* This app's own short chrome words the relay has no key for: the sidebar
@@ -539,10 +541,20 @@ describe("the English catalogues", () => {
 		 * chains kept; 1044 on O3-a + main's 16 since b1fbb813 (mobile.notifications
 		 * 14, mobile.remote_sessions 2) = 1060, derived by summing the keys of all
 		 * 25 merged en catalogue files (mobile.notifications 79). */
+		/* O3-b (English-first): +2 mobile.common, +23 mobile.projects,
+		 * +15 mobile.sidebar = 40: 1060 + 40 = 1100, counted over the en JSON. */
 		/* fix/bridge-429 (#297): + mobile.team_bridge.list.catching_up, the calm
 		 * "Catching up…" rate-limit status: 1060 + 1 = 1061, derived by summing
 		 * the keys of all 25 en catalogue files (mobile.team_bridge 160). */
-		expect(total).toBe(1061);
+		/* Convergence of PR #302 with main 8a4d3048 (#297): both chains above
+		 * kept; O3-b's 40 + #297's 1 on 1060 = 1101, derived by summing the keys of
+		 * all 25 merged en catalogue files (mobile.common 15, mobile.projects 59,
+		 * mobile.sidebar 42, mobile.team_bridge 160); every shipped locale also
+		 * sums to 1101. */
+		// PR #303 adds ten mobile.team_bridge.reply_thread keys (nine, plus
+		// reply_thread.more for the 500-reply continuation, review R2):
+		// 1101 + 10 = 1111, re-derived with generate.ts over the merged tree.
+		expect(total).toBe(1111);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -609,6 +621,14 @@ const PROJECT_TAG_EXAMPLE = {
 	"mobile.projects.create.tags_placeholder":
 		"Valid ASCII tag examples with a comma separator; retaining the examples preserves the form's concrete input guidance.",
 };
+
+/* O3-b: the milestone target-date field accepts only ISO 8601, so its mask
+ * hint keeps the English letters where a locale has no unambiguous short form
+ * (the en context allows that; vi's audit notes NNNN-TT-NN would read Năm/Ngày
+ * ambiguously). Listed per locale so a later translation is still caught. */
+const ISO_DATE_MASK = (locale: string, bundle: string) => ({
+	"mobile.projects.milestone.target_date_placeholder": `ISO 8601 input-mask hint the date field enforces (year-month-day, hyphens); the ${locale} O3-b audit passed it unchanged (i18n/audits/evidence/${locale}/mobile.projects/${bundle}/).`,
+});
 
 /** The judged exceptions, per locale (no pending-translation ledger remains). */
 const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
@@ -765,6 +785,7 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		/* M3 S2b-2b (set-up-a-computer screen): command-block labels kept as audited. */
 		"mobile.computers.setup.tui_label":
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the zh-CN audit accepted it as kept Latin (i18n/audits/evidence/zh-CN/m3-s2b2b-computers-setup/).",
+		...ISO_DATE_MASK("zh-CN", "o3b-zh-CN-50d18d"),
 	},
 	ru: {
 		"mobile.settings.account.app_name":
@@ -826,6 +847,7 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"TUI is an acronym on the style guide's keep-in-English list, the label of the set-up screen's TUI command block; the vi audit accepted it as kept Latin (i18n/audits/evidence/vi/m3-s2b2b-computers-setup/).",
 		"mobile.computers.setup.terminal_label":
 			"Vietnamese developers say `Terminal`: a standard loanword, as the vi catalogue already keeps shell and loopback; the vi audit ruled terminal_label ACCEPT (i18n/audits/evidence/vi/m3-s2b2b-computers-setup/).",
+		...ISO_DATE_MASK("vi", "o3b-vi-a2593f"),
 	},
 	hi: {
 		"mobile.settings.account.app_name":
@@ -983,6 +1005,65 @@ describe("a four-form plural locale agrees with its own rules", () => {
 		for (const arm of ["one", "few", "many", "other"]) {
 			expect(value).toContain(`${arm} {`);
 		}
+	});
+});
+
+/**
+ * The conversation row's count chips carry every plural arm their locale's own
+ * rules select (PR #302 QA Q1).
+ *
+ * The same failure as the Russian test above, widened to the three O3-b row
+ * counts and every shipped locale: a dropped arm falls back to `other` and still
+ * renders, so neither key parity nor a rendering spot check catches it — "21
+ * вопроса" reads as a count while being the wrong noun form. The REQUIRED arms
+ * come from `Intl.PluralRules(locale)`, the same rules the runtime selects with,
+ * so a locale whose CLDR data grows an arm (fr/es gained `many`) is held to it
+ * without editing this list.
+ */
+/** One plural arm of an ICU message, `many {…}` (the negative control drops it). */
+const MANY_ARM = / many \{[^}]*\}/;
+
+describe("the row count chips carry every plural arm of their locale", () => {
+	const ROW_COUNTS = [
+		"mobile.sidebar.row.asks",
+		"mobile.sidebar.row.agents",
+		"mobile.sidebar.row.todos",
+	] as const;
+
+	/** The plural categories `locale` selects that `value` has no arm for. */
+	const missingArms = (value: string, locale: string): string[] =>
+		new Intl.PluralRules(locale)
+			.resolvedOptions()
+			.pluralCategories.filter((arm) => !value.includes(`${arm} {`));
+
+	const messagesOf = (locale: ShippedLocale): Record<string, string> =>
+		locale === "en"
+			? (ENGLISH_MESSAGES as Record<string, string>)
+			: (CATALOGUES[locale] as Readonly<Record<string, string>>);
+
+	it.each(
+		SHIPPED_LOCALES.flatMap((locale) =>
+			ROW_COUNTS.map((key) => [locale, key] as const),
+		),
+	)("%s %s has an arm for every category", (locale, key) => {
+		const value = messagesOf(locale)[key];
+		expect(value, `${locale} ships ${key}`).toBeDefined();
+		// The expect above reports the failure; the throw narrows the type and
+		// stops a missing key from reaching missingArms as `undefined`.
+		if (value === undefined) throw new Error(`${locale} does not ship ${key}`);
+		expect(missingArms(value, locale)).toEqual([]);
+	});
+
+	it("would catch a dropped Russian `many` arm (negative control)", () => {
+		/* In memory only: the shipped value minus its `many` arm must be reported,
+		 *  or the check above is vacuous. */
+		const shipped = messagesOf("ru")["mobile.sidebar.row.asks"];
+		expect(shipped, "ru ships mobile.sidebar.row.asks").toBeDefined();
+		if (shipped === undefined)
+			throw new Error("ru does not ship the asks count");
+		const dropped = shipped.replace(MANY_ARM, "");
+		expect(dropped).not.toBe(shipped);
+		expect(missingArms(dropped, "ru")).toEqual(["many"]);
 	});
 });
 

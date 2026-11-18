@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "Снова включите разделы или завершённые сеансы либо сбросьте вид.",
 	"mobile.sidebar.empty_by_view.reset": "Сбросить вид",
 	"mobile.sidebar.outbox_sending": "Отправка сообщения…",
-	"mobile.sidebar.outbox_failed": "Отправка сообщения остановлена"
+	"mobile.sidebar.outbox_failed": "Отправка сообщения остановлена",
+	"mobile.sidebar.tags.remove_all": "Снять все теги",
+	"mobile.sidebar.tags.remove_all_title": "Снять все теги?",
+	"mobile.sidebar.tags.remove_all_body": "С этой беседы будут сняты все категории. Сами категории останутся в приложении для компьютера.",
+	"mobile.sidebar.tags.remove_all_confirm": "Снять",
+	"mobile.sidebar.tags.saving": "Сохранение…",
+	"mobile.sidebar.tags.load_failed_title": "Категории не загрузились",
+	"mobile.sidebar.tags.load_failed_body": "Не удалось загрузить список категорий. Повторите попытку чуть позже.",
+	"mobile.sidebar.tags.empty_headline": "Категорий пока нет.",
+	"mobile.sidebar.tags.empty_next": "Создаются на компьютере.",
+	"mobile.sidebar.tags.announcement": "Теги: {names}",
+	"mobile.sidebar.row.new": "новая",
+	"mobile.sidebar.row.asks": "{count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}, агент продолжает работу",
+	"mobile.sidebar.row.agents": "{count, plural, one {# агент} few {# агента} many {# агентов} other {# агента}}",
+	"mobile.sidebar.row.todos": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}"
 }

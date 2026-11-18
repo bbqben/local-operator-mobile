@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "重新开启分区或已结束的会话，或重置视图。",
 	"mobile.sidebar.empty_by_view.reset": "重置视图",
 	"mobile.sidebar.outbox_sending": "正在发送消息…",
-	"mobile.sidebar.outbox_failed": "消息已停止发送"
+	"mobile.sidebar.outbox_failed": "消息已停止发送",
+	"mobile.sidebar.tags.remove_all": "移除所有标签",
+	"mobile.sidebar.tags.remove_all_title": "要移除所有标签吗？",
+	"mobile.sidebar.tags.remove_all_body": "此操作会清除此对话上的所有标签类别。类别本身仍保留在桌面应用中。",
+	"mobile.sidebar.tags.remove_all_confirm": "移除",
+	"mobile.sidebar.tags.saving": "正在保存…",
+	"mobile.sidebar.tags.load_failed_title": "标签类别未能加载",
+	"mobile.sidebar.tags.load_failed_body": "暂时无法读取类别列表。请稍后重试。",
+	"mobile.sidebar.tags.empty_headline": "还没有标签类别。",
+	"mobile.sidebar.tags.empty_next": "需在桌面应用中创建。",
+	"mobile.sidebar.tags.announcement": "标签：{names}",
+	"mobile.sidebar.row.new": "新",
+	"mobile.sidebar.row.asks": "{count, plural, other {# 个问题}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}，不阻塞智能体工作",
+	"mobile.sidebar.row.agents": "{count, plural, other {# 个智能体}}",
+	"mobile.sidebar.row.todos": "{count, plural, other {# 项任务}}"
 }

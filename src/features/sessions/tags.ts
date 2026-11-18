@@ -1,4 +1,5 @@
 import type { Capabilities, TagCatalogueEntry, TagRef } from "@/contracts";
+import { t } from "@/i18n";
 import { sansTextWidthDp } from "@/ui/components/list-row-meta";
 
 /**
@@ -170,7 +171,12 @@ export const tagLineFor = (
 /** The accessible name of a row's tag line. Every assigned name is announced,
  *  including the ones the compact line could not paint. */
 export const tagAnnouncement = (tags: readonly TagRef[]): string =>
-	`Tags: ${tags.map((tag) => tag.name).join(", ")}`;
+	/* The names are the operator's own category names (backend data) and stay
+	 *  as written; only the lead-in is keyed. The ", " join is a list separator
+	 *  screen readers pause on in every shipped script, so it is not keyed. */
+	t("mobile.sidebar.tags.announcement", {
+		names: tags.map((tag) => tag.name).join(", "),
+	});
 
 export type TagWrite = { tags: string[]; primary: string | null };
 

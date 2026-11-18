@@ -1,0 +1,153 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-ru-ea41a6",
+ "slice": "O3-b",
+ "locale": "ru",
+ "namespace": "mobile.sidebar",
+ "audit_date": "2026-11-17",
+ "key_count": 15,
+ "keys_audited": [
+  "mobile.sidebar.tags.remove_all",
+  "mobile.sidebar.tags.remove_all_title",
+  "mobile.sidebar.tags.remove_all_body",
+  "mobile.sidebar.tags.remove_all_confirm",
+  "mobile.sidebar.tags.saving",
+  "mobile.sidebar.tags.load_failed_title",
+  "mobile.sidebar.tags.load_failed_body",
+  "mobile.sidebar.tags.empty_headline",
+  "mobile.sidebar.tags.empty_next",
+  "mobile.sidebar.tags.announcement",
+  "mobile.sidebar.row.new",
+  "mobile.sidebar.row.asks",
+  "mobile.sidebar.row.asks_not_blocker",
+  "mobile.sidebar.row.agents",
+  "mobile.sidebar.row.todos"
+ ],
+ "translator_session": "480843838cb0",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "ea41a6f7ac32",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "ordinary file read of /Users/damian/.local-operator/sessions/480843838cb0/scratchpad/o3b/draft-ru.json (core read_public_copy refuses mobile catalogue paths); no relay used",
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "source_branch": "feat/i18n-o3b-projects-tags",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/480843838cb0/scratchpad/o3b/draft-ru.json",
+   "sha256": "f49c395230b8eea8b2906874866fcc83eb2883daf978fff58bc4c41a48696315",
+   "canonical_json_sha256": "28802f9020a7a93df2d82608ed1c51a92b05d5c0ce5989fb54e140706007e827"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.sidebar.json",
+   "sha256": "d82f1edb95afd7a3cc1bbc37e8f188deb7e43e14cd75888b0b1b24022a27e87f"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.sidebar.context.json",
+   "sha256": "9c641054a2f00348908213451bf6786149a5678af9da91dff3c5d04ed3d43979"
+  },
+  "ru_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/ru/mobile.sidebar.json",
+   "sha256": "160be18546142bf47bee7ccfb0ebf9e8d3db816b69b0813ae4c2834f2f0eb5d7"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/ru.md",
+   "sha256": "f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_ru_categories": [
+   "one",
+   "few",
+   "many",
+   "other"
+  ],
+  "nfc": "pass",
+  "quotes": "pass («ёлочки» only)",
+  "ellipsis": "pass (U+2026)",
+  "width": "all within hints except RU-S3 (asks many arm at two-digit counts, 11/10; shrink-0 so non-clipping)",
+  "redaction_marker_hits": 0,
+  "redaction_scan_note": "brief's own redaction_scan.pattern field matches itself (2 raw hits) and is excluded; draft 0, brief excl. that field 0, en files at source commit 0",
+  "repo_validator": "not run (draft is outside the repo; worktree read-only, no node_modules); auditor Python ICU checker with 3 negative controls used instead"
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "RU-S1",
+   "RU-S2",
+   "RU-S3",
+   "RU-S4"
+  ]
+ },
+ "findings": [
+  {
+   "id": "RU-S1",
+   "severity": "MINOR",
+   "key": "mobile.sidebar.tags.load_failed_body",
+   "current": "Сейчас не удалось загрузить список категорий. Повторите попытку чуть позже.",
+   "problem": "Same «Сейчас не удалось» departure from the shipped convention as RU-P1. Second sentence matches shipped «Повторите попытку чуть позже.» exactly.",
+   "replacement": {
+    "mobile.sidebar.tags.load_failed_body": "Не удалось загрузить список категорий. Повторите попытку чуть позже."
+   }
+  },
+  {
+   "id": "RU-S2",
+   "severity": "MINOR",
+   "key": "mobile.sidebar.row.asks_not_blocker",
+   "current": "{asks}, работу не блокирует",
+   "problem": "The singular verb has no stated subject; after a plural count (\"5 вопросов, работу не блокирует\") it reads as an agreement slip to a screen-reader listener, and it says what the asks do not do rather than the context's point, that the agent keeps working and is NOT waiting. Placeholder correct.",
+   "replacement": {
+    "mobile.sidebar.row.asks_not_blocker": "{asks}, агент продолжает работу"
+   }
+  },
+  {
+   "id": "RU-S3",
+   "severity": "MINOR",
+   "key": "mobile.sidebar.row.asks",
+   "current": "many {# вопросов}",
+   "problem": "The many arm renders 11 chars for every two-digit many-count (\"10 вопросов\"…\"20 вопросов\", \"25 вопросов\") vs the ~10 hint; single-digit counts and all other arms fit (≤10). Verified non-clipping: the chip is `shrink-0 text-mono-sm` (src/ui/components/list-row.tsx L317-325), so the title column absorbs it. No idiomatic shorter form: «вопр.» is not a conventional abbreviation.",
+   "replacement": {
+    "mobile.sidebar.row.asks": "(no change) {count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}"
+   }
+  },
+  {
+   "id": "RU-S4",
+   "severity": "NIT",
+   "key": "mobile.sidebar.tags.remove_all, remove_all_title, remove_all_confirm",
+   "current": "Снять все теги / Снять все теги? / Снять",
+   "problem": "Cross-surface divergence: the core web relay ships «удалить все теги» (relay.session.tags.remove_all, ~/local-operator). The mobile draft's «Снять» is the more accurate verb (unassign; the body says categories survive), so the draft should stay; the web string is the one to align later, outside this slice.",
+   "replacement": {
+    "mobile.sidebar.tags.remove_all": "(no change) Снять все теги"
+   }
+  }
+ ],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "68af90c753e099ea46c2cd3006d66c653ff941500b78b00677dd7e745876c805"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "ca45a6730992df78f49d3f8cdd924a3e3bb805aa079f4606df715abccf97c6db"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

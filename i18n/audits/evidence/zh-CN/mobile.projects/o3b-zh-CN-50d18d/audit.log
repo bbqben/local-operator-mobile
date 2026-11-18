@@ -1,0 +1,65 @@
+# audit.log — mobile.projects — o3b-zh-CN-50d18d — generated 2026-11-17T14:40:00+00:00
+# Lines below are printed output from the auditor eval kernel (session 50d18d99f4dc), verbatim; width-table rows filtered to this namespace.
+# o3b zh-CN audit — mechanical checks (auditor session 50d18d99f4dc, eval kernel)
+draft file sha256 a379691b714b9a61a972386540c0414277611ef3aed17a76fa9bfd02433cbf57
+draft canonical sha256 (values, sort_keys ensure_ascii=False) 4365cd5b567bce026709c307276ac497da2f549473d0ea2cc0908fad31da8868
+brief sha256 63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe
+draft declares source_commit 39b5e3e5343dc7302b99f731e5806cf82525d346 brief_sha256 63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe
+keys: brief 40 draft 40 missing [] extra []
+brief english/context vs git show 39b5e3e5 en + .context.json: mismatches = 0
+en file src/i18n/catalogues/en/mobile.common.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/mobile.common.context.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/mobile.projects.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/mobile.projects.context.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/mobile.sidebar.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/mobile.sidebar.context.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/relay.chrome.json sha256 match True blob@src match True
+en file src/i18n/catalogues/en/relay.chrome.context.json sha256 match True blob@src match True
+draft keys already present in shipped zh-CN worktree = []
+git status of worktree (short): ?? docs/evidence/agent-review-pr251-code-round1.md
+per-key ICU/placeholder problems: none (40/40 OK)
+ICU plural keys: ['mobile.sidebar.row.asks', 'mobile.sidebar.row.agents', 'mobile.sidebar.row.todos'] — zh-CN CLDR cardinal categories = [other]; arms found: {'mobile.sidebar.row.asks': {'count': ('plural', ['other'])}, 'mobile.sidebar.row.agents': {'count': ('plural', ['other'])}, 'mobile.sidebar.row.todos': {'count': ('plural', ['other'])}}
+placeholder keys: {'mobile.projects.empty.next': ['action'], 'mobile.projects.milestone.edit_label': ['name'], 'mobile.sidebar.tags.announcement': ['names'], 'mobile.sidebar.row.asks': ['count'], 'mobile.sidebar.row.asks_not_blocker': ['asks'], 'mobile.sidebar.row.agents': ['count'], 'mobile.sidebar.row.todos': ['count']}
+negative control add one arm -> ["arms ['one', 'other']"]
+negative control rename var -> ['args']
+negative control unbalanced -> ['PARSE bad arm at 27']
+negative control drop # -> ['no #']
+positive control shipped mobile.projects.sessions.count -> OK
+NFC: all True
+half-width punctuation adjacent to Han (outside placeholders): none
+quote chars used: ['“', '”']
+ellipsis usage: {'mobile.sidebar.tags.saving': '正在保存…'}
+space-between-Han-and-Latin/digit/#: {'mobile.sidebar.row.asks': '{count, plural, other {# 个问题}}', 'mobile.sidebar.row.agents': '{count, plural, other {# 个智能体}}', 'mobile.sidebar.row.todos': '{count, plural, other {# 项待办}}'}
+pronoun 你 occurrences: {'mobile.projects.list.load_failed': '暂时无法读取你的项目。', 'mobile.projects.empty.next': '点按“{action}”创建一个，或让智能体帮你创建。'} | 您: []
+请 occurrences: {'mobile.sidebar.tags.load_failed_body': ('暂时无法读取类别列表。请稍后重试。', "We couldn't read the list of categories just now. Try again in a moment."), 'mobile.sidebar.tags.empty_next': ('请在桌面端创建。', 'Created on desktop.')}
+width table (worst realistic render: counts=99, {action}=新建项目; chars / terminal cells; budget = brief width_hint_chars; en chars):
+  mobile.projects.list.load_failed: "暂时无法读取你的项目。" 11ch/22c | en "We couldn't read your projects just now." 40 | budget -
+  mobile.projects.empty.headline: "还没有项目。" 6ch/12c | en "No projects yet." 16 | budget 32
+  mobile.projects.empty.next: "点按“新建项目”创建一个，或让智能体帮你创建。" 23ch/44c | en "Start one with {action}, or ask an agent to open one." 53 | budget -
+  mobile.projects.detail.gone: "该项目已不存在。" 8ch/16c | en "That project is no longer there." 32 | budget -
+  mobile.projects.detail.title_fallback: "项目" 2ch/4c | en "Project" 7 | budget 16
+  mobile.projects.detail.load_failed: "暂时无法读取该项目。" 10ch/20c | en "We couldn't read that project just now." 39 | budget -
+  mobile.projects.detail.milestones_empty: "暂无里程碑。" 6ch/12c | en "No milestones." 14 | budget 24
+  mobile.projects.detail.sessions_empty: "暂无关联会话。" 7ch/14c | en "No sessions linked." 19 | budget 28
+  mobile.projects.detail.delete: "删除项目" 4ch/8c | en "Delete project" 14 | budget 24
+  mobile.projects.detail.delete_confirm: "删除" 2ch/4c | en "Delete" 6 | budget 12
+  mobile.projects.milestone.add: "添加里程碑" 5ch/10c | en "Add milestone" 13 | budget 24
+  mobile.projects.milestone.edit_title: "编辑里程碑" 5ch/10c | en "Edit milestone" 14 | budget 24
+  mobile.projects.milestone.add_submit: "添加" 2ch/4c | en "Add" 3 | budget 12
+  mobile.projects.milestone.remove: "移除里程碑" 5ch/10c | en "Remove milestone" 16 | budget 24
+  mobile.projects.milestone.remove_confirm: "移除" 2ch/4c | en "Remove" 6 | budget 12
+  mobile.projects.milestone.name: "名称" 2ch/4c | en "Name" 4 | budget -
+  mobile.projects.milestone.name_placeholder: "版本冻结" 4ch/8c | en "release cut" 11 | budget 20
+  mobile.projects.milestone.target_date: "目标日期" 4ch/8c | en "Target date" 11 | budget 20
+  mobile.projects.milestone.target_date_placeholder: "YYYY-MM-DD" 10ch/10c | en "YYYY-MM-DD" 10 | budget -
+  mobile.projects.milestone.target_date_help: "清空输入框即可移除日期。" 12ch/24c | en "Empty the box to clear the date." 32 | budget -
+  mobile.projects.milestone.reopen_hint: "重新打开该里程碑" 8ch/16c | en "Reopens the milestone" 21 | budget -
+  mobile.projects.milestone.complete_hint: "将该里程碑标记为已完成" 11ch/22c | en "Marks the milestone complete" 28 | budget -
+  mobile.projects.milestone.edit_label: "编辑“{name}”" 10ch/12c | en "Edit {name}" 11 | budget -
+redaction marker scan, pattern (?i)\[redacted[^\]]*\]|<redacted[^>]*>|\*\*\*redacted\*\*\* : draft 0 | brief 2 | 8 en/context files 0 | literal "[redacted]" in draft+brief 0
+brief hit '[redacted[^\\\\]' at 21709 context: 'edaction_scan": {\n    "pattern": "(?i)\\\\[redacted[^\\\\]]*\\\\]|<red'
+brief hit '<redacted[^>' at 21729 context: '  "pattern": "(?i)\\\\[redacted[^\\\\]]*\\\\]|<redacted[^>]*>|\\\\*\\\\*'
+reference catalogue hashes: {"zh-CN/mobile.common.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.common.json", "sha256": "5b4c314924ccbe676c114ba3c79b2c4d64c21921d250f4e34acaabfaf066bc2c"}, "zh-CN/mobile.projects.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.projects.json", "sha256": "70c346caade924a01af883a2f0da5f22b4785e06086615ed9dc8c87a17f3004e"}, "zh-CN/mobile.sidebar.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.sidebar.json", "sha256": "e79a5fd505411e5f68718abd3475221c1725623f4c5d66a91c9c8a852ca16abc"}, "zh-CN/relay.chrome.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/relay.chrome.json", "sha256": "ead09845311695bd01a73f7627ffada9c292d52499bbd2e2164b5b23f3452bf2"}, "zh-CN/mobile.session.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.session.json", "sha256": "d41c64e0f9444288b58230298ebb8ab10d75f56d4b7bb0b28e302ce6f4b1da4a"}, "zh-CN/mobile.agent_avatar.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.agent_avatar.json", "sha256": "58b1b921cb4d3d96cb9c43cac4396ea180416e27605fbde1f87df56679da7533"}, "zh-CN/mobile.computers.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.computers.json", "sha256": "7c0514af7ef1741d1f445c1bf196b3eab98d8734a27b7c74cf0e7f5e2d2cd0d3"}, "zh-CN/mobile.refusal.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.refusal.json", "sha256": "b0c7e5bc61759b6c40cbb05040c7e3bbebefbfd94f5371f85a230cb95e0cfb9f"}, "zh-CN/mobile.notifications.json": {"path": "~/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/catalogues/zh-CN/mobile.notifications.json", "sha256": "75fa748f7f5eaa524ba319c08eb062b033b0d40840e0f0dfeff061dd7585d4ac"}, "core zh-CN/relay.session.tags.json": {"path": "~/local-operator/local_operator/i18n/catalogues/zh-CN/relay.session.tags.json", "sha256": "5521d89a950a2e2e551644c0b2e79364b9af5e99d2fe346ad65eb5ad58cf3da5"}}
+style guide ~/local-operator/i18n/style-guides/zh-CN.md sha256 8f95d89debbd0af848e72e4805e256ef9566632e520a5c6d9b37928cd617142c | glossary ~/local-operator/i18n/glossary.md sha256 0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8
+repo validator (npm run i18n:check) NOT run: worktree is read-only for this audit and the draft is not in the catalogue tree; the light-Python checker above with negative controls stands in.
+read route: ordinary file reads + git show; read_public_copy not used (core tool refuses mobile catalogue paths per brief).

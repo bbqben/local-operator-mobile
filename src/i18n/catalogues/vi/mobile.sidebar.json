@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "Bật lại các mục hoặc phiên đã kết thúc, hoặc đặt lại chế độ xem.",
 	"mobile.sidebar.empty_by_view.reset": "Đặt lại chế độ xem",
 	"mobile.sidebar.outbox_sending": "Đang gửi tin nhắn…",
-	"mobile.sidebar.outbox_failed": "Tin nhắn đã ngừng gửi"
+	"mobile.sidebar.outbox_failed": "Tin nhắn đã ngừng gửi",
+	"mobile.sidebar.tags.remove_all": "Bỏ tất cả nhãn",
+	"mobile.sidebar.tags.remove_all_title": "Bỏ tất cả nhãn?",
+	"mobile.sidebar.tags.remove_all_body": "Thao tác này bỏ mọi danh mục khỏi cuộc trò chuyện này. Bản thân các danh mục vẫn còn trong ứng dụng máy tính.",
+	"mobile.sidebar.tags.remove_all_confirm": "Bỏ",
+	"mobile.sidebar.tags.saving": "Đang lưu…",
+	"mobile.sidebar.tags.load_failed_title": "Không tải được danh mục của bạn",
+	"mobile.sidebar.tags.load_failed_body": "Vừa rồi không đọc được danh sách danh mục. Hãy thử lại sau giây lát.",
+	"mobile.sidebar.tags.empty_headline": "Chưa có danh mục nào.",
+	"mobile.sidebar.tags.empty_next": "Tạo trên máy tính.",
+	"mobile.sidebar.tags.announcement": "Nhãn: {names}",
+	"mobile.sidebar.row.new": "mới",
+	"mobile.sidebar.row.asks": "{count, plural, other {# câu hỏi}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}, tác nhân vẫn chạy tiếp",
+	"mobile.sidebar.row.agents": "{count, plural, other {# tác nhân}}",
+	"mobile.sidebar.row.todos": "{count, plural, other {# tác vụ}}"
 }

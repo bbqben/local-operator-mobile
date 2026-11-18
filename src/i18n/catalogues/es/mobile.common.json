@@ -11,5 +11,7 @@
 	"mobile.common.not_found.action": "Volver a las sesiones",
 	"mobile.common.copy": "Copiar",
 	"mobile.common.copied": "Copiado",
-	"mobile.common.copy_command_hint": "Copia el comando “{label}”"
+	"mobile.common.copy_command_hint": "Copia el comando “{label}”",
+	"mobile.common.close": "Cerrar",
+	"mobile.common.loading": "Cargando"
 }
