@@ -108,10 +108,11 @@ export const COMMUNITY_SEARCH_THRESHOLD = 6;
 /**
  * The Communities group of the switcher. A community's unread count NEVER adds
  * into the private total (Amendment A §2), which is why this returns its own
- * rows rather than appending to the organizations list. The group is drawn when
- * the flag is on (so "Browse communities…" is reachable with none joined) or when
- * the account already belongs to one (so a member can still reach and leave it
- * if the flag is later turned off for their build).
+ * rows rather than appending to the organizations list. The group is drawn
+ * exactly when the build flag is on, so "Browse communities…" is reachable
+ * with none joined. With the flag off nothing community-shaped is drawn or
+ * read: the flag is a bundle-time constant (`flag.ts`), so there is no
+ * mid-session "turned off for a member" state to keep reachable.
  */
 export function communityGroup({
 	communities,
@@ -124,7 +125,7 @@ export function communityGroup({
 }): { show: boolean; search: boolean; rows: CommunityRow[] } {
 	const needle = query.trim().toLocaleLowerCase();
 	return {
-		show: enabled || communities.length > 0,
+		show: enabled,
 		// Decided on the JOINED count so typing never removes the field being typed in.
 		search: communities.length > COMMUNITY_SEARCH_THRESHOLD,
 		rows: needle

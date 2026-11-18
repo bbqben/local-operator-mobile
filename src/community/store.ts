@@ -42,6 +42,7 @@ import type {
 	CommunityRequest,
 	DirectConversation,
 	CommunityMessage as Message,
+	Profile,
 	RefusalCategory,
 	ReportTargetKind,
 } from "@/community/contract";
@@ -702,6 +703,64 @@ export function createCommunityStore(deps: {
 			try {
 				await client().createDmRequest(communityId, publicId, await newKey());
 				void actions.loadRequests(communityId);
+				return null;
+			} catch (error) {
+				return asError(error);
+			}
+		},
+
+		/**
+		 * One directory page for Browse. Not cached in the store: results are
+		 * transient to the screen that asked, and a stale search must not leak
+		 * into the next visit. Throws the classified error for the screen.
+		 */
+		directory(
+			communityId: string,
+			kind: "channels" | "people",
+			query: string,
+			cursor: string | null,
+		): Promise<
+			| { kind: "channels"; items: Channel[]; next_cursor: string | null }
+			| { kind: "people"; items: Profile[]; next_cursor: string | null }
+		> {
+			const options = { q: query.trim() || undefined, cursor };
+			return kind === "channels"
+				? client()
+						.channels(communityId, options)
+						.then((page) => ({
+							kind,
+							items: page.items,
+							next_cursor: page.next_cursor,
+						}))
+				: client()
+						.people(communityId, options)
+						.then((page) => ({
+							kind,
+							items: page.items,
+							next_cursor: page.next_cursor,
+						}));
+		},
+
+		/** A member card for the profile sheet; approved fields only (server-side). */
+		async profile(
+			communityId: string,
+			publicId: string,
+		): Promise<Profile | CommunityError | null> {
+			try {
+				return await client().profile(communityId, publicId);
+			} catch (error) {
+				return asError(error);
+			}
+		},
+
+		/** Join a public channel from Browse, then refresh the joined list. */
+		async joinChannel(
+			communityId: string,
+			channelId: string,
+		): Promise<CommunityError | null> {
+			try {
+				await client().joinChannel(communityId, channelId);
+				await actions.loadChannels(communityId);
 				return null;
 			} catch (error) {
 				return asError(error);

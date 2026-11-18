@@ -86,10 +86,10 @@ describe("Communities group", () => {
 		);
 	});
 
-	it("keeps a joined community reachable when the flag is off", () => {
+	it("draws nothing community-shaped with the flag off, even for a member", () => {
 		expect(
 			communityGroup({ communities: [community("loc")], enabled: false }).show,
-		).toBe(true);
+		).toBe(false);
 	});
 
 	it("adds search past six joined, decided on the joined count", () => {

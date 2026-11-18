@@ -96,8 +96,8 @@ describe("community client", () => {
 			guidelinesVersion: "2026-11",
 		});
 		expect(outcome.state).toBe("published");
-		expect(calls[0]?.url).toMatch(
-			/\/community\/v1\/communities\/local-operator-community\/conversations\/ch-general\/submissions$/,
+		expect(calls[0]?.url).toBe(
+			"https://api.radienthq.com/community/v1/communities/local-operator-community/conversations/ch-general/submissions",
 		);
 		expect(header(calls[0], "idempotency-key")).toBe("k".repeat(32));
 		/* The runtime writes the multipart boundary; a hand-set type would break it. */
@@ -116,7 +116,7 @@ describe("community client", () => {
 			fetchImpl,
 		});
 		await client.joinChannel("local-operator-community", "c1");
-		expect(calls[0]?.url).toMatch(/\/channels\/c1:join$/);
+		expect(calls[0]?.url?.endsWith("/channels/c1:join")).toBe(true);
 		expect(calls[0]?.init.method).toBe("POST");
 	});
 });

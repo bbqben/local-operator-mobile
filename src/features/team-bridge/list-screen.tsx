@@ -24,6 +24,8 @@ import {
 	Text,
 	View,
 } from "react-native";
+import { communityEnabled } from "@/community/flag";
+import { CommunitySwitcherGroup } from "@/features/community/switcher-group";
 import { countLabel } from "@/features/notifications/notifications-model";
 import {
 	createViewportSignal,
@@ -892,6 +894,13 @@ export function BridgeDirectory({
 				{/* `Sheet` already provides `px-4` on its scroll content; no inner `p-4`
 				 *  so options sit flush with the sheet header's 16 pt margin. */}
 				<View className="gap-1 pb-2">
+					{/* Amendment A §2: private organizations and communities are two
+					 *  groups; the heading only appears when the second one does. */}
+					{communityEnabled() ? (
+						<SectionHeader
+							label={t("mobile.community.switcher.organizations")}
+						/>
+					) : null}
 					{state.organizations.map((o) => {
 						const active = o.tenantId === tenantId;
 						const optionLabel = t(
@@ -953,6 +962,7 @@ export function BridgeDirectory({
 						);
 					})}
 				</View>
+				<CommunitySwitcherGroup onPicked={() => setSwitching(false)} />
 			</Sheet>
 		</DirectoryProviders>
 	);
