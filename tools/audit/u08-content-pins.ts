@@ -2410,6 +2410,28 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * #305: both comment chains retained; the merged src carries both sides'
 	 * source, so it matches neither parent. Re-derived with --print over the
 	 * staged merge tree; source identity only, NOT rendered U-08 evidence. */
+	/* fix(team-bridge): warm notification tap lands its thread (#304 QA R4
+	 * Q1): the Bridge thread viewport trusts a measurement of the rows now
+	 * admitted, the thread's metadata loading block is laid over the list,
+	 * and a proof-only trace seam (`src/testing/thread-viewport-trace.ts`,
+	 * null when committed). The U-08 scene (agent session screen) is not
+	 * edited. --print over the staged tree moves only src (main's own src had
+	 * already drifted from this pin: 4a26b236… at 5aced823); app unchanged.
+	 * Source admission only, NOT rendered, native or device evidence. */
+	/* fix(team-bridge): the laid-over metadata loading block shows only where
+	 * the message area is otherwise blank (#315 design D1). Thread screen and
+	 * viewport only; --print over the staged tree (run twice, stable) moves
+	 * only src; app unchanged. Source identity only, NOT rendered evidence. */
+	/* Merge of origin/main (f3418c8a: #291 mic, #294 attach hand-off, #316/#318
+	 * U-08 re-pins) into fix/thread-warm-landing: main's chain kept first, then
+	 * this PR's two team-bridge notes; the merged src carries both sides, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (run twice, stable). Source identity only, NOT rendered evidence. */
+	/* Merge of origin/main 52ca6f24 (#305 mention suggestions) into
+	 * fix/thread-warm-landing (#315): main's chain kept first, then this PR's
+	 * notes; the merged src carries both sides, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree. Source identity
+	 * only, NOT rendered evidence. */
 	/* PR #304 converges with #301: keep both source histories and pin their
 	 * combined src tree. This is source identity only, not rendered evidence. */
 	/* PR #304 converges with main 198ac368 (#306, #310): both histories
@@ -2423,7 +2445,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * #291, #294, #305, #316, #318): both comment chains and both sides' source
 	 * kept; the merged src matches neither parent. Re-derived with --print over
 	 * the staged merge tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "27d1115c3b97f9479c67486ecb89e70ae547442c60c973c1b00ffd940899925e",
+	/* PR #304 convergence #3 with main ad73454d (#315 thread warm landing):
+	 * main's chain kept first, then this PR's notes; both sides' source kept,
+	 * so the merged src matches neither parent. Re-derived with --print over
+	 * the staged merge tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "503653e694cfde21730aa340f192670b29976f767f80893666aa6820530e01da",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
