@@ -1023,6 +1023,7 @@ function Session() {
 					historyErrorScope={runtime.historyErrorScope}
 					loadingOlder={runtime.loadingOlder}
 					hasOlder={runtime.hasOlder}
+					olderFillReady={runtime.olderFillReady}
 					historyError={runtime.historyError}
 					historyGap={runtime.historyGap}
 					historyGapBefore={runtime.historyGapBefore}
