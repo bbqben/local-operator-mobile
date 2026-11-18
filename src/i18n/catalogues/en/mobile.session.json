@@ -89,5 +89,13 @@
 	"mobile.session.outbox.composer_stopped": "Your earlier message stopped sending. Retry or discard it above to send this one.",
 	"mobile.session.outbox.composer_discarding": "Discarding your earlier message. You can send this one in a moment.",
 	"mobile.session.sheet_title.commands": "commands",
-	"mobile.session.sheet_title.attach": "attach"
+	"mobile.session.sheet_title.attach": "attach",
+	"mobile.session.diagram.label": "{type} diagram",
+	"mobile.session.diagram.label_titled": "{type} diagram: {title}",
+	"mobile.session.diagram.copied": "copied",
+	"mobile.session.diagram.error": "Couldn’t draw this diagram. Showing the source instead.",
+	"mobile.session.diagram.open_hint": "Opens the diagram full screen",
+	"mobile.session.diagram.copy": "Copy diagram source",
+	"mobile.session.diagram.close": "Close diagram",
+	"mobile.session.diagram.viewer": "Diagram viewer"
 }

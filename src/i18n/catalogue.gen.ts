@@ -656,6 +656,14 @@ export type CatalogueKey =
 	| "mobile.session.composer.retained_instruction"
 	| "mobile.session.composer.retry_not_sent_storage"
 	| "mobile.session.conversation_details"
+	| "mobile.session.diagram.close"
+	| "mobile.session.diagram.copied"
+	| "mobile.session.diagram.copy"
+	| "mobile.session.diagram.error"
+	| "mobile.session.diagram.label"
+	| "mobile.session.diagram.label_titled"
+	| "mobile.session.diagram.open_hint"
+	| "mobile.session.diagram.viewer"
 	| "mobile.session.empty.headline"
 	| "mobile.session.empty.next"
 	| "mobile.session.fallback_name"
@@ -1029,6 +1037,16 @@ export type CatalogueKey =
 	| "mobile.team_bridge.profile.open"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reply_thread.count"
+	| "mobile.team_bridge.reply_thread.empty"
+	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.loading"
+	| "mobile.team_bridge.reply_thread.more"
+	| "mobile.team_bridge.reply_thread.open"
+	| "mobile.team_bridge.reply_thread.open_unread"
+	| "mobile.team_bridge.reply_thread.reply"
+	| "mobile.team_bridge.reply_thread.retry"
+	| "mobile.team_bridge.reply_thread.title"
 	| "mobile.team_bridge.retry"
 	| "mobile.team_bridge.thread.access_retry"
 	| "mobile.team_bridge.thread.anchor_missing"
@@ -1668,6 +1686,12 @@ export type NoParamKey =
 	| "mobile.session.composer.retained_instruction"
 	| "mobile.session.composer.retry_not_sent_storage"
 	| "mobile.session.conversation_details"
+	| "mobile.session.diagram.close"
+	| "mobile.session.diagram.copied"
+	| "mobile.session.diagram.copy"
+	| "mobile.session.diagram.error"
+	| "mobile.session.diagram.open_hint"
+	| "mobile.session.diagram.viewer"
 	| "mobile.session.empty.headline"
 	| "mobile.session.empty.next"
 	| "mobile.session.fallback_name"
@@ -1981,6 +2005,13 @@ export type NoParamKey =
 	| "mobile.team_bridge.profile.message"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reply_thread.empty"
+	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.loading"
+	| "mobile.team_bridge.reply_thread.more"
+	| "mobile.team_bridge.reply_thread.reply"
+	| "mobile.team_bridge.reply_thread.retry"
+	| "mobile.team_bridge.reply_thread.title"
 	| "mobile.team_bridge.retry"
 	| "mobile.team_bridge.thread.access_retry"
 	| "mobile.team_bridge.thread.anchor_missing"
@@ -2695,6 +2726,14 @@ export type MessageParams = {
 	"mobile.session.composer.retained_instruction": NoParams;
 	"mobile.session.composer.retry_not_sent_storage": NoParams;
 	"mobile.session.conversation_details": NoParams;
+	"mobile.session.diagram.close": NoParams;
+	"mobile.session.diagram.copied": NoParams;
+	"mobile.session.diagram.copy": NoParams;
+	"mobile.session.diagram.error": NoParams;
+	"mobile.session.diagram.label": { type: string | number };
+	"mobile.session.diagram.label_titled": { title: string | number; type: string | number };
+	"mobile.session.diagram.open_hint": NoParams;
+	"mobile.session.diagram.viewer": NoParams;
 	"mobile.session.empty.headline": NoParams;
 	"mobile.session.empty.next": NoParams;
 	"mobile.session.fallback_name": NoParams;
@@ -3068,6 +3107,16 @@ export type MessageParams = {
 	"mobile.team_bridge.profile.open": { name: string | number };
 	"mobile.team_bridge.profile.opens_hint": NoParams;
 	"mobile.team_bridge.profile.title": NoParams;
+	"mobile.team_bridge.reply_thread.count": { count: number };
+	"mobile.team_bridge.reply_thread.empty": NoParams;
+	"mobile.team_bridge.reply_thread.error": NoParams;
+	"mobile.team_bridge.reply_thread.loading": NoParams;
+	"mobile.team_bridge.reply_thread.more": NoParams;
+	"mobile.team_bridge.reply_thread.open": { count: number };
+	"mobile.team_bridge.reply_thread.open_unread": { count: number; unread: number };
+	"mobile.team_bridge.reply_thread.reply": NoParams;
+	"mobile.team_bridge.reply_thread.retry": NoParams;
+	"mobile.team_bridge.reply_thread.title": NoParams;
 	"mobile.team_bridge.retry": NoParams;
 	"mobile.team_bridge.thread.access_retry": NoParams;
 	"mobile.team_bridge.thread.anchor_missing": NoParams;
@@ -3824,6 +3873,14 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.session.composer.retained_instruction": "An earlier instruction may have been delivered. Retry that earlier instruction before sending your current draft.",
 	"mobile.session.composer.retry_not_sent_storage": "This retry attempt wasn’t sent. Couldn’t prepare the earlier instruction safely for retry. Try the earlier instruction again. Your current draft hasn’t been sent.",
 	"mobile.session.conversation_details": "Conversation details",
+	"mobile.session.diagram.close": "Close diagram",
+	"mobile.session.diagram.copied": "copied",
+	"mobile.session.diagram.copy": "Copy diagram source",
+	"mobile.session.diagram.error": "Couldn’t draw this diagram. Showing the source instead.",
+	"mobile.session.diagram.label": "{type} diagram",
+	"mobile.session.diagram.label_titled": "{type} diagram: {title}",
+	"mobile.session.diagram.open_hint": "Opens the diagram full screen",
+	"mobile.session.diagram.viewer": "Diagram viewer",
 	"mobile.session.empty.headline": "Nothing here yet.",
 	"mobile.session.empty.next": "Send the first message below.",
 	"mobile.session.fallback_name": "session",
@@ -4197,6 +4254,16 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.profile.open": "View profile for {name}",
 	"mobile.team_bridge.profile.opens_hint": "Opens their profile",
 	"mobile.team_bridge.profile.title": "Profile",
+	"mobile.team_bridge.reply_thread.count": "{count, plural, one {# reply} other {# replies}}",
+	"mobile.team_bridge.reply_thread.empty": "No replies yet. Start the thread.",
+	"mobile.team_bridge.reply_thread.error": "This thread couldn't be loaded.",
+	"mobile.team_bridge.reply_thread.loading": "Loading thread…",
+	"mobile.team_bridge.reply_thread.more": "Load more replies",
+	"mobile.team_bridge.reply_thread.open": "View thread, {count, plural, one {# reply} other {# replies}}",
+	"mobile.team_bridge.reply_thread.open_unread": "View thread, {count, plural, one {# reply} other {# replies}}, {unread, plural, one {# unread} other {# unread}}",
+	"mobile.team_bridge.reply_thread.reply": "Reply in thread",
+	"mobile.team_bridge.reply_thread.retry": "Retry thread",
+	"mobile.team_bridge.reply_thread.title": "Thread",
 	"mobile.team_bridge.retry": "Retry",
 	"mobile.team_bridge.thread.access_retry": "Retry access",
 	"mobile.team_bridge.thread.anchor_missing": "That message is no longer available.",
@@ -4938,6 +5005,14 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.session.composer.retained_instruction": { role: "confirm", note: "Notice above the composer when an earlier instruction is retained and may already have been delivered, so the user must retry it before sending the current draft. Two sentences." },
 	"mobile.session.composer.retry_not_sent_storage": { role: "status", note: "Only the current RETRY ATTEMPT was not dispatched because local safe-retry preparation failed. The original instruction may already have arrived: its separate retained-envelope warning and Retry earlier instruction action stay visible. Never imply the current draft was retried or disk space is the known cause. Never include raw storage errors." },
 	"mobile.session.conversation_details": { role: "heading", note: "The destination screen's own title, used as the label of the control that opens it — not an action verb. It must stay identical wherever that screen is named, including the sentence in mobile.home.options.fixed, so a reader recognises the same destination. No final full stop." },
+	"mobile.session.diagram.close": { role: "button", note: "Accessible name of the close button in the full-screen diagram viewer. Imperative, sentence case, no final full stop." },
+	"mobile.session.diagram.copied": { role: "status", note: "One lower-case word shown beside the diagram kind label ('mermaid · copied') after the source was copied. Mirrors the code block's copied marker. The middle dot separator is added by the app." },
+	"mobile.session.diagram.copy": { role: "button", note: "Accessible name of the icon button in a diagram's header that copies the diagram's source text (Mermaid syntax) to the clipboard. Imperative, sentence case, no final full stop." },
+	"mobile.session.diagram.error": { role: "status", note: "Shown above a code block when a diagram could not be drawn. The reason Pele gave follows on its own line in English and is not part of this string. Two short sentences." },
+	"mobile.session.diagram.label": { role: "meta", note: "Accessible name of a drawn diagram in the transcript when it has no title. {type} is the diagram kind as an English technical token (flowchart, sequence, state, class, er, gantt, pie…): keep it as written and never translate it. No final full stop." },
+	"mobile.session.diagram.label_titled": { role: "meta", note: "Accessible name of a drawn diagram that has a title or a first label. {type} is the English technical diagram kind (flowchart, sequence…): keep it as written. {title} is text written by the assistant, inserted unchanged. No final full stop." },
+	"mobile.session.diagram.open_hint": { role: "help", note: "Accessibility hint on a drawn diagram in the transcript. Activating it opens the diagram full screen, where it can be panned (and on iPhone pinch-zoomed; the hint does not promise zoom because Android has none). Sentence case, no final full stop." },
+	"mobile.session.diagram.viewer": { role: "heading", note: "Accessible name of the full-screen diagram viewer dialog. A short noun phrase, sentence case, no final full stop." },
 	"mobile.session.empty.headline": { role: "status", note: "Empty-state headline for a session with no messages. Short, final full stop." },
 	"mobile.session.empty.next": { role: "help", note: "Empty-state follow-up pointing to the composer under the transcript. 'Below' refers to the composer's position." },
 	"mobile.session.fallback_name": { role: "meta", note: "Lower-case noun used as the header title of an untitled session and in \"Back to <name>\" when the conversation has no name. A bare noun meaning one conversation with the agent." },
@@ -5311,6 +5386,16 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.profile.open": { role: "button", note: "Accessibility label for the person or software-agent mark that opens its profile. {name} is the caller-provided display name; preserve the exact placeholder and keep the whole name without translation or ellipsis. This opens a profile, not a conversation." },
 	"mobile.team_bridge.profile.opens_hint": { role: "help", note: "Accessibility hint on a person or software-agent mark: activating it opens their profile. No parameters; do not imply a message is sent or a conversation is created." },
 	"mobile.team_bridge.profile.title": { role: "heading", note: "Profile sheet title for either a person or software agent, not their user-provided job title. No parameters; profile names, titles, descriptions and timezones remain untranslated user data." },
+	"mobile.team_bridge.reply_thread.count": { role: "meta", note: "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}." },
+	"mobile.team_bridge.reply_thread.empty": { role: "status", note: "A reply thread whose root message has no replies left to show; the second sentence invites the reader to write the first reply (desktop wording)." },
+	"mobile.team_bridge.reply_thread.error": { role: "status", note: "Shown when a reply thread could not be read from Radient; a retry button follows." },
+	"mobile.team_bridge.reply_thread.loading": { role: "status", note: "Shown while a reply thread loads." },
+	"mobile.team_bridge.reply_thread.more": { role: "button", note: "Button at the end of a very long reply thread (more than one load of replies) that loads the next replies. No parameters; matches the desktop's 'Load more replies'." },
+	"mobile.team_bridge.reply_thread.open": { role: "button", note: "Accessible name of the control that opens a message's reply thread (Slack-style threads); matches the desktop's 'View thread, …'. Preserve {count}. 'Thread' means replies under one message, not the whole conversation." },
+	"mobile.team_bridge.reply_thread.open_unread": { role: "button", note: "Same control when some replies are unread by this reader. Preserve {count} and {unread}." },
+	"mobile.team_bridge.reply_thread.reply": { role: "button", note: "Composer label and placeholder for replying inside a thread; matches the desktop's 'Reply in thread'. A verb phrase: write a reply in this thread, not in the conversation." },
+	"mobile.team_bridge.reply_thread.retry": { role: "button", note: "Retries loading a reply thread." },
+	"mobile.team_bridge.reply_thread.title": { role: "heading", note: "Screen title for one message's reply thread (the message and its replies). Not the whole conversation." },
 	"mobile.team_bridge.retry": { role: "button", note: "Team Bridge mobile UI: retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.thread.access_retry": { role: "button", note: "Team Bridge mobile UI: thread / access retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.thread.anchor_missing": { role: "status", note: "Team Bridge mobile UI: thread / anchor missing. Shown once, briefly, when a notification or link pointed at one message that was deleted or can no longer be seen; the thread is shown at its newest messages instead. Not shown when the message simply could not be loaded." },
@@ -6066,6 +6151,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Puede que ya se haya entregado una instrucción anterior. Reintenta enviarla antes de enviar tu borrador actual.",
 		"mobile.session.composer.retry_not_sent_storage": "Este intento de reenvío no se envió. No se pudo preparar de forma segura la instrucción anterior para volver a intentarlo. Vuelve a intentar enviar la instrucción anterior. Tu borrador actual no se ha enviado.",
 		"mobile.session.conversation_details": "Detalles de la conversación",
+		"mobile.session.diagram.close": "Cerrar el diagrama",
+		"mobile.session.diagram.copied": "copiado",
+		"mobile.session.diagram.copy": "Copiar el código fuente del diagrama",
+		"mobile.session.diagram.error": "No se pudo dibujar este diagrama. Se muestra el código fuente.",
+		"mobile.session.diagram.label": "Diagrama {type}",
+		"mobile.session.diagram.label_titled": "Diagrama {type}: {title}",
+		"mobile.session.diagram.open_hint": "Abre el diagrama a pantalla completa",
+		"mobile.session.diagram.viewer": "Visor de diagramas",
 		"mobile.session.empty.headline": "Aún no hay nada aquí.",
 		"mobile.session.empty.next": "Envía el primer mensaje aquí abajo.",
 		"mobile.session.fallback_name": "sesión",
@@ -6439,6 +6532,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Ver el perfil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Abre su perfil",
 		"mobile.team_bridge.profile.title": "Perfil",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# respuesta} other {# respuestas}}",
+		"mobile.team_bridge.reply_thread.empty": "Aún no hay respuestas. Inicia el hilo.",
+		"mobile.team_bridge.reply_thread.error": "No se pudo cargar este hilo.",
+		"mobile.team_bridge.reply_thread.loading": "Cargando hilo…",
+		"mobile.team_bridge.reply_thread.more": "Cargar más respuestas",
+		"mobile.team_bridge.reply_thread.open": "Ver hilo, {count, plural, one {# respuesta} other {# respuestas}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Ver hilo, {count, plural, one {# respuesta} other {# respuestas}}, {unread, plural, one {# sin leer} other {# sin leer}}",
+		"mobile.team_bridge.reply_thread.reply": "Responder en el hilo",
+		"mobile.team_bridge.reply_thread.retry": "Reintentar hilo",
+		"mobile.team_bridge.reply_thread.title": "Hilo",
 		"mobile.team_bridge.retry": "Reintentar",
 		"mobile.team_bridge.thread.access_retry": "Reintentar acceso",
 		"mobile.team_bridge.thread.anchor_missing": "Ese mensaje ya no está disponible.",
@@ -7178,6 +7281,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Une instruction précédente a peut-être été transmise. Réessayez d’envoyer cette instruction avant de transmettre votre brouillon actuel.",
 		"mobile.session.composer.retry_not_sent_storage": "Cette tentative de renvoi n’a pas été envoyée. Impossible de préparer en toute sécurité le renvoi de l’instruction précédente. Réessayez d’envoyer l’instruction précédente. Votre brouillon actuel n’a pas été envoyé.",
 		"mobile.session.conversation_details": "Détails de la conversation",
+		"mobile.session.diagram.close": "Fermer le diagramme",
+		"mobile.session.diagram.copied": "copié",
+		"mobile.session.diagram.copy": "Copier la source du diagramme",
+		"mobile.session.diagram.error": "Impossible de dessiner ce diagramme. La source est affichée à la place.",
+		"mobile.session.diagram.label": "Diagramme {type}",
+		"mobile.session.diagram.label_titled": "Diagramme {type} : {title}",
+		"mobile.session.diagram.open_hint": "Ouvre le diagramme en plein écran",
+		"mobile.session.diagram.viewer": "Visionneuse de diagramme",
 		"mobile.session.empty.headline": "Rien ici pour le moment.",
 		"mobile.session.empty.next": "Envoyez le premier message ci-dessous.",
 		"mobile.session.fallback_name": "session",
@@ -7551,6 +7662,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Voir le profil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Ouvre son profil",
 		"mobile.team_bridge.profile.title": "Profil",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# réponse} other {# réponses}}",
+		"mobile.team_bridge.reply_thread.empty": "Aucune réponse pour l’instant. Lancez le fil.",
+		"mobile.team_bridge.reply_thread.error": "Impossible de charger ce fil.",
+		"mobile.team_bridge.reply_thread.loading": "Chargement du fil…",
+		"mobile.team_bridge.reply_thread.more": "Charger plus de réponses",
+		"mobile.team_bridge.reply_thread.open": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}, {unread, plural, one {# non lue} other {# non lues}}",
+		"mobile.team_bridge.reply_thread.reply": "Répondre dans le fil",
+		"mobile.team_bridge.reply_thread.retry": "Réessayer le fil",
+		"mobile.team_bridge.reply_thread.title": "Fil",
 		"mobile.team_bridge.retry": "Réessayer",
 		"mobile.team_bridge.thread.access_retry": "Réessayer l’accès",
 		"mobile.team_bridge.thread.anchor_missing": "Ce message n’est plus disponible.",
@@ -8290,6 +8411,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "हो सकता है कि पहले भेजा गया कोई निर्देश पहुँच चुका हो। अपना मौजूदा ड्राफ़्ट भेजने से पहले उस निर्देश को दोबारा भेजने की कोशिश करें।",
 		"mobile.session.composer.retry_not_sent_storage": "दोबारा भेजने का यह प्रयास नहीं भेजा गया। पिछले निर्देश को सुरक्षित रूप से दोबारा भेजने की तैयारी नहीं हो सकी। पिछले निर्देश को दोबारा भेजने की कोशिश करें। आपका मौजूदा ड्राफ़्ट नहीं भेजा गया है।",
 		"mobile.session.conversation_details": "बातचीत का विवरण",
+		"mobile.session.diagram.close": "आरेख बंद करें",
+		"mobile.session.diagram.copied": "कॉपी किया गया",
+		"mobile.session.diagram.copy": "आरेख का स्रोत कॉपी करें",
+		"mobile.session.diagram.error": "यह आरेख नहीं बनाया जा सका। इसके बजाय स्रोत दिखाया जा रहा है।",
+		"mobile.session.diagram.label": "{type} आरेख",
+		"mobile.session.diagram.label_titled": "{type} आरेख: {title}",
+		"mobile.session.diagram.open_hint": "आरेख को पूर्ण स्क्रीन पर खोलता है",
+		"mobile.session.diagram.viewer": "आरेख व्यूअर",
 		"mobile.session.empty.headline": "यहाँ अभी कुछ नहीं है।",
 		"mobile.session.empty.next": "नीचे पहला संदेश भेजें।",
 		"mobile.session.fallback_name": "सत्र",
@@ -8663,6 +8792,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} की प्रोफ़ाइल देखें",
 		"mobile.team_bridge.profile.opens_hint": "उनकी प्रोफ़ाइल खोलता है",
 		"mobile.team_bridge.profile.title": "प्रोफ़ाइल",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# जवाब} other {# जवाब}}",
+		"mobile.team_bridge.reply_thread.empty": "अभी तक कोई जवाब नहीं। थ्रेड शुरू करें।",
+		"mobile.team_bridge.reply_thread.error": "यह थ्रेड लोड नहीं हो सका।",
+		"mobile.team_bridge.reply_thread.loading": "थ्रेड लोड हो रहा है…",
+		"mobile.team_bridge.reply_thread.more": "और जवाब लोड करें",
+		"mobile.team_bridge.reply_thread.open": "थ्रेड देखें, {count, plural, one {# जवाब} other {# जवाब}}",
+		"mobile.team_bridge.reply_thread.open_unread": "थ्रेड देखें, {count, plural, one {# जवाब} other {# जवाब}}, {unread, plural, one {# अपठित} other {# अपठित}}",
+		"mobile.team_bridge.reply_thread.reply": "थ्रेड में जवाब दें",
+		"mobile.team_bridge.reply_thread.retry": "थ्रेड फिर से लोड करें",
+		"mobile.team_bridge.reply_thread.title": "थ्रेड",
 		"mobile.team_bridge.retry": "फिर कोशिश करें",
 		"mobile.team_bridge.thread.access_retry": "पहुँच की फिर कोशिश करें",
 		"mobile.team_bridge.thread.anchor_missing": "वह संदेश अब उपलब्ध नहीं है।",
@@ -9402,6 +9541,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Предыдущее указание, возможно, уже доставлено. Отправьте это указание ещё раз, прежде чем отправлять текущий черновик.",
 		"mobile.session.composer.retry_not_sent_storage": "Эта попытка повторной отправки не была отправлена. Не удалось безопасно подготовить предыдущее указание к повторной отправке. Повторите отправку предыдущего указания. Текущий черновик не отправлен.",
 		"mobile.session.conversation_details": "Детали беседы",
+		"mobile.session.diagram.close": "Закрыть диаграмму",
+		"mobile.session.diagram.copied": "скопировано",
+		"mobile.session.diagram.copy": "Скопировать исходный код диаграммы",
+		"mobile.session.diagram.error": "Не удалось нарисовать диаграмму. Вместо неё показан исходный код.",
+		"mobile.session.diagram.label": "Диаграмма {type}",
+		"mobile.session.diagram.label_titled": "Диаграмма {type}: {title}",
+		"mobile.session.diagram.open_hint": "Открывает диаграмму на весь экран",
+		"mobile.session.diagram.viewer": "Просмотр диаграммы",
 		"mobile.session.empty.headline": "Здесь пока ничего нет.",
 		"mobile.session.empty.next": "Отправьте первое сообщение ниже.",
 		"mobile.session.fallback_name": "сессия",
@@ -9775,6 +9922,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Посмотреть профиль: {name}",
 		"mobile.team_bridge.profile.opens_hint": "Открывает профиль",
 		"mobile.team_bridge.profile.title": "Профиль",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+		"mobile.team_bridge.reply_thread.empty": "Ответов пока нет. Начните ветку.",
+		"mobile.team_bridge.reply_thread.error": "Не удалось загрузить эту ветку.",
+		"mobile.team_bridge.reply_thread.loading": "Загрузка ветки…",
+		"mobile.team_bridge.reply_thread.more": "Загрузить ещё ответы",
+		"mobile.team_bridge.reply_thread.open": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}, {unread, plural, one {# непрочитанный} few {# непрочитанных} many {# непрочитанных} other {# непрочитанных}}",
+		"mobile.team_bridge.reply_thread.reply": "Ответить в ветке",
+		"mobile.team_bridge.reply_thread.retry": "Повторить загрузку ветки",
+		"mobile.team_bridge.reply_thread.title": "Ветка",
 		"mobile.team_bridge.retry": "Повторить",
 		"mobile.team_bridge.thread.access_retry": "Повторить проверку доступа",
 		"mobile.team_bridge.thread.anchor_missing": "Это сообщение больше недоступно.",
@@ -10514,6 +10671,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "ممکن ہے پچھلی ہدایت پہنچ چکی ہو۔ موجودہ مسودہ بھیجنے سے پہلے پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔",
 		"mobile.session.composer.retry_not_sent_storage": "دوبارہ بھیجنے کی یہ کوشش نہیں بھیجی گئی۔ پچھلی ہدایت کو محفوظ طریقے سے دوبارہ بھیجنے کی تیاری نہیں ہو سکی۔ پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔ آپ کا موجودہ مسودہ نہیں بھیجا گیا۔",
 		"mobile.session.conversation_details": "گفتگو کی تفصیلات",
+		"mobile.session.diagram.close": "ڈایاگرام بند کریں",
+		"mobile.session.diagram.copied": "کاپی ہو گیا",
+		"mobile.session.diagram.copy": "ڈایاگرام کا ماخذ کاپی کریں",
+		"mobile.session.diagram.error": "یہ ڈایاگرام نہیں بنایا جا سکا۔ اس کی جگہ ماخذ دکھایا گیا ہے۔",
+		"mobile.session.diagram.label": "{type} ڈایاگرام",
+		"mobile.session.diagram.label_titled": "{type} ڈایاگرام: {title}",
+		"mobile.session.diagram.open_hint": "ڈایاگرام کو پوری اسکرین پر کھولتا ہے",
+		"mobile.session.diagram.viewer": "ڈایاگرام ویوور",
 		"mobile.session.empty.headline": "یہاں ابھی کچھ نہیں۔",
 		"mobile.session.empty.next": "نیچے پہلا پیغام بھیجیں۔",
 		"mobile.session.fallback_name": "سیشن",
@@ -10887,6 +11052,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} کی پروفائل دیکھیں",
 		"mobile.team_bridge.profile.opens_hint": "ان کی پروفائل کھولتا ہے",
 		"mobile.team_bridge.profile.title": "پروفائل",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# جواب} other {# جوابات}}",
+		"mobile.team_bridge.reply_thread.empty": "ابھی تک کوئی جواب نہیں۔ تھریڈ شروع کریں۔",
+		"mobile.team_bridge.reply_thread.error": "یہ تھریڈ لوڈ نہیں ہو سکا۔",
+		"mobile.team_bridge.reply_thread.loading": "تھریڈ لوڈ ہو رہا ہے…",
+		"mobile.team_bridge.reply_thread.more": "مزید جوابات لوڈ کریں",
+		"mobile.team_bridge.reply_thread.open": "تھریڈ دیکھیں، {count, plural, one {# جواب} other {# جوابات}}",
+		"mobile.team_bridge.reply_thread.open_unread": "تھریڈ دیکھیں، {count, plural, one {# جواب} other {# جوابات}}، {unread, plural, one {# نا پڑھا گیا} other {# نا پڑھے گئے}}",
+		"mobile.team_bridge.reply_thread.reply": "تھریڈ میں جواب دیں",
+		"mobile.team_bridge.reply_thread.retry": "تھریڈ دوبارہ لوڈ کریں",
+		"mobile.team_bridge.reply_thread.title": "تھریڈ",
 		"mobile.team_bridge.retry": "دوبارہ کوشش کریں",
 		"mobile.team_bridge.thread.access_retry": "رسائی کی دوبارہ کوشش کریں",
 		"mobile.team_bridge.thread.anchor_missing": "وہ پیغام اب دستیاب نہیں ہے۔",
@@ -11626,6 +11801,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Chỉ dẫn trước đó có thể đã được chuyển đến. Hãy thử gửi lại chỉ dẫn đó trước khi gửi bản nháp hiện tại.",
 		"mobile.session.composer.retry_not_sent_storage": "Lần thử gửi lại này chưa được gửi đi. Không thể chuẩn bị an toàn để gửi lại chỉ dẫn trước đó. Hãy thử gửi lại chỉ dẫn trước đó. Bản nháp hiện tại của bạn chưa được gửi.",
 		"mobile.session.conversation_details": "Chi tiết cuộc trò chuyện",
+		"mobile.session.diagram.close": "Đóng sơ đồ",
+		"mobile.session.diagram.copied": "đã sao chép",
+		"mobile.session.diagram.copy": "Sao chép nguồn của sơ đồ",
+		"mobile.session.diagram.error": "Không thể vẽ sơ đồ này. Đang hiển thị mã nguồn thay thế.",
+		"mobile.session.diagram.label": "Sơ đồ {type}",
+		"mobile.session.diagram.label_titled": "Sơ đồ {type}: {title}",
+		"mobile.session.diagram.open_hint": "Mở sơ đồ toàn màn hình",
+		"mobile.session.diagram.viewer": "Trình xem sơ đồ",
 		"mobile.session.empty.headline": "Chưa có gì ở đây.",
 		"mobile.session.empty.next": "Gửi tin nhắn đầu tiên bên dưới.",
 		"mobile.session.fallback_name": "phiên",
@@ -11999,6 +12182,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Xem hồ sơ của {name}",
 		"mobile.team_bridge.profile.opens_hint": "Mở hồ sơ của họ",
 		"mobile.team_bridge.profile.title": "Hồ sơ",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# phản hồi}}",
+		"mobile.team_bridge.reply_thread.empty": "Chưa có phản hồi nào. Hãy bắt đầu chuỗi.",
+		"mobile.team_bridge.reply_thread.error": "Không thể tải chuỗi này.",
+		"mobile.team_bridge.reply_thread.loading": "Đang tải chuỗi…",
+		"mobile.team_bridge.reply_thread.more": "Tải thêm phản hồi",
+		"mobile.team_bridge.reply_thread.open": "Xem chuỗi, {count, plural, other {# phản hồi}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Xem chuỗi, {count, plural, other {# phản hồi}}, {unread, plural, other {# chưa đọc}}",
+		"mobile.team_bridge.reply_thread.reply": "Trả lời trong chuỗi",
+		"mobile.team_bridge.reply_thread.retry": "Thử tải lại chuỗi",
+		"mobile.team_bridge.reply_thread.title": "Chuỗi",
 		"mobile.team_bridge.retry": "Thử lại",
 		"mobile.team_bridge.thread.access_retry": "Thử truy cập lại",
 		"mobile.team_bridge.thread.anchor_missing": "Tin nhắn đó không còn khả dụng.",
@@ -12738,6 +12931,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "之前的指令可能已送达。先重试之前的指令，再发送当前草稿。",
 		"mobile.session.composer.retry_not_sent_storage": "本次重试未发送。无法安全地准备重试之前的指令。请重试之前的指令。你当前的草稿尚未发送。",
 		"mobile.session.conversation_details": "对话详情",
+		"mobile.session.diagram.close": "关闭图表",
+		"mobile.session.diagram.copied": "已复制",
+		"mobile.session.diagram.copy": "复制图表源码",
+		"mobile.session.diagram.error": "无法绘制此图表，已改为显示源码。",
+		"mobile.session.diagram.label": "{type} 图表",
+		"mobile.session.diagram.label_titled": "{type} 图表：{title}",
+		"mobile.session.diagram.open_hint": "全屏打开图表",
+		"mobile.session.diagram.viewer": "图表查看器",
 		"mobile.session.empty.headline": "暂无消息。",
 		"mobile.session.empty.next": "在下方发送第一条消息。",
 		"mobile.session.fallback_name": "会话",
@@ -13111,6 +13312,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "查看{name}的个人资料",
 		"mobile.team_bridge.profile.opens_hint": "打开其个人资料",
 		"mobile.team_bridge.profile.title": "个人资料",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# 条回复}}",
+		"mobile.team_bridge.reply_thread.empty": "还没有回复。发起话题吧。",
+		"mobile.team_bridge.reply_thread.error": "无法加载此话题。",
+		"mobile.team_bridge.reply_thread.loading": "正在加载话题…",
+		"mobile.team_bridge.reply_thread.more": "加载更多回复",
+		"mobile.team_bridge.reply_thread.open": "查看话题，{count, plural, other {# 条回复}}",
+		"mobile.team_bridge.reply_thread.open_unread": "查看话题，{count, plural, other {# 条回复}}，{unread, plural, other {# 条未读}}",
+		"mobile.team_bridge.reply_thread.reply": "在话题中回复",
+		"mobile.team_bridge.reply_thread.retry": "重新加载话题",
+		"mobile.team_bridge.reply_thread.title": "话题",
 		"mobile.team_bridge.retry": "重试",
 		"mobile.team_bridge.thread.access_retry": "重试访问",
 		"mobile.team_bridge.thread.anchor_missing": "该消息已不可用。",

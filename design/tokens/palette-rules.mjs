@@ -204,6 +204,13 @@ export const CONTROLS = [
 	{ id: "card/rest", fill: "surface", border: "hairline", ink: "ink", boundary: false },
 	{ id: "sheet/panel", fill: "elevated", border: null, ink: "ink", boundary: false },
 
+	/* A drawn Mermaid diagram (components.md § 14): Pele paints on the `surface`
+	   card. A node is `elevated` with a `border-control` stroke and `ink` label;
+	   an edge or secondary label is `ink-muted`. The node fill barely separates
+	   from the card (1.07:1), so the STROKE is the boundary and is asserted. */
+	{ id: "diagram/node", fill: "elevated", border: "border-control", ink: "ink", grounds: ["surface"] },
+	{ id: "diagram/edge", fill: null, border: "ink-muted", ink: "ink-muted", grounds: ["surface"] },
+
 	/* Composer: the one 16px field in the app. */
 	{ id: "composer/field", fill: "elevated", border: "border-control", ink: "ink" },
 	{ id: "composer/send", fill: "accent", border: null, ink: "on-accent" },

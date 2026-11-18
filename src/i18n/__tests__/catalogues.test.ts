@@ -78,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 169, // Exact merged Team Bridge key union (TestFlight 773 retired thread.placeholder); +2: thread.jump_newest and thread.anchor_missing (anchored opens); fix/bridge-429 +1: list.catching_up, the calm rate-limit status (159 + 1 = 160, counted over the en JSON); feat/bridge-mention-suggestions +9: mentions.* (160 + 9 = 169).
+		expected: 179, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, counted over the merged en JSON.
 	},
 	{
 		name: "mobile.signin",
@@ -214,7 +214,7 @@ const NAMESPACES = [
 		name: "mobile.session",
 		messages: session,
 		context: sessionContext,
-		expected: 91, // O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
+		expected: 99, // feat/pele-diagrams +8: the mermaid diagram block (label, titled label, open hint, copy, copied marker, could-not-draw notice, viewer name, viewer close) (91 + 8 = 99); O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
 	},
 	{
 		/* The relay's own two namespaces, under its own keys. They are here rather
@@ -555,7 +555,15 @@ describe("the English catalogues", () => {
 		 * mobile.team_bridge.mentions.* keys for @-mention suggestions; merged with
 		 * main's 1101: 1101 + 9 = 1110, derived by summing the keys of all 25 merged
 		 * en catalogue files (mobile.team_bridge 169). */
-		expect(total).toBe(1110);
+		// PR #303 adds ten mobile.team_bridge.reply_thread keys (nine, plus
+		// reply_thread.more for the 500-reply continuation, review R2):
+		// 1101 + 10 = 1111, re-derived with generate.ts over the merged tree.
+		// feat/pele-diagrams: +8 mobile.session.diagram.* on main's 1111 = 1119,
+		// re-derived with generate.ts over the merged tree.
+		// Merge of main into #305 (feat/bridge-mention-suggestions): +9
+		// mobile.team_bridge.mentions.* on main's 1119 = 1128, re-derived with
+		// generate.ts over the merged tree.
+		expect(total).toBe(1128);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

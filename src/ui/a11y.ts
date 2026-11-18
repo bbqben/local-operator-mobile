@@ -60,6 +60,8 @@ export const SCREEN = {
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeList: "team-bridge-list",
 	teamBridgeThread: "team-bridge-thread",
+	/** One message's reply thread (root + replies), not a conversation. */
+	teamBridgeReplyThread: "team-bridge-reply-thread",
 
 	welcome: "welcome-screen",
 	signIn: "sign-in-screen",
@@ -174,6 +176,9 @@ export const CONTROL = {
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeAttach: "team-bridge-attach",
 	teamBridgeBack: "team-bridge-back",
+	teamBridgeReplyThreadRetry: "team-bridge-reply-thread-retry",
+	/** Continues a reply thread past one load's page cap. */
+	teamBridgeReplyThreadMore: "team-bridge-reply-thread-more",
 	/** A Bridge thread's leading workspace-drawer button (Team Bridge mode). */
 	teamBridgeMenu: "team-bridge-menu",
 	teamBridgeConversationsRetry: "team-bridge-conversations-retry",
@@ -519,6 +524,12 @@ export const CONTROL = {
 	connectionSignIn: "connection-sign-in",
 	connectionConsole: "connection-console",
 	codeBlockCopy: "code-block-copy",
+	/* A drawn diagram: the figure opens the full-screen viewer; the header's own
+	 * control copies the source (the `codeBlockCopy` gesture, moved off the
+	 * picture so a tap on it can mean "look closer"). */
+	diagramOpen: "diagram-open",
+	diagramCopy: "diagram-copy",
+	diagramViewerClose: "diagram-viewer-close",
 	/* --- the in-conversation find. One header lever, the sheet's own field, and
 	 *  the navigate bar's three controls. `findEdit` is the bar's count segment,
 	 *  which reopens the sheet with the query intact — deliberately NOT folded
@@ -820,7 +831,13 @@ export const SURFACE = {
 	sidebarViewSheet: "sidebar-view-sheet",
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeAttachSheet: "team-bridge-attach-sheet",
+	teamBridgeReplyThreadList: "team-bridge-reply-thread-list",
+	teamBridgeReplyThreadLoading: "team-bridge-reply-thread-loading",
+	teamBridgeReplyThreadError: "team-bridge-reply-thread-error",
+	teamBridgeReplyComposer: "team-bridge-reply-composer",
 	teamBridgeImageViewer: "team-bridge-image-viewer",
+	/** The full-screen diagram viewer (pan and, on iOS, pinch-zoom). */
+	diagramViewer: "diagram-viewer",
 	teamBridgeChannelPreview: "team-bridge-channel-preview",
 	teamBridgeComposer: "team-bridge-composer",
 	/** The @-mention suggestion strip docked above the composer field. */
@@ -2462,6 +2479,12 @@ export const teamBridgeOrganizationId = (value: string): string =>
 	`team-bridge-org-${value}`;
 export const teamBridgeMessageId = (value: string): string =>
 	`team-bridge-message-${value}`;
+/** A root row's reply-thread control, keyed by the ROOT message id. */
+export const teamBridgeReplyThreadOpenId = (value: string): string =>
+	`team-bridge-reply-thread-open-${value}`;
+/** The unread badge on that control (present only while the hub reports unread). */
+export const teamBridgeReplyThreadUnreadId = (value: string): string =>
+	`team-bridge-reply-thread-unread-${value}`;
 /** Stable identity across recipient label, locale and state changes. */
 export const teamBridgeDeliveryId = (
 	message: string,

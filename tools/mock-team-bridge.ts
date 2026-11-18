@@ -387,6 +387,82 @@ export function createTeamBridgeFixture(options: { root?: string } = {}) {
 		};
 	};
 	const imageWorlds = new Map<string, ReturnType<typeof createImageWorld>>();
+	/*
+	 * `tb-fixture=threads`: one reply thread under message 3 of every
+	 * conversation, mirroring the hub's thread routes (agent-server
+	 * `RepliesHandlerEcho` / `ThreadReadHandlerEcho`): replies stay OUT of the
+	 * timeline, the root carries the rollup, and the viewer's unread is the
+	 * replies above their thread cursor that someone else wrote. Per world and
+	 * conversation, so a read in one capture never leaks into another.
+	 */
+	type ReplyWorld = { replies: ReturnType<typeof message>[]; readSeq: number };
+	const replyWorlds = new Map<string, ReplyWorld>();
+	const THREAD_ROOT = "bcm_3";
+	const replyWorld = (key: string, conversationId: string): ReplyWorld => {
+		const id = `${key}|${conversationId}`;
+		let held = replyWorlds.get(id);
+		if (!held) {
+			const agent = {
+				account_id: BEN,
+				kind: "agent" as const,
+				display_label: "Aida",
+			};
+			const ada = {
+				account_id: ADA,
+				kind: "human" as const,
+				display_label: "Ada",
+			};
+			held = {
+				readSeq: 7,
+				replies: [
+					message(7, BEN, at(1), {
+						sender: agent,
+						origin: "agent",
+						body: "On it. I'll post progress here so the channel stays readable.",
+					}),
+					message(8, ADA, at(3), {
+						sender: ada,
+						body: "Thanks. Can you check the push deep link too?",
+					}),
+					message(9, BEN, at(4), {
+						sender: agent,
+						origin: "agent",
+						body: "Done: a reply notification now opens its thread.",
+					}),
+				].map((row) => ({
+					...row,
+					conversation_id: conversationId,
+					thread_root_id: THREAD_ROOT,
+				})),
+			};
+			replyWorlds.set(id, held);
+		}
+		return held;
+	};
+	const rollup = (thread: ReplyWorld) => {
+		const labels: string[] = [];
+		const ids: Array<{ account_id: string; kind: string }> = [];
+		for (const reply of [...thread.replies].reverse()) {
+			if (labels.includes(reply.sender.display_label) || labels.length === 3)
+				continue;
+			labels.push(reply.sender.display_label);
+			ids.push({
+				account_id: reply.sender.account_id,
+				kind: reply.sender.kind,
+			});
+		}
+		return {
+			reply_count: thread.replies.length,
+			last_reply_at: thread.replies.at(-1)?.created_at,
+			reply_participants: labels,
+			reply_participant_ids: ids,
+			thread_last_read_seq: thread.readSeq,
+			thread_unread_count: thread.replies.filter(
+				(reply) =>
+					reply.seq > thread.readSeq && reply.sender.account_id !== SELF,
+			).length,
+		};
+	};
 
 	const requests: Array<{ method: string; path: string }> = [];
 	const handle = async (
@@ -847,6 +923,79 @@ setInterval(()=>{try{
 				const id = path.split("/")[2];
 				const row = threadRows.find((c) => c.id === id);
 				const history = histories.get(id ?? "") ?? [];
+				if (qaCase === "threads" && id) {
+					const thread = replyWorld(worldKey, id);
+					const rootOf = () => {
+						const root = history.find((entry) => entry.id === THREAD_ROOT);
+						return root ? { ...root, ...rollup(thread) } : null;
+					};
+					const replies =
+						/^\/conversations\/[^/]+\/messages\/([^/]+)\/replies$/.exec(path);
+					const threadRead =
+						/^\/conversations\/[^/]+\/messages\/([^/]+)\/read$/.exec(path);
+					if (replies || threadRead) {
+						const root = rootOf();
+						if (!root || (replies?.[1] ?? threadRead?.[1]) !== THREAD_ROOT) {
+							send(404, {
+								error: "Message not found",
+								code: "message_not_found",
+							});
+							return;
+						}
+						if (replies) {
+							ok({ root, replies: thread.replies, has_more: false });
+							return;
+						}
+						thread.readSeq = Math.max(thread.readSeq, Number(body.seq ?? 0));
+						const after = rollup(thread);
+						ok({
+							conversation_id: id,
+							root_id: THREAD_ROOT,
+							thread_last_read_seq: after.thread_last_read_seq,
+							thread_unread_count: after.thread_unread_count,
+						});
+						return;
+					}
+					if (path.endsWith("/messages") && req.method === "GET") {
+						ok({
+							messages: history.map((entry) =>
+								entry.id === THREAD_ROOT ? (rootOf() ?? entry) : entry,
+							),
+							has_more: false,
+						});
+						return;
+					}
+					if (
+						path.endsWith("/messages") &&
+						req.method === "POST" &&
+						body.thread_root_id
+					) {
+						if (body.thread_root_id !== THREAD_ROOT) {
+							send(400, {
+								error: "Invalid thread root",
+								code: "invalid_request",
+								details: { field: "thread_root_id", rule: "invalid_root" },
+							});
+							return;
+						}
+						const seq = Math.max(...thread.replies.map((r) => r.seq)) + 1;
+						const reply = {
+							...message(seq, SELF, new Date().toISOString(), {
+								sender: {
+									account_id: SELF,
+									kind: "human",
+									display_label: "Sam",
+								},
+								body: body.body,
+							}),
+							conversation_id: id,
+							thread_root_id: THREAD_ROOT,
+						};
+						thread.replies.push(reply);
+						ok(reply);
+						return;
+					}
+				}
 				if (path.endsWith("/messages") && req.method === "GET") {
 					// Read failures remain non-2xx, never fake legacy projection absence.
 					if (qaCase === "delivery-read-error") {
