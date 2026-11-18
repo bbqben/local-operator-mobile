@@ -409,6 +409,9 @@ function copyFor(cause: RefusalCause, subject: string): RefusalCopy {
  *  over the phone's own reading of the discovery row. */
 const REASON_CAUSE: Readonly<Record<string, RefusalCause>> = {
 	server_unavailable: "radient-unreachable",
+	/* Radient asked the computer to slow down (PR #4168): the same wait-for-Radient
+	 *  cause as its `wait_radient` kind, so a new and an old build read it alike. */
+	authorization_unavailable: "radient-unreachable",
 	tunnel_inactive: "suspended",
 	tunnel_disabled: "console-disabled",
 	billing_inactive: "phone-access-off",

@@ -153,7 +153,7 @@ export default function ProjectDetail() {
 		(error: unknown) => {
 			if (isVanishRefusal(error)) {
 				showToast(
-					projectRefusalSentence(error) ?? "That project is no longer there.",
+					projectRefusalSentence(error) ?? t("mobile.projects.detail.gone"),
 				);
 				router.back();
 				return;
@@ -311,7 +311,11 @@ export default function ProjectDetail() {
 
 	return (
 		<Screen
-			title={project === null ? "Project" : projectDisplayName(project)}
+			title={
+				project === null
+					? t("mobile.projects.detail.title_fallback")
+					: projectDisplayName(project)
+			}
 			testID={SCREEN.projectDetail}
 			headerLeading={
 				<BackButton
@@ -337,11 +341,11 @@ export default function ProjectDetail() {
 			) : project === null ? (
 				<View className="gap-3">
 					<Alert severity="error" testID={SURFACE.projectDetailRefusal}>
-						{refused ?? "We couldn't read that project just now."}
+						{refused ?? t("mobile.projects.detail.load_failed")}
 					</Alert>
 					<Button
 						testID={CONTROL.projectDetailRetry}
-						label="Try again"
+						label={t("mobile.common.try_again")}
 						onPress={() => void load()}
 						variant="outline"
 						size="sm"
@@ -397,7 +401,7 @@ export default function ProjectDetail() {
 						<SectionHeader label={t("mobile.projects.section.milestones")} />
 						{project.milestones.length === 0 ? (
 							<Text className="py-1 text-body-sm text-ink-dim">
-								No milestones.
+								{t("mobile.projects.detail.milestones_empty")}
 							</Text>
 						) : (
 							project.milestones.map((milestone) => (
@@ -417,7 +421,7 @@ export default function ProjectDetail() {
 						<View className="pt-3">
 							<Button
 								testID={CONTROL.projectAddMilestone}
-								label="Add milestone"
+								label={t("mobile.projects.milestone.add")}
 								onPress={() => openEditor(null)}
 								variant="outline"
 								size="sm"
@@ -432,7 +436,7 @@ export default function ProjectDetail() {
 						/>
 						{links.length === 0 ? (
 							<Text className="py-1 text-body-sm text-ink-dim">
-								No sessions linked.
+								{t("mobile.projects.detail.sessions_empty")}
 							</Text>
 						) : (
 							links.map((link) => (
@@ -463,7 +467,7 @@ export default function ProjectDetail() {
 					<View className="pt-2">
 						<Button
 							testID={CONTROL.projectDelete}
-							label="Delete project"
+							label={t("mobile.projects.detail.delete")}
 							onPress={() => {
 								setProblem(null);
 								setConfirmDelete(true);
@@ -494,7 +498,11 @@ export default function ProjectDetail() {
 				 *  is what keeps the reader's typing and returns them here on Cancel. */
 				visible={editor !== null}
 				onClose={closeEditor}
-				title={editingName === null ? "Add milestone" : "Edit milestone"}
+				title={
+					editingName === null
+						? t("mobile.projects.milestone.add")
+						: t("mobile.projects.milestone.edit_title")
+				}
 				testID={SURFACE.projectMilestoneSheet}
 				/* THE BAND IS TALLER THAN THE CREATE FORM'S, and that is INTENDED (design
 				 *  round 4, D3: 60.3–60.5 pt here against the create sheet's 27.0 pt). Both
@@ -539,7 +547,11 @@ export default function ProjectDetail() {
 
 						<Button
 							testID={CONTROL.projectMilestoneSubmit}
-							label={editingName === null ? "Add" : "Save"}
+							label={
+								editingName === null
+									? t("mobile.projects.milestone.add_submit")
+									: t("mobile.common.save")
+							}
 							onPress={() => void submitMilestone()}
 							/* Inert while the name cannot be sent: an empty one is a round
 							 *  trip spent to be told `name is required`, and a slashed one
@@ -551,7 +563,7 @@ export default function ProjectDetail() {
 						{editingName !== null && !slashOnExisting ? (
 							<Button
 								testID={CONTROL.projectMilestoneRemove}
-								label="Remove milestone"
+								label={t("mobile.projects.milestone.remove")}
 								onPress={() => setConfirmRemove(true)}
 								variant="danger"
 								size="sm"
@@ -573,10 +585,10 @@ export default function ProjectDetail() {
 
 					<Input
 						testID={CONTROL.projectMilestoneName}
-						label="Name"
+						label={t("mobile.projects.milestone.name")}
 						value={editor?.editingName ?? draftName}
 						onChangeText={setDraftName}
-						placeholder="release cut"
+						placeholder={t("mobile.projects.milestone.name_placeholder")}
 						/* The name is the milestone's KEY: it is what the store
 						 *  add-or-updates by and what the remove route addresses, so
 						 *  this form never renames one (adding a differently-named
@@ -587,23 +599,26 @@ export default function ProjectDetail() {
 
 					<Input
 						testID={CONTROL.projectMilestoneDate}
-						label="Target date"
+						label={t("mobile.projects.milestone.target_date")}
 						value={draftDate}
 						onChangeText={setDraftDate}
-						placeholder="YYYY-MM-DD"
+						/* Only the HINT is localized; the field still takes ISO 8601 input,
+						 *  which is what the store accepts, so a translation may reorder or
+						 *  re-letter the mask but the value typed stays YYYY-MM-DD. */
+						placeholder={t("mobile.projects.milestone.target_date_placeholder")}
 						disabled={busy}
 					/>
 					<Text className="text-meta text-ink-dim">
-						Empty the box to clear the date.
+						{t("mobile.projects.milestone.target_date_help")}
 					</Text>
 				</View>
 			</Sheet>
 			<Dialog
 				visible={confirmRemove}
 				testID={CONTROL.projectMilestoneRemoveDialog}
-				title="Remove milestone"
+				title={t("mobile.projects.milestone.remove")}
 				body={removeMilestoneBody(editingName ?? "")}
-				confirmLabel="Remove"
+				confirmLabel={t("mobile.projects.milestone.remove_confirm")}
 				destructive
 				busy={busy}
 				onConfirm={() => void removeMilestone()}
@@ -612,11 +627,11 @@ export default function ProjectDetail() {
 			<Dialog
 				visible={confirmDelete}
 				testID={CONTROL.projectDeleteDialog}
-				title="Delete project"
+				title={t("mobile.projects.detail.delete")}
 				body={deleteProjectBody(
 					project === null ? "" : projectDisplayName(project),
 				)}
-				confirmLabel="Delete"
+				confirmLabel={t("mobile.projects.detail.delete_confirm")}
 				destructive
 				busy={busy}
 				onConfirm={() => void deleteProject()}
@@ -658,7 +673,9 @@ const MilestoneRow = ({
 				accessibilityState={{ checked: completed, disabled: busy }}
 				accessibilityLabel={`${milestone.name}, ${milestone.status}`}
 				accessibilityHint={
-					completed ? "Reopens the milestone" : "Marks the milestone complete"
+					completed
+						? t("mobile.projects.milestone.reopen_hint")
+						: t("mobile.projects.milestone.complete_hint")
 				}
 				disabled={busy}
 				onPress={onToggle}
@@ -687,7 +704,9 @@ const MilestoneRow = ({
 			</Pressable>
 			<IconButton
 				testID={projectMilestoneEditId(milestone.name)}
-				accessibilityLabel={`Edit ${milestone.name}`}
+				accessibilityLabel={t("mobile.projects.milestone.edit_label", {
+					name: milestone.name,
+				})}
 				/* A RENDER FUNCTION, not the component: `IconButton` calls its `icon`
 				 *  with the colour and size the kit resolved, and a lucide icon is a
 				 *  `forwardRef` OBJECT rather than a function — passing the component

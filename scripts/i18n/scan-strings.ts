@@ -43,7 +43,8 @@
  *    `EXPRESSION_LITERAL_SCOPE` (the session screen, the agent-job screen, the
  *    video screen, the add-a-computer wait panel, Settings and its own-tunnel
  *    section, the own-tunnel verdicts, the command block, the set-up-a-computer
- *    screen and the refusal surface). EVERY OTHER FILE IS NOT SCANNED BY
+ *    screen, the refusal surface, and — since O3-b — the Projects list and
+ *    detail, the conversation Tags sheet and the shared list row). EVERY OTHER FILE IS NOT SCANNED BY
  *    IT YET — including the rest of `app/`, `src/features/auth/` and
  *    `src/features/settings/`, where ~90 further expression literals are known
  *    (e.g. `computer-switcher-view.ts`).
@@ -99,9 +100,13 @@ export const EXPRESSION_LITERAL_SCOPE: readonly string[] = [
 	"src/features/auth/tunnel-paths.tsx",
 	"src/features/auth/tunnel-verdict.ts",
 	"src/features/auth/welcome.tsx",
+	"src/features/projects/project-detail.tsx",
+	"src/features/projects/projects.tsx",
+	"src/features/sessions/tags-sheet.tsx",
 	"src/features/settings/own-tunnel-settings.tsx",
 	"src/features/settings/settings.tsx",
 	"src/ui/components/command-block.tsx",
+	"src/ui/components/list-row.tsx",
 	"src/ui/components/refusal-surface.tsx",
 ];
 

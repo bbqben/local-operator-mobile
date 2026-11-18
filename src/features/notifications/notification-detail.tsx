@@ -328,7 +328,7 @@ export default function NotificationDetail({ itemId }: { itemId: string }) {
 			scroll={false}
 			headerLeading={
 				<IconButton
-					accessibilityLabel="Back"
+					accessibilityLabel={t("mobile.common.back")}
 					onPress={back}
 					icon={({ color, size }) => (
 						<BackIcon color={color} size={size} glyph="chevron" />

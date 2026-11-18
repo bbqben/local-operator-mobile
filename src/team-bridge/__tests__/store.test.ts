@@ -219,9 +219,11 @@ describe("team bridge store", () => {
 	});
 
 	it("loads conversations and people in parallel; one failing half leaves the other", async () => {
+		// A definitive failure: a transient one (5xx) is retried silently first
+		// (rate-limit.test.ts, "transient failures with nothing held").
 		const hub = fakeHub({
 			directory: vi.fn(async () => {
-				throw new HubError({ kind: "server", message: "x", status: 500 });
+				throw new HubError({ kind: "not_found", message: "x", status: 404 });
 			}),
 		});
 		const { store, actions } = createTeamBridgeStore({

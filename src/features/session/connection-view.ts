@@ -145,6 +145,18 @@ export const NOTHING_VISIBLE: ConnectionView = {
 
 const BANNER = "connection-banner";
 
+/**
+ * The banner's leading glyph. `C2` (reconnecting by itself) gets the in-progress
+ * ring even though its tone is `warning`: an alert "!" made a silent retry read
+ * as an error, and a softened transient refusal now shows `C2` for up to two
+ * minutes (local-operator-mobile PR #301 design D3). Every other state keeps
+ * its tone's glyph. Here, not in the component, so a Node test can pin it.
+ */
+export function bannerGlyph(view: Pick<ConnectionView, "id" | "tone">): string {
+	if (view.id === "C2") return "◌";
+	return view.tone === "info" ? "◌" : "!";
+}
+
 const view = (
 	id: ConnectionStateId,
 	text: string,

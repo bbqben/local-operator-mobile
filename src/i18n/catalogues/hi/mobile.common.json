@@ -11,5 +11,7 @@
 	"mobile.common.not_found.action": "सत्रों पर लौटें",
 	"mobile.common.copy": "कॉपी करें",
 	"mobile.common.copied": "कॉपी हो गया",
-	"mobile.common.copy_command_hint": "“{label}” वाली कमांड कॉपी करता है"
+	"mobile.common.copy_command_hint": "“{label}” वाली कमांड कॉपी करता है",
+	"mobile.common.close": "बंद करें",
+	"mobile.common.loading": "लोड हो रहा है"
 }

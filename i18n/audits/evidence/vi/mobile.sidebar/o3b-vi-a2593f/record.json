@@ -1,0 +1,133 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-vi-a2593f",
+ "slice": "O3-b",
+ "locale": "vi",
+ "namespace": "mobile.sidebar",
+ "audit_date": "2026-11-17",
+ "key_count": 15,
+ "keys_audited": [
+  "mobile.sidebar.tags.remove_all",
+  "mobile.sidebar.tags.remove_all_title",
+  "mobile.sidebar.tags.remove_all_body",
+  "mobile.sidebar.tags.remove_all_confirm",
+  "mobile.sidebar.tags.saving",
+  "mobile.sidebar.tags.load_failed_title",
+  "mobile.sidebar.tags.load_failed_body",
+  "mobile.sidebar.tags.empty_headline",
+  "mobile.sidebar.tags.empty_next",
+  "mobile.sidebar.tags.announcement",
+  "mobile.sidebar.row.new",
+  "mobile.sidebar.row.asks",
+  "mobile.sidebar.row.asks_not_blocker",
+  "mobile.sidebar.row.agents",
+  "mobile.sidebar.row.todos"
+ ],
+ "translator_session": "9bc4a4716d1c",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "a2593f163587",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "ordinary file reads (cat/json.load) of the translator's scratch file; read_public_copy not used (refuses mobile catalogue paths). Later node/python runs on the sibling path were refused by guardrail; checks ran on an in-session canonical re-serialization and a cp of the brief (hash re-verified).",
+ "draft": {
+  "path": "/Users/damian/.local-operator/sessions/9bc4a4716d1c/scratchpad/o3b/draft-vi.json",
+  "sha256": "9bb41ba8bcc99a55a3ebead01d1741e893999d0c5db591368a1103595a391333",
+  "canonical_json_sha256": "e51c650fd9d92bda26ec119be11072552b88b609bceb8f50342e41bcff7a5253"
+ },
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "brief": {
+  "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+  "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+ },
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.sidebar.json",
+   "sha256": "d82f1edb95afd7a3cc1bbc37e8f188deb7e43e14cd75888b0b1b24022a27e87f"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.sidebar.context.json",
+   "sha256": "9c641054a2f00348908213451bf6786149a5678af9da91dff3c5d04ed3d43979"
+  },
+  "vi_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/vi/mobile.sidebar.json",
+   "sha256": "2dcd57ba9cfc6a6cf0e4a7a07855bc5a5ad4715c4b00d55aa72725b746a315ff"
+  },
+  "relay_chrome_en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/relay.chrome.json",
+   "sha256": "043941b6b3b8057cf28b7bef84546aed91ba4f1e3c46fa0fede3a83e3fd004c3"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/vi.md",
+   "sha256": "e4901497ed553e2b2ae4a2660bf776adb787b89e11d7eb0f8d08f3da4b227888"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_vi_categories": [
+   "other"
+  ],
+  "nfc": "pass",
+  "redaction_marker_hits": 0,
+  "redaction_note": "brief's own redaction_scan.pattern field self-matches (2 raw hits) and is excluded",
+  "repo_validator": "not run (draft not in repo; repo read-only); repo parseMessage/formatMessage imported read-only, with negative controls"
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "VI-S1",
+   "VI-S2",
+   "VI-S3"
+  ]
+ },
+ "findings": [
+  {
+   "id": "VI-S1",
+   "severity": "MINOR",
+   "key": "mobile.sidebar.row.asks_not_blocker",
+   "current": "{asks}, không cản trở",
+   "problem": "Screen-reader output «2 câu hỏi, không cản trở» does not say WHAT is not obstructed; context requires the listener to understand the agent keeps working and is not waiting. Meaning recoverable, not wrong.",
+   "suggestion": "{asks}, tác nhân vẫn chạy tiếp"
+  },
+  {
+   "id": "VI-S2",
+   "severity": "MINOR",
+   "key": "mobile.sidebar.tags.remove_all, remove_all_title, remove_all_confirm, remove_all_body",
+   "current": "Gỡ tất cả nhãn / Gỡ tất cả nhãn? / Gỡ / Thao tác này gỡ mọi danh mục…",
+   "problem": "Same action on the same feature is «bỏ» in shipped core vi (relay.session.tags.remove_all «bỏ tất cả nhãn», tui.tags.removed «Đã bỏ nhãn»); mobile vi has no «gỡ» anywhere. «Gỡ» is idiomatic and non-destructive (correctly avoids «Xóa»), so cross-surface consistency only.",
+   "suggestion": "remove_all: «Bỏ tất cả nhãn»; remove_all_title: «Bỏ tất cả nhãn?»; remove_all_confirm: «Bỏ»; remove_all_body: «Thao tác này bỏ mọi danh mục khỏi cuộc trò chuyện này. Bản thân các danh mục vẫn còn trong ứng dụng máy tính.»"
+  },
+  {
+   "id": "VI-S3",
+   "severity": "NIT",
+   "key": "mobile.sidebar.row.agents",
+   "current": "{count, plural, other {# tác nhân}}",
+   "problem": "«99 tác nhân» = 11 chars vs ~10 hint (1-digit = 10). Chip yields at large text per context; no shorter correct vi term (glossary agent → tác nhân).",
+   "suggestion": "No change."
+  }
+ ],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "58c998f4dcc93c8eb4307f495f8510626b6c81c8c4da8620816de08b369e805c"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "058f72dea56e8ca83f080335ae1273df3e9c96215722c246899126d92dd3d4f4"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

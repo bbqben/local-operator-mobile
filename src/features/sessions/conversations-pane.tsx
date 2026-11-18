@@ -41,7 +41,11 @@ import {
 } from "@/features/notifications/notifications-model";
 import { NotificationsOffRow } from "@/features/notifications/notifications-off-row";
 import { SessionMoveSheet } from "@/features/sessions/move-sheet";
-import { pillState } from "@/features/sessions/pill-state";
+import {
+	pillCarriesStaleNote,
+	pillState,
+	showInListStale,
+} from "@/features/sessions/pill-state";
 import {
 	createSearchEscape,
 	type KeyEventTarget,
@@ -439,7 +443,7 @@ export const ConversationsPane = ({
 	surfaceClassName,
 }: ConversationsPaneProps) => {
 	const router = useRouter();
-	const { refreshList, relay, busy, streamHealth } = useConnection();
+	const { refreshList, relay, busy, streamHealth, lastError } = useConnection();
 	const showToast = useUiStore((state) => state.showToast);
 	/* The New chat row's glyph, in the same ink as every other quiet control in
 	 *  the panel — the icon ramp's `ink-muted`, not a decorative accent. */
@@ -604,6 +608,16 @@ export const ConversationsPane = ({
 	const degradedMessage = degradedNote(degraded);
 	const staleMessage = staleNote({ stale, lastFrameAt });
 	const staleShortMessage = staleShortNote({ stale, lastFrameAt });
+	/* One pill decision for the row and the in-list line below it. A stopped
+	 *  loop (`lastError`) lets `offline` outrank `stale` (PR #301 D1), and the
+	 *  in-list stale line yields to a pill already saying it (D2). */
+	const pill = pillState(streamHealth, stale, lastError !== null);
+	const pillCarriesStale = routed && pillCarriesStaleNote(pill, stale);
+	const inListStale = showInListStale({
+		hasStaleMessage: staleMessage !== null,
+		pillCarriesStale,
+		largeText,
+	});
 	const waiting = !anyFrame && !loadFailed(streamHealth);
 	const hasRoute = sessions.length > 0 || anyFrame;
 	/* The header's New chat row yields while the empty state owns the screen
@@ -901,7 +915,7 @@ export const ConversationsPane = ({
 			 *  button). As a sibling of the list and the footer the three cannot
 			 *  overlap by construction. It appears only when it has something to
 			 *  say: a permanent "Connected" dot is furniture the eye skips. */}
-			{routed && pillState(streamHealth, stale) !== "connected" ? (
+			{routed && pill !== "connected" ? (
 				/* `min-w-0` + `singleLine`: on an iPhone the pill ran past the drawer's
 				 *  right edge ("Not answering", Sherman's report via Aida). One
 				 *  tail-truncated line, capped at this line by the pill's own
@@ -910,8 +924,8 @@ export const ConversationsPane = ({
 				 *  rule, `status-pill-layout.test.ts` checks it at 320 pt / 200 %. */
 				<View className={DRAWER_PILL_ROW_CLASS}>
 					<ConnectionPill
-						state={pillState(streamHealth, stale)}
-						message={staleNote({ stale, lastFrameAt }) ?? undefined}
+						state={pill}
+						message={pillCarriesStale ? (staleMessage ?? undefined) : undefined}
 						singleLine
 					/>
 				</View>
@@ -967,9 +981,9 @@ export const ConversationsPane = ({
 					<RefreshControl refreshing={busy} onRefresh={onRefresh} />
 				}
 				ListHeaderComponent={
-					staleMessage || (hiddenSections > 0 && !emptiedByView) ? (
+					inListStale || (hiddenSections > 0 && !emptiedByView) ? (
 						<View className="gap-1 px-4 pt-2">
-							{staleMessage ? (
+							{inListStale ? (
 								<Text
 									className="text-body-sm text-ink-dim"
 									numberOfLines={largeText ? 1 : undefined}

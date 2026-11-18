@@ -11,5 +11,7 @@
 	"mobile.common.not_found.action": "К сессиям",
 	"mobile.common.copy": "Копировать",
 	"mobile.common.copied": "Скопировано",
-	"mobile.common.copy_command_hint": "Копирует команду «{label}»"
+	"mobile.common.copy_command_hint": "Копирует команду «{label}»",
+	"mobile.common.close": "Закрыть",
+	"mobile.common.loading": "Загрузка"
 }

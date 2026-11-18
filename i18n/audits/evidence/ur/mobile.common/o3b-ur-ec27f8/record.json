@@ -1,0 +1,99 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-ur-ec27f8",
+ "slice": "O3-b",
+ "locale": "ur",
+ "namespace": "mobile.common",
+ "audit_date": "2026-11-17",
+ "key_count": 2,
+ "keys_audited": [
+  "mobile.common.close",
+  "mobile.common.loading"
+ ],
+ "translator_session": "433f5c8f541e",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "ec27f8bf0ab6",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly from the translator's scratchpad, then copied to /Users/damian/.local-operator/sessions/ec27f8bf0ab6/scratchpad/o3b-audit/work/draft-ur.json and sha256 re-verified identical before the checker ran on the copy; core read_public_copy not used (refuses mobile catalogue paths)",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/433f5c8f541e/scratchpad/o3b/draft-ur.json",
+   "sha256": "dbc9e98f8ca45c6a9b88c7f16d0071b4e2dbe86ed4a3ce3395dc34460b2e1ade",
+   "canonical_json_sha256": "a44a29ece00de610b60df55bf6c14063528cbf8e5136be938e21f21330543961",
+   "canonical_scope": "values object, sort_keys, compact separators"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.json",
+   "sha256": "3c869836292710ccb7770ec5e493a64f8349e2420b2cc0e37be6b3a09b87b31e"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.context.json",
+   "sha256": "656ce9a70cc25fc6acaa2f04c2bbe55c90cde56d516e6960100df5cd1a399e7b"
+  },
+  "ur_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/ur/mobile.common.json",
+   "sha256": "479d1b4c162d0896d427de1e3ae7f9b73cd01ae243bb5070674c51e703e0508b",
+   "note": "pre-slice shipped catalogue (draft keys not yet merged into it); used for glossary/register comparison"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/ur.md",
+   "sha256": "c0eecf7f7b5e89956b7de9ab7a9eb647ff1a7ef701ccf2a7f0264d5eea15ca60"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_ur_categories": [
+   "one",
+   "other"
+  ],
+  "nfc": "pass",
+  "bidi_controls": 0,
+  "latin_leading_values": 0,
+  "placeholder_leading_values": [],
+  "urdu_punctuation": "pass (۔ ، ؟; no ASCII ? or Hindi danda)",
+  "digits": "Latin per ur.md v1",
+  "width_over_hint": [],
+  "redaction_marker_hits": 0,
+  "redaction_note": "draft 0; English+context inputs 0; brief's own redaction_scan.pattern field matches itself (2 raw hits) and was excluded",
+  "repo_validator": "not run (repo read-only per task); check.ts imports the repo's parseMessage/formatMessage with negative controls"
+ },
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "89bf41d773e74a9d5a8041a5ccc3b0ea993fc90cfee44d6fa5aa53027f7fb421"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "34bbf7cfdbd46cb2782beb71297908dac8cc1ada155a4f93ac4f2536929de2d6"
+  },
+  "checker": {
+   "path": "/Users/damian/.local-operator/sessions/ec27f8bf0ab6/scratchpad/o3b-audit/work/check.ts",
+   "sha256": "8f5eafa9d7d34f87ec01c8623017853cbafadf9735b460e16fdfee1de33a2ae4"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false,
+ "ledger_note_proposed": "O3-b ur mobile.common: passed, 0 BLOCKER/MAJOR (no findings); auditor i18n-auditor ec27f8 anthropic/claude-opus-5-5; i18n/audits/evidence/ur/mobile.common/o3b-ur-ec27f8/record.json"
+}

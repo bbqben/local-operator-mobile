@@ -47,8 +47,20 @@ on:
     - cron: "0 6 * * 1"
 
 # One in-flight run per ref. A review cycle pushes repeatedly, and without this
-# every superseded push kept its job set queued. `main` is exempt: an in-flight
-# `main` run is the record for a merge and cancelling it loses that record.
+# every superseded push kept its job set queued.
+#
+# A SUPERSEDED `main` PUSH IS CANCELLED TOO (2026-11-18). This file's push run
+# uploads nothing outside GitHub (`release-staging` is a fake round trip through
+# workflow artefacts; the store uploads live in release.yml and the native
+# workflows), and the next merge's run checks a strict superset of the tree, so
+# the older verdict is moot. The operator's account shares ONE concurrent-job pool
+# across every repository: at 04:50Z on 2026-11-18 ~10 of ~17 running jobs were
+# this repository's CI/E2E while local-operator's release gate sat queued 80+
+# minutes, and a stack of main-push runs (this file's `design-kit` takes a macOS
+# runner on every push) is exactly that pressure. Scoped to `push` on
+# `refs/heads/main`, so the weekly sweep, a manual dispatch and a release's
+# `workflow_call` (a tag ref or a dispatch event, never `push` on main) are
+# never cancelled.
 #
 # `github.event_name` IS PART OF THE GROUP, and it is what keeps the release gate
 # from cancelling itself. When release.yml calls this workflow, `github.workflow`
@@ -57,11 +69,11 @@ on:
 # "Canceling since a deadlock for concurrency group … was detected between 'top
 # level workflow' and …", i.e. the release's `gate` job is cancelled before it
 # starts. The event name makes the call site distinct (`…-workflow_call`).
-# `cancel-in-progress` is scoped to pull requests for the same reason: a tag run
-# is a release in progress, and cancelling it would drop the artefacts.
+# `cancel-in-progress` never reaches a tag for the same reason: a tag run is a
+# release in progress, and cancelling it would drop the artefacts.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
 
 # Least privilege: nothing here writes. The release workflow is the one place
 # that elevates, and only for the job that creates a Release.
@@ -172,6 +184,13 @@ jobs:
       # is wrong in the first screen of output rather than after a test suite.
       - name: Typecheck (tsc --noEmit)
         run: pnpm typecheck
+
+      # The audit harness's own types (`tools/**`, `e2e/**`), which `pnpm typecheck`
+      # does not cover. It used to run on every pull request inside e2e.yml's
+      # `web-audit` legs; those moved to nightly/on-demand on 2026-11-18 to free
+      # the shared job pool, and this one-second check must not leave PRs with them.
+      - name: Typecheck the audit harness (tools/, e2e/)
+        run: pnpm e2e:typecheck
 
       # THE i18N RATCHET, enforced where the programme's claim is made. Two
       # separate steps so a red run names which half failed:

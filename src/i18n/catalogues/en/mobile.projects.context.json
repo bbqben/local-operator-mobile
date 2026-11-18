@@ -142,5 +142,97 @@
 	"mobile.projects.section.linked_sessions": {
 		"role": "heading",
 		"note": "Lower-case section heading on a project's detail screen, above the conversations linked to it ('sessions' = conversations). ~20 characters. No placeholders."
+	},
+	"mobile.projects.list.load_failed": {
+		"role": "status",
+		"note": "Error alert on the Projects list when the computer could not be reached; a Try again button follows. One sentence, plain and blameless. No placeholders."
+	},
+	"mobile.projects.empty.headline": {
+		"role": "heading",
+		"note": "Empty-state headline on the Projects list when the computer has no projects. Short sentence, keep under ~32 characters. No placeholders."
+	},
+	"mobile.projects.empty.next": {
+		"role": "help",
+		"note": "Empty-state second line on the Projects list. {action} is the header button label (mobile.projects.create.title, \"New project\") so the sentence and the button never drift; keep it as a quoted-or-plain button name in your grammar. One sentence."
+	},
+	"mobile.projects.detail.gone": {
+		"role": "status",
+		"note": "Error shown on Project detail when the project was deleted or renamed elsewhere (a 404). One sentence. No placeholders."
+	},
+	"mobile.projects.detail.title_fallback": {
+		"role": "heading",
+		"note": "Screen title on Project detail while the project is still loading, before its name is known. One word, keep under ~16 characters. No placeholders."
+	},
+	"mobile.projects.detail.load_failed": {
+		"role": "status",
+		"note": "Error alert on Project detail when the computer could not be reached; a Try again button follows. One sentence, blameless. No placeholders."
+	},
+	"mobile.projects.detail.milestones_empty": {
+		"role": "status",
+		"note": "Muted line under the milestones section heading of Project detail when the project has none. Short sentence, keep under ~24 characters. No placeholders."
+	},
+	"mobile.projects.detail.sessions_empty": {
+		"role": "status",
+		"note": "Muted line under the linked sessions section heading of Project detail when no conversation is linked. Short sentence, keep under ~28 characters. No placeholders."
+	},
+	"mobile.projects.detail.delete": {
+		"role": "button",
+		"note": "Destructive button at the foot of Project detail AND the title of the confirm dialog it opens; both must read the same. Keep under ~24 characters. No placeholders."
+	},
+	"mobile.projects.detail.delete_confirm": {
+		"role": "confirm",
+		"note": "Destructive confirm button in the Delete project dialog. One verb, keep under ~12 characters. No placeholders."
+	},
+	"mobile.projects.milestone.add": {
+		"role": "button",
+		"note": "Button on Project detail that opens the milestone editor, AND that editor sheet's title when adding. Keep under ~24 characters. No placeholders."
+	},
+	"mobile.projects.milestone.edit_title": {
+		"role": "heading",
+		"note": "Title of the milestone editor sheet when editing an existing milestone. Keep under ~24 characters. No placeholders."
+	},
+	"mobile.projects.milestone.add_submit": {
+		"role": "button",
+		"note": "Submit button in the milestone editor when adding a new milestone (editing uses the shared Save). One verb, keep under ~12 characters. No placeholders."
+	},
+	"mobile.projects.milestone.remove": {
+		"role": "button",
+		"note": "Destructive button in the milestone editor AND the title of the confirm dialog it opens; both must read the same. Keep under ~24 characters. No placeholders."
+	},
+	"mobile.projects.milestone.remove_confirm": {
+		"role": "confirm",
+		"note": "Destructive confirm button in the Remove milestone dialog. One verb, keep under ~12 characters. No placeholders."
+	},
+	"mobile.projects.milestone.name": {
+		"role": "meta",
+		"note": "Field label for the milestone name in the milestone editor. The name is the milestone's key. One word. No placeholders."
+	},
+	"mobile.projects.milestone.name_placeholder": {
+		"role": "help",
+		"note": "Placeholder example of a milestone name in the milestone editor: a short lowercase example of a project phase, translated naturally (it is an example, not an identifier). Keep under ~20 characters. No placeholders."
+	},
+	"mobile.projects.milestone.target_date": {
+		"role": "meta",
+		"note": "Field label for the milestone's optional due date in the milestone editor. Keep under ~20 characters. No placeholders."
+	},
+	"mobile.projects.milestone.target_date_placeholder": {
+		"role": "help",
+		"note": "Input-mask hint for the target date field. The field only accepts ISO 8601 (year-month-day, digits, hyphens), so keep the order year, month, day and the hyphens; translate only the letters if your language abbreviates year/month/day differently. Keep 10 characters. No placeholders."
+	},
+	"mobile.projects.milestone.target_date_help": {
+		"role": "help",
+		"note": "Help line under the target date field explaining how to remove a due date. One sentence. No placeholders."
+	},
+	"mobile.projects.milestone.reopen_hint": {
+		"role": "help",
+		"note": "Screen-reader hint on a completed milestone's checkbox row: what activating it does. Third-person present, no final period (platform hint convention). No placeholders."
+	},
+	"mobile.projects.milestone.complete_hint": {
+		"role": "help",
+		"note": "Screen-reader hint on an open milestone's checkbox row: what activating it does. Third-person present, no final period. No placeholders."
+	},
+	"mobile.projects.milestone.edit_label": {
+		"role": "button",
+		"note": "Screen-reader name of the pencil button beside a milestone. {name} is the milestone's own name (user data, never translated). Keep the placeholder. Short."
 	}
 }

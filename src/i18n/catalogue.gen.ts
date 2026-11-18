@@ -76,10 +76,12 @@ export type CatalogueKey =
 	| "mobile.chrome.new_chat"
 	| "mobile.common.back"
 	| "mobile.common.cancel"
+	| "mobile.common.close"
 	| "mobile.common.copied"
 	| "mobile.common.copy"
 	| "mobile.common.copy_command_hint"
 	| "mobile.common.done"
+	| "mobile.common.loading"
 	| "mobile.common.not_found.action"
 	| "mobile.common.not_found.headline"
 	| "mobile.common.not_found.next"
@@ -485,7 +487,30 @@ export type CatalogueKey =
 	| "mobile.projects.create.tags_placeholder"
 	| "mobile.projects.create.title"
 	| "mobile.projects.delete_body"
+	| "mobile.projects.detail.delete"
+	| "mobile.projects.detail.delete_confirm"
+	| "mobile.projects.detail.gone"
+	| "mobile.projects.detail.load_failed"
+	| "mobile.projects.detail.milestones_empty"
+	| "mobile.projects.detail.sessions_empty"
+	| "mobile.projects.detail.title_fallback"
 	| "mobile.projects.draft_kept_note"
+	| "mobile.projects.empty.headline"
+	| "mobile.projects.empty.next"
+	| "mobile.projects.list.load_failed"
+	| "mobile.projects.milestone.add"
+	| "mobile.projects.milestone.add_submit"
+	| "mobile.projects.milestone.complete_hint"
+	| "mobile.projects.milestone.edit_label"
+	| "mobile.projects.milestone.edit_title"
+	| "mobile.projects.milestone.name"
+	| "mobile.projects.milestone.name_placeholder"
+	| "mobile.projects.milestone.remove"
+	| "mobile.projects.milestone.remove_confirm"
+	| "mobile.projects.milestone.reopen_hint"
+	| "mobile.projects.milestone.target_date"
+	| "mobile.projects.milestone.target_date_help"
+	| "mobile.projects.milestone.target_date_placeholder"
 	| "mobile.projects.milestone_slash_note"
 	| "mobile.projects.milestones.count"
 	| "mobile.projects.milestones.none"
@@ -816,6 +841,11 @@ export type CatalogueKey =
 	| "mobile.sidebar.order_by"
 	| "mobile.sidebar.outbox_failed"
 	| "mobile.sidebar.outbox_sending"
+	| "mobile.sidebar.row.agents"
+	| "mobile.sidebar.row.asks"
+	| "mobile.sidebar.row.asks_not_blocker"
+	| "mobile.sidebar.row.new"
+	| "mobile.sidebar.row.todos"
 	| "mobile.sidebar.section.older"
 	| "mobile.sidebar.section.pinned"
 	| "mobile.sidebar.section.running"
@@ -825,6 +855,16 @@ export type CatalogueKey =
 	| "mobile.sidebar.settings_heading"
 	| "mobile.sidebar.show_ended"
 	| "mobile.sidebar.show_ended_hint"
+	| "mobile.sidebar.tags.announcement"
+	| "mobile.sidebar.tags.empty_headline"
+	| "mobile.sidebar.tags.empty_next"
+	| "mobile.sidebar.tags.load_failed_body"
+	| "mobile.sidebar.tags.load_failed_title"
+	| "mobile.sidebar.tags.remove_all"
+	| "mobile.sidebar.tags.remove_all_body"
+	| "mobile.sidebar.tags.remove_all_confirm"
+	| "mobile.sidebar.tags.remove_all_title"
+	| "mobile.sidebar.tags.saving"
 	| "mobile.sidebar.time_basis"
 	| "mobile.sidebar.view_options"
 	| "mobile.signin.failed"
@@ -1144,9 +1184,11 @@ export type NoParamKey =
 	| "mobile.chrome.new_chat"
 	| "mobile.common.back"
 	| "mobile.common.cancel"
+	| "mobile.common.close"
 	| "mobile.common.copied"
 	| "mobile.common.copy"
 	| "mobile.common.done"
+	| "mobile.common.loading"
 	| "mobile.common.not_found.action"
 	| "mobile.common.not_found.headline"
 	| "mobile.common.not_found.next"
@@ -1504,7 +1546,28 @@ export type NoParamKey =
 	| "mobile.projects.create.tags_help"
 	| "mobile.projects.create.tags_placeholder"
 	| "mobile.projects.create.title"
+	| "mobile.projects.detail.delete"
+	| "mobile.projects.detail.delete_confirm"
+	| "mobile.projects.detail.gone"
+	| "mobile.projects.detail.load_failed"
+	| "mobile.projects.detail.milestones_empty"
+	| "mobile.projects.detail.sessions_empty"
+	| "mobile.projects.detail.title_fallback"
 	| "mobile.projects.draft_kept_note"
+	| "mobile.projects.empty.headline"
+	| "mobile.projects.list.load_failed"
+	| "mobile.projects.milestone.add"
+	| "mobile.projects.milestone.add_submit"
+	| "mobile.projects.milestone.complete_hint"
+	| "mobile.projects.milestone.edit_title"
+	| "mobile.projects.milestone.name"
+	| "mobile.projects.milestone.name_placeholder"
+	| "mobile.projects.milestone.remove"
+	| "mobile.projects.milestone.remove_confirm"
+	| "mobile.projects.milestone.reopen_hint"
+	| "mobile.projects.milestone.target_date"
+	| "mobile.projects.milestone.target_date_help"
+	| "mobile.projects.milestone.target_date_placeholder"
 	| "mobile.projects.milestone_slash_note"
 	| "mobile.projects.milestones.none"
 	| "mobile.projects.project_name_hint"
@@ -1762,6 +1825,7 @@ export type NoParamKey =
 	| "mobile.sidebar.order_by"
 	| "mobile.sidebar.outbox_failed"
 	| "mobile.sidebar.outbox_sending"
+	| "mobile.sidebar.row.new"
 	| "mobile.sidebar.section.older"
 	| "mobile.sidebar.section.pinned"
 	| "mobile.sidebar.section.running"
@@ -1771,6 +1835,15 @@ export type NoParamKey =
 	| "mobile.sidebar.settings_heading"
 	| "mobile.sidebar.show_ended"
 	| "mobile.sidebar.show_ended_hint"
+	| "mobile.sidebar.tags.empty_headline"
+	| "mobile.sidebar.tags.empty_next"
+	| "mobile.sidebar.tags.load_failed_body"
+	| "mobile.sidebar.tags.load_failed_title"
+	| "mobile.sidebar.tags.remove_all"
+	| "mobile.sidebar.tags.remove_all_body"
+	| "mobile.sidebar.tags.remove_all_confirm"
+	| "mobile.sidebar.tags.remove_all_title"
+	| "mobile.sidebar.tags.saving"
 	| "mobile.sidebar.time_basis"
 	| "mobile.sidebar.view_options"
 	| "mobile.signin.failed"
@@ -2042,10 +2115,12 @@ export type MessageParams = {
 	"mobile.chrome.new_chat": NoParams;
 	"mobile.common.back": NoParams;
 	"mobile.common.cancel": NoParams;
+	"mobile.common.close": NoParams;
 	"mobile.common.copied": NoParams;
 	"mobile.common.copy": NoParams;
 	"mobile.common.copy_command_hint": { label: string | number };
 	"mobile.common.done": NoParams;
+	"mobile.common.loading": NoParams;
 	"mobile.common.not_found.action": NoParams;
 	"mobile.common.not_found.headline": NoParams;
 	"mobile.common.not_found.next": NoParams;
@@ -2451,7 +2526,30 @@ export type MessageParams = {
 	"mobile.projects.create.tags_placeholder": NoParams;
 	"mobile.projects.create.title": NoParams;
 	"mobile.projects.delete_body": { name: string | number };
+	"mobile.projects.detail.delete": NoParams;
+	"mobile.projects.detail.delete_confirm": NoParams;
+	"mobile.projects.detail.gone": NoParams;
+	"mobile.projects.detail.load_failed": NoParams;
+	"mobile.projects.detail.milestones_empty": NoParams;
+	"mobile.projects.detail.sessions_empty": NoParams;
+	"mobile.projects.detail.title_fallback": NoParams;
 	"mobile.projects.draft_kept_note": NoParams;
+	"mobile.projects.empty.headline": NoParams;
+	"mobile.projects.empty.next": { action: string | number };
+	"mobile.projects.list.load_failed": NoParams;
+	"mobile.projects.milestone.add": NoParams;
+	"mobile.projects.milestone.add_submit": NoParams;
+	"mobile.projects.milestone.complete_hint": NoParams;
+	"mobile.projects.milestone.edit_label": { name: string | number };
+	"mobile.projects.milestone.edit_title": NoParams;
+	"mobile.projects.milestone.name": NoParams;
+	"mobile.projects.milestone.name_placeholder": NoParams;
+	"mobile.projects.milestone.remove": NoParams;
+	"mobile.projects.milestone.remove_confirm": NoParams;
+	"mobile.projects.milestone.reopen_hint": NoParams;
+	"mobile.projects.milestone.target_date": NoParams;
+	"mobile.projects.milestone.target_date_help": NoParams;
+	"mobile.projects.milestone.target_date_placeholder": NoParams;
 	"mobile.projects.milestone_slash_note": NoParams;
 	"mobile.projects.milestones.count": { total: string | number; completed: number };
 	"mobile.projects.milestones.none": NoParams;
@@ -2782,6 +2880,11 @@ export type MessageParams = {
 	"mobile.sidebar.order_by": NoParams;
 	"mobile.sidebar.outbox_failed": NoParams;
 	"mobile.sidebar.outbox_sending": NoParams;
+	"mobile.sidebar.row.agents": { count: number };
+	"mobile.sidebar.row.asks": { count: number };
+	"mobile.sidebar.row.asks_not_blocker": { asks: string | number };
+	"mobile.sidebar.row.new": NoParams;
+	"mobile.sidebar.row.todos": { count: number };
 	"mobile.sidebar.section.older": NoParams;
 	"mobile.sidebar.section.pinned": NoParams;
 	"mobile.sidebar.section.running": NoParams;
@@ -2791,6 +2894,16 @@ export type MessageParams = {
 	"mobile.sidebar.settings_heading": NoParams;
 	"mobile.sidebar.show_ended": NoParams;
 	"mobile.sidebar.show_ended_hint": NoParams;
+	"mobile.sidebar.tags.announcement": { names: string | number };
+	"mobile.sidebar.tags.empty_headline": NoParams;
+	"mobile.sidebar.tags.empty_next": NoParams;
+	"mobile.sidebar.tags.load_failed_body": NoParams;
+	"mobile.sidebar.tags.load_failed_title": NoParams;
+	"mobile.sidebar.tags.remove_all": NoParams;
+	"mobile.sidebar.tags.remove_all_body": NoParams;
+	"mobile.sidebar.tags.remove_all_confirm": NoParams;
+	"mobile.sidebar.tags.remove_all_title": NoParams;
+	"mobile.sidebar.tags.saving": NoParams;
 	"mobile.sidebar.time_basis": NoParams;
 	"mobile.sidebar.view_options": NoParams;
 	"mobile.signin.failed": NoParams;
@@ -3131,10 +3244,12 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.chrome.new_chat": "New chat",
 	"mobile.common.back": "Back",
 	"mobile.common.cancel": "Cancel",
+	"mobile.common.close": "Close",
 	"mobile.common.copied": "Copied",
 	"mobile.common.copy": "Copy",
 	"mobile.common.copy_command_hint": "Copies the {label} command",
 	"mobile.common.done": "Done",
+	"mobile.common.loading": "Loading",
 	"mobile.common.not_found.action": "Back to sessions",
 	"mobile.common.not_found.headline": "That page does not exist.",
 	"mobile.common.not_found.next": "Go back to your sessions to carry on.",
@@ -3540,7 +3655,30 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.projects.create.tags_placeholder": "ios, q4",
 	"mobile.projects.create.title": "New project",
 	"mobile.projects.delete_body": "Delete {name}? The project row goes for good. Its linked sessions and their transcripts are not touched.",
+	"mobile.projects.detail.delete": "Delete project",
+	"mobile.projects.detail.delete_confirm": "Delete",
+	"mobile.projects.detail.gone": "That project is no longer there.",
+	"mobile.projects.detail.load_failed": "We couldn't read that project just now.",
+	"mobile.projects.detail.milestones_empty": "No milestones.",
+	"mobile.projects.detail.sessions_empty": "No sessions linked.",
+	"mobile.projects.detail.title_fallback": "Project",
 	"mobile.projects.draft_kept_note": "Kept from your last visit. Clear the fields to start something new.",
+	"mobile.projects.empty.headline": "No projects yet.",
+	"mobile.projects.empty.next": "Start one with {action}, or ask an agent to open one.",
+	"mobile.projects.list.load_failed": "We couldn't read your projects just now.",
+	"mobile.projects.milestone.add": "Add milestone",
+	"mobile.projects.milestone.add_submit": "Add",
+	"mobile.projects.milestone.complete_hint": "Marks the milestone complete",
+	"mobile.projects.milestone.edit_label": "Edit {name}",
+	"mobile.projects.milestone.edit_title": "Edit milestone",
+	"mobile.projects.milestone.name": "Name",
+	"mobile.projects.milestone.name_placeholder": "release cut",
+	"mobile.projects.milestone.remove": "Remove milestone",
+	"mobile.projects.milestone.remove_confirm": "Remove",
+	"mobile.projects.milestone.reopen_hint": "Reopens the milestone",
+	"mobile.projects.milestone.target_date": "Target date",
+	"mobile.projects.milestone.target_date_help": "Empty the box to clear the date.",
+	"mobile.projects.milestone.target_date_placeholder": "YYYY-MM-DD",
 	"mobile.projects.milestone_slash_note": "Milestone names can't contain a slash. A milestone with one could never be removed.",
 	"mobile.projects.milestones.count": "{completed} of {total} milestones",
 	"mobile.projects.milestones.none": "no milestones",
@@ -3871,6 +4009,11 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.sidebar.order_by": "Order by",
 	"mobile.sidebar.outbox_failed": "Message stopped sending",
 	"mobile.sidebar.outbox_sending": "Sending a message…",
+	"mobile.sidebar.row.agents": "{count, plural, one {# agent} other {# agents}}",
+	"mobile.sidebar.row.asks": "{count, plural, one {# ask} other {# asks}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}, not a blocker",
+	"mobile.sidebar.row.new": "new",
+	"mobile.sidebar.row.todos": "{count, plural, one {# todo} other {# todos}}",
 	"mobile.sidebar.section.older": "Older",
 	"mobile.sidebar.section.pinned": "Pinned",
 	"mobile.sidebar.section.running": "Running",
@@ -3880,6 +4023,16 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.sidebar.settings_heading": "Sidebar",
 	"mobile.sidebar.show_ended": "Show ended sessions",
 	"mobile.sidebar.show_ended_hint": "Pinned and running conversations always show.",
+	"mobile.sidebar.tags.announcement": "Tags: {names}",
+	"mobile.sidebar.tags.empty_headline": "No categories yet.",
+	"mobile.sidebar.tags.empty_next": "Created on desktop.",
+	"mobile.sidebar.tags.load_failed_body": "We couldn't read the list of categories just now. Try again in a moment.",
+	"mobile.sidebar.tags.load_failed_title": "Your categories didn't load",
+	"mobile.sidebar.tags.remove_all": "Remove all tags",
+	"mobile.sidebar.tags.remove_all_body": "This clears every category from this conversation. The categories themselves stay in the desktop app.",
+	"mobile.sidebar.tags.remove_all_confirm": "Remove",
+	"mobile.sidebar.tags.remove_all_title": "Remove all tags?",
+	"mobile.sidebar.tags.saving": "Saving…",
 	"mobile.sidebar.time_basis": "Time basis",
 	"mobile.sidebar.view_options": "View options",
 	"mobile.signin.failed": "We could not finish signing in.",
@@ -4205,10 +4358,12 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.chrome.new_chat": { role: "button", note: "Accessible name of the square-pen button in the sidebar header that starts a new conversation. No final full stop." },
 	"mobile.common.back": { role: "button", note: "Affordance label of a text button that returns to the previous screen. A verb used as a label, no final full stop. LIMIT: navigation only; never 'undo', never a step back inside a form, and never used where the destination is named (a button saying 'Back to the library' is its own string)." },
 	"mobile.common.cancel": { role: "button", note: "Aborts the current sheet or form without saving; a verb used as a label, no final full stop. LIMIT: never the confirm action of a destructive dialog and never a dialog's 'keep it' choice that needs its own wording; screens with different intent use their own key." },
+	"mobile.common.close": { role: "button", note: "Screen-reader name of the close (X) control on every bottom sheet and the full-screen sheet. Verb, imperative; one short word, keep under ~12 characters. No placeholders." },
 	"mobile.common.copied": { role: "status", note: "The same button's label right after the copy succeeded. One word, no final full stop." },
 	"mobile.common.copy": { role: "button", note: "Small button beside a command the reader runs on their computer (own-tunnel and Radient set-up screens): copies the command to the clipboard. One word, no final full stop." },
 	"mobile.common.copy_command_hint": { role: "help", note: "Screen-reader hint on the Copy button beside a command block. {label} is the block's own label, already translated (e.g. \"Install on the computer\") or a product name (\"Cloudflare\", \"ngrok\"). No final full stop." },
 	"mobile.common.done": { role: "button", note: "Closes a sheet whose choices already applied as the user made them; nothing is submitted by pressing it. A verb used as a label, no final full stop. LIMIT: not a save or submit action, which is 'Save'." },
+	"mobile.common.loading": { role: "status", note: "Screen-reader name announced for a loading skeleton placeholder on any screen. Status word, no trailing ellipsis; keep under ~16 characters. No placeholders." },
 	"mobile.common.not_found.action": { role: "button", note: "Button on the not-found screen that goes to the session list. Short, no final full stop." },
 	"mobile.common.not_found.headline": { role: "status", note: "Empty-state headline on the not-found screen. Sentence with a final full stop." },
 	"mobile.common.not_found.next": { role: "help", note: "Empty-state follow-up on the not-found screen, pointing to the session list. One sentence." },
@@ -4614,7 +4769,30 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.projects.create.tags_placeholder": { role: "help", note: "Examples of two tags, separated by a comma; use valid short tag examples." },
 	"mobile.projects.create.title": { role: "heading", note: "Title of the sheet for creating a project." },
 	"mobile.projects.delete_body": { role: "confirm", note: "Destructive confirmation. Placeholder {name} is the project's display name (user text, may contain spaces). Both halves are load-bearing: what the delete destroys and what it leaves alone." },
+	"mobile.projects.detail.delete": { role: "button", note: "Destructive button at the foot of Project detail AND the title of the confirm dialog it opens; both must read the same. Keep under ~24 characters. No placeholders." },
+	"mobile.projects.detail.delete_confirm": { role: "confirm", note: "Destructive confirm button in the Delete project dialog. One verb, keep under ~12 characters. No placeholders." },
+	"mobile.projects.detail.gone": { role: "status", note: "Error shown on Project detail when the project was deleted or renamed elsewhere (a 404). One sentence. No placeholders." },
+	"mobile.projects.detail.load_failed": { role: "status", note: "Error alert on Project detail when the computer could not be reached; a Try again button follows. One sentence, blameless. No placeholders." },
+	"mobile.projects.detail.milestones_empty": { role: "status", note: "Muted line under the milestones section heading of Project detail when the project has none. Short sentence, keep under ~24 characters. No placeholders." },
+	"mobile.projects.detail.sessions_empty": { role: "status", note: "Muted line under the linked sessions section heading of Project detail when no conversation is linked. Short sentence, keep under ~28 characters. No placeholders." },
+	"mobile.projects.detail.title_fallback": { role: "heading", note: "Screen title on Project detail while the project is still loading, before its name is known. One word, keep under ~16 characters. No placeholders." },
 	"mobile.projects.draft_kept_note": { role: "help", note: "Tells the reader a dismissed form kept their unfinished work and how to discard it. Applies to both the create sheet and the milestone editor." },
+	"mobile.projects.empty.headline": { role: "heading", note: "Empty-state headline on the Projects list when the computer has no projects. Short sentence, keep under ~32 characters. No placeholders." },
+	"mobile.projects.empty.next": { role: "help", note: "Empty-state second line on the Projects list. {action} is the header button label (mobile.projects.create.title, \"New project\") so the sentence and the button never drift; keep it as a quoted-or-plain button name in your grammar. One sentence." },
+	"mobile.projects.list.load_failed": { role: "status", note: "Error alert on the Projects list when the computer could not be reached; a Try again button follows. One sentence, plain and blameless. No placeholders." },
+	"mobile.projects.milestone.add": { role: "button", note: "Button on Project detail that opens the milestone editor, AND that editor sheet's title when adding. Keep under ~24 characters. No placeholders." },
+	"mobile.projects.milestone.add_submit": { role: "button", note: "Submit button in the milestone editor when adding a new milestone (editing uses the shared Save). One verb, keep under ~12 characters. No placeholders." },
+	"mobile.projects.milestone.complete_hint": { role: "help", note: "Screen-reader hint on an open milestone's checkbox row: what activating it does. Third-person present, no final period. No placeholders." },
+	"mobile.projects.milestone.edit_label": { role: "button", note: "Screen-reader name of the pencil button beside a milestone. {name} is the milestone's own name (user data, never translated). Keep the placeholder. Short." },
+	"mobile.projects.milestone.edit_title": { role: "heading", note: "Title of the milestone editor sheet when editing an existing milestone. Keep under ~24 characters. No placeholders." },
+	"mobile.projects.milestone.name": { role: "meta", note: "Field label for the milestone name in the milestone editor. The name is the milestone's key. One word. No placeholders." },
+	"mobile.projects.milestone.name_placeholder": { role: "help", note: "Placeholder example of a milestone name in the milestone editor: a short lowercase example of a project phase, translated naturally (it is an example, not an identifier). Keep under ~20 characters. No placeholders." },
+	"mobile.projects.milestone.remove": { role: "button", note: "Destructive button in the milestone editor AND the title of the confirm dialog it opens; both must read the same. Keep under ~24 characters. No placeholders." },
+	"mobile.projects.milestone.remove_confirm": { role: "confirm", note: "Destructive confirm button in the Remove milestone dialog. One verb, keep under ~12 characters. No placeholders." },
+	"mobile.projects.milestone.reopen_hint": { role: "help", note: "Screen-reader hint on a completed milestone's checkbox row: what activating it does. Third-person present, no final period (platform hint convention). No placeholders." },
+	"mobile.projects.milestone.target_date": { role: "meta", note: "Field label for the milestone's optional due date in the milestone editor. Keep under ~20 characters. No placeholders." },
+	"mobile.projects.milestone.target_date_help": { role: "help", note: "Help line under the target date field explaining how to remove a due date. One sentence. No placeholders." },
+	"mobile.projects.milestone.target_date_placeholder": { role: "help", note: "Input-mask hint for the target date field. The field only accepts ISO 8601 (year-month-day, digits, hyphens), so keep the order year, month, day and the hyphens; translate only the letters if your language abbreviates year/month/day differently. Keep 10 characters. No placeholders." },
 	"mobile.projects.milestone_slash_note": { role: "help", note: "Explains why a milestone name may not contain a slash. Names the consequence the reader can act on; never mention routes, paths or encoding." },
 	"mobile.projects.milestones.count": { role: "meta", note: "Milestone progress from the relay's own two counts. {completed} and {total} are non-negative integers and both must survive translation. ENGLISH needs no plural agreement because its noun is fixed to the count phrase; a locale whose noun agrees with the completed count must pluralize on {completed} (French: one/many/other) and keep {total} a plain placeholder inside every branch — the generator fails a translation that drops or retypes either name." },
 	"mobile.projects.milestones.none": { role: "meta", note: "Lower-case fragment shown where a milestone count would go when the relay reports zero total milestones. It is joined with a session count, so it carries no final full stop." },
@@ -4945,6 +5123,11 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.sidebar.order_by": { role: "heading", note: "Label of the choice of how conversations are ordered in the drawer. Desktop: ui.chat.sidebar_view.order_by." },
 	"mobile.sidebar.outbox_failed": { role: "status", note: "Small line in danger colour on a conversation row in the conversation list when the phone stopped trying to deliver a message to that conversation and needs the user (Retry or Discard inside the conversation). Delivery is UNKNOWN: must not claim the message was definitely not received. Also read aloud as part of the row." },
 	"mobile.sidebar.outbox_sending": { role: "status", note: "Small line on a conversation row in the conversation list while the phone is still delivering a message the user sent to that conversation (retrying in the background). Also read aloud as part of the row." },
+	"mobile.sidebar.row.agents": { role: "meta", note: "Count chip on a conversation row: running subagents. Monospace meta strip that yields at large text; keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them." },
+	"mobile.sidebar.row.asks": { role: "meta", note: "Count chip on a conversation row: open asks (questions/approvals queued for the operator). Monospace meta strip, never truncated: keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them." },
+	"mobile.sidebar.row.asks_not_blocker": { role: "meta", note: "Screen-reader name of the asks chip. {asks} is the already-formatted count (mobile.sidebar.row.asks, e.g. \"2 asks\"); \"not a blocker\" says the agent keeps working, it is NOT waiting. Keep the placeholder." },
+	"mobile.sidebar.row.new": { role: "status", note: "Accent marker on a conversation row with unread activity. One lowercase word, keep under ~8 characters (sits in a crowded meta strip). No placeholders." },
+	"mobile.sidebar.row.todos": { role: "meta", note: "Count chip on a conversation row: open todo items in the conversation's task list. Monospace meta strip that yields at large text; keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them." },
 	"mobile.sidebar.section.older": { role: "heading", note: "Drawer section heading for everything older than this week. Desktop: ui.chat.sidebar_view.section.older." },
 	"mobile.sidebar.section.pinned": { role: "heading", note: "Drawer section heading for conversations the reader pinned; also the switch label that shows or hides it. Desktop: ui.chat.sidebar_view.section.pinned." },
 	"mobile.sidebar.section.running": { role: "heading", note: "Drawer section heading for conversations with a turn in flight or waiting on the reader. Desktop: ui.chat.sidebar_view.section.running." },
@@ -4954,6 +5137,16 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.sidebar.settings_heading": { role: "heading", note: "Heading of the Settings section holding every drawer (sidebar) view option." },
 	"mobile.sidebar.show_ended": { role: "button", note: "Switch label: whether conversations whose session has ended stay in the drawer. Phone-only setting; on by default." },
 	"mobile.sidebar.show_ended_hint": { role: "help", note: "One sentence under the 'Show ended sessions' switch: turning it off never hides a pinned or running conversation." },
+	"mobile.sidebar.tags.announcement": { role: "meta", note: "Screen-reader name of a conversation row's tag line. {names} is the operator's own category names joined with \", \" (user data, never translated). Keep the placeholder; the \"Tags\" word should match relay.chrome.row.tags." },
+	"mobile.sidebar.tags.empty_headline": { role: "heading", note: "Empty-state headline in the Tags sheet when no tag categories exist. Short sentence, keep under ~28 characters; shown at 200% text in a ~300 pt sheet. No placeholders." },
+	"mobile.sidebar.tags.empty_next": { role: "help", note: "Empty-state second line in the Tags sheet: categories are created in the desktop app, not on the phone. Very short (the 200% frame cut a longer line); keep under ~24 characters. No placeholders." },
+	"mobile.sidebar.tags.load_failed_body": { role: "help", note: "Body of the error alert in the Tags sheet; a pinned Try again button follows. Two short sentences, blameless. No placeholders." },
+	"mobile.sidebar.tags.load_failed_title": { role: "heading", note: "Title of the error alert in the Tags sheet when the category list could not be read. No final period. Keep under ~32 characters. No placeholders." },
+	"mobile.sidebar.tags.remove_all": { role: "button", note: "Destructive button in the conversation Tags sheet that clears every category from this conversation (opens a confirm). Keep under ~24 characters. No placeholders." },
+	"mobile.sidebar.tags.remove_all_body": { role: "help", note: "Body of the Remove all tags confirm dialog: the assignment is cleared, the categories are not deleted. Two sentences. No placeholders." },
+	"mobile.sidebar.tags.remove_all_confirm": { role: "confirm", note: "Destructive confirm button of the Remove all tags dialog. One verb, keep under ~12 characters. No placeholders." },
+	"mobile.sidebar.tags.remove_all_title": { role: "heading", note: "Title of the confirm dialog opened by Remove all tags. Question, keep under ~28 characters. No placeholders." },
+	"mobile.sidebar.tags.saving": { role: "status", note: "Muted progress word shown beside a tag row (and under Remove all tags) while the write is in flight. Keep the single ellipsis character. Keep under ~12 characters. No placeholders." },
 	"mobile.sidebar.time_basis": { role: "heading", note: "Label of the choice of which clock the sections, the row times and the order read. Desktop: ui.chat.sidebar_view.time_basis." },
 	"mobile.sidebar.view_options": { role: "button", note: "Accessible name of the small sliders icon beside the drawer's search pill, and the title of the compact sheet it opens. Mirrors the desktop's 'View options' (ui.chat.sidebar.header.view_options)." },
 	"mobile.signin.failed": { role: "status", note: "Unexpected sign-in or credential persistence failure; never show runtime messages or credentials." },
@@ -5293,10 +5486,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "Nuevo chat",
 		"mobile.common.back": "Atrás",
 		"mobile.common.cancel": "Cancelar",
+		"mobile.common.close": "Cerrar",
 		"mobile.common.copied": "Copiado",
 		"mobile.common.copy": "Copiar",
 		"mobile.common.copy_command_hint": "Copia el comando “{label}”",
 		"mobile.common.done": "Hecho",
+		"mobile.common.loading": "Cargando",
 		"mobile.common.not_found.action": "Volver a las sesiones",
 		"mobile.common.not_found.headline": "Esa página no existe.",
 		"mobile.common.not_found.next": "Vuelve a tus sesiones para continuar.",
@@ -5702,7 +5897,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "Nuevo proyecto",
 		"mobile.projects.delete_body": "¿Eliminar {name}? La fila del proyecto se borra para siempre. Sus sesiones vinculadas y sus transcripciones no se tocan.",
+		"mobile.projects.detail.delete": "Eliminar proyecto",
+		"mobile.projects.detail.delete_confirm": "Eliminar",
+		"mobile.projects.detail.gone": "Ese proyecto ya no está disponible.",
+		"mobile.projects.detail.load_failed": "No pudimos leer ese proyecto ahora mismo.",
+		"mobile.projects.detail.milestones_empty": "No hay hitos.",
+		"mobile.projects.detail.sessions_empty": "No hay sesiones vinculadas.",
+		"mobile.projects.detail.title_fallback": "Proyecto",
 		"mobile.projects.draft_kept_note": "Se conservó de tu última visita. Vacía los campos para empezar algo nuevo.",
+		"mobile.projects.empty.headline": "Aún no hay proyectos.",
+		"mobile.projects.empty.next": "Crea uno con “{action}” o pide a un agente que abra uno.",
+		"mobile.projects.list.load_failed": "No pudimos leer tus proyectos ahora mismo.",
+		"mobile.projects.milestone.add": "Añadir hito",
+		"mobile.projects.milestone.add_submit": "Añadir",
+		"mobile.projects.milestone.complete_hint": "Marca el hito como completado",
+		"mobile.projects.milestone.edit_label": "Editar {name}",
+		"mobile.projects.milestone.edit_title": "Editar hito",
+		"mobile.projects.milestone.name": "Nombre",
+		"mobile.projects.milestone.name_placeholder": "cierre de versión",
+		"mobile.projects.milestone.remove": "Quitar hito",
+		"mobile.projects.milestone.remove_confirm": "Quitar",
+		"mobile.projects.milestone.reopen_hint": "Reabre el hito",
+		"mobile.projects.milestone.target_date": "Fecha objetivo",
+		"mobile.projects.milestone.target_date_help": "Vacía el campo para quitar la fecha.",
+		"mobile.projects.milestone.target_date_placeholder": "AAAA-MM-DD",
 		"mobile.projects.milestone_slash_note": "Los nombres de hito no pueden contener una barra. Un hito con barra nunca podría quitarse.",
 		"mobile.projects.milestones.count": "{completed, plural, one {# hito de {total}} many {# de hitos de {total}} other {# hitos de {total}}}",
 		"mobile.projects.milestones.none": "sin hitos",
@@ -6033,6 +6251,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "Ordenar por",
 		"mobile.sidebar.outbox_failed": "El mensaje dejó de enviarse",
 		"mobile.sidebar.outbox_sending": "Enviando un mensaje…",
+		"mobile.sidebar.row.agents": "{count, plural, one {# agente} many {# de agentes} other {# agentes}}",
+		"mobile.sidebar.row.asks": "{count, plural, one {# pregunta} many {# de preguntas} other {# preguntas}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}, sin bloqueo",
+		"mobile.sidebar.row.new": "nueva",
+		"mobile.sidebar.row.todos": "{count, plural, one {# tarea} many {# de tareas} other {# tareas}}",
 		"mobile.sidebar.section.older": "Anteriores",
 		"mobile.sidebar.section.pinned": "Fijadas",
 		"mobile.sidebar.section.running": "En curso",
@@ -6042,6 +6265,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "Barra lateral",
 		"mobile.sidebar.show_ended": "Mostrar sesiones finalizadas",
 		"mobile.sidebar.show_ended_hint": "Las conversaciones fijadas y en curso siempre se muestran.",
+		"mobile.sidebar.tags.announcement": "Etiquetas: {names}",
+		"mobile.sidebar.tags.empty_headline": "Aún no hay categorías.",
+		"mobile.sidebar.tags.empty_next": "Créalas en tu máquina.",
+		"mobile.sidebar.tags.load_failed_body": "No pudimos leer la lista de categorías ahora mismo. Inténtalo de nuevo en un momento.",
+		"mobile.sidebar.tags.load_failed_title": "Tus categorías no se cargaron",
+		"mobile.sidebar.tags.remove_all": "Quitar las etiquetas",
+		"mobile.sidebar.tags.remove_all_body": "Esto quita todas las categorías de esta conversación. Las categorías siguen existiendo en la aplicación de escritorio.",
+		"mobile.sidebar.tags.remove_all_confirm": "Quitar",
+		"mobile.sidebar.tags.remove_all_title": "¿Quitar todas las etiquetas?",
+		"mobile.sidebar.tags.saving": "Guardando…",
 		"mobile.sidebar.time_basis": "Base temporal",
 		"mobile.sidebar.view_options": "Opciones de vista",
 		"mobile.signin.failed": "No pudimos iniciar sesión.",
@@ -6365,10 +6598,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "Nouveau chat",
 		"mobile.common.back": "Retour",
 		"mobile.common.cancel": "Annuler",
+		"mobile.common.close": "Fermer",
 		"mobile.common.copied": "Copié",
 		"mobile.common.copy": "Copier",
 		"mobile.common.copy_command_hint": "Copie la commande « {label} »",
 		"mobile.common.done": "Terminé",
+		"mobile.common.loading": "Chargement",
 		"mobile.common.not_found.action": "Retour aux sessions",
 		"mobile.common.not_found.headline": "Cette page n’existe pas.",
 		"mobile.common.not_found.next": "Revenez à vos sessions pour continuer.",
@@ -6774,7 +7009,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "Nouveau projet",
 		"mobile.projects.delete_body": "Supprimer {name} ? La ligne du projet sera définitivement supprimée. Ses sessions liées et leurs transcriptions ne seront pas modifiées.",
+		"mobile.projects.detail.delete": "Supprimer le projet",
+		"mobile.projects.detail.delete_confirm": "Supprimer",
+		"mobile.projects.detail.gone": "Ce projet n’est plus disponible.",
+		"mobile.projects.detail.load_failed": "Impossible de lire ce projet pour le moment.",
+		"mobile.projects.detail.milestones_empty": "Aucun jalon.",
+		"mobile.projects.detail.sessions_empty": "Aucune session liée.",
+		"mobile.projects.detail.title_fallback": "Projet",
 		"mobile.projects.draft_kept_note": "Conservé depuis votre dernière visite. Effacez les champs pour repartir de zéro.",
+		"mobile.projects.empty.headline": "Aucun projet pour l’instant.",
+		"mobile.projects.empty.next": "Créez-en un avec « {action} », ou demandez à un agent d’en ouvrir un.",
+		"mobile.projects.list.load_failed": "Impossible de lire vos projets pour le moment.",
+		"mobile.projects.milestone.add": "Ajouter un jalon",
+		"mobile.projects.milestone.add_submit": "Ajouter",
+		"mobile.projects.milestone.complete_hint": "Marque le jalon comme terminé",
+		"mobile.projects.milestone.edit_label": "Modifier {name}",
+		"mobile.projects.milestone.edit_title": "Modifier le jalon",
+		"mobile.projects.milestone.name": "Nom",
+		"mobile.projects.milestone.name_placeholder": "gel de version",
+		"mobile.projects.milestone.remove": "Retirer le jalon",
+		"mobile.projects.milestone.remove_confirm": "Retirer",
+		"mobile.projects.milestone.reopen_hint": "Rouvre le jalon",
+		"mobile.projects.milestone.target_date": "Échéance",
+		"mobile.projects.milestone.target_date_help": "Videz le champ pour effacer la date.",
+		"mobile.projects.milestone.target_date_placeholder": "AAAA-MM-JJ",
 		"mobile.projects.milestone_slash_note": "Les noms de jalons ne peuvent pas contenir de barre oblique. Un jalon dont le nom en contient une ne pourrait jamais être supprimé.",
 		"mobile.projects.milestones.count": "{completed, plural, one {# jalon sur {total}} many {# de jalons sur {total}} other {# jalons sur {total}}}",
 		"mobile.projects.milestones.none": "aucun jalon",
@@ -7105,6 +7363,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "Trier par",
 		"mobile.sidebar.outbox_failed": "Envoi du message arrêté",
 		"mobile.sidebar.outbox_sending": "Envoi d’un message…",
+		"mobile.sidebar.row.agents": "{count, plural, one {# agent} many {# d’agents} other {# agents}}",
+		"mobile.sidebar.row.asks": "{count, plural, one {# question} many {# de questions} other {# questions}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}, sans blocage",
+		"mobile.sidebar.row.new": "nouvelle",
+		"mobile.sidebar.row.todos": "{count, plural, one {# tâche} many {# de tâches} other {# tâches}}",
 		"mobile.sidebar.section.older": "Plus anciennes",
 		"mobile.sidebar.section.pinned": "Épinglées",
 		"mobile.sidebar.section.running": "En cours",
@@ -7114,6 +7377,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "Barre latérale",
 		"mobile.sidebar.show_ended": "Afficher les sessions terminées",
 		"mobile.sidebar.show_ended_hint": "Les conversations épinglées et en cours restent toujours visibles.",
+		"mobile.sidebar.tags.announcement": "Tags : {names}",
+		"mobile.sidebar.tags.empty_headline": "Pas encore de catégorie.",
+		"mobile.sidebar.tags.empty_next": "À créer sur ordinateur.",
+		"mobile.sidebar.tags.load_failed_body": "Impossible de lire la liste des catégories pour le moment. Réessayez dans un instant.",
+		"mobile.sidebar.tags.load_failed_title": "Catégories non chargées",
+		"mobile.sidebar.tags.remove_all": "Retirer tous les tags",
+		"mobile.sidebar.tags.remove_all_body": "Toutes les catégories seront retirées de cette conversation. Les catégories elles-mêmes restent dans l’application de bureau.",
+		"mobile.sidebar.tags.remove_all_confirm": "Retirer",
+		"mobile.sidebar.tags.remove_all_title": "Retirer tous les tags ?",
+		"mobile.sidebar.tags.saving": "Enregistrement…",
 		"mobile.sidebar.time_basis": "Base temporelle",
 		"mobile.sidebar.view_options": "Options d’affichage",
 		"mobile.signin.failed": "Nous n’avons pas pu terminer la connexion.",
@@ -7437,10 +7710,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "नई चैट",
 		"mobile.common.back": "वापस",
 		"mobile.common.cancel": "रद्द करें",
+		"mobile.common.close": "बंद करें",
 		"mobile.common.copied": "कॉपी हो गया",
 		"mobile.common.copy": "कॉपी करें",
 		"mobile.common.copy_command_hint": "“{label}” वाली कमांड कॉपी करता है",
 		"mobile.common.done": "हो गया",
+		"mobile.common.loading": "लोड हो रहा है",
 		"mobile.common.not_found.action": "सत्रों पर लौटें",
 		"mobile.common.not_found.headline": "वह पेज मौजूद नहीं है।",
 		"mobile.common.not_found.next": "आगे बढ़ने के लिए अपने सत्रों पर लौटें।",
@@ -7846,7 +8121,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "नया प्रोजेक्ट",
 		"mobile.projects.delete_body": "{name} मिटाएँ? प्रोजेक्ट की पंक्ति हमेशा के लिए चली जाएगी। उससे जुड़े सत्रों और उनकी ट्रांसक्रिप्ट को छुआ नहीं जाएगा।",
+		"mobile.projects.detail.delete": "प्रोजेक्ट मिटाएँ",
+		"mobile.projects.detail.delete_confirm": "मिटाएँ",
+		"mobile.projects.detail.gone": "वह प्रोजेक्ट अब उपलब्ध नहीं है।",
+		"mobile.projects.detail.load_failed": "हम अभी वह प्रोजेक्ट नहीं पढ़ सके।",
+		"mobile.projects.detail.milestones_empty": "कोई पड़ाव नहीं।",
+		"mobile.projects.detail.sessions_empty": "कोई सत्र जुड़ा नहीं है।",
+		"mobile.projects.detail.title_fallback": "प्रोजेक्ट",
 		"mobile.projects.draft_kept_note": "पिछली बार से सुरक्षित रखा गया। कुछ नया शुरू करने के लिए फ़ील्ड खाली करें।",
+		"mobile.projects.empty.headline": "अभी कोई प्रोजेक्ट नहीं।",
+		"mobile.projects.empty.next": "“{action}” से एक प्रोजेक्ट शुरू करें, या किसी एजेंट से उसे बनाने को कहें।",
+		"mobile.projects.list.load_failed": "हम अभी आपके प्रोजेक्ट नहीं पढ़ सके।",
+		"mobile.projects.milestone.add": "पड़ाव जोड़ें",
+		"mobile.projects.milestone.add_submit": "जोड़ें",
+		"mobile.projects.milestone.complete_hint": "पड़ाव को पूरा चिह्नित करता है",
+		"mobile.projects.milestone.edit_label": "{name} संपादित करें",
+		"mobile.projects.milestone.edit_title": "पड़ाव संपादित करें",
+		"mobile.projects.milestone.name": "नाम",
+		"mobile.projects.milestone.name_placeholder": "पहला ड्राफ़्ट",
+		"mobile.projects.milestone.remove": "पड़ाव हटाएँ",
+		"mobile.projects.milestone.remove_confirm": "हटाएँ",
+		"mobile.projects.milestone.reopen_hint": "पड़ाव को फिर से खोलता है",
+		"mobile.projects.milestone.target_date": "लक्ष्य तारीख़",
+		"mobile.projects.milestone.target_date_help": "तारीख़ हटाने के लिए फ़ील्ड खाली करें।",
+		"mobile.projects.milestone.target_date_placeholder": "वववव-मम-दिदि",
 		"mobile.projects.milestone_slash_note": "पड़ाव के नाम में स्लैश नहीं हो सकता। स्लैश वाला पड़ाव कभी हटाया नहीं जा सकेगा।",
 		"mobile.projects.milestones.count": "{total} में से {completed} पड़ाव",
 		"mobile.projects.milestones.none": "कोई पड़ाव नहीं",
@@ -8177,6 +8475,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "क्रम चुनें",
 		"mobile.sidebar.outbox_failed": "संदेश भेजना रुक गया",
 		"mobile.sidebar.outbox_sending": "संदेश भेजा जा रहा है…",
+		"mobile.sidebar.row.agents": "{count, plural, one {# एजेंट} other {# एजेंट}}",
+		"mobile.sidebar.row.asks": "{count, plural, one {# सवाल} other {# सवाल}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}, एजेंट रुका नहीं है",
+		"mobile.sidebar.row.new": "नई",
+		"mobile.sidebar.row.todos": "{count, plural, one {# कार्य} other {# कार्य}}",
 		"mobile.sidebar.section.older": "पुराने",
 		"mobile.sidebar.section.pinned": "पिन किए हुए",
 		"mobile.sidebar.section.running": "चल रहे",
@@ -8186,6 +8489,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "साइडबार",
 		"mobile.sidebar.show_ended": "समाप्त सत्र दिखाएँ",
 		"mobile.sidebar.show_ended_hint": "पिन की हुई और चल रही बातचीत हमेशा दिखती हैं।",
+		"mobile.sidebar.tags.announcement": "टैग: {names}",
+		"mobile.sidebar.tags.empty_headline": "अभी कोई श्रेणी नहीं।",
+		"mobile.sidebar.tags.empty_next": "डेस्कटॉप ऐप में बनती हैं।",
+		"mobile.sidebar.tags.load_failed_body": "हम अभी श्रेणियों की सूची नहीं पढ़ सके। थोड़ी देर में फिर से कोशिश करें।",
+		"mobile.sidebar.tags.load_failed_title": "आपकी श्रेणियाँ लोड नहीं हुईं",
+		"mobile.sidebar.tags.remove_all": "सभी टैग हटाएँ",
+		"mobile.sidebar.tags.remove_all_body": "इससे इस बातचीत से सभी श्रेणियाँ हट जाती हैं। श्रेणियाँ ख़ुद डेस्कटॉप ऐप में बनी रहती हैं।",
+		"mobile.sidebar.tags.remove_all_confirm": "हटाएँ",
+		"mobile.sidebar.tags.remove_all_title": "सभी टैग हटाएँ?",
+		"mobile.sidebar.tags.saving": "सहेजा जा रहा है…",
 		"mobile.sidebar.time_basis": "समय का आधार",
 		"mobile.sidebar.view_options": "दृश्य विकल्प",
 		"mobile.signin.failed": "हम साइन-इन पूरा नहीं कर सके।",
@@ -8509,10 +8822,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "Новый чат",
 		"mobile.common.back": "Назад",
 		"mobile.common.cancel": "Отмена",
+		"mobile.common.close": "Закрыть",
 		"mobile.common.copied": "Скопировано",
 		"mobile.common.copy": "Копировать",
 		"mobile.common.copy_command_hint": "Копирует команду «{label}»",
 		"mobile.common.done": "Готово",
+		"mobile.common.loading": "Загрузка",
 		"mobile.common.not_found.action": "К сессиям",
 		"mobile.common.not_found.headline": "Этой страницы не существует.",
 		"mobile.common.not_found.next": "Вернитесь к сессиям, чтобы продолжить.",
@@ -8918,7 +9233,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "Новый проект",
 		"mobile.projects.delete_body": "Удалить «{name}»? Строка проекта исчезнет навсегда. Связанные сессии и их транскрипты не затрагиваются.",
+		"mobile.projects.detail.delete": "Удалить проект",
+		"mobile.projects.detail.delete_confirm": "Удалить",
+		"mobile.projects.detail.gone": "Этого проекта больше нет.",
+		"mobile.projects.detail.load_failed": "Не удалось загрузить этот проект.",
+		"mobile.projects.detail.milestones_empty": "Вех нет.",
+		"mobile.projects.detail.sessions_empty": "Нет связанных сессий.",
+		"mobile.projects.detail.title_fallback": "Проект",
 		"mobile.projects.draft_kept_note": "Сохранено с прошлого раза. Очистите поля, чтобы начать новое.",
+		"mobile.projects.empty.headline": "Проектов пока нет.",
+		"mobile.projects.empty.next": "Создайте проект кнопкой «{action}» или попросите об этом агента.",
+		"mobile.projects.list.load_failed": "Не удалось загрузить проекты.",
+		"mobile.projects.milestone.add": "Добавить веху",
+		"mobile.projects.milestone.add_submit": "Добавить",
+		"mobile.projects.milestone.complete_hint": "Отмечает веху как завершённую",
+		"mobile.projects.milestone.edit_label": "Изменить «{name}»",
+		"mobile.projects.milestone.edit_title": "Изменить веху",
+		"mobile.projects.milestone.name": "Имя",
+		"mobile.projects.milestone.name_placeholder": "заморозка кода",
+		"mobile.projects.milestone.remove": "Удалить веху",
+		"mobile.projects.milestone.remove_confirm": "Удалить",
+		"mobile.projects.milestone.reopen_hint": "Возобновляет веху",
+		"mobile.projects.milestone.target_date": "Целевая дата",
+		"mobile.projects.milestone.target_date_help": "Очистите поле, чтобы убрать дату.",
+		"mobile.projects.milestone.target_date_placeholder": "ГГГГ-ММ-ДД",
 		"mobile.projects.milestone_slash_note": "Имя вехи не может содержать косую черту — такую веху нельзя будет удалить.",
 		"mobile.projects.milestones.count": "{completed, plural, one {# веха из {total}} few {# вехи из {total}} many {# вех из {total}} other {# вехи из {total}}}",
 		"mobile.projects.milestones.none": "вех нет",
@@ -9249,6 +9587,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "Сортировать по",
 		"mobile.sidebar.outbox_failed": "Отправка сообщения остановлена",
 		"mobile.sidebar.outbox_sending": "Отправка сообщения…",
+		"mobile.sidebar.row.agents": "{count, plural, one {# агент} few {# агента} many {# агентов} other {# агента}}",
+		"mobile.sidebar.row.asks": "{count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}, агент продолжает работу",
+		"mobile.sidebar.row.new": "новая",
+		"mobile.sidebar.row.todos": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}",
 		"mobile.sidebar.section.older": "Раньше",
 		"mobile.sidebar.section.pinned": "Закреплённые",
 		"mobile.sidebar.section.running": "В работе",
@@ -9258,6 +9601,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "Боковая панель",
 		"mobile.sidebar.show_ended": "Показывать завершённые сеансы",
 		"mobile.sidebar.show_ended_hint": "Закреплённые и выполняющиеся беседы показываются всегда.",
+		"mobile.sidebar.tags.announcement": "Теги: {names}",
+		"mobile.sidebar.tags.empty_headline": "Категорий пока нет.",
+		"mobile.sidebar.tags.empty_next": "Создаются на компьютере.",
+		"mobile.sidebar.tags.load_failed_body": "Не удалось загрузить список категорий. Повторите попытку чуть позже.",
+		"mobile.sidebar.tags.load_failed_title": "Категории не загрузились",
+		"mobile.sidebar.tags.remove_all": "Снять все теги",
+		"mobile.sidebar.tags.remove_all_body": "С этой беседы будут сняты все категории. Сами категории останутся в приложении для компьютера.",
+		"mobile.sidebar.tags.remove_all_confirm": "Снять",
+		"mobile.sidebar.tags.remove_all_title": "Снять все теги?",
+		"mobile.sidebar.tags.saving": "Сохранение…",
 		"mobile.sidebar.time_basis": "Отсчёт времени",
 		"mobile.sidebar.view_options": "Параметры вида",
 		"mobile.signin.failed": "Не удалось завершить вход.",
@@ -9581,10 +9934,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "نئی چیٹ",
 		"mobile.common.back": "واپس",
 		"mobile.common.cancel": "منسوخ کریں",
+		"mobile.common.close": "بند کریں",
 		"mobile.common.copied": "کاپی ہو گیا",
 		"mobile.common.copy": "کاپی کریں",
 		"mobile.common.copy_command_hint": "یہ “{label}” والی کمانڈ کاپی کرتا ہے",
 		"mobile.common.done": "ہو گیا",
+		"mobile.common.loading": "لوڈ ہو رہا ہے",
 		"mobile.common.not_found.action": "سیشنز میں واپس جائیں",
 		"mobile.common.not_found.headline": "یہ صفحہ موجود نہیں ہے۔",
 		"mobile.common.not_found.next": "جاری رکھنے کے لیے اپنے سیشنز میں واپس جائیں۔",
@@ -9990,7 +10345,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "نیا پروجیکٹ",
 		"mobile.projects.delete_body": "کیا پروجیکٹ “{name}” حذف کریں؟ پروجیکٹ کا اندراج ہمیشہ کے لیے ہٹ جائے گا۔ اس سے جڑے سیشنز اور ان کے ٹرانسکرپٹس متاثر نہیں ہوں گے۔",
+		"mobile.projects.detail.delete": "پروجیکٹ حذف کریں",
+		"mobile.projects.detail.delete_confirm": "حذف کریں",
+		"mobile.projects.detail.gone": "یہ پروجیکٹ اب دستیاب نہیں ہے۔",
+		"mobile.projects.detail.load_failed": "ہم ابھی یہ پروجیکٹ نہیں پڑھ سکے۔",
+		"mobile.projects.detail.milestones_empty": "کوئی سنگ میل نہیں۔",
+		"mobile.projects.detail.sessions_empty": "کوئی سیشن جڑا ہوا نہیں۔",
+		"mobile.projects.detail.title_fallback": "پروجیکٹ",
 		"mobile.projects.draft_kept_note": "آپ کی پچھلی بار کی تحریر برقرار رکھی گئی ہے۔ کچھ نیا شروع کرنے کے لیے خانے صاف کریں۔",
+		"mobile.projects.empty.headline": "ابھی کوئی پروجیکٹ نہیں۔",
+		"mobile.projects.empty.next": "شروع کرنے کے لیے “{action}” دبائیں، یا کسی ایجنٹ سے ایک بنانے کو کہیں۔",
+		"mobile.projects.list.load_failed": "ہم ابھی آپ کے پروجیکٹس نہیں پڑھ سکے۔",
+		"mobile.projects.milestone.add": "سنگ میل شامل کریں",
+		"mobile.projects.milestone.add_submit": "شامل کریں",
+		"mobile.projects.milestone.complete_hint": "سنگ میل کو مکمل نشان زد کرتا ہے",
+		"mobile.projects.milestone.edit_label": "سنگ میل “{name}” میں ترمیم کریں",
+		"mobile.projects.milestone.edit_title": "سنگ میل میں ترمیم کریں",
+		"mobile.projects.milestone.name": "نام",
+		"mobile.projects.milestone.name_placeholder": "پہلی ریلیز",
+		"mobile.projects.milestone.remove": "سنگ میل ہٹائیں",
+		"mobile.projects.milestone.remove_confirm": "ہٹائیں",
+		"mobile.projects.milestone.reopen_hint": "سنگ میل کو دوبارہ کھولتا ہے",
+		"mobile.projects.milestone.target_date": "ہدف کی تاریخ",
+		"mobile.projects.milestone.target_date_help": "تاریخ ہٹانے کے لیے خانہ خالی کر دیں۔",
+		"mobile.projects.milestone.target_date_placeholder": "سال-ماہ-دن",
 		"mobile.projects.milestone_slash_note": "سنگ میل کے نام میں سلیش نہیں ہو سکتا۔ ایسا سنگ میل بعد میں کبھی ہٹایا نہیں جا سکے گا۔",
 		"mobile.projects.milestones.count": "{total} میں سے {completed} سنگ میل",
 		"mobile.projects.milestones.none": "کوئی سنگ میل نہیں",
@@ -10321,6 +10699,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "ترتیب کی بنیاد",
 		"mobile.sidebar.outbox_failed": "پیغام بھیجنا رک گیا",
 		"mobile.sidebar.outbox_sending": "پیغام بھیجا جا رہا ہے…",
+		"mobile.sidebar.row.agents": "{count, plural, one {# ایجنٹ} other {# ایجنٹس}}",
+		"mobile.sidebar.row.asks": "{count, plural, one {# سوال} other {# سوالات}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}، رکاوٹ نہیں — ایجنٹ کام جاری رکھے ہوئے ہے",
+		"mobile.sidebar.row.new": "نئی",
+		"mobile.sidebar.row.todos": "{count, plural, one {# کام} other {# کام}}",
 		"mobile.sidebar.section.older": "پرانے",
 		"mobile.sidebar.section.pinned": "پن شدہ",
 		"mobile.sidebar.section.running": "جاری",
@@ -10330,6 +10713,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "سائیڈبار",
 		"mobile.sidebar.show_ended": "ختم شدہ سیشن دکھائیں",
 		"mobile.sidebar.show_ended_hint": "پن شدہ اور جاری گفتگو ہمیشہ دکھائی دیتی ہیں۔",
+		"mobile.sidebar.tags.announcement": "ٹیگز: {names}",
+		"mobile.sidebar.tags.empty_headline": "ابھی کوئی زمرہ نہیں۔",
+		"mobile.sidebar.tags.empty_next": "ڈیسک ٹاپ پر بنتے ہیں۔",
+		"mobile.sidebar.tags.load_failed_body": "ہم ابھی زمروں کی فہرست نہیں پڑھ سکے۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+		"mobile.sidebar.tags.load_failed_title": "آپ کے زمرے لوڈ نہیں ہو سکے",
+		"mobile.sidebar.tags.remove_all": "تمام ٹیگز ہٹائیں",
+		"mobile.sidebar.tags.remove_all_body": "یہ اس گفتگو سے تمام زمرے ہٹا دیتا ہے۔ زمرے خود ڈیسک ٹاپ ایپ میں موجود رہیں گے۔",
+		"mobile.sidebar.tags.remove_all_confirm": "ہٹائیں",
+		"mobile.sidebar.tags.remove_all_title": "تمام ٹیگز ہٹائیں؟",
+		"mobile.sidebar.tags.saving": "محفوظ ہو رہا ہے…",
 		"mobile.sidebar.time_basis": "وقت کی بنیاد",
 		"mobile.sidebar.view_options": "دیکھنے کے اختیارات",
 		"mobile.signin.failed": "ہم سائن ان مکمل نہیں کر سکے۔",
@@ -10653,10 +11046,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "Cuộc trò chuyện mới",
 		"mobile.common.back": "Quay lại",
 		"mobile.common.cancel": "Hủy",
+		"mobile.common.close": "Đóng",
 		"mobile.common.copied": "Đã sao chép",
 		"mobile.common.copy": "Sao chép",
 		"mobile.common.copy_command_hint": "Sao chép lệnh “{label}”",
 		"mobile.common.done": "Xong",
+		"mobile.common.loading": "Đang tải",
 		"mobile.common.not_found.action": "Về danh sách phiên",
 		"mobile.common.not_found.headline": "Trang đó không tồn tại.",
 		"mobile.common.not_found.next": "Quay lại danh sách phiên để tiếp tục.",
@@ -11062,7 +11457,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "Dự án mới",
 		"mobile.projects.delete_body": "Xóa {name}? Dòng dự án sẽ mất hẳn. Các phiên liên kết và bản ghi của chúng vẫn giữ nguyên.",
+		"mobile.projects.detail.delete": "Xóa dự án",
+		"mobile.projects.detail.delete_confirm": "Xóa",
+		"mobile.projects.detail.gone": "Dự án đó không còn khả dụng.",
+		"mobile.projects.detail.load_failed": "Vừa rồi không đọc được dự án đó.",
+		"mobile.projects.detail.milestones_empty": "Chưa có mốc nào.",
+		"mobile.projects.detail.sessions_empty": "Chưa liên kết phiên nào.",
+		"mobile.projects.detail.title_fallback": "Dự án",
 		"mobile.projects.draft_kept_note": "Đã giữ lại từ lần trước. Xóa hết các trường để bắt đầu lại.",
+		"mobile.projects.empty.headline": "Chưa có dự án nào.",
+		"mobile.projects.empty.next": "Tạo dự án bằng nút “{action}”, hoặc nhờ một tác nhân tạo giúp.",
+		"mobile.projects.list.load_failed": "Vừa rồi không đọc được các dự án của bạn.",
+		"mobile.projects.milestone.add": "Thêm mốc",
+		"mobile.projects.milestone.add_submit": "Thêm",
+		"mobile.projects.milestone.complete_hint": "Đánh dấu mốc này là hoàn thành",
+		"mobile.projects.milestone.edit_label": "Sửa {name}",
+		"mobile.projects.milestone.edit_title": "Sửa mốc",
+		"mobile.projects.milestone.name": "Tên",
+		"mobile.projects.milestone.name_placeholder": "chốt bản phát hành",
+		"mobile.projects.milestone.remove": "Xóa mốc",
+		"mobile.projects.milestone.remove_confirm": "Xóa",
+		"mobile.projects.milestone.reopen_hint": "Mở lại mốc này",
+		"mobile.projects.milestone.target_date": "Ngày mục tiêu",
+		"mobile.projects.milestone.target_date_help": "Để trống ô này để xóa ngày.",
+		"mobile.projects.milestone.target_date_placeholder": "YYYY-MM-DD",
 		"mobile.projects.milestone_slash_note": "Tên mốc không được chứa dấu /. Mốc có dấu này sẽ không bao giờ xóa được.",
 		"mobile.projects.milestones.count": "{completed} trên {total} mốc",
 		"mobile.projects.milestones.none": "chưa có mốc",
@@ -11393,6 +11811,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "Sắp xếp theo",
 		"mobile.sidebar.outbox_failed": "Tin nhắn đã ngừng gửi",
 		"mobile.sidebar.outbox_sending": "Đang gửi tin nhắn…",
+		"mobile.sidebar.row.agents": "{count, plural, other {# tác nhân}}",
+		"mobile.sidebar.row.asks": "{count, plural, other {# câu hỏi}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}, tác nhân vẫn chạy tiếp",
+		"mobile.sidebar.row.new": "mới",
+		"mobile.sidebar.row.todos": "{count, plural, other {# tác vụ}}",
 		"mobile.sidebar.section.older": "Cũ hơn",
 		"mobile.sidebar.section.pinned": "Đã ghim",
 		"mobile.sidebar.section.running": "Đang chạy",
@@ -11402,6 +11825,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "Thanh bên",
 		"mobile.sidebar.show_ended": "Hiện các phiên đã kết thúc",
 		"mobile.sidebar.show_ended_hint": "Các cuộc trò chuyện đã ghim và đang chạy luôn hiển thị.",
+		"mobile.sidebar.tags.announcement": "Nhãn: {names}",
+		"mobile.sidebar.tags.empty_headline": "Chưa có danh mục nào.",
+		"mobile.sidebar.tags.empty_next": "Tạo trên máy tính.",
+		"mobile.sidebar.tags.load_failed_body": "Vừa rồi không đọc được danh sách danh mục. Hãy thử lại sau giây lát.",
+		"mobile.sidebar.tags.load_failed_title": "Không tải được danh mục của bạn",
+		"mobile.sidebar.tags.remove_all": "Bỏ tất cả nhãn",
+		"mobile.sidebar.tags.remove_all_body": "Thao tác này bỏ mọi danh mục khỏi cuộc trò chuyện này. Bản thân các danh mục vẫn còn trong ứng dụng máy tính.",
+		"mobile.sidebar.tags.remove_all_confirm": "Bỏ",
+		"mobile.sidebar.tags.remove_all_title": "Bỏ tất cả nhãn?",
+		"mobile.sidebar.tags.saving": "Đang lưu…",
 		"mobile.sidebar.time_basis": "Mốc thời gian",
 		"mobile.sidebar.view_options": "Tùy chọn hiển thị",
 		"mobile.signin.failed": "Không thể hoàn tất đăng nhập.",
@@ -11725,10 +12158,12 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.new_chat": "新聊天",
 		"mobile.common.back": "返回",
 		"mobile.common.cancel": "取消",
+		"mobile.common.close": "关闭",
 		"mobile.common.copied": "已复制",
 		"mobile.common.copy": "复制",
 		"mobile.common.copy_command_hint": "复制“{label}”命令",
 		"mobile.common.done": "完成",
+		"mobile.common.loading": "正在加载",
 		"mobile.common.not_found.action": "返回会话列表",
 		"mobile.common.not_found.headline": "此页面不存在。",
 		"mobile.common.not_found.next": "返回会话列表即可继续。",
@@ -12134,7 +12569,30 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.projects.create.tags_placeholder": "ios, q4",
 		"mobile.projects.create.title": "新建项目",
 		"mobile.projects.delete_body": "删除“{name}”？该项目将被永久删除。其关联会话和会话记录不受影响。",
+		"mobile.projects.detail.delete": "删除项目",
+		"mobile.projects.detail.delete_confirm": "删除",
+		"mobile.projects.detail.gone": "该项目已不存在。",
+		"mobile.projects.detail.load_failed": "暂时无法读取该项目。",
+		"mobile.projects.detail.milestones_empty": "暂无里程碑。",
+		"mobile.projects.detail.sessions_empty": "暂无关联会话。",
+		"mobile.projects.detail.title_fallback": "项目",
 		"mobile.projects.draft_kept_note": "已保留上次填写的内容。清空各字段即可重新开始。",
+		"mobile.projects.empty.headline": "还没有项目。",
+		"mobile.projects.empty.next": "点按“{action}”创建一个，或让智能体帮你创建。",
+		"mobile.projects.list.load_failed": "暂时无法读取你的项目。",
+		"mobile.projects.milestone.add": "添加里程碑",
+		"mobile.projects.milestone.add_submit": "添加",
+		"mobile.projects.milestone.complete_hint": "将该里程碑标记为已完成",
+		"mobile.projects.milestone.edit_label": "编辑“{name}”",
+		"mobile.projects.milestone.edit_title": "编辑里程碑",
+		"mobile.projects.milestone.name": "名称",
+		"mobile.projects.milestone.name_placeholder": "版本冻结",
+		"mobile.projects.milestone.remove": "移除里程碑",
+		"mobile.projects.milestone.remove_confirm": "移除",
+		"mobile.projects.milestone.reopen_hint": "重新打开该里程碑",
+		"mobile.projects.milestone.target_date": "目标日期",
+		"mobile.projects.milestone.target_date_help": "清空输入框即可移除日期。",
+		"mobile.projects.milestone.target_date_placeholder": "YYYY-MM-DD",
 		"mobile.projects.milestone_slash_note": "里程碑名称不能包含斜杠。含斜杠的里程碑将无法移除。",
 		"mobile.projects.milestones.count": "{completed}/{total}个里程碑",
 		"mobile.projects.milestones.none": "无里程碑",
@@ -12465,6 +12923,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.order_by": "排序方式",
 		"mobile.sidebar.outbox_failed": "消息已停止发送",
 		"mobile.sidebar.outbox_sending": "正在发送消息…",
+		"mobile.sidebar.row.agents": "{count, plural, other {# 个智能体}}",
+		"mobile.sidebar.row.asks": "{count, plural, other {# 个问题}}",
+		"mobile.sidebar.row.asks_not_blocker": "{asks}，不阻塞智能体工作",
+		"mobile.sidebar.row.new": "新",
+		"mobile.sidebar.row.todos": "{count, plural, other {# 项任务}}",
 		"mobile.sidebar.section.older": "更早",
 		"mobile.sidebar.section.pinned": "已置顶",
 		"mobile.sidebar.section.running": "运行中",
@@ -12474,6 +12937,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.settings_heading": "侧边栏",
 		"mobile.sidebar.show_ended": "显示已结束的会话",
 		"mobile.sidebar.show_ended_hint": "已置顶和运行中的对话始终显示。",
+		"mobile.sidebar.tags.announcement": "标签：{names}",
+		"mobile.sidebar.tags.empty_headline": "还没有标签类别。",
+		"mobile.sidebar.tags.empty_next": "需在桌面应用中创建。",
+		"mobile.sidebar.tags.load_failed_body": "暂时无法读取类别列表。请稍后重试。",
+		"mobile.sidebar.tags.load_failed_title": "标签类别未能加载",
+		"mobile.sidebar.tags.remove_all": "移除所有标签",
+		"mobile.sidebar.tags.remove_all_body": "此操作会清除此对话上的所有标签类别。类别本身仍保留在桌面应用中。",
+		"mobile.sidebar.tags.remove_all_confirm": "移除",
+		"mobile.sidebar.tags.remove_all_title": "要移除所有标签吗？",
+		"mobile.sidebar.tags.saving": "正在保存…",
 		"mobile.sidebar.time_basis": "时间依据",
 		"mobile.sidebar.view_options": "视图选项",
 		"mobile.signin.failed": "无法完成登录。",
