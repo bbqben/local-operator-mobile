@@ -2290,7 +2290,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #303 convergence with main 08b819b5 keeps both comment chains and
 	 * both sides' source. --print over the staged merge gives a new src
 	 * digest; app is unchanged from the PR. Source admission only. */
-	src: "6bf0170cdfcb85e9e495e6b124516ef80a2be8e564f670ef5e88bffebd51e8ab",
+	/* PR #303 review round 1 remediation: reply-thread store/screen/chip,
+	 * the Team Bridge title's optional subtitle, and reply_thread copy in all
+	 * eight catalogues. No U-08 scene (agent transcript, turn bar) renders any
+	 * of it; app unchanged. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	src: "d62d252b534d7d218c7bad0075edffa33cbfe6fd4ad7f549a33fd9f9ad15d14c",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

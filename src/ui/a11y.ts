@@ -177,6 +177,8 @@ export const CONTROL = {
 	teamBridgeAttach: "team-bridge-attach",
 	teamBridgeBack: "team-bridge-back",
 	teamBridgeReplyThreadRetry: "team-bridge-reply-thread-retry",
+	/** Continues a reply thread past one load's page cap. */
+	teamBridgeReplyThreadMore: "team-bridge-reply-thread-more",
 	/** A Bridge thread's leading workspace-drawer button (Team Bridge mode). */
 	teamBridgeMenu: "team-bridge-menu",
 	teamBridgeConversationsRetry: "team-bridge-conversations-retry",

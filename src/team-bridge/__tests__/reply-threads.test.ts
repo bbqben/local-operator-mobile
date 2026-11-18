@@ -24,16 +24,23 @@ import {
 	teamBridgeThreadPath,
 } from "@/team-bridge/push-payload";
 import {
+	isReplyRootGone,
 	isReplyThreadPageFor,
 	newestDisplayedReplySeq,
+	replierLabel,
 	replyThreadKey,
 	replyThreadPath,
 	replyThreadSummary,
 	rootAfterThreadRead,
+	rootFromServedPage,
 	showsThreadUnread,
 } from "@/team-bridge/reply-threads";
-import { createTeamBridgeStore, threadKey } from "@/team-bridge/store";
-import { ADA, message, SELF, status, TENANT } from "./fixtures";
+import {
+	createTeamBridgeStore,
+	REPLY_PAGE_LIMIT,
+	threadKey,
+} from "@/team-bridge/store";
+import { ADA, message, person, SELF, status, TENANT } from "./fixtures";
 
 const CONV = "bcv_channel_general";
 const ROOT = "bcm_2";
@@ -136,7 +143,10 @@ describe("reply-thread rules", () => {
 	it("summarises a root as served, and nothing for a reply or an empty thread", () => {
 		expect(replyThreadSummary(root())).toEqual({
 			count: 3,
-			participants: ["Ada", "Ben's agent"],
+			participants: [
+				{ label: "Ada", accountId: ADA, kind: "human" },
+				{ label: "Ben's agent", accountId: "acct_ben", kind: "agent" },
+			],
 			unread: 2,
 		});
 		expect(replyThreadSummary(reply(5, { reply_count: 3 }))).toBeNull();
@@ -162,8 +172,83 @@ describe("reply-thread rules", () => {
 		expect(
 			replyThreadSummary(
 				root({ reply_participants: ["Ada", " ", "", "Ben", "Cy", "Dee"] }),
-			)?.participants,
+			)?.participants.map((p) => p.label),
 		).toEqual(["Ada", "Ben", "Cy"]);
+	});
+
+	it("ids enrich repliers by index; a missing or unreadable id leaves the plain label", () => {
+		expect(
+			replyThreadSummary(
+				root({
+					reply_participants: ["Ada", "Aida", "Cy"],
+					reply_participant_ids: [{ account_id: ADA, kind: "human" }, null],
+				}),
+			)?.participants,
+		).toEqual([
+			{ label: "Ada", accountId: ADA, kind: "human" },
+			{ label: "Aida" },
+			{ label: "Cy" },
+		]);
+	});
+
+	it("an agent replier keeps its agent mark (design D1), a human resolves, no id stays plain", () => {
+		const people = [
+			person(ADA, "Ada Lovelace"),
+			person("acct_aida", "Ben", {
+				agent: { endpoint_id: "ep_aida", name: "Aida", state: "active" },
+			}),
+		];
+		// The same `Aida (Ben)` the agent's own rows read.
+		expect(
+			replierLabel(
+				{ label: "Aida", accountId: "acct_aida", kind: "agent" },
+				people,
+			),
+		).toBe("Aida (Ben)");
+		// Not in the directory yet (a cold push): still says it is an agent.
+		expect(
+			replierLabel({ label: "Aida", accountId: "acct_x", kind: "agent" }, []),
+		).toBe("Aida (Agent)");
+		expect(
+			replierLabel({ label: "Ada", accountId: ADA, kind: "human" }, people),
+		).toBe("Ada Lovelace");
+		expect(replierLabel({ label: "Ada" }, people)).toBe("Ada");
+	});
+
+	it("an older GET never replaces a newer cursor/unread pair, but its other fields land", () => {
+		const held = root({ thread_last_read_seq: 8, thread_unread_count: 0 });
+		const stale = root({
+			thread_last_read_seq: 5,
+			thread_unread_count: 2,
+			reply_count: 4,
+		});
+		expect(rootFromServedPage(held, stale)).toMatchObject({
+			thread_last_read_seq: 8,
+			thread_unread_count: 0,
+			reply_count: 4,
+		});
+		const fresh = root({ thread_last_read_seq: 9, thread_unread_count: 1 });
+		expect(rootFromServedPage(held, fresh)).toBe(fresh);
+		expect(rootFromServedPage(null, stale)).toBe(stale);
+	});
+
+	it("only a missing root is final; other failures stay retryable (UX U3)", () => {
+		expect(
+			isReplyRootGone(
+				new HubError({
+					kind: "not_found",
+					message: "gone",
+					status: 404,
+					code: "message_not_found",
+				}),
+			),
+		).toBe(true);
+		expect(
+			isReplyRootGone(
+				new HubError({ kind: "unreachable", message: "offline" }),
+			),
+		).toBe(false);
+		expect(isReplyRootGone(null)).toBe(false);
 	});
 
 	it("refuses a page that is not this thread", () => {
@@ -539,6 +624,124 @@ describe("reply-thread store", () => {
 				.getState()
 				.threads[threadKey(TENANT, CONV)]?.messages.map((m) => m.seq),
 		).toEqual([1, 2]);
+	});
+
+	it("a GET that answers after a thread read keeps the read's cursor and unread (review R1)", async () => {
+		let release: (() => void) | null = null;
+		const listReplies = vi
+			.fn()
+			// The warm-up read: the thread as the hub served it before any read.
+			.mockResolvedValueOnce({
+				root: root({ thread_last_read_seq: 0, thread_unread_count: 2 }),
+				replies: [reply(3)],
+				has_more: false,
+			})
+			// The poll: leaves BEFORE the read, answers AFTER it.
+			.mockImplementationOnce(
+				() =>
+					new Promise((resolve) => {
+						release = () =>
+							resolve({
+								root: root({
+									thread_last_read_seq: 0,
+									thread_unread_count: 2,
+									reply_count: 4,
+								}),
+								replies: [reply(3)],
+								has_more: false,
+							});
+					}),
+			);
+		const markThreadRead = vi.fn(async () => ({
+			thread_unread_count: 0,
+			thread_last_read_seq: 3,
+		}));
+		const { store, actions } = storeWith({
+			listReplies,
+			markThreadRead,
+			listMessages: vi.fn(async () => ({
+				messages: [
+					message(1, ADA, "2026-11-17T09:00:00Z"),
+					root({ thread_last_read_seq: 0, thread_unread_count: 2 }),
+				],
+				has_more: false,
+			})),
+		});
+		await actions.checkStatus();
+		await actions.loadThread(TENANT, CONV);
+		await actions.loadReplyThread(target);
+
+		const poll = actions.loadReplyThread(target);
+		await vi.waitFor(() => expect(release).not.toBeNull());
+		await expect(actions.markReplyThreadRead(target, 3)).resolves.toBe(true);
+		(release as unknown as () => void)();
+		await poll;
+
+		const timelineRoot = store
+			.getState()
+			.threads[threadKey(TENANT, CONV)]?.messages.find((m) => m.id === ROOT);
+		const threadRoot =
+			store.getState().replyThreads[replyThreadKey(target)]?.root;
+		for (const held of [timelineRoot, threadRoot]) {
+			// Observed before the fix: unread 0 -> 2, cursor 3 -> 0.
+			expect(held?.thread_unread_count).toBe(0);
+			expect(held?.thread_last_read_seq).toBe(3);
+			// Everything else the late page carried still lands.
+			expect(held?.reply_count).toBe(4);
+		}
+	});
+
+	it("reply 501 is reachable: the capped cursor is kept and continued (review R2)", async () => {
+		// 501 replies at seq 2..502; the hub pages 50 at a time with the
+		// inclusive cursor pointing at the next unread seq.
+		const all = Array.from({ length: 501 }, (_, i) => reply(i + 2));
+		const listReplies = vi.fn(
+			async (
+				_t: string,
+				_c: string,
+				_r: string,
+				options: { afterSeq?: number; limit?: number } = {},
+			) => {
+				const from = options.afterSeq ?? 0;
+				const rest = all.filter((m) => m.seq >= from);
+				const page = rest.slice(0, options.limit ?? 50);
+				const more = rest.length > page.length;
+				return {
+					root: root({ reply_count: 501 }),
+					replies: page,
+					has_more: more,
+					...(more ? { next_after_seq: rest[page.length]?.seq } : {}),
+				};
+			},
+		);
+		const { store, actions } = storeWith({ listReplies });
+		await actions.checkStatus();
+		await actions.loadReplyThread(target);
+		const key = replyThreadKey(target);
+		let held = store.getState().replyThreads[key];
+		expect(listReplies).toHaveBeenCalledTimes(REPLY_PAGE_LIMIT);
+		expect(held?.replies).toHaveLength(500);
+		expect(held?.moreAfterSeq).toBe(502);
+
+		await actions.loadMoreReplies(target);
+		held = store.getState().replyThreads[key];
+		expect(listReplies).toHaveBeenLastCalledWith(TENANT, CONV, ROOT, {
+			afterSeq: 502,
+			limit: 50,
+		});
+		expect(held?.replies).toHaveLength(501);
+		expect(held?.replies.at(-1)?.seq).toBe(502);
+		expect(held?.moreAfterSeq).toBeNull();
+
+		// A later poll re-reads from the top and hits the cap again; it resumes
+		// from what is already held, never back at reply ~500.
+		await actions.loadReplyThread(target);
+		held = store.getState().replyThreads[key];
+		expect(held?.replies).toHaveLength(501);
+		expect(held?.moreAfterSeq).toBe(502);
+		// Nothing to load past it: the continuation ends on the hub's own "no more".
+		await actions.loadMoreReplies(target);
+		expect(store.getState().replyThreads[key]?.moreAfterSeq).toBeNull();
 	});
 
 	it("reset forgets every reply thread", async () => {

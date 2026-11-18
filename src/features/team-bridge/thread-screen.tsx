@@ -318,6 +318,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					<ReplyThreadChip
 						rootId={message.id}
 						summary={replies}
+						people={people}
 						locale={locale}
 						onOpen={onOpenReplyThread}
 					/>

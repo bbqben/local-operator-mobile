@@ -18,7 +18,13 @@
  * a tap and a deep link already know how to reach (`push-payload.ts`).
  */
 
-import type { Message, ReplyThreadPage } from "@/team-bridge/contract";
+import { t } from "@/i18n";
+import type {
+	DirectoryMember,
+	Message,
+	ReplyThreadPage,
+} from "@/team-bridge/contract";
+import * as model from "@/team-bridge/model";
 
 export interface ReplyThreadTarget {
 	tenantId: string;
@@ -26,10 +32,22 @@ export interface ReplyThreadTarget {
 	rootId: string;
 }
 
+/**
+ * One replier as served: the label every hub sends, enriched by the parallel
+ * `reply_participant_ids` entry at the same index when there is one. The id is
+ * what lets a row say WHICH replier is an agent (design review D1): a bare
+ * label would pass an agent off as a person.
+ */
+export interface ReplyParticipant {
+	label: string;
+	accountId?: string;
+	kind?: "human" | "agent";
+}
+
 /** What a root row shows. `unread` is null when the hub did not say. */
 export interface ReplyThreadSummary {
 	count: number;
-	participants: string[];
+	participants: ReplyParticipant[];
 	unread: number | null;
 }
 
@@ -47,20 +65,61 @@ export function replyThreadSummary(
 		| "thread_root_id"
 		| "reply_count"
 		| "reply_participants"
+		| "reply_participant_ids"
 		| "thread_unread_count"
 	>,
 ): ReplyThreadSummary | null {
 	if (message.thread_root_id) return null;
 	const count = message.reply_count;
 	if (count === undefined || count <= 0) return null;
+	/* Merge by INDEX before dropping blanks, the desktop's `threadParticipants`
+	 * rule: labels lead (every hub sends them), so an id list that is shorter,
+	 * longer or absent never drops or invents a replier; a null id entry (one
+	 * the contract could not read) leaves its label plain. */
+	const ids = message.reply_participant_ids ?? [];
 	return {
 		count,
 		participants: (message.reply_participants ?? [])
-			.map((label) => label.trim())
-			.filter((label) => label !== "")
+			.map((raw, index): ReplyParticipant | null => {
+				const label = raw.trim();
+				if (label === "") return null;
+				const id = ids[index];
+				return id
+					? { label, accountId: id.account_id, kind: id.kind }
+					: { label };
+			})
+			.filter((p): p is ReplyParticipant => p !== null)
 			.slice(0, 3),
 		unread: message.thread_unread_count ?? null,
 	};
+}
+
+/**
+ * One replier's name, marked the way the rows of the same timeline mark it
+ * (design review D1): an agent reads `Aida (Ben)` through `model.senderLabel`,
+ * exactly as its own messages do, so the one line that summarises a thread
+ * never makes an agent and a human look alike. An agent the directory cannot
+ * place yet (no owner to name) still says what it is — `Aida (Agent)` — rather
+ * than passing for a person. A human id resolves to the directory's live name.
+ * Only a replier the hub sent no id for keeps its plain served label: there is
+ * nothing to tell its kind by, and guessing would be inventing.
+ */
+export function replierLabel(
+	participant: ReplyParticipant,
+	people: readonly DirectoryMember[],
+): string {
+	const { label, accountId, kind } = participant;
+	if (!accountId || !kind) return label;
+	const sender = { account_id: accountId, kind, display_label: label };
+	if (
+		kind === "agent" &&
+		!people.some((person) => person.account_id === accountId)
+	)
+		return t("mobile.team_bridge.profile.name_with_owner", {
+			agent: label,
+			owner: t("mobile.team_bridge.profile.badge_agent"),
+		});
+	return model.senderLabel(sender, people);
 }
 
 /** Whether the row's unread badge shows: only a served count above zero. */
@@ -142,6 +201,39 @@ export function rootAfterThreadRead<T extends Message>(
 			: { thread_last_read_seq: answer.thread_last_read_seq }),
 	};
 }
+
+/**
+ * The root to hold after a replies GET, given the copy already held.
+ *
+ * A GET and a thread read race: a poll's GET can leave before a read POST and
+ * answer after it, carrying the cursor/unread pair from BEFORE the read
+ * (agent review R1: observed unread 0 -> 2, cursor 3 -> 0). The hub keeps the
+ * max cursor, so a served `thread_last_read_seq` below the held one is stale by
+ * construction: keep the held PAIR (cursor and the count computed for it,
+ * never one without the other) and take everything else — reply count,
+ * repliers, edits — from the page. The next GET after the read restates both.
+ */
+export function rootFromServedPage<T extends Message>(
+	held: T | null | undefined,
+	served: T,
+): T {
+	const heldCursor = held?.thread_last_read_seq;
+	if (!held || heldCursor === undefined) return served;
+	const servedCursor = served.thread_last_read_seq;
+	if (servedCursor !== undefined && servedCursor >= heldCursor) return served;
+	return {
+		...served,
+		thread_last_read_seq: heldCursor,
+		thread_unread_count: held.thread_unread_count,
+	};
+}
+
+/** Whether a failed thread read means the root itself is gone, so retrying
+ *  can never succeed (UX review U3): the hub's 404 `message_not_found`. */
+export const isReplyRootGone = (
+	error: { status: number | null; code: string | null } | null | undefined,
+): boolean =>
+	!!error && (error.code === "message_not_found" || error.status === 404);
 
 /**
  * Replace a root the timeline already holds with the hub's newer copy (a

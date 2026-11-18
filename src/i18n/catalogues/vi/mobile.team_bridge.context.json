@@ -397,7 +397,7 @@
 	},
 	"mobile.team_bridge.reply_thread.open": {
 		"role": "button",
-		"note": "Accessible name of the control that opens a message's reply thread (Slack-style threads). Preserve {count}. 'Thread' means replies under one message, not the whole conversation."
+		"note": "Accessible name of the control that opens a message's reply thread (Slack-style threads); matches the desktop's 'View thread, …'. Preserve {count}. 'Thread' means replies under one message, not the whole conversation."
 	},
 	"mobile.team_bridge.reply_thread.open_unread": {
 		"role": "button",
@@ -411,6 +411,10 @@
 		"role": "status",
 		"note": "Shown while a reply thread loads."
 	},
+	"mobile.team_bridge.reply_thread.more": {
+		"role": "button",
+		"note": "Button at the end of a very long reply thread (more than one load of replies) that loads the next replies. No parameters; matches the desktop's 'Load more replies'."
+	},
 	"mobile.team_bridge.reply_thread.error": {
 		"role": "status",
 		"note": "Shown when a reply thread could not be read from Radient; a retry button follows."
@@ -421,10 +425,10 @@
 	},
 	"mobile.team_bridge.reply_thread.empty": {
 		"role": "status",
-		"note": "A reply thread whose root message has no replies left to show."
+		"note": "A reply thread whose root message has no replies left to show; the second sentence invites the reader to write the first reply (desktop wording)."
 	},
 	"mobile.team_bridge.reply_thread.reply": {
 		"role": "button",
-		"note": "Composer label and placeholder for replying inside a thread. A verb: write a reply."
+		"note": "Composer label and placeholder for replying inside a thread; matches the desktop's 'Reply in thread'. A verb phrase: write a reply in this thread, not in the conversation."
 	}
 }

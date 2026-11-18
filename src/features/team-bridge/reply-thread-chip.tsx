@@ -17,8 +17,10 @@ import { MessagesSquare } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { countLabel } from "@/features/notifications/notifications-model";
 import { type ShippedLocale, t } from "@/i18n";
+import type { DirectoryMember } from "@/team-bridge/contract";
 import {
 	type ReplyThreadSummary,
+	replierLabel,
 	showsThreadUnread,
 } from "@/team-bridge/reply-threads";
 import {
@@ -52,17 +54,23 @@ export function participantsLine(
 export function ReplyThreadChip({
 	rootId,
 	summary,
+	people: directory,
 	locale,
 	onOpen,
 }: {
 	rootId: string;
 	summary: ReplyThreadSummary;
+	/** The tenant's directory, so repliers resolve like the rows do. */
+	people: readonly DirectoryMember[];
 	locale: ShippedLocale;
 	onOpen: (rootId: string) => void;
 }) {
 	const accent = useTokenColor("accent");
 	const unread = showsThreadUnread(summary) ? (summary.unread ?? 0) : 0;
-	const people = participantsLine(summary.participants, locale);
+	const people = participantsLine(
+		summary.participants.map((p) => replierLabel(p, directory)),
+		locale,
+	);
 	return (
 		<Pressable
 			accessibilityRole={ROLE.button}
@@ -77,9 +85,13 @@ export function ReplyThreadChip({
 			testID={teamBridgeReplyThreadOpenId(rootId)}
 			onPress={() => onOpen(rootId)}
 			/* The touch floor, not the text's height: this is the only way into
-			 *  the thread from the timeline. */
+			 *  the thread from the timeline. Content TOP-aligned inside that floor
+			 *  (design review D2): centred, the 18 pt line floated 20 pt under its
+			 *  root and read as a header for a same-sender follow-up below it;
+			 *  top-aligned it hugs the message it belongs to, and the floor's
+			 *  remainder becomes the gap before the next message. */
 			style={{ minHeight: TOUCH_FLOOR }}
-			className="-ms-1 mt-0.5 flex-row items-center self-start"
+			className="-ms-1 mt-0.5 flex-row items-start self-start"
 		>
 			{({ pressed }) => (
 				<View

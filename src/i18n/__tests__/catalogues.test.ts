@@ -78,7 +78,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 169, // 159 existing + list.catching_up (#297) + nine reply_thread keys (#303).
+		expected: 170, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2).
 	},
 	{
 		name: "mobile.signin",
@@ -542,8 +542,9 @@ describe("the English catalogues", () => {
 		/* fix/bridge-429 (#297): + mobile.team_bridge.list.catching_up, the calm
 		 * "Catching up…" rate-limit status: 1060 + 1 = 1061, derived by summing
 		 * the keys of all 25 en catalogue files (mobile.team_bridge 160). */
-		// PR #303 adds nine mobile.team_bridge.reply_thread keys.
-		expect(total).toBe(1070);
+		// PR #303 adds ten mobile.team_bridge.reply_thread keys (nine, plus
+		// reply_thread.more for the 500-reply continuation, review R2).
+		expect(total).toBe(1071);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

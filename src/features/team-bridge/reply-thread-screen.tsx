@@ -34,6 +34,7 @@ import * as model from "@/team-bridge/model";
 import type { ProfileSubject } from "@/team-bridge/profile";
 import { useTeamBridge, useTeamBridgeState } from "@/team-bridge/provider";
 import {
+	isReplyRootGone,
 	newestDisplayedReplySeq,
 	type ReplyThreadTarget,
 	replyThreadKey,
@@ -61,6 +62,13 @@ const NO_PEOPLE: readonly DirectoryMember[] = [];
  *  the relay stream, so a visible thread re-reads itself on the same cadence. */
 const POLL_MS = 20_000;
 
+/** The conversation a thread belongs to: where Back goes when a cold push or
+ *  deep link left no history to pop (UX review U1). */
+const conversationPath = (
+	target: Pick<ReplyThreadTarget, "tenantId" | "conversationId">,
+): string =>
+	`/team-bridge/${encodeURIComponent(target.tenantId)}/${encodeURIComponent(target.conversationId)}`;
+
 type Row =
 	| { type: "message"; key: string; message: Message; root: boolean }
 	| { type: "divider"; key: string; count: number };
@@ -84,8 +92,31 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 		s.organizations.find((o) => o.tenantId === target.tenantId),
 	);
 	const selfAccountId = useTeamBridgeState((s) => s.selfAccountId);
+	const directoryState = useTeamBridgeState(
+		(s) => s.orgs[target.tenantId]?.peopleState,
+	);
 	useLocaleFrame();
 	const locale = activeLocale();
+	useEffect(() => {
+		/* A reply push opens this screen cold, past the list, so neither the
+		 * conversation (the header's subtitle) nor the directory (`Aida (Ben)`
+		 * on agent rows) has loaded. The conversation screen does the same
+		 * read for the same reason; the store coalesces it. */
+		if (organization && (!directoryState || directoryState === "idle"))
+			void actions.loadOrganization(target.tenantId, { silent: true });
+	}, [actions, organization, directoryState, target.tenantId]);
+	/* The conversation's name, drawn the way the conversation header draws it
+	 *  (`# humans` for a channel), so a thread opened from a notification says
+	 *  where it is (design D3 / UX U2). Absent until the conversation is known. */
+	const conversationName = conversation
+		? model.conversationTitle(conversation, selfAccountId)
+		: null;
+	const subtitle =
+		conversationName && conversation?.kind === "channel"
+			? conversationName.startsWith("#")
+				? conversationName
+				: `# ${conversationName}`
+			: (conversationName ?? undefined);
 	const readOnly =
 		!!organization?.readOnly || conversation?.status === "archived";
 
@@ -236,14 +267,30 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 	}, [actions, draft, sending, target]);
 
 	const failed = thread?.state === "error" && !thread.root;
+	/* A 404 `message_not_found` is final: the root was deleted, so the thread
+	 * says so in the conversation screen's own words and offers no Retry that
+	 * could only repeat the error (UX review U3). Back is the next step. */
+	const gone = failed && isReplyRootGone(thread.error);
+	/* Pull-to-refresh shows its spinner until the page answers (UX review U4).
+	 * The store keeps a `ready` thread `ready` through a reload, so the state
+	 * cannot drive it the way the conversation screen's does. */
+	const [refreshing, setRefreshing] = useState(false);
+	const refresh = useCallback(() => {
+		setRefreshing(true);
+		void actions.loadReplyThread(target).finally(() => setRefreshing(false));
+	}, [actions, target]);
+	const back = <BridgeBack fallback={conversationPath(target)} />;
 	return (
 		<Screen
 			title={t("mobile.team_bridge.reply_thread.title")}
 			titleNode={
-				<BridgeThreadTitle title={t("mobile.team_bridge.reply_thread.title")} />
+				<BridgeThreadTitle
+					title={t("mobile.team_bridge.reply_thread.title")}
+					subtitle={subtitle}
+				/>
 			}
 			compact={compact}
-			headerLeading={<BridgeBack />}
+			headerLeading={back}
 			scroll={false}
 			bottomInset="child"
 			testID={SCREEN.teamBridgeReplyThread}
@@ -255,15 +302,19 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 						testID={SURFACE.teamBridgeReplyThreadError}
 					>
 						<Text accessibilityRole="alert" className="text-body text-ink">
-							{t("mobile.team_bridge.reply_thread.error")}
+							{gone
+								? t("mobile.team_bridge.thread.anchor_missing")
+								: t("mobile.team_bridge.reply_thread.error")}
 						</Text>
-						<Button
-							label={t("mobile.team_bridge.reply_thread.retry")}
-							testID={CONTROL.teamBridgeReplyThreadRetry}
-							onPress={() => {
-								void actions.loadReplyThread(target);
-							}}
-						/>
+						{gone ? null : (
+							<Button
+								label={t("mobile.team_bridge.reply_thread.retry")}
+								testID={CONTROL.teamBridgeReplyThreadRetry}
+								onPress={() => {
+									void actions.loadReplyThread(target);
+								}}
+							/>
+						)}
 					</View>
 				) : !thread?.root ? (
 					<View
@@ -286,18 +337,28 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 						onViewableItemsChanged={onViewableItemsChanged}
 						viewabilityConfig={viewabilityConfig}
 						refreshControl={
-							<RefreshControl
-								refreshing={false}
-								onRefresh={() => {
-									void actions.loadReplyThread(target);
-								}}
-							/>
+							<RefreshControl refreshing={refreshing} onRefresh={refresh} />
 						}
 						ListFooterComponent={
 							thread.replies.length === 0 ? (
 								<Text className="px-4 py-3 text-body-sm text-ink-dim">
 									{t("mobile.team_bridge.reply_thread.empty")}
 								</Text>
+							) : thread.moreAfterSeq !== null ? (
+								/* Past one load's 500-reply cap (agent review R2): the rest
+								 *  is one tap away, never silently cut off. An explicit
+								 *  control rather than end-reached paging, so a long thread
+								 *  opened at its top never fetches its tail unasked. */
+								<View className="px-4 py-3">
+									<Button
+										variant="outline"
+										label={t("mobile.team_bridge.reply_thread.more")}
+										testID={CONTROL.teamBridgeReplyThreadMore}
+										onPress={() => {
+											void actions.loadMoreReplies(target);
+										}}
+									/>
+								</View>
 							) : null
 						}
 					/>
@@ -371,7 +432,13 @@ export default function TeamBridgeReplyThreadScreen() {
 		[tenantId, conversationId, rootId],
 	);
 	return (
-		<BridgeGate>
+		/* The gate leads with the same Back as the screen: a cold push that meets
+		 *  a closed gate still backs out to the thread's conversation (U1). */
+		<BridgeGate
+			headerLeading={
+				<BridgeBack fallback={conversationPath({ tenantId, conversationId })} />
+			}
+		>
 			<ReplyThreadContent
 				/* A new account or thread is a new screen: no cursor, draft or
 				 *  visibility evidence survives into another one. */

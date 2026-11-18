@@ -55,6 +55,7 @@ import {
 	type ReplyThreadTarget,
 	replyThreadKey,
 	rootAfterThreadRead,
+	rootFromServedPage,
 	withRoot,
 } from "@/team-bridge/reply-threads";
 import { clearTeamBridgeDrafts } from "@/team-bridge/thread-drafts";
@@ -102,6 +103,14 @@ export interface ReplyThreadData {
 	replies: Message[];
 	state: LoadState;
 	error: HubError | null;
+	/**
+	 * Where `loadMoreReplies` resumes (the hub's inclusive `next_after_seq`),
+	 * or null when the hub said there is nothing past what is held. Kept so a
+	 * thread longer than one load's page cap stays reachable instead of being
+	 * silently treated as complete (agent review R2: reply 501 was unreachable,
+	 * so it could never be displayed or acknowledged).
+	 */
+	moreAfterSeq: number | null;
 }
 
 export interface TeamBridgeState {
@@ -215,13 +224,15 @@ const emptyReplyThread = (): ReplyThreadData => ({
 	replies: [],
 	state: "idle",
 	error: null,
+	moreAfterSeq: null,
 });
 
 /**
  * How many reply pages one load follows. The hub pages at 50 (max 100); ten
  * pages is 500 replies, beyond any thread observed on the desktop. A thread
  * still `has_more` after that shows what it holds rather than looping on a
- * hub that never stops paging.
+ * hub that never stops paging, and keeps the cursor (`moreAfterSeq`) so the
+ * reader can ask for the next 500 (`loadMoreReplies`).
  */
 export const REPLY_PAGE_LIMIT = 10;
 
@@ -427,6 +438,98 @@ export function createTeamBridgeStore(deps: {
 					: {}),
 			};
 		});
+	}
+
+	/**
+	 * Follow up to `REPLY_PAGE_LIMIT` reply pages from `start` (undefined = the
+	 * first reply) and merge them into the held thread. Shared by the refresh
+	 * and the continuation so both apply the same identity check, root rule
+	 * and cursor bookkeeping.
+	 */
+	async function readReplyPages(
+		target: ReplyThreadTarget,
+		start: number | undefined,
+		owned: () => boolean,
+	): Promise<void> {
+		const client = deps.hub();
+		if (!client) return;
+		const key = replyThreadKey(target);
+		if (store.getState().replyThreads[key]?.state !== "ready")
+			patchReplyThread(key, { state: "loading", error: null });
+		try {
+			let root: Message | null = null;
+			let replies: Message[] = [];
+			let afterSeq = start;
+			let more: number | null = null;
+			for (let page = 0; page < REPLY_PAGE_LIMIT; page += 1) {
+				const answer = await client.listReplies(
+					target.tenantId,
+					target.conversationId,
+					target.rootId,
+					{ afterSeq, limit: PAGE_SIZE },
+				);
+				if (!owned()) return;
+				if (!isReplyThreadPageFor(answer, target))
+					throw new HubError({
+						kind: "malformed",
+						message: "Radient returned a different thread.",
+					});
+				root = answer.root;
+				replies = mergeMessages(replies, answer.replies);
+				const next = answer.next_after_seq;
+				more = null;
+				// Inclusive cursor: it must move past what we hold, or stop.
+				if (
+					!answer.has_more ||
+					next === undefined ||
+					(afterSeq !== undefined && next <= afterSeq)
+				)
+					break;
+				afterSeq = next;
+				// Only a cursor that is still outstanding when the cap ends the
+				// loop survives as `more`; a normal end resets it above.
+				more = next;
+			}
+			if (!root) return;
+			const held = store.getState().replyThreads[key];
+			const merged = mergeMessages(held?.replies ?? [], replies);
+			/* A refresh re-reads from the top, so on a capped thread its own cursor
+			 * would point back at reply ~500 even when the reader already continued
+			 * further. Resume from the furthest of the two: the newest reply held
+			 * (re-read once, deduplicated by id) or the served cursor. */
+			const newestHeld = merged.reduce(
+				(max, m) => (m.seq > max ? m.seq : max),
+				-1,
+			);
+			// A load that ended on the hub's own "no more" leaves nothing outstanding.
+			const moreAfterSeq = more === null ? null : Math.max(more, newestHeld);
+			const servedRoot = root;
+			const nextRoot = rootFromServedPage(held?.root, servedRoot);
+			patchReplyThread(key, {
+				root:
+					held?.root && sameValue(held.root, nextRoot) ? held.root : nextRoot,
+				replies: merged,
+				state: "ready",
+				error: null,
+				moreAfterSeq,
+			});
+			patchRoot(target, (heldRoot) => {
+				const next = rootFromServedPage(heldRoot, servedRoot);
+				return sameValue(heldRoot, next) ? heldRoot : next;
+			});
+		} catch (error) {
+			if (!owned()) return;
+			if (gateFailure(error)) return;
+			patchReplyThread(key, {
+				state: "error",
+				error: isHubError(error)
+					? error
+					: new HubError({
+							kind: "unreachable",
+							message: "Couldn't reach Radient.",
+						}),
+			});
+		}
 	}
 
 	function patchThread(key: string, change: Partial<ThreadData>): void {
@@ -1409,68 +1512,23 @@ export function createTeamBridgeStore(deps: {
 		 */
 		loadReplyThread(target: ReplyThreadTarget): Promise<void> {
 			const key = replyThreadKey(target);
-			return once(`replies:${key}`, async (owned) => {
-				const client = deps.hub();
-				if (!client) return;
-				if (store.getState().replyThreads[key]?.state !== "ready")
-					patchReplyThread(key, { state: "loading", error: null });
-				try {
-					let root: Message | null = null;
-					let replies: Message[] = [];
-					let afterSeq: number | undefined;
-					for (let page = 0; page < REPLY_PAGE_LIMIT; page += 1) {
-						const answer = await client.listReplies(
-							target.tenantId,
-							target.conversationId,
-							target.rootId,
-							{ afterSeq, limit: PAGE_SIZE },
-						);
-						if (!owned()) return;
-						if (!isReplyThreadPageFor(answer, target))
-							throw new HubError({
-								kind: "malformed",
-								message: "Radient returned a different thread.",
-							});
-						root = answer.root;
-						replies = mergeMessages(replies, answer.replies);
-						const next = answer.next_after_seq;
-						// Inclusive cursor: it must move past what we hold, or stop.
-						if (
-							!answer.has_more ||
-							next === undefined ||
-							(afterSeq !== undefined && next <= afterSeq)
-						)
-							break;
-						afterSeq = next;
-					}
-					if (!root) return;
-					const held = store.getState().replyThreads[key];
-					const merged = mergeMessages(held?.replies ?? [], replies);
-					const servedRoot = root;
-					patchReplyThread(key, {
-						root:
-							held?.root && sameValue(held.root, servedRoot)
-								? held.root
-								: servedRoot,
-						replies: merged,
-						state: "ready",
-						error: null,
-					});
-					patchRoot(target, () => servedRoot);
-				} catch (error) {
-					if (!owned()) return;
-					if (gateFailure(error)) return;
-					patchReplyThread(key, {
-						state: "error",
-						error: isHubError(error)
-							? error
-							: new HubError({
-									kind: "unreachable",
-									message: "Couldn't reach Radient.",
-								}),
-					});
-				}
-			});
+			return once(`replies:${key}`, (owned) =>
+				readReplyPages(target, undefined, owned),
+			);
+		},
+
+		/**
+		 * Continue a thread past the page cap from the held `moreAfterSeq`. Its
+		 * own coalescing key, so a tap is never swallowed by a poll in flight;
+		 * both merge by id into what is held, so their order does not matter.
+		 */
+		loadMoreReplies(target: ReplyThreadTarget): Promise<void> {
+			const key = replyThreadKey(target);
+			const from = store.getState().replyThreads[key]?.moreAfterSeq;
+			if (from === null || from === undefined) return Promise.resolve();
+			return once(`replies-more:${key}`, (owned) =>
+				readReplyPages(target, from, owned),
+			);
 		},
 
 		/**
