@@ -766,6 +766,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * digest, so main itself fails the identity check. Re-derived with --print
 	 * over the staged merge tree; #305 does not touch design/tokens. Identity
 	 * only, NOT rendered U-08 evidence. */
+	/* Re-pinned 2026-11-18 with --print from main: PR #292's diagram viewer added
+	 * its rows to `palette-rules.mjs` (`CONTROLS`, components.md § 14) and the
+	 * preset/preview layers regenerate from them. No existing role's value moved.
+	 * Identity only, NOT rendered or native evidence. */
 	"design/tokens":
 		"42025bdc49dcf5c92bd8a8690d509cdfedd8c1b72133532aa247088e8d04bbe0",
 	public: "fffab05c9f1bcb5a820ec6fc62f853d005db87e152bca97fe3e22337aa85851b",
@@ -2388,7 +2392,16 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * comment chains retained; the merged src carries both sides' source, so it
 	 * matches neither parent. Re-derived with --print over the staged merge tree;
 	 * source identity only, NOT rendered U-08 evidence. */
-	src: "e263a2da32c03cea9abf72a3ef731b68a98fc3dbc8a85c6a25688eabac9f416e",
+	/* #294 added one test module under `src/` (attach-sheet hand-off), and the
+	 * `src` root digest covers every tracked file there, test files included, so
+	 * the pin went stale with no shipped change. Re-derived with --print at main
+	 * 8f7989ea after #294; source identity only, NOT rendered, native or device
+	 * evidence. */
+	/* Merge #4 of origin/main f3418c8a (#316, #294, #318 re-pins) into PR
+	 * #305: both comment chains retained; the merged src carries both sides'
+	 * source, so it matches neither parent. Re-derived with --print over the
+	 * staged merge tree; source identity only, NOT rendered U-08 evidence. */
+	src: "7994e5ee15ce4c9d3b76f24dafb36dd92ef6edc712bba1895cf97cc7cd2f7fe1",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2425,6 +2438,9 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module
 	// `expo-task-manager` ~57.0.22, which the web bundle never renders.
+	// Re-pinned 2026-11-18 with --print: since the last pin of these two the only
+	// dependency move is PR #292's `pele` in `package.json` and its resolver
+	// entries in the lockfile. Identity only, not a U-08 web layout input.
 	"package.json":
 		"065ddef424dc993a53265d5374d99be43072ec0bc6b9aee062e6c6ac2b4024ca",
 	"pnpm-lock.yaml":
