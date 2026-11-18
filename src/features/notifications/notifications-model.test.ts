@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-
 import { afterEach, describe, expect, it } from "vitest";
 
 import type { NotificationItem, NotificationsResponse } from "@/contracts";
@@ -523,10 +521,9 @@ describe("C1-class fragments stay wholly English under a non-en locale", () => {
  * Whether the list's pinned footer holds the dismiss receipt (#321).
  *
  * The footer pays the bottom safe-area inset only while it has something in it,
- * so the predicate must agree with `DismissReceipt`'s own guard exactly. The
- * table is exhaustive over the phase union (`satisfies` fails to compile on a
- * new kind), and the second case checks the component's guard names the same
- * kinds.
+ * and `DismissReceipt` returns null on this same predicate, so one rule decides
+ * both. The table is exhaustive over the phase union (`satisfies` fails to
+ * compile on a new kind).
  */
 const RECEIPT_PHASES = {
 	idle: { phase: { kind: "idle" }, showing: false },
@@ -576,26 +573,10 @@ const RECEIPT_PHASES = {
 	};
 };
 
-const GUARD_KIND = /phase\.kind (?:===|!==) "(\w+)"/g;
-
 describe("the dismiss receipt's footer slot (#321)", () => {
 	it("is occupied exactly while the receipt has something to say", () => {
 		for (const [kind, { phase, showing }] of Object.entries(RECEIPT_PHASES)) {
 			expect([kind, dismissReceiptShowing(phase)]).toEqual([kind, showing]);
 		}
-	});
-
-	it("agrees with the receipt component on which phases draw anything", () => {
-		const receipt = readFileSync(
-			new URL("./dismiss-receipt.tsx", import.meta.url),
-			"utf8",
-		);
-		/* The component's guard, up to where it picks a severity. */
-		const guard = receipt.slice(0, receipt.indexOf("const severity"));
-		const named = new Set([...guard.matchAll(GUARD_KIND)].map((m) => m[1]));
-		const showing = Object.entries(RECEIPT_PHASES)
-			.filter(([, row]) => row.showing)
-			.map(([kind]) => kind);
-		expect([...named].sort()).toEqual(showing.sort());
 	});
 });

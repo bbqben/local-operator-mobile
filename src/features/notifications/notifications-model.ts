@@ -260,13 +260,20 @@ export function inboxEmpty(response: NotificationsResponse): boolean {
 	return response.items.length === 0 && (response.waiting ?? []).length === 0;
 }
 
-/** Whether `DismissReceipt` draws anything for this phase: the list's pinned
- *  footer pays the bottom safe-area inset only while it holds something, so an
- *  idle list keeps scrolling under the home indicator (#321). The component's
- *  own guard is the source; the model test fails if the two disagree. */
+/** The phases `DismissReceipt` draws: a count in progress, or what a dismiss
+ *  (or its Undo) did. */
+export type ReceiptPhase = Extract<
+	ConversationDismissPhase,
+	{ kind: "counting" | "done" | "undone" | "none" | "failed" }
+>;
+
+/** Whether the dismiss receipt draws anything for this phase. The ONE rule:
+ *  `DismissReceipt` returns null on it, and the list's pinned footer pays the
+ *  bottom safe-area inset only while it holds something, so an idle list keeps
+ *  scrolling under the home indicator (#321). */
 export function dismissReceiptShowing(
 	phase: ConversationDismissPhase,
-): boolean {
+): phase is ReceiptPhase {
 	switch (phase.kind) {
 		case "counting":
 		case "done":
