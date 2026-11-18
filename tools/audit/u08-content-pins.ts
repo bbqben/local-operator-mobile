@@ -2401,7 +2401,29 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * #305: both comment chains retained; the merged src carries both sides'
 	 * source, so it matches neither parent. Re-derived with --print over the
 	 * staged merge tree; source identity only, NOT rendered U-08 evidence. */
-	src: "7994e5ee15ce4c9d3b76f24dafb36dd92ef6edc712bba1895cf97cc7cd2f7fe1",
+	/* fix(team-bridge): warm notification tap lands its thread (#304 QA R4
+	 * Q1): the Bridge thread viewport trusts a measurement of the rows now
+	 * admitted, the thread's metadata loading block is laid over the list,
+	 * and a proof-only trace seam (`src/testing/thread-viewport-trace.ts`,
+	 * null when committed). The U-08 scene (agent session screen) is not
+	 * edited. --print over the staged tree moves only src (main's own src had
+	 * already drifted from this pin: 4a26b236… at 5aced823); app unchanged.
+	 * Source admission only, NOT rendered, native or device evidence. */
+	/* fix(team-bridge): the laid-over metadata loading block shows only where
+	 * the message area is otherwise blank (#315 design D1). Thread screen and
+	 * viewport only; --print over the staged tree (run twice, stable) moves
+	 * only src; app unchanged. Source identity only, NOT rendered evidence. */
+	/* Merge of origin/main (f3418c8a: #291 mic, #294 attach hand-off, #316/#318
+	 * U-08 re-pins) into fix/thread-warm-landing: main's chain kept first, then
+	 * this PR's two team-bridge notes; the merged src carries both sides, so it
+	 * matches neither parent. Re-derived with --print over the staged merge
+	 * tree (run twice, stable). Source identity only, NOT rendered evidence. */
+	/* Merge of origin/main 52ca6f24 (#305 mention suggestions) into
+	 * fix/thread-warm-landing (#315): main's chain kept first, then this PR's
+	 * notes; the merged src carries both sides, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree. Source identity
+	 * only, NOT rendered evidence. */
+	src: "f222da7cea830d21c416bba7862c52a268e517cc2c9aef1e9d43d82c6de22932",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
