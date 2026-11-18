@@ -57,6 +57,7 @@ import {
 	type ActiveRecording,
 	discardRecording,
 	readMicPermission,
+	recordingUploadPart,
 	requestMicPermission,
 	startRecording,
 	warmRecorder,
@@ -242,15 +243,17 @@ export const useDictation = (input: DictationInput): DictationState => {
 			const outcome = await dictate(
 				recording,
 				{
-					transcribe: (rec, options) =>
-						endpoints === null
-							? Promise.reject(new Error("no relay route"))
-							: endpoints.transcribe(
-									{
-										audio: { uri: rec.uri, name: rec.name, type: rec.mimeType },
-									},
-									options,
-								),
+					transcribe: async (rec, options) => {
+						if (endpoints === null) throw new Error("no relay route");
+						/* The recording goes up as bytes: SDK 57's global `fetch` is `expo/fetch`,
+						 * which cannot encode React Native's `{ uri }` descriptor (see
+						 * `transcribeForm` and `recordingUploadPart`). The file is read inside
+						 * this call, not when the part is built. */
+						return endpoints.transcribe(
+							{ audio: await recordingUploadPart(rec) },
+							options,
+						);
+					},
 					discard: discardRecording,
 				},
 				{ signal: controller.signal },
