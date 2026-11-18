@@ -230,11 +230,20 @@ describe("the inbox list re-reads on return", () => {
  * its centred block spilled UP over the Unread/All control, with the receipt
  * crammed straight under it. The All empty had no filter at all, so a reader
  * who tapped "Show all notifications" had no way back to Unread but Back. The
- * rendered proof is the web capture; this pins the two facts that caused it.
+ * rendered proof is the web capture; this pins the facts that caused it.
+ *
+ * The region SCROLLS, and the empty state inside it keeps its content height:
+ * at 200 % text on a 320 pt phone a fixed `flex-1` region was shorter than the
+ * empty state, which shrank and spilled over the filter the same way (web
+ * capture, iphone-se 200 %), while the receipt ran off the bottom unreachable.
  */
 const EMPTY_BRANCH_START = "if (response !== null && inboxEmpty(response))";
 const EMPTY_BRANCH_END = "/* The populated case is the FlatList below.";
-const GROWING_WRAPPER = /<View className="(?:[^"]* )?flex-1(?: [^"]*)?"/;
+const GROWING_WRAPPER =
+	/<ScrollView\b[^>]*\bclassName="(?:[^"]* )?flex-1(?: [^"]*)?"/;
+const GROWING_CONTENT =
+	/<ScrollView\b[^>]*\bcontentContainerClassName="(?:[^"]* )?grow(?: [^"]*)?"/;
+const SCROLLING_PROP = /^\s*scrolling$/gm;
 const FILTER_TAG = /<SegmentedFilter\b/g;
 
 function emptyBranch(): string {
@@ -257,6 +266,15 @@ describe("the empty inbox's layout (#321)", () => {
 		expect(wrapper?.index ?? -1).toBeLessThan(
 			branch.indexOf("testID={EMPTY.notificationsAll}"),
 		);
+	});
+
+	it("scrolls when the screen is shorter than the empty state", () => {
+		const branch = emptyBranch();
+		/* The content grows to the viewport (so the state centres) but is never
+		 *  smaller than its children (so a short screen scrolls to them). */
+		expect(GROWING_CONTENT.test(branch)).toBe(true);
+		/* Both sentences opt out of `flex-1`'s zero basis. */
+		expect(branch.match(SCROLLING_PROP)?.length).toBe(2);
 	});
 
 	it("keeps the Unread/All filter on BOTH empty tabs", () => {

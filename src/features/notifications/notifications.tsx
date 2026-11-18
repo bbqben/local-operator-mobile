@@ -6,6 +6,7 @@ import {
 	FlatList,
 	Pressable,
 	RefreshControl,
+	ScrollView,
 	Text,
 	View,
 } from "react-native";
@@ -477,14 +478,20 @@ export default function Notifications() {
 			 * the unread pile's verdict, and the All view saying it would claim the
 			 * store holds nothing when it holds read history. */
 			return (
-				/* `flex-1` IS THE LAYOUT (#321). `EmptyState` grows and centres in the
-				 *  height its parent offers; without this the wrapper sized to its
-				 *  content, iOS offered the empty state zero height, and its centred
-				 *  block spilled up over the filter while the receipt below rode up
-				 *  under it. The filter sits above BOTH sentences: the All tab is
-				 *  reached from "Show all notifications", and without the control
-				 *  there was no way back to Unread but leaving the screen. */
-				<View className="flex-1 gap-2 px-4 pt-3">
+				/* THE REGION OWNS THE HEIGHT (#321). The old wrapper sized to its
+				 *  content, so iOS offered the `flex-1` empty state zero height and its
+				 *  centred block spilled up over the filter, with the receipt riding up
+				 *  under it. Now the region fills the screen above the footer, its
+				 *  content grows to that height so the state centres, and the state
+				 *  keeps its own height as a floor (`scrolling`) so a 320 pt phone at
+				 *  200 % scrolls to it instead (a fixed region overlapped the filter
+				 *  there). The filter sits above BOTH sentences: the All tab is reached
+				 *  from "Show all notifications", and without the control there was no
+				 *  way back to Unread but leaving the screen. */
+				<ScrollView
+					className="flex-1"
+					contentContainerClassName="grow gap-2 px-4 pt-3"
+				>
 					<SegmentedFilter value={inbox.filter} onChange={inbox.setFilter} />
 					{inbox.filter === "unread" ? (
 						<EmptyState
@@ -496,15 +503,17 @@ export default function Notifications() {
 								testID: CONTROL.inboxFilterAll,
 							}}
 							testID={EMPTY.notifications}
+							scrolling
 						/>
 					) : (
 						<EmptyState
 							headline="Nothing here yet"
 							next={EMPTY_ALL_BODY}
 							testID={EMPTY.notificationsAll}
+							scrolling
 						/>
 					)}
-				</View>
+				</ScrollView>
 			);
 		}
 		/* The populated case is the FlatList below. Rows never report reads on

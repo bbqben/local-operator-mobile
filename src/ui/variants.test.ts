@@ -12,6 +12,7 @@ import {
 	COMPOSER_FIELD_MAX_LINES,
 	chipClasses,
 	emptyStateClasses,
+	emptyStateScrollingClasses,
 	FIELD_BORDER_Y,
 	fieldBoxHeight,
 	fieldClasses,
@@ -259,9 +260,28 @@ describe("segmented control", () => {
 	});
 });
 
+/** Formatting-tolerant: the component's choice, not its line breaks. */
+const PICKS_SCROLLING = /scrolling\s*\?\s*emptyStateScrollingClasses/;
+
 describe("empty state", () => {
 	it("is not an error: no semantic danger binding anywhere in it", () => {
 		expect(emptyStateClasses).not.toMatch(/danger|warning/);
+	});
+
+	it("inside a scrolling body, grows without a zero basis (#321)", () => {
+		/* `flex-1` is a ZERO basis: a content-sized parent (a scroll body is one)
+		 *  offers it nothing, and its centred block spills over its neighbours.
+		 *  `grow` keeps the content height as the floor. Same spacing otherwise. */
+		expect(emptyStateScrollingClasses.split(" ")).toContain("grow");
+		expect(emptyStateScrollingClasses.split(" ")).not.toContain("flex-1");
+		expect(emptyStateScrollingClasses).toBe(
+			emptyStateClasses.replace("flex-1", "grow"),
+		);
+		const component = readFileSync(
+			new URL("./components/empty-state.tsx", import.meta.url),
+			"utf8",
+		);
+		expect(PICKS_SCROLLING.test(component)).toBe(true);
 	});
 });
 
