@@ -10,6 +10,7 @@ import type {
 import {
 	useConnection,
 	useConnectionState,
+	useLocaleFrame,
 } from "@/features/auth/connection-provider";
 import {
 	TagWriteQueue,
@@ -22,6 +23,7 @@ import {
 	draftMatchesDesired,
 	settledPrimary,
 } from "@/features/sessions/tags";
+import { t } from "@/i18n";
 import { isRelayError, TRANSPORT_SENTENCE } from "@/relay";
 import { CONTROL, ROLE, SURFACE, sessionTagOptionId } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
@@ -122,6 +124,12 @@ export const SessionTagsSheet = ({
 	primary,
 	onClose,
 }: SessionTagsSheetProps) => {
+	/* The sheet can stay open across a late backend language frame, and its
+	 *  owner (the conversation list) is not guaranteed to re-render on one, so
+	 *  the sheet subscribes itself: the keyed copy below repaints in the new
+	 *  language without a close/reopen. The value is unused on purpose — the
+	 *  subscription IS the fix (`useLocaleFrame`, connection-provider.tsx). */
+	useLocaleFrame();
 	const { relay } = useConnection();
 	/* The catalogue is a GLOBAL read, so its reload is keyed on the connection's
 	 *  own identity rather than on the `relay` function's. `relay` is rebuilt by
@@ -377,7 +385,7 @@ export const SessionTagsSheet = ({
 		<View className="gap-1">
 			<Button
 				testID={CONTROL.sessionTagsRemoveAll}
-				label="Remove all tags"
+				label={t("mobile.sidebar.tags.remove_all")}
 				onPress={() => setConfirmRemoveAll(true)}
 				disabled={nothingSelected}
 				variant="danger"
@@ -388,7 +396,9 @@ export const SessionTagsSheet = ({
 			 *  confirm and the answer. It stays up while the write waits behind an
 			 *  older one, then `pending === "*"` takes over on the wire. */}
 			{pending === "*" || removeAllQueued ? (
-				<Text className="text-meta text-ink-dim">Saving…</Text>
+				<Text className="text-meta text-ink-dim">
+					{t("mobile.sidebar.tags.saving")}
+				</Text>
 			) : null}
 		</View>
 	);
@@ -398,7 +408,9 @@ export const SessionTagsSheet = ({
 			<Sheet
 				visible={visible}
 				onClose={onClose}
-				title="Tags"
+				/* Same word, same meaning as the row's tag disclosure, so it reuses
+				 *  that key rather than a second "Tags" that could drift. */
+				title={t("relay.chrome.row.tags")}
 				testID={SURFACE.sessionTagsSheet}
 				/* The answering control is PINNED per state. The error state's
 				 *  "Try again" used to sit at the end of the scrolling body and fell
@@ -414,7 +426,7 @@ export const SessionTagsSheet = ({
 					catalogue.kind === "error" ? (
 						<Button
 							testID={CONTROL.sessionTagsRetry}
-							label="Try again"
+							label={t("mobile.common.try_again")}
 							onPress={() => setReloadKey((key) => key + 1)}
 							variant="outline"
 						/>
@@ -468,20 +480,22 @@ export const SessionTagsSheet = ({
 						</View>
 					) : catalogue.kind === "error" ? (
 						<View className="gap-3" testID={SURFACE.sessionTagsError}>
-							<Alert severity="error" title="Your categories didn't load">
-								We couldn't read the list of categories just now. Try again in a
-								moment.
+							<Alert
+								severity="error"
+								title={t("mobile.sidebar.tags.load_failed_title")}
+							>
+								{t("mobile.sidebar.tags.load_failed_body")}
 							</Alert>
 						</View>
 					) : options.length === 0 ? (
 						<EmptyState
-							headline="No categories yet."
+							headline={t("mobile.sidebar.tags.empty_headline")}
 							/* The pinned footer IS the second line's action here, so the
 							 *  copy names only where categories come from: the old sentence
 							 *  repeated the button and was the line the 200 % SE frame cut
 							 *  (round 3). Nothing to clear has no button below, and the
 							 *  shorter copy is still the whole truth. */
-							next="Created on desktop."
+							next={t("mobile.sidebar.tags.empty_next")}
 							/* The sheet at 200 % is ~300 pt tall; the mark is decorative and
 							 *  the full-surface centring pushes the sentence under the fold, so
 							 *  the sheet takes the inline form. */
@@ -499,11 +513,11 @@ export const SessionTagsSheet = ({
 							 *  empty, above a list it can no longer short-circuit. */}
 							{catalogue.tags.length === 0 ? (
 								<EmptyState
-									headline="No categories yet."
+									headline={t("mobile.sidebar.tags.empty_headline")}
 									/* Same short line as the other empty-registry branch: the pinned
 									 *  footer names the action, and the longer sentence was the copy
 									 *  the 200 % SE body could not show in full (round 3). */
-									next="Created on desktop."
+									next={t("mobile.sidebar.tags.empty_next")}
 									mark={false}
 									compact
 									testID={SURFACE.sessionTagsEmpty}
@@ -571,7 +585,9 @@ export const SessionTagsSheet = ({
 												{tag.name}
 											</Text>
 											{rowBusy ? (
-												<Text className="text-meta text-ink-dim">Saving…</Text>
+												<Text className="text-meta text-ink-dim">
+													{t("mobile.sidebar.tags.saving")}
+												</Text>
 											) : null}
 										</View>
 									</Pressable>
@@ -593,9 +609,9 @@ export const SessionTagsSheet = ({
 			<Dialog
 				visible={confirmRemoveAll}
 				testID={CONTROL.sessionTagsRemoveAllDialog}
-				title="Remove all tags?"
-				body="This clears every category from this conversation. The categories themselves stay in the desktop app."
-				confirmLabel="Remove"
+				title={t("mobile.sidebar.tags.remove_all_title")}
+				body={t("mobile.sidebar.tags.remove_all_body")}
+				confirmLabel={t("mobile.sidebar.tags.remove_all_confirm")}
 				destructive
 				onConfirm={() => {
 					setConfirmRemoveAll(false);

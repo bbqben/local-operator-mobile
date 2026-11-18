@@ -1,0 +1,148 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-hi-248a9e",
+ "slice": "O3-b",
+ "locale": "hi",
+ "namespace": "mobile.projects",
+ "audit_date": "2026-11-17",
+ "key_count": 23,
+ "keys_audited": [
+  "mobile.projects.list.load_failed",
+  "mobile.projects.empty.headline",
+  "mobile.projects.empty.next",
+  "mobile.projects.detail.gone",
+  "mobile.projects.detail.title_fallback",
+  "mobile.projects.detail.load_failed",
+  "mobile.projects.detail.milestones_empty",
+  "mobile.projects.detail.sessions_empty",
+  "mobile.projects.detail.delete",
+  "mobile.projects.detail.delete_confirm",
+  "mobile.projects.milestone.add",
+  "mobile.projects.milestone.edit_title",
+  "mobile.projects.milestone.add_submit",
+  "mobile.projects.milestone.remove",
+  "mobile.projects.milestone.remove_confirm",
+  "mobile.projects.milestone.name",
+  "mobile.projects.milestone.name_placeholder",
+  "mobile.projects.milestone.target_date",
+  "mobile.projects.milestone.target_date_placeholder",
+  "mobile.projects.milestone.target_date_help",
+  "mobile.projects.milestone.reopen_hint",
+  "mobile.projects.milestone.complete_hint",
+  "mobile.projects.milestone.edit_label"
+ ],
+ "translator_session": "805773971354",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "248a9ead8d63",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "read directly (ordinary file read) from /Users/damian/.local-operator/sessions/805773971354/scratchpad/o3b/draft-hi.json; read_public_copy not used (refuses mobile catalogue paths)",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/805773971354/scratchpad/o3b/draft-hi.json",
+   "sha256": "14b806e26a8cd3ddbb802a62c9d93b6e33920804f464c6b1e3eaabe9bc09cda0"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": [
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.projects.json",
+    "sha256": "9634fad1aeb854d8ca241dd5ca147561cf83d6781d47ae83c68830899e564994"
+   },
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.projects.context.json",
+    "sha256": "493bfbb754c70531825a8c6287f5b06fc79f01c37bebb052d8ce5c319c9f0a8b"
+   }
+  ],
+  "hi_shipped_compared": [
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/hi/mobile.common.json",
+    "sha256": "ffe537667951e441e7ca5d0febda6b96f1c2ead35ada0a05f4bdb88fc261fbd7"
+   },
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/hi/mobile.projects.json",
+    "sha256": "8fe919c55be02a908bd19d113ad788ae4751f019431f66148d1f73d19901edd0"
+   },
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/hi/mobile.sidebar.json",
+    "sha256": "71741ee1a354096e2b5f3a3c91791eb2e556486acbc585f0d22adc24592e7913"
+   },
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/hi/mobile.session.json",
+    "sha256": "53cb9cab9bbb7c128d3087d0d04acfd9ca6d4f30f55c40ab2545a9ac088f2b79"
+   },
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/hi/mobile.home.json",
+    "sha256": "0aead13bc6604dddcad98ab7b70f49b349295d503ed076e84a055b8390839654"
+   },
+   {
+    "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/hi/relay.chrome.json",
+    "sha256": "3d39d4693a4b5a8eacf5ec17bdddab25a7d6597d2f2ca9db8bd0a6516523ce05"
+   }
+  ],
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/hi.md",
+   "sha256": "82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_mismatches": 0,
+  "placeholder_icu": "pass (repo parseMessage; 4/4 negative controls caught)",
+  "cldr_hi_categories": [
+   "one",
+   "other"
+  ],
+  "nfc": "pass",
+  "zwj_zwnj": "none",
+  "danda": "pass",
+  "width_hints": "all within (grapheme count via Intl.Segmenter)",
+  "redaction_marker_hits": 0,
+  "redaction_scan_note": "brief's own redaction_scan.pattern field self-matches (2) and was excluded; draft 0, English inputs 0",
+  "repo_validator": "not run (repo read-only per task); repo runtime parser used read-only instead"
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "HI-P1"
+  ]
+ },
+ "findings": [
+  {
+   "id": "HI-P1",
+   "severity": "MINOR",
+   "key": "mobile.projects.empty.next",
+   "current": "“{action}” से एक प्रोजेक्ट शुरू करें, या किसी एजेंट से उसे खोलने को कहें।",
+   "problem": "'open one' here means bring a NEW project into being (an agent files it). In this catalogue खोलना means opening/reopening an existing item (mobile.projects.milestone.reopen_hint 'फिर से खोलता है', write_receipt 'फिर खोला गया'), so 'उसे खोलने' reads as 'ask an agent to open it (an existing one)'. Meaning drifts; not unsafe.",
+   "suggestion": "“{action}” से एक प्रोजेक्ट शुरू करें, या किसी एजेंट से उसे बनाने को कहें।"
+  }
+ ],
+ "artifacts": {
+  "report": "report.md",
+  "audit_log": "audit.log",
+  "checker": {
+   "path": "/Users/damian/.local-operator/sessions/248a9ead8d63/scratchpad/o3b-audit/work/check-hi.mjs",
+   "sha256": "271d174cd1d4849da3f997693e34f45c381d7e3805810d36bf65c8129f01b711"
+  },
+  "extract": {
+   "path": "/Users/damian/.local-operator/sessions/248a9ead8d63/scratchpad/o3b-audit/work/extract-hi.json",
+   "sha256": "1652245dbd1d7f8208c548b26e19cef67bb331219fd4c7a4b3636e96789a86be"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the commands run and printed output",
+ "ledger_appended": false
+}

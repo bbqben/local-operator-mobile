@@ -40,10 +40,11 @@
  * the ref (`github.ref`) separates one event on two refs, because a key that
  * drops it folds every branch into one group and the branch supersede then
  * cancels silently; and `cancel-in-progress` renders false on `refs/heads/main`
- * for EVERY covered workflow, since a running `main` run is the record of a
- * merged commit and cancelling it loses that record rather than saving a minute.
- * That last one deliberately applies to release.yml as well, whose exemption is
- * from the trigger rule alone.
+ * for every `schedule` and `workflow_dispatch` run of EVERY covered workflow, and
+ * for a `push` run too unless the workflow is listed in PUSH_SUPERSEDE_ON_MAIN
+ * (a main push that cannot upload or release, whose superseded run only spends
+ * the operator's shared job pool). That last one deliberately applies to
+ * release.yml as well, whose exemption is from the trigger rule alone.
  *
  * The reader is structure-tolerant (comments, key order, block or flow lists,
  * `.yml` or `.yaml`) but fails closed: an argument, operator or function call it
@@ -613,11 +614,31 @@ const PROOF_MODES: (string | null)[] = [
  * the control loudly instead of passing unexercised.
  */
 const MAIN_SAFE_CLAUSES = [
-	"inputs.proof_mode != 'account-routing-ios-proof' && inputs.proof_mode != 'account-routing-android-proof' && github.ref != 'refs/heads/main'",
 	"github.event_name == 'pull_request'",
 	"github.ref != 'refs/heads/main'",
 	"false",
 ];
+
+/**
+ * Workflows whose superseded `push` run on `main` MAY be cancelled, each with the
+ * reason it is safe. Added 2026-11-18: the operator's account shares ONE
+ * concurrent-job pool across every repository, and at 04:50Z ~10 of ~17 running
+ * jobs were this repository's E2E/simulator jobs while local-operator's release
+ * gate sat queued 80+ minutes. Membership is the claim "a main push of this file
+ * uploads nothing outside GitHub", so the native workflows (TestFlight / Play
+ * internal uploads on a main push) and release.yml must never appear here — the
+ * test below asserts that, and asserts every listed file really does cancel, so
+ * neither the list nor the YAML can drift away from the other.
+ */
+const PUSH_SUPERSEDE_ON_MAIN: Readonly<Record<string, string>> = {
+	"e2e.yml":
+		"a main-push E2E run uploads only its own frames; the next merge's run makes the older verdict moot",
+	"ci.yml":
+		"`release-staging` is a fake round trip through workflow artefacts; store uploads live in release.yml and the native workflows",
+};
+
+/** Workflows a main push can upload or release from: never superseded on main. */
+const NEVER_SUPERSEDE_ON_MAIN = ["android.yml", "ios.yml", "release.yml"];
 
 /**
  * Workflows the trigger rule deliberately does not apply to. Each entry names the
@@ -652,6 +673,14 @@ const EXEMPT: Record<
 /* -------------------------------------------------------------------------- */
 
 describe("workflow concurrency keys", () => {
+	it("never lets an uploading workflow join the main-push supersede list", () => {
+		for (const file of NEVER_SUPERSEDE_ON_MAIN) {
+			expect(PUSH_SUPERSEDE_ON_MAIN, file).not.toHaveProperty(file);
+			// Non-vacuity: the guarded files exist, so the list is not stale.
+			expect(workflows.map((workflow) => workflow.file)).toContain(file);
+		}
+	});
+
 	it("covers the workflows whose triggers can start two runs on one ref", () => {
 		const names = covered.map((workflow) => workflow.file);
 		// Non-vacuity: if the reader stops finding these, the guard has gone quiet.
@@ -713,7 +742,7 @@ describe("workflow concurrency keys", () => {
 			 * published — so the trigger rule's exemption deliberately stops short of
 			 * this line, and `cancel-in-progress: false` is asserted rather than assumed.
 			 */
-			it("never cancels a run on refs/heads/main", () => {
+			it("never cancels a scheduled, dispatched or uploading run on refs/heads/main", () => {
 				const scalar = workflow.cancelInProgress;
 				expect(
 					scalar,
@@ -722,8 +751,18 @@ describe("workflow concurrency keys", () => {
 				// Non-vacuity: an empty matrix means the trigger reader broke, not that
 				// there was nothing to check.
 				expect(mainRuns.length).toBeGreaterThan(0);
+				const supersedes = workflow.file in PUSH_SUPERSEDE_ON_MAIN;
 				for (const run of mainRuns) {
 					const value = cancelValue(scalar ?? "", run);
+					if (run.event === "push" && supersedes) {
+						// Pinned both ways: a listed file that stopped cancelling would
+						// silently hand the shared pool back its stacked main runs.
+						expect(
+							isFalsy(value),
+							`${workflow.file}: listed in PUSH_SUPERSEDE_ON_MAIN but a push on ${run.ref} does not cancel — cancel-in-progress rendered ${String(value)}`,
+						).toBe(false);
+						continue;
+					}
 					expect(
 						isFalsy(value),
 						`${workflow.file}: a ${run.event} run on ${run.ref} (proof_mode ${run.proof ?? "unset"}) would cancel a RUNNING main run — cancel-in-progress rendered ${String(value)}`,
@@ -888,17 +927,34 @@ describe("e2e.yml: the manual lane carries its proof", () => {
 		expect(e2e.group).toMatch(ANDROID_LANE);
 	});
 
-	it("still queues on main instead of cancelling, and still supersedes a same-proof dispatch elsewhere", () => {
-		// The reason a manual lane may queue at all: a RUNNING run on `main` is never
-		// cancelled. (It is not immunity from every cancel — one pending run per
-		// group, so a third run in a main lane still replaces whichever waited.)
-		expect(e2e.cancelInProgress).toContain("github.ref != 'refs/heads/main'");
-		// The account-routing proofs run on main and must never cancel each other.
-		for (const proof of [
-			"account-routing-ios-proof",
-			"account-routing-android-proof",
-		]) {
-			expect(e2e.cancelInProgress).toContain(`inputs.proof_mode != '${proof}'`);
+	it("never cancels a manual or nightly run on any ref, and supersedes push and PR runs everywhere", () => {
+		// The reason a manual lane may queue at all: a RUNNING proof or nightly is
+		// never cancelled. (It is not immunity from every cancel — one pending run per
+		// group, so a third run in a lane still replaces whichever waited.) The
+		// account-routing proofs are dispatches, so this covers them on every ref.
+		const scalar = e2e.cancelInProgress ?? "";
+		for (const ref of [main, `refs/heads/not-${DEFAULT_BRANCH}`]) {
+			for (const proof of PROOF_MODES) {
+				for (const event of ["workflow_dispatch", "schedule"]) {
+					expect(
+						isFalsy(cancelValue(scalar, { event, ref, proof })),
+						`${event} on ${ref} (proof_mode ${proof ?? "unset"})`,
+					).toBe(true);
+				}
+			}
 		}
+		// Superseded push (main) and PR runs are cancelled: the shared job pool.
+		expect(
+			isFalsy(cancelValue(scalar, { event: "push", ref: main, proof: null })),
+		).toBe(false);
+		expect(
+			isFalsy(
+				cancelValue(scalar, {
+					event: "pull_request",
+					ref: "refs/pull/1/merge",
+					proof: null,
+				}),
+			),
+		).toBe(false);
 	});
 });

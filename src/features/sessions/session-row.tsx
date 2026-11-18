@@ -3,6 +3,7 @@ import { Text } from "react-native";
 import type { SessionSummary } from "@/contracts";
 import { avatarRefOf } from "@/features/agent-avatar/agent-avatar";
 import { AgentListRow } from "@/features/agent-avatar/agent-avatar-view";
+import { useLocaleFrame } from "@/features/auth/connection-provider";
 import { useOutboxPhase } from "@/features/session/outbox";
 import {
 	attentionWord,
@@ -87,6 +88,17 @@ export const SessionRow = memo(function SessionRow({
 	onActivate,
 	onLongPress,
 }: SessionRowProps) {
+	/* A late backend language frame must repaint this row's keyed copy (PR #302
+	 *  R1/Q2): the "new" marker, the count chips and their accessible names, and
+	 *  the tag announcement all come from `t()`, which reads the locale at call
+	 *  time but cannot re-render a mounted row. The `memo` above bails on every
+	 *  pane render whose props did not move, so without this subscription the old
+	 *  language stayed until the pane's minute tick changed `now` (up to 60 s).
+	 *  Subscribing HERE, not in the pane, keeps the memo intact for every other
+	 *  reason a frame arrives: only a language change re-renders the rows. The
+	 *  value is unused on purpose — the subscription IS the fix (`useLocaleFrame`,
+	 *  connection-provider.tsx; proved by `session-row-locale-frame.test.tsx`). */
+	useLocaleFrame();
 	const remote = isRemoteRow(session);
 	const tagged = (session.tags?.length ?? 0) > 0;
 	/* The outbox indicator (`outbox.ts`): a send this phone is still delivering

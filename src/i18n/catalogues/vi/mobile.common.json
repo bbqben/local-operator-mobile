@@ -11,5 +11,7 @@
 	"mobile.common.not_found.action": "Về danh sách phiên",
 	"mobile.common.copy": "Sao chép",
 	"mobile.common.copied": "Đã sao chép",
-	"mobile.common.copy_command_hint": "Sao chép lệnh “{label}”"
+	"mobile.common.copy_command_hint": "Sao chép lệnh “{label}”",
+	"mobile.common.close": "Đóng",
+	"mobile.common.loading": "Đang tải"
 }

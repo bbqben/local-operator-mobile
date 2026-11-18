@@ -1,0 +1,132 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-vi-a2593f",
+ "slice": "O3-b",
+ "locale": "vi",
+ "namespace": "mobile.projects",
+ "audit_date": "2026-11-17",
+ "key_count": 23,
+ "keys_audited": [
+  "mobile.projects.list.load_failed",
+  "mobile.projects.empty.headline",
+  "mobile.projects.empty.next",
+  "mobile.projects.detail.gone",
+  "mobile.projects.detail.title_fallback",
+  "mobile.projects.detail.load_failed",
+  "mobile.projects.detail.milestones_empty",
+  "mobile.projects.detail.sessions_empty",
+  "mobile.projects.detail.delete",
+  "mobile.projects.detail.delete_confirm",
+  "mobile.projects.milestone.add",
+  "mobile.projects.milestone.edit_title",
+  "mobile.projects.milestone.add_submit",
+  "mobile.projects.milestone.remove",
+  "mobile.projects.milestone.remove_confirm",
+  "mobile.projects.milestone.name",
+  "mobile.projects.milestone.name_placeholder",
+  "mobile.projects.milestone.target_date",
+  "mobile.projects.milestone.target_date_placeholder",
+  "mobile.projects.milestone.target_date_help",
+  "mobile.projects.milestone.reopen_hint",
+  "mobile.projects.milestone.complete_hint",
+  "mobile.projects.milestone.edit_label"
+ ],
+ "translator_session": "9bc4a4716d1c",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "a2593f163587",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "ordinary file reads (cat/json.load) of the translator's scratch file; read_public_copy not used (refuses mobile catalogue paths). Later node/python runs on the sibling path were refused by guardrail; checks ran on an in-session canonical re-serialization and a cp of the brief (hash re-verified).",
+ "draft": {
+  "path": "/Users/damian/.local-operator/sessions/9bc4a4716d1c/scratchpad/o3b/draft-vi.json",
+  "sha256": "9bb41ba8bcc99a55a3ebead01d1741e893999d0c5db591368a1103595a391333",
+  "canonical_json_sha256": "e51c650fd9d92bda26ec119be11072552b88b609bceb8f50342e41bcff7a5253"
+ },
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "brief": {
+  "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+  "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+ },
+ "input_hashes": {
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.projects.json",
+   "sha256": "9634fad1aeb854d8ca241dd5ca147561cf83d6781d47ae83c68830899e564994"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.projects.context.json",
+   "sha256": "493bfbb754c70531825a8c6287f5b06fc79f01c37bebb052d8ce5c319c9f0a8b"
+  },
+  "vi_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/vi/mobile.projects.json",
+   "sha256": "053cd8ce0f77306f01c147e133b6c6b7a7e39e626e579855d0cdb4aedfb9852c"
+  },
+  "relay_chrome_en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/relay.chrome.json",
+   "sha256": "043941b6b3b8057cf28b7bef84546aed91ba4f1e3c46fa0fede3a83e3fd004c3"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/vi.md",
+   "sha256": "e4901497ed553e2b2ae4a2660bf776adb787b89e11d7eb0f8d08f3da4b227888"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_vi_categories": [
+   "other"
+  ],
+  "nfc": "pass",
+  "redaction_marker_hits": 0,
+  "redaction_note": "brief's own redaction_scan.pattern field self-matches (2 raw hits) and is excluded",
+  "repo_validator": "not run (draft not in repo; repo read-only); repo parseMessage/formatMessage imported read-only, with negative controls"
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": [
+   "VI-P1",
+   "VI-P2"
+  ]
+ },
+ "findings": [
+  {
+   "id": "VI-P1",
+   "severity": "NIT",
+   "key": "mobile.projects.empty.next",
+   "current": "Tạo dự án bằng nút “{action}”, hoặc nhờ một tác nhân mở giúp.",
+   "problem": "«mở» with the object dropped can read as opening an existing project; the sentence is about starting a new one. Placeholder/quotes correct; renders «…nút “Dự án mới”…».",
+   "suggestion": "Tạo dự án bằng nút “{action}”, hoặc nhờ một tác nhân tạo giúp."
+  },
+  {
+   "id": "VI-P2",
+   "severity": "NIT",
+   "key": "mobile.projects.milestone.target_date_help",
+   "current": "Để trống ô này để xóa ngày.",
+   "problem": "Two «để» in one short clause (leave-empty + in-order-to) reads slightly clumsy.",
+   "suggestion": "Để trống ô này nếu muốn bỏ ngày."
+  }
+ ],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "0cf6c6d5ba73a7efedf0ab7ec7a67a15f60d6a5e971875eaa99aaf3c3a10a07a"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "058f72dea56e8ca83f080335ae1273df3e9c96215722c246899126d92dd3d4f4"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

@@ -50,5 +50,13 @@
 	"mobile.common.copy_command_hint": {
 		"role": "help",
 		"note": "Screen-reader hint on the Copy button beside a command block. {label} is the block's own label, already translated (e.g. \"Install on the computer\") or a product name (\"Cloudflare\", \"ngrok\"). No final full stop."
+	},
+	"mobile.common.close": {
+		"role": "button",
+		"note": "Screen-reader name of the close (X) control on every bottom sheet and the full-screen sheet. Verb, imperative; one short word, keep under ~12 characters. No placeholders."
+	},
+	"mobile.common.loading": {
+		"role": "status",
+		"note": "Screen-reader name announced for a loading skeleton placeholder on any screen. Status word, no trailing ellipsis; keep under ~16 characters. No placeholders."
 	}
 }
