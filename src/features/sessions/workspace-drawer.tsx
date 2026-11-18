@@ -213,7 +213,8 @@ export const WorkspaceModeBar = ({
 				 *  transparency sits on each label itself, not on the wrapper:
 				 *  the web audit's U-08 overlap check reads a node's OWN opacity,
 				 *  and with it on the wrapper it counted the ruler as painted text
-				 *  on top of the Agents segment. */}
+				 *  on top of the Agents segment. `selectable={false}` keeps the
+				 *  duplicate labels out of a web text selection (PR #333 Q1-3). */}
 				{largeText ? null : (
 					<View
 						aria-hidden
@@ -223,12 +224,14 @@ export const WorkspaceModeBar = ({
 						<Text
 							className={cx(layout.label, "font-semibold text-ink opacity-0")}
 							onLayout={fit.onAgentsLabelLayout}
+							selectable={false}
 						>
 							{agentsLabel}
 						</Text>
 						<Text
 							className={cx(layout.label, "font-semibold text-ink opacity-0")}
 							onLayout={fit.onBridgeLabelLayout}
+							selectable={false}
 						>
 							{bridgeLabel}
 						</Text>

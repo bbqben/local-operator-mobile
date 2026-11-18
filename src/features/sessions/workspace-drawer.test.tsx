@@ -31,6 +31,8 @@ const host = vi.hoisted(() => ({
 	labelLayouts: new Map<string, (event: LayoutEvent) => void>(),
 	labelClasses: new Map<string, string>(),
 	classNames: new Map<string, string>(),
+	views: [] as Array<Record<string, unknown>>,
+	labelProps: new Map<string, Record<string, unknown>>(),
 }));
 type LayoutEvent = { nativeEvent: { layout: { width: number } } };
 vi.mock("expo-router", () => ({
@@ -51,28 +53,24 @@ vi.mock("react-native", () => ({
 		},
 	},
 	Keyboard: { dismiss: host.dismiss },
-	View: ({
-		children,
-		onLayout,
-	}: {
+	View: (props: {
 		children?: import("react").ReactNode;
 		onLayout?: (event: LayoutEvent) => void;
 	}) => {
-		if (onLayout) host.trackLayouts.push(onLayout);
-		return children ?? null;
+		host.views.push(props);
+		if (props.onLayout) host.trackLayouts.push(props.onLayout);
+		return props.children ?? null;
 	},
-	Text: ({
-		children,
-		onLayout,
-		className,
-	}: {
+	Text: (props: {
 		children?: import("react").ReactNode;
 		onLayout?: (event: LayoutEvent) => void;
 		className?: string;
 	}) => {
+		const { children, onLayout, className } = props;
 		if (onLayout) {
 			host.labelLayouts.set(String(children), onLayout);
 			host.labelClasses.set(String(children), className ?? "");
+			host.labelProps.set(String(children), props);
 		}
 		return children ?? null;
 	},
@@ -192,6 +190,8 @@ beforeEach(() => {
 	host.labelLayouts.clear();
 	host.labelClasses.clear();
 	host.classNames.clear();
+	host.views = [];
+	host.labelProps.clear();
 	forgetModeBarFit();
 	host.platform = "web";
 	host.isHomeFocused.mockReturnValue(true);
@@ -587,6 +587,30 @@ describe("the mode bar measures before it splits into equal halves (#324)", () =
 			host.presses.get(CONTROL.workspaceDrawerTeamBridge)?.(),
 		);
 		expect(agentsClass()).toBe(EQUAL);
+	});
+
+	/* PR #333 review R1-1 / QA Q1-3: the ruler is a measuring device, not
+	 *  copy. Removing `aria-hidden` or `pointerEvents="none"` from it, or
+	 *  making its labels selectable, must fail here — not only in a capture. */
+	it("hides the measuring copy from assistive technology, touch and text selection", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		const rulers = host.views.filter(
+			(v) =>
+				String(v.className ?? "")
+					.split(" ")
+					.includes("absolute") &&
+				String(v.className ?? "").includes("start-0 top-0"),
+		);
+		expect(rulers.length).toBeGreaterThan(0);
+		for (const ruler of rulers) {
+			expect(ruler["aria-hidden"]).toBe(true);
+			expect(ruler.pointerEvents).toBe("none");
+		}
+		for (const label of ["Agents", "Team Bridge"]) {
+			// `selectable={false}` is react-native-web's `user-select: none`.
+			expect(host.labelProps.get(label)?.selectable).toBe(false);
+		}
 	});
 
 	it("falls back to proportional when the track is too narrow for equal halves (320 pt)", async () => {
