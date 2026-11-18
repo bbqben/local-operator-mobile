@@ -481,43 +481,54 @@ export default function Settings() {
 					) : null}
 					{/* `flex-wrap`: two controls side by side are 2 x (label + padding) wide,
 					 *  and at 200 % text that is wider than a 320 pt phone — the row ran to
-					 *  399 px (`U-06`, measured). Wrapping keeps both reachable. */}
+					 *  399 px (`U-06`, measured). Wrapping keeps both reachable. Each
+					 *  button sits in a `grow` cell so a wrapped line fills the column
+					 *  edge to edge instead of leaving ragged gaps. */}
 					<View className="flex-row flex-wrap gap-2 pt-1">
-						<Button
-							testID={CONTROL.settingsRefresh}
-							label={t("mobile.settings.connection.refresh")}
-							onPress={() => void refreshComputers()}
-							/* ONE STYLE FOR THE THREE (visual audit D15). Refresh was
-							 *  outlined while its two neighbours were plain text, which
-							 *  ranked a background re-read above "Switch computer" — the
-							 *  action a reader actually comes here for. None of the three
-							 *  is the section's primary action, so all three are quiet. */
-							variant="quiet"
-							size="sm"
-							/* A discovery, not a pick: the same flag the Computers header
-							 *  uses, which also absorbs repeat taps while one is in flight
-							 *  (U4). */
-							loading={discovering}
-						/>
+						<View className="grow">
+							<Button
+								testID={CONTROL.settingsRefresh}
+								label={t("mobile.settings.connection.refresh")}
+								onPress={() => void refreshComputers()}
+								/* ONE STYLE FOR THE THREE (visual audit D15): none of the
+								 *  three is the section's primary action, so none outranks
+								 *  the others. They were borderless `quiet` text and barely
+								 *  read as tappable (UX pass, settings); the kit's bordered
+								 *  secondary (`outline`) reads as a control, at the `sm` size
+								 *  of this screen's other secondary actions. `sm` is a 44 pt
+								 *  box with the pill centred in it, so the touch floor is
+								 *  real geometry. */
+								variant="outline"
+								size="sm"
+								/* A discovery, not a pick: the same flag the Computers header
+								 *  uses, which also absorbs repeat taps while one is in flight
+								 *  (U4). */
+								loading={discovering}
+							/>
+						</View>
 						{/* Every computer this phone knows, own-address ones included — the
 						 *  rows above are only the account's Radient computers. */}
-						<Button
-							testID={CONTROL.settingsSwitchComputer}
-							label={t("mobile.computers.switch")}
-							onPress={switcher.open}
-							variant="quiet"
-							size="sm"
-						/>
-						<Button
-							testID={CONTROL.settingsAddComputer}
-							label={t("mobile.computers.add")}
-							/* The set-up paths, not the list: the list has no add path once
-							 *  the account has a computer (UX round 2, U12), and the switcher's
-							 *  own "Add a computer" goes to the same place. */
-							onPress={() => router.push(ADD_COMPUTER_HREF)}
-							variant="quiet"
-							size="sm"
-						/>
+						<View className="grow">
+							<Button
+								testID={CONTROL.settingsSwitchComputer}
+								label={t("mobile.computers.switch")}
+								onPress={switcher.open}
+								variant="outline"
+								size="sm"
+							/>
+						</View>
+						<View className="grow">
+							<Button
+								testID={CONTROL.settingsAddComputer}
+								label={t("mobile.computers.add")}
+								/* The set-up paths, not the list: the list has no add path once
+								 *  the account has a computer (UX round 2, U12), and the switcher's
+								 *  own "Add a computer" goes to the same place. */
+								onPress={() => router.push(ADD_COMPUTER_HREF)}
+								variant="outline"
+								size="sm"
+							/>
+						</View>
 					</View>
 				</View>
 

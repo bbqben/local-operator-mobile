@@ -33,3 +33,22 @@ describe("Settings: account deletion reads as destructive", () => {
 		expect(button).toContain('"/dashboard/account"');
 	});
 });
+
+describe("Settings: the connection actions read as buttons", () => {
+	/* UX pass, settings: Refresh / Switch computer / Add a computer were
+	 * borderless `quiet` text and barely read as tappable. They are the kit's
+	 * bordered secondary (`outline`) button now, at the `sm` size every other
+	 * secondary action on this screen uses ("Set up your own tunnel", "Try
+	 * again"), so the screen keeps one secondary button. `sm` meets the touch
+	 * floor with real box geometry, not slop (`Button`, components.md § 0.1).
+	 * One style for the three still holds (visual audit D15). */
+	it.each(["settingsRefresh", "settingsSwitchComputer", "settingsAddComputer"])(
+		"%s is an outline button at the screen's secondary size",
+		(id) => {
+			const button = buttonWith(id);
+			expect(button).toContain('variant="outline"');
+			expect(button).not.toContain('variant="quiet"');
+			expect(button).toContain('size="sm"');
+		},
+	);
+});
