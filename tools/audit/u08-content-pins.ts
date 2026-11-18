@@ -2337,7 +2337,25 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * hides changed. Re-derived with --print over the staged rebased tree
 	 * (run twice, stable); source identity only, NOT rendered, native or device
 	 * evidence. */
-	src: "65b4e424a30e36192d958d1fb1ffb46bec11616f7ce9495060c33354d6bf6eb4",
+	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
+	 * `allowsRecording: true` (native audio-session argument; no rendered output).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* fix(mic): `src/stt/recorder.ts` hands `AudioRecorder` FLAT native options
+	 * (the shape `createRecordingOptions` builds) rather than a spread preset, so
+	 * iOS receives `outputFormat`/`audioQuality` and writes AAC instead of PCM in
+	 * the `.m4a`. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (fa7dd36e, #303) into fix/mic-diagnosis: main's chain
+	 * kept above; only this pin conflicted, and the merged src carries both sides,
+	 * so it matches neither parent. Re-derived with --print over the staged merge
+	 * tree. Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (5aced823, #292 Pele diagrams, #295 prose condensing,
+	 * #274 runtime) into fix/mic-diagnosis: main's chain kept above, our two
+	 * fix(mic) notes re-applied; the merged src carries both sides, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (run
+	 * twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	src: "a5463a5ee839ed9fd9a9d4e0ba34e7c43302e4f42b8774cc28f1725f08fd9074",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
