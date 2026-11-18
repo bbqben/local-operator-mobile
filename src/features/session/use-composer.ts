@@ -428,6 +428,19 @@ export const useComposer = (input: {
 		},
 	});
 	const cancelDictationForSend = voice.cancelForSend;
+	const clearDictationOutcome = voice.clearOutcome;
+
+	/** The FIELD's change handler (what the screen hands the TextInput): the
+	 *  reader's own edit also ends a resting dictation line (issue #323). Kept off
+	 *  the internal `setDraft`, which echo restores and acks also call, and off
+	 *  `commitDraft`, the transcript append that `added` announces. */
+	const editDraft = useCallback(
+		(text: string) => {
+			clearDictationOutcome();
+			setDraft(text);
+		},
+		[clearDictationOutcome, setDraft],
+	);
 
 	/* --------------------------------------------------------------- the send */
 
@@ -1059,7 +1072,7 @@ export const useComposer = (input: {
 		draft:
 			editor !== undefined || draftReadFor === storageIdentity ? draft : "",
 		draftReady: editor !== undefined || draftReadFor === storageIdentity,
-		setDraft,
+		setDraft: editDraft,
 		images:
 			editor !== undefined || draftReadFor === storageIdentity ? images : [],
 		addImage: (image) => setImages((current) => [...current, image]),

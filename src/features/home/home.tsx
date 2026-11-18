@@ -1031,7 +1031,10 @@ export default function Home({
 				suppressDisabledHint={homeRecovery !== null}
 				controls={controls}
 				draft={draft}
-				onDraftChange={setDraft}
+				onDraftChange={(text) => {
+					voice.clearOutcome();
+					setDraft(text);
+				}}
 				images={images}
 				onRemoveImage={(index) =>
 					setImages((current) => current.filter((_, at) => at !== index))
