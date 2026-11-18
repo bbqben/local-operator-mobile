@@ -733,6 +733,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"« Message » is the French noun, spelled as in English (as « Messages » for relay.transcript.label.messages); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
 		"mobile.settings.section.notifications":
 			"« Notifications » is the French plural, spelled as in English (as mobile.notifications.title); the fr audit passed this Settings section header (i18n/audits/evidence/fr/mobile.settings/o3a-fr-b3177c/).",
+		"mobile.sidebar.row_status.question":
+			"« question » is the French noun too, the row's waiting-on-a-question status chip paired with « approbation »; the O3-c fr audit passed it as is (i18n/audits/evidence/fr/mobile.sidebar/o3c-fr-f99d15/), not an English fallback.",
 	},
 	/* Spanish preserves these placeholder-only templates: names and separators
 	 * have no English prose to translate. Each key remains explicitly listed. */

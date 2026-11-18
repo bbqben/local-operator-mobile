@@ -40,5 +40,14 @@
 	"mobile.sidebar.row.asks": "{count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}",
 	"mobile.sidebar.row.asks_not_blocker": "{asks}, агент продолжает работу",
 	"mobile.sidebar.row.agents": "{count, plural, one {# агент} few {# агента} many {# агентов} other {# агента}}",
-	"mobile.sidebar.row.todos": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}"
+	"mobile.sidebar.row.todos": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}",
+	"mobile.sidebar.row_status.approval": "одобрение",
+	"mobile.sidebar.row_status.question": "вопрос",
+	"mobile.sidebar.row_status.not_reachable": "недоступна",
+	"mobile.sidebar.row_status.ended": "завершена",
+	"mobile.sidebar.row_status.not_answering": "не отвечает",
+	"mobile.sidebar.row_label.waiting": "{kind, select, approval {ждёт одобрения} other {ждёт ответа на вопрос}}",
+	"mobile.sidebar.row_label.working": "работает",
+	"mobile.sidebar.row_label.on_device": "на {device}",
+	"mobile.sidebar.row_label.open": "открыта"
 }
