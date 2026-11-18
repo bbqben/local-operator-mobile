@@ -275,7 +275,7 @@ const NAMESPACES = [
 		name: "mobile.sidebar",
 		messages: sidebar,
 		context: sidebarContext,
-		expected: 42, // O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
+		expected: 51, // O3-c +9: the row's five status words (row_status.*) and four screen-reader label fragments (row_label.*) (42 + 9 = 51, counted over the en JSON). O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
 	},
 	{
 		/* This app's own short chrome words the relay has no key for: the sidebar
@@ -551,7 +551,10 @@ describe("the English catalogues", () => {
 		 * all 25 merged en catalogue files (mobile.common 15, mobile.projects 59,
 		 * mobile.sidebar 42, mobile.team_bridge 160); every shipped locale also
 		 * sums to 1101. */
-		expect(total).toBe(1101);
+		/* O3-c (English-first): +9 mobile.sidebar (5 row_status, 4 row_label):
+		 * 1101 + 9 = 1110, derived by summing the keys of all 25 en catalogue
+		 * files (mobile.sidebar 51). */
+		expect(total).toBe(1110);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

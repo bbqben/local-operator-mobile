@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+
+import { renderFor, resetLocaleSource, setLocaleSource } from "@/i18n";
 
 import {
 	charWidthDp,
@@ -6,6 +8,7 @@ import {
 	MODEL_MIN_CHARS,
 	metaLineFor,
 	middleFit,
+	rowAccessibilityLabel,
 	sansTextWidthDp,
 	tailFit,
 	textWidthDp,
@@ -326,4 +329,76 @@ it("fits the drawer's own sans face, and still elides a genuinely narrow slot", 
 	// Negative controls: using the wrong face or a truly narrow slot must fail whole-fit.
 	expect(middleFit(name, width, 1)).not.toBe(name);
 	expect(middleFit(name, 24, 1, sans)).not.toBe(name);
+});
+
+describe("the row's spoken name is keyed (O3-c)", () => {
+	afterEach(() => resetLocaleSource());
+	const ROW = {
+		title: "Payments",
+		attention: "pending",
+		attentionWord: "approval",
+		selected: true,
+		ended: true,
+		remoteDevice: "Studio",
+		remoteUnreachable: true,
+	} as const;
+
+	it("keeps the English label byte for byte", () => {
+		setLocaleSource(() => "en");
+		expect(rowAccessibilityLabel(ROW)).toBe(
+			"Payments, approval waiting, ended, on Studio, not reachable, open",
+		);
+		expect(
+			rowAccessibilityLabel({
+				...ROW,
+				attention: "streaming",
+				ended: false,
+				degraded: true,
+				remoteDevice: undefined,
+				selected: false,
+			}),
+		).toBe("Payments, working, not answering");
+		expect(
+			rowAccessibilityLabel({
+				...ROW,
+				attentionWord: "question",
+				ended: false,
+				remoteDevice: undefined,
+				selected: false,
+			}),
+		).toBe("Payments, question waiting");
+	});
+
+	it("reads every fragment from the reader's catalogue (ur)", () => {
+		setLocaleSource(() => "ur");
+		expect(rowAccessibilityLabel(ROW)).toBe(
+			[
+				"Payments",
+				renderFor(
+					"mobile.sidebar.row_label.waiting",
+					{ kind: "approval" },
+					"ur",
+				),
+				renderFor("mobile.sidebar.row_status.ended", {}, "ur"),
+				renderFor(
+					"mobile.sidebar.row_label.on_device",
+					{ device: "Studio" },
+					"ur",
+				),
+				renderFor("mobile.sidebar.row_status.not_reachable", {}, "ur"),
+				renderFor("mobile.sidebar.row_label.open", {}, "ur"),
+			].join(", "),
+		);
+		expect(
+			rowAccessibilityLabel({
+				...ROW,
+				attention: "unread",
+				selected: false,
+				ended: false,
+				remoteDevice: undefined,
+			}),
+		).toBe(
+			["Payments", renderFor("mobile.sidebar.row.new", {}, "ur")].join(", "),
+		);
+	});
 });

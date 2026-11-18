@@ -166,5 +166,41 @@
 	"mobile.sidebar.row.todos": {
 		"role": "meta",
 		"note": "Count chip on a conversation row: open todo items in the conversation's task list. Monospace meta strip that yields at large text; keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them."
+	},
+	"mobile.sidebar.row_status.approval": {
+		"role": "status",
+		"note": "The one status word on a conversation row whose agent is waiting for the reader to approve an action. Painted in the danger colour in a crowded meta strip; one lowercase word, keep under ~10 characters. No placeholders."
+	},
+	"mobile.sidebar.row_status.question": {
+		"role": "status",
+		"note": "The one status word on a conversation row whose agent asked the reader a question and is waiting for the answer. Painted in the danger colour in a crowded meta strip; one lowercase word, keep under ~10 characters. No placeholders."
+	},
+	"mobile.sidebar.row_status.not_reachable": {
+		"role": "status",
+		"note": "Muted status word on a row for a conversation on ANOTHER device that the mesh can no longer reach, so the row is stale as a whole. Also read in the row's screen-reader name after the device. Lowercase, keep under ~14 characters; not an error. No placeholders."
+	},
+	"mobile.sidebar.row_status.ended": {
+		"role": "status",
+		"note": "Muted status word on a row whose conversation has ended (a receipt, not an error). Also read in the row's screen-reader name. One lowercase word, keep under ~10 characters. No placeholders."
+	},
+	"mobile.sidebar.row_status.not_answering": {
+		"role": "status",
+		"note": "Muted status word on a row whose conversation's runtime is up but has stopped answering (a receipt, not an error). Also read in the row's screen-reader name. Lowercase, keep under ~14 characters. No placeholders."
+	},
+	"mobile.sidebar.row_label.waiting": {
+		"role": "status",
+		"note": "Fragment of a conversation row's screen-reader name, read after the title when the agent is waiting on the reader: an approval or an answer to a question. Fragments are joined with commas (\"Payments, approval waiting, open\"). Keep the select and both arms; translate each arm as a whole phrase, never by composing the status word."
+	},
+	"mobile.sidebar.row_label.working": {
+		"role": "status",
+		"note": "Fragment of a conversation row's screen-reader name, read after the title while the agent's turn is running. Fragments are joined with commas. Lowercase, no placeholders."
+	},
+	"mobile.sidebar.row_label.on_device": {
+		"role": "meta",
+		"note": "Fragment of a conversation row's screen-reader name for a conversation on another device: {device} is that device's name as the reader set it (e.g. \"on Studio Mac\"). Fragments are joined with commas. Keep the placeholder; never translate the name."
+	},
+	"mobile.sidebar.row_label.open": {
+		"role": "status",
+		"note": "Fragment of a conversation row's screen-reader name, read last when this conversation is the one currently open on screen. Fragments are joined with commas. Lowercase, no placeholders."
 	}
 }
