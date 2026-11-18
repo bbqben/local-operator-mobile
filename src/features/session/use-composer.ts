@@ -1087,6 +1087,9 @@ export const useComposer = (input: {
 			setImages([]);
 			setError(null);
 			setNotice(null);
+			/* The × is the reader's own deletion, so a resting dictation line ends
+			 * with the draft it sat under (issue #323; round 1, D1/Q1). */
+			clearDictationOutcome();
 		},
 		dismissError: () => setError(null),
 		attach,

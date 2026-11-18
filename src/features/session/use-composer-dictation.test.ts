@@ -180,6 +180,18 @@ describe("a resting mic line in the session composer (issue #323)", () => {
 		expect(c().draft).toBe("t");
 	});
 
+	it("ends when the reader clears the draft with × (round 1, D1/Q1)", async () => {
+		// The clear-draft control is the reader's own deletion; without this the
+		// line sat under an emptied field, the exact frame #323 was reported from.
+		const { client } = fakeClient();
+		await mount(client, "summarise the notes");
+		await refusedPress("undetermined");
+		expect(c().voice.status).toBe(DICTATION_OUTCOME_COPY["mic-failed"]);
+		await act(async () => c().clearUnsentDraft());
+		expect(c().draft).toBe("");
+		expect(c().voice.status).toBe("");
+	});
+
 	it("ends when the message is sent", async () => {
 		const { client, commands } = fakeClient();
 		await mount(client, "summarise the notes");
