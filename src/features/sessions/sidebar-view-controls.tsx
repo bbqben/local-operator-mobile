@@ -1,4 +1,4 @@
-import { Pressable, Switch, Text, View } from "react-native";
+import { Platform, Pressable, Switch, Text, View } from "react-native";
 
 import {
 	SIDEBAR_SECTIONS,
@@ -14,7 +14,7 @@ import { CONTROL, ROLE, sidebarSectionSwitchId } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Segmented } from "@/ui/components/segmented";
 import { TOUCH_FLOOR } from "@/ui/layout";
-import { SWITCH_ROLES } from "@/ui/variants";
+import { switchGeometry, switchRoles } from "@/ui/variants";
 
 /**
  * The drawer's view options, drawn once for two places: the compact sheet the
@@ -95,10 +95,16 @@ export const SwitchRow = ({
 	 *  second time under the label; this is read only, and wins over `hint`. */
 	accessibilityHint?: string;
 }) => {
-	const onTrack = useTokenColor(SWITCH_ROLES.on.track);
-	const onThumb = useTokenColor(SWITCH_ROLES.on.thumb);
-	const offTrack = useTokenColor(SWITCH_ROLES.off.track);
-	const offThumb = useTokenColor(SWITCH_ROLES.off.thumb);
+	/* Both states' roles, resolved every render (a hook per colour, in a fixed
+	 *  order); the platform decides what the thumb is seen against
+	 *  (`switchGeometry`, `SWITCH_ROLES`). */
+	const geometry = switchGeometry(Platform.OS);
+	const on = switchRoles(geometry, true, disabled);
+	const off = switchRoles(geometry, false, disabled);
+	const onTrack = useTokenColor(on.track);
+	const onThumb = useTokenColor(on.thumb);
+	const offTrack = useTokenColor(off.track);
+	const offThumb = useTokenColor(off.thumb);
 	/* react-native-web reads the ON thumb from `activeThumbColor` and ignores
 	 *  `thumbColor` while on, so without it its teal default returns. Not a
 	 *  React Native prop, hence widened to `object` (the `dir` pattern). */

@@ -24,6 +24,10 @@ const host = vi.hoisted(() => ({
 	hints: new Map<string, string | undefined>(),
 	/** Every string a `Text` printed: what is on screen, as opposed to read. */
 	texts: [] as string[],
+	/** The platform the row believes it is on (`Platform.OS`). */
+	os: "web" as string,
+	/** The props the platform `Switch` was last drawn with. */
+	switchProps: null as null | Record<string, unknown>,
 }));
 
 vi.mock("react-native", () => ({
@@ -33,7 +37,15 @@ vi.mock("react-native", () => ({
 		if (typeof children === "string") host.texts.push(children);
 		return children ?? null;
 	},
-	Switch: () => null,
+	Platform: {
+		get OS() {
+			return host.os;
+		},
+	},
+	Switch: (props: Record<string, unknown>) => {
+		host.switchProps = props;
+		return null;
+	},
 	Pressable: (props: {
 		children?: import("react").ReactNode;
 		testID: string;
@@ -54,7 +66,9 @@ vi.mock("react-native", () => ({
 		return props.children ?? null;
 	},
 }));
-vi.mock("@/ui/appearance", () => ({ useTokenColor: () => "black" }));
+/* The token colour IS the role name here, so a test reads which role painted
+ *  which part of the switch. */
+vi.mock("@/ui/appearance", () => ({ useTokenColor: (role: string) => role }));
 vi.mock("@/ui/layout", () => ({ TOUCH_FLOOR: 44 }));
 vi.mock("@/ui/components/segmented", () => ({
 	Segmented: (props: {
@@ -115,6 +129,8 @@ beforeEach(() => {
 	host.ariaChecked.clear();
 	host.hints.clear();
 	host.texts.length = 0;
+	host.os = "web";
+	host.switchProps = null;
 	current = DEFAULT_SIDEBAR_VIEW;
 });
 afterEach(() => {
@@ -223,5 +239,69 @@ describe("PR #264 design D6 / UX U9", () => {
 		);
 		expect(host.hints.get(id)).toBe("Visible hint");
 		expect(host.texts).toContain("Visible hint");
+	});
+});
+
+/* Review round 1, R2/Q1/Q3: the switch's colours, as the platform `Switch`
+ * actually receives them. A source grep passed with the on and off thumbs
+ * swapped; these fail on that swap, on a missing web on-thumb, and on a
+ * disabled switch drawn in the enabled colours. Roles: `SWITCH_ROLES`. */
+describe("SwitchRow paints the switch from the platform's roles", () => {
+	const draw = (os: string, value: boolean, disabled = false) => {
+		host.os = os;
+		act(() =>
+			root.render(
+				createElement(SwitchRow, {
+					label: "Show ended sessions",
+					value,
+					onChange: () => {},
+					testID: "switch-under-test",
+					disabled,
+				}),
+			),
+		);
+		return host.switchProps as Record<string, unknown>;
+	};
+
+	it("web, on: an accent thumb on the accent-muted track, the web's own on-thumb included", () => {
+		const props = draw("web", true);
+		expect(props.thumbColor).toBe("accent");
+		expect(props.activeThumbColor).toBe("accent");
+		expect(props.trackColor).toEqual({
+			true: "accent-muted",
+			false: "hairline-strong",
+		});
+	});
+
+	it("web, off: a neutral ink thumb", () => {
+		const props = draw("web", false);
+		expect(props.thumbColor).toBe("ink-muted");
+		expect(props.trackColor).toEqual({
+			true: "accent-muted",
+			false: "hairline-strong",
+		});
+	});
+
+	it("Android overhangs like the web", () => {
+		expect(draw("android", true).thumbColor).toBe("accent");
+		expect(draw("android", false).thumbColor).toBe("ink-muted");
+	});
+
+	it("iOS, thumb inside the track: on-accent on accent, elevated on border-control", () => {
+		const on = draw("ios", true);
+		expect(on.thumbColor).toBe("on-accent");
+		expect(on.trackColor).toEqual({ true: "accent", false: "border-control" });
+		expect(on.ios_backgroundColor).toBe("border-control");
+		expect(draw("ios", false).thumbColor).toBe("elevated");
+	});
+
+	it("disabled: the disabled roles in both states, never the enabled colours", () => {
+		for (const value of [true, false]) {
+			const props = draw("web", value, true);
+			expect(props.thumbColor).toBe("ink-disabled");
+			expect(props.activeThumbColor).toBe("ink-disabled");
+			expect(props.trackColor).toEqual({ true: "hairline", false: "hairline" });
+			expect(props.disabled).toBe(true);
+		}
 	});
 });
