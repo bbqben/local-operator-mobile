@@ -65,6 +65,11 @@ on:
 #
 # `github.event_name` gives each trigger its own lane; `cancel-in-progress` is
 # untouched, so a running run on `main` is still never cancelled.
+# MAIN STAYS UNCANCELLED, deliberately (re-checked 2026-11-18, when e2e.yml and
+# ci.yml began cancelling superseded main pushes to free the shared job pool): a
+# main push here can sign and upload to TestFlight (`internal`, when the repository
+# variable IOS_INTERNAL_UPLOAD is 'true'), and cancelling that mid-upload is a
+# release lost, not a minute saved.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
