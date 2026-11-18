@@ -1,172 +1,140 @@
-/**
- * The avatar fan-out that drained the account's `reads` bucket (TestFlight
- * 1157, 2026-11-17, hub logs 20:30–20:41Z): one drawer open sent 119
- * `GET /v1/messaging/endpoints/bep_*` + `/avatar` → 304 in a single burst,
- * and the directory and settings reads after it got 429.
- *
- * "A drawer open" here is what the mounted rows do: every visible agent row's
- * `useEndpointAvatarUri` calls `cache.loadEndpoint` with a reader that goes
- * through the REAL hub client (`endpointAvatarBytes`), so the counted unit is
- * an HTTP request reaching `fetch`, not a mock call.
- */
-import { describe, expect, it } from "vitest";
+import { createServer } from "node:http";
+import { expect, it, vi } from "vitest";
+import { inAvatarViewport } from "@/features/team-bridge/avatar-viewport";
 import {
-	AVATAR_VIEWPORT_MARGIN,
-	createViewportSignal,
-	inAvatarViewport,
-} from "@/features/team-bridge/avatar-viewport";
-import {
-	AVATAR_MAX_IN_FLIGHT,
 	createAvatarCache,
 	endpointAvatarFailure,
 	endpointAvatarKey,
 } from "@/team-bridge/avatars";
 import { createHubClient } from "@/team-bridge/client";
 
-const PNG = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
-const ENDPOINTS = Array.from(
-	{ length: 120 },
-	(_, i) => `bep_${String(i).padStart(3, "0")}`,
-);
-const HASH = "0123456789abcdef";
+const HASH = "1111111111111111";
+const PNG = Uint8Array.from([137, 80, 78, 71, 13, 10, 26, 10]);
+const BUCKET = 120;
 
-function rig() {
-	let requests = 0;
-	let open = 0;
-	let peak = 0;
+it("rapid traversal of 120 rows leaves room for foreground reads in the same HTTP bucket", async () => {
+	let reads = 0;
+	let avatarReads = 0;
+	let clock = 0;
+	const server = createServer((request, response) => {
+		if (++reads > BUCKET) {
+			response.writeHead(429, { "Retry-After": "60" }).end();
+			return;
+		}
+		if (request.url?.includes("/avatar?")) {
+			avatarReads += 1;
+			response.end(PNG);
+			return;
+		}
+		response.end(
+			JSON.stringify({ result: { members: [], unavailable_count: 0 } }),
+		);
+	});
+	await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+	const address = server.address();
+	if (!address || typeof address === "string")
+		throw new Error("No loopback port");
 	const hub = createHubClient({
-		accessToken: async () => ["unit", "photo"].join("-"),
-		fetchImpl: (async (url: string) => {
-			if (!String(url).includes("/avatar"))
-				throw new Error(`unexpected ${url}`);
-			requests += 1;
-			open += 1;
-			peak = Math.max(peak, open);
-			await new Promise((resolve) => setTimeout(resolve, 1));
-			open -= 1;
-			return new Response(PNG, { headers: { "content-type": "image/png" } });
-		}) as unknown as typeof fetch,
+		baseUrl: `http://127.0.0.1:${address.port}`,
+		accessToken: async () => "synthetic-test-bearer",
 	});
-	const cache = createAvatarCache();
-	/** One drawer open: every agent row mounts and asks for its 64 px photo
-	 *  (or, with `visible`, only the rows the viewport gate lets through). */
-	const drawerOpen = (
-		hashOf: (endpoint: string) => string = () => HASH,
-		visible: (index: number) => boolean = () => true,
-	) =>
-		Promise.all(
-			ENDPOINTS.filter((_, index) => visible(index)).map((endpoint) =>
-				cache.loadEndpoint(
-					endpointAvatarKey(endpoint, hashOf(endpoint), 64),
-					async () => {
-						const { bytes } = await hub.endpointAvatarBytes(
-							endpoint,
-							hashOf(endpoint),
-							64,
-						);
-						return `data:image/png;base64,${bytes.length}`;
-					},
-					endpointAvatarFailure,
-				),
-			),
-		);
-	return {
-		cache,
-		drawerOpen,
-		count: () => requests,
-		peak: () => peak,
-	};
-}
-
-describe("endpoint avatar requests per drawer open (120 agents)", () => {
-	it("first open reads each photo once, never more than 4 at a time", async () => {
-		const { drawerOpen, count, peak } = rig();
-		const uris = await drawerOpen();
-		expect(uris.every((uri) => uri !== null)).toBe(true);
-		expect(count()).toBe(120);
-		expect(peak()).toBeLessThanOrEqual(AVATAR_MAX_IN_FLIGHT);
-		expect(AVATAR_MAX_IN_FLIGHT).toBe(4);
-	});
-
-	it("a re-open with unchanged hashes sends 0 requests (was 120)", async () => {
-		const { drawerOpen, count } = rig();
-		await drawerOpen();
-		const afterFirst = count();
-		const uris = await drawerOpen();
-		expect(count() - afterFirst).toBe(0);
-		expect(uris.every((uri) => uri !== null)).toBe(true);
-	});
-
-	it("a new hash is a new photo: only that one is read", async () => {
-		const { drawerOpen, count } = rig();
-		await drawerOpen();
-		const afterFirst = count();
-		await drawerOpen((endpoint) =>
-			endpoint === "bep_007" ? "fedcba9876543210" : HASH,
-		);
-		expect(count() - afterFirst).toBe(1);
-	});
-
-	it("sign-out / account change clears the held photos", async () => {
-		const { cache, drawerOpen, count } = rig();
-		await drawerOpen();
+	const cache = createAvatarCache({ now: () => clock });
+	const pending: Promise<string | null>[] = [];
+	try {
+		// Traverse every band inside one bucket window. Let requests already
+		// admitted settle between bands, but withdraw queued work as we leave.
+		for (let start = 0; start < 120; start += 15) {
+			const band = new AbortController();
+			for (let index = start; index < start + 15; index += 1) {
+				const endpoint = `bep_${index}`;
+				pending.push(
+					cache.loadEndpoint(
+						endpointAvatarKey(endpoint, HASH, 64),
+						() =>
+							hub
+								.endpointAvatarBytes(endpoint, HASH, 64)
+								.then(() => "data:image/png;base64,fixture"),
+						endpointAvatarFailure,
+						{ signal: band.signal },
+					),
+				);
+			}
+			// Start the available slots; let that band leave before the queued
+			// work can run. Pending jobs must still settle on aborted admission.
+			band.abort();
+			await Promise.all(pending.slice(start));
+		}
+		await expect(hub.directory("ten_synthetic")).resolves.toMatchObject({
+			members: [],
+		});
+		expect(avatarReads).toBe(30);
+		expect(reads).toBe(31);
+		const afterClose = reads;
+		clock += 60_001;
+		await Promise.all(pending);
+		expect(reads).toBe(afterClose);
+	} finally {
 		cache.clear();
-		await drawerOpen();
-		expect(count()).toBe(240);
-	});
+		server.closeAllConnections();
+		await new Promise<void>((resolve) => server.close(() => resolve()));
+	}
 });
 
-/*
- * The drawer's rows are 48 pt tall (`TOUCH_FLOOR`) in a ScrollView that mounts
- * all of them; an iPhone window is ~850 pt. The gate admits rows whose box
- * touches the window plus `AVATAR_VIEWPORT_MARGIN` above and below.
- */
-const ROW = 48;
-const WINDOW = 852;
-const HEADER = 300; // org switcher, conversations and the People heading
-const rowBox = (index: number, scrollY = 0) => ({
-	y: HEADER + index * ROW - scrollY,
-	width: 48,
-	height: ROW,
+it("does not dispatch departed rows, and gives a foreground photo the next free slot", async () => {
+	const cache = createAvatarCache({ maxInFlight: 1 });
+	const photo = (id: string) => endpointAvatarKey(`bep_${id}`, HASH, 64);
+	let release!: (value: string) => void;
+	const first = cache.loadEndpoint(
+		photo("first"),
+		() =>
+			new Promise((resolve) => {
+				release = resolve;
+			}),
+		endpointAvatarFailure,
+	);
+	const away = new AbortController();
+	const readAway = vi.fn(async () => "departed");
+	const departed = cache.loadEndpoint(
+		photo("departed"),
+		readAway,
+		endpointAvatarFailure,
+		{ signal: away.signal, row: true },
+	);
+	const order: string[] = [];
+	const queued = cache.loadEndpoint(
+		photo("queued"),
+		async () => {
+			order.push("row");
+			return "row";
+		},
+		endpointAvatarFailure,
+		{ row: true },
+	);
+	const card = cache.loadEndpoint(
+		photo("card"),
+		async () => {
+			order.push("card");
+			return "card";
+		},
+		endpointAvatarFailure,
+	);
+	away.abort();
+	release("settled");
+	await expect(departed).resolves.toBeNull();
+	await Promise.all([first, card, queued]);
+	expect(readAway).not.toHaveBeenCalled();
+	expect(order).toEqual(["card", "row"]);
 });
 
-describe("only on-screen rows read their photo", () => {
-	it("an unlaid-out box (measureInWindow zeros) is not seen", () => {
-		expect(inAvatarViewport({ y: 0, width: 0, height: 0 }, WINDOW)).toBe(false);
-	});
-
-	it("first open of a 120-agent drawer reads the visible band, not 120", async () => {
-		const { drawerOpen, count } = rig();
-		const visible = (index: number) => inAvatarViewport(rowBox(index), WINDOW);
-		await drawerOpen(undefined, visible);
-		const expected = Math.ceil(
-			(WINDOW + AVATAR_VIEWPORT_MARGIN - HEADER) / ROW,
-		);
-		expect(count()).toBe(expected);
-		expect(count()).toBeLessThan(20);
-	});
-
-	it("scrolling reads the newly revealed rows once; scrolling back reads nothing", async () => {
-		const { drawerOpen, count } = rig();
-		const seen = new Set<number>();
-		const signal = createViewportSignal();
-		let scrollY = 0;
-		// Each mounted row re-measures on the list's signal and latches "seen".
-		for (let index = 0; index < ENDPOINTS.length; index += 1)
-			signal.subscribe(() => {
-				if (inAvatarViewport(rowBox(index, scrollY), WINDOW)) seen.add(index);
-			});
-		signal.emit();
-		await drawerOpen(undefined, (index) => seen.has(index));
-		const first = count();
-		scrollY = 1_000;
-		signal.emit();
-		await drawerOpen(undefined, (index) => seen.has(index));
-		const afterScroll = count();
-		expect(afterScroll - first).toBe(Math.ceil(1_000 / ROW));
-		scrollY = 0;
-		signal.emit();
-		await drawerOpen(undefined, (index) => seen.has(index));
-		expect(count()).toBe(afterScroll);
-	});
+it("uses the actual clipping viewport, not the whole window", () => {
+	const viewport = { y: 220, width: 360, height: 340 };
+	expect(inAvatarViewport({ y: 50, width: 48, height: 48 }, viewport)).toBe(
+		false,
+	);
+	expect(inAvatarViewport({ y: 216, width: 48, height: 48 }, viewport)).toBe(
+		true,
+	);
+	expect(inAvatarViewport({ y: 250, width: 0, height: 0 }, viewport)).toBe(
+		false,
+	);
 });

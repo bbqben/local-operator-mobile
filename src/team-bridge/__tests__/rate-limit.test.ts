@@ -775,6 +775,29 @@ describe("transient failures over held rows are silent (TestFlight 1157)", () =>
 		},
 	);
 
+	it("retries only the failed half even while both held results are fresh", async () => {
+		const hub = fakeHub();
+		const directory = vi.mocked(hub.directory);
+		const conversations = vi.mocked(hub.listConversations);
+		const { store, actions } = bridge(hub);
+		await actions.loadOrganization(TENANT);
+		directory.mockRejectedValueOnce(TRANSIENT[1][1]());
+		directory.mockRejectedValueOnce(TRANSIENT[1][1]());
+		await actions.loadOrganization(TENANT, { force: true });
+		await advance(RATE_LIMIT_FALLBACK_MS);
+		expect(directory).toHaveBeenCalledTimes(3);
+		expect(conversations).toHaveBeenCalledTimes(2);
+		expect(peopleStatus(store.getState().orgs[TENANT])).toEqual({
+			skeleton: false,
+			catchingUp: true,
+			alert: false,
+		});
+		await advance(2 * RATE_LIMIT_FALLBACK_MS);
+		expect(directory).toHaveBeenCalledTimes(4);
+		expect(conversations).toHaveBeenCalledTimes(2);
+		expect(store.getState().orgs[TENANT]?.peopleCatchingUp).toBe(false);
+	});
+
 	it("an unmapped 4xx with the server kind is not transient", async () => {
 		let refuse = false;
 		const hub = fakeHub({

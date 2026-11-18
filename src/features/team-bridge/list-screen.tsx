@@ -11,8 +11,10 @@ import {
 import {
 	createContext,
 	type ReactNode,
+	type RefObject,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from "react";
 import {
@@ -403,15 +405,17 @@ function BridgeRowLink({
 function DirectoryProviders({
 	ground,
 	viewport,
+	clip,
 	children,
 }: {
 	ground: DirectoryGround;
 	viewport: ViewportSignal;
+	clip: RefObject<ScrollView | null>;
 	children: ReactNode;
 }) {
 	return (
 		<DirectoryGroundContext.Provider value={ground}>
-			<AvatarViewportProvider signal={viewport}>
+			<AvatarViewportProvider signal={viewport} clip={clip}>
 				{children}
 			</AvatarViewportProvider>
 		</DirectoryGroundContext.Provider>
@@ -565,9 +569,9 @@ export function BridgeDirectory({
 	 * promise settles as soon as its reads do, or at once when both halves are
 	 * inside a wait and nothing is sent. */
 	const [pulling, setPulling] = useState(false);
-	/* Rows read their photo only once on screen (`avatar-viewport.ts`): the
-	 * list re-announces its geometry on layout, growth and scroll. */
+	// The list re-announces the clipping geometry on layout, growth and scroll.
 	const [viewport] = useState(createViewportSignal);
+	const clip = useRef<ScrollView>(null);
 	const retry = () => {
 		// The reader asked: bypass freshness and TTL (never an active 429 wait).
 		if (tenantId) void actions.loadOrganization(tenantId, { force: true });
@@ -587,7 +591,7 @@ export function BridgeDirectory({
 	const peopleLoading = peopleSection.skeleton;
 	const multiOrg = state.organizations.length > 1;
 	return (
-		<DirectoryProviders ground={ground} viewport={viewport}>
+		<DirectoryProviders ground={ground} viewport={viewport} clip={clip}>
 			<View className="px-2 py-1">
 				<Pressable
 					accessibilityRole={ROLE.button}
@@ -636,6 +640,7 @@ export function BridgeDirectory({
 				</Pressable>
 			</View>
 			<ScrollView
+				ref={clip}
 				testID={SURFACE.teamBridgeSections}
 				contentContainerClassName="pb-6"
 				onLayout={viewport.emit}

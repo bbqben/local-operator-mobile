@@ -78,25 +78,64 @@ describe("endpoint avatar identity", () => {
 });
 
 describe("endpoint photo retention (hash-pinned, TestFlight 1157 fan-out)", () => {
-	it("holds one hash's bytes for later mounts, in their own namespace", async () => {
+	it("retains endpoint bytes only for an authorized conditional read", async () => {
 		const cache = createAvatarCache();
 		const human = avatarKey(OWNER, HASH, 64);
 		const key = endpointAvatarKey(OWNER, HASH, 64);
 		await cache.load(human, async () => OWNER_URI, avatarFailure);
-		const read = vi.fn(async () => AGENT_URI);
+		const etag = `"${HASH}-64"`;
+		const http = vi
+			.fn<typeof fetch>()
+			.mockResolvedValueOnce(new Response(PNG, { headers: { etag } }))
+			.mockResolvedValueOnce(new Response(null, { status: 304 }));
+		const hub = createHubClient({
+			accessToken: async () => ACCESS,
+			fetchImpl: http,
+		});
+		const read = vi.fn((validator?: string) =>
+			hub
+				.revalidateEndpointAvatar(OWNER, HASH, 64, {
+					etag: validator ?? null,
+					native: true,
+				})
+				.then((photo) => photo && { uri: AGENT_URI, etag: photo.etag }),
+		);
 		const first = cache.loadEndpoint(key, read, avatarFailure);
 		const twin = cache.loadEndpoint(key, read, avatarFailure);
 		expect(await first).toBe(AGENT_URI);
 		expect(await twin).toBe(AGENT_URI);
 		expect(read).toHaveBeenCalledTimes(1);
-		// The `?v=<hash>` URL is immutable: a remount re-reads nothing.
+		expect(cache.peek(key)).toBeNull();
 		expect(await cache.loadEndpoint(key, read, avatarFailure)).toBe(AGENT_URI);
-		expect(read).toHaveBeenCalledTimes(1);
-		expect(cache.peek(key)).toBe(AGENT_URI);
+		expect(read).toHaveBeenCalledTimes(2);
+		const second = http.mock.calls[1]?.[1];
+		expect(second?.cache).toBe("no-store");
+		expect(new Headers(second?.headers).get("if-none-match")).toBe(etag);
+		expect(new Headers(second?.headers).get("cache-control")).toBe("no-cache");
 		// Same opaque id and hash, different namespace: never the owner's bytes.
 		expect(cache.peek(human)).toBe(OWNER_URI);
 		cache.clear();
 		expect(cache.peek(key)).toBeNull();
+	});
+	it("web forces a fresh GET without CORS-forbidden headers or unsolicited 304", async () => {
+		const http = vi
+			.fn<typeof fetch>()
+			.mockResolvedValue(new Response(null, { status: 304 }));
+		const hub = createHubClient({
+			accessToken: async () => ACCESS,
+			fetchImpl: http,
+		});
+		await expect(
+			hub.revalidateEndpointAvatar(ENDPOINT, HASH, 64, {
+				etag: '"opaque"',
+				native: false,
+			}),
+		).rejects.toMatchObject({ status: 304 });
+		const request = http.mock.calls[0]?.[1];
+		expect(request?.cache).toBe("no-store");
+		const headers = new Headers(request?.headers);
+		expect(headers.has("if-none-match")).toBe(false);
+		expect(headers.has("cache-control")).toBe(false);
 	});
 	it("shares permanent endpoint failures across sizes, never with the owner's key", async () => {
 		const cache = createAvatarCache();
@@ -390,7 +429,7 @@ describe("photo authorization and refusal bounds", () => {
 		expect(first.bodyUsed).toBe(true);
 		expect(read).toHaveBeenCalledTimes(2);
 	});
-	it("a held hash is never re-asked; a 404 is a glyph retried only after the cooldown", async () => {
+	it("same-hash withdrawal withholds the URI and retries only after cooldown", async () => {
 		let calls = 0;
 		let clock = 0;
 		const hub = createHubClient({
@@ -401,33 +440,76 @@ describe("photo authorization and refusal bounds", () => {
 		});
 		const cache = createAvatarCache({ now: () => clock });
 		const key = endpointAvatarKey(ENDPOINT, HASH, 64);
-		const read = (hash: string) => () =>
-			hub.endpointAvatarBytes(ENDPOINT, hash, 64).then(() => AGENT_URI);
+		const read = () =>
+			hub.endpointAvatarBytes(ENDPOINT, HASH, 64).then(() => AGENT_URI);
+		expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
+			AGENT_URI,
+		);
 		expect(
-			await cache.loadEndpoint(key, read(HASH), endpointAvatarFailure),
-		).toBe(AGENT_URI);
-		expect(
-			await cache.loadEndpoint(key, read(HASH), endpointAvatarFailure),
-		).toBe(AGENT_URI);
-		expect(calls).toBe(1);
-		// A new photo is a new key; its withdrawal answer (404) is a glyph.
-		const next = "fedcba9876543210";
-		const nextKey = endpointAvatarKey(ENDPOINT, next, 64);
-		expect(
-			await cache.loadEndpoint(nextKey, read(next), endpointAvatarFailure),
+			await cache.loadEndpoint(key, read, endpointAvatarFailure),
 		).toBeNull();
-		expect(calls).toBe(2);
-		expect(cache.peek(nextKey)).toBeNull();
+		expect(cache.peek(key)).toBeNull();
 		expect(
-			await cache.loadEndpoint(nextKey, read(next), endpointAvatarFailure),
+			await cache.loadEndpoint(key, read, endpointAvatarFailure),
 		).toBeNull();
 		expect(calls).toBe(2);
 		clock = 60_001;
-		expect(
-			await cache.loadEndpoint(nextKey, read(next), endpointAvatarFailure),
-		).toBe(AGENT_URI);
+		expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
+			AGENT_URI,
+		);
 		expect(calls).toBe(3);
 	});
+	it("withholds the same photo on 429 and pauses queued reads until Retry-After", async () => {
+		vi.useFakeTimers();
+		const cache = createAvatarCache();
+		const key = endpointAvatarKey(ENDPOINT, HASH, 64);
+		const http = vi
+			.fn<typeof fetch>()
+			.mockResolvedValueOnce(
+				new Response(PNG, { headers: { etag: '"opaque"' } }),
+			)
+			.mockResolvedValueOnce(
+				new Response(null, { status: 429, headers: { "retry-after": "2" } }),
+			)
+			.mockImplementation(async () => new Response(PNG));
+		const hub = createHubClient({
+			accessToken: async () => ACCESS,
+			fetchImpl: http,
+		});
+		const check = (endpoint: string) => (etag?: string) =>
+			hub
+				.revalidateEndpointAvatar(endpoint, HASH, 64, {
+					etag: etag ?? null,
+					native: true,
+				})
+				.then((photo) => photo && { uri: AGENT_URI, etag: photo.etag });
+		try {
+			expect(
+				await cache.loadEndpoint(key, check(ENDPOINT), endpointAvatarFailure),
+			).toBe(AGENT_URI);
+			expect(
+				await cache.loadEndpoint(key, check(ENDPOINT), endpointAvatarFailure),
+			).toBeNull();
+			expect(
+				await cache.loadEndpoint(key, check(ENDPOINT), endpointAvatarFailure),
+			).toBeNull();
+			const other = "bep_other";
+			const queued = cache.loadEndpoint(
+				endpointAvatarKey(other, HASH, 64),
+				check(other),
+				endpointAvatarFailure,
+			);
+			await vi.advanceTimersByTimeAsync(1_999);
+			expect(http).toHaveBeenCalledTimes(2);
+			await vi.advanceTimersByTimeAsync(1);
+			await expect(queued).resolves.toBe(AGENT_URI);
+			expect(http).toHaveBeenCalledTimes(3);
+		} finally {
+			cache.clear();
+			vi.useRealTimers();
+		}
+	});
+
 	it("refuses oversized declared and streamed endpoint bodies, cancelling each", async () => {
 		for (const declared of [true, false]) {
 			const cancel = vi.fn();

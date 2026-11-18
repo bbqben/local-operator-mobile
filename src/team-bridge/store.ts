@@ -482,10 +482,10 @@ export function createTeamBridgeStore(deps: {
 				() => {
 					retryTimers.delete(tenantId);
 					if (closed || epoch !== generation) return;
-					// `ifStale`: re-read only the half that was refused (the other is fresh).
 					void actions.loadOrganization(tenantId, {
 						silent: true,
 						ifStale: true,
+						retryDue: true,
 					});
 				},
 				Math.min(...ends) - at,
@@ -811,7 +811,12 @@ export function createTeamBridgeStore(deps: {
 		 */
 		loadOrganization(
 			tenantId: string,
-			options: { silent?: boolean; ifStale?: boolean; force?: boolean } = {},
+			options: {
+				silent?: boolean;
+				ifStale?: boolean;
+				force?: boolean;
+				retryDue?: boolean;
+			} = {},
 		): Promise<void> {
 			return once(`org:${tenantId}`, async (owned) => {
 				const client = deps.hub();
@@ -831,18 +836,25 @@ export function createTeamBridgeStore(deps: {
 					held?.peopleState === "ready" &&
 					held.peopleRefreshedAt !== null &&
 					at - held.peopleRefreshedAt < DIRECTORY_TTL_MS;
-				/* A fresh half whose wait has ENDED has nothing outstanding: forget its
-				 * refusal record, or a 429 on a pull over fresh rows would linger as a
-				 * strike and make an unrelated refusal an hour later say "Catching
-				 * up…" at once. A wait still running is kept: deleting it let the next
-				 * pull or Retry re-ask inside Retry-After (QA Q1; for the directory,
-				 * whose 5 min TTL spans a WAF wait, that was every re-open). */
-				if (convFresh && !backedOff(convKey, at)) backoff.delete(convKey);
-				if (peopleFresh && !backedOff(peopleKey, at)) backoff.delete(peopleKey);
 				const force = options.force === true;
-				const readConversations = !convFresh && !blocked(convKey, at, force);
-				const readPeople = !peopleFresh && !blocked(peopleKey, at, force);
-				if (!readConversations && !readPeople) return;
+				const shouldRead = (key: string, fresh: boolean) => {
+					const refusal = backoff.get(key);
+					if (blocked(key, at, force)) return false;
+					// The timer owns only refused halves, not an ordinary TTL refresh.
+					if (options.retryDue && !refusal) return false;
+					if (!fresh) return true;
+					// A transient failure over held rows still needs a success to
+					// clear its status. Keep #297's fresh-row 429 reuse instead.
+					if (refusal && !refusal.rateLimited) return true;
+					backoff.delete(key);
+					return false;
+				};
+				const readConversations = shouldRead(convKey, convFresh);
+				const readPeople = shouldRead(peopleKey, peopleFresh);
+				if (!readConversations && !readPeople) {
+					scheduleOrgRetry(tenantId);
+					return;
+				}
 				const silent =
 					options.silent === true && held?.conversationsState === "ready";
 				if (!silent) {

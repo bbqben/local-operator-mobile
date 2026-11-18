@@ -24,20 +24,11 @@
  *   resolves into nothing.
  * - Bounded in entries AND bytes, least recently used first. A crowded list
  *   that cannot make room renders initials rather than growing the heap.
- * - Endpoint (agent) photos are held too, keyed on endpoint + hash + size.
- *   Their URL is hash-pinned (`?v=<hash>`), so the bytes for one key never
- *   change: revalidating them is a request that can only answer 304. Before
- *   this, every drawer open re-read every agent's photo (TestFlight 1157,
- *   2026-11-17: 119 `GET /v1/messaging/endpoints/bep_<id>/avatar` → 304 in one
- *   burst drained the account's 120/min `reads` bucket, and the directory and
- *   settings reads that followed got 429). Authorization still follows the
- *   directory: a row is only asked for an endpoint photo the CURRENT directory
- *   lists with that hash, so a withdrawn endpoint drops out on the next
- *   directory read (`DIRECTORY_TTL_MS`), and sign-out / account change clears
- *   everything.
- * - At most `maxInFlight` reads (default 4) are outstanding at once; the rest
- *   queue FIFO. A list of N rows must never become N simultaneous requests
- *   against a bucket the directory and settings reads share.
+ * - An endpoint hash versions bytes, not access. Held bytes are only a
+ *   validator for the next authorized read, never a display-cache hit.
+ * - Visible rows can withdraw queued reads; foreground marks outrank the row
+ *   queue. Concurrency and a separate rolling request budget protect the
+ *   shared hub bucket even if responses arrive instantly.
  * - A failure is remembered. A 404 (no photo, or not readable) and an
  *   undecodable answer stay failed for that hash; a network failure is retried
  *   only after a cool-down. Scrolling a list of people with no photos must not
@@ -206,12 +197,21 @@ export function endpointAvatarFailure(error: unknown): AvatarFailure {
 }
 
 type Entry =
-	| { state: "ready"; uri: string; bytes: number }
-	| { state: "loading"; promise: Promise<string | null> }
+	| { state: "ready"; uri: string; bytes: number; etag: string | null }
+	| { state: "loading"; promise: Promise<string | null>; bytes: number }
 	| { state: "failed"; retryAt: number; permanent: boolean };
 
 /** A read waiting for a slot: run it when one frees, or settle it on `clear()`. */
-type Waiter = { run: () => void; cancel: () => void };
+type Waiter = { run: () => void; cancel: () => void; priority: number };
+type PhotoResult = string | { uri: string; etag: string | null } | null;
+type ReadOptions = { signal?: AbortSignal; row?: boolean };
+
+const READ_WINDOW_MS = 60_000;
+// TestFlight 1157: 119 photo GETs exhausted the hub's 120/min read bucket.
+// Reserve half for everything else. The hub client may do one 401 refresh
+// retry, so each logical photo read reserves two requests until a full window
+// AFTER settlement. Even delayed retries remain within that reservation.
+const PHOTO_READS_PER_WINDOW = 120 / 2 / 2;
 
 /* `account:hash:size`, as `avatarKey` builds it; anything else has no sibling. */
 const SIZED_KEY = /^(.*):(64|256)$/;
@@ -263,32 +263,44 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 	/* Reads started and not yet settled, so `wakeOne` can tell whether a woken
 	 * waiter took a slot. */
 	let inFlight = 0;
-	/*
-	 * Reads refused because every slot is an outstanding read. They wait, FIFO,
-	 * and one is started each time a read settles, so an organization with more
-	 * photos than slots fills in as reads finish instead of leaving the overflow
-	 * on initials until the screen remounts. The queue holds closures, not
-	 * bytes, and only one per mounted mark.
-	 */
 	const waiters: Waiter[] = [];
-	/*
-	 * Hand freed capacity to the queue. A woken waiter's `load()` may start no
-	 * fetch at all (its photo is already held, already in flight as a duplicate
-	 * key, or cooling down), and then nothing would ever wake the NEXT waiter:
-	 * the queue would strand with a slot free (review round 2, R2-1). So keep
-	 * waking until a waiter actually occupies a slot or the room runs out.
-	 */
-	const wakeOne = () => {
-		while (waiters.length > 0 && inFlight < maxInFlight && makeRoom(1, 0)) {
-			const before = inFlight;
+	const reservations = new Set<{ until: number }>();
+	const epochListeners = new Set<() => void>();
+	let wakeTimer: ReturnType<typeof setTimeout> | undefined;
+	let throttledUntil = 0;
+	const nextReadAt = () => {
+		const at = now();
+		for (const reservation of reservations) {
+			if (reservation.until <= at) reservations.delete(reservation);
+		}
+		const budgetAt =
+			reservations.size < PHOTO_READS_PER_WINDOW
+				? at
+				: Math.min(
+						...Array.from(reservations, (reservation) => reservation.until),
+					);
+		return Math.max(throttledUntil, budgetAt);
+	};
+	const cancelWake = () => {
+		clearTimeout(wakeTimer);
+		wakeTimer = undefined;
+	};
+	const wake = () => {
+		cancelWake();
+		while (waiters.length && inFlight < maxInFlight) {
+			const due = nextReadAt();
+			if (due > now()) {
+				if (Number.isFinite(due)) wakeTimer = setTimeout(wake, due - now());
+				return;
+			}
+			if (!makeRoom(1, 0)) return;
 			waiters.shift()?.run();
-			if (inFlight > before) return;
 		}
 	};
 
 	const remove = (key: string) => {
 		const entry = entries.get(key);
-		if (entry?.state === "ready") heldBytes -= entry.bytes;
+		if (entry && entry.state !== "failed") heldBytes -= entry.bytes;
 		entries.delete(key);
 	};
 
@@ -362,54 +374,90 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 
 	const load = (
 		key: string,
-		fetchUri: () => Promise<string>,
+		fetchUri: (etag?: string) => Promise<PhotoResult>,
 		classify: (error: unknown) => AvatarFailure,
+		options: ReadOptions = {},
+		fromQueue = false,
 	): Promise<string | null> => {
+		const { signal } = options;
+		if (signal?.aborted) return Promise.resolve(null);
+		const endpoint = ENDPOINT_KEY.test(key);
 		const held = entries.get(key);
-		if (held?.state === "ready") {
+		if (held?.state === "ready" && !endpoint) {
 			touch(key, held);
 			return Promise.resolve(held.uri);
 		}
 		if (held?.state === "loading") return held.promise;
-		if (held?.state === "failed") {
-			if (now() < held.retryAt) return Promise.resolve(null);
-			remove(key);
-		}
-		if (inFlight >= maxInFlight || !makeRoom(1, 0)) {
-			// Too many reads outstanding: wait for one to settle.
+		if (held?.state === "failed" && now() < held.retryAt)
+			return Promise.resolve(null);
+		if (
+			(!fromQueue && waiters.length > 0) ||
+			inFlight >= maxInFlight ||
+			nextReadAt() > now() ||
+			(held === undefined && !makeRoom(1, 0))
+		) {
 			return new Promise((resolve) => {
-				waiters.push({
-					// `load` runs synchronously up to starting its fetch, so the
-					// caller sees `inFlight` move before this returns.
-					run: () => resolve(load(key, fetchUri, classify)),
-					cancel: () => resolve(null),
-				});
+				const detach = () => signal?.removeEventListener("abort", cancel);
+				const cancel = () => {
+					detach();
+					const index = waiters.indexOf(waiter);
+					if (index !== -1) waiters.splice(index, 1);
+					if (waiters.length === 0) cancelWake();
+					resolve(null);
+				};
+				const waiter: Waiter = {
+					priority: options.row ? 0 : 1,
+					run: () => {
+						detach();
+						resolve(load(key, fetchUri, classify, options, true));
+					},
+					cancel,
+				};
+				// A newly entered band is more relevant than old queued rows.
+				// Cards/threads still take precedence over speculative list work.
+				const index = waiters.findIndex(
+					(other) => other.priority <= waiter.priority,
+				);
+				waiters.splice(index < 0 ? waiters.length : index, 0, waiter);
+				signal?.addEventListener("abort", cancel, { once: true });
+				wake();
 			});
 		}
+		const validator = held?.state === "ready" ? held : null;
 		const started = epoch;
+		const reservation = { until: Number.POSITIVE_INFINITY };
+		reservations.add(reservation);
 		inFlight += 1;
-		const promise = fetchUri()
+		const promise = fetchUri(validator?.etag ?? undefined)
 			.then(
-				(uri) => {
-					// A retired account's endpoint read lands as nothing (as before).
-					if (started !== epoch) return ENDPOINT_KEY.test(key) ? null : uri;
+				(result) => {
+					if (started !== epoch)
+						return endpoint ? null : typeof result === "string" ? result : null;
 					remove(key);
-					/* A URI over the WHOLE budget is refused before anything is
-					 * evicted: storing it would empty the cache and still not fit,
-					 * and not remembering it would refetch it on every mount. */
+					const photo =
+						typeof result === "string"
+							? { uri: result, etag: null }
+							: (result ?? (validator?.etag ? validator : null));
+					if (!photo) return null;
+					const { uri, etag } = photo;
 					if (uri.length > maxBytes) {
-						// THIS size only: "too big for the cache" is about the
-						// variant, not the photo, so the other size stays readable.
 						remember(key, Number.POSITIVE_INFINITY, true);
 						return null;
 					}
-					if (!makeRoom(1, uri.length)) return uri;
-					heldBytes += uri.length;
-					entries.set(key, { state: "ready", uri, bytes: uri.length });
+					if (makeRoom(1, uri.length)) {
+						heldBytes += uri.length;
+						entries.set(key, { state: "ready", uri, bytes: uri.length, etag });
+					}
 					return uri;
 				},
 				(error: unknown) => {
 					if (started !== epoch) return null;
+					if (isHubError(error) && error.kind === "rate_limited") {
+						throttledUntil = Math.max(
+							throttledUntil,
+							now() + transientDelay(error.retryAfterMs, cooldown),
+						);
+					}
 					remove(key);
 					fail(key, classify(error), retryAfterOf(error));
 					return null;
@@ -417,10 +465,15 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 			)
 			.finally(() => {
 				if (started !== epoch) return;
+				reservation.until = now() + READ_WINDOW_MS;
 				inFlight -= 1;
-				wakeOne();
+				wake();
 			});
-		entries.set(key, { state: "loading", promise });
+		entries.set(key, {
+			state: "loading",
+			promise,
+			bytes: validator?.bytes ?? 0,
+		});
 		return promise;
 	};
 
@@ -430,8 +483,16 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 			return epoch;
 		},
 
-		/** A held photo's URI, account or endpoint. */
+		getEpoch: () => epoch,
+		subscribeEpoch(listener: () => void) {
+			epochListeners.add(listener);
+			return () => {
+				epochListeners.delete(listener);
+			};
+		},
+		/** Only public-to-this-view account photos can bypass a new read. */
 		peek(key: string): string | null {
+			if (ENDPOINT_KEY.test(key)) return null;
 			const entry = entries.get(key);
 			if (entry?.state !== "ready") return null;
 			touch(key, entry);
@@ -455,11 +516,12 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		 */
 		loadEndpoint(
 			key: string,
-			fetchUri: () => Promise<string>,
+			fetchUri: (etag?: string) => Promise<PhotoResult>,
 			classify: (error: unknown) => AvatarFailure,
+			options?: ReadOptions,
 		): Promise<string | null> {
 			if (!ENDPOINT_KEY.test(key)) return Promise.resolve(null);
-			return load(key, fetchUri, classify);
+			return load(key, fetchUri, classify, options);
 		},
 
 		fail,
@@ -470,8 +532,12 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 			inFlight = 0;
 			entries.clear();
 			heldBytes = 0;
+			reservations.clear();
+			throttledUntil = 0;
+			cancelWake();
 			// Queued reads belong to the old account: settle them, never run them.
 			for (const waiter of waiters.splice(0)) waiter.cancel();
+			for (const listener of epochListeners) listener();
 		},
 
 		/** For tests and diagnostics: counts only, never keys or bytes. */

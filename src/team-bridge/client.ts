@@ -303,6 +303,17 @@ export interface RegisterDeviceInput {
  * Build the client. Pure over its dependencies, so the whole protocol, including
  * the 401 retry and every refusal class, is a Node unit test's subject.
  */
+type RawRequest = {
+	bytes?: Uint8Array;
+	accept?: string;
+	root?: string;
+	photo?: true;
+	// Present only for endpoint authorization. Null means an unconditional GET.
+	validator?: string | null;
+	nativePhoto?: boolean;
+};
+type ImageBytes = { mime: "image/png" | "image/jpeg"; bytes: Uint8Array };
+
 export function createHubClient(deps: HubClientDeps) {
 	const base = (deps.baseUrl ?? RADIENT_API_BASE).replace(TRAILING_SLASHES, "");
 	const timeoutMs = deps.timeoutMs ?? DEFAULT_TIMEOUT_MS;
@@ -319,7 +330,7 @@ export function createHubClient(deps: HubClientDeps) {
 		 * timeout/abort and refresh-once path. Only profile reads override the
 		 * messaging root; adding raw bytes must not bypass its retirement fence.
 		 */
-		raw?: { bytes?: Uint8Array; accept?: string; root?: string; photo?: true },
+		raw?: RawRequest,
 		limitMs: number = timeoutMs,
 	): Promise<Response> {
 		const fetchImpl = resolveFetch(deps.fetchImpl);
@@ -345,6 +356,8 @@ export function createHubClient(deps: HubClientDeps) {
 					headers: {
 						accept: raw?.accept ?? "application/json",
 						authorization: `Bearer ${token}`,
+						...(raw?.nativePhoto ? { "cache-control": "no-cache" } : {}),
+						...(raw?.validator ? { "if-none-match": raw.validator } : {}),
 						...(raw && "bytes" in raw
 							? /* The hub sniffs the bytes and ignores this header. */
 								{ "content-type": "application/octet-stream" }
@@ -359,6 +372,8 @@ export function createHubClient(deps: HubClientDeps) {
 							: { body: JSON.stringify(body) }),
 					/* The hub is not a tunnel and owns no cookie the phone should send. */
 					credentials: "omit",
+					// An HTTP cache hit must not stand in for current endpoint access.
+					...(raw?.validator !== undefined ? { cache: "no-store" } : {}),
 					signal: controller.signal,
 				},
 			);
@@ -391,7 +406,7 @@ export function createHubClient(deps: HubClientDeps) {
 		query?: Query;
 		body?: unknown;
 		signal?: AbortSignal;
-		raw?: { bytes?: Uint8Array; accept?: string; root?: string; photo?: true };
+		raw?: RawRequest;
 		timeoutMs?: number;
 	};
 
@@ -468,6 +483,7 @@ export function createHubClient(deps: HubClientDeps) {
 			);
 		}
 		assertPhotoActive(response);
+		if (response.status === 304 && options.raw?.validator) return response;
 		if (!response.ok) {
 			if (options.raw?.photo) {
 				// No JSON/error-page reads on the closed photo path: otherwise an
@@ -549,7 +565,7 @@ export function createHubClient(deps: HubClientDeps) {
 		size: 64 | 256,
 		signal?: AbortSignal,
 	): Promise<{ mime: "image/png" | "image/jpeg"; bytes: Uint8Array }> {
-		return readImageBytes(
+		return readUnconditionalImageBytes(
 			{
 				path:
 					target.kind === "account"
@@ -576,9 +592,11 @@ export function createHubClient(deps: HubClientDeps) {
 			maxBytes: number;
 			limitMs: number;
 			requireDeclaredMime?: boolean;
+			validator?: string | null;
+			nativePhoto?: boolean;
 		},
 		signal?: AbortSignal,
-	): Promise<{ mime: "image/png" | "image/jpeg"; bytes: Uint8Array }> {
+	): Promise<(ImageBytes & { etag: string | null }) | null> {
 		/*
 		 * ONE deadline over the headers AND the body. `once()` disarms its
 		 * timer when the headers arrive, which is right for a small JSON
@@ -631,6 +649,7 @@ export function createHubClient(deps: HubClientDeps) {
 		let bytes: Uint8Array;
 		let status: number;
 		let servedMime: string | undefined;
+		let etag: string | null;
 		try {
 			const response = await Promise.race([
 				authorized("GET", target.path, {
@@ -639,6 +658,8 @@ export function createHubClient(deps: HubClientDeps) {
 						root: target.root,
 						accept: "image/png, image/jpeg",
 						photo: true,
+						validator: target.validator,
+						nativePhoto: target.nativePhoto,
 					},
 					signal: deadline.signal,
 					timeoutMs: target.limitMs,
@@ -646,6 +667,10 @@ export function createHubClient(deps: HubClientDeps) {
 				aborted,
 			]);
 			status = response.status;
+			if (deadline.signal.aborted)
+				throw deadline.signal.reason ?? unreachable(status);
+			if (status === 304) return null; // accepted above only with a sent validator
+			etag = response.headers.get("etag");
 			servedMime = response.headers
 				.get("content-type")
 				?.split(";")[0]
@@ -702,7 +727,16 @@ export function createHubClient(deps: HubClientDeps) {
 		if (!mime || (target.requireDeclaredMime && servedMime !== mime)) {
 			throw unreadableAvatar(status);
 		}
-		return { mime, bytes };
+		return { mime, bytes, etag };
+	}
+
+	async function readUnconditionalImageBytes(
+		target: Parameters<typeof readImageBytes>[0],
+		signal?: AbortSignal,
+	): Promise<ImageBytes> {
+		const photo = await readImageBytes(target, signal);
+		if (!photo) throw unreadableAvatar(304);
+		return { mime: photo.mime, bytes: photo.bytes };
 	}
 
 	return {
@@ -926,7 +960,7 @@ export function createHubClient(deps: HubClientDeps) {
 			attachmentId: string,
 			signal?: AbortSignal,
 		): Promise<{ mime: "image/png" | "image/jpeg"; bytes: Uint8Array }> {
-			return readImageBytes(
+			return readUnconditionalImageBytes(
 				{
 					path: `/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/attachments/${encodeURIComponent(attachmentId)}`,
 					root: "/v1/messaging",
@@ -1014,6 +1048,35 @@ export function createHubClient(deps: HubClientDeps) {
 				hash,
 				size,
 				signal,
+			);
+		},
+
+		/** A new authorized GET for retained endpoint bytes; null is a confirmed 304. */
+		async revalidateEndpointAvatar(
+			endpointId: string,
+			hash: string,
+			size: 64 | 256,
+			options: { etag: string | null; native: boolean; signal?: AbortSignal },
+		) {
+			const canonical = `/v1/messaging/endpoints/${endpointId}/avatar?v=${hash}`;
+			if (
+				!ENDPOINT_AVATAR_PATH.test(canonical) ||
+				(size !== 64 && size !== 256)
+			)
+				throw unreadableAvatar(null);
+			return readImageBytes(
+				{
+					path: `/endpoints/${encodeURIComponent(endpointId)}/avatar`,
+					root: "/v1/messaging",
+					query: { v: hash, size },
+					maxBytes: AVATAR_MAX_BYTES,
+					limitMs: timeoutMs,
+					// Web CORS permits Authorization but not these explicit cache
+					// headers. Its Fetch cache mode still forces a fresh GET.
+					validator: options.native ? options.etag : null,
+					nativePhoto: options.native,
+				},
+				options.signal,
 			);
 		},
 

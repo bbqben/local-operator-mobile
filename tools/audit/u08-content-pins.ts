@@ -2270,7 +2270,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * (avatar-viewport, profile-card, list-screen scroll signal). No U-08
 	 * instrument, copy or measured geometry moved. Source identity only, NOT
 	 * rendered U-08 evidence. */
-	src: "fee54c8818090fffda4829384f0771fa4425e5ba1632a42e2cf5bce544f4ceab",
+	/* PR #306 remediation: per-half transient recovery, bounded cancellable
+	 * viewport photo reads and endpoint authorization on admission. Source
+	 * identity only, NOT rendered U-08 evidence. */
+	src: "f86bbf7e1b314653e3e4ad9da4b41dfae8e7c0386c701dda2e561f145a6e42c3",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
