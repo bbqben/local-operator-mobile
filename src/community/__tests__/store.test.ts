@@ -1,0 +1,279 @@
+import { describe, expect, it, vi } from "vitest";
+import {
+	type CommunityClient,
+	CommunityError,
+	createCommunityClient,
+} from "@/community/client";
+import type { SubmissionOutcome } from "@/community/contract";
+import { conversationKey, createCommunityStore } from "@/community/store";
+
+/**
+ * The store's flow rules: one idempotency key per attempt reused on Retry,
+ * sender-only outcomes, best-effort Cancel, drafts in memory, and the events
+ * loop's resync. The client is the real one with its methods stubbed, so a
+ * method name drifting between the two is a type error here.
+ */
+
+const CID = "local-operator-community";
+const CONV = "ch-general";
+const KEY = conversationKey(CID, CONV);
+
+function fakeClient(overrides: Partial<CommunityClient>): CommunityClient {
+	return {
+		...createCommunityClient({
+			accessToken: async () => "t",
+			fetchImpl: async () => {
+				throw new Error("unexpected transport");
+			},
+		}),
+		messages: async () => ({ items: [], next_cursor: null }),
+		...overrides,
+	};
+}
+
+function setup(overrides: Partial<CommunityClient>) {
+	let n = 0;
+	const keys: string[] = [];
+	const client = fakeClient(overrides);
+	const scope = createCommunityStore({
+		client: () => client,
+		now: () => 1_000,
+		newKey: async () => {
+			const key = `key-${++n}`.padEnd(16, "x");
+			keys.push(key);
+			return key;
+		},
+		sleep: async () => undefined,
+	});
+	return { ...scope, keys };
+}
+
+const published = (key: string): SubmissionOutcome => ({
+	idempotency_key: key,
+	state: "published",
+	message_id: "m1",
+});
+
+describe("sending", () => {
+	it("Retry after a dropped request reuses the attempt's key", async () => {
+		const seen: string[] = [];
+		const submit = vi
+			.fn<CommunityClient["submit"]>()
+			.mockImplementationOnce(async (input) => {
+				seen.push(input.idempotencyKey);
+				throw new CommunityError({ kind: "unreachable" });
+			})
+			.mockImplementationOnce(async (input) => {
+				seen.push(input.idempotencyKey);
+				return published(input.idempotencyKey);
+			});
+		const { store, actions, keys } = setup({ submit });
+		actions.setDraft(CID, CONV, "hello");
+		await actions.send(CID, CONV);
+		expect(store.getState().attempts[KEY]?.state.kind).toBe("failed");
+		expect(store.getState().drafts[KEY]).toBe("hello");
+		await actions.retry(CID, CONV);
+		expect(seen).toEqual([keys[0], keys[0]]);
+		expect(keys).toHaveLength(1);
+		expect(store.getState().attempts[KEY]).toBeUndefined();
+		expect(store.getState().drafts[KEY]).toBe("");
+	});
+
+	it("a refusal is sender-only, keeps the draft, and a new send mints a new key", async () => {
+		const seen: string[] = [];
+		const submit = vi.fn<CommunityClient["submit"]>(async (input) => {
+			seen.push(input.idempotencyKey);
+			throw new CommunityError({
+				kind: "refused",
+				refusal: {
+					status: "refused",
+					category: "private_information",
+					reference: "MOD-AAAA-BBBB",
+				},
+			});
+		});
+		const { store, actions } = setup({ submit });
+		actions.setDraft(CID, CONV, "my phone is …");
+		await actions.send(CID, CONV);
+		expect(store.getState().attempts[KEY]?.state).toEqual({
+			kind: "refused",
+			category: "private_information",
+			reference: "MOD-AAAA-BBBB",
+		});
+		expect(store.getState().threads[KEY]?.messages ?? []).toEqual([]);
+		/* Same text again is NOT a retry of a final outcome: it is a new attempt. */
+		await actions.send(CID, CONV);
+		expect(new Set(seen).size).toBe(2);
+	});
+
+	it("a limit blocks Retry until its retry time, then reuses the key", async () => {
+		let clock = 1_000;
+		const seen: string[] = [];
+		const submit = vi
+			.fn<CommunityClient["submit"]>()
+			.mockImplementationOnce(async (input) => {
+				seen.push(input.idempotencyKey);
+				throw new CommunityError({
+					kind: "rate_limited",
+					retryAfterMs: 10_000,
+				});
+			})
+			.mockImplementation(async (input) => {
+				seen.push(input.idempotencyKey);
+				return published(input.idempotencyKey);
+			});
+		const scope = createCommunityStore({
+			client: () => fakeClient({ submit }),
+			now: () => clock,
+			newKey: async () => "only-key-xxxxxxxxxx",
+			sleep: async () => undefined,
+		});
+		scope.actions.setDraft(CID, CONV, "hi");
+		await scope.actions.send(CID, CONV);
+		expect(scope.store.getState().attempts[KEY]?.state).toEqual({
+			kind: "limited",
+			retryAt: 11_000,
+		});
+		await scope.actions.retry(CID, CONV);
+		expect(seen).toHaveLength(1);
+		clock = 11_000;
+		await scope.actions.retry(CID, CONV);
+		expect(seen).toEqual(["only-key-xxxxxxxxxx", "only-key-xxxxxxxxxx"]);
+	});
+
+	it("Cancel shows the server's answer: posted stays posted", async () => {
+		let release: (outcome: SubmissionOutcome) => void = () => undefined;
+		const submit = vi.fn<CommunityClient["submit"]>(
+			(input) =>
+				new Promise<SubmissionOutcome>((resolve, reject) => {
+					release = resolve;
+					input.signal?.addEventListener("abort", () =>
+						reject(new DOMException("aborted", "AbortError")),
+					);
+				}),
+		);
+		const cancelSubmission = vi.fn<CommunityClient["cancelSubmission"]>(
+			async (_cid, key) => published(key),
+		);
+		const { store, actions } = setup({ submit, cancelSubmission });
+		actions.setDraft(CID, CONV, "hi");
+		const sending = actions.send(CID, CONV);
+		await vi.waitFor(() => expect(submit).toHaveBeenCalled());
+		expect(store.getState().attempts[KEY]?.state.kind).toBe("checking");
+		await actions.cancel(CID, CONV);
+		release(published("unused"));
+		await sending;
+		expect(store.getState().attempts[KEY]).toBeUndefined();
+		expect(store.getState().drafts[KEY]).toBe("");
+	});
+
+	it("Cancel before the key was claimed stops the upload and keeps the draft", async () => {
+		const submit = vi.fn<CommunityClient["submit"]>(
+			(input) =>
+				new Promise<SubmissionOutcome>((_resolve, reject) => {
+					input.signal?.addEventListener("abort", () =>
+						reject(new DOMException("aborted", "AbortError")),
+					);
+				}),
+		);
+		const cancelSubmission = vi.fn<CommunityClient["cancelSubmission"]>(
+			async () => {
+				throw new CommunityError({ kind: "not_found" });
+			},
+		);
+		const { store, actions } = setup({ submit, cancelSubmission });
+		actions.setDraft(CID, CONV, "hi");
+		const sending = actions.send(CID, CONV);
+		await vi.waitFor(() => expect(submit).toHaveBeenCalled());
+		await actions.cancel(CID, CONV);
+		await sending;
+		expect(store.getState().attempts[KEY]?.state.kind).toBe("cancelled");
+		expect(store.getState().drafts[KEY]).toBe("hi");
+	});
+
+	it("a replay still checking is polled by key, never resubmitted", async () => {
+		const submit = vi.fn<CommunityClient["submit"]>(async (input) => ({
+			idempotency_key: input.idempotencyKey,
+			state: "checking",
+		}));
+		const submission = vi
+			.fn<CommunityClient["submission"]>()
+			.mockResolvedValueOnce({ idempotency_key: "k", state: "checking" })
+			.mockResolvedValueOnce(published("k"));
+		const { store, actions } = setup({ submit, submission });
+		actions.setDraft(CID, CONV, "hi");
+		await actions.send(CID, CONV);
+		expect(submit).toHaveBeenCalledTimes(1);
+		expect(submission).toHaveBeenCalledTimes(2);
+		expect(store.getState().attempts[KEY]).toBeUndefined();
+	});
+});
+
+describe("join", () => {
+	it("a guidelines change during join reloads the text and joins nothing", async () => {
+		const join = vi.fn<CommunityClient["join"]>(async () => {
+			throw new CommunityError({
+				kind: "guidelines_changed",
+				guidelinesVersion: "2026-12",
+			});
+		});
+		const bootstrap = vi.fn<CommunityClient["bootstrap"]>(async () => ({
+			community_id: CID,
+			community: {
+				id: CID,
+				slug: "local-operator",
+				name: "Local Operator Community",
+				state: "active",
+			},
+			guidelines: { version: "2026-12", text: "New rules." },
+			membership: null,
+		}));
+		const { store, actions } = setup({ join, bootstrap });
+		expect(await actions.join(CID, "2026-11")).toBe("changed");
+		expect(store.getState().bootstraps[CID]?.data?.guidelines.version).toBe(
+			"2026-12",
+		);
+	});
+});
+
+describe("events", () => {
+	it("refetches the open thread on conversation_changed and resyncs from the tail on 410", async () => {
+		const afters: (string | null)[] = [];
+		let calls = 0;
+		const events = vi.fn<CommunityClient["events"]>(async (_cid, after) => {
+			afters.push(after);
+			calls += 1;
+			if (calls === 1) return { events: [], next: "c1" };
+			if (calls === 2)
+				return {
+					events: [{ type: "conversation_changed", conversation_id: CONV }],
+					next: "c2",
+				};
+			if (calls === 3) throw new CommunityError({ kind: "resync_required" });
+			/* Park the loop until the test unwatches. */
+			return new Promise(() => undefined);
+		});
+		const messages = vi.fn<CommunityClient["messages"]>(async () => ({
+			items: [],
+			next_cursor: null,
+		}));
+		const bootstrap = vi.fn<CommunityClient["bootstrap"]>(async () => {
+			throw new CommunityError({ kind: "not_found" });
+		});
+		const { actions } = setup({
+			events,
+			messages,
+			bootstrap,
+			channels: async () => ({ items: [], next_cursor: null }),
+			directConversations: async () => [],
+		});
+		await actions.loadThread(CID, CONV);
+		const reads = messages.mock.calls.length;
+		const unwatch = actions.watch(CID);
+		await vi.waitFor(() => expect(calls).toBe(4));
+		unwatch();
+		expect(afters).toEqual([null, "c1", "c2", null]);
+		expect(messages.mock.calls.length).toBeGreaterThan(reads);
+		expect(bootstrap).toHaveBeenCalled();
+	});
+});
