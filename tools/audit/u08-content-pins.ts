@@ -2322,7 +2322,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #304 converges with main 198ac368 (#306, #310): both histories
 	 * preserved; the combined src tree re-derived with --print. Source identity
 	 * only, NOT rendered U-08 evidence. */
-	src: "5ec03a7249bc93638ec9a63eb878221a54879e556241b484cd3d71bce25f02a9",
+	/* PR #304 QA R5 Q10: a source contract test for the native photo
+	 * fetcher's connection reuse (`push-avatar-contract.test.ts`); no render
+	 * input moved. Re-derived with --print; source identity only, NOT
+	 * rendered U-08 evidence. */
+	src: "27dee12bcd32d7e2b34c352c58b6cd7fdf288672ffaf8e88f149e1766ca2f81c",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -60,6 +60,7 @@ class TeamBridgePushTestRunner : Instrumentation() {
       "expoExtensionPoints" to ::expoExtensionPoints,
       "photoTargetRules" to ::photoTargetRules,
       "photoFetchStub" to ::photoFetchStub,
+      "photoFetchAfterServerIdleClose" to ::photoFetchAfterServerIdleClose,
       "photoDecoratorFallback" to ::photoDecoratorFallback,
       "retiredPresentation" to ::retiredPresentation,
       "conversationSummary" to ::conversationSummary,
@@ -514,8 +515,9 @@ class TeamBridgePushTestRunner : Instrumentation() {
     return java.io.ByteArrayOutputStream().also { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }.toByteArray()
   }
 
-  private fun respondBytes(out: java.io.OutputStream, status: String, body: ByteArray, extra: String = "") {
-    out.write("HTTP/1.1 $status\r\nContent-Type: image/png\r\nContent-Length: ${body.size}\r\n${extra}Connection: close\r\n\r\n".toByteArray())
+  private fun respondBytes(out: java.io.OutputStream, status: String, body: ByteArray, extra: String = "", keepAlive: Boolean = false) {
+    val connection = if (keepAlive) "" else "Connection: close\r\n"
+    out.write("HTTP/1.1 $status\r\nContent-Type: image/png\r\nContent-Length: ${body.size}\r\n$extra$connection\r\n".toByteArray())
     out.write(body)
   }
 
@@ -567,6 +569,29 @@ class TeamBridgePushTestRunner : Instrumentation() {
       check(elapsed < 750) { "whole-fetch deadline not enforced: $elapsed ms" }
       check(clientClosed.await(1, TimeUnit.SECONDS)) { "client left slow socket open" }
     }
+  }
+
+  /**
+   * #304 QA R5 Q10: the second photo push in a live process drew initials.
+   * The server answers keep-alive (no `Connection: close`, like the cloud and
+   * the installed-proof hub) and then closes the idle socket, as Node's 5 s
+   * keep-alive timeout or a load balancer's idle timeout does between pushes.
+   * A pooled socket is reused for a GET without an EOF probe and, with retries
+   * off, the next fetch failed at once. Both fetches must get the photo, each
+   * on its own connection.
+   */
+  private fun photoFetchAfterServerIdleClose() {
+    val red = png(Color.RED)
+    val requests = java.util.concurrent.atomic.AtomicInteger()
+    stub({ _, out -> requests.incrementAndGet(); respondBytes(out, "200 OK", red, keepAlive = true) }) { origin ->
+      val photo = PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce)
+      checkNotNull(PushAvatarFetcher.fetch(photo, origin, 192)) { "first photo" }
+      // The stub has closed its end; give the FIN time to land on the client.
+      Thread.sleep(300)
+      val second = checkNotNull(PushAvatarFetcher.fetch(photo, origin, 192)) { "second photo after server idle close" }
+      check(second.getPixel(96, 96) == Color.RED) { "second centre ${Integer.toHexString(second.getPixel(96, 96))}" }
+    }
+    check(requests.get() == 2) { "stub saw ${requests.get()} requests" }
   }
 
   private fun photoDecoratorFallback() {

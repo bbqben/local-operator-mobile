@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.ConnectionPool
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -79,11 +80,25 @@ internal object PushAvatarFetcher {
 
   private fun isLoopback(host: String) = host == "127.0.0.1" || host == "localhost" || host == "[::1]"
 
+  /**
+   * NO CONNECTION REUSE (#304 QA R5 Q10). Pushes arrive seconds to minutes
+   * apart, far past most servers' keep-alive (Node's 5 s, a load balancer's
+   * idle timeout), while OkHttp keeps an idle socket for 5 min. OkHttp 4.9
+   * health-checks a pooled socket for a GET only locally (`isHealthy` skips
+   * the EOF probe unless the method is not GET), so the next photo is written
+   * to a socket the server already closed and fails at once — and with
+   * `retryOnConnectionFailure(false)` (kept: one attempt, one nonce
+   * presentation, inside the budget) nothing recovers it. The sender's face
+   * then silently became initials for every photo push after the first in a
+   * live process. A fresh connection per photo costs one handshake inside the
+   * 3 s budget; a pool of 0 idle connections closes each socket on release.
+   */
   private val client by lazy {
     OkHttpClient.Builder()
       .followRedirects(false)
       .followSslRedirects(false)
       .retryOnConnectionFailure(false)
+      .connectionPool(ConnectionPool(0, 1, TimeUnit.SECONDS))
       .build()
   }
 

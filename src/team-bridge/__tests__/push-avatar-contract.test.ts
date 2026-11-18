@@ -61,6 +61,8 @@ const kotlinPalette = (): number[] => {
 };
 
 const TONES_CONST = /const val TONES = 8\b/;
+const NO_IDLE_POOL = /\.connectionPool\(ConnectionPool\(0, /;
+const NO_RETRY = /\.retryOnConnectionFailure\(false\)/;
 const COMMENT_LINE = /^\s*(\*|\/\/|\/\*)/;
 const LAUNCHER_EXCLUSION = /setExcludedFromSurfaces|SURFACE_LAUNCHER/;
 const SET_ICON = /\.setIcon\(/g;
@@ -134,6 +136,21 @@ describe("push avatar contract (ADR 0010 §5)", () => {
 		const renderer = kotlin("AvatarRenderer.kt");
 		expect(renderer).toMatch(CONVERSATION_SPEC_DECL);
 		expect(kotlinPalette()).not.toContain(0xff656056);
+	});
+
+	it("fetches every photo on a fresh connection (QA R5 Q10, PR #304)", () => {
+		// OkHttp reuses a pooled socket for a GET without probing for the
+		// server's close, and retries are off, so a photo push arriving after the
+		// server's keep-alive expired failed at once and drew initials (the
+		// installed-app proof's heads-up DM, run 44298827622). The emulator
+		// runner's `photoFetchAfterServerIdleClose` is the behavioural check;
+		// this pins the source so the regression fails without an emulator.
+		const code = kotlin("PushAvatarFetcher.kt")
+			.split("\n")
+			.filter((line) => !COMMENT_LINE.test(line))
+			.join("\n");
+		expect(code).toMatch(NO_IDLE_POOL);
+		expect(code).toMatch(NO_RETRY);
 	});
 
 	it("bounds the parsed tone by the palette size", () => {
