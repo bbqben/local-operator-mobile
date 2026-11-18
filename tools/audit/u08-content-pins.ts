@@ -2337,7 +2337,15 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * hides changed. Re-derived with --print over the staged rebased tree
 	 * (run twice, stable); source identity only, NOT rendered, native or device
 	 * evidence. */
-	src: "65b4e424a30e36192d958d1fb1ffb46bec11616f7ce9495060c33354d6bf6eb4",
+	/* fix(team-bridge): warm notification tap lands its thread (#304 QA R4
+	 * Q1): the Bridge thread viewport trusts a measurement of the rows now
+	 * admitted, the thread's metadata loading block is laid over the list,
+	 * and a proof-only trace seam (`src/testing/thread-viewport-trace.ts`,
+	 * null when committed). The U-08 scene (agent session screen) is not
+	 * edited. --print over the staged tree moves only src (main's own src had
+	 * already drifted from this pin: 4a26b236… at 5aced823); app unchanged.
+	 * Source admission only, NOT rendered, native or device evidence. */
+	src: "c91be0d2af40d34fc09918630e663de07f357ddb8d3206349bdc2e35aa84f2c8",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

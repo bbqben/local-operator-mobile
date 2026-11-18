@@ -54,6 +54,7 @@ import {
 	writeTeamBridgeDraft,
 } from "@/team-bridge/thread-drafts";
 import { teamBridgeViewerFixture } from "@/testing/team-bridge-fixture";
+import { threadViewportTrace } from "@/testing/thread-viewport-trace";
 import {
 	state as a11yState,
 	CONTROL,
@@ -680,6 +681,13 @@ function ThreadContent({
 		(!conversationId || !!thread?.messages.length || thread?.state === "ready");
 	const dataReady = useRef(false);
 	dataReady.current = readyForPosition;
+	// Which rows a content measurement describes (`dataKey`): keys, not the
+	// array, so a 20 s poll that returns the same rows keeps a measurement valid.
+	const itemsKey = useRef("");
+	itemsKey.current = useMemo(
+		() => items.map((item) => item.key).join("\n"),
+		[items],
+	);
 	if (!viewport.current)
 		viewport.current = createThreadViewport({
 			// Exact measured offset, not scrollToEnd's estimated frame offset.
@@ -692,6 +700,8 @@ function ThreadContent({
 			read: () => rendered.current(),
 			newestSeq: () => newestSeq.current,
 			dataReady: () => dataReady.current,
+			dataKey: () => itemsKey.current,
+			trace: threadViewportTrace,
 			web: Platform.OS === "web",
 			followChanged: (following) => followChanged.current(following),
 			newBelow: setNewBelow,
@@ -702,6 +712,17 @@ function ThreadContent({
 	useEffect(() => {
 		if (readyForPosition && items.length > 0) viewport.current?.dataChanged();
 	}, [items, readyForPosition]);
+	// Proof-only (`thread-viewport-trace.ts`): the screen-level flips that move
+	// the list, alongside the viewport's own events. Null outside the proof job.
+	useEffect(() => {
+		threadViewportTrace?.("screen", {
+			admitted,
+			metadataLoading,
+			readyForPosition,
+			anchorPending: anchorState.pending,
+			items: items.length,
+		});
+	}, [admitted, metadataLoading, readyForPosition, anchorState.pending, items]);
 	// The controller may hold one pending native re-check; never run it after unmount.
 	useEffect(() => () => viewport.current?.dispose(), []);
 	const {
@@ -1004,9 +1025,17 @@ function ThreadContent({
 					</View>
 				) : (
 					<>
-						{metadataLoading && (
+						{/* LAID OVER the list, like the anchor walk's loading block
+						 *  below: a warm notification tap mounts the thread before the
+						 *  org's conversations resolve, and in normal layout this block
+						 *  took ~120 pt from the list while it loaded, so the list
+						 *  re-laid out under rows it was still landing (#304 QA R4
+						 *  Q1). Shown only while no rows are on screen; rows that are
+						 *  already positioned are the better loading state. */}
+						{metadataLoading && !(positioned && items.length > 0) && (
 							<View
-								className="gap-3 p-4"
+								pointerEvents="none"
+								className="absolute start-0 end-0 top-0 gap-3 p-4"
 								testID={SURFACE.teamBridgeThreadLoading}
 							>
 								<Skeleton lines={3} />
