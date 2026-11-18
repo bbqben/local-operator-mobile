@@ -33,6 +33,7 @@ import { type HubClient, HubError, isHubError } from "@/team-bridge/client";
 import type {
 	Conversation,
 	DirectoryMember,
+	MentionRow,
 	Message,
 	Notify,
 	StatusConsent,
@@ -1558,6 +1559,7 @@ export function createTeamBridgeStore(deps: {
 			body: string,
 			clientRef: string,
 			attachmentIds: string[] = [],
+			mentions: MentionRow[] = [],
 		): Promise<Message> {
 			requireLive();
 			const gate = store.getState().gate;
@@ -1576,6 +1578,9 @@ export function createTeamBridgeStore(deps: {
 					clientRef,
 					body,
 					attachmentIds,
+					// Only when present: a send with no mentions keeps the exact
+					// call (and wire body) it had before mentions existed.
+					...(mentions.length > 0 ? { mentions } : {}),
 				});
 			} catch (error) {
 				if (!closed && epoch === generation) gateFailure(error);
