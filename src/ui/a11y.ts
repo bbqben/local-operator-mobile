@@ -524,6 +524,12 @@ export const CONTROL = {
 	connectionSignIn: "connection-sign-in",
 	connectionConsole: "connection-console",
 	codeBlockCopy: "code-block-copy",
+	/* A drawn diagram: the figure opens the full-screen viewer; the header's own
+	 * control copies the source (the `codeBlockCopy` gesture, moved off the
+	 * picture so a tap on it can mean "look closer"). */
+	diagramOpen: "diagram-open",
+	diagramCopy: "diagram-copy",
+	diagramViewerClose: "diagram-viewer-close",
 	/* --- the in-conversation find. One header lever, the sheet's own field, and
 	 *  the navigate bar's three controls. `findEdit` is the bar's count segment,
 	 *  which reopens the sheet with the query intact — deliberately NOT folded
@@ -830,6 +836,8 @@ export const SURFACE = {
 	teamBridgeReplyThreadError: "team-bridge-reply-thread-error",
 	teamBridgeReplyComposer: "team-bridge-reply-composer",
 	teamBridgeImageViewer: "team-bridge-image-viewer",
+	/** The full-screen diagram viewer (pan and, on iOS, pinch-zoom). */
+	diagramViewer: "diagram-viewer",
 	teamBridgeChannelPreview: "team-bridge-channel-preview",
 	teamBridgeComposer: "team-bridge-composer",
 	/** The composer's rounded shell, so its resting geometry is assertable. */
