@@ -34,8 +34,9 @@
  * **What an early fallback costs.** If the timer wins before UIKit has begun
  * the dismissal, the picker's presentation is refused (or taken down with the
  * sheet): no picker, and a promise that never settles. That would strand the
- * owner's `attaching` latch — Attach, Paste and Send disabled — so the owners
- * release it through `watchStrandedPick` (`attach-latch.ts`). What JavaScript
+ * owner's `attaching` latch — Attach, Paste and Clear disabled — so the owners
+ * release a FALLBACK-launched pick through `createAttachLatch`
+ * (`attach-latch.ts`). What JavaScript
  * cannot undo: `expo-file-system` keeps its picking context, so a later
  * **Files** pick is refused for the rest of that app run, shown as the
  * existing attach error line (visible, not silent). A lost `onDismiss` with no
@@ -109,6 +110,15 @@ const recordTrace = (event: HandoffTrace) => {
 		console.info("[attach-handoff]", event);
 };
 
+/* Set only while a handoff is calling its launch, which starts the owner's
+ * pick synchronously (an async function runs to its first `await` at once):
+ * the owner's latch reads it to know whether this pick came from the
+ * fallback, the one launch that can strand (`attach-latch.ts`). */
+let launchingVia: "onDismiss" | "fallback" | undefined;
+
+/** True only inside a launch the dismiss FALLBACK made. */
+export const launchingFromFallback = (): boolean => launchingVia === "fallback";
+
 export function createAttachmentSheetHandoff(trace = recordTrace) {
 	let pending: (() => void) | undefined;
 	let chosen = false;
@@ -128,19 +138,22 @@ export function createAttachmentSheetHandoff(trace = recordTrace) {
 		fellBack = false;
 	};
 	const since = () => (hiddenAt === undefined ? null : Date.now() - hiddenAt);
-	const launchPending = (via: "onDismiss" | "fallback") => {
+	const launchPending = (via: "onDismiss" | "fallback", launch: () => void) => {
 		disarm();
-		const launch = pending;
 		// Consuming a selection is NOT reopening the sheet: queued row events
 		// after onDismiss must not launch a second, different picker.
 		pending = undefined;
-		if (launch === undefined) return;
 		trace({ via, afterHiddenMs: since() });
 		fellBack = via === "fallback";
-		launch();
+		launchingVia = via;
+		try {
+			launch();
+		} finally {
+			launchingVia = undefined;
+		}
 	};
 	const dismissed = () => {
-		if (pending !== undefined) launchPending("onDismiss");
+		if (pending !== undefined) launchPending("onDismiss", pending);
 		else if (fellBack) trace({ via: "late-onDismiss", afterHiddenMs: since() });
 		hiddenAt = undefined;
 		fellBack = false;
@@ -149,7 +162,11 @@ export function createAttachmentSheetHandoff(trace = recordTrace) {
 		// Only an iOS choice waits; with nothing pending there is nothing to owe.
 		if (pending === undefined || fallback !== undefined) return;
 		hiddenAt = Date.now();
-		fallback = setTimeout(() => launchPending("fallback"), DISMISS_FALLBACK_MS);
+		const launch = pending;
+		fallback = setTimeout(
+			() => launchPending("fallback", launch),
+			DISMISS_FALLBACK_MS,
+		);
 	};
 	return {
 		choose: (launch: () => void, platform: string) => {

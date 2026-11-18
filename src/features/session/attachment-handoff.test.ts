@@ -6,7 +6,7 @@ import {
 	DISMISS_FALLBACK_MS,
 } from "./attach-handoff";
 
-const OWNER_ATTACH_FINALLY = /finally\s*\{\s*setAttaching\(false\)/;
+const OWNER_ATTACH_FINALLY = /finally\s*\{\s*endAttach\(\);/;
 const CANCEL_BEFORE_REOPEN =
 	/onPress=\{\(\) => \{\s*attachmentHandoff\.cancel\(\);\s*setAttachSheetOpen\(true\);/;
 const BRIDGE_CHOOSE =

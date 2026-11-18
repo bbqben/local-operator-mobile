@@ -19,7 +19,7 @@ import {
 	pickImageFromLibrary,
 	readWebImageFile,
 } from "@/features/session/attach";
-import { watchStrandedPick } from "@/features/session/attach-latch";
+import { createAttachLatch } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import {
 	acknowledgedCurrentDraft,
@@ -274,6 +274,9 @@ export const useComposer = (input: {
 	const [error, setError] = useState<string | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
 	const [attaching, setAttaching] = useState(false);
+	/* Busy from a pick's start until it settles; only a pick the attach
+	 *  handoff's fallback launched can be released early (`attach-latch.ts`). */
+	const attachLatch = useRef(createAttachLatch(setAttaching)).current;
 
 	/* The draft window's provenance (design §2.1): sticky per window, reset by an
 	 * empty draft. A ref, not state — nothing renders differently from it, and the
@@ -924,8 +927,7 @@ export const useComposer = (input: {
 	const attach = useCallback(
 		(source: AttachSource, via: PasteVia = "sheet") => {
 			void (async () => {
-				setAttaching(true);
-				const stopWatch = watchStrandedPick(() => setAttaching(false));
+				const endAttach = attachLatch.begin();
 				/* A new attach supersedes the last failure the way `home.tsx`'s copies of
 				 * this handler already do (`setComposerError(null)`): without it, "No image
 				 * was pasted…" stayed up after a later SUCCESSFUL attach, so the error line
@@ -950,12 +952,11 @@ export const useComposer = (input: {
 				} catch {
 					setError(composerCopy().attachError);
 				} finally {
-					setAttaching(false);
-					stopWatch();
+					endAttach();
 				}
 			})();
 		},
-		[setImages],
+		[attachLatch, setImages],
 	);
 
 	/** The web paste EVENT's file. Same failure copy as the pickers, same strip
