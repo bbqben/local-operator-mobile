@@ -766,7 +766,14 @@ export default function Settings() {
 								),
 							)
 						}
-						variant="quiet"
+						/* The kit's `danger` action (components.md § 2): deleting the
+						 *  account is the one irreversible thing on this screen, and a
+						 *  neutral `quiet` label read like any link (UX pass, settings).
+						 *  The tone is the danger ink on its wash and border, and the
+						 *  label itself says "Delete", so colour is never the only
+						 *  signal. What it does is unchanged: the console's account page,
+						 *  where deletion and its own confirmation happen. */
+						variant="danger"
 						testID={CONTROL.settingsDeleteAccount}
 					/>
 					<Text className="text-body-sm text-ink-dim">
