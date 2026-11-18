@@ -25,6 +25,7 @@ import {
 	listStore,
 	useConnection,
 } from "@/features/auth/connection-provider";
+import { homeRecoveryKind } from "@/features/home/home-recovery";
 import { headerHealth } from "@/features/session/health";
 import { OUTAGE_GRACE_MS } from "@/features/session/resume-hold";
 import { insideResumeWindow } from "@/features/session/resume-plan";
@@ -3082,6 +3083,71 @@ describe("Radient discovery before a route exists (PR #120 QA round 1, Q1)", () 
 		});
 		expect(retried.navigate).toBe(true);
 		expect(retried.state.kind).toBe("exchanging");
+	});
+
+	/* TestFlight 2026-11-18 08:47: Home's "Connecting to {host}…" spinner under a
+	 *  green header chip, drawer and composer model already populated, until a
+	 *  relaunch. `goLive` publishes the route BEFORE awaiting startup admission,
+	 *  and admission queues on the lifecycle's tail behind any held private-storage
+	 *  step, so `busy` stays true while the route is live. Home must read the live
+	 *  route, not the attempt's return (`home-recovery.ts`). */
+	it("keeps Home off the connecting splash once the route is live while startup admission is still held", async () => {
+		// Routable hostnames, as the edge-401 case above builds them.
+		const mock = await relay({
+			tunnels: tunnels.map((tunnel, index) => ({
+				...tunnel,
+				hostname: `${(index === 0 ? "a" : "b").repeat(32)}-lop.radienthq.com`,
+			})),
+		});
+		transport(mock.origin);
+		durable.oauth = oauth;
+		await mount();
+		await until(
+			() =>
+				latest.restoredAccount &&
+				connectionStore.getState().computers.length > 0,
+		);
+		const target = connectionStore.getState().computers[0];
+		if (!target) throw new Error("Expected discovered computer");
+		/* A private-storage step still running on the admission tail — the shape
+		 *  of a keychain write or picker drain that has not settled. */
+		const held = deferred();
+		let holding = false;
+		void startupAuthorizationLifecycle.runIfCurrent(
+			startupAuthorizationLifecycle.getRevision(),
+			() => {
+				holding = true;
+				return held.promise;
+			},
+		);
+		// Running before the pick: `beginRoute` bumps the revision, which would
+		//  skip a step that had not started yet.
+		await until(() => holding);
+		let picking!: Promise<void>;
+		await act(async () => {
+			picking = latest.selectComputer(target);
+		});
+		await until(() => connectionStore.getState().phase === "live");
+		await until(() => latest.relay() !== null);
+		// The provider's own flags: the attempt has not returned.
+		expect(latest.busy).toBe(true);
+		const recovery = () =>
+			homeRecoveryKind({
+				busy: latest.busy,
+				coldStartSettled: latest.coldStartSettled,
+				connected:
+					connectionStore.getState().route !== null && latest.relay() !== null,
+				offline: false,
+				refusal: latest.refusal,
+			});
+		// What the chip shows (live) is what Home shows: no spinner.
+		expect(recovery()).toBeNull();
+		held.resolve();
+		await act(async () => {
+			await picking;
+		});
+		expect(latest.busy).toBe(false);
+		expect(recovery()).toBeNull();
 	});
 
 	it("reports a discovery 401 after a fresh grant as general failure, not a competing sign-in", async () => {
