@@ -240,3 +240,139 @@ describe("createTransitionTick", () => {
 		expect(SHEET.match(/haptic\("selection"\)/g)).toHaveLength(1);
 	});
 });
+
+/**
+ * The commit that actually hides a closing modal's native `Modal` (#248). A
+ * caller waiting for that `Modal`'s `onDismiss` needs a start point for a
+ * fallback that is never EARLIER than the native dismissal can begin: after the
+ * exit animation, not the press that closed the sheet — the race the attach
+ * handoff's old 500 ms timer lost.
+ */
+describe("useModalExit onHidden", () => {
+	let dom: DomShim | null = null;
+	let root: ReturnType<typeof createRoot> | null = null;
+	let hidden: string[] = [];
+	let shown: boolean[] = [];
+	let done: (() => void) | null = null;
+	const opened: ModalHandle[] = [];
+
+	/* The Sheet's own composition: its Modal is given `visible || exiting`. */
+	const SheetProbe = ({
+		visible,
+		tag = "a",
+		reduceMotion = false,
+	}: {
+		visible: boolean;
+		tag?: string;
+		reduceMotion?: boolean;
+	}) => {
+		const exiting = useModalExit({
+			visible,
+			reduceMotion,
+			durationMs: 120,
+			animateOut: (finish) => {
+				done = finish;
+			},
+			reset: () => {},
+			onHidden: () => hidden.push(`${tag}:${visible || exiting}`),
+		});
+		shown.push(visible || exiting);
+		return null;
+	};
+	const show = (props: {
+		visible: boolean;
+		tag?: string;
+		reduceMotion?: boolean;
+	}) => act(async () => root?.render(createElement(SheetProbe, props)));
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+		dom = installDomShim();
+		root = createRoot(dom.container as Element);
+		hidden = [];
+		shown = [];
+		done = null;
+	});
+	afterEach(async () => {
+		await act(async () => root?.unmount());
+		root = null;
+		dom?.dispose();
+		dom = null;
+		for (const handle of opened.splice(0)) closeModal(handle);
+		vi.useRealTimers();
+	});
+
+	it("fires once, after the exit animation, never on the close itself", async () => {
+		await show({ visible: true });
+		await show({ visible: false });
+		// The row press closed the sheet; the Modal is held shown for the exit.
+		expect(shown[shown.length - 1]).toBe(true);
+		expect(hidden).toEqual([]);
+		await act(async () => done?.());
+		// Reported from the commit whose Modal is no longer shown.
+		expect(hidden).toEqual(["a:false"]);
+		await show({ visible: false });
+		await act(async () => {
+			vi.runAllTimers();
+		});
+		expect(hidden).toEqual(["a:false"]);
+	});
+
+	it("fires once when the exit falls back because the animation never reports", async () => {
+		await show({ visible: true });
+		await show({ visible: false });
+		await act(async () => {
+			vi.advanceTimersByTime(120 + EXIT_FALLBACK_SLACK_MS);
+		});
+		expect(hidden).toEqual(["a:false"]);
+		await act(async () => done?.());
+		expect(hidden).toEqual(["a:false"]);
+	});
+
+	it("fires on the close commit itself when the exit is skipped", async () => {
+		await show({ visible: true, reduceMotion: true });
+		await show({ visible: false, reduceMotion: true });
+		expect(hidden).toEqual(["a:false"]);
+	});
+
+	it("fires on the close commit of a hand-off to another modal", async () => {
+		await show({ visible: true });
+		opened.push(openModal({ current: null }, null, true));
+		await show({ visible: false });
+		expect(hidden).toEqual(["a:false"]);
+	});
+
+	it("never fires for a modal that mounts closed, or reopens mid-exit", async () => {
+		await show({ visible: false });
+		await act(async () => {
+			vi.runAllTimers();
+		});
+		expect(hidden).toEqual([]);
+		await show({ visible: true });
+		await show({ visible: false });
+		await show({ visible: true });
+		await act(async () => {
+			vi.runAllTimers();
+		});
+		expect(hidden).toEqual([]);
+	});
+
+	it("fires again for the next open and close, through the latest callback", async () => {
+		await show({ visible: true });
+		await show({ visible: false });
+		await act(async () => done?.());
+		await show({ visible: true, tag: "b" });
+		await show({ visible: false, tag: "b" });
+		await act(async () => done?.());
+		expect(hidden).toEqual(["a:false", "b:false"]);
+	});
+
+	it("the Sheet passes its caller's onHidden to the exit that owns the hide", () => {
+		const SHEET = readFileSync(
+			new URL("./components/sheet.tsx", import.meta.url),
+			"utf8",
+		).replace(/\s+/g, " ");
+		expect(SHEET).toContain("onHidden, });");
+		expect(SHEET).toContain("visible={shown}");
+	});
+});

@@ -96,6 +96,16 @@ export const createTransitionTick = (
  *   interrupted). Must be safe to call while the entry is still running.
  * @param reset Put the animated values back to "closed" without animating —
  *   the pre-exit behaviour, used whenever the exit is skipped.
+ * @param onHidden Called once per close, from the effect of the commit that
+ *   stops holding the `Modal` shown: the close itself when the exit is
+ *   skipped, otherwise the commit after the exit ends. WHY (#248): a caller
+ *   that waits for the `Modal`'s iOS `onDismiss` needs a start point for a
+ *   fallback that is never earlier than the native dismissal can begin. The
+ *   caller's own close is too early — the `Modal` is held for the exit after
+ *   it — and so is a plain `visible || exiting` edge: in the close commit
+ *   `exiting` has not been set yet, so that value dips to false for one commit
+ *   before the exit holds it. Only this hook knows which commit really let go.
+ *   Never called for a modal that mounts closed, or one reopened mid-exit.
  */
 export const useModalExit = (input: {
 	visible: boolean;
@@ -103,9 +113,13 @@ export const useModalExit = (input: {
 	durationMs: number;
 	animateOut: (done: () => void) => void;
 	reset: () => void;
+	onHidden?: () => void;
 }): boolean => {
 	const [exiting, setExiting] = useState(false);
 	const was = useRef(input.visible);
+	/* Set by `finish` below; the effect on `exiting` reports the hide from the
+	 *  commit that lets the Modal go, once. A reopen clears it. */
+	const hideOwed = useRef(false);
 	/* The callbacks are read through a ref so the effect below depends on
 	 *  `visible` alone: a caller's inline closures must not restart an exit. */
 	const latest = useRef(input);
@@ -114,6 +128,7 @@ export const useModalExit = (input: {
 		const closed = was.current && !input.visible;
 		was.current = input.visible;
 		if (input.visible) {
+			hideOwed.current = false;
 			setExiting(false);
 			return undefined;
 		}
@@ -123,6 +138,8 @@ export const useModalExit = (input: {
 			!shouldAnimateExit({ reduceMotion, othersOpen: modalStackDepth() })
 		) {
 			reset();
+			// Skipped: this close's own commit is the one that hid the Modal.
+			if (closed) latest.current.onHidden?.();
 			return undefined;
 		}
 		let live = true;
@@ -132,6 +149,7 @@ export const useModalExit = (input: {
 			clearTimeout(fallback);
 			unsubscribe();
 			latest.current.reset();
+			hideOwed.current = true;
 			setExiting(false);
 		};
 		/* A modal that opens DURING the exit ends it at once — the same
@@ -150,5 +168,10 @@ export const useModalExit = (input: {
 			unsubscribe();
 		};
 	}, [input.visible]);
+	useEffect(() => {
+		if (exiting || !hideOwed.current) return;
+		hideOwed.current = false;
+		latest.current.onHidden?.();
+	}, [exiting]);
 	return exiting;
 };
