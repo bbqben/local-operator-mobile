@@ -249,6 +249,12 @@ export type AttemptState =
 export type Attempt = {
 	/** Reused by every retry of this text; a new send mints a new one. */
 	key: string;
+	/**
+	 * The server settled this key as `expired` (observed for a key whose
+	 * moderation could not answer). An expired key replays `expired` forever,
+	 * so the next Retry must mint a fresh key rather than reuse this one.
+	 */
+	rekey?: boolean;
 	text: string;
 	threadRootId: string | null;
 	state: AttemptState;

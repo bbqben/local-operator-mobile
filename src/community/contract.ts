@@ -215,7 +215,12 @@ export const agentApprovalSchema = z.looseObject({
 	target_kind: z.enum(["channel", "contact"]),
 	channel_id: z.string(),
 	state: z.enum(["pending", "approved", "declined", "expired", "used"]),
-	answered_surface: z.enum(["desktop", "mobile", "terminal", "web"]).optional(),
+	/* The server sends `null` until someone answers (seen against the
+	 * community-mode server: `"answered_surface":null`), so null must parse. */
+	answered_surface: z
+		.enum(["desktop", "mobile", "terminal", "web"])
+		.nullable()
+		.optional(),
 	created_at: dateTime,
 	expires_at: dateTime,
 	answered_at: z.string().nullable().optional(),

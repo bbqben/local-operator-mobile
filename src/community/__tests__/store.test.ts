@@ -207,6 +207,60 @@ describe("sending", () => {
 		expect(submission).toHaveBeenCalledTimes(2);
 		expect(store.getState().attempts[KEY]).toBeUndefined();
 	});
+
+	it("an expired key is never replayed: Retry mints a new one", async () => {
+		const seen: string[] = [];
+		const submit = vi
+			.fn<CommunityClient["submit"]>()
+			.mockImplementationOnce(async (input) => {
+				seen.push(input.idempotencyKey);
+				return { idempotency_key: input.idempotencyKey, state: "expired" };
+			})
+			.mockImplementationOnce(async (input) => {
+				seen.push(input.idempotencyKey);
+				return published(input.idempotencyKey);
+			});
+		const { store, actions, keys } = setup({ submit });
+		actions.setDraft(CID, CONV, "hi");
+		await actions.send(CID, CONV);
+		expect(store.getState().attempts[KEY]?.state.kind).toBe("failed");
+		await actions.retry(CID, CONV);
+		expect(keys).toHaveLength(2);
+		expect(seen).toEqual(keys);
+		expect(store.getState().attempts[KEY]).toBeUndefined();
+	});
+});
+
+describe("approvals", () => {
+	it("parses a pending stub whose answered_surface is null (server shape)", async () => {
+		const fetchImpl = (async () =>
+			new Response(
+				JSON.stringify({
+					items: [
+						{
+							approval_id: "a1",
+							target_kind: "channel",
+							channel_id: "c1",
+							state: "pending",
+							answered_surface: null,
+							created_at: "2026-11-18T12:45:07.332Z",
+							expires_at: "2026-11-19T12:45:07.332Z",
+							answered_at: null,
+						},
+					],
+					next_cursor: null,
+				}),
+				{ status: 200 },
+			)) as unknown as typeof fetch;
+		const client = createCommunityClient({
+			accessToken: async () => "t",
+			fetchImpl,
+		});
+		const { store, actions } = createCommunityStore({ client: () => client });
+		await actions.loadApprovals(CID);
+		expect(store.getState().approvals[CID]?.state).toBe("ready");
+		expect(store.getState().approvals[CID]?.data).toHaveLength(1);
+	});
 });
 
 describe("join", () => {

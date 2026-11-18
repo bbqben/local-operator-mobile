@@ -311,8 +311,13 @@ export function createCommunityStore(deps: {
 			setAttempt(key, { ...attempt, state: { kind: "cancelled" } });
 			return;
 		}
-		/* `expired` or a status that never settled: retryable as a failure. */
-		setAttempt(key, { ...attempt, state: { kind: "failed" } });
+		/* `expired` is FINAL for its key (a replay answers `expired` again), so
+		 * Retry must mint a new key; a status that never settled keeps it. */
+		setAttempt(key, {
+			...attempt,
+			rekey: state === "expired",
+			state: { kind: "failed" },
+		});
 	}
 
 	async function eventsLoop(communityId: string, stop: AbortSignal) {
@@ -597,7 +602,13 @@ export function createCommunityStore(deps: {
 			if (!attempt || !retryKeepsKey(attempt.state)) return;
 			if (attempt.state.kind === "limited" && attempt.state.retryAt > now())
 				return;
-			await submit(communityId, conversationId, attempt);
+			await submit(
+				communityId,
+				conversationId,
+				attempt.rekey
+					? { ...attempt, key: await newKey(), rekey: false }
+					: attempt,
+			);
 		},
 
 		/**
