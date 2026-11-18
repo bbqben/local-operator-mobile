@@ -50,6 +50,7 @@ import {
 	supplementsFromWire,
 } from "@/features/session/supplements";
 import type { ImageBytes, RelayError } from "@/relay";
+import { createRefusalGrace, isSilentGatewayWait } from "@/relay/refusal-grace";
 import { readEntry } from "@/state";
 import { isUsable } from "@/state/connection-store";
 import type { WarmScope } from "@/state/warm-cache";
@@ -184,7 +185,12 @@ const isTransient = (error: RelayError): boolean =>
 	 * a live route — stopping here left an open conversation behind "Check
 	 * again" after one Radient blip (PR #178 UX round 1, U1). Terminal renewal
 	 * failures (401/402/403/404) map to other surfaces and still stop. */
-	(error.kind === "rejected" && error.surface === "retry");
+	(error.kind === "rejected" && error.surface === "retry") ||
+	/* The computer kept serving on its last good check and Radient gave no
+	 * definitive answer (`authorization_unavailable`), or an older computer's
+	 * `authorization_refused` on a stream that was serving moments ago
+	 * (`refusal-grace.ts`): both clear by themselves, so reconnect silently. */
+	isSilentGatewayWait(error);
 
 /** Whether a session id names anything.
  *
@@ -395,6 +401,12 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 			tunnelId: snapshot.tunnelId,
 			sessionId,
 		};
+		/* A gateway refusal on a stream that was serving moments ago is a
+		 * reconnect for two minutes, not a terminal block (`refusal-grace.ts`;
+		 * field report 2026-11-17: "login may have expired, or billing may be
+		 * inactive" over a rate-limit blip, with both fine). One per stream
+		 * effect: a new owner starts with no health to vouch for it. */
+		const grace = createRefusalGrace();
 		const connect = () => {
 			if (!active || !sameProjectionOwner(owner, currentIdentity.current))
 				return;
@@ -428,6 +440,7 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 						return;
 					projectionOwner.current = owner;
 					lastFrameAt.current = Date.now();
+					grace.healthy(lastFrameAt.current);
 					retries.current = 0;
 					/* The first frame after a return. Decided BEFORE the frame is
 					 * applied, against what the reader holds: a frame that reaches back
@@ -492,9 +505,10 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 						overdue: status.lastEnd === "error" ? current.overdue : false,
 					}));
 				},
-				onError: (streamError) => {
+				onError: (rawError) => {
 					if (!active || !sameProjectionOwner(owner, currentIdentity.current))
 						return;
+					const streamError = grace.decide(rawError);
 					/* `sse.ts` stops its loop on ANY error, by design: "a caller that
 					 * wants to retry a transient failure restarts the loop itself", so a
 					 * persistent 401 cannot become an infinite reconnect. This is that

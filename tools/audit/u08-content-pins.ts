@@ -2263,6 +2263,23 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #297, 8a4d3048) into PR #301: both comment
+	 * chains retained; only this pin conflicted (no other file is touched by
+	 * both sides). The merged src carries #297's Team Bridge 429 changes and
+	 * #301's tunnel-transient changes, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree (src the only
+	 * differing root); source identity only, NOT rendered U-08 evidence. */
 	/* Re-pinned 2026-11-17 for fix/bridge-transient with --print at the staged
 	 * tree: Team Bridge keeps held rows on every transient failure (store),
 	 * holds hash-pinned endpoint photos and caps photo reads at 4 in flight
@@ -2273,7 +2290,9 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* PR #306 remediation: per-half transient recovery, bounded cancellable
 	 * viewport photo reads and endpoint authorization on admission. Source
 	 * identity only, NOT rendered U-08 evidence. */
-	src: "f86bbf7e1b314653e3e4ad9da4b41dfae8e7c0386c701dda2e561f145a6e42c3",
+	/* Convergence with upstream #301: both histories preserved; the combined
+	 * source identity was re-derived. This is NOT rendered U-08 evidence. */
+	src: "02dddcf3ff56802f4c596ebe671064f68c8644e9a401e56047069f210e1832df",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
