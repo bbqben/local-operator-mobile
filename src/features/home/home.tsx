@@ -75,6 +75,7 @@ import {
 	pickImageFromLibrary,
 	readWebImageFile,
 } from "@/features/session/attach";
+import { watchStrandedPick } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import { Composer } from "@/features/session/components/composer";
 import type { ComposerControls } from "@/features/session/composer";
@@ -619,6 +620,7 @@ export default function Home({
 		(source: AttachSource, via: PasteVia = "sheet") => {
 			void (async () => {
 				setAttaching(true);
+				const stopWatch = watchStrandedPick(() => setAttaching(false));
 				setComposerError(null);
 				try {
 					const image =
@@ -639,6 +641,7 @@ export default function Home({
 					setComposerError(composerCopy().attachError);
 				} finally {
 					setAttaching(false);
+					stopWatch();
 				}
 			})();
 		},

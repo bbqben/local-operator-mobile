@@ -19,6 +19,7 @@ import {
 	pickImageFromLibrary,
 	readWebImageFile,
 } from "@/features/session/attach";
+import { watchStrandedPick } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import {
 	acknowledgedCurrentDraft,
@@ -924,6 +925,7 @@ export const useComposer = (input: {
 		(source: AttachSource, via: PasteVia = "sheet") => {
 			void (async () => {
 				setAttaching(true);
+				const stopWatch = watchStrandedPick(() => setAttaching(false));
 				/* A new attach supersedes the last failure the way `home.tsx`'s copies of
 				 * this handler already do (`setComposerError(null)`): without it, "No image
 				 * was pasted…" stayed up after a later SUCCESSFUL attach, so the error line
@@ -949,6 +951,7 @@ export const useComposer = (input: {
 					setError(composerCopy().attachError);
 				} finally {
 					setAttaching(false);
+					stopWatch();
 				}
 			})();
 		},

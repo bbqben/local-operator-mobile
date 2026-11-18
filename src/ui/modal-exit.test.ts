@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { act, createElement } from "react";
+import { act, createElement, Fragment, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -365,6 +365,51 @@ describe("useModalExit onHidden", () => {
 		await show({ visible: false, tag: "b" });
 		await act(async () => done?.());
 		expect(hidden).toEqual(["a:false", "b:false"]);
+	});
+
+	/* Review round 1, R2: `finish` running in the SAME effect flush as the
+	 * exit's start batched exiting false → true → false, React bailed out, and
+	 * a ref-driven effect on `exiting` never ran again. */
+	it("fires when the exit animation completes in the same pass", async () => {
+		const Instant = ({ visible }: { visible: boolean }) => {
+			useModalExit({
+				visible,
+				reduceMotion: false,
+				durationMs: 120,
+				animateOut: (finish) => finish(),
+				reset: () => {},
+				onHidden: () => hidden.push("instant"),
+			});
+			return null;
+		};
+		const render = (visible: boolean) =>
+			act(async () => root?.render(createElement(Instant, { visible })));
+		await render(true);
+		await render(false);
+		expect(hidden).toEqual(["instant"]);
+	});
+
+	it("fires when a sibling opens another modal in the close commit", async () => {
+		const Opener = ({ open }: { open: boolean }) => {
+			useEffect(() => {
+				if (open) opened.push(openModal({ current: null }, null, true));
+			}, [open]);
+			return null;
+		};
+		const render = (visible: boolean) =>
+			act(async () =>
+				root?.render(
+					createElement(
+						Fragment,
+						null,
+						createElement(SheetProbe, { visible }),
+						createElement(Opener, { open: !visible }),
+					),
+				),
+			);
+		await render(true);
+		await render(false);
+		expect(hidden).toEqual(["a:false"]);
 	});
 
 	it("the Sheet passes its caller's onHidden to the exit that owns the hide", () => {

@@ -31,6 +31,23 @@
  * commit and running the dismissal, which is not animated (`animationType=
  * "none"`, so `dismissViewControllerAnimated:NO`) — see the constant.
  *
+ * **What an early fallback costs.** If the timer wins before UIKit has begun
+ * the dismissal, the picker's presentation is refused (or taken down with the
+ * sheet): no picker, and a promise that never settles. That would strand the
+ * owner's `attaching` latch — Attach, Paste and Send disabled — so the owners
+ * release it through `watchStrandedPick` (`attach-latch.ts`). What JavaScript
+ * cannot undo: `expo-file-system` keeps its picking context, so a later
+ * **Files** pick is refused for the rest of that app run, shown as the
+ * existing attach error line (visible, not silent). A lost `onDismiss` with no
+ * fallback strands nothing, because the latch is set only BY the launch.
+ *
+ * **Measurable in a release build.** Each waiting choice records which path
+ * launched it, how long after the hide commit, and whether `onDismiss` came
+ * late after a fallback, in a bounded in-memory trail that Settings → Copy
+ * diagnostics includes (`attachHandoffDiagnostics`). No content, no names:
+ * a path word and milliseconds. Plain closes, the web and Android record
+ * nothing, so the trail is exactly the sample `DISMISS_FALLBACK_MS` needs.
+ *
  * **Android and web launch immediately.** Android's pickers are separate
  * activities started for a result, not controllers presented over the dialog,
  * and the web chooser is the browser's own; neither has the dismissal race, and
@@ -44,15 +61,19 @@
  * How long after the hide commit `onDismiss` may take before the picker
  * launches anyway.
  *
- * NOT MEASURED ON A DEVICE: no lane here can run iOS, and the dev-only trace
- * below (`afterHiddenMs`) is the instrument that measures it. What bounds it
- * instead: the dismissal it waits for is not animated (`animationType="none"`
+ * NOT MEASURED ON A DEVICE: no lane here can run iOS. The trail below
+ * (Settings → Copy diagnostics, release builds included) is the instrument;
+ * the size is a maintainer decision pending that measurement. What bounds it
+ * meanwhile: the dismissal it waits for is not animated (`animationType="none"`
  * on the Sheet's Modal maps to `dismissViewControllerAnimated:NO` in React
  * Native 0.86's `RCTModalHostViewComponentView.mm`), so the work is mounting
  * one prop change and one UIKit transaction — frames (8–17 ms each at
  * 120/60 Hz), not an animation. One second is about 60 frames at 60 Hz; it only
- * loses to a UI-thread stall longer than that. The cost of a larger value is
- * paid only when `onDismiss` is lost: the picker appears that much later.
+ * loses to a UI-thread stall longer than that.
+ *
+ * BOTH SIDES OF RESIZING IT. Larger: when `onDismiss` is lost, the picker
+ * appears that much later. Smaller: more chance the timer beats the native
+ * dismissal, whose cost is the paragraph "What an early fallback costs" above.
  *
  * INVARIANT: the timer starts no earlier than the commit that hides the Modal
  * (`useModalExit`'s `onHidden`), so it never races the exit animation, and the
@@ -62,23 +83,39 @@
 export const DISMISS_FALLBACK_MS = 1_000;
 
 type HandoffTrace = {
-	via: "onDismiss" | "fallback";
-	pending: boolean;
+	/** `late-onDismiss`: the callback arrived after the fallback had launched,
+	 *  which tells a late `onDismiss` from a lost one. */
+	via: "onDismiss" | "fallback" | "late-onDismiss";
 	afterHiddenMs: number | null;
 };
 
-/* Dev builds only: which path launched and how long after the hide commit,
- * so a device run can measure the distribution DISMISS_FALLBACK_MS bounds. */
-const devTrace = (event: HandoffTrace) => {
+/** How many traces Copy diagnostics carries: the newest, enough for the
+ *  n ≥ 10 sample the constant is waiting on. */
+const TRAIL_LIMIT = 20;
+const trail: string[] = [];
+
+/** The newest handoff traces as one line for Copy diagnostics, or `null`. */
+export const attachHandoffDiagnostics = (): string | null =>
+	trail.length === 0 ? null : trail.join(", ");
+
+/* Release builds keep the bounded trail; dev builds also log it. */
+const recordTrace = (event: HandoffTrace) => {
+	const ms = event.afterHiddenMs === null ? "?" : `${event.afterHiddenMs}`;
+	trail.push(
+		`${event.via === "late-onDismiss" ? "late onDismiss" : event.via} ${ms}ms`,
+	);
+	if (trail.length > TRAIL_LIMIT) trail.splice(0, trail.length - TRAIL_LIMIT);
 	if (typeof __DEV__ !== "undefined" && __DEV__)
 		console.info("[attach-handoff]", event);
 };
 
-export function createAttachmentSheetHandoff(trace = devTrace) {
+export function createAttachmentSheetHandoff(trace = recordTrace) {
 	let pending: (() => void) | undefined;
 	let chosen = false;
 	let fallback: ReturnType<typeof setTimeout> | undefined;
 	let hiddenAt: number | undefined;
+	/** The fallback launched; an `onDismiss` after it is traced as late. */
+	let fellBack = false;
 	const disarm = () => {
 		if (fallback !== undefined) clearTimeout(fallback);
 		fallback = undefined;
@@ -88,23 +125,25 @@ export function createAttachmentSheetHandoff(trace = devTrace) {
 		pending = undefined;
 		chosen = false;
 		hiddenAt = undefined;
+		fellBack = false;
 	};
-	const launchPending = (via: HandoffTrace["via"]) => {
+	const since = () => (hiddenAt === undefined ? null : Date.now() - hiddenAt);
+	const launchPending = (via: "onDismiss" | "fallback") => {
 		disarm();
 		const launch = pending;
 		// Consuming a selection is NOT reopening the sheet: queued row events
 		// after onDismiss must not launch a second, different picker.
 		pending = undefined;
-		trace({
-			via,
-			pending: launch !== undefined,
-			afterHiddenMs: hiddenAt === undefined ? null : Date.now() - hiddenAt,
-		});
-		launch?.();
+		if (launch === undefined) return;
+		trace({ via, afterHiddenMs: since() });
+		fellBack = via === "fallback";
+		launch();
 	};
 	const dismissed = () => {
-		launchPending("onDismiss");
+		if (pending !== undefined) launchPending("onDismiss");
+		else if (fellBack) trace({ via: "late-onDismiss", afterHiddenMs: since() });
 		hiddenAt = undefined;
+		fellBack = false;
 	};
 	const hidden = () => {
 		// Only an iOS choice waits; with nothing pending there is nothing to owe.

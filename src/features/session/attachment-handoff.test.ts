@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+	attachHandoffDiagnostics,
 	createAttachmentSheetHandoff,
 	DISMISS_FALLBACK_MS,
 } from "./attach-handoff";
@@ -16,6 +17,8 @@ const BRIDGE_DIRECT_LAUNCH =
 	/onPress=\{\(\) => \{\s*void addImages\(source\);\s*\}\}/;
 const HOME_DISMISS_SHOWN_LINE =
 	/onDismissError=\{\s*startup\.snapshot\.error == null && composerError !== null\s*\? \(\) => setComposerError\(null\)\s*: undefined\s*\}/;
+const TRAIL_TAIL = /onDismiss 14ms, fallback 1000ms, late onDismiss 1180ms$/;
+const TRAIL_BOUNDED = /^(onDismiss 0ms, ){19}onDismiss 0ms$/;
 const source = readFileSync(
 	new URL("./components/composer.tsx", import.meta.url),
 	"utf8",
@@ -214,19 +217,21 @@ describe("native attachment sheet handoff", () => {
 		expect(launch).toHaveBeenCalledOnce();
 		expect(trace).toHaveBeenLastCalledWith({
 			via: "fallback",
-			pending: true,
 			afterHiddenMs: DISMISS_FALLBACK_MS,
 		});
-		// A late onDismiss, a second hide, more time: still exactly once.
+		// A late onDismiss, a second hide, more time: still exactly once. The
+		// late callback is recorded (it tells "late" from "lost"), once.
+		vi.advanceTimersByTime(180);
 		handoff.dismissed();
 		handoff.hidden();
+		handoff.dismissed();
 		vi.runAllTimers();
 		expect(launch).toHaveBeenCalledOnce();
 		expect(trace).toHaveBeenLastCalledWith({
-			via: "onDismiss",
-			pending: false,
-			afterHiddenMs: DISMISS_FALLBACK_MS,
+			via: "late-onDismiss",
+			afterHiddenMs: DISMISS_FALLBACK_MS + 180,
 		});
+		expect(trace).toHaveBeenCalledTimes(2);
 	});
 	it("onDismiss then timer launches once, never twice", () => {
 		vi.useFakeTimers();
@@ -240,7 +245,6 @@ describe("native attachment sheet handoff", () => {
 		expect(launch).toHaveBeenCalledOnce();
 		expect(trace).toHaveBeenLastCalledWith({
 			via: "onDismiss",
-			pending: true,
 			afterHiddenMs: 16,
 		});
 		vi.runAllTimers();
@@ -272,14 +276,56 @@ describe("native attachment sheet handoff", () => {
 		expect(vi.getTimerCount()).toBe(0);
 		expect(launch).toHaveBeenCalledOnce();
 	});
-	it("bounds the fallback above a non-animated native dismissal", () => {
-		// The Sheet's Modal is animationType="none", so its native dismissal is
-		// not animated; the value is a ceiling for a stalled UI thread, not a
-		// race against an animation (see DISMISS_FALLBACK_MS).
+	/* Review round 1, R4: only a pending attach choice is traced — not every
+	 * close (Close, the scrim) and never the web or Android, which launch at
+	 * once — so the trail is the sample DISMISS_FALLBACK_MS needs, undiluted. */
+	it("traces only an attach choice that waited, never a plain close or an immediate launch", () => {
+		vi.useFakeTimers();
+		const trace = vi.fn();
+		const handoff = createAttachmentSheetHandoff(trace);
+		handoff.hidden();
+		handoff.dismissed();
+		for (const platform of ["web", "android"]) {
+			handoff.cancel();
+			handoff.choose(vi.fn(), platform);
+			handoff.hidden();
+			handoff.dismissed();
+		}
+		vi.runAllTimers();
+		expect(trace).not.toHaveBeenCalled();
+	});
+	/* Review round 1, R1: the trace must reach a RELEASE build, because the
+	 * only iPhone channel is TestFlight. It lands in Settings → Copy
+	 * diagnostics, bounded, with no content: a path name and milliseconds. */
+	it("keeps a bounded release trail for Copy diagnostics", () => {
+		vi.useFakeTimers();
+		const handoff = create();
+		handoff.choose(vi.fn(), "ios");
+		handoff.hidden();
+		vi.advanceTimersByTime(14);
+		handoff.dismissed();
+		handoff.cancel();
+		handoff.choose(vi.fn(), "ios");
+		handoff.hidden();
+		vi.advanceTimersByTime(DISMISS_FALLBACK_MS + 180);
+		handoff.dismissed();
+		expect(attachHandoffDiagnostics()).toMatch(TRAIL_TAIL);
+		for (let i = 0; i < 30; i += 1) {
+			handoff.cancel();
+			handoff.choose(vi.fn(), "ios");
+			handoff.hidden();
+			handoff.dismissed();
+		}
+		expect(attachHandoffDiagnostics()?.split(", ")).toHaveLength(20);
+		expect(attachHandoffDiagnostics()).toMatch(TRAIL_BOUNDED);
+	});
+	/* Review round 1, R5: the fallback races only a NON-animated native
+	 * dismissal. That is the invariant its size rests on; the size itself is
+	 * a maintainer decision pending device measurement (the PR's options). */
+	it("races only a non-animated native dismissal", () => {
 		expect(read("../../ui/components/sheet.tsx")).toContain(
 			'animationType="none"',
 		);
-		expect(DISMISS_FALLBACK_MS).toBe(1_000);
 	});
 	it("wires the real composer choice and native dismissal without changing close/layout", () => {
 		expect(source).toContain("onHidden={attachmentHandoff.hidden}");

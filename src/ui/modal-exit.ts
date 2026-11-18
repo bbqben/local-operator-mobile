@@ -117,9 +117,15 @@ export const useModalExit = (input: {
 }): boolean => {
 	const [exiting, setExiting] = useState(false);
 	const was = useRef(input.visible);
-	/* Set by `finish` below; the effect on `exiting` reports the hide from the
-	 *  commit that lets the Modal go, once. A reopen clears it. */
-	const hideOwed = useRef(false);
+	/* Bumped by `finish` below; the effect on it reports the hide from the
+	 *  commit that lets the Modal go. A COUNTER, not a flag read in an effect
+	 *  on `exiting`: when `finish` runs in the same pass as the exit's start (an
+	 *  animation that completes at once, a sibling opening a modal in the close
+	 *  commit), `exiting` goes false → true → false in one batch, React bails
+	 *  out and an effect on `exiting` never runs (review round 1, R2). A new
+	 *  count always commits. */
+	const [hides, setHides] = useState(0);
+	const reported = useRef(0);
 	/* The callbacks are read through a ref so the effect below depends on
 	 *  `visible` alone: a caller's inline closures must not restart an exit. */
 	const latest = useRef(input);
@@ -128,7 +134,6 @@ export const useModalExit = (input: {
 		const closed = was.current && !input.visible;
 		was.current = input.visible;
 		if (input.visible) {
-			hideOwed.current = false;
 			setExiting(false);
 			return undefined;
 		}
@@ -149,7 +154,7 @@ export const useModalExit = (input: {
 			clearTimeout(fallback);
 			unsubscribe();
 			latest.current.reset();
-			hideOwed.current = true;
+			setHides((count) => count + 1);
 			setExiting(false);
 		};
 		/* A modal that opens DURING the exit ends it at once — the same
@@ -169,9 +174,9 @@ export const useModalExit = (input: {
 		};
 	}, [input.visible]);
 	useEffect(() => {
-		if (exiting || !hideOwed.current) return;
-		hideOwed.current = false;
+		if (hides === reported.current) return;
+		reported.current = hides;
 		latest.current.onHidden?.();
-	}, [exiting]);
+	}, [hides]);
 	return exiting;
 };
