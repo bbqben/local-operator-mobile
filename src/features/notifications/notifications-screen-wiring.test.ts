@@ -220,3 +220,51 @@ describe("the inbox list re-reads on return", () => {
 		);
 	});
 });
+
+/**
+ * The empty inbox fills the screen below its filter (issue #321).
+ *
+ * Static for the reason the top of this file gives. The defect was layout, not
+ * logic: the Unread empty's wrapper had no `flex-1`, so on iOS the
+ * `EmptyState` (itself `flex-1 … justify-center`) was offered zero height and
+ * its centred block spilled UP over the Unread/All control, with the receipt
+ * crammed straight under it. The All empty had no filter at all, so a reader
+ * who tapped "Show all notifications" had no way back to Unread but Back. The
+ * rendered proof is the web capture; this pins the two facts that caused it.
+ */
+const EMPTY_BRANCH_START = "if (response !== null && inboxEmpty(response))";
+const EMPTY_BRANCH_END = "/* The populated case is the FlatList below.";
+const GROWING_WRAPPER = /<View className="(?:[^"]* )?flex-1(?: [^"]*)?"/;
+const FILTER_TAG = /<SegmentedFilter\b/g;
+
+function emptyBranch(): string {
+	const start = source.indexOf(EMPTY_BRANCH_START);
+	const end = source.indexOf(EMPTY_BRANCH_END, start);
+	expect(start).toBeGreaterThan(-1);
+	expect(end).toBeGreaterThan(start);
+	return source.slice(start, end);
+}
+
+describe("the empty inbox's layout (#321)", () => {
+	it("gives the empty state a growing wrapper, so it centres instead of collapsing", () => {
+		const branch = emptyBranch();
+		const wrapper = GROWING_WRAPPER.exec(branch);
+		expect(wrapper).not.toBeNull();
+		/* The wrapper opens BEFORE either empty state, so both are inside it. */
+		expect(wrapper?.index ?? -1).toBeLessThan(
+			branch.indexOf("testID={EMPTY.notifications}"),
+		);
+		expect(wrapper?.index ?? -1).toBeLessThan(
+			branch.indexOf("testID={EMPTY.notificationsAll}"),
+		);
+	});
+
+	it("keeps the Unread/All filter on BOTH empty tabs", () => {
+		const branch = emptyBranch();
+		/* One filter, rendered before the tab decides which sentence to show. */
+		expect(branch.match(FILTER_TAG)?.length).toBe(1);
+		expect(branch.indexOf("<SegmentedFilter")).toBeLessThan(
+			branch.indexOf('inbox.filter === "unread"'),
+		);
+	});
+});

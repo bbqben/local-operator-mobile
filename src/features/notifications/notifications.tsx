@@ -468,26 +468,35 @@ export default function Notifications() {
 			/* Two different sentences for the same empty answer: "all caught up" is
 			 * the unread pile's verdict, and the All view saying it would claim the
 			 * store holds nothing when it holds read history. */
-			return inbox.filter === "unread" ? (
-				<View className="gap-2 px-4 pt-3">
+			return (
+				/* `flex-1` IS THE LAYOUT (#321). `EmptyState` grows and centres in the
+				 *  height its parent offers; without this the wrapper sized to its
+				 *  content, iOS offered the empty state zero height, and its centred
+				 *  block spilled up over the filter while the receipt below rode up
+				 *  under it. The filter sits above BOTH sentences: the All tab is
+				 *  reached from "Show all notifications", and without the control
+				 *  there was no way back to Unread but leaving the screen. */
+				<View className="flex-1 gap-2 px-4 pt-3">
 					<SegmentedFilter value={inbox.filter} onChange={inbox.setFilter} />
-					<EmptyState
-						headline={ALL_CAUGHT_UP_TITLE}
-						next={ALL_CAUGHT_UP_BODY}
-						action={{
-							label: "Show all notifications",
-							onPress: () => inbox.setFilter("all"),
-							testID: CONTROL.inboxFilterAll,
-						}}
-						testID={EMPTY.notifications}
-					/>
+					{inbox.filter === "unread" ? (
+						<EmptyState
+							headline={ALL_CAUGHT_UP_TITLE}
+							next={ALL_CAUGHT_UP_BODY}
+							action={{
+								label: "Show all notifications",
+								onPress: () => inbox.setFilter("all"),
+								testID: CONTROL.inboxFilterAll,
+							}}
+							testID={EMPTY.notifications}
+						/>
+					) : (
+						<EmptyState
+							headline="Nothing here yet"
+							next={EMPTY_ALL_BODY}
+							testID={EMPTY.notificationsAll}
+						/>
+					)}
 				</View>
-			) : (
-				<EmptyState
-					headline="Nothing here yet"
-					next={EMPTY_ALL_BODY}
-					testID={EMPTY.notificationsAll}
-				/>
 			);
 		}
 		/* The populated case is the FlatList below. Rows never report reads on
