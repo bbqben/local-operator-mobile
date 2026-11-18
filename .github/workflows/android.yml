@@ -59,6 +59,11 @@ on:
 #
 # `github.event_name` gives each trigger its own lane; `cancel-in-progress` is
 # untouched, so a running run on `main` is still never cancelled.
+# MAIN STAYS UNCANCELLED, deliberately (re-checked 2026-11-18, when e2e.yml and
+# ci.yml began cancelling superseded main pushes to free the shared job pool): a
+# main push here signs and uploads to the Play internal track (`internal`, whenever
+# its `credentials` job finds the secrets), and cancelling that mid-upload is a
+# release lost, not a minute saved.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
@@ -87,6 +92,7 @@ jobs:
     outputs:
       native: ${{ steps.diff.outputs.native }}
       sound_native: ${{ steps.sound_diff.outputs.run }}
+      team_bridge_native: ${{ steps.team_bridge_diff.outputs.run }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -102,6 +108,23 @@ jobs:
           if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}"; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           elif git diff --name-only "$BASE" HEAD | grep -E '^(modules/lop-notification-sound/|scripts/ci/notification-sound-|\.github/workflows/android\.yml$)' >/dev/null; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Select bounded Team Bridge push native execution
+        # ADR 0010 S2/S4: the delegate/renderer instrumentation runs only when
+        # its module, its plugin, its CI script or this workflow changes, the
+        # same bounding as the sound provider's lane above.
+        id: team_bridge_diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BASE" HEAD | grep -E '^(modules/lop-team-bridge-push/|plugins/with-android-team-bridge-push|scripts/ci/team-bridge-push-|\.github/workflows/android\.yml$)' >/dev/null; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -212,7 +235,9 @@ jobs:
           cd android
           # Compile the framework-only provider instrumentation as well. This
           # does NOT claim execution or system-consumer URI-grant/device proof.
-          ./gradlew assembleDebug :lop-notification-sound:assembleDebugAndroidTest --no-daemon
+          # The Team Bridge push module's instrumentation APK too (ADR 0010
+          # S2/S4); executed by the `team-bridge-push-android` job below.
+          ./gradlew assembleDebug :lop-notification-sound:assembleDebugAndroidTest :lop-team-bridge-push:assembleDebugAndroidTest --no-daemon
 
       - name: Bind the sound test artifact to the checked-out source
         run: git rev-parse HEAD > modules/lop-notification-sound/android/build/outputs/apk/androidTest/debug/source-sha.txt
@@ -222,6 +247,16 @@ jobs:
         with:
           name: notification-sound-native-tests
           path: modules/lop-notification-sound/android/build/outputs/apk/androidTest/debug/
+          if-no-files-found: error
+
+      - name: Bind the Team Bridge push test artifact to the checked-out source
+        run: git rev-parse HEAD > modules/lop-team-bridge-push/android/build/outputs/apk/androidTest/debug/source-sha.txt
+
+      - name: Upload the Team Bridge push native test APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: team-bridge-push-native-tests
+          path: modules/lop-team-bridge-push/android/build/outputs/apk/androidTest/debug/
           if-no-files-found: error
 
       - name: Assert the version in the built APK
@@ -600,6 +635,75 @@ jobs:
         with:
           name: sound-native-api-${{ matrix.api }}
           path: ${{ runner.temp }}/sound-native.log
+          if-no-files-found: warn
+
+
+  team-bridge-push-android:
+    name: Team Bridge push instrumentation (API ${{ matrix.api }})
+    needs: [changes, android]
+    if: needs.changes.outputs.team_bridge_native == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        api: [29, 36]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: team-bridge-push-native-tests
+          path: ${{ runner.temp }}/team-bridge-apk
+      - name: Verify artifact source identity before emulator dispatch
+        run: |
+          set -euo pipefail
+          test "$(cat "$RUNNER_TEMP/team-bridge-apk/source-sha.txt")" = "$(git rev-parse HEAD)"
+          test "$(find "$RUNNER_TEMP/team-bridge-apk" -maxdepth 1 -name '*.apk' | wc -l)" -eq 1
+      - name: Enable KVM and await permission-rule completion
+        # trigger queues events asynchronously. An immediate access predicate
+        # in the same step can race udev and gives only exit 1, not node/UID facts.
+        # Keep the established repo/GitHub rule, but bound and await completion.
+        run: |
+          set -euxo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo udevadm settle --timeout=10
+      - name: Prove runner-user KVM access before emulator dispatch
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/notification-sound-kvm.py --self-test
+          echo "runner user: $(id -un); groups: $(id -Gn)"
+          if [ ! -c /dev/kvm ]; then
+            echo "::error title=KVM unavailable::/dev/kvm is absent or not a character device after udev settle; a KVM-capable Linux host is required."
+            exit 1
+          fi
+          ls -l /dev/kvm
+          if [ ! -r /dev/kvm ]; then
+            echo "::error title=KVM read denied::runner user cannot read /dev/kvm after udev settle."
+            exit 1
+          fi
+          if [ ! -w /dev/kvm ]; then
+            echo "::error title=KVM write denied::runner user cannot write /dev/kvm after udev settle."
+            exit 1
+          fi
+          python3 scripts/ci/notification-sound-kvm.py
+      - name: Execute the compiled framework-native tests
+        uses: reactivecircus/android-emulator-runner@c9c93e6ba9c4194322e114c40970d5983d9a07cc
+        with:
+          api-level: ${{ matrix.api }}
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: true
+          emulator-options: -accel on -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save -memory 1536
+          disable-animations: true
+          script: bash scripts/ci/team-bridge-push-android-tests.sh
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: team-bridge-push-native-api-${{ matrix.api }}
+          path: ${{ runner.temp }}/team-bridge-push-native.log
           if-no-files-found: warn
 
   sound-ios:

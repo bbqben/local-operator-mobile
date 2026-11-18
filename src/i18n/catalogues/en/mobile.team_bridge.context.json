@@ -419,6 +419,42 @@
 		"role": "help",
 		"note": "Team Bridge mobile UI: list / self. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state."
 	},
+	"mobile.team_bridge.mentions.dismiss_notice": {
+		"role": "button",
+		"note": "Team Bridge @-mention notice: dismiss button. Short verb."
+	},
+	"mobile.team_bridge.mentions.invited": {
+		"role": "status",
+		"note": "Team Bridge @-mention notice after picking someone invited but not yet joined: no notification is sent. {name} is user data."
+	},
+	"mobile.team_bridge.mentions.no_endpoint": {
+		"role": "status",
+		"note": "Team Bridge @-mention notice after picking an agent whose address is not known yet because the people list has not loaded: no notification is sent. {name} is user data."
+	},
+	"mobile.team_bridge.mentions.not_member": {
+		"role": "status",
+		"note": "Team Bridge @-mention notice after picking someone who is not in the conversation: their name stays in the message but no notification is sent. {name} is user data. Do not imply an invite is sent."
+	},
+	"mobile.team_bridge.mentions.results_count": {
+		"role": "status",
+		"note": "Team Bridge @-mention suggestions: spoken to screen readers when the suggestion list changes. Counts people and agents offered. Preserve the ICU plural."
+	},
+	"mobile.team_bridge.mentions.row_label": {
+		"role": "button",
+		"note": "Team Bridge @-mention suggestions: accessibility label for one suggestion row. {name} is a person or agent display name (user data, never translated)."
+	},
+	"mobile.team_bridge.mentions.section_members": {
+		"role": "heading",
+		"note": "Team Bridge @-mention suggestions: heading over people and agents who are members of the open conversation. Short; shown above the keyboard."
+	},
+	"mobile.team_bridge.mentions.section_org": {
+		"role": "heading",
+		"note": "Team Bridge @-mention suggestions: heading over people and agents in the organization who are not in this conversation."
+	},
+	"mobile.team_bridge.mentions.unavailable": {
+		"role": "status",
+		"note": "Team Bridge @-mention suggestions: shown when the organization directory has not loaded, so only conversation members can be suggested. No error code; calm tone."
+	},
 	"mobile.team_bridge.navigation.caption": {
 		"role": "help",
 		"note": "Team Bridge mobile UI: navigation / caption. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state."
@@ -482,6 +518,46 @@
 	"mobile.team_bridge.profile.title": {
 		"role": "heading",
 		"note": "Profile sheet title for either a person or software agent, not their user-provided job title. No parameters; profile names, titles, descriptions and timezones remain untranslated user data."
+	},
+	"mobile.team_bridge.reply_thread.count": {
+		"role": "meta",
+		"note": "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}."
+	},
+	"mobile.team_bridge.reply_thread.empty": {
+		"role": "status",
+		"note": "A reply thread whose root message has no replies left to show; the second sentence invites the reader to write the first reply (desktop wording)."
+	},
+	"mobile.team_bridge.reply_thread.error": {
+		"role": "status",
+		"note": "Shown when a reply thread could not be read from Radient; a retry button follows."
+	},
+	"mobile.team_bridge.reply_thread.loading": {
+		"role": "status",
+		"note": "Shown while a reply thread loads."
+	},
+	"mobile.team_bridge.reply_thread.more": {
+		"role": "button",
+		"note": "Button at the end of a very long reply thread (more than one load of replies) that loads the next replies. No parameters; matches the desktop's 'Load more replies'."
+	},
+	"mobile.team_bridge.reply_thread.open": {
+		"role": "button",
+		"note": "Accessible name of the control that opens a message's reply thread (Slack-style threads); matches the desktop's 'View thread, …'. Preserve {count}. 'Thread' means replies under one message, not the whole conversation."
+	},
+	"mobile.team_bridge.reply_thread.open_unread": {
+		"role": "button",
+		"note": "Same control when some replies are unread by this reader. Preserve {count} and {unread}."
+	},
+	"mobile.team_bridge.reply_thread.reply": {
+		"role": "button",
+		"note": "Composer label and placeholder for replying inside a thread; matches the desktop's 'Reply in thread'. A verb phrase: write a reply in this thread, not in the conversation."
+	},
+	"mobile.team_bridge.reply_thread.retry": {
+		"role": "button",
+		"note": "Retries loading a reply thread."
+	},
+	"mobile.team_bridge.reply_thread.title": {
+		"role": "heading",
+		"note": "Screen title for one message's reply thread (the message and its replies). Not the whole conversation."
 	},
 	"mobile.team_bridge.retry": {
 		"role": "button",

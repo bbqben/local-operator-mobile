@@ -66,6 +66,7 @@
 		"expo-video": "~57.0.5",
 		"expo-web-browser": "~57.0.3",
 		"lucide-react-native": "1.49.0",
+		"pele": "1.13.0",
 		"react": "19.2.3",
 		"react-dom": "19.2.3",
 		"react-native": "0.86.3",

@@ -413,6 +413,8 @@ export type CatalogueKey =
 	| "mobile.notifications.channel.system"
 	| "mobile.notifications.channel.tape_warble"
 	| "mobile.notifications.channel.task_complete"
+	| "mobile.notifications.channel.team_bridge"
+	| "mobile.notifications.channel.team_bridge_description"
 	| "mobile.notifications.channel.two_note_chime"
 	| "mobile.notifications.computer_registration.failed"
 	| "mobile.notifications.computer_registration.no_token"
@@ -454,6 +456,8 @@ export type CatalogueKey =
 	| "mobile.notifications.preferences.agent_note"
 	| "mobile.notifications.preferences.bridge_heading"
 	| "mobile.notifications.preferences.bridge_note"
+	| "mobile.notifications.preferences.bridge_system_off"
+	| "mobile.notifications.preferences.bridge_system_open"
 	| "mobile.notifications.preferences.completions"
 	| "mobile.notifications.preferences.computer_keeps_sending"
 	| "mobile.notifications.preferences.disabled_hint"
@@ -470,6 +474,7 @@ export type CatalogueKey =
 	| "mobile.notifications.priority_high"
 	| "mobile.notifications.section.waiting"
 	| "mobile.notifications.section.waiting_count"
+	| "mobile.notifications.team_bridge.self_name"
 	| "mobile.notifications.title"
 	| "mobile.notifications.turn_on"
 	| "mobile.oauth.failed"
@@ -656,6 +661,14 @@ export type CatalogueKey =
 	| "mobile.session.composer.retained_instruction"
 	| "mobile.session.composer.retry_not_sent_storage"
 	| "mobile.session.conversation_details"
+	| "mobile.session.diagram.close"
+	| "mobile.session.diagram.copied"
+	| "mobile.session.diagram.copy"
+	| "mobile.session.diagram.error"
+	| "mobile.session.diagram.label"
+	| "mobile.session.diagram.label_titled"
+	| "mobile.session.diagram.open_hint"
+	| "mobile.session.diagram.viewer"
 	| "mobile.session.empty.headline"
 	| "mobile.session.empty.next"
 	| "mobile.session.fallback_name"
@@ -1013,6 +1026,15 @@ export type CatalogueKey =
 	| "mobile.team_bridge.list.preview"
 	| "mobile.team_bridge.list.quiet"
 	| "mobile.team_bridge.list.self"
+	| "mobile.team_bridge.mentions.dismiss_notice"
+	| "mobile.team_bridge.mentions.invited"
+	| "mobile.team_bridge.mentions.no_endpoint"
+	| "mobile.team_bridge.mentions.not_member"
+	| "mobile.team_bridge.mentions.results_count"
+	| "mobile.team_bridge.mentions.row_label"
+	| "mobile.team_bridge.mentions.section_members"
+	| "mobile.team_bridge.mentions.section_org"
+	| "mobile.team_bridge.mentions.unavailable"
 	| "mobile.team_bridge.navigation.caption"
 	| "mobile.team_bridge.navigation.entry"
 	| "mobile.team_bridge.navigation.entry_loading"
@@ -1029,6 +1051,16 @@ export type CatalogueKey =
 	| "mobile.team_bridge.profile.open"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reply_thread.count"
+	| "mobile.team_bridge.reply_thread.empty"
+	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.loading"
+	| "mobile.team_bridge.reply_thread.more"
+	| "mobile.team_bridge.reply_thread.open"
+	| "mobile.team_bridge.reply_thread.open_unread"
+	| "mobile.team_bridge.reply_thread.reply"
+	| "mobile.team_bridge.reply_thread.retry"
+	| "mobile.team_bridge.reply_thread.title"
 	| "mobile.team_bridge.retry"
 	| "mobile.team_bridge.thread.access_retry"
 	| "mobile.team_bridge.thread.anchor_missing"
@@ -1476,6 +1508,8 @@ export type NoParamKey =
 	| "mobile.notifications.channel.system"
 	| "mobile.notifications.channel.tape_warble"
 	| "mobile.notifications.channel.task_complete"
+	| "mobile.notifications.channel.team_bridge"
+	| "mobile.notifications.channel.team_bridge_description"
 	| "mobile.notifications.channel.two_note_chime"
 	| "mobile.notifications.computer_registration.failed"
 	| "mobile.notifications.computer_registration.no_token"
@@ -1515,6 +1549,8 @@ export type NoParamKey =
 	| "mobile.notifications.preferences.agent_heading"
 	| "mobile.notifications.preferences.agent_note"
 	| "mobile.notifications.preferences.bridge_heading"
+	| "mobile.notifications.preferences.bridge_system_off"
+	| "mobile.notifications.preferences.bridge_system_open"
 	| "mobile.notifications.preferences.completions"
 	| "mobile.notifications.preferences.computer_keeps_sending"
 	| "mobile.notifications.preferences.disabled_hint"
@@ -1530,6 +1566,7 @@ export type NoParamKey =
 	| "mobile.notifications.primer.title"
 	| "mobile.notifications.priority_high"
 	| "mobile.notifications.section.waiting"
+	| "mobile.notifications.team_bridge.self_name"
 	| "mobile.notifications.title"
 	| "mobile.notifications.turn_on"
 	| "mobile.oauth.failed"
@@ -1668,6 +1705,12 @@ export type NoParamKey =
 	| "mobile.session.composer.retained_instruction"
 	| "mobile.session.composer.retry_not_sent_storage"
 	| "mobile.session.conversation_details"
+	| "mobile.session.diagram.close"
+	| "mobile.session.diagram.copied"
+	| "mobile.session.diagram.copy"
+	| "mobile.session.diagram.error"
+	| "mobile.session.diagram.open_hint"
+	| "mobile.session.diagram.viewer"
 	| "mobile.session.empty.headline"
 	| "mobile.session.empty.next"
 	| "mobile.session.fallback_name"
@@ -1973,6 +2016,10 @@ export type NoParamKey =
 	| "mobile.team_bridge.list.preview"
 	| "mobile.team_bridge.list.quiet"
 	| "mobile.team_bridge.list.self"
+	| "mobile.team_bridge.mentions.dismiss_notice"
+	| "mobile.team_bridge.mentions.section_members"
+	| "mobile.team_bridge.mentions.section_org"
+	| "mobile.team_bridge.mentions.unavailable"
 	| "mobile.team_bridge.navigation.caption"
 	| "mobile.team_bridge.navigation.entry_loading"
 	| "mobile.team_bridge.navigation.entry_unavailable"
@@ -1984,6 +2031,13 @@ export type NoParamKey =
 	| "mobile.team_bridge.profile.message"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reply_thread.empty"
+	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.loading"
+	| "mobile.team_bridge.reply_thread.more"
+	| "mobile.team_bridge.reply_thread.reply"
+	| "mobile.team_bridge.reply_thread.retry"
+	| "mobile.team_bridge.reply_thread.title"
 	| "mobile.team_bridge.retry"
 	| "mobile.team_bridge.thread.access_retry"
 	| "mobile.team_bridge.thread.anchor_missing"
@@ -2455,6 +2509,8 @@ export type MessageParams = {
 	"mobile.notifications.channel.system": NoParams;
 	"mobile.notifications.channel.tape_warble": NoParams;
 	"mobile.notifications.channel.task_complete": NoParams;
+	"mobile.notifications.channel.team_bridge": NoParams;
+	"mobile.notifications.channel.team_bridge_description": NoParams;
 	"mobile.notifications.channel.two_note_chime": NoParams;
 	"mobile.notifications.computer_registration.failed": NoParams;
 	"mobile.notifications.computer_registration.no_token": NoParams;
@@ -2496,6 +2552,8 @@ export type MessageParams = {
 	"mobile.notifications.preferences.agent_note": NoParams;
 	"mobile.notifications.preferences.bridge_heading": NoParams;
 	"mobile.notifications.preferences.bridge_note": { all: string | number; mentions: string | number; muted: string | number };
+	"mobile.notifications.preferences.bridge_system_off": NoParams;
+	"mobile.notifications.preferences.bridge_system_open": NoParams;
 	"mobile.notifications.preferences.completions": NoParams;
 	"mobile.notifications.preferences.computer_keeps_sending": NoParams;
 	"mobile.notifications.preferences.disabled_hint": NoParams;
@@ -2512,6 +2570,7 @@ export type MessageParams = {
 	"mobile.notifications.priority_high": NoParams;
 	"mobile.notifications.section.waiting": NoParams;
 	"mobile.notifications.section.waiting_count": { count: string | number };
+	"mobile.notifications.team_bridge.self_name": NoParams;
 	"mobile.notifications.title": NoParams;
 	"mobile.notifications.turn_on": NoParams;
 	"mobile.oauth.failed": NoParams;
@@ -2698,6 +2757,14 @@ export type MessageParams = {
 	"mobile.session.composer.retained_instruction": NoParams;
 	"mobile.session.composer.retry_not_sent_storage": NoParams;
 	"mobile.session.conversation_details": NoParams;
+	"mobile.session.diagram.close": NoParams;
+	"mobile.session.diagram.copied": NoParams;
+	"mobile.session.diagram.copy": NoParams;
+	"mobile.session.diagram.error": NoParams;
+	"mobile.session.diagram.label": { type: string | number };
+	"mobile.session.diagram.label_titled": { title: string | number; type: string | number };
+	"mobile.session.diagram.open_hint": NoParams;
+	"mobile.session.diagram.viewer": NoParams;
 	"mobile.session.empty.headline": NoParams;
 	"mobile.session.empty.next": NoParams;
 	"mobile.session.fallback_name": NoParams;
@@ -3055,6 +3122,15 @@ export type MessageParams = {
 	"mobile.team_bridge.list.preview": NoParams;
 	"mobile.team_bridge.list.quiet": NoParams;
 	"mobile.team_bridge.list.self": NoParams;
+	"mobile.team_bridge.mentions.dismiss_notice": NoParams;
+	"mobile.team_bridge.mentions.invited": { name: string | number };
+	"mobile.team_bridge.mentions.no_endpoint": { name: string | number };
+	"mobile.team_bridge.mentions.not_member": { name: string | number };
+	"mobile.team_bridge.mentions.results_count": { count: number };
+	"mobile.team_bridge.mentions.row_label": { name: string | number };
+	"mobile.team_bridge.mentions.section_members": NoParams;
+	"mobile.team_bridge.mentions.section_org": NoParams;
+	"mobile.team_bridge.mentions.unavailable": NoParams;
 	"mobile.team_bridge.navigation.caption": NoParams;
 	"mobile.team_bridge.navigation.entry": { count: number };
 	"mobile.team_bridge.navigation.entry_loading": NoParams;
@@ -3071,6 +3147,16 @@ export type MessageParams = {
 	"mobile.team_bridge.profile.open": { name: string | number };
 	"mobile.team_bridge.profile.opens_hint": NoParams;
 	"mobile.team_bridge.profile.title": NoParams;
+	"mobile.team_bridge.reply_thread.count": { count: number };
+	"mobile.team_bridge.reply_thread.empty": NoParams;
+	"mobile.team_bridge.reply_thread.error": NoParams;
+	"mobile.team_bridge.reply_thread.loading": NoParams;
+	"mobile.team_bridge.reply_thread.more": NoParams;
+	"mobile.team_bridge.reply_thread.open": { count: number };
+	"mobile.team_bridge.reply_thread.open_unread": { count: number; unread: number };
+	"mobile.team_bridge.reply_thread.reply": NoParams;
+	"mobile.team_bridge.reply_thread.retry": NoParams;
+	"mobile.team_bridge.reply_thread.title": NoParams;
 	"mobile.team_bridge.retry": NoParams;
 	"mobile.team_bridge.thread.access_retry": NoParams;
 	"mobile.team_bridge.thread.anchor_missing": NoParams;
@@ -3584,6 +3670,8 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.channel.system": "System sound",
 	"mobile.notifications.channel.tape_warble": "Tape warble",
 	"mobile.notifications.channel.task_complete": "Task complete",
+	"mobile.notifications.channel.team_bridge": "Team Bridge",
+	"mobile.notifications.channel.team_bridge_description": "Messages from your teammates and their agents.",
 	"mobile.notifications.channel.two_note_chime": "Two-note chime",
 	"mobile.notifications.computer_registration.failed": "Could not register this phone for alerts from this computer. It tries again when you reopen the app.",
 	"mobile.notifications.computer_registration.no_token": "This phone has no push address yet, so this computer cannot alert it. Reopen the app to try again.",
@@ -3625,6 +3713,8 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.preferences.agent_note": "Turn off both agent types to keep only Team Bridge notifications.",
 	"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 	"mobile.notifications.preferences.bridge_note": "For each DM, group or channel, open its bell menu and choose {all}, {mentions} or {muted}.",
+	"mobile.notifications.preferences.bridge_system_off": "Team Bridge notifications are turned off in Android settings, so none will appear on this phone.",
+	"mobile.notifications.preferences.bridge_system_open": "Open Android settings",
 	"mobile.notifications.preferences.completions": "Agent finished",
 	"mobile.notifications.preferences.computer_keeps_sending": "Your computer will keep sending agent notifications until Local Operator is updated on it.",
 	"mobile.notifications.preferences.disabled_hint": "Needs a newer Local Operator on your computer.",
@@ -3641,6 +3731,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.priority_high": "High",
 	"mobile.notifications.section.waiting": "Waiting on you",
 	"mobile.notifications.section.waiting_count": "Waiting on you · {count}",
+	"mobile.notifications.team_bridge.self_name": "You",
 	"mobile.notifications.title": "Notifications",
 	"mobile.notifications.turn_on": "Turn on notifications",
 	"mobile.oauth.failed": "Sign-in could not finish. Try again.",
@@ -3827,6 +3918,14 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.session.composer.retained_instruction": "An earlier instruction may have been delivered. Retry that earlier instruction before sending your current draft.",
 	"mobile.session.composer.retry_not_sent_storage": "This retry attempt wasn’t sent. Couldn’t prepare the earlier instruction safely for retry. Try the earlier instruction again. Your current draft hasn’t been sent.",
 	"mobile.session.conversation_details": "Conversation details",
+	"mobile.session.diagram.close": "Close diagram",
+	"mobile.session.diagram.copied": "copied",
+	"mobile.session.diagram.copy": "Copy diagram source",
+	"mobile.session.diagram.error": "Couldn’t draw this diagram. Showing the source instead.",
+	"mobile.session.diagram.label": "{type} diagram",
+	"mobile.session.diagram.label_titled": "{type} diagram: {title}",
+	"mobile.session.diagram.open_hint": "Opens the diagram full screen",
+	"mobile.session.diagram.viewer": "Diagram viewer",
 	"mobile.session.empty.headline": "Nothing here yet.",
 	"mobile.session.empty.next": "Send the first message below.",
 	"mobile.session.fallback_name": "session",
@@ -4184,6 +4283,15 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.list.preview": "Preview · Join to read",
 	"mobile.team_bridge.list.quiet": "Notifications quiet",
 	"mobile.team_bridge.list.self": "you",
+	"mobile.team_bridge.mentions.dismiss_notice": "Dismiss",
+	"mobile.team_bridge.mentions.invited": "{name} hasn’t joined this conversation yet and won’t be notified.",
+	"mobile.team_bridge.mentions.no_endpoint": "{name} can’t be notified until the people list loads.",
+	"mobile.team_bridge.mentions.not_member": "{name} isn’t in this conversation and won’t be notified.",
+	"mobile.team_bridge.mentions.results_count": "{count, plural, one {# suggestion} other {# suggestions}}",
+	"mobile.team_bridge.mentions.row_label": "Mention {name}",
+	"mobile.team_bridge.mentions.section_members": "In this conversation",
+	"mobile.team_bridge.mentions.section_org": "Others in your organization",
+	"mobile.team_bridge.mentions.unavailable": "People list unavailable. Showing members of this conversation.",
 	"mobile.team_bridge.navigation.caption": "Your organization, even with your computer asleep",
 	"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # unread} other {Team Bridge · # unread}}",
 	"mobile.team_bridge.navigation.entry_loading": "Team Bridge · loading",
@@ -4200,6 +4308,16 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.profile.open": "View profile for {name}",
 	"mobile.team_bridge.profile.opens_hint": "Opens their profile",
 	"mobile.team_bridge.profile.title": "Profile",
+	"mobile.team_bridge.reply_thread.count": "{count, plural, one {# reply} other {# replies}}",
+	"mobile.team_bridge.reply_thread.empty": "No replies yet. Start the thread.",
+	"mobile.team_bridge.reply_thread.error": "This thread couldn't be loaded.",
+	"mobile.team_bridge.reply_thread.loading": "Loading thread…",
+	"mobile.team_bridge.reply_thread.more": "Load more replies",
+	"mobile.team_bridge.reply_thread.open": "View thread, {count, plural, one {# reply} other {# replies}}",
+	"mobile.team_bridge.reply_thread.open_unread": "View thread, {count, plural, one {# reply} other {# replies}}, {unread, plural, one {# unread} other {# unread}}",
+	"mobile.team_bridge.reply_thread.reply": "Reply in thread",
+	"mobile.team_bridge.reply_thread.retry": "Retry thread",
+	"mobile.team_bridge.reply_thread.title": "Thread",
 	"mobile.team_bridge.retry": "Retry",
 	"mobile.team_bridge.thread.access_retry": "Retry access",
 	"mobile.team_bridge.thread.anchor_missing": "That message is no longer available.",
@@ -4698,6 +4816,8 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.channel.system": { role: "meta", note: "Name of the Android notification channel that plays the phone's own default notification sound, used when the computer's sound is set to the system sound. Shown in the system's app notification settings. Sentence case, no final full stop." },
 	"mobile.notifications.channel.tape_warble": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.channel.task_complete": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
+	"mobile.notifications.channel.team_bridge": { role: "meta", note: "Name of the Team Bridge notification channel in Android's notification settings. Product name; keep it untranslated unless the product name is localised elsewhere." },
+	"mobile.notifications.channel.team_bridge_description": { role: "help", note: "Description under the Team Bridge channel in Android's notification settings. Teammates are people; agents are their AI agents." },
 	"mobile.notifications.channel.two_note_chime": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.computer_registration.failed": { role: "status", note: "Settings › Notifications, a status line: registering this phone for the computer's push notifications failed for a temporary reason; the app retries when it is opened again." },
 	"mobile.notifications.computer_registration.no_token": { role: "status", note: "Settings › Notifications, a status line: the phone's operating system has not given the app a push address (device token), so the computer cannot send push notifications to it. 'Reopen the app' is the remedy." },
@@ -4739,6 +4859,8 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.preferences.agent_note": { role: "help", note: "Both refers to Agent finished and Agent hit an error. The global master must remain enabled to keep Team Bridge." },
 	"mobile.notifications.preferences.bridge_heading": { role: "heading", note: "Product name, subsection heading." },
 	"mobile.notifications.preferences.bridge_note": { role: "help", note: "Directions to existing per-conversation notification controls for DMs, groups and channels; use the same option names as the Team Bridge bell menu." },
+	"mobile.notifications.preferences.bridge_system_off": { role: "help", note: "Shown under the Team Bridge switch in Settings when the reader has switched off the Team Bridge channel in Android's system settings. States the consequence; the app cannot turn it back on itself." },
+	"mobile.notifications.preferences.bridge_system_open": { role: "button", note: "Button that opens Android's system settings page for the Team Bridge notification channel." },
 	"mobile.notifications.preferences.completions": { role: "button", note: "Settings › Notifications, a switch row: notify when an AI agent on the computer finishes its turn. Short, past tense." },
 	"mobile.notifications.preferences.computer_keeps_sending": { role: "help", note: "Settings › Notifications, when the reader turned notifications (or one kind) off but the connected computer runs an older Local Operator that cannot honour it: that computer keeps sending agent notifications until it is updated. Plain and honest; Local Operator is a brand." },
 	"mobile.notifications.preferences.disabled_hint": { role: "help", note: "Screen-reader hint on a dimmed notification switch, saying why it cannot be changed. Not shown on screen. Local Operator is a brand." },
@@ -4755,6 +4877,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.priority_high": { role: "status", note: "Badge on a notification the sender marked high priority. One word." },
 	"mobile.notifications.section.waiting": { role: "heading", note: "Pinned section heading at the top of the notifications inbox: the asks that are blocked on the reader. Short heading, ~20 characters. No placeholders." },
 	"mobile.notifications.section.waiting_count": { role: "heading", note: "The same pinned section heading with the number of items in it, e.g. 'Waiting on you · 3'. {count} is an integer shown as digits; no noun follows it, so no plural arms. Keep the middle dot separator." },
+	"mobile.notifications.team_bridge.self_name": { role: "meta", note: "The reader's own name in an Android conversation notification (the 'me' person of a message thread). One short pronoun." },
 	"mobile.notifications.title": { role: "heading", note: "Title of the notifications inbox screen." },
 	"mobile.notifications.turn_on": { role: "button", note: "The one label of every control that turns this phone's notifications on: the first-run sheet's primary button (raises the phone's permission dialog), the Settings › Notifications button, and the 'Notifications are off' row's button (opens this app's page in the system settings). Use the same words in all three places." },
 	"mobile.oauth.failed": { role: "status", note: "App sign-in failure when Android native transport or browser cannot complete. Cancellation is a separate existing state. No native error/URL/code is shown." },
@@ -4941,6 +5064,14 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.session.composer.retained_instruction": { role: "confirm", note: "Notice above the composer when an earlier instruction is retained and may already have been delivered, so the user must retry it before sending the current draft. Two sentences." },
 	"mobile.session.composer.retry_not_sent_storage": { role: "status", note: "Only the current RETRY ATTEMPT was not dispatched because local safe-retry preparation failed. The original instruction may already have arrived: its separate retained-envelope warning and Retry earlier instruction action stay visible. Never imply the current draft was retried or disk space is the known cause. Never include raw storage errors." },
 	"mobile.session.conversation_details": { role: "heading", note: "The destination screen's own title, used as the label of the control that opens it — not an action verb. It must stay identical wherever that screen is named, including the sentence in mobile.home.options.fixed, so a reader recognises the same destination. No final full stop." },
+	"mobile.session.diagram.close": { role: "button", note: "Accessible name of the close button in the full-screen diagram viewer. Imperative, sentence case, no final full stop." },
+	"mobile.session.diagram.copied": { role: "status", note: "One lower-case word shown beside the diagram kind label ('mermaid · copied') after the source was copied. Mirrors the code block's copied marker. The middle dot separator is added by the app." },
+	"mobile.session.diagram.copy": { role: "button", note: "Accessible name of the icon button in a diagram's header that copies the diagram's source text (Mermaid syntax) to the clipboard. Imperative, sentence case, no final full stop." },
+	"mobile.session.diagram.error": { role: "status", note: "Shown above a code block when a diagram could not be drawn. The reason Pele gave follows on its own line in English and is not part of this string. Two short sentences." },
+	"mobile.session.diagram.label": { role: "meta", note: "Accessible name of a drawn diagram in the transcript when it has no title. {type} is the diagram kind as an English technical token (flowchart, sequence, state, class, er, gantt, pie…): keep it as written and never translate it. No final full stop." },
+	"mobile.session.diagram.label_titled": { role: "meta", note: "Accessible name of a drawn diagram that has a title or a first label. {type} is the English technical diagram kind (flowchart, sequence…): keep it as written. {title} is text written by the assistant, inserted unchanged. No final full stop." },
+	"mobile.session.diagram.open_hint": { role: "help", note: "Accessibility hint on a drawn diagram in the transcript. Activating it opens the diagram full screen, where it can be panned (and on iPhone pinch-zoomed; the hint does not promise zoom because Android has none). Sentence case, no final full stop." },
+	"mobile.session.diagram.viewer": { role: "heading", note: "Accessible name of the full-screen diagram viewer dialog. A short noun phrase, sentence case, no final full stop." },
 	"mobile.session.empty.headline": { role: "status", note: "Empty-state headline for a session with no messages. Short, final full stop." },
 	"mobile.session.empty.next": { role: "help", note: "Empty-state follow-up pointing to the composer under the transcript. 'Below' refers to the composer's position." },
 	"mobile.session.fallback_name": { role: "meta", note: "Lower-case noun used as the header title of an untitled session and in \"Back to <name>\" when the conversation has no name. A bare noun meaning one conversation with the agent." },
@@ -5298,6 +5429,15 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.list.preview": { role: "help", note: "Team Bridge mobile UI: list / preview. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.list.quiet": { role: "status", note: "Team Bridge mobile UI: list / quiet. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.list.self": { role: "help", note: "Team Bridge mobile UI: list / self. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
+	"mobile.team_bridge.mentions.dismiss_notice": { role: "button", note: "Team Bridge @-mention notice: dismiss button. Short verb." },
+	"mobile.team_bridge.mentions.invited": { role: "status", note: "Team Bridge @-mention notice after picking someone invited but not yet joined: no notification is sent. {name} is user data." },
+	"mobile.team_bridge.mentions.no_endpoint": { role: "status", note: "Team Bridge @-mention notice after picking an agent whose address is not known yet because the people list has not loaded: no notification is sent. {name} is user data." },
+	"mobile.team_bridge.mentions.not_member": { role: "status", note: "Team Bridge @-mention notice after picking someone who is not in the conversation: their name stays in the message but no notification is sent. {name} is user data. Do not imply an invite is sent." },
+	"mobile.team_bridge.mentions.results_count": { role: "status", note: "Team Bridge @-mention suggestions: spoken to screen readers when the suggestion list changes. Counts people and agents offered. Preserve the ICU plural." },
+	"mobile.team_bridge.mentions.row_label": { role: "button", note: "Team Bridge @-mention suggestions: accessibility label for one suggestion row. {name} is a person or agent display name (user data, never translated)." },
+	"mobile.team_bridge.mentions.section_members": { role: "heading", note: "Team Bridge @-mention suggestions: heading over people and agents who are members of the open conversation. Short; shown above the keyboard." },
+	"mobile.team_bridge.mentions.section_org": { role: "heading", note: "Team Bridge @-mention suggestions: heading over people and agents in the organization who are not in this conversation." },
+	"mobile.team_bridge.mentions.unavailable": { role: "status", note: "Team Bridge @-mention suggestions: shown when the organization directory has not loaded, so only conversation members can be suggested. No error code; calm tone." },
 	"mobile.team_bridge.navigation.caption": { role: "help", note: "Team Bridge mobile UI: navigation / caption. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.navigation.entry": { role: "help", note: "Team Bridge mobile UI: navigation / entry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Parameters are caller-supplied names/counts or protocol selects; do not translate their identifiers. Preserve ICU plural/select syntax and all variants; names are not translated." },
 	"mobile.team_bridge.navigation.entry_loading": { role: "button", note: "Team Bridge mobile UI: accessible name of the workspace drawer's Team Bridge mode button while the account's unread count has not been read yet. Says 'loading', never zero: the count is unknown, not empty. Keep the product name 'Team Bridge' untranslated." },
@@ -5314,6 +5454,16 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.profile.open": { role: "button", note: "Accessibility label for the person or software-agent mark that opens its profile. {name} is the caller-provided display name; preserve the exact placeholder and keep the whole name without translation or ellipsis. This opens a profile, not a conversation." },
 	"mobile.team_bridge.profile.opens_hint": { role: "help", note: "Accessibility hint on a person or software-agent mark: activating it opens their profile. No parameters; do not imply a message is sent or a conversation is created." },
 	"mobile.team_bridge.profile.title": { role: "heading", note: "Profile sheet title for either a person or software agent, not their user-provided job title. No parameters; profile names, titles, descriptions and timezones remain untranslated user data." },
+	"mobile.team_bridge.reply_thread.count": { role: "meta", note: "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}." },
+	"mobile.team_bridge.reply_thread.empty": { role: "status", note: "A reply thread whose root message has no replies left to show; the second sentence invites the reader to write the first reply (desktop wording)." },
+	"mobile.team_bridge.reply_thread.error": { role: "status", note: "Shown when a reply thread could not be read from Radient; a retry button follows." },
+	"mobile.team_bridge.reply_thread.loading": { role: "status", note: "Shown while a reply thread loads." },
+	"mobile.team_bridge.reply_thread.more": { role: "button", note: "Button at the end of a very long reply thread (more than one load of replies) that loads the next replies. No parameters; matches the desktop's 'Load more replies'." },
+	"mobile.team_bridge.reply_thread.open": { role: "button", note: "Accessible name of the control that opens a message's reply thread (Slack-style threads); matches the desktop's 'View thread, …'. Preserve {count}. 'Thread' means replies under one message, not the whole conversation." },
+	"mobile.team_bridge.reply_thread.open_unread": { role: "button", note: "Same control when some replies are unread by this reader. Preserve {count} and {unread}." },
+	"mobile.team_bridge.reply_thread.reply": { role: "button", note: "Composer label and placeholder for replying inside a thread; matches the desktop's 'Reply in thread'. A verb phrase: write a reply in this thread, not in the conversation." },
+	"mobile.team_bridge.reply_thread.retry": { role: "button", note: "Retries loading a reply thread." },
+	"mobile.team_bridge.reply_thread.title": { role: "heading", note: "Screen title for one message's reply thread (the message and its replies). Not the whole conversation." },
 	"mobile.team_bridge.retry": { role: "button", note: "Team Bridge mobile UI: retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.thread.access_retry": { role: "button", note: "Team Bridge mobile UI: thread / access retry. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.thread.anchor_missing": { role: "status", note: "Team Bridge mobile UI: thread / anchor missing. Shown once, briefly, when a notification or link pointed at one message that was deleted or can no longer be seen; the thread is shown at its newest messages instead. Not shown when the message simply could not be loaded." },
@@ -5826,6 +5976,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Sonido del sistema",
 		"mobile.notifications.channel.tape_warble": "Cinta ondulante",
 		"mobile.notifications.channel.task_complete": "Tarea completada",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Mensajes de tus compañeros de equipo y sus agentes.",
 		"mobile.notifications.channel.two_note_chime": "Campanilla de dos notas",
 		"mobile.notifications.computer_registration.failed": "No se pudo registrar este teléfono para recibir alertas de esta máquina. Se volverá a intentar cuando vuelvas a abrir la app.",
 		"mobile.notifications.computer_registration.no_token": "Este teléfono aún no tiene una dirección push, así que esta máquina no puede enviarle alertas. Vuelve a abrir la app para intentarlo de nuevo.",
@@ -5867,6 +6019,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Desactiva ambos tipos del agente para recibir solo notificaciones de Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Para cada mensaje directo, grupo o canal, abre el menú de la campana y elige {all}, {mentions} o {muted}.",
+		"mobile.notifications.preferences.bridge_system_off": "Las notificaciones de Team Bridge están desactivadas en los ajustes de Android, así que no aparecerá ninguna en este teléfono.",
+		"mobile.notifications.preferences.bridge_system_open": "Abrir ajustes de Android",
 		"mobile.notifications.preferences.completions": "El agente terminó",
 		"mobile.notifications.preferences.computer_keeps_sending": "Tu máquina seguirá enviando notificaciones de agentes hasta que se actualice Local Operator en ella.",
 		"mobile.notifications.preferences.disabled_hint": "Requiere un Local Operator más reciente en tu máquina.",
@@ -5883,6 +6037,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Alta",
 		"mobile.notifications.section.waiting": "Te esperan",
 		"mobile.notifications.section.waiting_count": "Te esperan · {count}",
+		"mobile.notifications.team_bridge.self_name": "Tú",
 		"mobile.notifications.title": "Notificaciones",
 		"mobile.notifications.turn_on": "Activar notificaciones",
 		"mobile.oauth.failed": "No se pudo completar el inicio de sesión. Inténtalo de nuevo.",
@@ -6069,6 +6224,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Puede que ya se haya entregado una instrucción anterior. Reintenta enviarla antes de enviar tu borrador actual.",
 		"mobile.session.composer.retry_not_sent_storage": "Este intento de reenvío no se envió. No se pudo preparar de forma segura la instrucción anterior para volver a intentarlo. Vuelve a intentar enviar la instrucción anterior. Tu borrador actual no se ha enviado.",
 		"mobile.session.conversation_details": "Detalles de la conversación",
+		"mobile.session.diagram.close": "Cerrar el diagrama",
+		"mobile.session.diagram.copied": "copiado",
+		"mobile.session.diagram.copy": "Copiar el código fuente del diagrama",
+		"mobile.session.diagram.error": "No se pudo dibujar este diagrama. Se muestra el código fuente.",
+		"mobile.session.diagram.label": "Diagrama {type}",
+		"mobile.session.diagram.label_titled": "Diagrama {type}: {title}",
+		"mobile.session.diagram.open_hint": "Abre el diagrama a pantalla completa",
+		"mobile.session.diagram.viewer": "Visor de diagramas",
 		"mobile.session.empty.headline": "Aún no hay nada aquí.",
 		"mobile.session.empty.next": "Envía el primer mensaje aquí abajo.",
 		"mobile.session.fallback_name": "sesión",
@@ -6426,6 +6589,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Vista previa · Únete para leer",
 		"mobile.team_bridge.list.quiet": "Notificaciones silenciadas",
 		"mobile.team_bridge.list.self": "tú",
+		"mobile.team_bridge.mentions.dismiss_notice": "Descartar",
+		"mobile.team_bridge.mentions.invited": "{name} aún no se ha unido a esta conversación y no recibirá una notificación.",
+		"mobile.team_bridge.mentions.no_endpoint": "No se puede notificar a {name} hasta que se cargue la lista de personas.",
+		"mobile.team_bridge.mentions.not_member": "{name} no está en esta conversación y no recibirá una notificación.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# sugerencia} other {# sugerencias}}",
+		"mobile.team_bridge.mentions.row_label": "Mencionar a {name}",
+		"mobile.team_bridge.mentions.section_members": "En esta conversación",
+		"mobile.team_bridge.mentions.section_org": "Otros en tu organización",
+		"mobile.team_bridge.mentions.unavailable": "La lista de personas no está disponible. Se muestran los miembros de esta conversación.",
 		"mobile.team_bridge.navigation.caption": "Tu organización, incluso con tu máquina en reposo",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # sin leer} other {Team Bridge · # sin leer}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · cargando",
@@ -6442,6 +6614,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Ver el perfil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Abre su perfil",
 		"mobile.team_bridge.profile.title": "Perfil",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# respuesta} other {# respuestas}}",
+		"mobile.team_bridge.reply_thread.empty": "Aún no hay respuestas. Inicia el hilo.",
+		"mobile.team_bridge.reply_thread.error": "No se pudo cargar este hilo.",
+		"mobile.team_bridge.reply_thread.loading": "Cargando hilo…",
+		"mobile.team_bridge.reply_thread.more": "Cargar más respuestas",
+		"mobile.team_bridge.reply_thread.open": "Ver hilo, {count, plural, one {# respuesta} other {# respuestas}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Ver hilo, {count, plural, one {# respuesta} other {# respuestas}}, {unread, plural, one {# sin leer} other {# sin leer}}",
+		"mobile.team_bridge.reply_thread.reply": "Responder en el hilo",
+		"mobile.team_bridge.reply_thread.retry": "Reintentar hilo",
+		"mobile.team_bridge.reply_thread.title": "Hilo",
 		"mobile.team_bridge.retry": "Reintentar",
 		"mobile.team_bridge.thread.access_retry": "Reintentar acceso",
 		"mobile.team_bridge.thread.anchor_missing": "Ese mensaje ya no está disponible.",
@@ -6938,6 +7120,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Son du système",
 		"mobile.notifications.channel.tape_warble": "Bande ondulante",
 		"mobile.notifications.channel.task_complete": "Tâche terminée",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Messages de vos coéquipiers et de leurs agents.",
 		"mobile.notifications.channel.two_note_chime": "Carillon à deux notes",
 		"mobile.notifications.computer_registration.failed": "Impossible d’enregistrer ce téléphone pour les alertes de cet ordinateur. Une nouvelle tentative aura lieu à la réouverture de l’app.",
 		"mobile.notifications.computer_registration.no_token": "Ce téléphone n’a pas encore d’adresse push, cet ordinateur ne peut donc pas lui envoyer d’alertes. Rouvrez l’app pour réessayer.",
@@ -6979,6 +7163,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Désactivez les deux types de notifications des agents pour ne garder que celles de Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Pour chaque message privé, groupe ou canal, ouvrez le menu de la cloche et choisissez {all}, {mentions} ou {muted}.",
+		"mobile.notifications.preferences.bridge_system_off": "Les notifications Team Bridge sont désactivées dans les paramètres Android : aucune n’apparaîtra sur ce téléphone.",
+		"mobile.notifications.preferences.bridge_system_open": "Ouvrir les paramètres Android",
 		"mobile.notifications.preferences.completions": "L'agent a terminé",
 		"mobile.notifications.preferences.computer_keeps_sending": "Votre ordinateur continuera d'envoyer les notifications des agents jusqu'à la mise à jour de Local Operator sur celui-ci.",
 		"mobile.notifications.preferences.disabled_hint": "Nécessite une version plus récente de Local Operator sur votre ordinateur.",
@@ -6995,6 +7181,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Élevée",
 		"mobile.notifications.section.waiting": "À traiter",
 		"mobile.notifications.section.waiting_count": "À traiter · {count}",
+		"mobile.notifications.team_bridge.self_name": "Vous",
 		"mobile.notifications.title": "Notifications",
 		"mobile.notifications.turn_on": "Activer les notifications",
 		"mobile.oauth.failed": "La connexion n’a pas pu aboutir. Réessayez.",
@@ -7181,6 +7368,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Une instruction précédente a peut-être été transmise. Réessayez d’envoyer cette instruction avant de transmettre votre brouillon actuel.",
 		"mobile.session.composer.retry_not_sent_storage": "Cette tentative de renvoi n’a pas été envoyée. Impossible de préparer en toute sécurité le renvoi de l’instruction précédente. Réessayez d’envoyer l’instruction précédente. Votre brouillon actuel n’a pas été envoyé.",
 		"mobile.session.conversation_details": "Détails de la conversation",
+		"mobile.session.diagram.close": "Fermer le diagramme",
+		"mobile.session.diagram.copied": "copié",
+		"mobile.session.diagram.copy": "Copier la source du diagramme",
+		"mobile.session.diagram.error": "Impossible de dessiner ce diagramme. La source est affichée à la place.",
+		"mobile.session.diagram.label": "Diagramme {type}",
+		"mobile.session.diagram.label_titled": "Diagramme {type} : {title}",
+		"mobile.session.diagram.open_hint": "Ouvre le diagramme en plein écran",
+		"mobile.session.diagram.viewer": "Visionneuse de diagramme",
 		"mobile.session.empty.headline": "Rien ici pour le moment.",
 		"mobile.session.empty.next": "Envoyez le premier message ci-dessous.",
 		"mobile.session.fallback_name": "session",
@@ -7538,6 +7733,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Aperçu · Rejoignez le canal pour lire",
 		"mobile.team_bridge.list.quiet": "Notifications silencieuses",
 		"mobile.team_bridge.list.self": "vous",
+		"mobile.team_bridge.mentions.dismiss_notice": "Ignorer",
+		"mobile.team_bridge.mentions.invited": "{name} n’a pas encore rejoint cette conversation et ne sera pas notifié.",
+		"mobile.team_bridge.mentions.no_endpoint": "{name} ne pourra être notifié qu’une fois la liste des personnes chargée.",
+		"mobile.team_bridge.mentions.not_member": "{name} ne fait pas partie de cette conversation et ne sera pas notifié.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# proposition} other {# propositions}}",
+		"mobile.team_bridge.mentions.row_label": "Mentionner {name}",
+		"mobile.team_bridge.mentions.section_members": "Dans cette conversation",
+		"mobile.team_bridge.mentions.section_org": "Autres membres de votre organisation",
+		"mobile.team_bridge.mentions.unavailable": "Liste des personnes indisponible. Affichage des membres de cette conversation.",
 		"mobile.team_bridge.navigation.caption": "Votre organisation, même lorsque votre ordinateur est en veille",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # non lu} other {Team Bridge · # non lus}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · chargement",
@@ -7554,6 +7758,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Voir le profil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Ouvre son profil",
 		"mobile.team_bridge.profile.title": "Profil",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# réponse} other {# réponses}}",
+		"mobile.team_bridge.reply_thread.empty": "Aucune réponse pour l’instant. Lancez le fil.",
+		"mobile.team_bridge.reply_thread.error": "Impossible de charger ce fil.",
+		"mobile.team_bridge.reply_thread.loading": "Chargement du fil…",
+		"mobile.team_bridge.reply_thread.more": "Charger plus de réponses",
+		"mobile.team_bridge.reply_thread.open": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}, {unread, plural, one {# non lue} other {# non lues}}",
+		"mobile.team_bridge.reply_thread.reply": "Répondre dans le fil",
+		"mobile.team_bridge.reply_thread.retry": "Réessayer le fil",
+		"mobile.team_bridge.reply_thread.title": "Fil",
 		"mobile.team_bridge.retry": "Réessayer",
 		"mobile.team_bridge.thread.access_retry": "Réessayer l’accès",
 		"mobile.team_bridge.thread.anchor_missing": "Ce message n’est plus disponible.",
@@ -8050,6 +8264,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "सिस्टम ध्वनि",
 		"mobile.notifications.channel.tape_warble": "लहराती टेप",
 		"mobile.notifications.channel.task_complete": "काम पूरा",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "आपके साथियों और उनके एजेंटों के संदेश।",
 		"mobile.notifications.channel.two_note_chime": "दो सुरों वाली घंटी",
 		"mobile.notifications.computer_registration.failed": "इस कंप्यूटर से अलर्ट के लिए यह फ़ोन रजिस्टर नहीं हो सका। ऐप दोबारा खोलने पर फिर से कोशिश की जाएगी।",
 		"mobile.notifications.computer_registration.no_token": "इस फ़ोन का अभी कोई पुश पता नहीं है, इसलिए यह कंप्यूटर इसे अलर्ट नहीं भेज सकता। फिर से कोशिश करने के लिए ऐप दोबारा खोलें।",
@@ -8091,6 +8307,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "केवल Team Bridge की सूचनाएँ पाने के लिए एजेंट की दोनों तरह की सूचनाएँ बंद करें।",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "हर सीधे संदेश, समूह या चैनल में घंटी का मेन्यू खोलें और {all}, {mentions} या {muted} चुनें।",
+		"mobile.notifications.preferences.bridge_system_off": "Android सेटिंग्स में Team Bridge सूचनाएँ बंद हैं, इसलिए इस फ़ोन पर कोई सूचना नहीं दिखेगी।",
+		"mobile.notifications.preferences.bridge_system_open": "Android सेटिंग्स खोलें",
 		"mobile.notifications.preferences.completions": "एजेंट ने काम पूरा किया",
 		"mobile.notifications.preferences.computer_keeps_sending": "जब तक आपके कंप्यूटर पर Local Operator अपडेट नहीं होता, वह एजेंट की सूचनाएँ भेजता रहेगा।",
 		"mobile.notifications.preferences.disabled_hint": "आपके कंप्यूटर पर Local Operator का नया संस्करण चाहिए।",
@@ -8107,6 +8325,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "उच्च",
 		"mobile.notifications.section.waiting": "आपका इंतज़ार",
 		"mobile.notifications.section.waiting_count": "आपका इंतज़ार · {count}",
+		"mobile.notifications.team_bridge.self_name": "आप",
 		"mobile.notifications.title": "सूचनाएँ",
 		"mobile.notifications.turn_on": "सूचनाएँ चालू करें",
 		"mobile.oauth.failed": "साइन-इन पूरा नहीं हो सका। फिर से कोशिश करें।",
@@ -8293,6 +8512,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "हो सकता है कि पहले भेजा गया कोई निर्देश पहुँच चुका हो। अपना मौजूदा ड्राफ़्ट भेजने से पहले उस निर्देश को दोबारा भेजने की कोशिश करें।",
 		"mobile.session.composer.retry_not_sent_storage": "दोबारा भेजने का यह प्रयास नहीं भेजा गया। पिछले निर्देश को सुरक्षित रूप से दोबारा भेजने की तैयारी नहीं हो सकी। पिछले निर्देश को दोबारा भेजने की कोशिश करें। आपका मौजूदा ड्राफ़्ट नहीं भेजा गया है।",
 		"mobile.session.conversation_details": "बातचीत का विवरण",
+		"mobile.session.diagram.close": "आरेख बंद करें",
+		"mobile.session.diagram.copied": "कॉपी किया गया",
+		"mobile.session.diagram.copy": "आरेख का स्रोत कॉपी करें",
+		"mobile.session.diagram.error": "यह आरेख नहीं बनाया जा सका। इसके बजाय स्रोत दिखाया जा रहा है।",
+		"mobile.session.diagram.label": "{type} आरेख",
+		"mobile.session.diagram.label_titled": "{type} आरेख: {title}",
+		"mobile.session.diagram.open_hint": "आरेख को पूर्ण स्क्रीन पर खोलता है",
+		"mobile.session.diagram.viewer": "आरेख व्यूअर",
 		"mobile.session.empty.headline": "यहाँ अभी कुछ नहीं है।",
 		"mobile.session.empty.next": "नीचे पहला संदेश भेजें।",
 		"mobile.session.fallback_name": "सत्र",
@@ -8650,6 +8877,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "पूर्वावलोकन · पढ़ने के लिए जुड़ें",
 		"mobile.team_bridge.list.quiet": "सूचनाएँ शांत हैं",
 		"mobile.team_bridge.list.self": "आप",
+		"mobile.team_bridge.mentions.dismiss_notice": "खारिज करें",
+		"mobile.team_bridge.mentions.invited": "{name} अभी इस बातचीत में शामिल नहीं हुए हैं और उन्हें सूचना नहीं मिलेगी।",
+		"mobile.team_bridge.mentions.no_endpoint": "लोगों की सूची लोड होने तक {name} को सूचना नहीं भेजी जा सकती।",
+		"mobile.team_bridge.mentions.not_member": "{name} इस बातचीत में नहीं हैं और उन्हें सूचना नहीं मिलेगी।",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# सुझाव} other {# सुझाव}}",
+		"mobile.team_bridge.mentions.row_label": "{name} का उल्लेख करें",
+		"mobile.team_bridge.mentions.section_members": "इस बातचीत में",
+		"mobile.team_bridge.mentions.section_org": "आपके संगठन के अन्य लोग",
+		"mobile.team_bridge.mentions.unavailable": "लोगों की सूची उपलब्ध नहीं है। इस बातचीत के सदस्य दिखाए जा रहे हैं।",
 		"mobile.team_bridge.navigation.caption": "कंप्यूटर स्लीप में हो, तब भी आपका संगठन आपके साथ",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # अपठित} other {Team Bridge · # अपठित}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · लोड हो रहा है",
@@ -8666,6 +8902,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} की प्रोफ़ाइल देखें",
 		"mobile.team_bridge.profile.opens_hint": "उनकी प्रोफ़ाइल खोलता है",
 		"mobile.team_bridge.profile.title": "प्रोफ़ाइल",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# जवाब} other {# जवाब}}",
+		"mobile.team_bridge.reply_thread.empty": "अभी तक कोई जवाब नहीं। थ्रेड शुरू करें।",
+		"mobile.team_bridge.reply_thread.error": "यह थ्रेड लोड नहीं हो सका।",
+		"mobile.team_bridge.reply_thread.loading": "थ्रेड लोड हो रहा है…",
+		"mobile.team_bridge.reply_thread.more": "और जवाब लोड करें",
+		"mobile.team_bridge.reply_thread.open": "थ्रेड देखें, {count, plural, one {# जवाब} other {# जवाब}}",
+		"mobile.team_bridge.reply_thread.open_unread": "थ्रेड देखें, {count, plural, one {# जवाब} other {# जवाब}}, {unread, plural, one {# अपठित} other {# अपठित}}",
+		"mobile.team_bridge.reply_thread.reply": "थ्रेड में जवाब दें",
+		"mobile.team_bridge.reply_thread.retry": "थ्रेड फिर से लोड करें",
+		"mobile.team_bridge.reply_thread.title": "थ्रेड",
 		"mobile.team_bridge.retry": "फिर कोशिश करें",
 		"mobile.team_bridge.thread.access_retry": "पहुँच की फिर कोशिश करें",
 		"mobile.team_bridge.thread.anchor_missing": "वह संदेश अब उपलब्ध नहीं है।",
@@ -9162,6 +9408,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Системный звук",
 		"mobile.notifications.channel.tape_warble": "Плывущая плёнка",
 		"mobile.notifications.channel.task_complete": "Задача выполнена",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Сообщения от ваших коллег и их агентов.",
 		"mobile.notifications.channel.two_note_chime": "Двухнотный звон",
 		"mobile.notifications.computer_registration.failed": "Не удалось зарегистрировать этот телефон для оповещений с этого компьютера. Попытка повторится, когда вы снова откроете приложение.",
 		"mobile.notifications.computer_registration.no_token": "У этого телефона пока нет push-адреса, поэтому компьютер не может отправлять ему оповещения. Откройте приложение снова, чтобы повторить попытку.",
@@ -9203,6 +9451,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Отключите оба типа уведомлений агентов, чтобы получать только уведомления Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "В каждом личном чате, группе или канале откройте меню колокольчика и выберите «{all}», «{mentions}» или «{muted}».",
+		"mobile.notifications.preferences.bridge_system_off": "Уведомления Team Bridge отключены в настройках Android, поэтому на этом телефоне они не появятся.",
+		"mobile.notifications.preferences.bridge_system_open": "Открыть настройки Android",
 		"mobile.notifications.preferences.completions": "Агент закончил",
 		"mobile.notifications.preferences.computer_keeps_sending": "Компьютер будет присылать уведомления агентов, пока на нём не обновят Local Operator.",
 		"mobile.notifications.preferences.disabled_hint": "Нужна более новая версия Local Operator на компьютере.",
@@ -9219,6 +9469,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Важно",
 		"mobile.notifications.section.waiting": "Ждут вас",
 		"mobile.notifications.section.waiting_count": "Ждут вас · {count}",
+		"mobile.notifications.team_bridge.self_name": "Вы",
 		"mobile.notifications.title": "Уведомления",
 		"mobile.notifications.turn_on": "Включить уведомления",
 		"mobile.oauth.failed": "Не удалось завершить вход. Попробуйте ещё раз.",
@@ -9405,6 +9656,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Предыдущее указание, возможно, уже доставлено. Отправьте это указание ещё раз, прежде чем отправлять текущий черновик.",
 		"mobile.session.composer.retry_not_sent_storage": "Эта попытка повторной отправки не была отправлена. Не удалось безопасно подготовить предыдущее указание к повторной отправке. Повторите отправку предыдущего указания. Текущий черновик не отправлен.",
 		"mobile.session.conversation_details": "Детали беседы",
+		"mobile.session.diagram.close": "Закрыть диаграмму",
+		"mobile.session.diagram.copied": "скопировано",
+		"mobile.session.diagram.copy": "Скопировать исходный код диаграммы",
+		"mobile.session.diagram.error": "Не удалось нарисовать диаграмму. Вместо неё показан исходный код.",
+		"mobile.session.diagram.label": "Диаграмма {type}",
+		"mobile.session.diagram.label_titled": "Диаграмма {type}: {title}",
+		"mobile.session.diagram.open_hint": "Открывает диаграмму на весь экран",
+		"mobile.session.diagram.viewer": "Просмотр диаграммы",
 		"mobile.session.empty.headline": "Здесь пока ничего нет.",
 		"mobile.session.empty.next": "Отправьте первое сообщение ниже.",
 		"mobile.session.fallback_name": "сессия",
@@ -9762,6 +10021,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Предпросмотр · Вступите, чтобы читать",
 		"mobile.team_bridge.list.quiet": "Уведомления без звука",
 		"mobile.team_bridge.list.self": "вы",
+		"mobile.team_bridge.mentions.dismiss_notice": "Скрыть",
+		"mobile.team_bridge.mentions.invited": "{name} ещё не присоединился к этому разговору и не получит уведомление.",
+		"mobile.team_bridge.mentions.no_endpoint": "{name} нельзя уведомить, пока не загрузится список людей.",
+		"mobile.team_bridge.mentions.not_member": "{name} не участвует в этом разговоре и не получит уведомление.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# вариант} few {# варианта} many {# вариантов} other {# варианта}}",
+		"mobile.team_bridge.mentions.row_label": "Упомянуть: {name}",
+		"mobile.team_bridge.mentions.section_members": "В этом разговоре",
+		"mobile.team_bridge.mentions.section_org": "Другие в вашей организации",
+		"mobile.team_bridge.mentions.unavailable": "Список людей недоступен. Показаны участники этого разговора.",
 		"mobile.team_bridge.navigation.caption": "Ваша организация рядом, даже когда компьютер спит",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # непрочитанное} few {Team Bridge · # непрочитанных} many {Team Bridge · # непрочитанных} other {Team Bridge · # непрочитанных}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · загрузка",
@@ -9778,6 +10046,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Посмотреть профиль: {name}",
 		"mobile.team_bridge.profile.opens_hint": "Открывает профиль",
 		"mobile.team_bridge.profile.title": "Профиль",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+		"mobile.team_bridge.reply_thread.empty": "Ответов пока нет. Начните ветку.",
+		"mobile.team_bridge.reply_thread.error": "Не удалось загрузить эту ветку.",
+		"mobile.team_bridge.reply_thread.loading": "Загрузка ветки…",
+		"mobile.team_bridge.reply_thread.more": "Загрузить ещё ответы",
+		"mobile.team_bridge.reply_thread.open": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}, {unread, plural, one {# непрочитанный} few {# непрочитанных} many {# непрочитанных} other {# непрочитанных}}",
+		"mobile.team_bridge.reply_thread.reply": "Ответить в ветке",
+		"mobile.team_bridge.reply_thread.retry": "Повторить загрузку ветки",
+		"mobile.team_bridge.reply_thread.title": "Ветка",
 		"mobile.team_bridge.retry": "Повторить",
 		"mobile.team_bridge.thread.access_retry": "Повторить проверку доступа",
 		"mobile.team_bridge.thread.anchor_missing": "Это сообщение больше недоступно.",
@@ -10274,6 +10552,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "سسٹم کی آواز",
 		"mobile.notifications.channel.tape_warble": "لرزتی ٹیپ",
 		"mobile.notifications.channel.task_complete": "کام مکمل",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "آپ کے ساتھیوں اور ان کے ایجنٹس کے پیغامات۔",
 		"mobile.notifications.channel.two_note_chime": "دو سُری گھنٹی",
 		"mobile.notifications.computer_registration.failed": "اس کمپیوٹر سے الرٹس کے لیے یہ فون رجسٹر نہیں ہو سکا۔ ایپ دوبارہ کھولنے پر پھر کوشش کی جائے گی۔",
 		"mobile.notifications.computer_registration.no_token": "اس فون کا ابھی کوئی پُش پتہ نہیں ہے، اس لیے یہ کمپیوٹر اسے الرٹ نہیں بھیج سکتا۔ دوبارہ کوشش کے لیے ایپ پھر سے کھولیں۔",
@@ -10315,6 +10595,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "صرف Team Bridge کی اطلاعات حاصل کرنے کے لیے ایجنٹ کی دونوں قسم کی اطلاعات بند کریں۔",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "ہر نجی پیغام، گروپ یا چینل میں گھنٹی کا مینو کھولیں اور {all}، {mentions} یا {muted} منتخب کریں۔",
+		"mobile.notifications.preferences.bridge_system_off": "Android کی ترتیبات میں Team Bridge کی اطلاعات بند ہیں، اس لیے اس فون پر کوئی اطلاع نظر نہیں آئے گی۔",
+		"mobile.notifications.preferences.bridge_system_open": "Android کی ترتیبات کھولیں",
 		"mobile.notifications.preferences.completions": "ایجنٹ نے کام مکمل کیا",
 		"mobile.notifications.preferences.computer_keeps_sending": "جب تک آپ کے کمپیوٹر پر Local Operator اپ ڈیٹ نہیں ہوتا، وہ ایجنٹ کی اطلاعات بھیجتا رہے گا۔",
 		"mobile.notifications.preferences.disabled_hint": "آپ کے کمپیوٹر پر Local Operator کا نیا ورژن درکار ہے۔",
@@ -10331,6 +10613,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "اعلیٰ",
 		"mobile.notifications.section.waiting": "آپ کا انتظار",
 		"mobile.notifications.section.waiting_count": "آپ کا انتظار · {count}",
+		"mobile.notifications.team_bridge.self_name": "آپ",
 		"mobile.notifications.title": "اطلاعات",
 		"mobile.notifications.turn_on": "اطلاعات آن کریں",
 		"mobile.oauth.failed": "سائن اِن مکمل نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
@@ -10517,6 +10800,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "ممکن ہے پچھلی ہدایت پہنچ چکی ہو۔ موجودہ مسودہ بھیجنے سے پہلے پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔",
 		"mobile.session.composer.retry_not_sent_storage": "دوبارہ بھیجنے کی یہ کوشش نہیں بھیجی گئی۔ پچھلی ہدایت کو محفوظ طریقے سے دوبارہ بھیجنے کی تیاری نہیں ہو سکی۔ پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔ آپ کا موجودہ مسودہ نہیں بھیجا گیا۔",
 		"mobile.session.conversation_details": "گفتگو کی تفصیلات",
+		"mobile.session.diagram.close": "ڈایاگرام بند کریں",
+		"mobile.session.diagram.copied": "کاپی ہو گیا",
+		"mobile.session.diagram.copy": "ڈایاگرام کا ماخذ کاپی کریں",
+		"mobile.session.diagram.error": "یہ ڈایاگرام نہیں بنایا جا سکا۔ اس کی جگہ ماخذ دکھایا گیا ہے۔",
+		"mobile.session.diagram.label": "{type} ڈایاگرام",
+		"mobile.session.diagram.label_titled": "{type} ڈایاگرام: {title}",
+		"mobile.session.diagram.open_hint": "ڈایاگرام کو پوری اسکرین پر کھولتا ہے",
+		"mobile.session.diagram.viewer": "ڈایاگرام ویوور",
 		"mobile.session.empty.headline": "یہاں ابھی کچھ نہیں۔",
 		"mobile.session.empty.next": "نیچے پہلا پیغام بھیجیں۔",
 		"mobile.session.fallback_name": "سیشن",
@@ -10874,6 +11165,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "پیش نظارہ · پڑھنے کے لیے شامل ہوں",
 		"mobile.team_bridge.list.quiet": "اطلاعات خاموش ہیں",
 		"mobile.team_bridge.list.self": "آپ",
+		"mobile.team_bridge.mentions.dismiss_notice": "ختم کریں",
+		"mobile.team_bridge.mentions.invited": "{name} ابھی اس گفتگو میں شامل نہیں ہوئے اور انہیں اطلاع نہیں ملے گی۔",
+		"mobile.team_bridge.mentions.no_endpoint": "لوگوں کی فہرست لوڈ ہونے تک {name} کو اطلاع نہیں دی جا سکتی۔",
+		"mobile.team_bridge.mentions.not_member": "{name} اس گفتگو میں شامل نہیں ہیں اور انہیں اطلاع نہیں ملے گی۔",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, one {# تجویز} other {# تجاویز}}",
+		"mobile.team_bridge.mentions.row_label": "{name} کا ذکر کریں",
+		"mobile.team_bridge.mentions.section_members": "اس گفتگو میں",
+		"mobile.team_bridge.mentions.section_org": "آپ کی تنظیم کے دیگر افراد",
+		"mobile.team_bridge.mentions.unavailable": "لوگوں کی فہرست دستیاب نہیں۔ اس گفتگو کے اراکین دکھائے جا رہے ہیں۔",
 		"mobile.team_bridge.navigation.caption": "کمپیوٹر سلیپ میں ہو، تب بھی آپ کی تنظیم آپ کے ساتھ",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} one {Team Bridge · # نا پڑھا گیا پیغام} other {Team Bridge · # نا پڑھے گئے پیغامات}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · لوڈ ہو رہا ہے",
@@ -10890,6 +11190,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} کی پروفائل دیکھیں",
 		"mobile.team_bridge.profile.opens_hint": "ان کی پروفائل کھولتا ہے",
 		"mobile.team_bridge.profile.title": "پروفائل",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# جواب} other {# جوابات}}",
+		"mobile.team_bridge.reply_thread.empty": "ابھی تک کوئی جواب نہیں۔ تھریڈ شروع کریں۔",
+		"mobile.team_bridge.reply_thread.error": "یہ تھریڈ لوڈ نہیں ہو سکا۔",
+		"mobile.team_bridge.reply_thread.loading": "تھریڈ لوڈ ہو رہا ہے…",
+		"mobile.team_bridge.reply_thread.more": "مزید جوابات لوڈ کریں",
+		"mobile.team_bridge.reply_thread.open": "تھریڈ دیکھیں، {count, plural, one {# جواب} other {# جوابات}}",
+		"mobile.team_bridge.reply_thread.open_unread": "تھریڈ دیکھیں، {count, plural, one {# جواب} other {# جوابات}}، {unread, plural, one {# نا پڑھا گیا} other {# نا پڑھے گئے}}",
+		"mobile.team_bridge.reply_thread.reply": "تھریڈ میں جواب دیں",
+		"mobile.team_bridge.reply_thread.retry": "تھریڈ دوبارہ لوڈ کریں",
+		"mobile.team_bridge.reply_thread.title": "تھریڈ",
 		"mobile.team_bridge.retry": "دوبارہ کوشش کریں",
 		"mobile.team_bridge.thread.access_retry": "رسائی کی دوبارہ کوشش کریں",
 		"mobile.team_bridge.thread.anchor_missing": "وہ پیغام اب دستیاب نہیں ہے۔",
@@ -11386,6 +11696,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Âm thanh hệ thống",
 		"mobile.notifications.channel.tape_warble": "Băng rung",
 		"mobile.notifications.channel.task_complete": "Hoàn tất tác vụ",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Tin nhắn từ đồng đội của bạn và các tác tử của họ.",
 		"mobile.notifications.channel.two_note_chime": "Chuông hai nốt",
 		"mobile.notifications.computer_registration.failed": "Không thể đăng ký điện thoại này để nhận cảnh báo từ máy tính này. Ứng dụng sẽ thử lại khi bạn mở lại.",
 		"mobile.notifications.computer_registration.no_token": "Điện thoại này chưa có địa chỉ push, nên máy tính này không thể gửi cảnh báo đến nó. Hãy mở lại ứng dụng để thử lại.",
@@ -11427,6 +11739,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Tắt cả hai loại thông báo tác nhân để chỉ giữ thông báo Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Với mỗi tin nhắn riêng, nhóm hoặc kênh, mở menu chuông và chọn {all}, {mentions} hoặc {muted}.",
+		"mobile.notifications.preferences.bridge_system_off": "Thông báo Team Bridge đang tắt trong cài đặt Android, nên sẽ không có thông báo nào hiện trên điện thoại này.",
+		"mobile.notifications.preferences.bridge_system_open": "Mở cài đặt Android",
 		"mobile.notifications.preferences.completions": "Agent đã hoàn tất",
 		"mobile.notifications.preferences.computer_keeps_sending": "Máy tính của bạn sẽ vẫn gửi thông báo của agent cho đến khi Local Operator trên máy được cập nhật.",
 		"mobile.notifications.preferences.disabled_hint": "Cần phiên bản Local Operator mới hơn trên máy tính của bạn.",
@@ -11443,6 +11757,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Cao",
 		"mobile.notifications.section.waiting": "Chờ bạn",
 		"mobile.notifications.section.waiting_count": "Chờ bạn · {count}",
+		"mobile.notifications.team_bridge.self_name": "Bạn",
 		"mobile.notifications.title": "Thông báo",
 		"mobile.notifications.turn_on": "Bật thông báo",
 		"mobile.oauth.failed": "Không thể hoàn tất đăng nhập. Hãy thử lại.",
@@ -11629,6 +11944,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "Chỉ dẫn trước đó có thể đã được chuyển đến. Hãy thử gửi lại chỉ dẫn đó trước khi gửi bản nháp hiện tại.",
 		"mobile.session.composer.retry_not_sent_storage": "Lần thử gửi lại này chưa được gửi đi. Không thể chuẩn bị an toàn để gửi lại chỉ dẫn trước đó. Hãy thử gửi lại chỉ dẫn trước đó. Bản nháp hiện tại của bạn chưa được gửi.",
 		"mobile.session.conversation_details": "Chi tiết cuộc trò chuyện",
+		"mobile.session.diagram.close": "Đóng sơ đồ",
+		"mobile.session.diagram.copied": "đã sao chép",
+		"mobile.session.diagram.copy": "Sao chép nguồn của sơ đồ",
+		"mobile.session.diagram.error": "Không thể vẽ sơ đồ này. Đang hiển thị mã nguồn thay thế.",
+		"mobile.session.diagram.label": "Sơ đồ {type}",
+		"mobile.session.diagram.label_titled": "Sơ đồ {type}: {title}",
+		"mobile.session.diagram.open_hint": "Mở sơ đồ toàn màn hình",
+		"mobile.session.diagram.viewer": "Trình xem sơ đồ",
 		"mobile.session.empty.headline": "Chưa có gì ở đây.",
 		"mobile.session.empty.next": "Gửi tin nhắn đầu tiên bên dưới.",
 		"mobile.session.fallback_name": "phiên",
@@ -11986,6 +12309,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "Xem trước · Tham gia để đọc",
 		"mobile.team_bridge.list.quiet": "Thông báo im lặng",
 		"mobile.team_bridge.list.self": "bạn",
+		"mobile.team_bridge.mentions.dismiss_notice": "Bỏ qua",
+		"mobile.team_bridge.mentions.invited": "{name} chưa tham gia cuộc trò chuyện này và sẽ không nhận được thông báo.",
+		"mobile.team_bridge.mentions.no_endpoint": "Không thể thông báo cho {name} cho đến khi danh sách mọi người tải xong.",
+		"mobile.team_bridge.mentions.not_member": "{name} không có trong cuộc trò chuyện này và sẽ không nhận được thông báo.",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, other {# gợi ý}}",
+		"mobile.team_bridge.mentions.row_label": "Nhắc đến {name}",
+		"mobile.team_bridge.mentions.section_members": "Trong cuộc trò chuyện này",
+		"mobile.team_bridge.mentions.section_org": "Những người khác trong tổ chức của bạn",
+		"mobile.team_bridge.mentions.unavailable": "Không có danh sách mọi người. Đang hiển thị thành viên của cuộc trò chuyện này.",
 		"mobile.team_bridge.navigation.caption": "Tổ chức luôn bên bạn, ngay cả khi máy tính đang ngủ",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} other {Team Bridge · # chưa đọc}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · đang tải",
@@ -12002,6 +12334,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Xem hồ sơ của {name}",
 		"mobile.team_bridge.profile.opens_hint": "Mở hồ sơ của họ",
 		"mobile.team_bridge.profile.title": "Hồ sơ",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# phản hồi}}",
+		"mobile.team_bridge.reply_thread.empty": "Chưa có phản hồi nào. Hãy bắt đầu chuỗi.",
+		"mobile.team_bridge.reply_thread.error": "Không thể tải chuỗi này.",
+		"mobile.team_bridge.reply_thread.loading": "Đang tải chuỗi…",
+		"mobile.team_bridge.reply_thread.more": "Tải thêm phản hồi",
+		"mobile.team_bridge.reply_thread.open": "Xem chuỗi, {count, plural, other {# phản hồi}}",
+		"mobile.team_bridge.reply_thread.open_unread": "Xem chuỗi, {count, plural, other {# phản hồi}}, {unread, plural, other {# chưa đọc}}",
+		"mobile.team_bridge.reply_thread.reply": "Trả lời trong chuỗi",
+		"mobile.team_bridge.reply_thread.retry": "Thử tải lại chuỗi",
+		"mobile.team_bridge.reply_thread.title": "Chuỗi",
 		"mobile.team_bridge.retry": "Thử lại",
 		"mobile.team_bridge.thread.access_retry": "Thử truy cập lại",
 		"mobile.team_bridge.thread.anchor_missing": "Tin nhắn đó không còn khả dụng.",
@@ -12498,6 +12840,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "系统声音",
 		"mobile.notifications.channel.tape_warble": "磁带颤音",
 		"mobile.notifications.channel.task_complete": "任务完成",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "来自你的队友及其智能体的消息。",
 		"mobile.notifications.channel.two_note_chime": "双音钟声",
 		"mobile.notifications.computer_registration.failed": "无法为此手机注册来自这台电脑的提醒。重新打开应用时会再次尝试。",
 		"mobile.notifications.computer_registration.no_token": "此手机还没有推送地址，因此这台电脑无法向它发送提醒。请重新打开应用再试一次。",
@@ -12539,6 +12883,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "关闭两种智能体通知，即可仅保留 Team Bridge 通知。",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "在各私聊、群组或频道中，打开铃铛菜单，选择{all}、{mentions}或{muted}。",
+		"mobile.notifications.preferences.bridge_system_off": "Team Bridge 通知已在 Android 设置中关闭，因此此手机上不会显示任何通知。",
+		"mobile.notifications.preferences.bridge_system_open": "打开 Android 设置",
 		"mobile.notifications.preferences.completions": "智能体已完成",
 		"mobile.notifications.preferences.computer_keeps_sending": "在你的电脑上更新 Local Operator 之前，它会继续发送智能体通知。",
 		"mobile.notifications.preferences.disabled_hint": "你的电脑需要更新版本的 Local Operator。",
@@ -12555,6 +12901,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "高",
 		"mobile.notifications.section.waiting": "等待你处理",
 		"mobile.notifications.section.waiting_count": "等待你处理 · {count}",
+		"mobile.notifications.team_bridge.self_name": "你",
 		"mobile.notifications.title": "通知",
 		"mobile.notifications.turn_on": "开启通知",
 		"mobile.oauth.failed": "无法完成登录。请重试。",
@@ -12741,6 +13088,14 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.session.composer.retained_instruction": "之前的指令可能已送达。先重试之前的指令，再发送当前草稿。",
 		"mobile.session.composer.retry_not_sent_storage": "本次重试未发送。无法安全地准备重试之前的指令。请重试之前的指令。你当前的草稿尚未发送。",
 		"mobile.session.conversation_details": "对话详情",
+		"mobile.session.diagram.close": "关闭图表",
+		"mobile.session.diagram.copied": "已复制",
+		"mobile.session.diagram.copy": "复制图表源码",
+		"mobile.session.diagram.error": "无法绘制此图表，已改为显示源码。",
+		"mobile.session.diagram.label": "{type} 图表",
+		"mobile.session.diagram.label_titled": "{type} 图表：{title}",
+		"mobile.session.diagram.open_hint": "全屏打开图表",
+		"mobile.session.diagram.viewer": "图表查看器",
 		"mobile.session.empty.headline": "暂无消息。",
 		"mobile.session.empty.next": "在下方发送第一条消息。",
 		"mobile.session.fallback_name": "会话",
@@ -13098,6 +13453,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.list.preview": "预览 · 加入后阅读",
 		"mobile.team_bridge.list.quiet": "通知已静音",
 		"mobile.team_bridge.list.self": "你",
+		"mobile.team_bridge.mentions.dismiss_notice": "关闭",
+		"mobile.team_bridge.mentions.invited": "{name} 尚未加入此对话，不会收到通知。",
+		"mobile.team_bridge.mentions.no_endpoint": "人员列表加载完成前，无法通知 {name}。",
+		"mobile.team_bridge.mentions.not_member": "{name} 不在此对话中，不会收到通知。",
+		"mobile.team_bridge.mentions.results_count": "{count, plural, other {# 个建议}}",
+		"mobile.team_bridge.mentions.row_label": "提及 {name}",
+		"mobile.team_bridge.mentions.section_members": "此对话中",
+		"mobile.team_bridge.mentions.section_org": "你所在组织中的其他人",
+		"mobile.team_bridge.mentions.unavailable": "人员列表不可用，正在显示此对话的成员。",
 		"mobile.team_bridge.navigation.caption": "即使电脑休眠，也能与组织保持联系",
 		"mobile.team_bridge.navigation.entry": "{count, plural, =0 {Team Bridge} other {Team Bridge · # 条未读}}",
 		"mobile.team_bridge.navigation.entry_loading": "Team Bridge · 正在加载",
@@ -13114,6 +13478,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "查看{name}的个人资料",
 		"mobile.team_bridge.profile.opens_hint": "打开其个人资料",
 		"mobile.team_bridge.profile.title": "个人资料",
+		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# 条回复}}",
+		"mobile.team_bridge.reply_thread.empty": "还没有回复。发起话题吧。",
+		"mobile.team_bridge.reply_thread.error": "无法加载此话题。",
+		"mobile.team_bridge.reply_thread.loading": "正在加载话题…",
+		"mobile.team_bridge.reply_thread.more": "加载更多回复",
+		"mobile.team_bridge.reply_thread.open": "查看话题，{count, plural, other {# 条回复}}",
+		"mobile.team_bridge.reply_thread.open_unread": "查看话题，{count, plural, other {# 条回复}}，{unread, plural, other {# 条未读}}",
+		"mobile.team_bridge.reply_thread.reply": "在话题中回复",
+		"mobile.team_bridge.reply_thread.retry": "重新加载话题",
+		"mobile.team_bridge.reply_thread.title": "话题",
 		"mobile.team_bridge.retry": "重试",
 		"mobile.team_bridge.thread.access_retry": "重试访问",
 		"mobile.team_bridge.thread.anchor_missing": "该消息已不可用。",

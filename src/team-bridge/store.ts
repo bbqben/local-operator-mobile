@@ -33,6 +33,7 @@ import { type HubClient, HubError, isHubError } from "@/team-bridge/client";
 import type {
 	Conversation,
 	DirectoryMember,
+	MentionRow,
 	Message,
 	Notify,
 	StatusConsent,
@@ -48,7 +49,16 @@ import {
 	organizationsFrom,
 	preferredOrganization,
 	type StatusRead,
+	sameValue,
 } from "@/team-bridge/model";
+import {
+	isReplyThreadPageFor,
+	type ReplyThreadTarget,
+	replyThreadKey,
+	rootAfterThreadRead,
+	rootFromServedPage,
+	withRoot,
+} from "@/team-bridge/reply-threads";
 import { clearTeamBridgeDrafts } from "@/team-bridge/thread-drafts";
 
 export type LoadState = "idle" | "loading" | "ready" | "error";
@@ -82,6 +92,26 @@ export interface ThreadData {
 	hasMore: boolean;
 	loadingOlder: boolean;
 	olderError: HubError | null;
+}
+
+/**
+ * One REPLY thread (`reply-threads.ts`): its root as the hub last served it and
+ * its replies oldest-first. Bodies, so it lives beside `threads` and resets
+ * with it on sign-out.
+ */
+export interface ReplyThreadData {
+	root: Message | null;
+	replies: Message[];
+	state: LoadState;
+	error: HubError | null;
+	/**
+	 * Where `loadMoreReplies` resumes (the hub's inclusive `next_after_seq`),
+	 * or null when the hub said there is nothing past what is held. Kept so a
+	 * thread longer than one load's page cap stays reachable instead of being
+	 * silently treated as complete (agent review R2: reply 501 was unreachable,
+	 * so it could never be displayed or acknowledged).
+	 */
+	moreAfterSeq: number | null;
 }
 
 export interface TeamBridgeState {
@@ -126,6 +156,8 @@ export interface TeamBridgeState {
 	attachments: AttachmentLimits | null;
 	orgs: Record<string, OrgData>;
 	threads: Record<string, ThreadData>;
+	/** Reply threads, keyed by `replyThreadKey`. */
+	replyThreads: Record<string, ReplyThreadData>;
 	/** The consent the status read served (eligible callers only). Held for the default-on notice's text. */
 	servedConsent: StatusConsent | null;
 	/** The notice to show for the selected organization, or null. Never set before dismissal was read. */
@@ -181,11 +213,29 @@ export const initialTeamBridgeState = (): TeamBridgeState => ({
 	attachments: null,
 	orgs: {},
 	threads: {},
+	replyThreads: {},
 	servedConsent: null,
 	defaultOnNotice: null,
 	defaultOnNoticeError: null,
 	defaultOnNoticeBusy: false,
 });
+
+const emptyReplyThread = (): ReplyThreadData => ({
+	root: null,
+	replies: [],
+	state: "idle",
+	error: null,
+	moreAfterSeq: null,
+});
+
+/**
+ * How many reply pages one load follows. The hub pages at 50 (max 100); ten
+ * pages is 500 replies, beyond any thread observed on the desktop. A thread
+ * still `has_more` after that shows what it holds rather than looping on a
+ * hub that never stops paging, and keeps the cursor (`moreAfterSeq`) so the
+ * reader can ask for the next 500 (`loadMoreReplies`).
+ */
+export const REPLY_PAGE_LIMIT = 10;
 
 /** A history page this size; the hub clamps it anyway. */
 export const PAGE_SIZE = 50;
@@ -265,6 +315,45 @@ export const RATE_LIMIT_MAX_MS = 5 * 60_000;
 const isRateLimited = (error: unknown): error is HubError =>
 	isHubError(error) && error.kind === "rate_limited";
 
+/*
+ * TRANSIENT FAILURES (TestFlight 1157, 2026-11-17: the red "The people
+ * directory could not load." sat ABOVE a people list that was already on
+ * screen). #297 made a 429 wait silently; every other failure still turned
+ * held rows into a red error with Retry, although the next read would most
+ * likely succeed and the rows were still the best thing to show.
+ *
+ * Transient is anything that says "ask again later" rather than "the answer is
+ * no": a 429, a 503 or `messaging_unavailable` (`unavailable` with a status), a timeout or
+ * dead network (`unreachable`, status null), and any other 5xx (`server` with
+ * a 5xx status: 500, a Cloudflare 502/504/52x edge page). A `server` kind with
+ * a non-5xx status is an unmapped refusal (418, 405) and is NOT transient.
+ * Definitive answers (401/403 through `gateFailure`, 404, 4xx `invalid`,
+ * `malformed`) keep their existing handling.
+ *
+ * With rows held, a transient failure keeps them and the backoff below retries
+ * silently; "Catching up…" appears from the second consecutive failure. With
+ * nothing held, a non-429 transient failure gets ONE silent retry before the
+ * red error with Retry: a cold list has nothing better to show once it keeps
+ * failing. A cold 429 keeps #297's skeleton + "Catching up…" (design D2).
+ */
+const isTransient = (error: unknown): error is HubError => {
+	if (!isHubError(error)) return false;
+	switch (error.kind) {
+		case "rate_limited":
+		case "unreachable":
+			return true;
+		/* Only the hub's or edge's answer. This store raises its own statusless
+		 * `unavailable` for the pagination ceiling ("Too many conversation
+		 * pages"), which the same read will hit again: definitive. */
+		case "unavailable":
+			return error.status !== null;
+		case "server":
+			return error.status === null || error.status >= 500;
+		default:
+			return false;
+	}
+};
+
 export function createTeamBridgeStore(deps: {
 	hub: () => HubClient | null;
 	accessToken: () => Promise<string | null>;
@@ -335,6 +424,154 @@ export function createTeamBridgeStore(deps: {
 		}));
 	}
 
+	function patchReplyThread(
+		key: string,
+		change: Partial<ReplyThreadData>,
+	): void {
+		store.setState((s) => ({
+			replyThreads: {
+				...s.replyThreads,
+				[key]: { ...(s.replyThreads[key] ?? emptyReplyThread()), ...change },
+			},
+		}));
+	}
+
+	/**
+	 * Put the hub's newest copy of a root wherever it is held: the open
+	 * conversation's timeline (so its row's count and badge move) and the reply
+	 * thread itself. `change` maps the HELD root; it never invents one.
+	 */
+	function patchRoot(
+		target: ReplyThreadTarget,
+		change: (root: Message) => Message,
+	): void {
+		store.setState((s) => {
+			const conversationKey = threadKey(target.tenantId, target.conversationId);
+			const held = s.threads[conversationKey];
+			const heldRoot = held?.messages.find((m) => m.id === target.rootId);
+			const replyKey = replyThreadKey(target);
+			const reply = s.replyThreads[replyKey];
+			const nextThreads =
+				held && heldRoot
+					? withRoot(held.messages, change(heldRoot), sameValue)
+					: held?.messages;
+			const nextReplyRoot = reply?.root ? change(reply.root) : reply?.root;
+			const threadsChanged = !!held && nextThreads !== held.messages;
+			const replyChanged = !!reply && nextReplyRoot !== reply.root;
+			if (!threadsChanged && !replyChanged) return s;
+			return {
+				...(threadsChanged && held && nextThreads
+					? {
+							threads: {
+								...s.threads,
+								[conversationKey]: { ...held, messages: nextThreads },
+							},
+						}
+					: {}),
+				...(replyChanged && reply
+					? {
+							replyThreads: {
+								...s.replyThreads,
+								[replyKey]: { ...reply, root: nextReplyRoot ?? null },
+							},
+						}
+					: {}),
+			};
+		});
+	}
+
+	/**
+	 * Follow up to `REPLY_PAGE_LIMIT` reply pages from `start` (undefined = the
+	 * first reply) and merge them into the held thread. Shared by the refresh
+	 * and the continuation so both apply the same identity check, root rule
+	 * and cursor bookkeeping.
+	 */
+	async function readReplyPages(
+		target: ReplyThreadTarget,
+		start: number | undefined,
+		owned: () => boolean,
+	): Promise<void> {
+		const client = deps.hub();
+		if (!client) return;
+		const key = replyThreadKey(target);
+		if (store.getState().replyThreads[key]?.state !== "ready")
+			patchReplyThread(key, { state: "loading", error: null });
+		try {
+			let root: Message | null = null;
+			let replies: Message[] = [];
+			let afterSeq = start;
+			let more: number | null = null;
+			for (let page = 0; page < REPLY_PAGE_LIMIT; page += 1) {
+				const answer = await client.listReplies(
+					target.tenantId,
+					target.conversationId,
+					target.rootId,
+					{ afterSeq, limit: PAGE_SIZE },
+				);
+				if (!owned()) return;
+				if (!isReplyThreadPageFor(answer, target))
+					throw new HubError({
+						kind: "malformed",
+						message: "Radient returned a different thread.",
+					});
+				root = answer.root;
+				replies = mergeMessages(replies, answer.replies);
+				const next = answer.next_after_seq;
+				more = null;
+				// Inclusive cursor: it must move past what we hold, or stop.
+				if (
+					!answer.has_more ||
+					next === undefined ||
+					(afterSeq !== undefined && next <= afterSeq)
+				)
+					break;
+				afterSeq = next;
+				// Only a cursor that is still outstanding when the cap ends the
+				// loop survives as `more`; a normal end resets it above.
+				more = next;
+			}
+			if (!root) return;
+			const held = store.getState().replyThreads[key];
+			const merged = mergeMessages(held?.replies ?? [], replies);
+			/* A refresh re-reads from the top, so on a capped thread its own cursor
+			 * would point back at reply ~500 even when the reader already continued
+			 * further. Resume from the furthest of the two: the newest reply held
+			 * (re-read once, deduplicated by id) or the served cursor. */
+			const newestHeld = merged.reduce(
+				(max, m) => (m.seq > max ? m.seq : max),
+				-1,
+			);
+			// A load that ended on the hub's own "no more" leaves nothing outstanding.
+			const moreAfterSeq = more === null ? null : Math.max(more, newestHeld);
+			const servedRoot = root;
+			const nextRoot = rootFromServedPage(held?.root, servedRoot);
+			patchReplyThread(key, {
+				root:
+					held?.root && sameValue(held.root, nextRoot) ? held.root : nextRoot,
+				replies: merged,
+				state: "ready",
+				error: null,
+				moreAfterSeq,
+			});
+			patchRoot(target, (heldRoot) => {
+				const next = rootFromServedPage(heldRoot, servedRoot);
+				return sameValue(heldRoot, next) ? heldRoot : next;
+			});
+		} catch (error) {
+			if (!owned()) return;
+			if (gateFailure(error)) return;
+			patchReplyThread(key, {
+				state: "error",
+				error: isHubError(error)
+					? error
+					: new HubError({
+							kind: "unreachable",
+							message: "Couldn't reach Radient.",
+						}),
+			});
+		}
+	}
+
 	function patchThread(key: string, change: Partial<ThreadData>): void {
 		store.setState((s) => ({
 			threads: {
@@ -361,7 +598,7 @@ export function createTeamBridgeStore(deps: {
 			});
 	};
 	/*
-	 * Per-read backoff after a 429, keyed `conv:<tenant>`, `people:<tenant>` or
+	 * Per-read backoff after a transient failure (`isTransient`), keyed `conv:<tenant>`, `people:<tenant>` or
 	 * `thread:<key>`. Kept outside the published state because nothing renders
 	 * it; `strikes` is consecutive refusals, reset by any success. Invariant: no
 	 * read in a keyed family is sent before its `until` (checked by
@@ -369,15 +606,21 @@ export function createTeamBridgeStore(deps: {
 	 */
 	const backoff = new Map<
 		string,
-		{ until: number; waitMs: number; strikes: number }
+		{ until: number; waitMs: number; strikes: number; rateLimited: boolean }
 	>();
 	/** One pending silent retry per organization; replaced, never stacked. */
 	const retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
 	const clock = () => (deps.now ?? Date.now)();
 	const backedOff = (key: string, at: number) =>
 		(backoff.get(key)?.until ?? 0) > at;
+	/* A forced read (Retry, pull) still honours a 429's Retry-After: re-asking
+	 * inside it only earns another refusal from the shared account bucket. Any
+	 * other transient wait is this client's own guess, and the reader pressing
+	 * Retry on a red error must actually re-read. */
+	const blocked = (key: string, at: number, force: boolean) =>
+		backedOff(key, at) && (!force || backoff.get(key)?.rateLimited === true);
 	/** Record one refusal; returns the consecutive-strike count. */
-	function noteRateLimit(key: string, error: HubError, at: number): number {
+	function noteTransient(key: string, error: HubError, at: number): number {
 		/* Only success deletes a thread's record, and a thread the reader left
 		 * never succeeds again: without this prune its record lives for the whole
 		 * session, and a 429 on that thread hours later would start from a doubled
@@ -395,7 +638,12 @@ export function createTeamBridgeStore(deps: {
 			prev ? Math.max(served, prev.waitMs * 2) : served,
 			RATE_LIMIT_MAX_MS,
 		);
-		backoff.set(key, { until: at + waitMs, waitMs, strikes });
+		backoff.set(key, {
+			until: at + waitMs,
+			waitMs,
+			strikes,
+			rateLimited: error.kind === "rate_limited",
+		});
 		return strikes;
 	}
 	function clearBackoff() {
@@ -432,10 +680,10 @@ export function createTeamBridgeStore(deps: {
 				() => {
 					retryTimers.delete(tenantId);
 					if (closed || epoch !== generation) return;
-					// `ifStale`: re-read only the half that was refused (the other is fresh).
 					void actions.loadOrganization(tenantId, {
 						silent: true,
 						ifStale: true,
+						retryDue: true,
 					});
 				},
 				Math.min(...ends) - at,
@@ -761,7 +1009,12 @@ export function createTeamBridgeStore(deps: {
 		 */
 		loadOrganization(
 			tenantId: string,
-			options: { silent?: boolean; ifStale?: boolean; force?: boolean } = {},
+			options: {
+				silent?: boolean;
+				ifStale?: boolean;
+				force?: boolean;
+				retryDue?: boolean;
+			} = {},
 		): Promise<void> {
 			return once(`org:${tenantId}`, async (owned) => {
 				const client = deps.hub();
@@ -781,17 +1034,42 @@ export function createTeamBridgeStore(deps: {
 					held?.peopleState === "ready" &&
 					held.peopleRefreshedAt !== null &&
 					at - held.peopleRefreshedAt < DIRECTORY_TTL_MS;
-				/* A fresh half whose wait has ENDED has nothing outstanding: forget its
-				 * refusal record, or a 429 on a pull over fresh rows would linger as a
-				 * strike and make an unrelated refusal an hour later say "Catching
-				 * up…" at once. A wait still running is kept: deleting it let the next
-				 * pull or Retry re-ask inside Retry-After (QA Q1; for the directory,
-				 * whose 5 min TTL spans a WAF wait, that was every re-open). */
-				if (convFresh && !backedOff(convKey, at)) backoff.delete(convKey);
-				if (peopleFresh && !backedOff(peopleKey, at)) backoff.delete(peopleKey);
-				const readConversations = !convFresh && !backedOff(convKey, at);
-				const readPeople = !peopleFresh && !backedOff(peopleKey, at);
-				if (!readConversations && !readPeople) return;
+				const force = options.force === true;
+				/* Halves whose elapsed 429 record was just discarded in favour of
+				 * fresh rows (review R2-1 / QA Q2). Deleting the record ends the
+				 * episode, and the only writers that clear "Catching up…" are a read
+				 * outcome, so without this the heading stays latched with no read and
+				 * no timer left to end it. Invariant: `CatchingUp` is true only while
+				 * that half's backoff record exists (rate-limit.test.ts, "clears
+				 * Catching up when an expired 429 yields to fresh rows"). Clearing
+				 * sends nothing, so no request goes out inside a Retry-After.
+				 * Declared before `shouldRead`, which writes it (review R3-2). */
+				const settled = new Set<string>();
+				const shouldRead = (key: string, fresh: boolean) => {
+					const refusal = backoff.get(key);
+					if (blocked(key, at, force)) return false;
+					// The timer owns only refused halves, not an ordinary TTL refresh.
+					if (options.retryDue && !refusal) return false;
+					if (!fresh) return true;
+					// A transient failure over held rows still needs a success to
+					// clear its status. Keep #297's fresh-row 429 reuse instead.
+					if (refusal && !refusal.rateLimited) return true;
+					backoff.delete(key);
+					if (refusal) settled.add(key);
+					return false;
+				};
+				const readConversations = shouldRead(convKey, convFresh);
+				const readPeople = shouldRead(peopleKey, peopleFresh);
+				if (settled.size) {
+					patchOrg(tenantId, {
+						...(settled.has(convKey) ? { conversationsCatchingUp: false } : {}),
+						...(settled.has(peopleKey) ? { peopleCatchingUp: false } : {}),
+					});
+				}
+				if (!readConversations && !readPeople) {
+					scheduleOrgRetry(tenantId);
+					return;
+				}
 				const silent =
 					options.silent === true && held?.conversationsState === "ready";
 				if (!silent) {
@@ -854,15 +1132,27 @@ export function createTeamBridgeStore(deps: {
 					} catch (error) {
 						if (!owned()) return;
 						if (gateFailure(error)) return;
-						if (isRateLimited(error)) {
+						if (isTransient(error)) {
 							/* Wait it out: rows held stay "ready" with no banner; with none
 							 * the skeleton stays up. The scheduled retry is the recovery. */
-							const strikes = noteRateLimit(convKey, error, clock());
+							const strikes = noteTransient(convKey, error, clock());
+							const warm =
+								held?.conversationsState === "ready" ||
+								(held?.conversations.length ?? 0) > 0;
+							if (warm || isRateLimited(error) || strikes < 2) {
+								patchOrg(tenantId, {
+									conversationsState: warm ? "ready" : "loading",
+									conversationsError: null,
+									conversationsCatchingUp: strikes > 1,
+								});
+								return;
+							}
+							/* Cold and still failing: the red error with Retry. The record
+							 * stays, so the scheduled silent retry keeps trying too. */
 							patchOrg(tenantId, {
-								conversationsState:
-									held?.conversationsState === "ready" ? "ready" : "loading",
-								conversationsError: null,
-								conversationsCatchingUp: strikes > 1,
+								conversationsState: "error",
+								conversationsError: error,
+								conversationsCatchingUp: false,
 							});
 							return;
 						}
@@ -898,17 +1188,26 @@ export function createTeamBridgeStore(deps: {
 					} catch (error) {
 						if (!owned()) return;
 						if (gateFailure(error)) return;
-						if (isRateLimited(error)) {
-							const strikes = noteRateLimit(peopleKey, error, clock());
+						if (isTransient(error)) {
+							const strikes = noteTransient(peopleKey, error, clock());
+							const warm =
+								held?.peopleState === "ready" || (held?.people.length ?? 0) > 0;
+							if (warm || isRateLimited(error) || strikes < 2) {
+								patchOrg(tenantId, {
+									peopleState: warm ? "ready" : "loading",
+									peopleError: null,
+									peopleCatchingUp: strikes > 1,
+								});
+								return;
+							}
 							patchOrg(tenantId, {
-								peopleState:
-									held?.peopleState === "ready" ? "ready" : "loading",
-								peopleError: null,
-								peopleCatchingUp: strikes > 1,
+								peopleState: "error",
+								peopleError: error,
+								peopleCatchingUp: false,
 							});
 							return;
 						}
-						// As for conversations above: a non-429 failure ends the episode.
+						// As for conversations above: a definitive failure ends the episode.
 						backoff.delete(peopleKey);
 						patchOrg(tenantId, {
 							peopleState: "error",
@@ -1045,7 +1344,7 @@ export function createTeamBridgeStore(deps: {
 							/* A 429 is the shared account bucket, not this thread: keep what
 							 * is held (or the skeleton) and let the next poll after the wait
 							 * read it. Never the raw "HTTP 429" warning. */
-							noteRateLimit(`thread:${key}`, error, clock());
+							noteTransient(`thread:${key}`, error, clock());
 							if (held?.state !== "ready")
 								patchThread(key, { state: "loading", error: null });
 							return;
@@ -1260,6 +1559,7 @@ export function createTeamBridgeStore(deps: {
 			body: string,
 			clientRef: string,
 			attachmentIds: string[] = [],
+			mentions: MentionRow[] = [],
 		): Promise<Message> {
 			requireLive();
 			const gate = store.getState().gate;
@@ -1278,6 +1578,9 @@ export function createTeamBridgeStore(deps: {
 					clientRef,
 					body,
 					attachmentIds,
+					// Only when present: a send with no mentions keeps the exact
+					// call (and wire body) it had before mentions existed.
+					...(mentions.length > 0 ? { mentions } : {}),
 				});
 			} catch (error) {
 				if (!closed && epoch === generation) gateFailure(error);
@@ -1304,6 +1607,117 @@ export function createTeamBridgeStore(deps: {
 				last_read_seq: Math.max(c.last_read_seq, message.seq),
 				last_message_at: message.created_at,
 			}));
+			return message;
+		},
+
+		/**
+		 * Read one reply thread from its first reply, following the hub's
+		 * inclusive `next_after_seq` cursor. The served root replaces the
+		 * timeline's copy, which is how the root row's count and unread move
+		 * without the phone counting anything itself.
+		 */
+		loadReplyThread(target: ReplyThreadTarget): Promise<void> {
+			const key = replyThreadKey(target);
+			return once(`replies:${key}`, (owned) =>
+				readReplyPages(target, undefined, owned),
+			);
+		},
+
+		/**
+		 * Continue a thread past the page cap from the held `moreAfterSeq`. Its
+		 * own coalescing key, so a tap is never swallowed by a poll in flight;
+		 * both merge by id into what is held, so their order does not matter.
+		 */
+		loadMoreReplies(target: ReplyThreadTarget): Promise<void> {
+			const key = replyThreadKey(target);
+			const from = store.getState().replyThreads[key]?.moreAfterSeq;
+			if (from === null || from === undefined) return Promise.resolve();
+			return once(`replies-more:${key}`, (owned) =>
+				readReplyPages(target, from, owned),
+			);
+		},
+
+		/**
+		 * Advance this reader's cursor for one reply thread to `seq` (the newest
+		 * reply actually displayed). The answer's count is applied to the root
+		 * as served; the account badge is re-read, because the hub rolls a thread
+		 * read into the conversation's unread. Never throws: `false` says the
+		 * write did not land, so the screen may try again; the badge simply
+		 * stays until a read succeeds.
+		 */
+		async markReplyThreadRead(
+			target: ReplyThreadTarget,
+			seq: number,
+		): Promise<boolean> {
+			if (closed) return false;
+			const client = deps.hub();
+			if (!client) return false;
+			const epoch = generation;
+			let answer: Awaited<ReturnType<HubClient["markThreadRead"]>>;
+			try {
+				answer = await client.markThreadRead(
+					target.tenantId,
+					target.conversationId,
+					target.rootId,
+					seq,
+				);
+			} catch (error) {
+				if (!closed && epoch === generation) gateFailure(error);
+				return false;
+			}
+			if (closed || epoch !== generation) return false;
+			patchRoot(target, (root) => rootAfterThreadRead(root, answer));
+			void actions.refreshUnread();
+			return true;
+		},
+
+		/**
+		 * Reply in a thread as the reader. Idempotent on `clientRef` like a
+		 * top-level send. The stored reply joins the reply thread only: the
+		 * hub keeps replies out of the conversation timeline, and so does the
+		 * phone. The thread is then re-read so the root's count comes from the
+		 * hub. Throws a `HubError` so the composer keeps the draft.
+		 */
+		async sendReply(
+			target: ReplyThreadTarget,
+			body: string,
+			clientRef: string,
+		): Promise<Message> {
+			requireLive();
+			const gate = store.getState().gate;
+			if (gate === "plan_required" || gate === "signed_out")
+				throw new HubError({
+					kind: gate === "plan_required" ? "plan" : "sign_in",
+					message: "Team Bridge is not available for this account.",
+				});
+			const client = deps.hub();
+			if (!client)
+				throw new HubError({ kind: "sign_in", message: "Sign in to Radient." });
+			const epoch = generation;
+			let message: Message;
+			try {
+				message = await client.send(target.tenantId, target.conversationId, {
+					clientRef,
+					body,
+					threadRootId: target.rootId,
+				});
+			} catch (error) {
+				if (!closed && epoch === generation) gateFailure(error);
+				throw error;
+			}
+			if (closed || epoch !== generation)
+				throw new HubError({
+					kind: "sign_in",
+					message: "Account changed while sending.",
+				});
+			const key = replyThreadKey(target);
+			patchReplyThread(key, {
+				replies: mergeMessages(
+					store.getState().replyThreads[key]?.replies ?? [],
+					[message],
+				),
+			});
+			void actions.loadReplyThread(target);
 			return message;
 		},
 
