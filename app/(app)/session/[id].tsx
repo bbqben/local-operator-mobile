@@ -447,6 +447,7 @@ function Session() {
 		sessionId,
 		endpoints: runtime.source.endpoints,
 		projection: runtime.projection,
+		entries: runtime.entries,
 		anchorVisible: completionVisible,
 		blocked: overlaysBlocked({
 			models: modelsOpen,
