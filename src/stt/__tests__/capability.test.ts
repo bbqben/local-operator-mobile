@@ -111,7 +111,9 @@ describe("the home composer has a mic", () => {
 	});
 
 	it("drops a live take when the home sends (the session composer's rule)", () => {
-		expect(tag).toMatch(/onSend=\{\(\) => \{[^}]*voice\.cancelForSend\(\);/s);
+		// The order (live drop at the tap, resting line on admission) is
+		// `home-dictation-send.test.ts`'s; this pins that the home routes through it.
+		expect(tag).toContain("onSend={() => sendFromHome(voice, send)}");
 	});
 
 	it("ends a resting mic line on the reader's edit, not on the transcript append (#323)", () => {

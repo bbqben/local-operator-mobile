@@ -46,6 +46,7 @@ import {
 	isAuthFailure,
 	restoredSupersede,
 } from "@/features/home/home-defaults";
+import { sendFromHome } from "@/features/home/home-dictation-send";
 import { HomeStateMarkers } from "@/features/home/home-markers";
 import {
 	EffortPicker,
@@ -769,22 +770,22 @@ export default function Home({
 	};
 
 	// The coordinator freezes the submitted bytes; later typing stays editable.
-	const send = () => {
+	// `onAccepted` runs on admission only (a resting mic line ends there; see
+	// `home-dictation-send.ts`).
+	const send = (onAccepted?: () => void) => {
 		const firstSend =
 			startup.snapshot.sessionId === null &&
 			startup.snapshot.queue.length === 0;
-		startup.send(
-			firstSend
-				? () => {
-						// Only durable admission yields the keyboard. Rejected taps retain the
-						// focused draft; no timer or animation await delays dispatch. The same
-						// mounted input becomes the conversation composer without autofocus.
-						if (!ownsKeyboard.current) return;
-						fieldRef.current?.blur();
-						Keyboard.dismiss();
-					}
-				: undefined,
-		);
+		startup.send(() => {
+			onAccepted?.();
+			if (!firstSend) return;
+			// Only durable admission yields the keyboard. Rejected taps retain the
+			// focused draft; no timer or animation await delays dispatch. The same
+			// mounted input becomes the conversation composer without autofocus.
+			if (!ownsKeyboard.current) return;
+			fieldRef.current?.blur();
+			Keyboard.dismiss();
+		});
 	};
 
 	/* The home's mic (TestFlight 578): the same dictation machine as a session's,
@@ -1042,12 +1043,10 @@ export default function Home({
 				onAttach={attach}
 				onPasteFile={pasteFile}
 				attaching={attaching}
-				onSend={() => {
-					/* A send takes the composer: a take still live is dropped and said
-					 *  (design §2.5/U2), the session composer's rule. */
-					voice.cancelForSend();
-					void send();
-				}}
+				/* A send takes the composer: a take still live is dropped and said at
+				 *  the tap (design §2.5/U2); a resting mic line ends only once the
+				 *  message is admitted (#323, round 1 m1). */
+				onSend={() => sendFromHome(voice, send)}
 				voice={voice}
 				onStop={() => {
 					const sid = startup.snapshot.sessionId;
