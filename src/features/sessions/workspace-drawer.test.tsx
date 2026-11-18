@@ -25,7 +25,14 @@ const host = vi.hoisted(() => ({
 	mounts: 0,
 	unmounts: 0,
 	persistentRows: 0,
+	/* Issue #324: what the mode bar measures, so a test can lay it out. */
+	textScale: 1,
+	trackLayouts: [] as Array<(event: LayoutEvent) => void>,
+	labelLayouts: new Map<string, (event: LayoutEvent) => void>(),
+	labelClasses: new Map<string, string>(),
+	classNames: new Map<string, string>(),
 }));
+type LayoutEvent = { nativeEvent: { layout: { width: number } } };
 vi.mock("expo-router", () => ({
 	useFocusEffect: (effect: () => undefined | (() => void)) => {
 		const focused = host.isHomeFocused();
@@ -44,10 +51,31 @@ vi.mock("react-native", () => ({
 		},
 	},
 	Keyboard: { dismiss: host.dismiss },
-	View: ({ children }: { children?: import("react").ReactNode }) =>
-		children ?? null,
-	Text: ({ children }: { children?: import("react").ReactNode }) =>
-		children ?? null,
+	View: ({
+		children,
+		onLayout,
+	}: {
+		children?: import("react").ReactNode;
+		onLayout?: (event: LayoutEvent) => void;
+	}) => {
+		if (onLayout) host.trackLayouts.push(onLayout);
+		return children ?? null;
+	},
+	Text: ({
+		children,
+		onLayout,
+		className,
+	}: {
+		children?: import("react").ReactNode;
+		onLayout?: (event: LayoutEvent) => void;
+		className?: string;
+	}) => {
+		if (onLayout) {
+			host.labelLayouts.set(String(children), onLayout);
+			host.labelClasses.set(String(children), className ?? "");
+		}
+		return children ?? null;
+	},
 	Pressable: (props: {
 		children?:
 			| import("react").ReactNode
@@ -55,8 +83,10 @@ vi.mock("react-native", () => ({
 		testID: string;
 		onPress: () => void;
 		accessibilityLabel: string;
+		className?: string;
 	}) => {
 		host.presses.set(props.testID, props.onPress);
+		host.classNames.set(props.testID, props.className ?? "");
 		host.labels.set(props.testID, props.accessibilityLabel);
 		const content =
 			typeof props.children === "function"
@@ -73,7 +103,7 @@ vi.mock("@/features/auth/connection-provider", () => ({
 vi.mock("@/ui/appearance", () => ({ useTokenColor: () => "black" }));
 vi.mock("@/ui/layout", () => ({ TOUCH_FLOOR: 44 }));
 vi.mock("@/ui/text-scale-provider", () => ({
-	useTextScale: () => ({ effectiveScale: 1 }),
+	useTextScale: () => ({ effectiveScale: host.textScale }),
 }));
 vi.mock("@/ui/components/badge", () => ({
 	Badge: ({
@@ -115,6 +145,7 @@ vi.mock("./conversations-drawer", () => ({
 	},
 }));
 
+const { forgetModeBarFit } = await import("./mode-bar-fit");
 const {
 	WorkspaceDrawerProvider,
 	WorkspaceDrawerButton,
@@ -122,6 +153,8 @@ const {
 	modeBarLayout,
 	MODE_BADGE_INSET,
 } = await import("./workspace-drawer");
+const { MODE_SEGMENT_CHROME, MODE_SEGMENT_GAP, MODE_TRACK_INSET } =
+	await import("./mode-bar-fit");
 let controller: ReturnType<typeof useWorkspaceDrawer>;
 let setDraft: (text: string) => void;
 let draft = "";
@@ -154,6 +187,12 @@ beforeEach(() => {
 	host.mounts = 0;
 	host.unmounts = 0;
 	host.persistentRows = 0;
+	host.textScale = 1;
+	host.trackLayouts = [];
+	host.labelLayouts.clear();
+	host.labelClasses.clear();
+	host.classNames.clear();
+	forgetModeBarFit();
 	host.platform = "web";
 	host.isHomeFocused.mockReturnValue(true);
 	host.unread = { count: 7, state: "ready" };
@@ -402,8 +441,39 @@ describe("Home responsive workspace ownership (Q-tablet)", () => {
 /* Node has no layout engine, so the mode track's geometry is pinned as the
  * class contract that produces it plus the width budget it was sized from
  * (design D1-2 / UX U1-1, measured on the #222 web build at 100 %). */
-describe("the mode track stays one row below large text (D1-2/U1-1/Q1-2/U1-2)", () => {
+describe("the mode track stays one row below large text (D1-2/U1-1/Q1-2/U1-2, #324)", () => {
 	const split = (value: string) => value.split(" ");
+	it("below LARGE_TEXT_SCALE: equal halves when both labels fit, content-sized otherwise (#324)", () => {
+		/* Issue #324 supersedes D1-2/D2-1 for the case where both labels fit
+		 *  in half the track: the operator wants equal segments. The
+		 *  content-sized layout stays the fallback (and the first frame). */
+		expect(modeBarLayout(false)).toEqual(modeBarLayout(false, "proportional"));
+		const equal = modeBarLayout(false, "equal");
+		expect(split(equal.segment)).toEqual(["min-w-0", "flex-1"]);
+		expect(equal.track).toBe(modeBarLayout(false).track);
+		expect(equal.content).toBe(modeBarLayout(false).content);
+		expect(equal.badge).toBe("overlay");
+		/* The fit arithmetic's constants are this track's classes. */
+		expect(split(equal.track)).toEqual(
+			expect.arrayContaining([
+				`p-${MODE_TRACK_INSET / 4}`,
+				`gap-${MODE_SEGMENT_GAP / 4}`,
+			]),
+		);
+		expect(split(equal.content)).toContain("px-2");
+		expect(MODE_SEGMENT_CHROME).toBe(2 * 8 + 2 * 1);
+		/* Both segments' content boxes carry the 1 pt border the chrome counts. */
+		const source = readFileSync(
+			new URL("./workspace-drawer.tsx", import.meta.url),
+			"utf8",
+		);
+		expect(source).toContain(
+			'"flex-1 flex-row items-center justify-center rounded-sm border py-1"',
+		);
+		expect(source).toContain(
+			'"flex-1 flex-row items-center justify-center gap-1 rounded-sm border py-1"',
+		);
+	});
 	it("below LARGE_TEXT_SCALE: no wrap, content-sized segments, equal heights, centred", () => {
 		const layout = modeBarLayout(false);
 		expect(split(layout.track)).toEqual(
@@ -445,6 +515,8 @@ describe("the mode track stays one row below large text (D1-2/U1-1/Q1-2/U1-2)", 
 	});
 	it("at large text: wraps whole segments, never mid-word (200 % / Urdu RTL, D2-1) and still centres wrapped rows", () => {
 		const layout = modeBarLayout(true);
+		// A fit measured below large text never reaches the wrapping layout.
+		expect(modeBarLayout(true, "equal")).toEqual(layout);
 		expect(split(layout.track)).toEqual(
 			expect.arrayContaining(["flex-wrap", "items-stretch", "content-center"]),
 		);
@@ -456,6 +528,109 @@ describe("the mode track stays one row below large text (D1-2/U1-1/Q1-2/U1-2)", 
 		expect(split(layout.label)).not.toContain("min-w-0");
 		expect(split(layout.label)).not.toContain("shrink");
 		expect(layout.badge).toBe("inline");
+	});
+});
+
+/* Issue #324, wired: the bar measures its track and both labels, then
+ * picks the layout. Node has no layout engine, so the test plays the layout
+ * events a real host would send and reads the classes the segments get. */
+describe("the mode bar measures before it splits into equal halves (#324)", () => {
+	const PROPORTIONAL = "min-w-0 grow shrink";
+	const EQUAL = "min-w-0 flex-1";
+	const adapter: WorkspaceDrawerBridgeAdapter = {
+		bridgePane: () => null,
+		bridgeBadge: {
+			count: 7,
+			state: "ready",
+			a11yLabel: "Synthetic Team Bridge, 7 unread",
+		},
+	};
+	const layout = (width: number): LayoutEvent => ({
+		nativeEvent: { layout: { width } },
+	});
+	const agentsClass = () => host.classNames.get(CONTROL.workspaceDrawerAgents);
+	/* The track's box is its inner width plus p-1 on both sides: 402 pt
+	 *  iPhone → 286 + 8, 320 pt Android → 196 + 8 (mode-bar-fit.test.ts). */
+	const measure = async (track: number) =>
+		act(async () => {
+			host.labelLayouts.get("Agents")?.(layout(47));
+			host.labelLayouts.get("Team Bridge")?.(layout(79));
+			host.trackLayouts.at(-1)?.(layout(track + 8));
+		});
+
+	it("renders the proportional layout until it has measured, then equal halves when both labels fit (402 pt)", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		expect(agentsClass()).toBe(PROPORTIONAL);
+		await measure(286);
+		expect(agentsClass()).toBe(EQUAL);
+		// The unread count is still the out-of-flow overlay, and the Agents
+		// control keeps its selector (#314's focus fix presses it by id).
+		expect(host.badges.at(-1)).toBe("7");
+		expect(host.presses.has(CONTROL.workspaceDrawerAgents)).toBe(true);
+	});
+
+	it("measures the labels in the selected weight, so selecting a segment cannot flip the layout", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		expect(host.labelClasses.get("Agents")).toContain("font-semibold");
+		expect(host.labelClasses.get("Team Bridge")).toContain("font-semibold");
+		/* Transparent on the label ITSELF: the web audit's U-08 overlap check
+		 *  reads a node's own opacity, so a transparent wrapper left the ruler
+		 *  counted as painted text over the Agents segment (8 FAIL rows). */
+		expect(host.labelClasses.get("Agents")?.split(" ")).toContain("opacity-0");
+		expect(host.labelClasses.get("Team Bridge")?.split(" ")).toContain(
+			"opacity-0",
+		);
+		await measure(286);
+		await act(async () =>
+			host.presses.get(CONTROL.workspaceDrawerTeamBridge)?.(),
+		);
+		expect(agentsClass()).toBe(EQUAL);
+	});
+
+	it("falls back to proportional when the track is too narrow for equal halves (320 pt)", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		await measure(286);
+		expect(agentsClass()).toBe(EQUAL);
+		await act(async () => host.trackLayouts.at(-1)?.(layout(196 + 8)));
+		expect(agentsClass()).toBe(PROPORTIONAL);
+	});
+
+	it("leaves large text on its wrapping layout and measures nothing there", async () => {
+		host.textScale = 2;
+		await mount(adapter);
+		await act(async () => controller.open());
+		expect(host.labelLayouts.size).toBe(0);
+		await act(async () => host.trackLayouts.at(-1)?.(layout(286 + 8)));
+		expect(agentsClass()).toBe(modeBarLayout(true).segment);
+	});
+
+	it("a reopened drawer starts from the last fit, so its first frame does not jump", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		await measure(286);
+		await act(async () => root.unmount());
+		host.classNames.clear();
+		root = createRoot(dom.container as Element);
+		await mount(adapter);
+		await act(async () => controller.open());
+		// No layout event yet on this mount: the remembered fit is the first frame.
+		expect(agentsClass()).toBe(EQUAL);
+	});
+
+	it("does not reuse a fit measured at another text size", async () => {
+		await mount(adapter);
+		await act(async () => controller.open());
+		await measure(286);
+		await act(async () => root.unmount());
+		host.classNames.clear();
+		host.textScale = 1.3;
+		root = createRoot(dom.container as Element);
+		await mount(adapter);
+		await act(async () => controller.open());
+		expect(agentsClass()).toBe(PROPORTIONAL);
 	});
 });
 
