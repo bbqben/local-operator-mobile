@@ -847,10 +847,26 @@ export function createTeamBridgeStore(deps: {
 					// clear its status. Keep #297's fresh-row 429 reuse instead.
 					if (refusal && !refusal.rateLimited) return true;
 					backoff.delete(key);
+					if (refusal) settled.add(key);
 					return false;
 				};
+				/* Halves whose elapsed 429 record was just discarded in favour of
+				 * fresh rows (review R2-1 / QA Q2). Deleting the record ends the
+				 * episode, and the only writers that clear "Catching up…" are a read
+				 * outcome, so without this the heading stays latched with no read and
+				 * no timer left to end it. Invariant: `CatchingUp` is true only while
+				 * that half's backoff record exists (rate-limit.test.ts, "clears
+				 * Catching up when an expired 429 yields to fresh rows"). Clearing
+				 * sends nothing, so no request goes out inside a Retry-After. */
+				const settled = new Set<string>();
 				const readConversations = shouldRead(convKey, convFresh);
 				const readPeople = shouldRead(peopleKey, peopleFresh);
+				if (settled.size) {
+					patchOrg(tenantId, {
+						...(settled.has(convKey) ? { conversationsCatchingUp: false } : {}),
+						...(settled.has(peopleKey) ? { peopleCatchingUp: false } : {}),
+					});
+				}
 				if (!readConversations && !readPeople) {
 					scheduleOrgRetry(tenantId);
 					return;

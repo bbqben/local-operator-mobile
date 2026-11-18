@@ -4,6 +4,7 @@ import {
 	avatarKey,
 	avatarVersion,
 	createAvatarCache,
+	ENDPOINT_PHOTO_FRESH_MS,
 	endpointAvatarFailure,
 	endpointAvatarKey,
 	endpointAvatarVersion,
@@ -11,6 +12,7 @@ import {
 } from "@/team-bridge/avatars";
 import { AVATAR_MAX_BYTES, createHubClient } from "@/team-bridge/client";
 import { directoryMemberSchema } from "@/team-bridge/contract";
+import { DIRECTORY_TTL_MS } from "@/team-bridge/store";
 
 const HASH = "0123456789abcdef";
 const ACCESS = ["unit", "photo"].join("-");
@@ -78,8 +80,9 @@ describe("endpoint avatar identity", () => {
 });
 
 describe("endpoint photo retention (hash-pinned, TestFlight 1157 fan-out)", () => {
-	it("retains endpoint bytes only for an authorized conditional read", async () => {
-		const cache = createAvatarCache();
+	it("displays a verified photo for the freshness window only, then revalidates conditionally", async () => {
+		let clock = 0;
+		const cache = createAvatarCache({ now: () => clock });
 		const human = avatarKey(OWNER, HASH, 64);
 		const key = endpointAvatarKey(OWNER, HASH, 64);
 		await cache.load(human, async () => OWNER_URI, avatarFailure);
@@ -105,7 +108,16 @@ describe("endpoint photo retention (hash-pinned, TestFlight 1157 fan-out)", () =
 		expect(await first).toBe(AGENT_URI);
 		expect(await twin).toBe(AGENT_URI);
 		expect(read).toHaveBeenCalledTimes(1);
+		// The account-photo peek never reveals endpoint bytes.
 		expect(cache.peek(key)).toBeNull();
+		// U5/D4: a row re-entering inside the window repaints with no new read.
+		clock = ENDPOINT_PHOTO_FRESH_MS - 1;
+		expect(cache.peekEndpoint(key)).toBe(AGENT_URI);
+		expect(await cache.loadEndpoint(key, read, avatarFailure)).toBe(AGENT_URI);
+		expect(read).toHaveBeenCalledTimes(1);
+		// Past it the bytes are only a validator: no display until a new read.
+		clock = ENDPOINT_PHOTO_FRESH_MS;
+		expect(cache.peekEndpoint(key)).toBeNull();
 		expect(await cache.loadEndpoint(key, read, avatarFailure)).toBe(AGENT_URI);
 		expect(read).toHaveBeenCalledTimes(2);
 		const second = http.mock.calls[1]?.[1];
@@ -114,8 +126,16 @@ describe("endpoint photo retention (hash-pinned, TestFlight 1157 fan-out)", () =
 		expect(new Headers(second?.headers).get("cache-control")).toBe("no-cache");
 		// Same opaque id and hash, different namespace: never the owner's bytes.
 		expect(cache.peek(human)).toBe(OWNER_URI);
+		// The 304 renewed the authorization for another window.
+		clock += ENDPOINT_PHOTO_FRESH_MS - 1;
+		expect(cache.peekEndpoint(key)).toBe(AGENT_URI);
+		// Account change: nothing verified for the old account is displayable.
 		cache.clear();
 		expect(cache.peek(key)).toBeNull();
+		expect(cache.peekEndpoint(key)).toBeNull();
+	});
+	it("trusts a photo read no longer than the directory row that advertised it", () => {
+		expect(ENDPOINT_PHOTO_FRESH_MS).toBe(DIRECTORY_TTL_MS);
 	});
 	it("web forces a fresh GET without CORS-forbidden headers or unsolicited 304", async () => {
 		const http = vi
@@ -429,35 +449,63 @@ describe("photo authorization and refusal bounds", () => {
 		expect(first.bodyUsed).toBe(true);
 		expect(read).toHaveBeenCalledTimes(2);
 	});
-	it("same-hash withdrawal withholds the URI and retries only after cooldown", async () => {
-		let calls = 0;
-		let clock = 0;
-		const hub = createHubClient({
-			accessToken: async () => ACCESS,
-			fetchImpl: vi.fn(async () =>
-				++calls !== 2 ? new Response(PNG) : new Response("{}", { status: 404 }),
-			) as unknown as typeof fetch,
-		});
-		const cache = createAvatarCache({ now: () => clock });
+	it.each([
+		[404, 1],
+		// 401 is retried once with a forced refresh before it is a refusal.
+		[401, 2],
+	])(
+		"same-hash %i withdrawal withholds the URI and retries only after cooldown",
+		async (status, refusals) => {
+			let calls = 0;
+			let clock = 0;
+			const hub = createHubClient({
+				accessToken: async () => ACCESS,
+				fetchImpl: vi.fn(async () =>
+					++calls === 1 || calls > 1 + refusals
+						? new Response(PNG)
+						: new Response("{}", { status }),
+				) as unknown as typeof fetch,
+			});
+			const cache = createAvatarCache({ now: () => clock });
+			const key = endpointAvatarKey(ENDPOINT, HASH, 64);
+			const read = () =>
+				hub.endpointAvatarBytes(ENDPOINT, HASH, 64).then(() => AGENT_URI);
+			expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
+				AGENT_URI,
+			);
+			// Inside the window a verified photo is reused; once it lapses the
+			// next read is the one that discovers the refusal.
+			clock = ENDPOINT_PHOTO_FRESH_MS;
+			expect(
+				await cache.loadEndpoint(key, read, endpointAvatarFailure),
+			).toBeNull();
+			expect(cache.peek(key)).toBeNull();
+			expect(cache.peekEndpoint(key)).toBeNull();
+			expect(
+				await cache.loadEndpoint(key, read, endpointAvatarFailure),
+			).toBeNull();
+			expect(calls).toBe(1 + refusals);
+			clock += 60_001;
+			expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
+				AGENT_URI,
+			);
+			expect(calls).toBe(2 + refusals);
+		},
+	);
+	it("a refusal from any read of the key withdraws a still-fresh photo", async () => {
+		const cache = createAvatarCache({ now: () => 0 });
 		const key = endpointAvatarKey(ENDPOINT, HASH, 64);
-		const read = () =>
-			hub.endpointAvatarBytes(ENDPOINT, HASH, 64).then(() => AGENT_URI);
-		expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
-			AGENT_URI,
-		);
 		expect(
-			await cache.loadEndpoint(key, read, endpointAvatarFailure),
-		).toBeNull();
-		expect(cache.peek(key)).toBeNull();
-		expect(
-			await cache.loadEndpoint(key, read, endpointAvatarFailure),
-		).toBeNull();
-		expect(calls).toBe(2);
-		clock = 60_001;
-		expect(await cache.loadEndpoint(key, read, endpointAvatarFailure)).toBe(
-			AGENT_URI,
-		);
-		expect(calls).toBe(3);
+			await cache.loadEndpoint(
+				key,
+				async () => AGENT_URI,
+				endpointAvatarFailure,
+			),
+		).toBe(AGENT_URI);
+		expect(cache.peekEndpoint(key)).toBe(AGENT_URI);
+		// e.g. the decoder refusing the bytes, or a card's read of the key.
+		cache.fail(key, "transient");
+		expect(cache.peekEndpoint(key)).toBeNull();
 	});
 	it("withholds the same photo on 429 and pauses queued reads until Retry-After", async () => {
 		vi.useFakeTimers();
@@ -487,6 +535,8 @@ describe("photo authorization and refusal bounds", () => {
 			expect(
 				await cache.loadEndpoint(key, check(ENDPOINT), endpointAvatarFailure),
 			).toBe(AGENT_URI);
+			// Past the freshness window, so the next load is a real read.
+			await vi.advanceTimersByTimeAsync(ENDPOINT_PHOTO_FRESH_MS);
 			expect(
 				await cache.loadEndpoint(key, check(ENDPOINT), endpointAvatarFailure),
 			).toBeNull();

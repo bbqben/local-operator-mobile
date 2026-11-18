@@ -690,9 +690,11 @@ describe("abandoned thread waits are pruned (review n1)", () => {
  * sat above a people list already on screen. Every failure that says "ask
  * again later" now keeps held rows exactly like a 429 does.
  */
+const server500 = () =>
+	new HubError({ kind: "server", message: "x", status: 500 });
 const TRANSIENT: Array<[string, () => HubError]> = [
 	["429", () => limited(1_000)],
-	["500", () => new HubError({ kind: "server", message: "x", status: 500 })],
+	["500", server500],
 	[
 		"502 edge",
 		() => new HubError({ kind: "server", message: "x", status: 502 }),
@@ -781,8 +783,11 @@ describe("transient failures over held rows are silent (TestFlight 1157)", () =>
 		const conversations = vi.mocked(hub.listConversations);
 		const { store, actions } = bridge(hub);
 		await actions.loadOrganization(TENANT);
-		directory.mockRejectedValueOnce(TRANSIENT[1][1]());
-		directory.mockRejectedValueOnce(TRANSIENT[1][1]());
+		// A named factory, not `TRANSIENT[1][1]`: an index into the table is
+		// `undefined` to the type checker (TS2532) and silently becomes a
+		// different failure if the table is reordered.
+		directory.mockRejectedValueOnce(server500());
+		directory.mockRejectedValueOnce(server500());
 		await actions.loadOrganization(TENANT, { force: true });
 		await advance(RATE_LIMIT_FALLBACK_MS);
 		expect(directory).toHaveBeenCalledTimes(3);
@@ -797,6 +802,66 @@ describe("transient failures over held rows are silent (TestFlight 1157)", () =>
 		expect(conversations).toHaveBeenCalledTimes(2);
 		expect(store.getState().orgs[TENANT]?.peopleCatchingUp).toBe(false);
 	});
+
+	/*
+	 * Review R2-1 / QA Q2: fresh rows, a transport failure, then the scheduled
+	 * retry is refused with a 429. Once that Retry-After ends the timer finds
+	 * the rows still fresh and drops the record instead of re-reading; the
+	 * heading must drop "Catching up…" with it, and nothing may be sent while
+	 * the 429 is still in force.
+	 */
+	it.each(["people", "conversations"] as const)(
+		"%s: clears Catching up when an expired 429 yields to fresh rows",
+		async (half) => {
+			const hub = fakeHub();
+			const read = vi.mocked(
+				half === "people" ? hub.directory : hub.listConversations,
+			);
+			const other = vi.mocked(
+				half === "people" ? hub.listConversations : hub.directory,
+			);
+			const status = half === "people" ? peopleStatus : conversationsStatus;
+			const { store, actions } = bridge(hub);
+			await actions.loadOrganization(TENANT);
+			read.mockRejectedValueOnce(
+				new HubError({
+					kind: "unavailable",
+					message: "x",
+					status: 503,
+					retryAfterMs: 1_000,
+				}),
+			);
+			read.mockRejectedValueOnce(limited(1_000));
+			// Inside both freshness windows, so only the refusal drives reads.
+			await actions.loadOrganization(TENANT, { ifStale: true, force: true });
+			const otherCalls = other.mock.calls.length;
+			await advance(1_000);
+			expect(read).toHaveBeenCalledTimes(3);
+			expect(status(store.getState().orgs[TENANT])).toEqual({
+				skeleton: false,
+				catchingUp: true,
+				alert: false,
+			});
+			// The 429 doubled the wait to 2 s: nothing goes out inside it.
+			await advance(1_999);
+			expect(read).toHaveBeenCalledTimes(3);
+			await advance(1);
+			await actions.loadOrganization(TENANT, { ifStale: true });
+			// Fresh rows are reused, not re-read, and the heading is settled.
+			expect(read).toHaveBeenCalledTimes(3);
+			expect(other).toHaveBeenCalledTimes(otherCalls);
+			const org = store.getState().orgs[TENANT];
+			expect(status(org)).toEqual({
+				skeleton: false,
+				catchingUp: false,
+				alert: false,
+			});
+			expect(
+				half === "people" ? org?.peopleState : org?.conversationsState,
+			).toBe("ready");
+			expect(vi.getTimerCount()).toBe(0);
+		},
+	);
 
 	it("an unmapped 4xx with the server kind is not transient", async () => {
 		let refuse = false;

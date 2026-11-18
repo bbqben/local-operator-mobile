@@ -2292,7 +2292,12 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * identity only, NOT rendered U-08 evidence. */
 	/* Convergence with upstream #301: both histories preserved; the combined
 	 * source identity was re-derived. This is NOT rendered U-08 evidence. */
-	src: "02dddcf3ff56802f4c596ebe671064f68c8644e9a401e56047069f210e1832df",
+	/* PR #306 round-2 remediation: an expired 429 yielding to fresh rows clears
+	 * Catching up (R2-1), endpoint photos reuse a verified read for the
+	 * directory TTL and the photo budget is metered in requests sent (U5/D4).
+	 * Re-derived with --print over the staged tree; source identity only, NOT
+	 * rendered U-08 evidence. */
+	src: "e618f8e39d51fc42e03944a445a358b2ae16aa664ef2a68f0ae5ae9ae9a06338",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

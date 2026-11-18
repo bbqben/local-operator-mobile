@@ -24,8 +24,11 @@
  *   resolves into nothing.
  * - Bounded in entries AND bytes, least recently used first. A crowded list
  *   that cannot make room renders initials rather than growing the heap.
- * - An endpoint hash versions bytes, not access. Held bytes are only a
- *   validator for the next authorized read, never a display-cache hit.
+ * - An endpoint hash versions bytes, not access. Held bytes are displayable
+ *   only for `ENDPOINT_PHOTO_FRESH_MS` after an authorized 200/304 for this
+ *   account (this cache's epoch); past that they are only a validator for the
+ *   next authorized read. A refusal (404, 401) withdraws them at once, and
+ *   `clear()` on account change drops them.
  * - Visible rows can withdraw queued reads; foreground marks outrank the row
  *   queue. Concurrency and a separate rolling request budget protect the
  *   shared hub bucket even if responses arrive instantly.
@@ -197,21 +200,62 @@ export function endpointAvatarFailure(error: unknown): AvatarFailure {
 }
 
 type Entry =
-	| { state: "ready"; uri: string; bytes: number; etag: string | null }
+	| {
+			state: "ready";
+			uri: string;
+			bytes: number;
+			etag: string | null;
+			/** When an authorized read last answered 200/304 for this key. */
+			verifiedAt: number;
+	  }
 	| { state: "loading"; promise: Promise<string | null>; bytes: number }
 	| { state: "failed"; retryAt: number; permanent: boolean };
 
 /** A read waiting for a slot: run it when one frees, or settle it on `clear()`. */
 type Waiter = { run: () => void; cancel: () => void; priority: number };
 type PhotoResult = string | { uri: string; etag: string | null } | null;
-type ReadOptions = { signal?: AbortSignal; row?: boolean };
+type ReadOptions = {
+	signal?: AbortSignal;
+	row?: boolean;
+	/** `fetchUri` reports each dispatched request through its `onRequest`. */
+	metered?: boolean;
+};
+type FetchUri = (etag?: string, onRequest?: () => void) => Promise<PhotoResult>;
 
 const READ_WINDOW_MS = 60_000;
-// TestFlight 1157: 119 photo GETs exhausted the hub's 120/min read bucket.
-// Reserve half for everything else. The hub client may do one 401 refresh
-// retry, so each logical photo read reserves two requests until a full window
-// AFTER settlement. Even delayed retries remain within that reservation.
-const PHOTO_READS_PER_WINDOW = 120 / 2 / 2;
+/*
+ * TestFlight 1157: 119 photo GETs exhausted the hub's 120/min read bucket.
+ * Photos get half of it; the other half is the directory, settings and every
+ * other foreground read (review R1-2). The budget is counted in HTTP REQUESTS,
+ * each held until a full window after its read settles.
+ *
+ * A read may send two requests (the client's one 401-refresh retry), so it is
+ * admitted only with two free and holds both while in flight; once it settles,
+ * a metered read keeps only the requests it actually sent. Round 2 counted
+ * every read as two (U5/D4: 30 photos a minute). Measured on that head:
+ * reviewer R2 loopback, n=30 reads on a valid bearer, 30 requests (1 each,
+ * median 1, max 1); QA R2's forced-401 fixture, n=30 reads, 60 requests
+ * (max 2). So a valid session gets ~60 photos a minute, and the all-401
+ * worst case is still capped at 60 requests, never more than half the bucket.
+ * Invariant: requests reserved in any trailing window >= photo requests sent
+ * in it, and <= PHOTO_REQUESTS_PER_WINDOW (avatar-fanout.test.ts).
+ */
+export const PHOTO_REQUESTS_PER_WINDOW = 120 / 2;
+const REQUESTS_PER_READ = 2;
+/*
+ * How long an authorized endpoint-photo read stays displayable without a new
+ * one (U5/D4: a row scrolled past and back, or a reopened drawer, sat on the
+ * glyph for 51-53 s waiting for a read slot). Equal to the store's
+ * `DIRECTORY_TTL_MS` (not imported: the store imports this module): the
+ * directory entry that tells the phone this account may see this agent is
+ * itself reused that long without re-asking, so trusting the photo read no
+ * longer than that adds no staleness the list does not already have. A 404 or
+ * 401 from any read of the key withdraws it before then. Invariant: endpoint
+ * bytes are shown only within this window of a 200/304 in the current epoch
+ * (endpoint-avatars.test.ts, "displays a verified photo for the freshness
+ * window only").
+ */
+export const ENDPOINT_PHOTO_FRESH_MS = 5 * 60_000;
 
 /* `account:hash:size`, as `avatarKey` builds it; anything else has no sibling. */
 const SIZED_KEY = /^(.*):(64|256)$/;
@@ -273,12 +317,16 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		for (const reservation of reservations) {
 			if (reservation.until <= at) reservations.delete(reservation);
 		}
+		// A new read needs room for its worst case; otherwise it waits until
+		// enough reservations expire (Infinity: until in-flight reads settle).
+		const short =
+			reservations.size + REQUESTS_PER_READ - PHOTO_REQUESTS_PER_WINDOW;
 		const budgetAt =
-			reservations.size < PHOTO_READS_PER_WINDOW
+			short <= 0
 				? at
-				: Math.min(
-						...Array.from(reservations, (reservation) => reservation.until),
-					);
+				: (Array.from(reservations, (reservation) => reservation.until).sort(
+						(a, b) => a - b,
+					)[short - 1] ?? Number.POSITIVE_INFINITY);
 		return Math.max(throttledUntil, budgetAt);
 	};
 	const cancelWake = () => {
@@ -372,9 +420,15 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		}
 	};
 
+	/* A plain boolean, not a type guard: its false branch must not narrow
+	 * "ready" away from callers that still read a stale entry as a validator. */
+	const fresh = (entry: Entry | undefined): boolean =>
+		entry?.state === "ready" &&
+		now() - entry.verifiedAt < ENDPOINT_PHOTO_FRESH_MS;
+
 	const load = (
 		key: string,
-		fetchUri: (etag?: string) => Promise<PhotoResult>,
+		fetchUri: FetchUri,
 		classify: (error: unknown) => AvatarFailure,
 		options: ReadOptions = {},
 		fromQueue = false,
@@ -383,7 +437,8 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		if (signal?.aborted) return Promise.resolve(null);
 		const endpoint = ENDPOINT_KEY.test(key);
 		const held = entries.get(key);
-		if (held?.state === "ready" && !endpoint) {
+		if (held?.state === "ready" && (!endpoint || fresh(held))) {
+			// Re-entering rows reuse a current authorization and spend no budget.
 			touch(key, held);
 			return Promise.resolve(held.uri);
 		}
@@ -425,10 +480,15 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		}
 		const validator = held?.state === "ready" ? held : null;
 		const started = epoch;
-		const reservation = { until: Number.POSITIVE_INFINITY };
-		reservations.add(reservation);
+		const reserved = Array.from({ length: REQUESTS_PER_READ }, () => ({
+			until: Number.POSITIVE_INFINITY,
+		}));
+		for (const reservation of reserved) reservations.add(reservation);
+		let sent = 0;
 		inFlight += 1;
-		const promise = fetchUri(validator?.etag ?? undefined)
+		const promise = fetchUri(validator?.etag ?? undefined, () => {
+			sent += 1;
+		})
 			.then(
 				(result) => {
 					if (started !== epoch)
@@ -446,7 +506,13 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 					}
 					if (makeRoom(1, uri.length)) {
 						heldBytes += uri.length;
-						entries.set(key, { state: "ready", uri, bytes: uri.length, etag });
+						entries.set(key, {
+							state: "ready",
+							uri,
+							bytes: uri.length,
+							etag,
+							verifiedAt: now(),
+						});
 					}
 					return uri;
 				},
@@ -465,7 +531,14 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 			)
 			.finally(() => {
 				if (started !== epoch) return;
-				reservation.until = now() + READ_WINDOW_MS;
+				// Unmetered callers cannot prove a request unused: keep both.
+				const kept = options.metered
+					? Math.min(sent, REQUESTS_PER_READ)
+					: REQUESTS_PER_READ;
+				reserved.forEach((reservation, index) => {
+					if (index < kept) reservation.until = now() + READ_WINDOW_MS;
+					else reservations.delete(reservation);
+				});
 				inFlight -= 1;
 				wake();
 			});
@@ -500,6 +573,19 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		},
 
 		/**
+		 * An endpoint photo authorized for this account within
+		 * `ENDPOINT_PHOTO_FRESH_MS`, for a row's first frame on re-entry; `null`
+		 * otherwise (the row shows its glyph and asks through `loadEndpoint`).
+		 */
+		peekEndpoint(key: string): string | null {
+			if (!ENDPOINT_KEY.test(key)) return null;
+			const entry = entries.get(key);
+			if (entry?.state !== "ready" || !fresh(entry)) return null;
+			touch(key, entry);
+			return entry.uri;
+		},
+
+		/**
 		 * The photo for `key`: the held one, the read already in flight, or a new
 		 * read through `fetchUri`. Resolves `null` (render initials) for a
 		 * remembered failure, a failed read, or a URI too large to hold. When
@@ -516,7 +602,7 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		 */
 		loadEndpoint(
 			key: string,
-			fetchUri: (etag?: string) => Promise<PhotoResult>,
+			fetchUri: FetchUri,
 			classify: (error: unknown) => AvatarFailure,
 			options?: ReadOptions,
 		): Promise<string | null> {

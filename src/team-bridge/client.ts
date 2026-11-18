@@ -311,6 +311,13 @@ type RawRequest = {
 	// Present only for endpoint authorization. Null means an unconditional GET.
 	validator?: string | null;
 	nativePhoto?: boolean;
+	/*
+	 * Called once per HTTP request actually dispatched, including the single
+	 * 401-refresh retry. The avatar cache reserves a photo read's worst case
+	 * (two requests) up front and releases what this proves unused, so the
+	 * shared 120/min bucket is metered in requests sent, not in a guess.
+	 */
+	onRequest?: () => void;
 };
 type ImageBytes = { mime: "image/png" | "image/jpeg"; bytes: Uint8Array };
 
@@ -349,6 +356,7 @@ export function createHubClient(deps: HubClientDeps) {
 		if (signal?.aborted) controller.abort();
 		else signal?.addEventListener("abort", forward, { once: true });
 		try {
+			raw?.onRequest?.();
 			return await fetchImpl(
 				`${base}${raw?.root ?? "/v1/messaging"}${path}${queryString(query)}`,
 				{
@@ -594,6 +602,7 @@ export function createHubClient(deps: HubClientDeps) {
 			requireDeclaredMime?: boolean;
 			validator?: string | null;
 			nativePhoto?: boolean;
+			onRequest?: () => void;
 		},
 		signal?: AbortSignal,
 	): Promise<(ImageBytes & { etag: string | null }) | null> {
@@ -660,6 +669,7 @@ export function createHubClient(deps: HubClientDeps) {
 						photo: true,
 						validator: target.validator,
 						nativePhoto: target.nativePhoto,
+						onRequest: target.onRequest,
 					},
 					signal: deadline.signal,
 					timeoutMs: target.limitMs,
@@ -1056,7 +1066,12 @@ export function createHubClient(deps: HubClientDeps) {
 			endpointId: string,
 			hash: string,
 			size: 64 | 256,
-			options: { etag: string | null; native: boolean; signal?: AbortSignal },
+			options: {
+				etag: string | null;
+				native: boolean;
+				signal?: AbortSignal;
+				onRequest?: () => void;
+			},
 		) {
 			const canonical = `/v1/messaging/endpoints/${endpointId}/avatar?v=${hash}`;
 			if (
@@ -1075,6 +1090,7 @@ export function createHubClient(deps: HubClientDeps) {
 					// headers. Its Fetch cache mode still forces a fresh GET.
 					validator: options.native ? options.etag : null,
 					nativePhoto: options.native,
+					onRequest: options.onRequest,
 				},
 				options.signal,
 			);

@@ -145,8 +145,11 @@ export function PersonAvatar({
 	);
 }
 
-/** A retained endpoint photo is not displayable until this admission's GET
- * confirms access. Off-screen rows and reopened drawers begin with the glyph. */
+/** A retained endpoint photo is displayable only while an authorized read for
+ * this account is within `ENDPOINT_PHOTO_FRESH_MS` (`peekEndpoint`); a row
+ * re-entering inside that window repaints it on its first frame and spends no
+ * read (U5/D4). Past it, or never verified, the row starts on the glyph until
+ * this admission's GET confirms access. Off screen, nothing is displayed. */
 export function useEndpointAvatarUri(
 	member: DirectoryMember | null | undefined,
 	size: AvatarSize,
@@ -175,12 +178,12 @@ export function useEndpointAvatarUri(
 		void avatars
 			.loadEndpoint(
 				key,
-				async (etag) => {
+				async (etag, onRequest) => {
 					const photo = await hub.revalidateEndpointAvatar(
 						endpointId,
 						hash,
 						pixels,
-						{ etag: etag ?? null, native: Platform.OS !== "web" },
+						{ etag: etag ?? null, native: Platform.OS !== "web", onRequest },
 					);
 					return (
 						photo && {
@@ -190,7 +193,7 @@ export function useEndpointAvatarUri(
 					);
 				},
 				endpointAvatarFailure,
-				{ signal: controller.signal, row },
+				{ signal: controller.signal, row, metered: true },
 			)
 			.then((uri) => {
 				if (!controller.signal.aborted && avatars.epoch === started)
@@ -210,7 +213,10 @@ export function useEndpointAvatarUri(
 		);
 	}, [avatars, key, epoch]);
 	return {
-		uri: enabled ? endpointDisplayUri(loaded, avatars, epoch, key) : null,
+		uri: enabled
+			? (endpointDisplayUri(loaded, avatars, epoch, key) ??
+				(key ? avatars.peekEndpoint(key) : null))
+			: null,
 		onError,
 	};
 }
