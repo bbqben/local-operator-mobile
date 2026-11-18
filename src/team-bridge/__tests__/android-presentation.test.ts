@@ -29,6 +29,19 @@ const kotlinStrings = readFileSync(
 );
 
 describe("Team Bridge Android presentation", () => {
+	it("loads presentation helpers without initializing Expo, even on Android", async () => {
+		vi.resetModules();
+		vi.doMock("expo", () => {
+			throw new Error("Unexpected eager Expo initialization");
+		});
+		try {
+			const presentation = await import("@/team-bridge/android-presentation");
+			expect(presentation.TEAM_BRIDGE_CHANNEL_ID).toBe("team-bridge");
+		} finally {
+			vi.doUnmock("expo");
+		}
+	});
+
 	it("keeps the channel id the cloud names", () => {
 		expect(TEAM_BRIDGE_CHANNEL_ID).toBe("team-bridge");
 	});

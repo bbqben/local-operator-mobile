@@ -18,7 +18,6 @@
  * change reaches the system settings list.
  */
 
-import { requireOptionalNativeModule } from "expo";
 import { Platform } from "react-native";
 import { RADIENT_API_BASE } from "@/connection/discovery";
 import { t } from "@/i18n";
@@ -42,7 +41,10 @@ interface NativeTeamBridgePush {
 function nativeModule(): NativeTeamBridgePush | null {
 	if (Platform.OS !== "android") return null;
 	try {
-		return requireOptionalNativeModule<NativeTeamBridgePush>(
+		// Expo's entry point initializes the native runtime on import. Load it
+		// only on Android, but keep account admission and retirement synchronous.
+		const expo: typeof import("expo") = require("expo");
+		return expo.requireOptionalNativeModule<NativeTeamBridgePush>(
 			"LopTeamBridgePush",
 		);
 	} catch {
@@ -130,7 +132,9 @@ export function enableAndroidBridgePresentation(accountId: string): void {
 	}
 }
 
-export function retireAndroidBridgePresentation(accountId: string | null): void {
+export function retireAndroidBridgePresentation(
+	accountId: string | null,
+): void {
 	try {
 		nativeModule()?.retirePresentationAccount(accountId);
 	} catch {
