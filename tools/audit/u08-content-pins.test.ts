@@ -5,7 +5,19 @@
  * 40179237342). Proving the replacement needs the real enumerator — `git
  * ls-files`, the index, tracked-vs-untracked — against real file content, not a
  * hand-built map that would agree with the guard by construction. Only the
- * pinned scopes are copied, so the fixture is a few MB and matches the pins.
+ * pinned scopes are copied, so the fixture is a few MB.
+ *
+ * WHY THE FIXTURE IS ITS OWN BASELINE. Admission is judged against
+ * `pinTablesFrom(fixture)`, captured before any case mutates it, never against
+ * the committed tables. Judging against the committed tables made "committed
+ * `src` pin == this PR's `src`" a unit gate: every app-source PR had to re-pin
+ * and concurrent PRs conflicted on that one line (98 of 116 first-parent merges
+ * to main, 2026-10-18..11-17, edited the pins file). Whether the LIVE tree still
+ * matches the committed scene is the dispatch proof's preflight question
+ * (u08-geometry-proof.ts, fail-closed), and a re-pin stays a visible reviewed
+ * line made with --print. Two committed-value checks remain on purpose: the
+ * instrument files the proof loads must match INSTRUMENT_PINS, and the table
+ * keys must match the drivers' import closure.
  *
  * The last case walks the drivers' real import graph. Without it the pin table
  * only claims to cover what the proof loads; with it, a module added to either
@@ -32,11 +44,14 @@ import { API } from "typescript/unstable/sync";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import {
 	assertPinnedContent,
+	COMMITTED_PINS,
 	contentDrift,
 	INPUT_TREE_PINS,
 	INSTRUMENT_PINS,
 	isPinnedContentPath,
+	type PinTables,
 	pinnedScopes,
+	pinTablesFrom,
 	RENDER_FILE_PINS,
 	RENDER_TREE_PINS,
 	snapshotContent,
@@ -48,6 +63,8 @@ const sha = (bytes: Uint8Array) =>
 	createHash("sha256").update(bytes).digest("hex");
 
 let fixture: string;
+/** Pins of the unmutated fixture: what every admission case is judged against. */
+let baseline: PinTables;
 let parserRoot: string;
 let parser: API;
 let parserConfig: string | undefined;
@@ -81,6 +98,7 @@ beforeAll(() => {
 		],
 		{ cwd: fixture },
 	);
+	baseline = pinTablesFrom(snapshotContent(fixture));
 	// Real git/index and corpus copying shares host I/O with other sessions;
 	// keep setup bounded without mistaking a 10s fleet-load delay for drift.
 }, 30_000);
@@ -119,8 +137,8 @@ describe("U08 content-identity admission", () => {
 		expect(
 			content.files.has("design/store-screenshots/iphone-6.9/new-frame.png"),
 		).toBe(false);
-		expect(contentDrift(content)).toEqual([]);
-		expect(() => assertPinnedContent(content)).not.toThrow();
+		expect(contentDrift(content, baseline)).toEqual([]);
+		expect(() => assertPinnedContent(content, baseline)).not.toThrow();
 	});
 
 	it("refuses an edited instrument file and names it with both hashes", () => {
@@ -128,17 +146,16 @@ describe("U08 content-identity admission", () => {
 		append(path, "\n// policy drift\n");
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
 		const actual = sha(readFileSync(resolve(fixture, path)));
-		const pinned = INSTRUMENT_PINS[path];
+		const pinned = baseline.instrument[path];
 		expect(actual).not.toBe(pinned);
-		expect(contentDrift(snapshotContent(fixture))).toContainEqual({
-			kind: "instrument",
-			scope: path,
-			pinned,
-			actual,
-		});
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			`instrument ${path} pinned=${pinned} actual=${actual}`,
-		);
+		// Exact, not contains: against the fixture baseline this edit is the only
+		// drift, so nothing else can satisfy the refusal.
+		expect(contentDrift(snapshotContent(fixture), baseline)).toEqual([
+			{ kind: "instrument", scope: path, pinned, actual },
+		]);
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow(`instrument ${path} pinned=${pinned} actual=${actual}`);
 	});
 
 	it("refuses an edited harness module the driver loads and names it", () => {
@@ -147,8 +164,10 @@ describe("U08 content-identity admission", () => {
 		const path = "tools/lib/chrome.ts";
 		append(path, "\n// flag drift\n");
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			`instrument ${path} pinned=${INSTRUMENT_PINS[path]} actual=${sha(
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow(
+			`instrument ${path} pinned=${baseline.instrument[path]} actual=${sha(
 				readFileSync(resolve(fixture, path)),
 			)}`,
 		);
@@ -159,9 +178,13 @@ describe("U08 content-identity admission", () => {
 		(scope) => {
 			append(`${scope}/README.md`, "\nDocumentation only.\n");
 			execFileSync("git", ["add", "-A"], { cwd: fixture });
-			expect(() => assertPinnedContent(snapshotContent(fixture))).not.toThrow();
+			expect(() =>
+				assertPinnedContent(snapshotContent(fixture), baseline),
+			).not.toThrow();
 			rmSync(resolve(fixture, `${scope}/README.md`));
-			expect(() => assertPinnedContent(snapshotContent(fixture))).not.toThrow();
+			expect(() =>
+				assertPinnedContent(snapshotContent(fixture), baseline),
+			).not.toThrow();
 		},
 	);
 
@@ -191,9 +214,9 @@ describe("U08 content-identity admission", () => {
 		"fixtures/supplements/documents/populated.html",
 	])("refuses a real supplement input edit: %s", (path) => {
 		append(path, "\n");
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			"input-tree fixtures/supplements",
-		);
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow("input-tree fixtures/supplements");
 	});
 
 	it.each(["fixtures/relay/http/new.json", "fixtures/relay/sse/README.md"])(
@@ -201,9 +224,9 @@ describe("U08 content-identity admission", () => {
 		(path) => {
 			writeFileSync(resolve(fixture, path), "{}");
 			execFileSync("git", ["add", "-A"], { cwd: fixture });
-			expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-				"input-tree fixtures/relay",
-			);
+			expect(() =>
+				assertPinnedContent(snapshotContent(fixture), baseline),
+			).toThrow("input-tree fixtures/relay");
 		},
 	);
 
@@ -215,10 +238,89 @@ describe("U08 content-identity admission", () => {
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
 		const content = snapshotContent(fixture);
 		const actual = treeDigest(content, "fixtures/relay");
-		expect(actual).not.toBe(INPUT_TREE_PINS["fixtures/relay"]);
-		expect(() => assertPinnedContent(content)).toThrow(
-			`input-tree fixtures/relay pinned=${INPUT_TREE_PINS["fixtures/relay"]} actual=${actual}`,
+		expect(actual).not.toBe(baseline.inputTree["fixtures/relay"]);
+		expect(() => assertPinnedContent(content, baseline)).toThrow(
+			`input-tree fixtures/relay pinned=${baseline.inputTree["fixtures/relay"]} actual=${actual}`,
 		);
+	});
+
+	it("refuses an edited app source file and an edited relay input together, naming each root and both hashes", () => {
+		append("src/ui/theme.css", "\n/* repaint */\n");
+		append("fixtures/relay/http/checkpoints-deep.json", "\n");
+		execFileSync("git", ["add", "-A"], { cwd: fixture });
+		const content = snapshotContent(fixture);
+		const src = treeDigest(content, "src");
+		const relay = treeDigest(content, "fixtures/relay");
+		expect(contentDrift(content, baseline)).toEqual([
+			{
+				kind: "render-tree",
+				scope: "src",
+				pinned: baseline.renderTree.src,
+				actual: src,
+			},
+			{
+				kind: "input-tree",
+				scope: "fixtures/relay",
+				pinned: baseline.inputTree["fixtures/relay"],
+				actual: relay,
+			},
+		]);
+		expect(() => assertPinnedContent(content, baseline)).toThrow(
+			`render-tree src pinned=${baseline.renderTree.src} actual=${src}`,
+		);
+		expect(() => assertPinnedContent(content, baseline)).toThrow(
+			`input-tree fixtures/relay pinned=${baseline.inputTree["fixtures/relay"]} actual=${relay}`,
+		);
+	});
+
+	it("judges against the table it is given, and defaults to the committed tables", () => {
+		const content = snapshotContent(fixture);
+		// The baseline is the fixture, so it carries every committed key.
+		for (const table of [
+			"instrument",
+			"renderTree",
+			"inputTree",
+			"renderFile",
+		] as const)
+			expect(Object.keys(baseline[table]).sort()).toEqual(
+				Object.keys(COMMITTED_PINS[table]).sort(),
+			);
+		// A shifted expectation is reported against itself, not the committed pin:
+		// the parameter is honoured, so the baseline cases above are not vacuous.
+		const shifted: PinTables = {
+			...baseline,
+			renderTree: { ...baseline.renderTree, src: "0".repeat(64) },
+		};
+		expect(contentDrift(content, shifted)).toEqual([
+			{
+				kind: "render-tree",
+				scope: "src",
+				pinned: "0".repeat(64),
+				actual: baseline.renderTree.src,
+			},
+		]);
+		// No argument means the committed trust root — what the proof calls.
+		expect(COMMITTED_PINS.instrument).toBe(INSTRUMENT_PINS);
+		expect(COMMITTED_PINS.renderTree).toBe(RENDER_TREE_PINS);
+		expect(COMMITTED_PINS.inputTree).toBe(INPUT_TREE_PINS);
+		expect(COMMITTED_PINS.renderFile).toBe(RENDER_FILE_PINS);
+		expect(contentDrift(content)).toEqual(
+			contentDrift(content, COMMITTED_PINS),
+		);
+	});
+
+	it("holds the committed instrument pins to the files the proof loads", () => {
+		// Deliberately NOT fixture-relative: the instrument is the measuring code
+		// (closure-checked below), and an edit to it must re-pin in the same PR so
+		// the change is a visible reviewed line. Render/input roots are the scene
+		// and are checked by the dispatch preflight instead.
+		expect(
+			contentDrift(snapshotContent(fixture)).filter(
+				(entry) =>
+					entry.kind === "instrument" ||
+					(entry.kind === "missing" && entry.scope in INSTRUMENT_PINS),
+			),
+		).toEqual([]);
 	});
 
 	it("refuses an edited app source file through the render-tree digest", () => {
@@ -227,9 +329,9 @@ describe("U08 content-identity admission", () => {
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
 		const content = snapshotContent(fixture);
 		const actual = treeDigest(content, "src");
-		expect(actual).not.toBe(RENDER_TREE_PINS.src);
-		expect(() => assertPinnedContent(content)).toThrow(
-			`render-tree src pinned=${RENDER_TREE_PINS.src} actual=${actual}`,
+		expect(actual).not.toBe(baseline.renderTree.src);
+		expect(() => assertPinnedContent(content, baseline)).toThrow(
+			`render-tree src pinned=${baseline.renderTree.src} actual=${actual}`,
 		);
 	});
 
@@ -240,15 +342,17 @@ describe("U08 content-identity admission", () => {
 		);
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
 		expect(
-			contentDrift(snapshotContent(fixture)).map(
+			contentDrift(snapshotContent(fixture), baseline).map(
 				(entry) => `${entry.kind} ${entry.scope}`,
 			),
 		).toContain("render-tree design/tokens");
 		execFileSync("git", ["reset", "-q", "--hard"], { cwd: fixture });
 		append("pnpm-lock.yaml", "\n# dependency drift\n");
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			`render-file pnpm-lock.yaml pinned=${RENDER_FILE_PINS["pnpm-lock.yaml"]} actual=${sha(
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow(
+			`render-file pnpm-lock.yaml pinned=${baseline.renderFile["pnpm-lock.yaml"]} actual=${sha(
 				readFileSync(resolve(fixture, "pnpm-lock.yaml")),
 			)}`,
 		);
@@ -257,8 +361,10 @@ describe("U08 content-identity admission", () => {
 	it("refuses an edited package.json — its main and export script decide the bundle", () => {
 		append("package.json", "\n");
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			`render-file package.json pinned=${RENDER_FILE_PINS["package.json"]}`,
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow(
+			`render-file package.json pinned=${baseline.renderFile["package.json"]}`,
 		);
 	});
 
@@ -266,8 +372,10 @@ describe("U08 content-identity admission", () => {
 		const path = "tools/audit/color.ts";
 		rmSync(resolve(fixture, path));
 		execFileSync("git", ["add", "-A"], { cwd: fixture });
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			`instrument ${path} pinned=${INSTRUMENT_PINS[path]} actual=absent`,
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow(
+			`instrument ${path} pinned=${baseline.instrument[path]} actual=absent`,
 		);
 	});
 
@@ -275,9 +383,9 @@ describe("U08 content-identity admission", () => {
 		// Index says the file exists, disk says it does not: the old read threw
 		// ENOENT before any verdict could be printed.
 		rmSync(resolve(fixture, "tools/audit/color.ts"));
-		expect(() => assertPinnedContent(snapshotContent(fixture))).toThrow(
-			"missing tools/audit/color.ts pinned=tracked actual=absent",
-		);
+		expect(() =>
+			assertPinnedContent(snapshotContent(fixture), baseline),
+		).toThrow("missing tools/audit/color.ts pinned=tracked actual=absent");
 	});
 
 	it("never prints a deletion as a pinnable value", () => {

@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "حصے یا ختم شدہ سیشن دوبارہ آن کریں، یا منظر ری سیٹ کریں۔",
 	"mobile.sidebar.empty_by_view.reset": "منظر ری سیٹ کریں",
 	"mobile.sidebar.outbox_sending": "پیغام بھیجا جا رہا ہے…",
-	"mobile.sidebar.outbox_failed": "پیغام بھیجنا رک گیا"
+	"mobile.sidebar.outbox_failed": "پیغام بھیجنا رک گیا",
+	"mobile.sidebar.tags.remove_all": "تمام ٹیگز ہٹائیں",
+	"mobile.sidebar.tags.remove_all_title": "تمام ٹیگز ہٹائیں؟",
+	"mobile.sidebar.tags.remove_all_body": "یہ اس گفتگو سے تمام زمرے ہٹا دیتا ہے۔ زمرے خود ڈیسک ٹاپ ایپ میں موجود رہیں گے۔",
+	"mobile.sidebar.tags.remove_all_confirm": "ہٹائیں",
+	"mobile.sidebar.tags.saving": "محفوظ ہو رہا ہے…",
+	"mobile.sidebar.tags.load_failed_title": "آپ کے زمرے لوڈ نہیں ہو سکے",
+	"mobile.sidebar.tags.load_failed_body": "ہم ابھی زمروں کی فہرست نہیں پڑھ سکے۔ تھوڑی دیر بعد دوبارہ کوشش کریں۔",
+	"mobile.sidebar.tags.empty_headline": "ابھی کوئی زمرہ نہیں۔",
+	"mobile.sidebar.tags.empty_next": "ڈیسک ٹاپ پر بنتے ہیں۔",
+	"mobile.sidebar.tags.announcement": "ٹیگز: {names}",
+	"mobile.sidebar.row.new": "نئی",
+	"mobile.sidebar.row.asks": "{count, plural, one {# سوال} other {# سوالات}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}، رکاوٹ نہیں — ایجنٹ کام جاری رکھے ہوئے ہے",
+	"mobile.sidebar.row.agents": "{count, plural, one {# ایجنٹ} other {# ایجنٹس}}",
+	"mobile.sidebar.row.todos": "{count, plural, one {# کام} other {# کام}}"
 }

@@ -189,7 +189,7 @@ export default function PastSessions() {
 					</Alert>
 					<View className="pt-3">
 						<Button
-							label="Try again"
+							label={t("mobile.common.try_again")}
 							onPress={() => void load(query)}
 							testID={CONTROL.pastRetry}
 						/>

@@ -25,5 +25,20 @@
 	"mobile.sidebar.empty_by_view.next": "खंड या समाप्त सत्र फिर से चालू करें, या दृश्य रीसेट करें।",
 	"mobile.sidebar.empty_by_view.reset": "दृश्य रीसेट करें",
 	"mobile.sidebar.outbox_sending": "संदेश भेजा जा रहा है…",
-	"mobile.sidebar.outbox_failed": "संदेश भेजना रुक गया"
+	"mobile.sidebar.outbox_failed": "संदेश भेजना रुक गया",
+	"mobile.sidebar.tags.remove_all": "सभी टैग हटाएँ",
+	"mobile.sidebar.tags.remove_all_title": "सभी टैग हटाएँ?",
+	"mobile.sidebar.tags.remove_all_body": "इससे इस बातचीत से सभी श्रेणियाँ हट जाती हैं। श्रेणियाँ ख़ुद डेस्कटॉप ऐप में बनी रहती हैं।",
+	"mobile.sidebar.tags.remove_all_confirm": "हटाएँ",
+	"mobile.sidebar.tags.saving": "सहेजा जा रहा है…",
+	"mobile.sidebar.tags.load_failed_title": "आपकी श्रेणियाँ लोड नहीं हुईं",
+	"mobile.sidebar.tags.load_failed_body": "हम अभी श्रेणियों की सूची नहीं पढ़ सके। थोड़ी देर में फिर से कोशिश करें।",
+	"mobile.sidebar.tags.empty_headline": "अभी कोई श्रेणी नहीं।",
+	"mobile.sidebar.tags.empty_next": "डेस्कटॉप ऐप में बनती हैं।",
+	"mobile.sidebar.tags.announcement": "टैग: {names}",
+	"mobile.sidebar.row.new": "नई",
+	"mobile.sidebar.row.asks": "{count, plural, one {# सवाल} other {# सवाल}}",
+	"mobile.sidebar.row.asks_not_blocker": "{asks}, एजेंट रुका नहीं है",
+	"mobile.sidebar.row.agents": "{count, plural, one {# एजेंट} other {# एजेंट}}",
+	"mobile.sidebar.row.todos": "{count, plural, one {# कार्य} other {# कार्य}}"
 }

@@ -158,7 +158,9 @@ export default function Projects() {
 				 *  sheet, and the sheet's own Create is what writes. */
 				<Button
 					testID={CONTROL.projectsNew}
-					label="New project"
+					/* Reuses the create sheet's title key on purpose: the button and the
+					 *  sheet it opens must say the same words in every language. */
+					label={t("mobile.projects.create.title")}
 					onPress={() => setCreating(true)}
 					variant="quiet"
 					size="sm"
@@ -206,7 +208,7 @@ export default function Projects() {
 					</Alert>
 					<Button
 						testID={CONTROL.projectsRetry}
-						label="Try again"
+						label={t("mobile.common.try_again")}
 						onPress={() => void load()}
 						variant="outline"
 						size="sm"
@@ -215,11 +217,11 @@ export default function Projects() {
 			) : unreachable ? (
 				<View className="gap-3">
 					<Alert severity="error" testID={SURFACE.projectRefusal}>
-						We couldn't read your projects just now.
+						{t("mobile.projects.list.load_failed")}
 					</Alert>
 					<Button
 						testID={CONTROL.projectsRetry}
-						label="Try again"
+						label={t("mobile.common.try_again")}
 						onPress={() => void load()}
 						variant="outline"
 						size="sm"
@@ -228,11 +230,13 @@ export default function Projects() {
 			) : empty ? (
 				<EmptyState
 					testID={EMPTY.projects}
-					headline="No projects yet."
+					headline={t("mobile.projects.empty.headline")}
 					/* The second line names an ACTION, and it is honest about where that
 					 *  action lives: this screen can create one (the header action above),
 					 *  so the copy points at it rather than at another device. */
-					next="Start one with New project, or ask an agent to open one."
+					next={t("mobile.projects.empty.next", {
+						action: t("mobile.projects.create.title"),
+					})}
 				/>
 			) : (
 				<View>

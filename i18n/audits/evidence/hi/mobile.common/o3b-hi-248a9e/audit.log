@@ -1,0 +1,92 @@
+# audit.log — O3-b hi, auditor session 248a9ead8d63 (anthropic/claude-opus-5-5)
+# Actual commands/checks run in this session, with their printed output (trimmed only where marked).
+
+$ git -C ~/local-operator-mobile/.worktrees/i18n-m3-s2a rev-parse HEAD; git status --short
+39b5e3e5343dc7302b99f731e5806cf82525d346
+?? docs/evidence/agent-review-pr251-code-round1.md   (untracked, not an i18n input)
+
+$ shasum -a 256 <brief> <draft>
+63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe  /Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json
+14b806e26a8cd3ddbb802a62c9d93b6e33920804f464c6b1e3eaabe9bc09cda0  /Users/damian/.local-operator/sessions/805773971354/scratchpad/o3b/draft-hi.json
+
+$ shasum -a 256 ~/local-operator/i18n/style-guides/hi.md ~/local-operator/i18n/glossary.md
+82292dc8d13fcc93dc752457719264aed3cc20bb65ecfaba0f0e5a31f4cb40d5  style-guides/hi.md
+0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8  glossary.md
+
+# Read route: ordinary file reads (bash cat / python open). read_public_copy was not used (core tool refuses mobile catalogue paths, per brief).
+
+# python (eval): brief english vs en catalogues at 39b5e3e5 -> 'brief-vs-en mismatches []'; en file sha256 == brief recorded sha256 for all 8 files -> all True
+# python (eval): draft keys vs brief keys -> missing 0, extra 0; hi shipped catalogues contain none of the 40 keys (all new)
+# python (eval): redaction scan with brief pattern (?i)\[redacted[^\]]*\]|<redacted[^>]*>|\*\*\*redacted\*\*\*
+{
+ "draft-hi.json": 0,
+ "translation-brief.json (raw, includes its own pattern field)": 2,
+ "translation-brief.json (pattern field excluded)": 0,
+ "src/i18n/catalogues/en/mobile.common.json": 0,
+ "src/i18n/catalogues/en/mobile.common.context.json": 0,
+ "src/i18n/catalogues/en/mobile.projects.json": 0,
+ "src/i18n/catalogues/en/mobile.projects.context.json": 0,
+ "src/i18n/catalogues/en/mobile.sidebar.json": 0,
+ "src/i18n/catalogues/en/mobile.sidebar.context.json": 0,
+ "src/i18n/catalogues/en/relay.chrome.json": 0,
+ "src/i18n/catalogues/en/relay.chrome.context.json": 0
+}
+#   -> the brief's own redaction_scan.pattern field matches itself (2 hits); excluded, brief hits = 0. Draft hits = 0. English inputs hits = 0.
+
+# First attempt to run the node checker (script written via an unresolved $LOCAL_OPERATOR_SCRATCHPAD heredoc, passing the sibling sessions' brief/draft paths to node) was REFUSED by guardrail dangerous-delete (guard 0.106.6); nothing ran.
+# Re-done as fresh work: python wrote work/extract-hi.json (brief keys + English + draft values; brief/draft sha256 embedded, matching the above), and node read only this session's files plus the repo parser, read-only.
+
+$ cd /Users/damian/.local-operator/sessions/248a9ead8d63/scratchpad/o3b-audit/work && node check-hi.mjs      # imports parseMessage/formatMessage from src/i18n/messages.ts (read-only)
+CLDR hi categories (Intl): one,other | hi select(0)= one
+keys 40 missing-in-draft [] extra-in-draft []
+ok   mobile.common.close graphemes=5 cp=8 hint=12
+ok   mobile.common.loading graphemes=9 cp=13 hint=16
+ok   mobile.projects.list.load_failed graphemes=23 cp=35 hint=-
+ok   mobile.projects.empty.headline graphemes=13 cp=23 hint=32
+ok   mobile.projects.empty.next graphemes=50 cp=73 hint=- render=[“<action>” से एक प्रोजेक्ट शुरू करें, या किसी एजेंट से उसे खोलने को कहें।]
+ok   mobile.projects.detail.gone graphemes=20 cp=31 hint=-
+ok   mobile.projects.detail.title_fallback graphemes=3 cp=9 hint=16
+ok   mobile.projects.detail.load_failed graphemes=22 cp=33 hint=-
+ok   mobile.projects.detail.milestones_empty graphemes=10 cp=15 hint=24
+ok   mobile.projects.detail.sessions_empty graphemes=14 cp=23 hint=28
+ok   mobile.projects.detail.delete graphemes=7 cp=16 hint=24
+ok   mobile.projects.detail.delete_confirm graphemes=3 cp=6 hint=12
+ok   mobile.projects.milestone.add graphemes=6 cp=12 hint=24
+ok   mobile.projects.milestone.edit_title graphemes=11 cp=18 hint=24
+ok   mobile.projects.milestone.add_submit graphemes=2 cp=6 hint=12
+ok   mobile.projects.milestone.remove graphemes=7 cp=11 hint=24
+ok   mobile.projects.milestone.remove_confirm graphemes=3 cp=5 hint=12
+ok   mobile.projects.milestone.name graphemes=2 cp=3 hint=-
+ok   mobile.projects.milestone.name_placeholder graphemes=6 cp=13 hint=20
+ok   mobile.projects.milestone.target_date graphemes=6 cp=13 hint=20
+ok   mobile.projects.milestone.target_date_placeholder graphemes=10 cp=12 hint=-
+ok   mobile.projects.milestone.target_date_help graphemes=22 cp=37 hint=-
+ok   mobile.projects.milestone.reopen_hint graphemes=16 cp=24 hint=-
+ok   mobile.projects.milestone.complete_hint graphemes=18 cp=29 hint=-
+ok   mobile.projects.milestone.edit_label graphemes=14 cp=19 hint=- render=[<name> संपादित करें]
+ok   mobile.sidebar.tags.remove_all graphemes=9 cp=13 hint=24
+ok   mobile.sidebar.tags.remove_all_title graphemes=10 cp=14 hint=28
+ok   mobile.sidebar.tags.remove_all_body graphemes=56 cp=89 hint=-
+ok   mobile.sidebar.tags.remove_all_confirm graphemes=3 cp=5 hint=12
+ok   mobile.sidebar.tags.saving graphemes=11 cp=16 hint=12
+ok   mobile.sidebar.tags.load_failed_title graphemes=16 cp=28 hint=32
+ok   mobile.sidebar.tags.load_failed_body graphemes=45 cp=71 hint=-
+ok   mobile.sidebar.tags.empty_headline graphemes=12 cp=20 hint=28
+ok   mobile.sidebar.tags.empty_next graphemes=16 cp=25 hint=24
+ok   mobile.sidebar.tags.announcement graphemes=11 cp=12 hint=- render=[टैग: <names>]
+ok   mobile.sidebar.row.new graphemes=2 cp=3 hint=8
+ok   mobile.sidebar.row.asks graphemes=42 cp=44 hint=10 render=[0 सवाल | 1 सवाल | 2 सवाल | 5 सवाल | 99 सवाल]
+ok   mobile.sidebar.row.asks_not_blocker graphemes=19 cp=26 hint=- render=[<asks>, एजेंट रुका नहीं है]
+ok   mobile.sidebar.row.agents graphemes=42 cp=46 hint=10 render=[0 एजेंट | 1 एजेंट | 2 एजेंट | 5 एजेंट | 99 एजेंट]
+ok   mobile.sidebar.row.todos graphemes=40 cp=46 hint=10 render=[0 कार्य | 1 कार्य | 2 कार्य | 5 कार्य | 99 कार्य]
+flagged keys: 0
+NEG dropped placeholder -> caught
+NEG renamed placeholder -> caught
+NEG broken ICU -> caught by parser: Invalid message "{count, plural, one {# x}": unterminated plural (at offset 25)
+NEG missing other arm -> caught by parser: Invalid message "{count, plural, one {# x}}": plural is missing its 'other' branch (at offset 25)
+(node:35447) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a/src/i18n/messages.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/damian/local-operator-mobile/.worktrees/i18n-m3-s2a/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+# Record for this namespace: /Users/damian/.local-operator/sessions/248a9ead8d63/scratchpad/o3b-audit/hi/mobile.common/o3b-hi-248a9e/record.json

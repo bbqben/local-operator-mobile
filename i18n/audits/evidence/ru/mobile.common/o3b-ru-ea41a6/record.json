@@ -1,0 +1,94 @@
+{
+ "record_kind": "i18n-audit",
+ "audit_id": "o3b-ru-ea41a6",
+ "slice": "O3-b",
+ "locale": "ru",
+ "namespace": "mobile.common",
+ "audit_date": "2026-11-17",
+ "key_count": 2,
+ "keys_audited": [
+  "mobile.common.close",
+  "mobile.common.loading"
+ ],
+ "translator_session": "480843838cb0",
+ "auditor": {
+  "agent": "i18n-auditor (team lopdev)",
+  "session": "ea41a6f7ac32",
+  "model": "anthropic/claude-opus-5-5",
+  "actual_model_source": "harness system prompt 'Model:' line for this session; no fallback observed",
+  "independent_from_translator_session": true
+ },
+ "draft_route": "ordinary file read of /Users/damian/.local-operator/sessions/480843838cb0/scratchpad/o3b/draft-ru.json (core read_public_copy refuses mobile catalogue paths); no relay used",
+ "source_commit": "39b5e3e5343dc7302b99f731e5806cf82525d346",
+ "source_branch": "feat/i18n-o3b-projects-tags",
+ "input_hashes": {
+  "draft": {
+   "path": "/Users/damian/.local-operator/sessions/480843838cb0/scratchpad/o3b/draft-ru.json",
+   "sha256": "f49c395230b8eea8b2906874866fcc83eb2883daf978fff58bc4c41a48696315",
+   "canonical_json_sha256": "28802f9020a7a93df2d82608ed1c51a92b05d5c0ce5989fb54e140706007e827"
+  },
+  "brief": {
+   "path": "/Users/damian/.local-operator/sessions/f6d066c04787/scratchpad/translation-brief.json",
+   "sha256": "63351e7ead7f78a6d0063e2ff6e5abf5a25b0ce4fcfb363c6017f163c609ddfe"
+  },
+  "en": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.json",
+   "sha256": "3c869836292710ccb7770ec5e493a64f8349e2420b2cc0e37be6b3a09b87b31e"
+  },
+  "context": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/en/mobile.common.context.json",
+   "sha256": "656ce9a70cc25fc6acaa2f04c2bbe55c90cde56d516e6960100df5cd1a399e7b"
+  },
+  "ru_shipped": {
+   "path": "local-operator-mobile@39b5e3e5:src/i18n/catalogues/ru/mobile.common.json",
+   "sha256": "deace164760486d6a2373a414a0926fd5333d90b946488b32368c11022e6b348"
+  },
+  "style_guide": {
+   "path": "~/local-operator/i18n/style-guides/ru.md",
+   "sha256": "f20e1cafaf70578c17ce072c71725628808d228e4be5604329f8da30386f1fb5"
+  },
+  "glossary": {
+   "path": "~/local-operator/i18n/glossary.md",
+   "sha256": "0eb34437a8c3d6f564f278ef957a603b1d9f51bb07d5ddae5ea8f37deba962f8"
+  }
+ },
+ "checks": {
+  "keys_missing": 0,
+  "keys_extra": 0,
+  "brief_vs_source_hash_mismatches": 0,
+  "placeholder_icu": "pass",
+  "cldr_ru_categories": [
+   "one",
+   "few",
+   "many",
+   "other"
+  ],
+  "nfc": "pass",
+  "quotes": "pass («ёлочки» only)",
+  "ellipsis": "pass (U+2026)",
+  "width": "all within hints",
+  "redaction_marker_hits": 0,
+  "redaction_scan_note": "brief's own redaction_scan.pattern field matches itself (2 raw hits) and is excluded; draft 0, brief excl. that field 0, en files at source commit 0",
+  "repo_validator": "not run (draft is outside the repo; worktree read-only, no node_modules); auditor Python ICU checker with 3 negative controls used instead"
+ },
+ "redaction_marker_hits": 0,
+ "verdict": "passed",
+ "current_report_verdict": {
+  "status": "passed",
+  "unresolved_blocker_major_count": 0,
+  "finding_ids": []
+ },
+ "findings": [],
+ "artifacts": {
+  "report": {
+   "path": "report.md",
+   "sha256": "46a53f3fffdc7bd8c8d6de5940dc3c3e286d726e930ded08d23fa74c4f64590d"
+  },
+  "audit_log": {
+   "path": "audit.log",
+   "sha256": "f63b136f4fcf9d55b29c5e6db4931e72ab1b38c20bfcc7f88ad6bdb67444e221"
+  }
+ },
+ "audit_notes_not_execution_log": "report.md is the auditor's notes; audit.log carries the printed check output",
+ "ledger_appended": false
+}

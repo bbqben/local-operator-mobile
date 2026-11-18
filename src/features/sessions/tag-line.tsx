@@ -8,6 +8,7 @@ import {
 	tagLineFor,
 	tagLineTargetHeightDp,
 } from "@/features/sessions/tags";
+import { t } from "@/i18n";
 import { ROLE } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Badge } from "@/ui/components/badge";
@@ -115,7 +116,9 @@ export const SessionTagLine = ({
 			/* `Tags` alone when nothing is assigned: the label must not claim a
 			 *  state the reader cannot see. With tags it is the existing sentence,
 			 *  and the inner badges are hidden so the reader hears it once. */
-			accessibilityLabel={tags.length > 0 ? tagAnnouncement(tags) : "Tags"}
+			accessibilityLabel={
+				tags.length > 0 ? tagAnnouncement(tags) : t("relay.chrome.row.tags")
+			}
 			accessibilityHint={accessibilityHint}
 			/* A REAL 44+ dp box, not `hitSlop`: the badges are 22 dp tall, and
 			 *  react-native-web drops `Pressable` hitSlop, so the audit measures the
@@ -140,7 +143,7 @@ export const SessionTagLine = ({
 				aria-hidden
 				accessibilityElementsHidden
 			>
-				Tags
+				{t("relay.chrome.row.tags")}
 			</Text>
 			<ChevronDown size={14} strokeWidth={2.5} color={chevronInk} aria-hidden />
 			{tags.length > 0 ? (

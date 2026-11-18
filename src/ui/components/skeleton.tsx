@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Animated, View } from "react-native";
 
+import { t } from "@/i18n";
 import { LIVE_REGION } from "@/ui/a11y";
 import { useReducedMotion, useTokenColor } from "@/ui/appearance";
 import { createSharedLoop } from "@/ui/shared-loop";
@@ -148,7 +149,7 @@ export const Skeleton = ({
 			// Announced once as a polite busy region rather than per bar: what a
 			// reader needs is that content is coming, not how many rows are missing.
 			accessibilityLiveRegion={LIVE_REGION.polite}
-			accessibilityLabel="Loading"
+			accessibilityLabel={t("mobile.common.loading")}
 		>
 			{barKeys.map((barKey) => (
 				<View
