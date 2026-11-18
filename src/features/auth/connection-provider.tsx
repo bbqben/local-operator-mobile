@@ -126,6 +126,7 @@ import {
 	STREAM_SILENCE_MS,
 	type StreamStatus,
 } from "@/relay";
+import { createRefusalGrace, rearmableOnWake } from "@/relay/refusal-grace";
 import { type ConfigSnapshot, createConfigStore } from "@/state/config-store";
 import {
 	type ConnectionSnapshot,
@@ -988,6 +989,17 @@ export const ConnectionProvider = ({
 			let attemptStartedAt = Date.now();
 			let awaitingSeed = true;
 			let terminal = false;
+			/* The refusal that ended this loop, kept so a foreground can re-arm a
+			 * GATEWAY refusal (`rearmableOnWake`) and so the first frame after that
+			 * clears the refusal it raised, without a tap. */
+			let terminalError: RelayError | null = null;
+			/* A refusal on a route that served moments ago is retried silently for
+			 * two minutes before it is shown (`refusal-grace.ts`; field report
+			 * 2026-11-17: "Offline" for 26 minutes over a rate-limit blip). */
+			const grace = createRefusalGrace();
+			/* Set by a foreground that re-armed this loop after a gateway refusal:
+			 * the refusal the first good frame retires. */
+			let rearmedFrom: RelayError | null = null;
 			let seedTimer: ReturnType<typeof setTimeout> | undefined;
 			let progressBackoff = false;
 			let recoveryNeeded = false;
@@ -1177,6 +1189,21 @@ export const ConnectionProvider = ({
 						}
 						if (frame.kind === "sessions") {
 							seenAt = Date.now();
+							grace.healthy(seenAt);
+							/* A loop a foreground re-armed after a gateway refusal is
+							 *  serving again: retire the refusal it raised (the same reset
+							 *  a Retry tap performs), so the drawer leaves "Offline". */
+							if (rearmedFrom !== null) {
+								const cleared = rearmedFrom;
+								rearmedFrom = null;
+								if (mountedRef.current) {
+									setLastError((current) =>
+										current === cleared ? null : current,
+									);
+									if (connectionStore.getState().phase === "refused")
+										connectionStore.getState().markLive();
+								}
+							}
 							awaitingSeed = false;
 							recoveryNeeded = false;
 							clearSeedTimer();
@@ -1294,9 +1321,10 @@ export const ConnectionProvider = ({
 								"stream",
 							);
 					},
-					onError: (error) => {
+					onError: (raw) => {
 						if (!mine()) return;
 						clearSeedTimer();
+						const error = grace.decide(raw);
 						/* A surface the reader must act on ends the loop: retrying a
 						 * 401 or a revoked tunnel in a tight cycle is how a phone
 						 * burns a battery to annoy a gateway. */
@@ -1315,6 +1343,7 @@ export const ConnectionProvider = ({
 							 *  round 2, D12 rider). The refusal surface below the row carried the
 							 *  cause; the health was simply never told. */
 							terminal = true;
+							terminalError = error;
 							if (backoff !== undefined) clearTimeout(backoff);
 							backoff = undefined;
 							cancelHeld();
@@ -1420,7 +1449,25 @@ export const ConnectionProvider = ({
 				/* The wake rule (`shouldWakeStream`): silent ≥ 20 s, or waiting out a
 				 * backoff, reopens NOW rather than when the backoff timer says. */
 				wake: (now = Date.now()) => {
-					if (stopped || terminal || !admission.isCurrent()) return false;
+					if (stopped || !admission.isCurrent()) return false;
+					if (terminal) {
+						/* One fresh attempt per foreground for a loop a GATEWAY refusal
+						 * ended: the computer's answer changes without the phone changing,
+						 * and before this the loop stayed dead until a tap (08:57 → 09:23 in
+						 * the field report). A 401 or a sign-in refusal stays stopped. The
+						 * refusal stays on screen until a frame proves the route is back. */
+						if (!rearmableOnWake(terminalError)) return false;
+						rearmedFrom = terminalError;
+						terminal = false;
+						terminalError = null;
+						if (backoff !== undefined) clearTimeout(backoff);
+						backoff = undefined;
+						_attempt = 0;
+						runSeq += 1;
+						streamRef.current?.stop();
+						run();
+						return true;
+					}
 					// Join a recent seed request rather than duplicate it on foreground.
 					if (
 						awaitingSeed &&

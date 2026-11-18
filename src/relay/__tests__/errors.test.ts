@@ -17,7 +17,7 @@
 import { describe, expect, it } from "vitest";
 
 import { fixtureText, loadFixture } from "../../testing/fixtures";
-
+import { wafRetryAfterMs } from "../errors";
 import {
 	GATEWAY_REASONS,
 	isRelayMissing,
@@ -662,5 +662,70 @@ describe("core C1 reasons and kinds land on their own surfaces (M1)", () => {
 			gateway503({ detail: "d", reason: "a_future_reason", kind: "wait_x" })
 				.surface,
 		).toBe("retry");
+	});
+});
+
+/**
+ * Radient's edge WAF 429, in both shapes a phone meets on 2026-11-17: the body
+ * from before radient-infra #138 (no header, the wait only in a sentence) and
+ * the one from #138 (a `Retry-After` header plus top-level `code` and
+ * `details.retry_after_seconds`). The 60 s `details` value differs from the
+ * sentence's 300 on purpose, so a test can tell which field was read.
+ */
+describe("the edge WAF's 429, old and new body", () => {
+	const OLD_WAF = JSON.stringify({
+		error: {
+			type: "rate_limit_error",
+			code: "rate_limited",
+			message: "Too many requests from this address; retry in 300 seconds.",
+		},
+	});
+	const NEW_WAF = JSON.stringify({
+		...JSON.parse(OLD_WAF),
+		code: "rate_limited",
+		details: { retry_after_seconds: 60 },
+	});
+
+	it("reads the old body's sentence when no header came", () => {
+		const error = relayErrorFromResponse(facts(429, {}, OLD_WAF));
+		expect(error.kind).toBe("rate-limited");
+		expect(error.retryAfterMs).toBe(300_000);
+	});
+
+	it("reads the new shape's header", () => {
+		const error = relayErrorFromResponse(
+			facts(429, { "Retry-After": "60" }, NEW_WAF),
+		);
+		expect(error.kind).toBe("rate-limited");
+		expect(error.retryAfterMs).toBe(60_000);
+		expect(error.code).toBe("rate_limited");
+	});
+
+	it("prefers the new body's structured field over its sentence without a header", () => {
+		expect(relayErrorFromResponse(facts(429, {}, NEW_WAF)).retryAfterMs).toBe(
+			60_000,
+		);
+	});
+
+	it("lets the header win over any body", () => {
+		expect(
+			relayErrorFromResponse(facts(429, { "Retry-After": "7" }, OLD_WAF))
+				.retryAfterMs,
+		).toBe(7_000);
+	});
+
+	it("ignores a body hint outside (0, 1 h], and any non-429", () => {
+		expect(
+			wafRetryAfterMs({ details: { retry_after_seconds: 1e9 } }),
+		).toBeUndefined();
+		expect(
+			wafRetryAfterMs({ details: { retry_after_seconds: 0 } }),
+		).toBeUndefined();
+		expect(
+			wafRetryAfterMs({ details: { retry_after_seconds: "60" } }),
+		).toBeUndefined();
+		expect(relayErrorFromResponse(facts(503, {}, OLD_WAF)).retryAfterMs).toBe(
+			undefined,
+		);
 	});
 });

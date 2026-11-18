@@ -195,6 +195,12 @@ export const GATEWAY_REASONS = [
 	"tunnel_disabled",
 	"billing_inactive",
 	"billing_lapsed",
+	/* local-operator PR #4168: Radient answered the computer's authorization check
+	 * with 429/408 (on 2026-11-17, its edge WAF's per-IP limit). The computer keeps
+	 * serving on its last good check for up to 10 minutes and sends this only
+	 * past that, with `Retry-After` = its next check. Before it, the same 429
+	 * arrived as `authorization_refused` and stopped every stream for good. */
+	"authorization_unavailable",
 ] as const;
 
 export type GatewayReason = (typeof GATEWAY_REASONS)[number];
@@ -246,6 +252,15 @@ const REASON_POLICY: Record<
 	 *  "Radient isn't responding", `refusal.ts`) — never "computer offline". No
 	 *  Retry-After: the gateway sends none for it, and no number was measured. */
 	server_unavailable: { surface: "retry", retry: "after-backoff" },
+	/* A wait, never a remedy: the computer names when it asks Radient again in
+	 *  `Retry-After`, which wins; 10 s is `control_plane_unreachable`'s floor for
+	 *  a gateway that sends none. The conversation reconnects through it silently
+	 *  (`isSilentGatewayWait`). */
+	authorization_unavailable: {
+		surface: "retry",
+		retry: "after-backoff",
+		retryAfterMs: 10_000,
+	},
 	/* The four inactive-tunnel causes are fixed OUTSIDE this phone (a top-up, a
 	 *  console toggle, the desktop's set-up), so they are the `console` surface
 	 *  and this layer never retries them; the copy names the one fix and offers
@@ -730,7 +745,12 @@ export function relayErrorFromResponse(
 	);
 	const reasonRaw =
 		typeof objectBody?.reason === "string" ? objectBody.reason : undefined;
-	const retryAfterMs = parseRetryAfter(facts.header("retry-after"));
+	/* The header first (the HTTP contract); for a 429 with none, the edge WAF's
+	 * own body (`wafRetryAfterMs`), which was its only statement of the wait
+	 * before radient-infra #138 and stays the fallback for a stripped header. */
+	const retryAfterMs =
+		parseRetryAfter(facts.header("retry-after")) ??
+		(status === 429 ? wafRetryAfterMs(objectBody) : undefined);
 
 	const common: RelayErrorInit = {
 		status,
@@ -911,6 +931,48 @@ export function relayErrorFromResponse(
 				common,
 			);
 	}
+}
+
+/** The longest wait a WAF body may ask for and still be believed (1 h). Its
+ *  honest values are 300 s and 60 s; anything past this is garbled or hostile,
+ *  and the caller's own backoff applies instead (local-operator's
+ *  `MAX_RETRY_AFTER_S`, the same bound on the computer's side). */
+const MAX_WAF_RETRY_AFTER_MS = 3_600_000;
+const WAF_RETRY_IN = /retry in (\d{1,5}) seconds?/i;
+
+/**
+ * The wait Radient's edge WAF states in a 429 BODY, in ms, or `undefined`.
+ *
+ * Two shapes are live (2026-11-17), and a phone meets both while caches and
+ * deploys roll:
+ * - before radient-infra #138: `{"error": {"type": "rate_limit_error", "code":
+ *   "rate_limited", "message": "... retry in 300 seconds."}}` with NO
+ *   `Retry-After` header (the WAF could not set one), so the sentence was the
+ *   only place the wait appeared;
+ * - from #138 (live 16:24Z): a `Retry-After` header, the same nested `error`,
+ *   plus top-level `"code": "rate_limited"` and
+ *   `"details": {"retry_after_seconds": 300}` (60 for the tunnel-session rule).
+ *
+ * The structured `details` field wins over the sentence. Only a number leaves
+ * this function, and only one inside `(0, 1 h]`.
+ */
+export function wafRetryAfterMs(
+	body: Record<string, unknown> | undefined,
+): number | undefined {
+	if (body === undefined) return undefined;
+	let seconds: number | undefined;
+	const details = asObject(body.details);
+	const hinted = details?.retry_after_seconds;
+	if (typeof hinted === "number" && Number.isFinite(hinted)) seconds = hinted;
+	else {
+		const message = asObject(body.error)?.message;
+		const found =
+			typeof message === "string" ? WAF_RETRY_IN.exec(message) : null;
+		if (found) seconds = Number(found[1]);
+	}
+	if (seconds === undefined) return undefined;
+	const ms = seconds * 1000;
+	return ms > 0 && ms <= MAX_WAF_RETRY_AFTER_MS ? ms : undefined;
 }
 
 /** `Retry-After` may be delta-seconds or an HTTP date; both are legal and the

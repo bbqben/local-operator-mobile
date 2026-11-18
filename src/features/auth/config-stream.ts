@@ -29,8 +29,15 @@
  * and the drop is never silent.
  */
 
+import { reconnectDelay } from "@/features/session/connection-view";
 import { shouldWakeStream } from "@/features/session/resume-plan";
-import { isRelayMissing, type RelayEndpoints, type RelayStream } from "@/relay";
+import {
+	isRelayMissing,
+	type RelayEndpoints,
+	type RelayError,
+	type RelayStream,
+} from "@/relay";
+import { createRefusalGrace, rearmableOnWake } from "@/relay/refusal-grace";
 import type { ConfigStoreApi } from "@/state/config-store";
 
 /** How long the stream waits before reopening after a transport failure — the
@@ -67,6 +74,15 @@ export function startConfigStream(
 	 * silence — not an error — is what a return has to read. */
 	let seenAt: number | null = null;
 	let terminal = false;
+	/* The error that made the stream terminal: a wake may re-arm a gateway
+	 * refusal (the computer's answer can change by itself), never a 404 or a
+	 * 401 (`rearmableOnWake`). */
+	let terminalError: RelayError | null = null;
+	/* A refusal on a route that was serving moments ago is retried, not obeyed,
+	 * for two minutes (`refusal-grace.ts`, field report 2026-11-17). */
+	const grace = createRefusalGrace();
+	/* Consecutive failed reopens, for the shared backoff curve. */
+	let attempts = 0;
 	/* Tags each `run()`'s stream so one a wake retired cannot schedule a
 	 * restart (or flip `terminal`) from a late callback. */
 	let runSeq = 0;
@@ -102,17 +118,22 @@ export function startConfigStream(
 				/* An OPEN is what proves the route served: `supported` answers
 				 * "does this relay speak the config stream", and a `404` can never
 				 * open. Frames then carry the value. */
-				if (status.state === "open" || status.state === "rotating")
+				if (status.state === "open" || status.state === "rotating") {
 					seenAt = Date.now();
+					grace.healthy(seenAt);
+					attempts = 0;
+				}
 				if (status.state === "open") store.getState().markSupported();
 			},
-			onError: (error) => {
+			onError: (raw) => {
 				if (stopped || seq !== runSeq) return;
-				if (isRelayMissing(error)) {
+				if (isRelayMissing(raw)) {
 					terminal = true;
+					terminalError = null;
 					store.getState().markAbsent();
 					return;
 				}
+				const error = grace.decide(raw);
 				if (
 					error.surface &&
 					error.surface !== "none" &&
@@ -120,12 +141,22 @@ export function startConfigStream(
 					error.surface !== "computer-offline"
 				) {
 					terminal = true;
+					terminalError = error;
 					return;
 				}
+				/* The flat restart for a blip, the shared curve (and any Retry-After)
+				 * for a run of failures: a refused route reopened every 2 s would add
+				 * 60 requests a refusal-minute to a network a rate limit is already
+				 * throttling. */
+				const delay =
+					attempts === 0 && error.retryAfterMs === undefined
+						? restartMs
+						: Math.max(restartMs, reconnectDelay(attempts, error.retryAfterMs));
+				attempts += 1;
 				timer = setTimeout(() => {
 					timer = undefined;
 					run();
-				}, restartMs);
+				}, delay);
 			},
 		});
 		/* START IT: `SseConnection` is inert until `start()` — the constructor
@@ -141,7 +172,21 @@ export function startConfigStream(
 
 	return {
 		wake: (now = Date.now()) => {
-			if (stopped || terminal) return false;
+			if (stopped) return false;
+			if (terminal) {
+				/* One fresh attempt per foreground for a stream a gateway refusal
+				 * stopped: if the computer still refuses, it stops again on the same
+				 * error; if it recovered, the stream is back without a tap. */
+				if (!rearmableOnWake(terminalError)) return false;
+				terminal = false;
+				terminalError = null;
+				attempts = 0;
+				runSeq += 1;
+				stream?.stop();
+				resync = true;
+				run();
+				return true;
+			}
 			if (
 				!shouldWakeStream({
 					silentMs: seenAt === null ? null : now - seenAt,

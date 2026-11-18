@@ -2263,7 +2263,24 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
-	src: "93e737b750fa43af7c1d26d987a2e0ccc8382366f9a511e33a05a96a570edf1a",
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #297, 8a4d3048) into PR #301: both comment
+	 * chains retained; only this pin conflicted (no other file is touched by
+	 * both sides). The merged src carries #297's Team Bridge 429 changes and
+	 * #301's tunnel-transient changes, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree (src the only
+	 * differing root); source identity only, NOT rendered U-08 evidence. */
+	src: "d428cbf7b74af931ca3b63ecd52514006fdec626a571477fb2735b8986c9d970",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
