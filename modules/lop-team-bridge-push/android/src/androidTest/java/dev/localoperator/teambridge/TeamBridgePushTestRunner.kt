@@ -382,6 +382,59 @@ class TeamBridgePushTestRunner : Instrumentation() {
     awaitRecords(manager) { rows -> rows.none { it.notification.group == "tb:c1" } }
     BridgePresentationScope.retire(ctx, "synthetic-A")
     awaitRecords(manager) { rows -> rows.map { it.tag } == listOf("session-control") }
+
+    BridgePresentationScope.enable(ctx, "synthetic-B")
+    // Hold the framework read at A + summary while submits/cancels go to the
+    // real manager. This forces both orders without racing system_server.
+    fun exerciseStaleSnapshot(thread: String, postFirst: Boolean) {
+      val group = "tb:$thread"
+      val a = "$thread-a"
+      val b = "$thread-b"
+      fun submit(tag: String, snapshot: List<StatusBarNotification>? = null) {
+        val child = AndroidNotification.Builder.recoverBuilder(ctx, expoBuilt()).setGroup(group).build()
+        synchronized(BridgePresentationScope) {
+          BridgeNotificationGroups.post(ctx, tag, BridgeNotificationGroups.CHILD_ID, child, snapshot)
+        }
+      }
+      submit(a)
+      val stale = awaitRecords(manager) { rows ->
+        rows.any { it.tag == a } && rows.any { it.tag == group && BridgeNotificationGroups.isSummary(it) }
+      }
+      if (postFirst) submit(b, stale)
+      fun dismiss(tag: String, snapshot: List<StatusBarNotification>) {
+        synchronized(BridgePresentationScope) {
+          manager.cancel(tag, BridgeNotificationGroups.CHILD_ID)
+          BridgeNotificationGroups.prune(ctx, setOf(tag to BridgeNotificationGroups.CHILD_ID), snapshot)
+        }
+      }
+      dismiss(a, stale)
+      if (!postFirst) {
+        // Positive control: the orphan really is removed, but the next post
+        // still gets the pre-cancel read, not that newer framework result.
+        awaitRecords(manager) { rows -> rows.none { it.notification.group == group } }
+        submit(b, stale)
+        synchronized(BridgePresentationScope) {
+          BridgeNotificationGroups.prune(ctx, setOf(a to BridgeNotificationGroups.CHILD_ID), stale)
+        }
+      }
+      // A later, ungrouped post is a queue witness: do not accept a brief B +
+      // summary snapshot before an erroneous earlier cancel has run. Use a
+      // separate tag so it cannot recreate the session alert under test.
+      val witness = "$thread-witness"
+      manager.notify(witness, 0, expoBuilt())
+      val after = awaitRecords(manager) { rows -> rows.any { it.tag == witness } }
+      check(after.none { it.tag == a } && after.any { it.tag == b } &&
+        after.any { it.tag == group && BridgeNotificationGroups.isSummary(it) }) {
+        "$thread did not retain the new child and summary: ${after.map { it.tag }}"
+      }
+      manager.cancel(witness, 0)
+      check(after.any { it.tag == "session-control" }) { "pruning Bridge touched a session alert" }
+      dismiss(b, after)
+      check(awaitRecords(manager) { rows -> rows.none { it.notification.group == group } }
+        .any { it.tag == "session-control" }) { "orphan cleanup touched a session alert" }
+    }
+    exerciseStaleSnapshot("post-before-prune", postFirst = true)
+    exerciseStaleSnapshot("prune-before-post", postFirst = false)
   }
 
   // ---- ADR 0010 S5: the push-avatar photo, against a loopback stub hub ----
