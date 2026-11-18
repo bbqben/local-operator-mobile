@@ -2331,7 +2331,13 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * fixes): both comment chains and both sides' source kept. --print over
 	 * the staged merge moves only src; app unchanged. Source admission only,
 	 * NOT renewed rendered U-08 evidence. */
-	src: "bc0051cfe32622d971e9d0c8af56422bc017b8257d19c46783af3a93f597c7f3",
+	/* fix(session): a prose turn keeps its handover messages outside the turn bar
+	 * (`turn-condensing.ts` only). The U-08 scene's measured geometry is not
+	 * edited; the one source module that decides which rows a condensed turn
+	 * hides changed. Re-derived with --print over the staged rebased tree
+	 * (run twice, stable); source identity only, NOT rendered, native or device
+	 * evidence. */
+	src: "65b4e424a30e36192d958d1fb1ffb46bec11616f7ce9495060c33354d6bf6eb4",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
