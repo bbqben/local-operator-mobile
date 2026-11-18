@@ -1,6 +1,7 @@
 package dev.localoperator.teambridge
 
 import android.content.Context
+import android.content.Intent
 import expo.modules.notifications.service.NotificationsService
 import expo.modules.notifications.service.interfaces.HandlingDelegate
 import expo.modules.notifications.service.interfaces.PresentationDelegate
@@ -18,6 +19,17 @@ import expo.modules.notifications.service.interfaces.PresentationDelegate
  * both on the release merged manifest.
  */
 class LoNotificationsService : NotificationsService() {
+  override fun handleIntent(context: Context, intent: Intent) {
+    if (intent.action == BridgeNotificationGroups.CHILD_REMOVED) {
+      val tag = intent.data?.lastPathSegment ?: return
+      synchronized(BridgePresentationScope) {
+        BridgeNotificationGroups.prune(context, setOf(tag to BridgeNotificationGroups.CHILD_ID))
+      }
+      return
+    }
+    super.handleIntent(context, intent)
+  }
+
   override fun getPresentationDelegate(context: Context): PresentationDelegate = LoPresentationDelegate(context)
 
   override fun getHandlingDelegate(context: Context): HandlingDelegate = LoHandlingDelegate(context)

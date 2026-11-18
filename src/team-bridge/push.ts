@@ -45,10 +45,7 @@ import {
 	notificationsSupported,
 } from "@/notifications/native";
 import { notePushToken } from "@/notifications/push-token-changes";
-import {
-	ensureAndroidTeamBridgePresentation,
-	removeTeamBridgeConversationShortcuts,
-} from "@/team-bridge/android-presentation";
+import { ensureAndroidTeamBridgePresentation } from "@/team-bridge/android-presentation";
 import { type HubClient, isHubError } from "@/team-bridge/client";
 import {
 	type TeamBridgePush,
@@ -323,10 +320,6 @@ export async function unregisterTeamBridgeDevice(
 	hub: HubClient,
 ): Promise<void> {
 	if (!notificationsSupported()) return;
-	/* Sign-out and the switch turning off: the Android conversation shortcuts
-	 * carry conversation names and faces, which are account data. First, and
-	 * local, so a hub that cannot be reached never leaves them behind. */
-	await removeTeamBridgeConversationShortcuts();
 	try {
 		const install = await ensureInstallRecord();
 		const generation = await nextBridgePushGeneration();

@@ -18,6 +18,7 @@
  * change reaches the system settings list.
  */
 
+import { requireOptionalNativeModule } from "expo";
 import { Platform } from "react-native";
 import { RADIENT_API_BASE } from "@/connection/discovery";
 import { t } from "@/i18n";
@@ -31,16 +32,16 @@ export const TEAM_BRIDGE_CHANNEL_ID = "team-bridge";
 interface NativeTeamBridgePush {
 	setPresentationStrings(selfName: string, hiddenPreview: string): void;
 	setHubOrigin(origin: string): void;
-	removeConversationShortcuts(): Promise<void>;
+	setPresentationAccount(accountId: string): void;
+	retirePresentationAccount(accountId: string | null): void;
 }
 
 /** The module, or `null` on iOS, web and any binary built without it. A
  *  missing module is a build fact (old dev client, FOSS flavour), never an
  *  error the reader can act on. */
-async function nativeModule(): Promise<NativeTeamBridgePush | null> {
+function nativeModule(): NativeTeamBridgePush | null {
 	if (Platform.OS !== "android") return null;
 	try {
-		const { requireOptionalNativeModule } = await import("expo");
 		return requireOptionalNativeModule<NativeTeamBridgePush>(
 			"LopTeamBridgePush",
 		);
@@ -104,7 +105,7 @@ export async function ensureAndroidTeamBridgePresentation(): Promise<void> {
 			/* Delivery falls back to the default channel; nothing the reader can act on. */
 		}
 	}
-	const native = await nativeModule();
+	const native = nativeModule();
 	if (native === null) return;
 	try {
 		const strings = presentationStrings();
@@ -119,18 +120,20 @@ export async function ensureAndroidTeamBridgePresentation(): Promise<void> {
 	}
 }
 
-/**
- * Remove the long-lived conversation shortcuts the native delegate published.
- * They hold conversation names and sender faces, which are account data (ADR
- * 0010 §6, §9 "Shortcut and donation leakage"), so sign-out and the Team Bridge
- * switch turning off must take them away. Best effort; never throws.
- */
-export async function removeTeamBridgeConversationShortcuts(): Promise<void> {
-	const native = await nativeModule();
-	if (native === null) return;
+/** Running synchronously keeps the JS registration lease and native admission
+ * in step: neither a pending PUT nor a lost network can delay local retirement. */
+export function enableAndroidBridgePresentation(accountId: string): void {
 	try {
-		await native.removeConversationShortcuts();
+		nativeModule()?.setPresentationAccount(accountId);
 	} catch {
-		/* A launcher that refuses leaves shortcuts the OS ages out itself. */
+		/* Older binaries have no persisted presentation lease. */
+	}
+}
+
+export function retireAndroidBridgePresentation(accountId: string | null): void {
+	try {
+		nativeModule()?.retirePresentationAccount(accountId);
+	} catch {
+		/* Older binaries have no persisted presentation lease. */
 	}
 }

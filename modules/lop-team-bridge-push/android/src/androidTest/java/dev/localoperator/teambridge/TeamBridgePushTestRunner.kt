@@ -8,6 +8,8 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
+import android.service.notification.StatusBarNotification
 import com.google.firebase.messaging.RemoteMessage
 import expo.modules.notifications.notifications.model.Notification
 import expo.modules.notifications.notifications.model.NotificationContent
@@ -17,6 +19,10 @@ import expo.modules.notifications.notifications.model.triggers.FirebaseNotificat
 import expo.modules.notifications.service.NotificationsService
 import expo.modules.notifications.service.delegates.ExpoPresentationDelegate
 import org.json.JSONObject
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.FutureTask
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 import android.app.Notification as AndroidNotification
 
@@ -34,11 +40,8 @@ import android.app.Notification as AndroidNotification
  * that the Expo extension points this module overrides still exist (an Expo
  * bump that renames them fails here, not on phones — ADR 0010 §9).
  *
- * WHAT IT DOES NOT PROVE: the conversation shortcut is published (this library
- * test APK has no launcher activity, so ShortcutManager refuses; the case
- * asserts the decorator then sets NO shortcut id, the safe half), a real FCM
- * delivery, or the shade's rendering. Those are the app-APK emulator and device
- * rows of ADR 0010 §7.
+ * WHAT IT DOES NOT PROVE: app-APK behavior, real FCM delivery, or shade rendering.
+ * Launch activity and NotificationManager records here belong to the test APK.
  */
 class TeamBridgePushTestRunner : Instrumentation() {
   override fun onCreate(arguments: Bundle?) { super.onCreate(arguments); start() }
@@ -58,6 +61,8 @@ class TeamBridgePushTestRunner : Instrumentation() {
       "photoTargetRules" to ::photoTargetRules,
       "photoFetchStub" to ::photoFetchStub,
       "photoDecoratorFallback" to ::photoDecoratorFallback,
+      "retiredPresentation" to ::retiredPresentation,
+      "conversationSummary" to ::conversationSummary,
     )
     var passed = 0
     for ((i, case) in cases.withIndex()) {
@@ -201,10 +206,10 @@ class TeamBridgePushTestRunner : Instrumentation() {
       check(dm.extras.getCharSequence(AndroidNotification.EXTRA_CONVERSATION_TITLE) == null)
     }
     if (sdk >= 30) {
-      // This test APK cannot publish shortcuts (no launcher activity), so the
-      // decorator must NOT name one: a notification naming a missing shortcut
-      // is demoted by the OS. The app-APK lane proves the published half.
+      // This is a launcher-capable test package. On 30–32 the old exclusion
+      // returns true without publishing; a mere return-value check misses it.
       val published = (ctx.getSystemService(android.content.pm.ShortcutManager::class.java)?.dynamicShortcuts ?: emptyList()).any { it.id == "tb:c1" }
+      check(published) { "launcher-capable fixture failed to publish on API $sdk" }
       check(published == (out.shortcutId == "tb:c1")) { "shortcut id ${out.shortcutId} vs published $published" }
       check(published == (out.locusId?.id == "tb:c1")) { "locus ${out.locusId}" }
     }
@@ -264,12 +269,16 @@ class TeamBridgePushTestRunner : Instrumentation() {
 
   private fun foregroundRewrap() {
     val n = bridgeNotification()
-    val out = ForegroundBridge.rewrap(n)
+    val out = ForegroundBridge.rewrap(n, "synthetic-lease")
     val content = out.notificationRequest.content
     check(content is NotificationContent) { "still remote: the handler would drop it" }
     check(content.title == "Ben Carter" && content.text == "Lunch?" && content.subText == "#design")
     check(BridgePushPayload.parse(content.body)?.conversationId == "c1")
+    check(content.body?.optString(BridgePresentationScope.LOCAL_LEASE) == "synthetic-lease")
     check(out.notificationRequest.identifier == "tb:c1:m1")
+    val admitted = ForegroundBridge.rewrap(n, "synthetic-lease")
+    check(admitted.notificationRequest.content.body?.optString(BridgePresentationScope.LOCAL_LEASE) == "synthetic-lease")
+    check(n.notificationRequest.content.body?.has(BridgePresentationScope.LOCAL_LEASE) == false)
     check(out.notificationRequest.trigger === n.notificationRequest.trigger) { "trigger must stay (tap dataString)" }
     // A session push is left alone: its JS rule is "not shown in the foreground".
     val session = remote(mapOf("title" to "Done", "body" to """{"type":"session_complete"}"""))
@@ -289,6 +298,90 @@ class TeamBridgePushTestRunner : Instrumentation() {
     check(handle.invoke(service, ctx) is LoHandlingDelegate) { "handling override not reached" }
     // The suspend override's JVM shape: (Notification, NotificationBehaviorRecord, Continuation).
     check(ExpoPresentationDelegate::class.java.declaredMethods.any { it.name == "createNotification" && it.parameterTypes.size == 3 }) { "Expo renamed createNotification" }
+  }
+
+  private fun withBridgeChannel(block: (NotificationManager) -> Unit) {
+    val manager = requireNotNull(ctx.getSystemService(NotificationManager::class.java))
+    manager.createNotificationChannel(NotificationChannel("team-bridge", "Bridge test", NotificationManager.IMPORTANCE_HIGH))
+    try { block(manager) } finally {
+      BridgePresentationScope.retire(ctx, null)
+      manager.cancel("session-control", 0)
+      manager.deleteNotificationChannel("team-bridge")
+    }
+  }
+
+  private fun retiredPresentation() = withBridgeChannel { manager ->
+    BridgePresentationScope.enable(ctx, "synthetic-A")
+    val lease = checkNotNull(BridgePresentationScope.current(ctx))
+    val photo = """{"kind":"person","initials":"BC","tone":1,"photo":{"url":"https://unused.example","nonce":"$nonce"}}"""
+    val notification = bridgeNotification(body(photo))
+    val push = checkNotNull(BridgePushPayload.parse(notification.notificationRequest.content.body))
+    val fetching = CountDownLatch(1)
+    val resume = CountDownLatch(1)
+    val delegate = LoPresentationDelegate(ctx) {
+      fetching.countDown()
+      check(resume.await(5, TimeUnit.SECONDS))
+      null
+    }
+    val run = FutureTask { runBlocking { delegate.publishBridge(notification, null, push, lease) } }
+    Thread(run).start()
+    try {
+      check(fetching.await(5, TimeUnit.SECONDS)) { "never reached photo fetch" }
+      BridgePresentationScope.retire(ctx, "synthetic-A")
+      check(BridgePresentationScope.current(ctx) == null) { "disabled push still admitted" }
+      // New account may publish, but must not inherit the in-flight push.
+      BridgePresentationScope.enable(ctx, "synthetic-B")
+      check(BridgePresentationScope.current(ctx) != lease)
+    } finally { resume.countDown() }
+    run.get(5, TimeUnit.SECONDS)
+    check(manager.activeNotifications.none { it.notification.group == "tb:c1" }) { "retired work posted" }
+    if (Build.VERSION.SDK_INT >= 30) {
+      val shortcuts = requireNotNull(ctx.getSystemService(android.content.pm.ShortcutManager::class.java))
+      check(shortcuts.dynamicShortcuts.none { it.id == "tb:c1" }) { "retired work published a shortcut" }
+    }
+  }
+
+  private fun awaitRecords(manager: NotificationManager, predicate: (List<StatusBarNotification>) -> Boolean): List<StatusBarNotification> {
+    // notify/cancel enqueue work in system_server. Wait for the record, not an
+    // assumed round trip duration between the framework call and the snapshot.
+    val end = SystemClock.elapsedRealtime() + 5_000
+    do {
+      val records = manager.activeNotifications.toList()
+      if (predicate(records)) return records
+      SystemClock.sleep(20)
+    } while (SystemClock.elapsedRealtime() < end)
+    error("notification records did not converge: ${manager.activeNotifications.map { it.tag }}")
+  }
+
+  private fun conversationSummary() = withBridgeChannel { manager ->
+    val delegate = LoPresentationDelegate(ctx)
+    BridgePresentationScope.enable(ctx, "synthetic-A")
+    val lease = checkNotNull(BridgePresentationScope.current(ctx))
+    // Use the real delegate builder, notification records and Expo dismissal.
+    fun post(thread: String, tag: String) {
+      val original = bridgeNotification(body().put("conversation_id", thread))
+      val request = original.notificationRequest
+      val notification = Notification(NotificationRequest(tag, request.content, request.trigger), original.originDate)
+      val push = checkNotNull(BridgePushPayload.parse(request.content.body))
+      runBlocking { delegate.publishBridge(notification, null, push, lease) }
+    }
+    manager.notify("session-control", 0, expoBuilt())
+    post("c1", "test-child-1")
+    post("c1", "test-child-2")
+    post("c2", "test-child-3")
+    val records = awaitRecords(manager) { it.size == 6 }
+    val summaries = records.filter(BridgeNotificationGroups::isSummary)
+    check(summaries.map { it.notification.group }.toSet() == setOf("tb:c1", "tb:c2"))
+    check(summaries.all { it.notification.groupAlertBehavior == AndroidNotification.GROUP_ALERT_CHILDREN })
+    check(summaries.all { it.notification.extras.getCharSequence(AndroidNotification.EXTRA_TEXT) == null && it.notification.contentIntent == null })
+    check(records.count { it.notification.group == "tb:c1" && !BridgeNotificationGroups.isSummary(it) } == 2)
+    check(records.count { it.notification.group == "tb:c2" && !BridgeNotificationGroups.isSummary(it) } == 1)
+    delegate.dismissNotifications(listOf("test-child-1"))
+    check(awaitRecords(manager) { rows -> rows.none { it.tag == "test-child-1" } }.any { it.tag == "tb:c1" }) { "summary removed with children still present" }
+    delegate.dismissNotifications(listOf("test-child-2"))
+    awaitRecords(manager) { rows -> rows.none { it.notification.group == "tb:c1" } }
+    BridgePresentationScope.retire(ctx, "synthetic-A")
+    awaitRecords(manager) { rows -> rows.map { it.tag } == listOf("session-control") }
   }
 
   // ---- ADR 0010 S5: the push-avatar photo, against a loopback stub hub ----
@@ -317,7 +410,11 @@ class TeamBridgePushTestRunner : Instrumentation() {
 
   /** A one-response-per-connection HTTP stub on 127.0.0.1. `respond` gets the
    *  request head and writes the full response. */
-  private fun <T> stub(respond: (String, java.io.OutputStream) -> Unit, block: (String) -> T): T {
+  private fun <T> stub(
+    respond: (String, java.io.OutputStream) -> Unit,
+    clientClosed: CountDownLatch? = null,
+    block: (String) -> T,
+  ): T {
     val server = java.net.ServerSocket(0, 8, java.net.InetAddress.getByName("127.0.0.1"))
     val thread = Thread {
       try {
@@ -329,6 +426,13 @@ class TeamBridgePushTestRunner : Instrumentation() {
             while (true) { val line = reader.readLine() ?: break; if (line.isEmpty()) break; head.append(line).append('\n') }
             respond(head.toString(), socket.getOutputStream())
             socket.getOutputStream().flush()
+            if (clientClosed != null) {
+              socket.soTimeout = 2_000
+              if (socket.getInputStream().read() == -1) clientClosed.countDown()
+            }
+          } catch (_: java.net.SocketException) {
+            // A reset also proves the in-flight socket did not stay open.
+            clientClosed?.countDown()
           } catch (_: Throwable) {
           } finally { socket.close() }
         }
@@ -381,12 +485,19 @@ class TeamBridgePushTestRunner : Instrumentation() {
     stub({ _, out -> respondBytes(out, "200 OK", "not a png".toByteArray()) }) { origin ->
       check(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192) == null)
     }
-    // Slower than the budget: initials, and the wait is bounded.
-    stub({ _, out -> Thread.sleep(1_500); respondBytes(out, "200 OK", red) }) { origin ->
+    // A partial response must not restart the total budget, and the socket
+    // must close even though the server never sends the rest of the image.
+    val clientClosed = CountDownLatch(1)
+    stub({ _, out ->
+      Thread.sleep(350)
+      out.write("HTTP/1.1 200 OK\r\nContent-Length: ${red.size}\r\nConnection: close\r\n\r\n".toByteArray())
+      out.write(red, 0, 1)
+    }, clientClosed) { origin ->
       val started = System.nanoTime()
       check(PushAvatarFetcher.fetch(PushAvatarFetcher.Photo("$origin/v1/push-avatars", nonce), origin, 192, budgetMs = 500) == null)
       val elapsed = (System.nanoTime() - started) / 1_000_000
-      check(elapsed < 1_400) { "budget not enforced: $elapsed ms" }
+      check(elapsed < 750) { "whole-fetch deadline not enforced: $elapsed ms" }
+      check(clientClosed.await(1, TimeUnit.SECONDS)) { "client left slow socket open" }
     }
   }
 
@@ -404,3 +515,6 @@ class TeamBridgePushTestRunner : Instrumentation() {
     check(asked == 1) { "fetched without a photo block" }
   }
 }
+
+/** Launcher component for the isolated test APK, not a shipping entry point. */
+class BridgeTestLauncher : Activity()

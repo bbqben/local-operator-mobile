@@ -36,6 +36,9 @@ internal object TeamBridgeDecorator {
    *  (48dp at xxxhdpi); the OS downsamples for smaller densities. */
   private const val AVATAR_SIDE = 192
 
+  fun fetchPhoto(context: Context, sender: BridgeSender): Bitmap? =
+    PushAvatarFetcher.fetch(sender.photo, HubOrigin.get(context), AVATAR_SIDE)
+
   fun decorate(
     context: Context,
     notification: Notification,
@@ -44,7 +47,7 @@ internal object TeamBridgeDecorator {
     /** The S5 photo, or null for initials. A seam so the instrumentation runner
      *  can drive both paths without a network; production fetches under
      *  `PushAvatarFetcher.BUDGET_MS` against the registered hub origin. */
-    photoFor: (BridgeSender) -> Bitmap? = { s -> PushAvatarFetcher.fetch(s.photo, HubOrigin.get(context), AVATAR_SIDE) },
+    photoFor: (BridgeSender) -> Bitmap? = { s -> fetchPhoto(context, s) },
   ): AndroidNotification {
     val content = notification.notificationRequest.content
     val push = BridgePushPayload.parse(content.body) ?: return built
@@ -53,6 +56,7 @@ internal object TeamBridgeDecorator {
     // Every tier: one group per conversation (iOS `thread-id` parity), so the
     // shade bundles a conversation's messages instead of listing each alone.
     builder.setGroup(push.conversationKey)
+    if (sdk >= 26) builder.setGroupAlertBehavior(AndroidNotification.GROUP_ALERT_CHILDREN)
     // Every tier (ADR 0010 §7 row 14): on a secure lock screen with "hide
     // sensitive content", Android shows this public version — no sender, no
     // face, no preview — the same placeholder iOS shows for hidden previews.
@@ -121,7 +125,7 @@ internal object TeamBridgeDecorator {
       .setIcon(IconCompat.createWithBitmap(avatar))
       .build()
     try {
-      ConversationShortcuts.publish(context, push, label, person, avatar)
+      if (!ConversationShortcuts.publish(context, push, label, person, avatar)) return
     } catch (_: Throwable) {
       // No shortcut (a launcher that refuses, a full quota): the notification
       // still renders as MESSAGING. Naming a shortcut that does not exist would

@@ -29,4 +29,8 @@ dependencies {
   // so Gradle resolves one copy.
   implementation 'com.google.firebase:firebase-messaging:25.0.1'
   implementation 'androidx.core:core:1.17.0'
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+  // Same client as React Native; cancellable calls keep the avatar budget
+  // independent of individual connect/read timeouts.
+  implementation 'com.squareup.okhttp3:okhttp:4.9.2'
 }

@@ -10,8 +10,16 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Shader
 import java.io.ByteArrayOutputStream
-import java.net.HttpURLConnection
 import java.net.URL
+import java.io.IOException
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 
 /**
  * The sender's photo for a Team Bridge notification (ADR 0010 S5, step 2).
@@ -71,43 +79,69 @@ internal object PushAvatarFetcher {
 
   private fun isLoopback(host: String) = host == "127.0.0.1" || host == "localhost" || host == "[::1]"
 
-  /** Fetch and crop, or null. Blocking: called on Expo's IO dispatcher. */
+  private val client by lazy {
+    OkHttpClient.Builder()
+      .followRedirects(false)
+      .followSslRedirects(false)
+      .retryOnConnectionFailure(false)
+      .build()
+  }
+
+  /** Bound the caller as well as the socket. DNS, dispatcher queueing and
+   * bitmap decode can otherwise hold up delivery even with a call timeout. */
   fun fetch(photo: Photo?, registeredOrigin: String?, side: Int, budgetMs: Int = BUDGET_MS): Bitmap? {
     val url = target(photo, registeredOrigin) ?: return null
-    val started = System.nanoTime()
-    var connection: HttpURLConnection? = null
+    val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(budgetMs.toLong())
+    val result = CompletableFuture<Bitmap?>()
+    // Recheck the actual HTTP client's canonical authority before attaching
+    // the capability: java.net.URL and HttpUrl normalize inputs differently.
+    val target = url.toString().toHttpUrlOrNull() ?: return null
+    val origin = registeredOrigin?.toHttpUrlOrNull() ?: return null
+    if (target.scheme != origin.scheme || target.host != origin.host || target.port != origin.port ||
+      target.username.isNotEmpty() || target.password.isNotEmpty() || target.query != null || target.fragment != null) return null
+    val call = client.newCall(Request.Builder().url(target)
+      .header("Authorization", "PushAvatar ${photo!!.nonce}")
+      .header("Accept", "image/png, image/jpeg")
+      .build())
+    call.timeout().deadlineNanoTime(deadline)
     return try {
-      connection = (url.openConnection() as HttpURLConnection).apply {
-        instanceFollowRedirects = false
-        requestMethod = "GET"
-        connectTimeout = budgetMs
-        readTimeout = budgetMs
-        useCaches = false
-        setRequestProperty("Authorization", "PushAvatar ${photo!!.nonce}")
-        setRequestProperty("Accept", "image/png, image/jpeg")
-      }
-      if (connection.responseCode != 200) return null
-      val declared = connection.contentLengthLong
-      if (declared > MAX_BYTES) return null
-      val bytes = ByteArrayOutputStream()
-      val buffer = ByteArray(8 * 1024)
-      connection.inputStream.use { input ->
-        while (true) {
-          // The socket timeouts bound each call; this bounds the total.
-          if ((System.nanoTime() - started) / 1_000_000 > budgetMs) return null
-          val read = input.read(buffer)
-          if (read < 0) break
-          if (bytes.size() + read > MAX_BYTES) return null
-          bytes.write(buffer, 0, read)
+      call.enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) { result.complete(null) }
+
+        override fun onResponse(call: Call, response: Response) {
+          val image = try {
+            response.use { readPhoto(it, side) }
+          } catch (_: Exception) { null }
+          if (!result.complete(image)) image?.recycle()
         }
-      }
-      if ((System.nanoTime() - started) / 1_000_000 > budgetMs) return null
-      decodeCircle(bytes.toByteArray(), side)
-    } catch (_: Throwable) {
+      })
+      result.get(deadline - System.nanoTime(), TimeUnit.NANOSECONDS)
+    } catch (_: InterruptedException) {
+      Thread.currentThread().interrupt()
+      null
+    } catch (_: Exception) {
       null
     } finally {
-      connection?.disconnect()
+      // A passed deadline must also release the socket, not just abandon a wait.
+      if (result.complete(null)) call.cancel()
     }
+  }
+
+  private fun readPhoto(response: Response, side: Int): Bitmap? {
+    if (response.code != 200) return null
+    val body = response.body ?: return null
+    if (body.contentLength() > MAX_BYTES) return null
+    val bytes = ByteArrayOutputStream()
+    val buffer = ByteArray(8 * 1024)
+    body.byteStream().use { input ->
+      while (true) {
+        val read = input.read(buffer)
+        if (read < 0) break
+        if (bytes.size() + read > MAX_BYTES) return null
+        bytes.write(buffer, 0, read)
+      }
+    }
+    return decodeCircle(bytes.toByteArray(), side)
   }
 
   /** Bounds-checked decode, centre-crop to a circle at `side` px (transparent

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import androidx.core.app.Person
 import androidx.core.content.LocusIdCompat
 import androidx.core.content.pm.ShortcutInfoCompat
@@ -32,9 +33,9 @@ internal object ConversationShortcuts {
   fun deepLink(push: BridgePush): Uri =
     Uri.parse("localoperator://team-bridge/${Uri.encode(push.tenantId)}/${Uri.encode(push.conversationId)}")
 
-  fun publish(context: Context, push: BridgePush, label: String, sender: Person, avatar: Bitmap) {
-    val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
-    val intent = (launch ?: Intent()).apply {
+  fun publish(context: Context, push: BridgePush, label: String, sender: Person, avatar: Bitmap): Boolean {
+    val launch = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return false
+    val intent = launch.apply {
       // A shortcut intent must carry an action, and VIEW + data is what the
       // router's deep-link path reads; the launch component keeps it in-app.
       action = Intent.ACTION_VIEW
@@ -47,11 +48,15 @@ internal object ConversationShortcuts {
       .setPerson(sender)
       .setIcon(IconCompat.createWithBitmap(avatar))
       .setIntent(intent)
-      .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
+      // On API 30–32 AndroidX returns true without publishing an excluded shortcut.
+      .apply { if (Build.VERSION.SDK_INT >= 33) setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER) }
       .build()
     // pushDynamicShortcut is not rate-limited (unlike setDynamicShortcuts) and
     // evicts the oldest dynamic shortcut at the launcher's cap.
-    ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
+    if (!ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)) return false
+    return ShortcutManagerCompat.getShortcuts(
+      context, ShortcutManagerCompat.FLAG_MATCH_DYNAMIC or ShortcutManagerCompat.FLAG_MATCH_CACHED,
+    ).any { it.id == shortcut.id && it.isEnabled }
   }
 
   /** Remove every Team Bridge shortcut, dynamic and cached. */

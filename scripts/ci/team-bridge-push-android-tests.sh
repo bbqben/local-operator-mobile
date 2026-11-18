@@ -6,9 +6,9 @@
 set -euo pipefail
 sh scripts/ci/await-emulator-ready.sh
 apk=$(find "$RUNNER_TEMP/team-bridge-apk" -maxdepth 1 -name '*.apk')
-adb install "$apk"
+adb install -g "$apk"
 trap 'adb uninstall dev.localoperator.teambridge.test >/dev/null' EXIT
 timeout 480 adb shell am instrument -w -r dev.localoperator.teambridge.test/dev.localoperator.teambridge.TeamBridgePushTestRunner | tee "$RUNNER_TEMP/team-bridge-push-native.log"
-grep -q '13/13 team bridge push native checks passed' "$RUNNER_TEMP/team-bridge-push-native.log"
+grep -q '15/15 team bridge push native checks passed' "$RUNNER_TEMP/team-bridge-push-native.log"
 grep -Eq '^INSTRUMENTATION_CODE: -1[[:space:]]*$' "$RUNNER_TEMP/team-bridge-push-native.log"
 if grep -Eq 'INSTRUMENTATION_(FAILED|ABORTED)|INSTRUMENTATION_STATUS_CODE: -[12]' "$RUNNER_TEMP/team-bridge-push-native.log"; then exit 1; fi

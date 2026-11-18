@@ -5,14 +5,14 @@ import expo.modules.kotlin.modules.ModuleDefinition
 
 /**
  * The JS surface of the Team Bridge Android presentation
- * (`src/team-bridge/android-presentation.ts`). Three calls:
+ * (`src/team-bridge/android-presentation.ts`).
  *
  * - `setPresentationStrings`: the localised "me" name and lock-screen
  *   placeholder the decorator draws with while no JS runs (`PresentationStrings`).
  * - `setHubOrigin`: the registered hub origin, the only origin a push
  *   avatar photo may be fetched from (`PushAvatarFetcher`, ADR 0010 S5).
- * - `removeConversationShortcuts`: sign-out and switch-off cleanup of the
- *   long-lived shortcuts, which are account data (`ConversationShortcuts`).
+ * - Presentation account admission and retirement mirror accepted registration
+ *   and close local shortcuts/notifications before network cleanup.
  *
  * Android only (`expo-module.config.json`); iOS and web resolve no module and
  * the JS side degrades to a no-op.
@@ -31,8 +31,12 @@ class LopTeamBridgePushModule : Module() {
       HubOrigin.save(context, origin)
     }
 
-    AsyncFunction("removeConversationShortcuts") {
-      ConversationShortcuts.removeAll(context)
+    Function("setPresentationAccount") { accountId: String ->
+      BridgePresentationScope.enable(context, accountId)
+    }
+
+    Function("retirePresentationAccount") { accountId: String? ->
+      BridgePresentationScope.retire(context, accountId)
     }
   }
 }

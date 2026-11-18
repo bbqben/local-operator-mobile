@@ -4,9 +4,11 @@ import android.content.Context
 import expo.modules.notifications.notifications.model.Notification
 import expo.modules.notifications.notifications.model.NotificationContent
 import expo.modules.notifications.notifications.model.NotificationRequest
+import expo.modules.notifications.notifications.model.NotificationResponse
 import expo.modules.notifications.notifications.model.RemoteNotificationContent
 import expo.modules.notifications.service.delegates.ExpoHandlingDelegate
 import expo.modules.notifications.service.interfaces.HandlingDelegate
+import org.json.JSONObject
 
 /**
  * The foreground fix for Team Bridge (ADR 0010 §7 row 2).
@@ -33,29 +35,53 @@ import expo.modules.notifications.service.interfaces.HandlingDelegate
  * registry is static, so a fresh instance per broadcast is what Expo itself does.
  */
 class LoHandlingDelegate(
-  context: Context,
+  private val context: Context,
   private val expo: ExpoHandlingDelegate = ExpoHandlingDelegate(context),
 ) : HandlingDelegate by expo {
   override fun handleNotification(notification: Notification) {
-    val forward = if (expo.isAppInForeground()) ForegroundBridge.rewrap(notification) else notification
-    expo.handleNotification(forward)
+    val content = notification.notificationRequest.content
+    val push = BridgePushPayload.parse(content.body)
+    if (push == null) {
+      expo.handleNotification(notification)
+      return
+    }
+    val lease = BridgePresentationScope.current(context) ?: return
+    if (expo.isAppInForeground()) {
+      expo.handleNotification(ForegroundBridge.rewrap(notification, lease))
+    } else if (!content.title.isNullOrEmpty() || !content.text.isNullOrEmpty()) {
+      // Same visibility rule as Expo's background handling, but keep the
+      // ingress lease across the deferred presentation rather than reacquire it.
+      LoPresentationDelegate(context).enqueueBridge(notification, null, push, lease)
+    }
+  }
+
+  override fun handleNotificationResponse(response: NotificationResponse) {
+    expo.handleNotificationResponse(response)
+    val request = response.notification.notificationRequest
+    if (BridgePushPayload.parse(request.content.body) != null) {
+      val removed = if (request.content.isAutoDismiss && response.actionIdentifier == NotificationResponse.DEFAULT_ACTION_IDENTIFIER)
+        setOf(request.identifier to BridgeNotificationGroups.CHILD_ID) else emptySet()
+      synchronized(BridgePresentationScope) { BridgeNotificationGroups.prune(context, removed) }
+    }
   }
 }
 
 internal object ForegroundBridge {
   /** Pure apart from Expo's model types: the rewrapped notification, or the
    *  same one when the rule does not apply. */
-  fun rewrap(notification: Notification): Notification {
+  fun rewrap(notification: Notification, lease: String? = null): Notification {
     val request = notification.notificationRequest
     val content = request.content as? RemoteNotificationContent ?: return notification
     if (!content.isDataOnly) return notification
     if (content.title.isNullOrEmpty()) return notification
     BridgePushPayload.parse(content.body) ?: return notification
+    val body = content.body ?: return notification
+    val localBody = if (lease == null) body else JSONObject(body.toString()).put(BridgePresentationScope.LOCAL_LEASE, lease)
     val local = NotificationContent.Builder()
       .setTitle(content.title)
       .setText(content.text)
       .setSubtitle(content.subText)
-      .setBody(content.body)
+      .setBody(localBody)
       .setAutoDismiss(content.isAutoDismiss)
       .setSticky(content.isSticky)
       .apply {
