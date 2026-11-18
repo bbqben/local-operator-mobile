@@ -1034,9 +1034,13 @@ export const emptyStateClasses =
  * height, and its centred block spills over its neighbours (#321, iOS). `grow`
  * still fills a taller viewport, but keeps the content's own height as its
  * floor, so a short screen at large text scrolls to the sentence instead.
+ * The vertical pad is `py-4`, not `py-10`, because here it is part of that
+ * floor: at 320 x 568 / 100 % the default pad made the block taller than its
+ * region, so it stopped centring and its action slid under the footer rule
+ * (design review D2). The centring supplies the air the pad used to.
  */
 export const emptyStateScrollingClasses =
-	"grow items-center justify-center gap-3 px-6 py-10";
+	"grow items-center justify-center gap-3 px-6 py-4";
 
 /* -------------------------------------------------------------------------- */
 /* Divider, avatar                                                            */

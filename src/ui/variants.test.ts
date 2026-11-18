@@ -271,11 +271,15 @@ describe("empty state", () => {
 	it("inside a scrolling body, grows without a zero basis (#321)", () => {
 		/* `flex-1` is a ZERO basis: a content-sized parent (a scroll body is one)
 		 *  offers it nothing, and its centred block spills over its neighbours.
-		 *  `grow` keeps the content height as the floor. Same spacing otherwise. */
+		 *  `grow` keeps the content height as the floor. */
 		expect(emptyStateScrollingClasses.split(" ")).toContain("grow");
 		expect(emptyStateScrollingClasses.split(" ")).not.toContain("flex-1");
+		/* A tighter vertical pad than the default: the pad is part of the floor,
+		 *  and at 320 x 568 / 100 % `py-10` made the block 276.6 pt in a 233.1 pt
+		 *  region, so it stopped centring and "Show all" slid 3.5 pt under the
+		 *  footer rule (design review D2). `py-4` makes it 228.6 pt. */
 		expect(emptyStateScrollingClasses).toBe(
-			emptyStateClasses.replace("flex-1", "grow"),
+			emptyStateClasses.replace("flex-1", "grow").replace("py-10", "py-4"),
 		);
 		const component = readFileSync(
 			new URL("./components/empty-state.tsx", import.meta.url),
