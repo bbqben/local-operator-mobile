@@ -743,7 +743,10 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * a render-nothing `SidebarViewHydration` so the sidebar view is read (and
 	 * adopted out of the sealed family) at boot. Re-derived with --print over
 	 * the staged tree; source identity only, NOT new rendered U-08 evidence. */
-	app: "c19fb9354fea145f4b2eabf267136bde44dba2e16d8503096a3a1a95beeac00f",
+	/* PR #303 adds a Team Bridge reply-thread route, not an agent-session route
+	 * used by the U-08 probes. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	app: "34b1f3719abe4cf7c311f7b2c2e20d032b60a89d8fa15d13cd899076239f61b1",
 
 	"design/fonts":
 		"4d6a0f23c57ed6adff8ef353abe22c2208e802b70a961d4c8996aff3bae6b2fb",
@@ -758,8 +761,17 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * of the reader's own transcript turn, solved >= 1.25:1 on canvas), with its
 	 * rule in `palette-rules.mjs` and the regenerated preset. No existing role's
 	 * value moved. Identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main b9cc5ce5 into PR #305: main's #292 (Pele diagrams)
+	 * added a rule to `palette-rules.mjs` but left this pin at its parent's
+	 * digest, so main itself fails the identity check. Re-derived with --print
+	 * over the staged merge tree; #305 does not touch design/tokens. Identity
+	 * only, NOT rendered U-08 evidence. */
+	/* Re-pinned 2026-11-18 with --print from main: PR #292's diagram viewer added
+	 * its rows to `palette-rules.mjs` (`CONTROLS`, components.md § 14) and the
+	 * preset/preview layers regenerate from them. No existing role's value moved.
+	 * Identity only, NOT rendered or native evidence. */
 	"design/tokens":
-		"505afe475a6bd4f05c9673940f123fd273e18c98171f3d676a9fb7e037ba2291",
+		"42025bdc49dcf5c92bd8a8690d509cdfedd8c1b72133532aa247088e8d04bbe0",
 	public: "fffab05c9f1bcb5a820ec6fc62f853d005db87e152bca97fe3e22337aa85851b",
 	/* Re-pinned 2026-10-29 for the i18n policy PR itself: this branch changes only
 	 * `src/i18n/locale.ts` (the SUPPORTED/SHIPPED split), adds `src/i18n/key-shape.ts`
@@ -2317,6 +2329,87 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * directory TTL and the photo budget is metered in requests sent (U5/D4).
 	 * Re-derived with --print over the staged tree; source identity only, NOT
 	 * rendered U-08 evidence. */
+	/* PR #303 adds reply counts, unread state and thread navigation to Team
+	 * Bridge, plus its copy and selectors. U-08's agent transcript and turn-bar
+	 * probes do not target that surface. Re-derived with --print over the staged
+	 * tree; source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main 08b819b5 keeps both comment chains and
+	 * both sides' source. --print over the staged merge gives a new src
+	 * digest; app is unchanged from the PR. Source admission only. */
+	/* PR #303 review round 1 remediation: reply-thread store/screen/chip,
+	 * the Team Bridge title's optional subtitle, and reply_thread copy in all
+	 * eight catalogues. No U-08 scene (agent transcript, turn bar) renders any
+	 * of it; app unchanged. Re-derived with --print over the staged tree;
+	 * source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main f5498d3c (#302 O3-b i18n, #307 fixture
+	 * baselines, #308 CODEOWNERS): both comment chains and both sides' source
+	 * kept. --print over the staged merge moves only src; app unchanged.
+	 * Source admission only, NOT renewed rendered U-08 evidence. */
+	/* PR #303 convergence with main 7a52b1a9 (#306 bridge transient/avatar
+	 * fixes): both comment chains and both sides' source kept. --print over
+	 * the staged merge moves only src; app unchanged. Source admission only,
+	 * NOT renewed rendered U-08 evidence. */
+	/* feat/bridge-mention-suggestions: Team Bridge @-mention suggestion strip
+	 * (thread screen, composer field selection passthrough, Textarea props).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* PR #305 UX round-1 remediation (U1, plus design D2/D3): thread drafts
+	 * persist picked mention spans beside the text, the mention hook restores
+	 * them without reopening the strip, the notice's Dismiss meets TOUCH_FLOOR
+	 * and the bridge-off avatar drops its opacity wrapper. Re-derived with
+	 * --print over the staged tree (src the only differing root); source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main into PR #305 (feat/bridge-mention-suggestions):
+	 * both comment chains retained; only this pin conflicted. The merged src
+	 * carries main's changes and #305's mention changes, so it matches neither
+	 * parent. Re-derived with --print over the staged merge tree; source
+	 * identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main b9cc5ce5 (#303 reply threads, #292 Pele diagrams)
+	 * into PR #305: both comment chains retained; the merged src carries both
+	 * sides' source, so it matches neither parent. Re-derived with --print over
+	 * the staged merge tree; source identity only, NOT rendered U-08 evidence. */
+	/* fix(session): a prose turn keeps its handover messages outside the turn bar
+	 * (`turn-condensing.ts` only). The U-08 scene's measured geometry is not
+	 * edited; the one source module that decides which rows a condensed turn
+	 * hides changed. Re-derived with --print over the staged rebased tree
+	 * (run twice, stable); source identity only, NOT rendered, native or device
+	 * evidence. */
+	/* fix(mic): `src/stt/recorder.ts` passes `playsInSilentMode: true` with
+	 * `allowsRecording: true` (native audio-session argument; no rendered output).
+	 * Re-derived with --print over the staged tree; source admission only, NOT
+	 * rendered, native or device evidence. */
+	/* fix(mic): `src/stt/recorder.ts` hands `AudioRecorder` FLAT native options
+	 * (the shape `createRecordingOptions` builds) rather than a spread preset, so
+	 * iOS receives `outputFormat`/`audioQuality` and writes AAC instead of PCM in
+	 * the `.m4a`. Re-derived with --print over the staged tree; source admission
+	 * only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (fa7dd36e, #303) into fix/mic-diagnosis: main's chain
+	 * kept above; only this pin conflicted, and the merged src carries both sides,
+	 * so it matches neither parent. Re-derived with --print over the staged merge
+	 * tree. Source identity only, NOT rendered U-08 evidence. */
+	/* Merge of origin/main (5aced823, #292 Pele diagrams, #295 prose condensing,
+	 * #274 runtime) into fix/mic-diagnosis: main's chain kept above, our two
+	 * fix(mic) notes re-applied; the merged src carries both sides, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (run
+	 * twice, stable). Source identity only, NOT rendered U-08 evidence. */
+	/* Merge #2 of origin/main 5aced823 (#295 prose-turn condensing, #274
+	 * frame copy) into PR #305: both comment chains retained; the merged src
+	 * carries both sides' source, so it matches neither parent. Re-derived with
+	 * --print over the staged merge tree; source identity only, NOT rendered
+	 * U-08 evidence. */
+	/* Merge #3 of origin/main 5095bf0b (#291 mic fix) into PR #305: both
+	 * comment chains retained; the merged src carries both sides' source, so it
+	 * matches neither parent. Re-derived with --print over the staged merge tree;
+	 * source identity only, NOT rendered U-08 evidence. */
+	/* #294 added one test module under `src/` (attach-sheet hand-off), and the
+	 * `src` root digest covers every tracked file there, test files included, so
+	 * the pin went stale with no shipped change. Re-derived with --print at main
+	 * 8f7989ea after #294; source identity only, NOT rendered, native or device
+	 * evidence. */
+	/* Merge #4 of origin/main f3418c8a (#316, #294, #318 re-pins) into PR
+	 * #305: both comment chains retained; the merged src carries both sides'
+	 * source, so it matches neither parent. Re-derived with --print over the
+	 * staged merge tree; source identity only, NOT rendered U-08 evidence. */
 	/* PR #304 converges with #301: keep both source histories and pin their
 	 * combined src tree. This is source identity only, not rendered evidence. */
 	/* PR #304 converges with main 198ac368 (#306, #310): both histories
@@ -2326,7 +2419,11 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * fetcher's connection reuse (`push-avatar-contract.test.ts`); no render
 	 * input moved. Re-derived with --print; source identity only, NOT
 	 * rendered U-08 evidence. */
-	src: "27dee12bcd32d7e2b34c352c58b6cd7fdf288672ffaf8e88f149e1766ca2f81c",
+	/* PR #304 convergence #2 with main 52ca6f24 (#303, #292, #295, #274,
+	 * #291, #294, #305, #316, #318): both comment chains and both sides' source
+	 * kept; the merged src matches neither parent. Re-derived with --print over
+	 * the staged merge tree. Source identity only, NOT rendered U-08 evidence. */
+	src: "27d1115c3b97f9479c67486ecb89e70ae547442c60c973c1b00ffd940899925e",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2356,16 +2453,23 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// --print re-pin (ADR 0010 S2): registers the Android-only
 	// `with-android-team-bridge-push` config plugin (notification receiver
 	// swap); native build config, not a U-08 web layout input.
+	// Merge of origin/main b9cc5ce5 into PR #305: main's #292 (Pele diagrams)
+	// added one dependency (package.json + pnpm-lock.yaml) without re-pinning
+	// them, so main itself fails this check; re-derived with --print over the
+	// staged merge tree. #305 touches neither file. Not a U-08 web layout input.
 	"app.config.ts":
 		"d4ebf2193a3ee15a84c765485a6be336022d97c82f3074a1b7bb57b5df81f43a",
 	"metro.config.js":
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module
 	// `expo-task-manager` ~57.0.22, which the web bundle never renders.
+	// Re-pinned 2026-11-18 with --print: since the last pin of these two the only
+	// dependency move is PR #292's `pele` in `package.json` and its resolver
+	// entries in the lockfile. Identity only, not a U-08 web layout input.
 	"package.json":
-		"c9011119d489c35125f16e87abbd0db196a3dabbca646dfc5c5d6aa3e47ebb0a",
+		"065ddef424dc993a53265d5374d99be43072ec0bc6b9aee062e6c6ac2b4024ca",
 	"pnpm-lock.yaml":
-		"c9ef7b9d08ab6f4389036570907591411b6104a9bfb2e6ae75bb101399348540",
+		"6d2fd091ae30a21f5c70cc40d212e7f2bd41de9ad9b5b86960fe7e98f21d47f9",
 	"pnpm-workspace.yaml":
 		"1457b9b1a5ad6f9f7adf765d6b3adbaca44c8c938f4e9ccd525579dadae34ba3",
 };

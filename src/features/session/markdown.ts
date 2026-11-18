@@ -29,7 +29,15 @@ export const hasFencedBlock = (text: string): boolean =>
 /* ----------------------------------------------------------------- the parser */
 
 export type Block =
-	| { kind: "code"; language: string; lines: string[] }
+	| {
+			kind: "code";
+			language: string;
+			lines: string[];
+			/** Present only when the stream ended inside this fence. A closed fence
+			 *  carries no key, so a block that is complete reads the same as it
+			 *  always did; a diagram waits for the closing fence before it draws. */
+			unterminated?: true;
+	  }
 	| { kind: "heading"; level: number; text: string }
 	| {
 			kind: "list";
@@ -182,8 +190,13 @@ export const parseMarkdown = (text: string): Block[] => {
 			}
 			// Consume the closing fence when there is one; an unterminated fence is a
 			// stream still arriving, so the body so far is the honest render.
-			if (index < lines.length) index += 1;
-			blocks.push({ kind: "code", language, lines: body });
+			const closed = index < lines.length;
+			if (closed) index += 1;
+			blocks.push(
+				closed
+					? { kind: "code", language, lines: body }
+					: { kind: "code", language, lines: body, unterminated: true },
+			);
 			continue;
 		}
 		const heading = HEADING.exec(line);

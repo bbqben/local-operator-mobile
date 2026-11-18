@@ -1,4 +1,4 @@
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
 	Bell,
 	BellOff,
@@ -43,9 +43,14 @@ import * as model from "@/team-bridge/model";
 import { type ProfileSubject, senderSubject } from "@/team-bridge/profile";
 import { useTeamBridge, useTeamBridgeState } from "@/team-bridge/provider";
 import { setWatchedThread } from "@/team-bridge/push";
+import {
+	replyThreadPath,
+	replyThreadSummary,
+} from "@/team-bridge/reply-threads";
 import { threadKey } from "@/team-bridge/store";
 import {
 	readTeamBridgeDraft,
+	type TeamBridgeDraft,
 	teamBridgeDraftKey,
 	writeTeamBridgeDraft,
 } from "@/team-bridge/thread-drafts";
@@ -93,6 +98,14 @@ import { BridgeComposerDock } from "./composer-dock";
 import { BridgeThreadDrawerButton } from "./drawer-adapter";
 import { BridgeGate } from "./gate";
 import { useRememberedThread } from "./last-target-hooks";
+import { buildMentionCandidates, memberKeys } from "./mentions/candidates";
+import {
+	MentionNotice,
+	MentionStrip,
+	mentionNoticeText,
+} from "./mentions/mention-strip";
+import { serializeMentions } from "./mentions/tokens";
+import { useMentions } from "./mentions/use-mentions";
 import { MessageDelivery } from "./message-delivery";
 import { createMessageSender } from "./message-sender";
 import {
@@ -101,6 +114,7 @@ import {
 	ProfileSheet,
 	UnknownSenderAvatar,
 } from "./profile-card";
+import { ReplyThreadChip } from "./reply-thread-chip";
 import { parseThreadAnchor, type ThreadAnchor } from "./thread-anchor";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
 import { createThreadViewport, type ThreadViewport } from "./thread-viewport";
@@ -185,8 +199,9 @@ function AnchorHighlight({
  *  `people` prop on every memoised row (Bridge thread flicker). */
 const NO_PEOPLE: readonly DirectoryMember[] = [];
 
-const ThreadMessageRow = memo(function ThreadMessageRow({
+export const ThreadMessageRow = memo(function ThreadMessageRow({
 	message,
+	onOpenReplyThread,
 	continuation,
 	people,
 	hub,
@@ -220,8 +235,12 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 	initialViewerIndex?: number;
 	onOpenProfile: (subject: ProfileSubject) => void;
 	onDeliveryHelp: (opener: string) => void;
+	/** Opens this ROOT's reply thread. Absent where a row must not offer it
+	 *  (the reply thread's own rows: threads are one level deep). */
+	onOpenReplyThread?: (rootId: string) => void;
 }) {
 	const sender = model.senderLabel(message.sender, people);
+	const replies = onOpenReplyThread ? replyThreadSummary(message) : null;
 	// A sender the directory no longer knows renders a neutral silhouette + inert name.
 	const subject = senderSubject(message.sender, people);
 	const attachments = messageAttachments(message);
@@ -304,6 +323,15 @@ const ThreadMessageRow = memo(function ThreadMessageRow({
 					initialViewerIndex={initialViewerIndex}
 				/>
 				<MessageDelivery message={message} onHelp={onDeliveryHelp} />
+				{replies && onOpenReplyThread ? (
+					<ReplyThreadChip
+						rootId={message.id}
+						summary={replies}
+						people={people}
+						locale={locale}
+						onOpen={onOpenReplyThread}
+					/>
+				) : null}
 			</View>
 		</View>
 	);
@@ -364,13 +392,14 @@ function ThreadContent({
 			}),
 		[accountId, tenantId, conversationId, routeId, target],
 	);
-	const [draft, setDraftState] = useState(() =>
+	const [composerDraft, setDraftState] = useState(() =>
 		readTeamBridgeDraft(draftStorageKey),
 	);
+	const draft = composerDraft.text;
 	const setDraft = useCallback(
-		(next: string) => {
+		(next: TeamBridgeDraft) => {
 			setDraftState(next);
-			writeTeamBridgeDraft(draftStorageKey, next);
+			writeTeamBridgeDraft(draftStorageKey, next.text, next.tokens);
 		},
 		[draftStorageKey],
 	);
@@ -543,6 +572,36 @@ function ThreadContent({
 	);
 	const people = state.orgs[tenantId]?.people ?? NO_PEOPLE;
 	const directoryState = state.orgs[tenantId]?.peopleState;
+	/*
+	 * @-mention candidates, from what is already held: the cached directory
+	 * (kept through a 429 or any other error, so it is used whenever it is
+	 * non-empty, whatever `peopleState` says) and this conversation's members.
+	 * Opening the strip never fetches (`mentions/candidates.ts`).
+	 *
+	 * NONE IN A DRAFT DM. Before the first send creates it there is no
+	 * membership to resolve a mention against, and an agent member may start
+	 * INVITED (awaiting acceptance), which the hub would refuse for the whole
+	 * message. The recipient of a 1:1 is notified by the message itself, so
+	 * nothing is lost; suggestions appear once the conversation exists.
+	 */
+	const mentionCandidates = useMemo(
+		() =>
+			conversation
+				? buildMentionCandidates({
+						conversation,
+						people,
+						selfAccountId: state.selfAccountId,
+					})
+				: [],
+		[conversation, people, state.selfAccountId],
+	);
+	const directoryMissing = !!conversation && people.length === 0;
+	const mentions = useMentions({
+		value: composerDraft,
+		setValue: setDraft,
+		candidates: mentionCandidates,
+		directoryMissing,
+	});
 	useEffect(() => {
 		// Cold push/deep links bypass the list, so no directory has hydrated yet.
 		// Resolve live names on this path too instead of exposing stale labels or
@@ -593,6 +652,7 @@ function ThreadContent({
 		});
 		return () => subscription.remove();
 	}, []);
+	const suspendMentions = mentions.suspend;
 	useFocusEffect(
 		useCallback(() => {
 			focusNow.current = true;
@@ -600,9 +660,10 @@ function ThreadContent({
 			return () => {
 				focusNow.current = false;
 				setFocused(false);
+				suspendMentions();
 				setWatchedThread(null);
 			};
-		}, []),
+		}, [suspendMentions]),
 	);
 	useEffect(() => {
 		if (!focused || !active || !admitted || !conversationId) return;
@@ -762,9 +823,21 @@ function ThreadContent({
 			images?.attachmentIds() ?? [],
 		);
 		const settle = images?.beginSend(ids);
+		/*
+		 * Only notifying tokens of ACTIVE members, filtered at the last moment:
+		 * the hub refuses the whole message for any other row, so a member who
+		 * left after the pick cannot turn this send into a 400.
+		 */
+		const currentConversation = store
+			.getState()
+			.orgs[tenantId]?.conversations.find((c) => c.id === conversationId);
+		const mentionRows = serializeMentions(
+			composerDraft.tokens,
+			memberKeys(currentConversation?.members, "active"),
+		);
 		try {
-			if (await sender.current?.(body, ids)) {
-				setDraft("");
+			if (await sender.current?.(body, ids, mentionRows)) {
+				setDraft({ text: "", tokens: [] });
 				images?.clearSent();
 				setAttachNotice(null);
 			}
@@ -835,6 +908,17 @@ function ThreadContent({
 		},
 		[deliveryHelpIdentity],
 	);
+	const router = useRouter();
+	/* Stable across renders so the memoised rows are not re-rendered by it. */
+	const openReplyThread = useCallback(
+		(rootId: string) => {
+			if (!conversationId) return;
+			router.push(
+				replyThreadPath({ tenantId, conversationId, rootId }) as never,
+			);
+		},
+		[router, tenantId, conversationId],
+	);
 	const renderItem = useCallback(
 		({ item }: { item: model.ThreadItem }) => {
 			if (item.type === "day")
@@ -867,6 +951,7 @@ function ThreadContent({
 					}
 					onOpenProfile={setProfile}
 					onDeliveryHelp={openDeliveryHelp}
+					onOpenReplyThread={openReplyThread}
 					highlight={
 						item.message.id === highlightId
 							? highlightFading
@@ -893,6 +978,7 @@ function ThreadContent({
 			fadeMs,
 			measureRow,
 			locale,
+			openReplyThread,
 		],
 	);
 	const validDraft = routeId === "new" && !!target;
@@ -1283,6 +1369,14 @@ function ThreadContent({
 													{attachNotice}
 												</Text>
 											)}
+											{mentions.view ? (
+												<MentionStrip
+													view={mentions.view}
+													directoryMissing={directoryMissing}
+													onPick={mentions.pick}
+													shadow={jumpShadow}
+												/>
+											) : null}
 											<BridgeComposerField
 												glass={chromeGlass}
 												label={t("mobile.team_bridge.thread.message")}
@@ -1291,7 +1385,9 @@ function ThreadContent({
 												 *  never wrap or cut (`BridgeComposerField`). */
 												placeholder={t("mobile.team_bridge.thread.message")}
 												draft={draft}
-												onDraftChange={setDraft}
+												onDraftChange={mentions.onChangeText}
+												onSelectionChange={mentions.onSelectionChange}
+												selection={mentions.selection}
 												sending={sending}
 												attachLabel={
 													images
@@ -1312,6 +1408,12 @@ function ThreadContent({
 													void send();
 												}}
 											/>
+											{mentions.notice ? (
+												<MentionNotice
+													text={mentionNoticeText(mentions.notice)}
+													onDismiss={mentions.dismissNotice}
+												/>
+											) : null}
 										</>
 									)}
 								</BridgeComposerDock>

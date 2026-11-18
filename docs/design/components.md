@@ -671,6 +671,34 @@ An image is fetched once: the source is kept across the row leaving and
 re-entering the list, so scrolling back to it shows the picture, not a second
 loading state.
 
+### A Mermaid diagram renders as a figure
+
+A closed ```` ```mermaid ```` fence in an answer draws as a diagram (Pele, painted
+with `react-native-svg`); an open fence stays a plain listing until it closes, and
+a source Pele cannot draw stays a listing under a one-line notice.
+
+- **Frame:** the code block's geometry (1pt `hairline` border, `rounded-sm`, a
+  header strip with the language) on `surface` rather than `sunken` — a figure on
+  a card, a listing in a well. Pele paints its own ground as `surface`.
+- **Colour:** only the app's roles, mapped as the desktop does: nodes `elevated`
+  with a `border-control` stroke, edges and secondary text `ink-muted`, labels
+  `ink`, chart series `accent`, `accent-alt`, `warning`, `danger`, `info`,
+  `success`. A theme change redraws it. Rows in `palette-rules.mjs` (`diagram/*`)
+  assert the pairs.
+- **Size:** full size when it fits the column, shrunk to no less than 0.85 (so the
+  12pt labels stay near 10pt), then it scrolls **sideways only**; a vertical drag
+  always scrolls the transcript.
+- **Tap** opens the full-screen viewer, as the Team Bridge image viewer does: the
+  drawing at full size (or as wide as the window, up to 3x), panned with one
+  finger; pinch-zoom on iOS only (Android and web have none). The header's 44pt
+  button copies the source.
+- **Not scaled with the reader's text size:** the drawing is a graphic, so its
+  labels stay 10-14pt while the prose around it scales (accepted gap).
+- **Too large** (past 1.5M pt² or 5,000pt on a side at the scale it would be
+  drawn): a one-line notice and the listing, because a native view is one surface.
+- **Reader without sight:** the control is named "<kind> diagram: <title or first
+  label>" and carries the Mermaid source as its value; the drawing is hidden.
+
 **No edge rules, no boxes around a turn.** Whose turn it is comes from alignment
 and fill (the reader's), a glyph and label (another participant's), or nothing
 at all (the answer). A rule down the side of a message is not part of this kit.

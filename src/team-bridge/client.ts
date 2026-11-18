@@ -42,15 +42,21 @@ import {
 	hubEnvelopeSchema,
 	hubErrorSchema,
 	type MemberInput,
+	type MentionRow,
 	type Message,
 	type MessagePage,
+	mentionRowsSchema,
 	messagePageSchema,
 	messageSchema,
 	type Notify,
 	type PushDevice,
 	pushDeviceSchema,
 	type ReadState,
+	type ReplyThreadPage,
+	type ReplyThreadReadState,
 	readStateSchema,
+	replyThreadPageSchema,
+	replyThreadReadStateSchema,
 	type Settings,
 	type Status,
 	settingsSchema,
@@ -886,8 +892,32 @@ export function createHubClient(deps: HubClientDeps) {
 		send(
 			tenantId: string,
 			conversationId: string,
-			input: { clientRef: string; body: string; attachmentIds?: string[] },
+			input: {
+				clientRef: string;
+				body: string;
+				attachmentIds?: string[];
+				mentions?: MentionRow[];
+				/** Makes the send a REPLY in that root's thread (one level, like the desktop). */
+				threadRootId?: string;
+			},
 		): Promise<Message> {
+			/*
+			 * Validated before the request: a malformed row fails here, not as a
+			 * 400 that throws the whole message away on the hub. Returned as a
+			 * REJECTION, never thrown synchronously, so every caller's
+			 * `await`/`.catch` path sees it like any other send failure.
+			 */
+			const parsed = input.mentions?.length
+				? mentionRowsSchema.safeParse(input.mentions)
+				: null;
+			if (parsed && !parsed.success)
+				return Promise.reject(
+					new HubError({
+						kind: "malformed",
+						message: "This message's mentions could not be sent.",
+					}),
+				);
+			const mentions = parsed?.data;
 			return request(
 				"POST",
 				`/conversations/${encodeURIComponent(conversationId)}/messages`,
@@ -905,8 +935,68 @@ export function createHubClient(deps: HubClientDeps) {
 						...(input.attachmentIds?.length
 							? { attachment_ids: input.attachmentIds }
 							: {}),
+						/*
+						 * Same rule: omitted unless non-empty. The hub publishes no
+						 * capability flag for mentions, so a message with none must
+						 * stay byte-identical to what every hub already accepts.
+						 */
+						...(mentions ? { mentions } : {}),
+						// Same rule: a top-level send never carries the key.
+						...(input.threadRootId
+							? { thread_root_id: input.threadRootId }
+							: {}),
 					},
 				},
+			);
+		},
+
+		/**
+		 * One reply thread: the root (with its server-computed rollup) and its
+		 * replies oldest-first. Addressed by the root id, so a root that has aged
+		 * out of the timeline page still opens. `afterSeq` is the INCLUSIVE cursor
+		 * the hub hands back as `next_after_seq`.
+		 */
+		listReplies(
+			tenantId: string,
+			conversationId: string,
+			rootId: string,
+			options: { afterSeq?: number; limit?: number; signal?: AbortSignal } = {},
+		): Promise<ReplyThreadPage> {
+			return request(
+				"GET",
+				`/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(rootId)}/replies`,
+				(v) => replyThreadPageSchema.parse(v),
+				{
+					query: {
+						tenant_id: tenantId,
+						after_seq: options.afterSeq,
+						limit: options.limit,
+					},
+					signal: options.signal,
+				},
+			);
+		},
+
+		/**
+		 * Advance THIS reader's cursor for one thread (hub slice TR1, the route
+		 * the desktop's `team_bridge.thread_read` reaches). The hub keeps the max,
+		 * so a stale seq never moves it back, and it rolls the read into the
+		 * conversation's unread, which is why both clients clear together.
+		 */
+		markThreadRead(
+			tenantId: string,
+			conversationId: string,
+			rootId: string,
+			seq: number,
+		): Promise<ReplyThreadReadState> {
+			return request(
+				"POST",
+				`/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(rootId)}/read`,
+				(v) => {
+					const parsed = replyThreadReadStateSchema.safeParse(v ?? {});
+					return parsed.success ? parsed.data : {};
+				},
+				{ body: { tenant_id: tenantId, seq } },
 			);
 		},
 

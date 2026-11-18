@@ -20,11 +20,13 @@ import {
 	View,
 } from "react-native";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
+import { DiagramBlock } from "@/features/session/components/diagram-block";
 import {
 	SelectableMessage,
 	useTextSelection,
 } from "@/features/session/components/selectable-message";
 import { GroupInsetContext } from "@/features/session/components/trace-rail";
+import { isDiagramBlock } from "@/features/session/diagram-source";
 import {
 	blocksPlainText,
 	type InlineSpan,
@@ -39,6 +41,7 @@ import {
 	openMarkdownLink,
 	safeMarkdownHref,
 } from "@/features/session/markdown-links";
+import { NATIVE_MONO_FAMILY } from "@/features/session/mono-face";
 import { forcedTableScroll } from "@/features/session/table-scroll-hook";
 import { leafSelectable } from "@/features/session/text-selection";
 import { CONTROL, ROLE, SURFACE } from "@/ui/a11y";
@@ -82,19 +85,8 @@ const MESSAGE_BODY_CLASS = "text-body-read text-ink";
  *  `SelectableMessage`'s mode instead — `text-selection.ts` has the why. */
 const LEAF_SELECTABLE = leafSelectable();
 
-/**
- * The mono face's NATIVE family name: the PostScript name of the bundled
- * `design/fonts/JetBrainsMono-Regular.ttf` (iOS matches it) and that file's
- * basename (the name `expo-font`'s config plugin registers on Android).
- *
- * WHY A STYLE AND NOT ONLY THE CLASS (operator report, iPhone build 773): the
- * theme's `--font-mono` is a CSS fallback LIST (`'JetBrains Mono', ui-monospace,
- * …`). The web resolves it; React Native has no fallback stacks and treats the
- * whole string as one family name, finds none, and silently paints the system
- * sans — so inline code read as "smaller plain text". Web keeps the class's
- * stack (and its woff2), so this applies off-web only.
- */
-const NATIVE_MONO_FAMILY = "JetBrainsMono-Regular";
+/* The mono face's native family name lives in `mono-face.ts` (the diagram block
+ * needs it too); the reason web differs is recorded there. */
 /* `no-contextual` turns off JetBrains Mono's `calt` ligatures natively (design
  * D4): with the real face now resolving, `!=` would otherwise draw as `≠` in a
  * listing the reader is meant to copy. Web keeps the theme's ligature setting
@@ -714,14 +706,27 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
 			<View className="gap-3">
 				{blocks.map((block, index) => {
 					switch (block.kind) {
-						case "code":
-							return (
+						case "code": {
+							const listing = (
 								<CodeBlock
 									key={index}
 									lines={block.lines}
 									language={block.language}
 								/>
 							);
+							// A closed ```mermaid fence draws as a diagram; the listing is
+							// what it falls back to (still loading, or Pele refused it).
+							return isDiagramBlock(block) ? (
+								<DiagramBlock
+									key={index}
+									source={block.lines.join("\n")}
+									language={block.language}
+									fallback={listing}
+								/>
+							) : (
+								listing
+							);
+						}
 						case "heading":
 							return (
 								<Inline
