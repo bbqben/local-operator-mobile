@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+	bannerGlyph,
 	type ConnectionViewInput,
 	connectionView,
 	KEEPALIVE_GRACE_S,
@@ -462,5 +463,16 @@ describe("C3/C7 wrappers stay wholly English under a non-en locale", () => {
 			"Studio desktop isn’t answering — last seen 12s ago.",
 		);
 		expect(view.text).toMatch(ENGLISH_ONLY);
+	});
+});
+
+describe("bannerGlyph (PR #301 design D3)", () => {
+	it("gives a reconnecting C2 the in-progress ring, not the alert mark", () => {
+		expect(bannerGlyph({ id: "C2", tone: "warning" })).toBe("◌");
+	});
+
+	it("keeps the alert mark for warnings and refusals that need the reader", () => {
+		expect(bannerGlyph({ id: "C6", tone: "warning" })).toBe("!");
+		expect(bannerGlyph({ id: "C6", tone: "danger" })).toBe("!");
 	});
 });

@@ -48,8 +48,19 @@
  * same commit passes this guard. The table cannot pin the file that contains it,
  * and nothing outside the repository checks the pair. That is inherent to a
  * same-repo tripwire — what protects the proof is that the re-pin is a visible
- * line in a reviewable diff, not that the tool catches its own author. The suite
- * proves the pins match the tree they were committed with, and nothing more.
+ * line in a reviewable diff, not that the tool catches its own author.
+ *
+ * WHO RE-PINS WHAT. The executable proof (u08-geometry-proof.ts, dispatch-only,
+ * including `--preflight-only`) is the one gate that compares the live tree with
+ * the committed RENDER_TREE/INPUT_TREE/RENDER_FILE tables, and it refuses on any
+ * difference. The unit suite does NOT: it proves the admission logic against a
+ * baseline derived from its own fixture (pinTablesFrom), so an ordinary feature
+ * PR that edits `src/`, `app/`, fixtures or dependencies does not re-pin here.
+ * Re-pin those roots deliberately, with --print, when a U-08 proof is about to
+ * be dispatched against the new scene — that line is the reviewed decision. The
+ * suite still holds INSTRUMENT_PINS to the live files (an edit to the measuring
+ * code re-pins in the same PR) and holds the table KEYS to the drivers' import
+ * closure.
  * The ORIGINAL_* constants in u08-geometry-proof.ts are a different thing and are
  * never re-pinned — they identify the captured historical packet, not the
  * instrument that runs today.
@@ -2251,44 +2262,6 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * regression test. No rendered component or copy changes. Re-derived with
 	 * --print over the staged tree. Source identity only, NOT rendered U-08
 	 * evidence. */
-	/* O3-b (English-first): Projects list/detail, the Tags sheet, the shared
-	 * sheet/dialog/skeleton labels and the row's plural counts render keyed
-	 * English (byte-identical copy), the Tags sheet subscribes to the locale
-	 * frame, plus two tests. catalogue.gen.ts is unchanged until the
-	 * translations land, so this pin moves again then. Derived LAST by an
-	 * independent treeDigest reader over the staged index's git objects; it
-	 * reproduced the parent's committed pin (c6c21aaf…) from main's tree as the
-	 * control, agreed with --print, and a one-byte tamper diverged. Source
-	 * identity only, NOT rendered U-08 evidence. */
-	/* O3-b (translations): the 40 O3-b keys land in the 7 shipped locales'
-	 * mobile.common/projects/sidebar catalogues with the regenerated
-	 * catalogue.gen.ts, plus the zh-CN/vi ISO date-mask exemption and a tighter
-	 * fr → ur Tags-sheet repaint test. Derived LAST by an independent treeDigest
-	 * reader over the staged index's git objects; it reproduced the parent's
-	 * pin (73fca3de…) from 39b5e3e5's tree as the control, agreed with --print,
-	 * and a one-byte tamper of ur/mobile.sidebar.json diverged. Source identity
-	 * only, NOT rendered U-08 evidence. */
-	/* Convergence of PR #302 with main 2f635caf (#282, #296, #298): both chains
-	 * above are kept (main's rest-jitter and push-registration comments, then
-	 * O3-b's); main touched no src/ path the PR touches, so the merged src tree
-	 * is the union of both sides. Re-derived LAST with --print over the staged
-	 * merge tree; an independent git-object treeDigest reader reproduced both
-	 * parents' committed pins (bd6ea75c… and c62cf329…) as controls and a
-	 * one-byte tamper diverged. Source identity only, NOT rendered U-08
-	 * evidence. */
-	/* PR #302 round-1 remediation (R1/Q1/Q2): SessionRow subscribes to the
-	 * locale frame so a mounted conversation row repaints its "new" marker,
-	 * count chips and tag announcement, plus a mounted fr → ur row test and a
-	 * per-locale plural-arm guard for the row counts. Derived LAST with --print
-	 * over the staged tree; an independent git-object treeDigest reader
-	 * reproduced the parent's pin (a2cd4cfa…) from c0c4d661 as the control,
-	 * agreed with --print, and a one-byte tamper of session-row.tsx diverged.
-	 * Source identity only, NOT rendered U-08 evidence. */
-	/* PR #302 CI typecheck remediation: test-only strict-type fixes (a required
-	 * `reserveLeading` prop in the row locale-frame test; defined-guards in the
-	 * plural-arm tests). No runtime src/ change. Derived LAST with --print; the
-	 * control reproduced the parent's pin (00db2322…) from 9e357316. Source
-	 * identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (2f635caf, #298) into fix/bridge-429: both comment
 	 * chains kept; re-derived with --print over the staged merged tree. Source
 	 * identity only, NOT rendered U-08 evidence. */
@@ -2298,26 +2271,27 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * matches neither parent. Re-derived with --print over the staged merge
 	 * tree (src the only differing root); source identity only, NOT rendered
 	 * U-08 evidence. */
-	/* Convergence of PR #302 with main e19eb9f1 (#299, #300): both chains
-	 * above are kept (O3-b's, then main's attach-picker merge comment); main
-	 * touched no src/ path the PR touches, so the merged src tree is the union
-	 * of both sides. Re-derived LAST with --print over the staged merge tree; an
-	 * independent git-object treeDigest reader reproduced both parents'
-	 * committed pins (0bd9b5ee… and 4cbea3d6…) as controls and a one-byte
-	 * tamper diverged. Source identity only, NOT rendered U-08 evidence. */
 	/* Merge of origin/main (e19eb9f1, #300) into fix/bridge-429: both comment
 	 * chains kept; only this pin conflicted. Re-derived with --print over the
 	 * staged merged tree. Source identity only, NOT rendered U-08 evidence. */
-	/* Convergence of PR #302 with main 8a4d3048 (#297 fix/bridge-429): both
-	 * chains above are kept (O3-b's, then main's bridge-429 merge comments).
-	 * Both sides touched src/i18n (catalogues.test.ts counts, catalogue.gen.ts),
-	 * so the merged src tree is not a plain union: the counts were re-derived
-	 * from the merged en/locale JSON and catalogue.gen.ts regenerated. Re-derived
-	 * LAST with --print over the staged merge tree; an independent git-object
-	 * treeDigest reader reproduced both parents' committed pins (098c5daa… and
-	 * 93e737b7…) as controls and a one-byte tamper diverged. Source identity
-	 * only, NOT rendered U-08 evidence. */
-	src: "1f1bf660c9f3c9313c5643a8388d55a11c994533eb26ccbdfd76db8f064a3c04",
+	/* PR #301 (TestFlight 1157 tunnel transient) incl. round-1 remediation:
+	 * refusal grace, wake re-arm, the drawer pill's stopped-offline precedence
+	 * and single stale sentence (D1/D2), the C2 progress glyph (D3) and the edge
+	 * WAF's 429 body hint. Re-derived with --print over the staged tree; source
+	 * admission only, NOT rendered, native or device evidence. */
+	/* Merge of origin/main (PR #300, e19eb9f1) into PR #301: both comment
+	 * chains retained; only this pin conflicted. The merged src carries the
+	 * attach-handoff move and #301's tunnel-transient changes, so it matches
+	 * neither parent. Re-derived with --print over the staged merge tree (src
+	 * the only differing root); source identity only, NOT rendered U-08
+	 * evidence. */
+	/* Merge of origin/main (PR #297, 8a4d3048) into PR #301: both comment
+	 * chains retained; only this pin conflicted (no other file is touched by
+	 * both sides). The merged src carries #297's Team Bridge 429 changes and
+	 * #301's tunnel-transient changes, so it matches neither parent.
+	 * Re-derived with --print over the staged merge tree (src the only
+	 * differing root); source identity only, NOT rendered U-08 evidence. */
+	src: "d428cbf7b74af931ca3b63ecd52514006fdec626a571477fb2735b8986c9d970",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {
@@ -2471,7 +2445,62 @@ const hasMissingUnder = (content: RepositoryContent, root: string) =>
 		(path) => path.startsWith(`${root}/`) && isPinnedContentPath(path),
 	);
 
-export function contentDrift(content: RepositoryContent): Drift[] {
+/** The four tables as one value, so a caller can judge content against a
+ * baseline other than the committed one.
+ *
+ * WHY THIS EXISTS. Until this was split out, the unit suite judged its fixture
+ * against the committed tables, which made "committed `src` pin == the PR's
+ * `src`" a PR-time gate: every PR that touched app source had to re-pin, and
+ * concurrent PRs collided on that one line (98 of the 116 first-parent merges to
+ * main between 2026-10-18 and 2026-11-17 edited this file). The suite's question
+ * is "does the admission logic admit and refuse the right edits?", which needs
+ * a baseline it controls, not today's tree. The proof's question is "is this the
+ * scene that was reviewed?", which needs the committed tables — so the default
+ * below stays COMMITTED_PINS and the dispatch preflight is unchanged. */
+export interface PinTables {
+	readonly instrument: Readonly<Record<string, string>>;
+	readonly renderTree: Readonly<Record<string, string>>;
+	readonly inputTree: Readonly<Record<string, string>>;
+	readonly renderFile: Readonly<Record<string, string>>;
+}
+
+/** The trust root: the only tables the executable proof ever checks against. */
+export const COMMITTED_PINS: PinTables = {
+	instrument: INSTRUMENT_PINS,
+	renderTree: RENDER_TREE_PINS,
+	inputTree: INPUT_TREE_PINS,
+	renderFile: RENDER_FILE_PINS,
+};
+
+/** Tables with the committed KEYS and digests read from `content`, using the
+ * same per-file and per-root digests the verdict uses. Test-only by intent: it
+ * gives the suite a baseline equal to its own fixture. Re-pinning stays
+ * `--print` plus a reviewed edit; nothing writes these values back. A path with
+ * no readable content keeps the sentinel "absent" so it can never match. */
+export function pinTablesFrom(content: RepositoryContent): PinTables {
+	const files = (keys: Readonly<Record<string, string>>) =>
+		Object.fromEntries(
+			Object.keys(keys).map((path) => [
+				path,
+				content.files.get(path) ?? "absent",
+			]),
+		);
+	const roots = (keys: Readonly<Record<string, string>>) =>
+		Object.fromEntries(
+			Object.keys(keys).map((root) => [root, treeDigest(content, root)]),
+		);
+	return {
+		instrument: files(INSTRUMENT_PINS),
+		renderTree: roots(RENDER_TREE_PINS),
+		inputTree: roots(INPUT_TREE_PINS),
+		renderFile: files(RENDER_FILE_PINS),
+	};
+}
+
+export function contentDrift(
+	content: RepositoryContent,
+	pins: PinTables = COMMITTED_PINS,
+): Drift[] {
 	const drift: Drift[] = [];
 	for (const path of [...content.missing].filter(isPinnedContentPath).sort())
 		drift.push({
@@ -2480,15 +2509,15 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 			pinned: "tracked",
 			actual: "absent",
 		});
-	for (const [path, pinned] of Object.entries(INSTRUMENT_PINS)) {
+	for (const [path, pinned] of Object.entries(pins.instrument)) {
 		if (content.missing.has(path)) continue;
 		const actual = content.files.get(path) ?? "absent";
 		if (actual !== pinned)
 			drift.push({ kind: "instrument", scope: path, pinned, actual });
 	}
 	const roots: [Record<string, string>, DriftKind][] = [
-		[RENDER_TREE_PINS, "render-tree"],
-		[INPUT_TREE_PINS, "input-tree"],
+		[pins.renderTree, "render-tree"],
+		[pins.inputTree, "input-tree"],
 	];
 	for (const [table, kind] of roots)
 		for (const [root, pinned] of Object.entries(table)) {
@@ -2496,7 +2525,7 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 			const actual = treeDigest(content, root);
 			if (actual !== pinned) drift.push({ kind, scope: root, pinned, actual });
 		}
-	for (const [path, pinned] of Object.entries(RENDER_FILE_PINS)) {
+	for (const [path, pinned] of Object.entries(pins.renderFile)) {
 		if (content.missing.has(path)) continue;
 		const actual = content.files.get(path) ?? "absent";
 		if (actual !== pinned)
@@ -2505,11 +2534,15 @@ export function contentDrift(content: RepositoryContent): Drift[] {
 	return drift;
 }
 
-/** Refuse before any browser work; the message must let an operator act. */
+/** Refuse before any browser work; the message must let an operator act.
+ * `pins` exists only so the suite can prove admission against its fixture's own
+ * baseline; the proof calls this with no arguments, i.e. the live tree against
+ * COMMITTED_PINS, fail-closed. */
 export function assertPinnedContent(
 	content: RepositoryContent = snapshotContent(),
+	pins: PinTables = COMMITTED_PINS,
 ) {
-	const drift = contentDrift(content);
+	const drift = contentDrift(content, pins);
 	if (drift.length === 0) return;
 	throw new Error(
 		[
