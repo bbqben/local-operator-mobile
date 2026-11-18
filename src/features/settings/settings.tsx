@@ -495,8 +495,9 @@ export default function Settings() {
 								 *  the others. They were borderless `quiet` text and barely
 								 *  read as tappable (UX pass, settings); the kit's bordered
 								 *  secondary (`outline`) reads as a control, at the `sm` size
-								 *  of this screen's other secondary actions. `sm` is a 44 pt
-								 *  box with the pill centred in it, so the touch floor is
+								 *  of this screen's other secondary actions. `Button` raises
+								 *  `sm` to a TOUCH_FLOOR box (44 pt iOS / 48 dp Android and
+								 *  web) with the 32 pt pill centred in it, so the floor is
 								 *  real geometry. */
 								variant="outline"
 								size="sm"
