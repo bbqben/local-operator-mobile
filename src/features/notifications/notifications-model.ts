@@ -31,6 +31,8 @@ import type {
 import { preferredLocale, renderFor, t } from "@/i18n";
 import type { NotificationTarget } from "@/relay";
 
+import type { ConversationDismissPhase } from "./use-conversation-dismiss";
+
 /** The inbox stamps are epoch MILLISECONDS, unlike the session clocks. */
 const DAY_MS = 86_400_000;
 
@@ -256,6 +258,25 @@ export function hasUnread(response: NotificationsResponse): boolean {
  *  only renders it once a read has landed. */
 export function inboxEmpty(response: NotificationsResponse): boolean {
 	return response.items.length === 0 && (response.waiting ?? []).length === 0;
+}
+
+/** Whether `DismissReceipt` draws anything for this phase: the list's pinned
+ *  footer pays the bottom safe-area inset only while it holds something, so an
+ *  idle list keeps scrolling under the home indicator (#321). The component's
+ *  own guard is the source; the model test fails if the two disagree. */
+export function dismissReceiptShowing(
+	phase: ConversationDismissPhase,
+): boolean {
+	switch (phase.kind) {
+		case "counting":
+		case "done":
+		case "undone":
+		case "none":
+		case "failed":
+			return true;
+		default:
+			return false;
+	}
 }
 
 /** Plural agreement without a string table: the count decides the word, the

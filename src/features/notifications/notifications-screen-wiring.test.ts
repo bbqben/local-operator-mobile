@@ -268,3 +268,31 @@ describe("the empty inbox's layout (#321)", () => {
 		);
 	});
 });
+
+/**
+ * The dismiss receipt is a pinned, inset footer (#321).
+ *
+ * The screen is `scroll={false}`, so `Screen` adds no horizontal gutter and
+ * pays no bottom inset (`bottomInset` defaults to "child"): the receipt ran
+ * edge to edge, and once the empty state grows it would sit in the home
+ * indicator band. The footer that holds it pays both, and only while it holds
+ * something, so an idle list still scrolls under the indicator as before.
+ */
+const RECEIPT_IN_GUTTER =
+	/<View\b[^>]*\bclassName="[^"]*\bpx-4\b[^"]*"\s*>\s*<DismissReceipt dismissAll=\{dismissAll\} \/>/;
+const FOOTER_PAYS_INSET =
+	/paddingBottom:\s*footerShowing \? insets\.bottom : 0/;
+
+describe("the dismiss receipt's footer (#321)", () => {
+	it("insets the receipt by the screen's gutter", () => {
+		expect(RECEIPT_IN_GUTTER.test(source)).toBe(true);
+	});
+
+	it("pays the bottom safe-area inset while the footer holds anything", () => {
+		expect(source).toContain("const insets = useSafeAreaInsets();");
+		expect(source).toContain(
+			"const footerShowing = selecting || receiptShowing;",
+		);
+		expect(FOOTER_PAYS_INSET.test(source)).toBe(true);
+	});
+});

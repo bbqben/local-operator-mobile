@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { afterEach, describe, expect, it } from "vitest";
 
 import type { NotificationItem, NotificationsResponse } from "@/contracts";
@@ -6,6 +8,7 @@ import {
 	conversationName,
 	countLabel,
 	detailMetaLine,
+	dismissReceiptShowing,
 	hasUnread,
 	inboxEmpty,
 	inboxRows,
@@ -21,6 +24,7 @@ import {
 	toggleSelection,
 	unionTokens,
 } from "@/features/notifications/notifications-model";
+import type { ConversationDismissPhase } from "@/features/notifications/use-conversation-dismiss";
 import { resetLocaleSource, setLocaleSource } from "@/i18n";
 
 function item(overrides: Partial<NotificationItem> = {}): NotificationItem {
@@ -512,5 +516,86 @@ describe("C1-class fragments stay wholly English under a non-en locale", () => {
 				nowMs: NOW,
 			}),
 		).toBe("untitled");
+	});
+});
+
+/**
+ * Whether the list's pinned footer holds the dismiss receipt (#321).
+ *
+ * The footer pays the bottom safe-area inset only while it has something in it,
+ * so the predicate must agree with `DismissReceipt`'s own guard exactly. The
+ * table is exhaustive over the phase union (`satisfies` fails to compile on a
+ * new kind), and the second case checks the component's guard names the same
+ * kinds.
+ */
+const RECEIPT_PHASES = {
+	idle: { phase: { kind: "idle" }, showing: false },
+	counting: { phase: { kind: "counting", title: "Aida" }, showing: true },
+	confirming: {
+		phase: { kind: "confirming", target: { kind: "tokens", tokens: [] } },
+		showing: false,
+	},
+	applying: {
+		phase: { kind: "applying", target: { kind: "tokens", tokens: [] } },
+		showing: false,
+	},
+	done: {
+		phase: {
+			kind: "done",
+			target: { kind: "tokens", tokens: [] },
+			receipt: { changed: [], refused: [] } as never,
+			sentence: "Dismissed 1 update.",
+			complete: true,
+		},
+		showing: true,
+	},
+	undoing: {
+		phase: {
+			kind: "undoing",
+			target: { kind: "tokens", tokens: [] },
+			receipt: { changed: [], refused: [] } as never,
+		},
+		showing: false,
+	},
+	undone: {
+		phase: { kind: "undone", sentence: "Restored 1 update.", complete: true },
+		showing: true,
+	},
+	none: {
+		phase: { kind: "none", sentence: "Nothing to dismiss." },
+		showing: true,
+	},
+	failed: {
+		phase: { kind: "failed", sentence: "Couldn't dismiss." },
+		showing: true,
+	},
+} satisfies {
+	[K in ConversationDismissPhase["kind"]]: {
+		phase: Extract<ConversationDismissPhase, { kind: K }>;
+		showing: boolean;
+	};
+};
+
+const GUARD_KIND = /phase\.kind (?:===|!==) "(\w+)"/g;
+
+describe("the dismiss receipt's footer slot (#321)", () => {
+	it("is occupied exactly while the receipt has something to say", () => {
+		for (const [kind, { phase, showing }] of Object.entries(RECEIPT_PHASES)) {
+			expect([kind, dismissReceiptShowing(phase)]).toEqual([kind, showing]);
+		}
+	});
+
+	it("agrees with the receipt component on which phases draw anything", () => {
+		const receipt = readFileSync(
+			new URL("./dismiss-receipt.tsx", import.meta.url),
+			"utf8",
+		);
+		/* The component's guard, up to where it picks a severity. */
+		const guard = receipt.slice(0, receipt.indexOf("const severity"));
+		const named = new Set([...guard.matchAll(GUARD_KIND)].map((m) => m[1]));
+		const showing = Object.entries(RECEIPT_PHASES)
+			.filter(([, row]) => row.showing)
+			.map(([kind]) => kind);
+		expect([...named].sort()).toEqual(showing.sort());
 	});
 });

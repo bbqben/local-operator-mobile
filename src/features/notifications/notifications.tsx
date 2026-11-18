@@ -9,6 +9,7 @@ import {
 	Text,
 	View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { NotificationItem } from "@/contracts";
 import {
@@ -33,6 +34,7 @@ import {
 	conversationName,
 	DISMISS_LABEL,
 	dismissableTargets,
+	dismissReceiptShowing,
 	EMPTY_ALL_BODY,
 	FILTER_ALL,
 	FILTER_UNREAD,
@@ -385,6 +387,12 @@ export default function Notifications() {
 
 	const selectedCount = selectionTargets(selection, rows).length;
 	const skipped = skippedSentence(inbox.skipped);
+	/* `scroll={false}` leaves the bottom inset to the bottom-most child (`Screen`'s
+	 *  `bottomInset="child"`). The pinned footer pays it, but only while it holds
+	 *  something: an idle list keeps scrolling under the home indicator (#321). */
+	const insets = useSafeAreaInsets();
+	const receiptShowing = dismissReceiptShowing(dismissAll.phase);
+	const footerShowing = selecting || receiptShowing;
 
 	/* --------------------------------------------------------------- render -- */
 
@@ -707,58 +715,70 @@ export default function Notifications() {
 				{/* Receipts live in the pinned footer, never in the scrolled-away
 				 * list header: a one-click dismiss at the bottom of the reel must still
 				 * show its sentence and Undo (ND3). */}
-				<DismissReceipt dismissAll={dismissAll} />
-				{selecting ? (
-					<View
-						/* In the layout, not over it: an absolute bar covers the last rows,
-						 *  and a control that covers content is an overlap the reader pays
-						 *  for (the audit scores it, and it hid the very items the
-						 *  selection was made from). */
-						/* WRAPS rather than widening the screen. At 200 % text on a 320 pt
-						 *  phone the count plus two outline buttons is 367 pt in one row;
-						 *  the document grew past the viewport, mobile Chrome widened the
-						 *  layout viewport to fit, and the screen's own ground stopped
-						 *  covering it (CI run 40229891769: canvas measured transparent on
-						 *  S18/multi-select at iphone-se 200 %, with U-06 +47 pt on the
-						 *  same frames). The count keeps its natural width; the verbs are
-						 *  one group that drops to its own line, and wraps inside it, when
-						 *  they cannot share the count's. */
-						className="flex-row flex-wrap items-center gap-2 border-hairline border-t bg-canvas px-4 py-3"
-						testID={SURFACE.inboxSelectionBar}
-					>
-						<Text className="grow text-meta text-ink-dim">
-							{selectedCountLabel(selectedCount)}
-						</Text>
-						<View className="shrink flex-row flex-wrap items-center gap-2">
-							<Button
-								label={MARK_READ_LABEL}
-								onPress={() => void onWrite("read")}
-								variant="outline"
-								size="sm"
-								disabled={selectedCount === 0 || writing}
-								testID={CONTROL.inboxMarkRead}
-							/>
-							{inbox.filter === "all" ? (
+				<View style={{ paddingBottom: footerShowing ? insets.bottom : 0 }}>
+					{receiptShowing ? (
+						<View
+							/* THE SELECTION BAR'S TREATMENT, so the two read as one footer: this
+							 *  screen gets no gutter from `Screen`, and the receipt ran edge to
+							 *  edge under the empty state (#321). `DismissReceipt` stays
+							 *  unpadded because the detail places it inside its own column. */
+							className="border-hairline border-t bg-canvas px-4 py-3"
+						>
+							<DismissReceipt dismissAll={dismissAll} />
+						</View>
+					) : null}
+					{selecting ? (
+						<View
+							/* In the layout, not over it: an absolute bar covers the last rows,
+							 *  and a control that covers content is an overlap the reader pays
+							 *  for (the audit scores it, and it hid the very items the
+							 *  selection was made from). */
+							/* WRAPS rather than widening the screen. At 200 % text on a 320 pt
+							 *  phone the count plus two outline buttons is 367 pt in one row;
+							 *  the document grew past the viewport, mobile Chrome widened the
+							 *  layout viewport to fit, and the screen's own ground stopped
+							 *  covering it (CI run 40229891769: canvas measured transparent on
+							 *  S18/multi-select at iphone-se 200 %, with U-06 +47 pt on the
+							 *  same frames). The count keeps its natural width; the verbs are
+							 *  one group that drops to its own line, and wraps inside it, when
+							 *  they cannot share the count's. */
+							className="flex-row flex-wrap items-center gap-2 border-hairline border-t bg-canvas px-4 py-3"
+							testID={SURFACE.inboxSelectionBar}
+						>
+							<Text className="grow text-meta text-ink-dim">
+								{selectedCountLabel(selectedCount)}
+							</Text>
+							<View className="shrink flex-row flex-wrap items-center gap-2">
 								<Button
-									label={MARK_UNREAD_LABEL}
-									onPress={() => void onWrite("unread")}
+									label={MARK_READ_LABEL}
+									onPress={() => void onWrite("read")}
 									variant="outline"
 									size="sm"
 									disabled={selectedCount === 0 || writing}
-									testID={CONTROL.inboxMarkUnread}
+									testID={CONTROL.inboxMarkRead}
 								/>
-							) : null}
-							<Button
-								label={DISMISS_LABEL}
-								onPress={onDismissSelection}
-								variant="outline"
-								size="sm"
-								disabled={selectedCount === 0 || writing}
-								testID={CONTROL.inboxDismiss}
-							/>
+								{inbox.filter === "all" ? (
+									<Button
+										label={MARK_UNREAD_LABEL}
+										onPress={() => void onWrite("unread")}
+										variant="outline"
+										size="sm"
+										disabled={selectedCount === 0 || writing}
+										testID={CONTROL.inboxMarkUnread}
+									/>
+								) : null}
+								<Button
+									label={DISMISS_LABEL}
+									onPress={onDismissSelection}
+									variant="outline"
+									size="sm"
+									disabled={selectedCount === 0 || writing}
+									testID={CONTROL.inboxDismiss}
+								/>
+							</View>
 						</View>
-					</View>
-				) : null}
+					) : null}
+				</View>
 			</View>
 			<AsksSheet
 				visible={answerSession !== null}
