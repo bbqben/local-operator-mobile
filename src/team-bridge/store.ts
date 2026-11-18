@@ -837,6 +837,16 @@ export function createTeamBridgeStore(deps: {
 					held.peopleRefreshedAt !== null &&
 					at - held.peopleRefreshedAt < DIRECTORY_TTL_MS;
 				const force = options.force === true;
+				/* Halves whose elapsed 429 record was just discarded in favour of
+				 * fresh rows (review R2-1 / QA Q2). Deleting the record ends the
+				 * episode, and the only writers that clear "Catching up…" are a read
+				 * outcome, so without this the heading stays latched with no read and
+				 * no timer left to end it. Invariant: `CatchingUp` is true only while
+				 * that half's backoff record exists (rate-limit.test.ts, "clears
+				 * Catching up when an expired 429 yields to fresh rows"). Clearing
+				 * sends nothing, so no request goes out inside a Retry-After.
+				 * Declared before `shouldRead`, which writes it (review R3-2). */
+				const settled = new Set<string>();
 				const shouldRead = (key: string, fresh: boolean) => {
 					const refusal = backoff.get(key);
 					if (blocked(key, at, force)) return false;
@@ -850,15 +860,6 @@ export function createTeamBridgeStore(deps: {
 					if (refusal) settled.add(key);
 					return false;
 				};
-				/* Halves whose elapsed 429 record was just discarded in favour of
-				 * fresh rows (review R2-1 / QA Q2). Deleting the record ends the
-				 * episode, and the only writers that clear "Catching up…" are a read
-				 * outcome, so without this the heading stays latched with no read and
-				 * no timer left to end it. Invariant: `CatchingUp` is true only while
-				 * that half's backoff record exists (rate-limit.test.ts, "clears
-				 * Catching up when an expired 429 yields to fresh rows"). Clearing
-				 * sends nothing, so no request goes out inside a Retry-After. */
-				const settled = new Set<string>();
 				const readConversations = shouldRead(convKey, convFresh);
 				const readPeople = shouldRead(peopleKey, peopleFresh);
 				if (settled.size) {

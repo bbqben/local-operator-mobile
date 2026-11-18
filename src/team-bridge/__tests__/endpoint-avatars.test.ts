@@ -507,6 +507,74 @@ describe("photo authorization and refusal bounds", () => {
 		cache.fail(key, "transient");
 		expect(cache.peekEndpoint(key)).toBeNull();
 	});
+	it.each([401, 403, 404])(
+		"a %i on one size withdraws the other size's still-fresh photo (review R3-1)",
+		async (status) => {
+			let clock = 0;
+			const cache = createAvatarCache({ now: () => clock });
+			const row = endpointAvatarKey(ENDPOINT, HASH, 64);
+			const card = endpointAvatarKey(ENDPOINT, HASH, 256);
+			const hub = createHubClient({
+				accessToken: async () => ACCESS,
+				fetchImpl: vi.fn(
+					async () => new Response("{}", { status }),
+				) as unknown as typeof fetch,
+			});
+			let reads = 0;
+			const ok = async () => {
+				reads += 1;
+				return AGENT_URI;
+			};
+			expect(await cache.loadEndpoint(row, ok, endpointAvatarFailure)).toBe(
+				AGENT_URI,
+			);
+			clock = 1_000;
+			expect(
+				await cache.loadEndpoint(
+					card,
+					() =>
+						hub
+							.revalidateEndpointAvatar(ENDPOINT, HASH, 256, {
+								etag: null,
+								native: true,
+							})
+							.then(() => AGENT_URI),
+					endpointAvatarFailure,
+				),
+			).toBeNull();
+			clock = 2_000;
+			// Still inside ENDPOINT_PHOTO_FRESH_MS of the 64 px 200, yet refused.
+			expect(cache.peekEndpoint(row)).toBeNull();
+			expect(await cache.loadEndpoint(row, ok, endpointAvatarFailure)).toBe(
+				AGENT_URI,
+			);
+			expect(reads).toBe(2);
+		},
+	);
+	it("a transient 5xx on one size leaves the other size's fresh photo shown", async () => {
+		const cache = createAvatarCache({ now: () => 0 });
+		const row = endpointAvatarKey(ENDPOINT, HASH, 64);
+		const card = endpointAvatarKey(ENDPOINT, HASH, 256);
+		const hub = createHubClient({
+			accessToken: async () => ACCESS,
+			fetchImpl: vi.fn(
+				async () => new Response("{}", { status: 503 }),
+			) as unknown as typeof fetch,
+		});
+		await cache.loadEndpoint(row, async () => AGENT_URI, endpointAvatarFailure);
+		await cache.loadEndpoint(
+			card,
+			() =>
+				hub
+					.revalidateEndpointAvatar(ENDPOINT, HASH, 256, {
+						etag: null,
+						native: true,
+					})
+					.then(() => AGENT_URI),
+			endpointAvatarFailure,
+		);
+		expect(cache.peekEndpoint(row)).toBe(AGENT_URI);
+	});
 	it("withholds the same photo on 429 and pauses queued reads until Retry-After", async () => {
 		vi.useFakeTimers();
 		const cache = createAvatarCache();

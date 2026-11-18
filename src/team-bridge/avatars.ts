@@ -190,14 +190,20 @@ export function avatarFailure(error: unknown): AvatarFailure {
  * The account-photo policy above is intentionally unchanged.
  */
 export function endpointAvatarFailure(error: unknown): AvatarFailure {
-	if (
-		isHubError(error) &&
-		error.status !== null &&
-		[401, 403, 404].includes(error.status)
-	)
-		return "transient";
+	if (endpointRefusal(error)) return "transient";
 	return avatarFailure(error);
 }
+
+/*
+ * The hub's answer that this account may not (or no longer) read the endpoint's
+ * photo. Access does not depend on size, so `load` also withdraws the other
+ * size's display on one (review R3-1); a 5xx, 429 or timeout says nothing
+ * about access and leaves the other size alone.
+ */
+const endpointRefusal = (error: unknown): boolean =>
+	isHubError(error) &&
+	error.status !== null &&
+	[401, 403, 404].includes(error.status);
 
 type Entry =
 	| {
@@ -250,7 +256,7 @@ const REQUESTS_PER_READ = 2;
  * directory entry that tells the phone this account may see this agent is
  * itself reused that long without re-asking, so trusting the photo read no
  * longer than that adds no staleness the list does not already have. A 404 or
- * 401 from any read of the key withdraws it before then. Invariant: endpoint
+ * 401 from any read of either size of the key withdraws it before then. Invariant: endpoint
  * bytes are shown only within this window of a 200/304 in the current epoch
  * (endpoint-avatars.test.ts, "displays a verified photo for the freshness
  * window only").
@@ -420,6 +426,25 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 		}
 	};
 
+	/*
+	 * After a refusal of one size, the other size's held photo is no longer
+	 * authorized either. Expire its freshness rather than dropping it: the bytes
+	 * and ETag stay a validator, so the next read can still answer 304, but
+	 * `peekEndpoint` and `load` no longer display them without that read
+	 * (review R3-1). A sibling in flight settles on its own answer.
+	 */
+	const expireSibling = (key: string): void => {
+		const sized = SIZED_KEY.exec(key);
+		if (!sized) return;
+		for (const size of SIZES) {
+			const name = `${sized[1]}:${size}`;
+			if (name === key) continue;
+			const sibling = entries.get(name);
+			if (sibling?.state === "ready")
+				sibling.verifiedAt = Number.NEGATIVE_INFINITY;
+		}
+	};
+
 	/* A plain boolean, not a type guard: its false branch must not narrow
 	 * "ready" away from callers that still read a stale entry as a validator. */
 	const fresh = (entry: Entry | undefined): boolean =>
@@ -526,6 +551,7 @@ export function createAvatarCache(options: AvatarCacheOptions = {}) {
 					}
 					remove(key);
 					fail(key, classify(error), retryAfterOf(error));
+					if (endpoint && endpointRefusal(error)) expireSibling(key);
 					return null;
 				},
 			)
