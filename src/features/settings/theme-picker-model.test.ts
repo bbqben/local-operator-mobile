@@ -117,3 +117,24 @@ describe("themeModeOptions: one mode order for both surfaces", () => {
 		},
 	);
 });
+
+describe("Theme picker search field", () => {
+	/* UX pass, theme picker: "Search themes" was drawn as a label AND as the
+	 * placeholder right under it. The field drops the drawn label and keeps it
+	 * as its accessible name (`Input.labelHidden`). */
+	it("draws no duplicate label and keeps the accessible name", () => {
+		const source = readFileSync(
+			new URL("./theme-picker.tsx", import.meta.url),
+			"utf8",
+		);
+		const field = source.slice(
+			source.lastIndexOf("<Input", source.indexOf("CONTROL.themePickerSearch")),
+			source.indexOf("/>", source.indexOf("CONTROL.themePickerSearch")),
+		);
+		expect(field).toContain("labelHidden");
+		expect(field).toContain('label={t("mobile.settings.theme.search_label")}');
+		expect(field).toContain(
+			'placeholder={t("mobile.settings.theme.search_placeholder")}',
+		);
+	});
+});
