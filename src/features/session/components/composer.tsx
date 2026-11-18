@@ -2220,6 +2220,7 @@ export const Composer = ({
 			visible={attachSheetOpen}
 			onClose={() => setAttachSheetOpen(false)}
 			onDismiss={attachmentHandoff.dismissed}
+			onHidden={attachmentHandoff.hidden}
 			/* Keyed with the lower-case English it already shipped; Title-casing it
 			 * like the other `sheet_title.*` keys (visual audit D14) is a copy
 			 * decision left to design, not part of keying it. */

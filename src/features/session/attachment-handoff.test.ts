@@ -1,6 +1,9 @@
 import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createAttachmentSheetHandoff } from "./attach-handoff";
+import {
+	createAttachmentSheetHandoff,
+	DISMISS_FALLBACK_MS,
+} from "./attach-handoff";
 
 const OWNER_ATTACH_FINALLY = /finally\s*\{\s*setAttaching\(false\)/;
 const CANCEL_BEFORE_REOPEN =
@@ -191,7 +194,95 @@ describe("native attachment sheet handoff", () => {
 		handoff.dismissed();
 		expect(launch).toHaveBeenCalledOnce();
 	});
+	/* #248: on iOS 26 the sheet closed and no picker appeared. The launch waited
+	 * on the Modal's onDismiss alone, and native delivery of that callback was
+	 * never proven on a device. The fallback starts only from the commit that
+	 * hid the Modal (`hidden`, the Sheet's onHidden), never from the press. */
+	it("no onDismiss after hide commit still launches once", () => {
+		vi.useFakeTimers();
+		const trace = vi.fn();
+		const handoff = createAttachmentSheetHandoff(trace);
+		const launch = vi.fn();
+		handoff.choose(launch, "ios");
+		// The press alone arms nothing: the exit animation still holds the Modal.
+		vi.advanceTimersByTime(60_000);
+		expect(launch).not.toHaveBeenCalled();
+		handoff.hidden();
+		vi.advanceTimersByTime(DISMISS_FALLBACK_MS - 1);
+		expect(launch).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(1);
+		expect(launch).toHaveBeenCalledOnce();
+		expect(trace).toHaveBeenLastCalledWith({
+			via: "fallback",
+			pending: true,
+			afterHiddenMs: DISMISS_FALLBACK_MS,
+		});
+		// A late onDismiss, a second hide, more time: still exactly once.
+		handoff.dismissed();
+		handoff.hidden();
+		vi.runAllTimers();
+		expect(launch).toHaveBeenCalledOnce();
+		expect(trace).toHaveBeenLastCalledWith({
+			via: "onDismiss",
+			pending: false,
+			afterHiddenMs: DISMISS_FALLBACK_MS,
+		});
+	});
+	it("onDismiss then timer launches once, never twice", () => {
+		vi.useFakeTimers();
+		const trace = vi.fn();
+		const handoff = createAttachmentSheetHandoff(trace);
+		const launch = vi.fn();
+		handoff.choose(launch, "ios");
+		handoff.hidden();
+		vi.advanceTimersByTime(16);
+		handoff.dismissed();
+		expect(launch).toHaveBeenCalledOnce();
+		expect(trace).toHaveBeenLastCalledWith({
+			via: "onDismiss",
+			pending: true,
+			afterHiddenMs: 16,
+		});
+		vi.runAllTimers();
+		expect(vi.getTimerCount()).toBe(0);
+		expect(launch).toHaveBeenCalledOnce();
+		expect(trace).toHaveBeenCalledOnce();
+	});
+	it("unmount cancels", () => {
+		vi.useFakeTimers();
+		const handoff = create();
+		const launch = vi.fn();
+		handoff.choose(launch, "ios");
+		handoff.hidden();
+		// The composer's unmount effect, and Attach's reopen, both call cancel().
+		handoff.cancel();
+		expect(vi.getTimerCount()).toBe(0);
+		vi.runAllTimers();
+		handoff.dismissed();
+		expect(launch).not.toHaveBeenCalled();
+	});
+	it("a hide with nothing chosen arms nothing", () => {
+		vi.useFakeTimers();
+		const handoff = create();
+		handoff.hidden();
+		expect(vi.getTimerCount()).toBe(0);
+		const launch = vi.fn();
+		handoff.choose(launch, "android");
+		handoff.hidden();
+		expect(vi.getTimerCount()).toBe(0);
+		expect(launch).toHaveBeenCalledOnce();
+	});
+	it("bounds the fallback above a non-animated native dismissal", () => {
+		// The Sheet's Modal is animationType="none", so its native dismissal is
+		// not animated; the value is a ceiling for a stalled UI thread, not a
+		// race against an animation (see DISMISS_FALLBACK_MS).
+		expect(read("../../ui/components/sheet.tsx")).toContain(
+			'animationType="none"',
+		);
+		expect(DISMISS_FALLBACK_MS).toBe(1_000);
+	});
 	it("wires the real composer choice and native dismissal without changing close/layout", () => {
+		expect(source).toContain("onHidden={attachmentHandoff.hidden}");
 		expect(source).toContain("onDismiss={attachmentHandoff.dismissed}");
 		expect(source).toContain("attachmentHandoff.choose(");
 		expect(source).toMatch(CANCEL_BEFORE_REOPEN);
@@ -219,6 +310,7 @@ describe("native attachment sheet handoff", () => {
 			'import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";',
 		);
 		expect(bridge).toContain("onDismiss={attachHandoff.dismissed}");
+		expect(bridge).toContain("onHidden={attachHandoff.hidden}");
 		expect(bridge).toMatch(BRIDGE_CHOOSE);
 		expect(bridge).toMatch(BRIDGE_CANCEL_BEFORE_REOPEN);
 		expect(bridge).toContain(
