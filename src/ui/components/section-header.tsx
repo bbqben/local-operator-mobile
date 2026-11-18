@@ -26,6 +26,13 @@ export type SectionHeaderProps = {
 	labelDir?: ComposedDirProps;
 };
 
+/** The label's classes. `ink-muted`, the kit's PANEL-HEADER ink (tokens.json
+ *  § color.ink), not `ink-dim`: `ink-dim` is the caption ink, and an 11 pt
+ *  upper-case mono label in it read fainter than the body text it heads (UX
+ *  pass, settings). Exported so the Node test can pin the role it paints. */
+export const SECTION_HEADER_LABEL_CLASS =
+	"text-mono-label uppercase text-ink-muted";
+
 export const SectionHeader = ({
 	label,
 	testID,
@@ -40,7 +47,7 @@ export const SectionHeader = ({
 	const web: object = labelDir;
 	return (
 		<View className="pb-1 pt-4" testID={testID}>
-			<Text {...web} className="text-mono-label uppercase text-ink-dim">
+			<Text {...web} className={SECTION_HEADER_LABEL_CLASS}>
 				{label}
 			</Text>
 		</View>
