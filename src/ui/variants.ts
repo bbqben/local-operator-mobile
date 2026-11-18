@@ -29,7 +29,7 @@
  */
 
 import { LARGE_TEXT_SCALE, lineBoxPt } from "@/ui/text-scale";
-import { TOUCH_TARGET } from "@/ui/tokens.gen";
+import { type ColorRole, TOUCH_TARGET } from "@/ui/tokens.gen";
 
 /** Join class names, dropping falsy entries. Local by design: `clsx` is not in
  * the shared dependency set, and this is all of it that the app needs. */
@@ -1071,3 +1071,33 @@ export const toastClasses =
 /** Long enough for one short line to be read: 1.5 × `duration.beat`. */
 export const TOAST_MIN_MS = 1050;
 export const TOAST_EXIT_MS = 120;
+
+/* -------------------------------------------------------------------------- */
+/* Switch                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The platform switch's colours, as roles (a `Switch` takes colour VALUES, so the
+ * row resolves these with `useTokenColor`).
+ *
+ * The platform defaults painted it before: react-native-web's teal thumb on the
+ * green `accent` track, and iOS's white thumb, which on the dark accent is the
+ * kit's one hard prohibition (2.16:1, components.md § 2). On and off were hard to
+ * tell apart in dark (UX pass, settings).
+ *
+ *  - on: the `accent` track with `on-accent` — the accent's own ink — as the
+ *    thumb, the pair the contract already pins (5.33 light / 8.58 dark).
+ *  - off: the neutral `border-control` track, the structural ink, never an
+ *    accent step; the thumb is `elevated`, raised off it.
+ *
+ * Colour is not the only signal: the thumb's side is the state, and the row
+ * announces `checked`. `switch-colours.test.ts` holds both states at 3:1
+ * thumb-on-track, and the off track at 3:1 on the page, in every shipped palette.
+ */
+export const SWITCH_ROLES = {
+	on: { track: "accent", thumb: "on-accent" },
+	off: { track: "border-control", thumb: "elevated" },
+} as const satisfies Record<
+	"on" | "off",
+	{ track: ColorRole; thumb: ColorRole }
+>;

@@ -14,6 +14,7 @@ import { CONTROL, ROLE, sidebarSectionSwitchId } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Segmented } from "@/ui/components/segmented";
 import { TOUCH_FLOOR } from "@/ui/layout";
+import { SWITCH_ROLES } from "@/ui/variants";
 
 /**
  * The drawer's view options, drawn once for two places: the compact sheet the
@@ -94,8 +95,14 @@ export const SwitchRow = ({
 	 *  second time under the label; this is read only, and wins over `hint`. */
 	accessibilityHint?: string;
 }) => {
-	const accent = useTokenColor("accent");
-	const track = useTokenColor("border-control");
+	const onTrack = useTokenColor(SWITCH_ROLES.on.track);
+	const onThumb = useTokenColor(SWITCH_ROLES.on.thumb);
+	const offTrack = useTokenColor(SWITCH_ROLES.off.track);
+	const offThumb = useTokenColor(SWITCH_ROLES.off.thumb);
+	/* react-native-web reads the ON thumb from `activeThumbColor` and ignores
+	 *  `thumbColor` while on, so without it its teal default returns. Not a
+	 *  React Native prop, hence widened to `object` (the `dir` pattern). */
+	const webThumb: object = { activeThumbColor: onThumb };
 	return (
 		<Pressable
 			accessibilityRole={ROLE.switch}
@@ -133,7 +140,11 @@ export const SwitchRow = ({
 					value={value}
 					disabled={disabled}
 					onValueChange={onChange}
-					trackColor={{ true: accent, false: track }}
+					trackColor={{ true: onTrack, false: offTrack }}
+					thumbColor={value ? onThumb : offThumb}
+					// iOS fills the off track from this, not from `trackColor.false`.
+					ios_backgroundColor={offTrack}
+					{...webThumb}
 				/>
 			</View>
 		</Pressable>
