@@ -2291,7 +2291,7 @@ export const RENDER_TREE_PINS: Readonly<Record<string, string>> = {
 	 * differing root); source identity only, NOT rendered U-08 evidence. */
 	/* PR #304 converges with #301: keep both source histories and pin their
 	 * combined src tree. This is source identity only, not rendered evidence. */
-	src: "1c95ee8e89d0abf245fbfad34aae6512e7b680aabba3b4f2c1c7c3fb8ed3ab7c",
+	src: "d34f3fb857abb5e0108ef0b177bf1f46a3dcb3ddc4c743a4ae76bfa7b2545c31",
 };
 
 export const INPUT_TREE_PINS: Readonly<Record<string, string>> = {

@@ -61,6 +61,8 @@ const kotlinPalette = (): number[] => {
 };
 
 const TONES_CONST = /const val TONES = 8\b/;
+const COMMENT_LINE = /^\s*(\*|\/\/|\/\*)/;
+const LAUNCHER_EXCLUSION = /setExcludedFromSurfaces|SURFACE_LAUNCHER/;
 
 /** The native parser's initials rule, restated for the fixture check. */
 const DRAWABLE = /^[\p{L}\p{N}]{1,2}$/u;
@@ -86,6 +88,22 @@ describe("push avatar contract (ADR 0010 §5)", () => {
 		expect(EXPO_NOTIFICATIONS_ARTIFACT.exec(gradle)?.[1]).toBe(
 			installed.version,
 		);
+	});
+
+	it("publishes conversation shortcuts the platform keeps (QA F1, PR #304)", () => {
+		// An excluded-from-launcher shortcut is never stored by ShortcutService
+		// (AOSP `ShortcutPackage.pushDynamicShortcut` keeps it only as transient,
+		// AppSearch-only state), so on API 33+ no conversation exists and the
+		// notification silently demotes to plain MessagingStyle. The emulator
+		// runner's `decorateMessaging` case is the device-side check; this pins
+		// the source so the regression fails without an emulator.
+		const code = kotlin("ConversationShortcuts.kt")
+			.split("\n")
+			.filter((line) => !COMMENT_LINE.test(line))
+			.join("\n");
+		expect(code).toContain("pushDynamicShortcut");
+		expect(code).toContain(".setLongLived(true)");
+		expect(code).not.toMatch(LAUNCHER_EXCLUSION);
 	});
 
 	it("bounds the parsed tone by the palette size", () => {

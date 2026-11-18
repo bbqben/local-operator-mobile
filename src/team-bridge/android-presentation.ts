@@ -80,8 +80,13 @@ export const teamBridgeChannelInput = (
 	importance: importanceHigh,
 	/* PRIVATE: on a secure lock screen with "hide sensitive content" the OS
 	 * shows each notification's public version (sender-free, see
-	 * `TeamBridgeDecorator.kt`). This is only the channel's DEFAULT; a user who
-	 * changes it keeps their choice (ADR 0010 §7 row 14). Passed in from the
+	 * `TeamBridgeDecorator.kt`). A REQUEST, not a guarantee: AOSP
+	 * `PreferencesHelper.createNotificationChannel` treats lockscreen visibility
+	 * as a field apps may not set and overwrites it with the package default
+	 * (`VISIBILITY_NO_OVERRIDE`, -1000), so `dumpsys` shows -1000 (installed-app
+	 * run 44247024803, all APIs). The privacy rule therefore lives on each
+	 * notification (`setVisibility(PRIVATE)` + public version), which the OS
+	 * honours (ADR 0010 §7 row 14). Passed in from the
 	 * module: expo's `AndroidNotificationVisibility.PRIVATE` is its own enum
 	 * value (2), not the platform's `VISIBILITY_PRIVATE` (0). */
 	lockscreenVisibility: visibilityPrivate,

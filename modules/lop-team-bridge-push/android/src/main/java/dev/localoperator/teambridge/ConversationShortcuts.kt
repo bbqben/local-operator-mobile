@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import androidx.core.app.Person
 import androidx.core.content.LocusIdCompat
 import androidx.core.content.pm.ShortcutInfoCompat
@@ -23,8 +22,20 @@ import androidx.core.graphics.drawable.IconCompat
  *
  * PRIVACY. A shortcut holds a conversation name and a face, and outlives the
  * notification. They are account data: `removeAll` runs on sign-out and when
- * the Team Bridge switch turns off (`src/team-bridge/push.ts`), and they are
- * excluded from the launcher's long-press menu on API 33+.
+ * the Team Bridge switch turns off (`src/team-bridge/push.ts`).
+ *
+ * NOT EXCLUDED FROM THE LAUNCHER (QA F1, PR #304). A shortcut marked
+ * `setExcludedFromSurfaces(SURFACE_LAUNCHER)` is never stored by the platform:
+ * `ShortcutPackage.pushDynamicShortcut` (AOSP frameworks/base, main) keeps an
+ * excluded shortcut only in `mTransientShortcuts`, and only when AppSearch is
+ * enabled, instead of `forceReplaceShortcutInner`. So on API 33+ the shortcut
+ * does not exist, `reportShortcutUsed` logs "doesn't have shortcut tb:...", the
+ * `getShortcuts` check below finds nothing, and the notification falls back
+ * to plain MessagingStyle with no conversation (installed-app run 44247024803,
+ * API 36). On 30-32 AndroidX itself fakes success for an excluded shortcut
+ * without publishing. A conversation therefore needs a launcher-visible
+ * dynamic shortcut, the same trade every messaging app makes: the launcher's
+ * long-press menu may list recent conversations until sign-out removes them.
  */
 internal object ConversationShortcuts {
   /** The deep link the app's router already resolves for a thread
@@ -48,8 +59,7 @@ internal object ConversationShortcuts {
       .setPerson(sender)
       .setIcon(IconCompat.createWithBitmap(avatar))
       .setIntent(intent)
-      // On API 30–32 AndroidX returns true without publishing an excluded shortcut.
-      .apply { if (Build.VERSION.SDK_INT >= 33) setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER) }
+      // Never setExcludedFromSurfaces: see NOT EXCLUDED FROM THE LAUNCHER above.
       .build()
     // pushDynamicShortcut is not rate-limited (unlike setDynamicShortcuts) and
     // evicts the oldest dynamic shortcut at the launcher's cap.

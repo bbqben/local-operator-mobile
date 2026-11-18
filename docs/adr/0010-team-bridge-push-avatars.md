@@ -280,9 +280,13 @@ response pipeline. **Keep data-only and build on the device.**
   3. On **API 30+ only**, before posting, call `ShortcutManagerCompat.pushDynamicShortcut` (the
      shortcut is a separate object, so Compat is fine here) with a **long-lived** shortcut
      for that id. It carries the same `Person`, `setLongLived(true)`, an intent that opens the app
-     at the conversation deep link, and, on API 33+, `setExcludedFromSurfaces(SURFACE_LAUNCHER)` so
-     conversation names don't appear in the launcher's long-press menu. On sign-out and account
-     switch, call `removeLongLivedShortcuts` for all `tb:*` ids. They are account data.
+     at the conversation deep link. It is **not** excluded from the launcher: the platform never
+     stores a shortcut marked `setExcludedFromSurfaces(SURFACE_LAUNCHER)` (AOSP
+     `ShortcutPackage.pushDynamicShortcut` keeps it only as transient AppSearch state), so on
+     API 33+ no conversation existed and the notification fell back to plain `MessagingStyle`
+     (installed-app QA F1, PR #304, run 44247024803). The launcher's long-press menu may
+     therefore list recent conversations, as it does for other messaging apps. On sign-out and
+     account switch, call `removeLongLivedShortcuts` for all `tb:*` ids. They are account data.
   4. The small icon stays `ic_notification` (the LO monochrome mark, `app.config.ts:452`).
      Android 11+ draws the app badge on the conversation avatar in the shade and the Conversations
      section. That is the Slack look without drawing the LO mark ourselves.
@@ -372,6 +376,32 @@ response pipeline. **Keep data-only and build on the device.**
        is never served.
     Any failure answers the same `404` with no body difference. Sign-out and account switch also
     delete that device's nonce rows.
+  - **Live contract (Radient S5, deployed; folded in 2026-11-18).** What the phone now relies on,
+    as shipped by the cloud. Where it differs from the design above, this is authoritative:
+    - **Payload:** `sender.photo = {url, nonce}` with `url` exactly
+      `https://api.radienthq.com/v1/push-avatars` (no path parameter, no query) and `nonce` 22
+      base64url characters (128 bits).
+    - **Request:** `GET` with `Authorization: PushAvatar <nonce>`; the server matches the scheme
+      case-insensitively. Redirects off; sent only to the origin the device registered with.
+    - **Success:** `200`, `image/jpeg` or `image/png`, one 256 px derivative,
+      `Cache-Control: private, no-store`.
+    - **Every failure is `404`, never `401`** — missing or malformed header, other scheme,
+      unknown, expired or revoked nonce, failed re-check — and a wrong method is also `404`, not
+      `405`, so no response distinguishes the route's existence.
+    - **Lifetime:** 15 minutes; the device's nonce rows are deleted on sign-out and on account
+      switch.
+    - **Tenant re-check:** serves when the recipient and sender **still share any tenant**, not
+      necessarily the one the push came from (re-check 3 as deployed).
+    - **Accepted residual S-2:** response timing may differ between a known and an unknown nonce;
+      accepted by the cloud review, since the nonce is 128 random bits and short-lived.
+    - **Initials** (the fallback face) follow the desktop rule (`teamBridgeSenderInitials`, §2),
+      not core's validation-only path; the cloud sends them already derived.
+    - **Phone conformance** (`PushAvatarFetcher.kt`, checked 2026-11-18): nonce shape validated
+      and a URL with query, fragment or user info refused before any request (the path itself is
+      the cloud's to choose); origin pinned to the registered hub origin
+      (`RADIENT_API_BASE`) on both `java.net.URL` and OkHttp's `HttpUrl`; `followRedirects(false)`
+      and `followSslRedirects(false)`; any non-`200` (so every `404`) returns null and the
+      notification draws initials; a 3 s deadline; no disk cache, no logging.
   - **Logging.** The nonce is in a request header, so every log that keeps URLs is out of reach
     by construction. Each sink was checked:
     - **The AWS WAF log keeps every request's path, and redacts only headers.**
