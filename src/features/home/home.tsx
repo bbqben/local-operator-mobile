@@ -802,6 +802,15 @@ export default function Home({
 		setDraft,
 		onError: setComposerError,
 	});
+	/* The reader's OWN draft writes — typing and a suggestion pick — end a resting
+	 *  mic line (#323). A pick fills exactly the empty draft a failed start leaves,
+	 *  so it must not keep the line under the text (round 3). The transcript
+	 *  append stays on the bare `setDraft` above: it is what "Transcript added"
+	 *  announces. */
+	const editDraft = (text: string) => {
+		voice.clearOutcome();
+		setDraft(text);
+	};
 
 	/* Keep the latest coordinator behind a stable callback: a pending drawer
 	 * dismissal must not focus an old draft after Home re-renders. The provider
@@ -893,7 +902,7 @@ export default function Home({
 						draft={draft}
 						editing={editing}
 						connected={connected}
-						onPick={setDraft}
+						onPick={editDraft}
 						onConnect={() => router.push("/tunnels")}
 						starting={starting}
 						focusRequest={heroFocus}
@@ -1036,10 +1045,7 @@ export default function Home({
 				suppressDisabledHint={homeRecovery !== null}
 				controls={controls}
 				draft={draft}
-				onDraftChange={(text) => {
-					voice.clearOutcome();
-					setDraft(text);
-				}}
+				onDraftChange={editDraft}
 				images={images}
 				onRemoveImage={(index) =>
 					setImages((current) => current.filter((_, at) => at !== index))
