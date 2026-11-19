@@ -90,7 +90,7 @@ const NAMESPACES = [
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
 		// feat/bridge-card-body (#344): +16 card_body.* (inbound card body states, framing, show more/less, more count): 179 + 16 = 195.
-		expected: 195, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, counted over the merged en JSON.
+		expected: 195, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305) + sixteen card_body.* (#344): 179 + 16 = 195, counted over the merged en JSON.
 	},
 	{
 		name: "mobile.signin",
