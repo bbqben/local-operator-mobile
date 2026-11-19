@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useIsFocused, useRouter } from "expo-router";
 import { Bell, BellDot } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TextInput } from "react-native";
@@ -52,6 +52,7 @@ import {
 	FolderPicker,
 	ModelPicker,
 } from "@/features/home/home-pickers";
+import { homeRecoveryKind } from "@/features/home/home-recovery";
 import { HomeRecovery, HomeSplash } from "@/features/home/home-splash";
 import {
 	type CatalogueDefault,
@@ -61,6 +62,7 @@ import {
 	homeChips,
 	homeFolderChip,
 } from "@/features/home/picker-model";
+import { signedOutLanding } from "@/features/home/signed-out-landing";
 import { useHomeDrawer } from "@/features/home/use-home-drawer";
 import { startupEchoes } from "@/features/new-session/startup-echoes";
 import {
@@ -168,6 +170,7 @@ export default function Home({
 	notice = null,
 }: HomeProps) {
 	const router = useRouter();
+	const focused = useIsFocused();
 	const layout = useLayout();
 	const split = layout.split;
 
@@ -415,18 +418,15 @@ export default function Home({
 	const connected = routed && client !== null;
 	const offline = deviceOnline() === false;
 	const viewport = useWindowDimensions();
-	const homeRecovery =
-		busy || !coldStartSettled
-			? "restoring"
-			: refusal?.kind === "sign-in" || refusal?.kind === "account-mismatch"
-				? "auth"
-				: offline
-					? "offline"
-					: refusal !== null
-						? "error"
-						: !connected
-							? "no-host"
-							: null;
+	/* Derived from the live route, not from `busy` alone: an attempt can publish
+	 *  the route and still be awaiting startup admission (`home-recovery.ts`). */
+	const homeRecovery = homeRecoveryKind({
+		busy,
+		coldStartSettled,
+		connected,
+		offline,
+		refusal,
+	});
 	const namedRefusal = homeNamedRefusal(homeRecovery, refusal);
 
 	/* The computer's two reads, each kept as the state it really is.
@@ -590,19 +590,23 @@ export default function Home({
 	 * screen's comment (store docs + the harness's cells); the refusal clause is
 	 * what keeps a revoked credential's surface on the screen that renders it. */
 	useEffect(() => {
-		if (
-			coldStartSettled &&
-			!busy &&
-			!routed &&
-			refusal === null &&
-			savedTunnel === null &&
-			phase === "signed-out"
-		) {
-			router.replace(restoredAccount ? "/tunnels" : "/welcome");
-		}
+		/* Only while Home is the route on screen: see `signed-out-landing.ts`
+		 * (a cold Team Bridge tap's thread sits on top of Home). */
+		const landing = signedOutLanding({
+			focused,
+			coldStartSettled,
+			busy,
+			routed,
+			refusal,
+			savedTunnel,
+			phase,
+			restoredAccount,
+		});
+		if (landing !== null) router.replace(landing);
 	}, [
 		busy,
 		coldStartSettled,
+		focused,
 		phase,
 		refusal,
 		restoredAccount,

@@ -20,7 +20,10 @@ export async function removePickedCacheCopy(
 }
 /** A process can die inside the native picker before JS receives an asset URI.
  * After draining active pickers, sweep ONLY Expo's dedicated cache/ImagePicker,
- * never a Photos source, a document-provider URI or the whole cache/sentinel. */
+ * never a Photos source, a document-provider URI or the whole cache/sentinel.
+ * The drain is bounded (`PickerPrivacy`): sweeps chain on `sweeping`, so an
+ * unbounded wait on one never-settling picker held every later sweep — and
+ * every startup admission gated on it — for the life of the process. */
 let sweeping: Promise<void> = Promise.resolve();
 export function clearNativePickerCache(): Promise<void> {
 	const next = sweeping
