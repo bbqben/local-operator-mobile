@@ -59,9 +59,16 @@ export function useStoredModel(input: {
 	/** Remote ownership/capabilities are enforced before enabling this path. */
 	enabled: boolean;
 	ended: boolean;
+	/** Stable admission identity, independent of ended → live projection changes. */
+	ownership?: string;
 }) {
-	const { client, sessionId, enabled, ended } = input;
-	const owner = useMemo(() => ({ client, sessionId }), [client, sessionId]);
+	const { client, sessionId, enabled, ended, ownership = "local" } = input;
+	const owner = useMemo(
+		() => ({ client, sessionId, ownership }),
+		[client, sessionId, ownership],
+	);
+	const live = useRef({ ended, enabled });
+	live.current = { ended, enabled };
 	const currentOwner = useRef<object | null>(owner);
 	currentOwner.current = owner;
 	useEffect(() => {
@@ -75,8 +82,21 @@ export function useStoredModel(input: {
 		value: StoredModelChoice;
 	} | null>(null);
 	const pending = choice?.owner === owner ? choice.value : null;
+	// Retain revoked intent as a refusal rather than silently sending with a
+	// different model. The screen hides it, but Send must still explain failure.
+	const choiceRef = useRef(choice);
+	choiceRef.current = choice;
 	const pendingRef = useRef(pending);
 	pendingRef.current = pending;
+	const remember = useCallback(
+		(value: StoredModelChoice) => {
+			const next = { owner, value };
+			choiceRef.current = next;
+			pendingRef.current = value;
+			setChoice(next);
+		},
+		[owner],
+	);
 	const [catalogue, setCatalogue] = useState<{
 		owner: object;
 		models: ModelEntry[];
@@ -136,9 +156,9 @@ export function useStoredModel(input: {
 				effort === undefined ? (pendingRef.current?.effort ?? null) : effort,
 				offer,
 			);
-			setChoice({ owner, value: { model, effort: valid } });
+			remember({ model, effort: valid });
 		},
-		[enabled, owner],
+		[enabled, remember],
 	);
 	// Header Resume and composer Send share preparation, including an ack that
 	// arrives before React repaints. Otherwise two explicit actions can interleave
@@ -148,49 +168,126 @@ export function useStoredModel(input: {
 		choice: StoredModelChoice;
 		promise: Promise<void>;
 	} | null>(null);
+	const assertOwner = useCallback(() => {
+		if (!client || currentOwner.current !== owner)
+			throw new Error("session route or ownership changed");
+		if (choiceRef.current && choiceRef.current.owner !== owner)
+			throw new Error("model selection unavailable after ownership changed");
+		return client;
+	}, [client, owner]);
 	const prepare = useCallback(async () => {
-		const captured = pendingRef.current;
-		if (!captured) return;
-		if (!client || currentOwner.current !== owner)
-			throw new Error("session route changed");
-		const existing = applying.current;
-		if (existing?.owner === owner && existing.choice === captured)
-			return existing.promise;
-		const assertCurrent = () => {
-			if (currentOwner.current !== owner)
-				throw new Error("session route changed");
-		};
-		const promise = applyStoredModel(
-			client,
-			sessionId,
-			captured,
-			ended,
-			assertCurrent,
-		);
-		applying.current = { owner, choice: captured, promise };
-		try {
-			await promise;
-		} catch (error) {
-			if (applying.current?.promise === promise) applying.current = null;
-			throw error;
+		const endpoints = assertOwner();
+		// Serialize newer intent behind the old ACK, then read the synchronous
+		// ref, not a render snapshot. Header Resume and Send share this barrier.
+		for (;;) {
+			const captured = pendingRef.current;
+			const existing = applying.current;
+			if (existing?.owner === owner) {
+				try {
+					await existing.promise;
+				} catch (error) {
+					assertOwner();
+					if (pendingRef.current === existing.choice) throw error;
+				}
+				assertOwner();
+				continue;
+			}
+			if (!captured) return;
+			const assertCurrent = () => {
+				assertOwner();
+				if (owner.ownership !== "local")
+					throw new Error("stored model selection requires local ownership");
+				if (pendingRef.current !== captured)
+					throw new Error("model selection changed during preparation");
+			};
+			const promise = applyStoredModel(
+				endpoints,
+				sessionId,
+				captured,
+				live.current.ended,
+				assertCurrent,
+			);
+			applying.current = { owner, choice: captured, promise };
+			try {
+				await promise;
+				if (pendingRef.current === captured) {
+					pendingRef.current = null;
+					choiceRef.current = null;
+					setChoice(null);
+				}
+			} catch (error) {
+				assertOwner();
+				if (pendingRef.current === captured) throw error;
+			} finally {
+				if (applying.current?.promise === promise) applying.current = null;
+			}
 		}
-		// A newer selection made during the request must survive the older ack.
-		setChoice((previous) =>
-			previous?.owner === owner && previous.value === captured
-				? null
-				: previous,
-		);
-	}, [client, sessionId, owner, ended]);
+	}, [assertOwner, sessionId, owner]);
+	// Both sheet callbacks use this same intent lane after Resume. A failed
+	// effort ACK must never resurrect model A over a later explicit model B.
+	const selectModel = useCallback(
+		async (model: ModelEntry) => {
+			const endpoints = assertOwner();
+			if (live.current.enabled) {
+				pick(model);
+				return;
+			}
+			if (pendingRef.current) {
+				remember({
+					model,
+					effort: effortAfterModelChange(
+						pendingRef.current.effort,
+						effortOffer({
+							supported: true,
+							chosenModel: model,
+							models: [model],
+							catalogueDefault: undefined,
+						}),
+					),
+				});
+				await prepare();
+			} else {
+				await endpoints.command(sessionId, {
+					op: "set_model",
+					provider: model.provider,
+					model_id: model.model_id,
+				});
+				assertOwner();
+			}
+		},
+		[assertOwner, pick, remember, prepare, sessionId],
+	);
+	const selectEffort = useCallback(
+		async (effort: string, model?: ModelEntry | null) => {
+			const endpoints = assertOwner();
+			if (live.current.enabled) {
+				if (model) pick(model, effort);
+				return;
+			}
+			if (pendingRef.current) {
+				remember({ ...pendingRef.current, effort });
+				await prepare();
+			} else {
+				await endpoints.command(sessionId, { op: "set_effort", effort });
+				assertOwner();
+			}
+		},
+		[assertOwner, pick, remember, prepare, sessionId],
+	);
 	const resume = useCallback(async () => {
-		if (pendingRef.current) return prepare();
-		if (!client || currentOwner.current !== owner)
-			throw new Error("session route changed");
-		await client.resumeSession(sessionId);
-	}, [prepare, client, owner, sessionId]);
+		const endpoints = assertOwner();
+		if (pendingRef.current || choiceRef.current) return prepare();
+		if (owner.ownership !== "local")
+			throw new Error("resume requires local ownership");
+		await endpoints.resumeSession(sessionId);
+		assertOwner();
+	}, [prepare, assertOwner, owner, sessionId]);
 	return {
 		resume,
 		pending,
 		pick,
+		selectModel,
+		selectEffort,
 		prepare,
 		models: catalogue.owner === owner ? catalogue.models : [],
 		loading: catalogue.owner !== owner || catalogue.loading,

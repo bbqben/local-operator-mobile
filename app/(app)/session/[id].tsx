@@ -295,6 +295,9 @@ function Session() {
 	const storedModel = useStoredModel({
 		client: runtime.source.endpoints,
 		sessionId,
+		ownership: remoteConversation
+			? `remote:${listRow?.owner_device ?? owner ?? "unknown"}`
+			: "local",
 		// Resume has no remote form: never route a cold remote choice through
 		// the connected computer even if it advertises live model switching.
 		enabled:
@@ -2027,16 +2030,8 @@ function Session() {
 				onPick={(model) => {
 					if (composer.sending || resume.busy) return;
 					setChipError(null);
-					if (storedPicker) {
-						storedModel.pick(model);
-						return;
-					}
-					void runtime.source.endpoints
-						?.command(sessionId, {
-							op: "set_model",
-							provider: model.provider,
-							model_id: model.model_id,
-						})
+					void storedModel
+						.selectModel(model)
 						.catch(() =>
 							setChipError(t("mobile.session.chip.model_change_failed")),
 						);
@@ -2051,15 +2046,8 @@ function Session() {
 				onPick={(effort) => {
 					if (composer.sending || resume.busy) return;
 					setChipError(null);
-					if (storedPicker) {
-						if (selectedModel !== null) storedModel.pick(selectedModel, effort);
-						return;
-					}
-					void runtime.source.endpoints
-						?.command(sessionId, {
-							op: "set_effort",
-							effort,
-						})
+					void storedModel
+						.selectEffort(effort, selectedModel)
 						.catch(() =>
 							setChipError(t("mobile.session.chip.effort_change_failed")),
 						);
