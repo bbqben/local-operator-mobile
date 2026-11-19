@@ -96,6 +96,22 @@ vi.mock("lucide-react-native", () => ({
 	TextCursor: () => null,
 }));
 vi.mock("@/lib/haptics", () => ({ haptic: () => {} }));
+/* The sheet hook reads the Team Bridge store for its quick-reaction row
+ *  (reactions slice PR b). This file pins dismissal timing only, with
+ *  reactions off, so a fixed snapshot stands in for the provider (whose real
+ *  import graph is native). */
+vi.mock("@/team-bridge/provider", () => {
+	const state = {
+		reactionsUnserved: false,
+		selfAccountId: null,
+		reactionPending: {},
+		reactionFailed: {},
+	};
+	return {
+		useTeamBridge: () => ({ actions: {}, store: { getState: () => state } }),
+		useTeamBridgeState: (select: (s: typeof state) => unknown) => select(state),
+	};
+});
 vi.mock("expo-clipboard", () => ({ setStringAsync: async () => true }));
 vi.mock("@/ui/appearance", async (importOriginal) => ({
 	...((await importOriginal()) as object),
@@ -237,7 +253,9 @@ describe("Team Bridge Reply in thread on the real Sheet (web)", () => {
 		const [thread, setThread] = useState<string | null>(null);
 		const actions = useMessageActions({
 			scope: "timeline",
+			tenantId: "ten_x",
 			canReplyInThread: true,
+			canReact: false,
 			onReplyInThread: (id) => {
 				rec.events.push(`push:${id}`);
 				setThread(id);

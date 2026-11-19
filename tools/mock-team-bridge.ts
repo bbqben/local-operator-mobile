@@ -44,6 +44,9 @@ import { TEAM_BRIDGE_FIXTURE_TOKEN } from "../src/testing/team-bridge-token.ts";
 import { DEVICES } from "./visual/matrix.ts";
 
 const MOCK_ROUTE = /^\/mock-hub\/([a-z0-9_~-]+)\/v1\/messaging(.*)$/;
+/* The hub's reaction write route (reactions spec §2.1), inside a mock world. */
+const REACTION_ROUTE =
+	/^\/conversations\/([^/]+)\/messages\/([^/]+)\/reactions\/([^/]+)$/;
 /*
  * The community client's same-origin seam (`src/testing/community-fixture.ts`).
  * There is no community FIXTURE here on purpose: with `MOCK_COMMUNITY_UPSTREAM`
@@ -483,6 +486,59 @@ export function createTeamBridgeFixture(options: { root?: string } = {}) {
 		};
 	};
 
+	/*
+	 * REACTIONS (reactions spec §2.1, gap G6): the hub's
+	 * `PUT|DELETE /conversations/{cid}/messages/{mid}/reactions/{emoji}` and the
+	 * `reactions` summary on every history/thread row, per world, so a capture
+	 * or a test never leaks a reaction into another. The viewer is SELF ("Sam");
+	 * `reacted_by_me` is SELF's own state, the labels a ≤ 3 sample, as served.
+	 *
+	 *  - `tb-fixture=reactions`: seeded pills (two of others' on message 3, one
+	 *    of mine; one on message 5), routes served.
+	 *  - `reactions_fail`: same seeds, every write answers 500 (rollback path).
+	 *  - `reactions_unserved`: an OLD hub: the route answers an UNCODED 404 and
+	 *    rows carry no `reactions` (the phone must hide every control).
+	 *  - every other scenario: routes served, nothing seeded.
+	 * `/__stats` counts the writes (`reactionWrites`), which is how a double tap
+	 * is proved to send one request.
+	 */
+	type ReactionEntry = { count: number; mine: boolean; labels: string[] };
+	const reactionWorlds = new Map<
+		string,
+		Map<string, Map<string, ReactionEntry>>
+	>();
+	const reactionWrites = { put: 0, delete: 0 };
+	const reactionWorld = (key: string, scenario: string) => {
+		let held = reactionWorlds.get(key);
+		if (held) return held;
+		held = new Map();
+		if (scenario === "reactions" || scenario === "reactions_fail")
+			for (const row of conversations) {
+				held.set(
+					`${row.id}|bcm_3`,
+					new Map([
+						["\u{1F44D}", { count: 2, mine: false, labels: ["Ada", "Aida"] }],
+						["\u{1F389}", { count: 1, mine: true, labels: ["Sam"] }],
+					]),
+				);
+				held.set(
+					`${row.id}|bcm_5`,
+					new Map([
+						["\u2764\uFE0F", { count: 1, mine: false, labels: ["Ada"] }],
+					]),
+				);
+			}
+		reactionWorlds.set(key, held);
+		return held;
+	};
+	const reactionRows = (entries: Map<string, ReactionEntry> | undefined) =>
+		[...(entries ?? new Map<string, ReactionEntry>())].map(([emoji, e]) => ({
+			emoji,
+			count: e.count,
+			reacted_by_me: e.mine,
+			sample_labels: e.labels.slice(0, 3),
+		}));
+
 	const requests: Array<{ method: string; path: string }> = [];
 	const handle = async (
 		req: IncomingMessage,
@@ -498,8 +554,14 @@ export function createTeamBridgeFixture(options: { root?: string } = {}) {
 				});
 				res.end(JSON.stringify(value));
 			};
+			/* Set once the mock world is known: adds the world's reaction summary
+			 *  to every message a hub answer carries (history, root, replies). */
+			let decorate: ((value: unknown) => unknown) | null = null;
 			const ok = (result: unknown) =>
-				send(200, { msg: "Fixture answer", result });
+				send(200, {
+					msg: "Fixture answer",
+					result: decorate ? decorate(result) : result,
+				});
 			if (url.pathname === "/__phone") {
 				const qaCase = url.searchParams.get("case") ?? "populated";
 				const theme = url.searchParams.get("theme") ?? "light";
@@ -562,7 +624,7 @@ setInterval(()=>{try{
 				return;
 			}
 			if (url.pathname === "/__stats") {
-				ok({ created, requests });
+				ok({ created, requests, reactionWrites });
 				return;
 			}
 			const community = COMMUNITY_ROUTE.exec(url.pathname);
@@ -640,6 +702,32 @@ setInterval(()=>{try{
 				const noticeTenant = world.secondOrg ? OTHER_TENANT : TENANT;
 				const path = match[2] ?? "";
 				requests.push({ method: req.method ?? "GET", path });
+				const reactions = reactionWorld(match[1] ?? "", qaCase ?? "");
+				if (qaCase !== "reactions_unserved")
+					decorate = (value) => {
+						const withRows = (m: unknown) => {
+							if (!m || typeof m !== "object") return m;
+							const row = m as { id?: string; conversation_id?: string };
+							const rows = reactionRows(
+								reactions.get(`${row.conversation_id}|${row.id}`),
+							);
+							return rows.length > 0 ? { ...row, reactions: rows } : row;
+						};
+						if (!value || typeof value !== "object") return value;
+						const page = value as {
+							messages?: unknown[];
+							root?: unknown;
+							replies?: unknown[];
+						};
+						return {
+							...page,
+							...(page.messages
+								? { messages: page.messages.map(withRows) }
+								: {}),
+							...(page.root ? { root: withRows(page.root) } : {}),
+							...(page.replies ? { replies: page.replies.map(withRows) } : {}),
+						};
+					};
 				if (
 					qaCase?.startsWith("notice_") &&
 					req.headers.authorization !==
@@ -977,6 +1065,58 @@ setInterval(()=>{try{
 					conversations.push(row);
 					histories.set(row.id, []);
 					ok(row);
+					return;
+				}
+				const reaction = REACTION_ROUTE.exec(path);
+				if (reaction && (req.method === "PUT" || req.method === "DELETE")) {
+					if (qaCase === "reactions_unserved") {
+						// An old hub's router: no route, so no code in the refusal.
+						send(404, { error: "Not Found" });
+						return;
+					}
+					reactionWrites[req.method === "PUT" ? "put" : "delete"]++;
+					const tenant =
+						req.method === "PUT"
+							? body.tenant_id
+							: url.searchParams.get("tenant_id");
+					if (tenant !== noticeTenant) {
+						send(403, { error: "Wrong organization", code: "not_a_member" });
+						return;
+					}
+					if (qaCase === "reactions_fail") {
+						send(500, {
+							error: "Synthetic reaction write failed.",
+							code: "internal_error",
+						});
+						return;
+					}
+					const [, cid = "", mid = "", raw = ""] = reaction;
+					const emoji = decodeURIComponent(raw).normalize("NFC");
+					const key = `${cid}|${mid}`;
+					const entries =
+						reactions.get(key) ?? new Map<string, ReactionEntry>();
+					const held = entries.get(emoji);
+					// Idempotent both ways, as the hub is: a repeat changes nothing.
+					if (req.method === "PUT" && !held?.mine)
+						entries.set(emoji, {
+							count: (held?.count ?? 0) + 1,
+							mine: true,
+							labels: ["Sam", ...(held?.labels ?? [])].slice(0, 3),
+						});
+					if (req.method === "DELETE" && held?.mine) {
+						if (held.count <= 1) entries.delete(emoji);
+						else
+							entries.set(emoji, {
+								count: held.count - 1,
+								mine: false,
+								labels: held.labels.filter((label) => label !== "Sam"),
+							});
+					}
+					reactions.set(key, entries);
+					send(200, {
+						msg: "Fixture answer",
+						result: { message_id: mid, reactions: reactionRows(entries) },
+					});
 					return;
 				}
 				const id = path.split("/")[2];

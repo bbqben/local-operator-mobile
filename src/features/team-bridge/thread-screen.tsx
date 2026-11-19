@@ -133,6 +133,7 @@ import {
 	ProfileSheet,
 	UnknownSenderAvatar,
 } from "./profile-card";
+import { ReactionPills } from "./reaction-pills";
 import { ReplyThreadChip } from "./reply-thread-chip";
 import { parseThreadAnchor, type ThreadAnchor } from "./thread-anchor";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
@@ -292,6 +293,9 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 						accessibility: messageActionAccessibility(
 							actions.list(message),
 							(action) => actions.run(action, message),
+							/* "React" opens the same sheet at its quick row, so reacting
+							 *  never needs a hold (spec §4.6). */
+							actions.reactable ? () => actions.open(message) : undefined,
 						),
 					}
 				: undefined,
@@ -435,6 +439,16 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					accessibility={bodylessAccessibility}
 				/>
 				<MessageDelivery message={message} onHelp={onDeliveryHelp} />
+				{/* Under the body and delivery line, above the reply chip (spec
+				 *  §4.3). Renders nothing for a message without reactions. */}
+				<ReactionPills
+					message={message}
+					tenantId={tenantId}
+					locale={locale}
+					canReact={actions?.reactable === true}
+					onAdd={actions ? () => actions.open(message) : undefined}
+					onLongPress={host?.onLongPress}
+				/>
 				{replies && onOpenReplyThread ? (
 					<ReplyThreadChip
 						rootId={message.id}
@@ -1070,7 +1084,9 @@ function ThreadContent({
 	);
 	const messageActions = useMessageActions({
 		scope: "timeline",
+		tenantId,
 		canReplyInThread: !readOnly && !!conversationId,
+		canReact: !readOnly && !!conversationId,
 		onReplyInThread: startReplyThread,
 	});
 	const actionsController = messageActions.controller;

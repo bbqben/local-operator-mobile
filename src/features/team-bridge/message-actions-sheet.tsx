@@ -24,18 +24,34 @@
  *    label Slack uses), so selection moved here. On Android that makes partial
  *    selection one tap further away, in Bridge only (`HostSelection`).
  *
+ * THE QUICK-REACTION ROW (slice PR b, spec §4.2 item 1). Slack: "Choose a
+ * frequently used reaction at the top of the menu, or tap the Add reaction
+ * icon to find another one". The row is this account's most-used emoji
+ * topped up from the desktop's quick set (`frequentEmoji`), as many as fit in
+ * 44 pt cells (`quickReactionCells`), then `+`, which hands off to the system
+ * emoji keyboard (`EmojiCapture`). A cell I already used on this message is
+ * tinted and toggles it off — the row tells the truth about my state. The
+ * row is absent in a read-only conversation and on a hub that does not serve
+ * reactions.
+ *
  * LONG-PRESS IS NEVER THE ONLY PATH. The same actions ride on every body leaf
  * as `accessibilityActions`, which VoiceOver's rotor and TalkBack's actions
  * menu reach without a hold (`messageActionAccessibility`).
  */
 import * as Clipboard from "expo-clipboard";
-import { Copy, MessageSquareReply, TextCursor } from "lucide-react-native";
+import {
+	Copy,
+	MessageSquareReply,
+	SmilePlus,
+	TextCursor,
+} from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	type AccessibilityActionEvent,
 	Platform,
 	Pressable,
 	Text,
+	useWindowDimensions,
 	View,
 } from "react-native";
 import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
@@ -46,11 +62,30 @@ import { t } from "@/i18n";
 import { haptic } from "@/lib/haptics";
 import { useUiStore } from "@/state/ui-store";
 import type { Message } from "@/team-bridge/contract";
-import { ROLE, SURFACE, teamBridgeMessageActionId } from "@/ui/a11y";
+import { teamBridgeFrequentEmoji } from "@/team-bridge/emoji-usage";
+import { useTeamBridgeState } from "@/team-bridge/provider";
+import { reactionKey } from "@/team-bridge/store";
+import {
+	ROLE,
+	SURFACE,
+	teamBridgeMessageActionId,
+	teamBridgeQuickReactionId,
+} from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Sheet } from "@/ui/components/sheet";
 import { useIsRTL } from "@/ui/direction";
 import { cx } from "@/ui/variants";
+import { EmojiCapture } from "./emoji-capture";
+import { useReactionToggle } from "./reaction-pills";
+
+/**
+ * How many cells the quick row holds at a window width (spec §4.2): 44 pt
+ * cells with ≥ 4 pt between them inside the sheet's 16 pt padding, at most 8,
+ * the last one always `+`. 320 pt → 6 (5 emoji + `+`); 430 pt → 8 (7 + `+`).
+ * Fewer cells, never a wrap, is the narrow-screen answer.
+ */
+export const quickReactionCells = (width: number): number =>
+	Math.max(2, Math.min(8, Math.floor((width - 32 + 4) / 48)));
 
 export type MessageAction = "reply_in_thread" | "copy_text" | "select_text";
 
@@ -122,6 +157,10 @@ export const bridgeSelectionId = (
 	messageId: string,
 ): string => `team-bridge:${scope}:${messageId}`;
 
+/* 44 pt cells (`TOUCH_TARGET.minimum`) with a 28 pt glyph (spec §4.2). */
+const QUICK_CELL = { width: 44, height: 44 } as const;
+const QUICK_GLYPH = { fontSize: 28, lineHeight: 34 } as const;
+
 const ACTION_LABEL: Record<MessageAction, () => string> = {
 	reply_in_thread: () => t("mobile.team_bridge.actions.reply_in_thread"),
 	copy_text: () => t("mobile.team_bridge.actions.copy_text"),
@@ -151,24 +190,45 @@ const NO_ACCESSIBILITY: SelectTextAccessibility = {};
 export const messageActionAccessibility = (
 	actions: readonly MessageAction[],
 	run: (action: MessageAction) => void,
+	/** "React" (spec §4.6): opens the same sheet, at its quick row. First,
+	 *  because it is the action a reader reaches for most. */
+	react?: () => void,
 ): SelectTextAccessibility =>
-	actions.length === 0
+	actions.length === 0 && !react
 		? NO_ACCESSIBILITY
 		: {
-				accessibilityActions: actions.map((name) => ({
-					name,
-					label: ACTION_LABEL[name](),
-				})),
+				accessibilityActions: [
+					...(react
+						? [
+								{
+									name: REACT_ACTION,
+									label: t("mobile.team_bridge.actions.a11y_react"),
+								},
+							]
+						: []),
+					...actions.map((name) => ({
+						name,
+						label: ACTION_LABEL[name](),
+					})),
+				],
 				onAccessibilityAction: (event: AccessibilityActionEvent) => {
-					const name = event.nativeEvent.actionName as MessageAction;
-					if (actions.includes(name)) run(name);
+					const name = event.nativeEvent.actionName;
+					if (name === REACT_ACTION) react?.();
+					else if (actions.includes(name as MessageAction))
+						run(name as MessageAction);
 				},
 			};
+
+/** The custom accessibility action's name; not a sheet row. */
+export const REACT_ACTION = "react";
 
 /** What a row needs from its screen. Stable across renders while its inputs
  *  are, so the memoised rows are not re-rendered by it. */
 export type MessageActionsController = {
 	scope: MessageActionsScope;
+	/** Reactions can be added here: a writable conversation on a hub that
+	 *  serves them. False hides the quick row, `+` and "React". */
+	reactable: boolean;
 	list: (message: Message) => MessageAction[];
 	open: (message: Message) => void;
 	run: (action: MessageAction, message: Message) => void;
@@ -182,13 +242,24 @@ export type MessageActionsController = {
  */
 export function useMessageActions({
 	scope,
+	tenantId,
 	canReplyInThread,
+	canReact,
 	onReplyInThread,
 }: {
 	scope: MessageActionsScope;
+	tenantId: string;
 	canReplyInThread: boolean;
+	/** The conversation takes writes (not read-only or archived). */
+	canReact: boolean;
 	onReplyInThread?: (rootId: string) => void;
 }) {
+	const unserved = useTeamBridgeState((s) => s.reactionsUnserved);
+	const selfAccountId = useTeamBridgeState((s) => s.selfAccountId);
+	const reactable = canReact && !unserved;
+	const toggle = useReactionToggle();
+	/** The message whose `+` is waiting on the system emoji keyboard. */
+	const [capturing, setCapturing] = useState<Message | null>(null);
 	const [target, setTarget] = useState<{
 		message: Message;
 		open: boolean;
@@ -238,8 +309,8 @@ export function useMessageActions({
 		[handoff],
 	);
 	const controller = useMemo<MessageActionsController>(
-		() => ({ scope, list, open, run }),
-		[scope, list, open, run],
+		() => ({ scope, reactable, list, open, run }),
+		[scope, reactable, list, open, run],
 	);
 
 	const close = useCallback(
@@ -271,17 +342,85 @@ export function useMessageActions({
 		[message, close, handoff, run],
 	);
 
+	/* Which quick emoji are already mine on this message: the optimistic rows
+	 *  while a write is in flight, else the held message's. */
+	const pendingRows = useTeamBridgeState((s) =>
+		message
+			? s.reactionPending[
+					reactionKey({
+						tenantId,
+						conversationId: message.conversation_id,
+						messageId: message.id,
+					})
+				]?.rows
+			: undefined,
+	);
+	const rows = pendingRows ?? message?.reactions ?? [];
+	const { width } = useWindowDimensions();
+	const pick = useCallback(
+		(emoji: string, on: Message) => {
+			void toggle(
+				{ tenantId, conversationId: on.conversation_id, messageId: on.id },
+				emoji,
+			);
+		},
+		[toggle, tenantId],
+	);
+	const quick =
+		reactable && message
+			? {
+					emoji: teamBridgeFrequentEmoji(selfAccountId, Date.now()).slice(
+						0,
+						quickReactionCells(width) - 1,
+					),
+					mine: new Set(
+						rows.filter((r) => r.reacted_by_me).map((r) => r.emoji),
+					),
+					// A tap toggles at once: no navigation or focus to hand off.
+					onPick: (emoji: string) => {
+						close();
+						// Android never fires `onDismiss` (see `choose`).
+						if (!runsAfterDismissal(Platform.OS)) setTarget(null);
+						pick(emoji, message);
+					},
+					/* `+` focuses a field, which a still-presented modal swallows on
+					 *  iOS (and whose focus return wins on web): it waits for the
+					 *  sheet's `onDismiss` like every other action here. */
+					onMore: () => {
+						close();
+						const afterDismissal = runsAfterDismissal(Platform.OS);
+						handoff.choose(
+							() => setCapturing(message),
+							afterDismissal ? "ios" : Platform.OS,
+						);
+						if (!afterDismissal) setTarget(null);
+					},
+				}
+			: null;
+
 	const sheet = (
-		<MessageActionsSheet
-			visible={target?.open === true}
-			actions={message ? list(message) : []}
-			onChoose={choose}
-			onClose={() => {
-				close();
-				if (Platform.OS !== "ios") setTarget(null);
-			}}
-			onDismiss={dismissed}
-		/>
+		<>
+			<MessageActionsSheet
+				visible={target?.open === true}
+				actions={message ? list(message) : []}
+				quick={quick}
+				onChoose={choose}
+				onClose={() => {
+					close();
+					if (Platform.OS !== "ios") setTarget(null);
+				}}
+				onDismiss={dismissed}
+			/>
+			<EmojiCapture
+				active={capturing !== null}
+				onPick={(emoji) => {
+					const on = capturing;
+					setCapturing(null);
+					if (on) pick(emoji, on);
+				}}
+				onCancel={() => setCapturing(null)}
+			/>
+		</>
 	);
 	return {
 		controller,
@@ -294,12 +433,20 @@ export function useMessageActions({
 export function MessageActionsSheet({
 	visible,
 	actions,
+	quick = null,
 	onChoose,
 	onClose,
 	onDismiss,
 }: {
 	visible: boolean;
 	actions: readonly MessageAction[];
+	/** The quick-reaction row; null where reactions are not offered. */
+	quick?: {
+		emoji: readonly string[];
+		mine: ReadonlySet<string>;
+		onPick: (emoji: string) => void;
+		onMore: () => void;
+	} | null;
 	onChoose: (action: MessageAction) => void;
 	onClose: () => void;
 	onDismiss?: () => void;
@@ -314,7 +461,49 @@ export function MessageActionsSheet({
 			title={t("mobile.team_bridge.actions.title")}
 			testID={SURFACE.teamBridgeMessageActionsSheet}
 		>
-			<View className="pb-2">
+			{quick ? (
+				<View
+					className="flex-row items-center justify-between border-b border-hairline pb-3"
+					testID={SURFACE.teamBridgeQuickReactions}
+				>
+					{quick.emoji.map((emoji) => {
+						const mine = quick.mine.has(emoji);
+						return (
+							<Pressable
+								key={emoji}
+								accessibilityRole={ROLE.button}
+								accessibilityLabel={emoji}
+								accessibilityHint={t("mobile.team_bridge.actions.a11y_react")}
+								accessibilityState={{ selected: mine }}
+								testID={teamBridgeQuickReactionId(emoji)}
+								onPress={() => quick.onPick(emoji)}
+								style={QUICK_CELL}
+								className={cx(
+									"items-center justify-center rounded-full",
+									mine && "bg-accent-wash",
+								)}
+							>
+								{({ pressed }) => (
+									<Text style={[QUICK_GLYPH, pressed && { opacity: 0.6 }]}>
+										{emoji}
+									</Text>
+								)}
+							</Pressable>
+						);
+					})}
+					<Pressable
+						accessibilityRole={ROLE.button}
+						accessibilityLabel={t("mobile.team_bridge.reactions.add")}
+						testID={teamBridgeQuickReactionId("+")}
+						onPress={quick.onMore}
+						style={QUICK_CELL}
+						className="items-center justify-center rounded-full"
+					>
+						<SmilePlus size={20} color={iconColor} aria-hidden />
+					</Pressable>
+				</View>
+			) : null}
+			<View className={cx("pb-2", quick && "pt-3")}>
 				{actions.map((action) => {
 					const Icon = ACTION_ICON[action];
 					const label = ACTION_LABEL[action]();

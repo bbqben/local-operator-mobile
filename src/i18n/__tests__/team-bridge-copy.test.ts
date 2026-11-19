@@ -122,7 +122,8 @@ describe("Team Bridge copy", () => {
 		// +9 `mentions.*` (@-mention suggestions, #305): 170 + 9 = 179;
 		// +5 `actions.*` (the message-actions sheet, #339): 184.
 		// +16 `card_body.*` (inbound card bodies, #344), merged: 184 + 16 = 200.
-		expect(keys).toHaveLength(200);
+		// +11 reactions (#345): `actions.a11y_react` + ten `reactions.*`: 211.
+		expect(keys).toHaveLength(211);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))

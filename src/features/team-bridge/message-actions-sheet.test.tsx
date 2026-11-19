@@ -32,6 +32,10 @@ const rec = vi.hoisted(() => ({
 	viewStyles: [] as unknown[],
 	/** Props the stubbed children last received, by component. */
 	child: new Map<string, Record<string, unknown>>(),
+	/** The REAL Team Bridge store behind the mocked provider (reactions). */
+	bridge: null as unknown,
+	announced: [] as string[],
+	width: 390,
 }));
 
 vi.mock("react-native", async (importOriginal) => {
@@ -65,11 +69,33 @@ vi.mock("react-native", async (importOriginal) => {
 			children?: ReactNode | ((s: { pressed: boolean }) => ReactNode);
 		}) => {
 			if (props.testID) rec.presses.set(props.testID, props);
+			/* Mount-tracked like `View`: a pill that leaves the tree must stop
+			 *  answering `pill()`, and a memoised one is not re-rendered. */
+			useEffect(() => {
+				const id = props.testID;
+				if (!id) return;
+				rec.mounted.set(id, (rec.mounted.get(id) ?? 0) + 1);
+				return () => {
+					rec.mounted.set(id, (rec.mounted.get(id) ?? 1) - 1);
+				};
+			}, [props.testID]);
 			const content =
 				typeof props.children === "function"
 					? props.children({ pressed: false })
 					: props.children;
 			return createElement("div", { "data-testid": props.testID }, content);
+		},
+		// rnw's indicator draws SVG, which the DOM shim cannot create.
+		ActivityIndicator: () => null,
+		useWindowDimensions: () => ({
+			width: rec.width,
+			height: 844,
+			scale: 3,
+			fontScale: 1,
+		}),
+		AccessibilityInfo: {
+			...(rnw.AccessibilityInfo as object),
+			announceForAccessibility: (text: string) => rec.announced.push(text),
 		},
 		Text: (props: { children?: ReactNode }) => {
 			rec.texts.push(props);
@@ -87,6 +113,18 @@ vi.mock("expo-clipboard", () => ({
 		return true;
 	},
 }));
+/* The provider's context, served by a REAL store (`createTeamBridgeStore`)
+ *  the test builds per case: the reaction toggle, its in-flight guard and its
+ *  rollback are the store's, so they run for real behind the row. */
+vi.mock("@/team-bridge/provider", async (importOriginal) => {
+	const { useStore } = await import("zustand");
+	return {
+		...((await importOriginal()) as object),
+		useTeamBridge: () => rec.bridge,
+		useTeamBridgeState: (select: (s: unknown) => unknown) =>
+			useStore((rec.bridge as { store: never }).store, select),
+	};
+});
 vi.mock("@/lib/haptics", () => ({
 	haptic: (kind: string) => rec.haptics.push(kind),
 }));
@@ -158,6 +196,7 @@ vi.mock("lucide-react-native", () =>
 			"Server",
 			"Settings",
 			"SlidersHorizontal",
+			"SmilePlus",
 			"Square",
 			"SquarePen",
 			"Star",
@@ -291,7 +330,9 @@ const { replyThreadPath } = await import("@/team-bridge/reply-threads");
 const { useUiStore } = await import("@/state/ui-store");
 const a11y = await import("@/ui/a11y");
 const selection = await import("@/features/session/text-selection");
+const { createTeamBridgeStore } = await import("@/team-bridge/store");
 const sheetModule = await import("./message-actions-sheet");
+const { useTeamBridgeState } = await import("@/team-bridge/provider");
 const { ThreadMessageRow } = await import("./thread-screen");
 type Message = import("@/team-bridge/contract").Message;
 
@@ -308,6 +349,7 @@ function Harness({
 	message,
 	scope = "timeline",
 	canReplyInThread = true,
+	canReact = false,
 	onReplyInThread,
 	continuation = false,
 	onOpenReplyThread,
@@ -316,6 +358,9 @@ function Harness({
 	message: Message;
 	scope?: "timeline" | "reply";
 	canReplyInThread?: boolean;
+	/** Off by default so the PR a cases keep their exact action lists; the
+	 *  reaction cases below turn it on. */
+	canReact?: boolean;
 	onReplyInThread?: (rootId: string) => void;
 	continuation?: boolean;
 	onOpenReplyThread?: (rootId: string) => void;
@@ -323,7 +368,9 @@ function Harness({
 }) {
 	const actions = sheetModule.useMessageActions({
 		scope,
+		tenantId: "ten_x",
 		canReplyInThread,
+		canReact,
 		onReplyInThread,
 	});
 	const [hub] = useState(() => ({}) as never);
@@ -358,6 +405,12 @@ beforeEach(() => {
 	rec.visible = false;
 	rec.clipboard.length = 0;
 	rec.haptics.length = 0;
+	rec.announced.length = 0;
+	rec.width = 390;
+	rec.bridge = createTeamBridgeStore({
+		hub: () => null,
+		accessToken: async () => null,
+	});
 	rec.rtl = false;
 	rec.mounted.clear();
 	rec.viewStyles.length = 0;
@@ -771,5 +824,310 @@ describe("the reply thread screen", () => {
 	});
 	it("omits the divider at zero replies (design round 1, D5)", () => {
 		expect(screen()).toMatch(NO_DIVIDER_AT_ZERO);
+	});
+});
+
+/* ---- reactions (spec slice PR b) ----------------------------------------
+ *  The REAL row, sheet hook, pills and store; only the hub is a fake whose
+ *  `react` the case scripts. The row reads its message FROM the store, as the
+ *  screens do, so a server answer or a rollback is what the reader sees. */
+describe("reactions: pills, quick row, rollback", () => {
+	const THUMBS = "👍";
+	const PARTY = "🎉";
+	const CONV = ROOT.conversation_id;
+	const KEY = `ten_x/${CONV}`;
+	type Row = import("@/team-bridge/contract").Reaction;
+	const rx = (emoji: string, count: number, mine = false): Row => ({
+		emoji,
+		count,
+		reacted_by_me: mine,
+		sample_labels: [],
+	});
+	type Bridge = ReturnType<typeof createTeamBridgeStore>;
+	const bridge = () => rec.bridge as Bridge;
+	const seed = (
+		reactions: Row[] | undefined,
+		react: (...args: unknown[]) => Promise<unknown>,
+	) => {
+		const hub = { react: vi.fn(react) };
+		rec.bridge = createTeamBridgeStore({
+			hub: () => hub as never,
+			accessToken: async () => "t",
+		});
+		bridge().store.setState({
+			selfAccountId: SELF,
+			threads: {
+				[KEY]: {
+					messages: [{ ...ROOT, reactions }],
+					state: "ready",
+					error: null,
+					hasMore: false,
+					loadingOlder: false,
+					olderError: null,
+				},
+			},
+		});
+		return hub;
+	};
+	function StoreRow({ canReact }: { canReact: boolean }) {
+		const held = useTeamBridgeState(
+			(s) => s.threads[KEY]?.messages[0],
+		) as Message;
+		return createElement(Harness, { message: held, canReact });
+	}
+	const mount = (canReact = true) =>
+		act(async () => root.render(createElement(StoreRow, { canReact })));
+	const pill = (emoji: string) => {
+		const id = a11y.teamBridgeReactionPillId(emoji);
+		return mounted(id) ? rec.presses.get(id) : undefined;
+	};
+	const tap = async (emoji: string) => {
+		const press = handler(pill(emoji), "onPress");
+		await act(async () => press());
+	};
+	const deferred = () => {
+		let resolve!: (v: unknown) => void;
+		let reject!: (e: unknown) => void;
+		const promise = new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+		return { promise, resolve, reject };
+	};
+	const mounted = (id: string) => (rec.mounted.get(id) ?? 0) > 0;
+
+	it("no reactions: no pill row at all (zero added height)", async () => {
+		seed(undefined, async () => ({}));
+		await mount();
+		expect(mounted(a11y.SURFACE.teamBridgeReactionPills)).toBe(false);
+		expect(rec.presses.has(a11y.SURFACE.teamBridgeReactionAdd)).toBe(false);
+	});
+
+	it("VoiceOver reads emoji, count and 'you reacted'; the summary leads", async () => {
+		seed([rx(THUMBS, 3, true), rx(PARTY, 1)], async () => ({}));
+		await mount();
+		expect(pill(THUMBS)?.accessibilityLabel).toBe(
+			"👍, 3 reactions, you reacted",
+		);
+		expect(pill(THUMBS)?.accessibilityState).toMatchObject({ selected: true });
+		expect(pill(THUMBS)?.accessibilityHint).toBe(
+			"Double tap to remove your reaction",
+		);
+		expect(pill(PARTY)?.accessibilityLabel).toBe("🎉, 1 reaction");
+		expect(pill(PARTY)?.accessibilityHint).toBe("Double tap to react too");
+		expect(rec.texts.some((t) => t.children === "4 reactions")).toBe(true);
+		// Mine carries the accent ring (contrast row "team bridge own reaction pill").
+		expect(String(pill(THUMBS)?.className)).toContain("border-accent-border");
+		expect(String(pill(PARTY)?.className)).toContain("border-border-control");
+	});
+
+	it("tap another's pill: +1 and mine at once; the answer replaces it; tap again reverts", async () => {
+		const write = deferred();
+		const hub = seed([rx(THUMBS, 2)], () => write.promise);
+		await mount();
+		await tap(THUMBS);
+		expect(rec.haptics).toEqual(["selection"]);
+		expect(pill(THUMBS)?.accessibilityLabel).toBe(
+			"👍, 3 reactions, you reacted",
+		);
+		expect(pill(THUMBS)?.accessibilityState).toMatchObject({
+			selected: true,
+			busy: true,
+		});
+		expect(hub.react).toHaveBeenCalledWith(
+			"ten_x",
+			CONV,
+			ROOT.id,
+			THUMBS,
+			true,
+		);
+		await act(async () =>
+			write.resolve({ message_id: ROOT.id, reactions: [rx(THUMBS, 3, true)] }),
+		);
+		expect(pill(THUMBS)?.accessibilityState).toMatchObject({ busy: false });
+		expect(rec.announced).toEqual(["Reaction added"]);
+		hub.react.mockImplementation(async () => ({
+			message_id: ROOT.id,
+			reactions: [rx(THUMBS, 2)],
+		}));
+		await tap(THUMBS);
+		expect(hub.react).toHaveBeenLastCalledWith(
+			"ten_x",
+			CONV,
+			ROOT.id,
+			THUMBS,
+			false,
+		);
+		expect(pill(THUMBS)?.accessibilityLabel).toBe("👍, 2 reactions");
+		expect(rec.announced.at(-1)).toBe("Reaction removed");
+	});
+
+	it("my sole reaction: tapping it removes the pill (and the row)", async () => {
+		seed([rx(PARTY, 1, true)], async () => ({
+			message_id: ROOT.id,
+			reactions: [],
+		}));
+		await mount();
+		await tap(PARTY);
+		expect(pill(PARTY)).toBeUndefined();
+		expect(mounted(a11y.SURFACE.teamBridgeReactionPills)).toBe(false);
+	});
+
+	it("a forced 500 restores the exact prior state, shows the error line, warning haptic", async () => {
+		const write = deferred();
+		seed([rx(THUMBS, 2), rx(PARTY, 1, true)], () => write.promise);
+		await mount();
+		await tap(PARTY);
+		expect(pill(PARTY)).toBeUndefined(); // optimistic: my sole one removed
+		const { HubError } = await import("@/team-bridge/client");
+		await act(async () =>
+			write.reject(new HubError({ kind: "server", message: "x", status: 500 })),
+		);
+		expect(pill(PARTY)?.accessibilityLabel).toBe("🎉, 1 reaction, you reacted");
+		expect(pill(THUMBS)?.accessibilityLabel).toBe("👍, 2 reactions");
+		expect(rec.haptics).toEqual(["selection", "warning"]);
+		expect(
+			rec.texts.some(
+				(t) =>
+					t.testID === a11y.SURFACE.teamBridgeReactionError &&
+					t.children === "Reaction couldn't be saved. Try again.",
+			),
+		).toBe(true);
+		expect(rec.announced).toEqual(["Reaction couldn't be saved. Try again."]);
+	});
+
+	it("a quick double tap sends ONE request", async () => {
+		const write = deferred();
+		const hub = seed([rx(THUMBS, 2)], () => write.promise);
+		await mount();
+		const press = handler(pill(THUMBS), "onPress");
+		await act(async () => {
+			press();
+			press();
+		});
+		expect(hub.react).toHaveBeenCalledTimes(1);
+		expect(rec.haptics).toEqual(["selection"]);
+		await act(async () =>
+			write.resolve({ message_id: ROOT.id, reactions: [rx(THUMBS, 3, true)] }),
+		);
+	});
+
+	it("a hub without the route (uncoded 404): every reaction control goes, no error", async () => {
+		const { HubError } = await import("@/team-bridge/client");
+		seed([rx(THUMBS, 2)], async () => {
+			throw new HubError({ kind: "not_found", message: "x", status: 404 });
+		});
+		await mount();
+		await tap(THUMBS);
+		expect(mounted(a11y.SURFACE.teamBridgeReactionPills)).toBe(false);
+		expect(mounted(a11y.SURFACE.teamBridgeReactionError)).toBe(false);
+		expect(rec.haptics).toEqual(["selection"]);
+		expect(rec.announced).toEqual([]);
+		// The sheet loses its quick row and the row loses "React".
+		await longPress(ROOT);
+		expect(rec.presses.has(a11y.teamBridgeQuickReactionId(THUMBS))).toBe(false);
+		expect(
+			(leafActions() ?? []).some((a) => a.name === sheetModule.REACT_ACTION),
+		).toBe(false);
+	});
+
+	it("the sheet's quick row: desktop quick set, mine tinted, a tap toggles and closes", async () => {
+		const hub = seed([rx(PARTY, 1, true)], async () => ({
+			message_id: ROOT.id,
+			reactions: [rx(PARTY, 1, true), rx(THUMBS, 1, true)],
+		}));
+		await mount();
+		await longPress(ROOT);
+		expect(rec.mounted.get(a11y.SURFACE.teamBridgeQuickReactions)).toBe(1);
+		// 390 pt: ⌊(390 − 28) / 48⌋ = 7 cells → 6 emoji + `+`.
+		const cells = ["👍", "❤️", "😂", "🎉", "👀", "🙏"];
+		for (const emoji of cells)
+			expect(rec.presses.has(a11y.teamBridgeQuickReactionId(emoji))).toBe(true);
+		expect(rec.presses.has(a11y.teamBridgeQuickReactionId("✅"))).toBe(false);
+		expect(rec.presses.has(a11y.teamBridgeQuickReactionId("+"))).toBe(true);
+		const party = rec.presses.get(a11y.teamBridgeQuickReactionId(PARTY));
+		expect(String(party?.className)).toContain("bg-accent-wash");
+		expect(party?.accessibilityState).toMatchObject({ selected: true });
+		const thumbs = handler(
+			rec.presses.get(a11y.teamBridgeQuickReactionId(THUMBS)),
+			"onPress",
+		);
+		await act(async () => thumbs());
+		expect(sheetOpen()).toBe(false);
+		expect(hub.react).toHaveBeenCalledWith(
+			"ten_x",
+			CONV,
+			ROOT.id,
+			THUMBS,
+			true,
+		);
+		expect(pill(THUMBS)?.accessibilityLabel).toBe(
+			"👍, 1 reaction, you reacted",
+		);
+	});
+
+	it("quick-row cell count follows the window: 320 → 5 + `+`, 430 → 7 + `+`", () => {
+		expect(sheetModule.quickReactionCells(320)).toBe(6);
+		expect(sheetModule.quickReactionCells(430)).toBe(8);
+		expect(sheetModule.quickReactionCells(1024)).toBe(8);
+	});
+
+	it("`+` waits for the sheet to go, then the system keyboard picks; letters are ignored", async () => {
+		const hub = seed([rx(THUMBS, 1)], async () => ({
+			message_id: ROOT.id,
+			reactions: [rx(THUMBS, 1), rx("🦄", 1, true)],
+		}));
+		await mount();
+		await longPress(ROOT);
+		const more = handler(
+			rec.presses.get(a11y.teamBridgeQuickReactionId("+")),
+			"onPress",
+		);
+		await act(async () => more());
+		const captures = () =>
+			rec.inputs.filter(
+				(i) => i.testID === a11y.SURFACE.teamBridgeEmojiCapture,
+			);
+		expect(captures()).toHaveLength(0); // iOS: not under the closing modal
+		await nativeDismiss();
+		const field = captures().at(-1);
+		expect(field?.accessibilityHint).toBe("Pick an emoji from your keyboard");
+		await act(async () => handler(field, "onChangeText")("a"));
+		expect(hub.react).not.toHaveBeenCalled();
+		await act(async () => handler(captures().at(-1), "onChangeText")("🦄"));
+		expect(hub.react).toHaveBeenCalledWith("ten_x", CONV, ROOT.id, "🦄", true);
+	});
+
+	it("the trailing `+` and the 'React' action both open the sheet", async () => {
+		seed([rx(THUMBS, 1)], async () => ({}));
+		await mount();
+		await act(async () =>
+			handler(rec.presses.get(a11y.SURFACE.teamBridgeReactionAdd), "onPress")(),
+		);
+		expect(sheetOpen()).toBe(true);
+		await act(async () => rec.sheet?.onClose());
+		await nativeDismiss();
+		const actionsNow = leafActions() ?? [];
+		expect(actionsNow[0]).toEqual({ name: "react", label: "React" });
+		const leaf = rec.texts.filter((t) => t.onAccessibilityAction).at(-1);
+		await act(async () =>
+			handler(
+				leaf,
+				"onAccessibilityAction",
+			)({
+				nativeEvent: { actionName: "react" },
+			}),
+		);
+		expect(sheetOpen()).toBe(true);
+	});
+
+	it("a read-only conversation shows pills but offers no toggle, `+` or quick row", async () => {
+		const hub = seed([rx(THUMBS, 2)], async () => ({}));
+		await mount(false);
+		expect(pill(THUMBS)?.disabled).toBe(true);
+		expect(rec.presses.has(a11y.SURFACE.teamBridgeReactionAdd)).toBe(false);
+		await longPress(ROOT);
+		expect(rec.presses.has(a11y.teamBridgeQuickReactionId(THUMBS))).toBe(false);
+		expect(hub.react).not.toHaveBeenCalled();
 	});
 });

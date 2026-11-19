@@ -1062,6 +1062,7 @@ export type CatalogueKey =
 	| "mobile.signin.use_address"
 	| "mobile.signin.welcome.body"
 	| "mobile.signin.welcome.headline"
+	| "mobile.team_bridge.actions.a11y_react"
 	| "mobile.team_bridge.actions.copied"
 	| "mobile.team_bridge.actions.copy_text"
 	| "mobile.team_bridge.actions.reply_in_thread"
@@ -1213,6 +1214,16 @@ export type CatalogueKey =
 	| "mobile.team_bridge.profile.open"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reactions.add"
+	| "mobile.team_bridge.reactions.added"
+	| "mobile.team_bridge.reactions.failed"
+	| "mobile.team_bridge.reactions.hint_add"
+	| "mobile.team_bridge.reactions.hint_remove"
+	| "mobile.team_bridge.reactions.keyboard_hint"
+	| "mobile.team_bridge.reactions.pill"
+	| "mobile.team_bridge.reactions.pill_mine"
+	| "mobile.team_bridge.reactions.removed"
+	| "mobile.team_bridge.reactions.summary"
 	| "mobile.team_bridge.reply_thread.count"
 	| "mobile.team_bridge.reply_thread.empty"
 	| "mobile.team_bridge.reply_thread.error"
@@ -2207,6 +2218,7 @@ export type NoParamKey =
 	| "mobile.signin.use_address"
 	| "mobile.signin.welcome.body"
 	| "mobile.signin.welcome.headline"
+	| "mobile.team_bridge.actions.a11y_react"
 	| "mobile.team_bridge.actions.copied"
 	| "mobile.team_bridge.actions.copy_text"
 	| "mobile.team_bridge.actions.reply_in_thread"
@@ -2331,6 +2343,13 @@ export type NoParamKey =
 	| "mobile.team_bridge.profile.message"
 	| "mobile.team_bridge.profile.opens_hint"
 	| "mobile.team_bridge.profile.title"
+	| "mobile.team_bridge.reactions.add"
+	| "mobile.team_bridge.reactions.added"
+	| "mobile.team_bridge.reactions.failed"
+	| "mobile.team_bridge.reactions.hint_add"
+	| "mobile.team_bridge.reactions.hint_remove"
+	| "mobile.team_bridge.reactions.keyboard_hint"
+	| "mobile.team_bridge.reactions.removed"
 	| "mobile.team_bridge.reply_thread.empty"
 	| "mobile.team_bridge.reply_thread.error"
 	| "mobile.team_bridge.reply_thread.loading"
@@ -3458,6 +3477,7 @@ export type MessageParams = {
 	"mobile.signin.use_address": NoParams;
 	"mobile.signin.welcome.body": NoParams;
 	"mobile.signin.welcome.headline": NoParams;
+	"mobile.team_bridge.actions.a11y_react": NoParams;
 	"mobile.team_bridge.actions.copied": NoParams;
 	"mobile.team_bridge.actions.copy_text": NoParams;
 	"mobile.team_bridge.actions.reply_in_thread": NoParams;
@@ -3609,6 +3629,16 @@ export type MessageParams = {
 	"mobile.team_bridge.profile.open": { name: string | number };
 	"mobile.team_bridge.profile.opens_hint": NoParams;
 	"mobile.team_bridge.profile.title": NoParams;
+	"mobile.team_bridge.reactions.add": NoParams;
+	"mobile.team_bridge.reactions.added": NoParams;
+	"mobile.team_bridge.reactions.failed": NoParams;
+	"mobile.team_bridge.reactions.hint_add": NoParams;
+	"mobile.team_bridge.reactions.hint_remove": NoParams;
+	"mobile.team_bridge.reactions.keyboard_hint": NoParams;
+	"mobile.team_bridge.reactions.pill": { emoji: string | number; count: number };
+	"mobile.team_bridge.reactions.pill_mine": { emoji: string | number; count: number };
+	"mobile.team_bridge.reactions.removed": NoParams;
+	"mobile.team_bridge.reactions.summary": { count: number };
 	"mobile.team_bridge.reply_thread.count": { count: number };
 	"mobile.team_bridge.reply_thread.empty": NoParams;
 	"mobile.team_bridge.reply_thread.error": NoParams;
@@ -4781,6 +4811,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.signin.use_address": "Use an address and password",
 	"mobile.signin.welcome.body": "This app drives the sessions on your own machine and shows what it did. Your code never leaves it.",
 	"mobile.signin.welcome.headline": "Your agent runs on your computer.",
+	"mobile.team_bridge.actions.a11y_react": "React",
 	"mobile.team_bridge.actions.copied": "Copied",
 	"mobile.team_bridge.actions.copy_text": "Copy text",
 	"mobile.team_bridge.actions.reply_in_thread": "Reply in thread",
@@ -4932,6 +4963,16 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.profile.open": "View profile for {name}",
 	"mobile.team_bridge.profile.opens_hint": "Opens their profile",
 	"mobile.team_bridge.profile.title": "Profile",
+	"mobile.team_bridge.reactions.add": "Add reaction",
+	"mobile.team_bridge.reactions.added": "Reaction added",
+	"mobile.team_bridge.reactions.failed": "Reaction couldn't be saved. Try again.",
+	"mobile.team_bridge.reactions.hint_add": "Double tap to react too",
+	"mobile.team_bridge.reactions.hint_remove": "Double tap to remove your reaction",
+	"mobile.team_bridge.reactions.keyboard_hint": "Pick an emoji from your keyboard",
+	"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# reaction} other {# reactions}}",
+	"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# reaction} other {# reactions}}, you reacted",
+	"mobile.team_bridge.reactions.removed": "Reaction removed",
+	"mobile.team_bridge.reactions.summary": "{count, plural, one {# reaction} other {# reactions}}",
 	"mobile.team_bridge.reply_thread.count": "{count, plural, one {# reply} other {# replies}}",
 	"mobile.team_bridge.reply_thread.empty": "No replies yet. Start the thread.",
 	"mobile.team_bridge.reply_thread.error": "This thread couldn't be loaded.",
@@ -6089,6 +6130,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.signin.use_address": { role: "button", note: "Button that opens the manual connect screen where the reader types a relay address and password. Used on the sign-in screen and in the 'sign-in unavailable' panel; same wording at both." },
 	"mobile.signin.welcome.body": { role: "help", note: "Supporting paragraph on the welcome screen under the headline: the app controls sessions on the reader's own machine and shows the results; code never leaves the machine ('it' = the machine). Keep the privacy promise exact." },
 	"mobile.signin.welcome.headline": { role: "heading", note: "Headline of the first-run welcome screen (screen-reader header). One sentence with a full stop; 'agent' is the product's own word for the assistant." },
+	"mobile.team_bridge.actions.a11y_react": { role: "button", note: "Screen-reader action on a Team Bridge message (VoiceOver rotor, TalkBack actions menu) that opens the message-actions sheet with its quick-reaction row. Also the hint on each quick-reaction emoji in that sheet. Imperative verb, like Slack's \"React\"." },
 	"mobile.team_bridge.actions.copied": { role: "status", note: "Brief confirmation shown after Copy text put the message on the clipboard. Past participle, no object." },
 	"mobile.team_bridge.actions.copy_text": { role: "button", note: "Row in the message-actions sheet that copies the whole message, as plain text without formatting, to the clipboard. Also a screen-reader action on the message." },
 	"mobile.team_bridge.actions.reply_in_thread": { role: "button", note: "Row in the message-actions sheet that opens this message's reply thread (starting one if it has no replies yet) with the reply box focused. Same wording as mobile.team_bridge.reply_thread.reply; keep them identical." },
@@ -6240,6 +6282,16 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.profile.open": { role: "button", note: "Accessibility label for the person or software-agent mark that opens its profile. {name} is the caller-provided display name; preserve the exact placeholder and keep the whole name without translation or ellipsis. This opens a profile, not a conversation." },
 	"mobile.team_bridge.profile.opens_hint": { role: "help", note: "Accessibility hint on a person or software-agent mark: activating it opens their profile. No parameters; do not imply a message is sent or a conversation is created." },
 	"mobile.team_bridge.profile.title": { role: "heading", note: "Profile sheet title for either a person or software agent, not their user-provided job title. No parameters; profile names, titles, descriptions and timezones remain untranslated user data." },
+	"mobile.team_bridge.reactions.add": { role: "button", note: "Accessible name of the \"+\" control that adds an emoji reaction to a message: the last cell of the quick-reaction row (opens the system emoji keyboard) and the small \"+\" after a message's reaction pills." },
+	"mobile.team_bridge.reactions.added": { role: "status", note: "Polite screen-reader announcement after the reader's reaction was saved." },
+	"mobile.team_bridge.reactions.failed": { role: "status", note: "Shown in small red text under a message, and announced, when adding or removing a reaction failed; the previous reactions are restored. Tapping again retries." },
+	"mobile.team_bridge.reactions.hint_add": { role: "help", note: "Screen-reader hint on a reaction pill the reader has not reacted with: double-tapping adds the same emoji as their own reaction." },
+	"mobile.team_bridge.reactions.hint_remove": { role: "help", note: "Screen-reader hint on a reaction pill the reader has reacted with: double-tapping removes their reaction." },
+	"mobile.team_bridge.reactions.keyboard_hint": { role: "help", note: "One line shown above the system keyboard after tapping \"+\" to add a reaction: the reader picks any emoji from their phone's emoji keyboard. Letters typed are ignored." },
+	"mobile.team_bridge.reactions.pill": { role: "button", note: "Screen-reader name of one reaction pill under a message, when the reader has NOT reacted with it. {emoji} is the emoji itself; VoiceOver/TalkBack speak its system name (e.g. \"thumbs up\"). {count} is how many people reacted with it. Keep the order natural for your language." },
+	"mobile.team_bridge.reactions.pill_mine": { role: "button", note: "Screen-reader name of one reaction pill when the reader HAS reacted with it (the pill is highlighted). Same as mobile.team_bridge.reactions.pill plus \"you reacted\". Example: \"thumbs up, 3 reactions, you reacted\"." },
+	"mobile.team_bridge.reactions.removed": { role: "status", note: "Polite screen-reader announcement after the reader's reaction was removed." },
+	"mobile.team_bridge.reactions.summary": { role: "status", note: "Spoken once before a message's reaction pills: the total number of reactions across all emoji on that message." },
 	"mobile.team_bridge.reply_thread.count": { role: "meta", note: "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}." },
 	"mobile.team_bridge.reply_thread.empty": { role: "status", note: "A reply thread whose root message has no replies left to show; the second sentence invites the reader to write the first reply (desktop wording)." },
 	"mobile.team_bridge.reply_thread.error": { role: "status", note: "Shown when a reply thread could not be read from Radient; a retry button follows." },
@@ -7411,6 +7463,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Usar una dirección y contraseña",
 		"mobile.signin.welcome.body": "Esta app dirige las sesiones de tu propia máquina y muestra lo que hizo. Tu código nunca sale de ella.",
 		"mobile.signin.welcome.headline": "Tu agente se ejecuta en tu máquina.",
+		"mobile.team_bridge.actions.a11y_react": "Reaccionar",
 		"mobile.team_bridge.actions.copied": "Copiado",
 		"mobile.team_bridge.actions.copy_text": "Copiar texto",
 		"mobile.team_bridge.actions.reply_in_thread": "Responder en el hilo",
@@ -7562,6 +7615,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Ver el perfil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Abre su perfil",
 		"mobile.team_bridge.profile.title": "Perfil",
+		"mobile.team_bridge.reactions.add": "Añadir reacción",
+		"mobile.team_bridge.reactions.added": "Reacción añadida",
+		"mobile.team_bridge.reactions.failed": "No se pudo guardar la reacción. Inténtalo de nuevo.",
+		"mobile.team_bridge.reactions.hint_add": "Toca dos veces para reaccionar también",
+		"mobile.team_bridge.reactions.hint_remove": "Toca dos veces para quitar tu reacción",
+		"mobile.team_bridge.reactions.keyboard_hint": "Elige un emoji en tu teclado",
+		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# reacción} other {# reacciones}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# reacción} other {# reacciones}}, reaccionaste",
+		"mobile.team_bridge.reactions.removed": "Reacción quitada",
+		"mobile.team_bridge.reactions.summary": "{count, plural, one {# reacción} other {# reacciones}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# respuesta} other {# respuestas}}",
 		"mobile.team_bridge.reply_thread.empty": "Aún no hay respuestas. Inicia el hilo.",
 		"mobile.team_bridge.reply_thread.error": "No se pudo cargar este hilo.",
@@ -8717,6 +8780,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Utiliser une adresse et un mot de passe",
 		"mobile.signin.welcome.body": "Cette app pilote les sessions sur votre propre machine et en montre le résultat. Votre code ne la quitte jamais.",
 		"mobile.signin.welcome.headline": "Votre agent s’exécute sur votre ordinateur.",
+		"mobile.team_bridge.actions.a11y_react": "Réagir",
 		"mobile.team_bridge.actions.copied": "Copié",
 		"mobile.team_bridge.actions.copy_text": "Copier le texte",
 		"mobile.team_bridge.actions.reply_in_thread": "Répondre dans le fil",
@@ -8868,6 +8932,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Voir le profil de {name}",
 		"mobile.team_bridge.profile.opens_hint": "Ouvre son profil",
 		"mobile.team_bridge.profile.title": "Profil",
+		"mobile.team_bridge.reactions.add": "Ajouter une réaction",
+		"mobile.team_bridge.reactions.added": "Réaction ajoutée",
+		"mobile.team_bridge.reactions.failed": "La réaction n'a pas pu être enregistrée. Réessayez.",
+		"mobile.team_bridge.reactions.hint_add": "Touchez deux fois pour réagir aussi",
+		"mobile.team_bridge.reactions.hint_remove": "Touchez deux fois pour retirer votre réaction",
+		"mobile.team_bridge.reactions.keyboard_hint": "Choisissez un emoji sur votre clavier",
+		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# réaction} other {# réactions}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# réaction} other {# réactions}}, vous avez réagi",
+		"mobile.team_bridge.reactions.removed": "Réaction retirée",
+		"mobile.team_bridge.reactions.summary": "{count, plural, one {# réaction} other {# réactions}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# réponse} other {# réponses}}",
 		"mobile.team_bridge.reply_thread.empty": "Aucune réponse pour l’instant. Lancez le fil.",
 		"mobile.team_bridge.reply_thread.error": "Impossible de charger ce fil.",
@@ -10023,6 +10097,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "पता और पासवर्ड से कनेक्ट करें",
 		"mobile.signin.welcome.body": "यह ऐप आपकी अपनी मशीन पर सत्र चलाता है और दिखाता है कि क्या हुआ। आपका कोड उस मशीन से कभी बाहर नहीं जाता।",
 		"mobile.signin.welcome.headline": "आपका एजेंट आपके कंप्यूटर पर चलता है।",
+		"mobile.team_bridge.actions.a11y_react": "प्रतिक्रिया दें",
 		"mobile.team_bridge.actions.copied": "कॉपी हो गया",
 		"mobile.team_bridge.actions.copy_text": "टेक्स्ट कॉपी करें",
 		"mobile.team_bridge.actions.reply_in_thread": "थ्रेड में जवाब दें",
@@ -10174,6 +10249,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} की प्रोफ़ाइल देखें",
 		"mobile.team_bridge.profile.opens_hint": "उनकी प्रोफ़ाइल खोलता है",
 		"mobile.team_bridge.profile.title": "प्रोफ़ाइल",
+		"mobile.team_bridge.reactions.add": "प्रतिक्रिया जोड़ें",
+		"mobile.team_bridge.reactions.added": "प्रतिक्रिया जोड़ी गई",
+		"mobile.team_bridge.reactions.failed": "प्रतिक्रिया सहेजी नहीं जा सकी। फिर से कोशिश करें।",
+		"mobile.team_bridge.reactions.hint_add": "आप भी प्रतिक्रिया देने के लिए दो बार टैप करें",
+		"mobile.team_bridge.reactions.hint_remove": "अपनी प्रतिक्रिया हटाने के लिए दो बार टैप करें",
+		"mobile.team_bridge.reactions.keyboard_hint": "अपने कीबोर्ड से कोई इमोजी चुनें",
+		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}, आपने प्रतिक्रिया दी",
+		"mobile.team_bridge.reactions.removed": "प्रतिक्रिया हटाई गई",
+		"mobile.team_bridge.reactions.summary": "{count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# जवाब} other {# जवाब}}",
 		"mobile.team_bridge.reply_thread.empty": "अभी तक कोई जवाब नहीं। थ्रेड शुरू करें।",
 		"mobile.team_bridge.reply_thread.error": "यह थ्रेड लोड नहीं हो सका।",
@@ -11329,6 +11414,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Войти по адресу и паролю",
 		"mobile.signin.welcome.body": "Это приложение управляет сессиями на вашей машине и показывает, что было сделано. Ваш код её не покидает.",
 		"mobile.signin.welcome.headline": "Ваш агент работает на вашем компьютере.",
+		"mobile.team_bridge.actions.a11y_react": "Отреагировать",
 		"mobile.team_bridge.actions.copied": "Скопировано",
 		"mobile.team_bridge.actions.copy_text": "Копировать текст",
 		"mobile.team_bridge.actions.reply_in_thread": "Ответить в ветке",
@@ -11480,6 +11566,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Посмотреть профиль: {name}",
 		"mobile.team_bridge.profile.opens_hint": "Открывает профиль",
 		"mobile.team_bridge.profile.title": "Профиль",
+		"mobile.team_bridge.reactions.add": "Добавить реакцию",
+		"mobile.team_bridge.reactions.added": "Реакция добавлена",
+		"mobile.team_bridge.reactions.failed": "Не удалось сохранить реакцию. Попробуйте ещё раз.",
+		"mobile.team_bridge.reactions.hint_add": "Коснитесь дважды, чтобы тоже отреагировать",
+		"mobile.team_bridge.reactions.hint_remove": "Коснитесь дважды, чтобы убрать свою реакцию",
+		"mobile.team_bridge.reactions.keyboard_hint": "Выберите эмодзи на клавиатуре",
+		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}, вы отреагировали",
+		"mobile.team_bridge.reactions.removed": "Реакция удалена",
+		"mobile.team_bridge.reactions.summary": "{count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
 		"mobile.team_bridge.reply_thread.empty": "Ответов пока нет. Начните ветку.",
 		"mobile.team_bridge.reply_thread.error": "Не удалось загрузить эту ветку.",
@@ -12635,6 +12731,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "پتہ اور پاس ورڈ استعمال کریں",
 		"mobile.signin.welcome.body": "یہ ایپ آپ کی اپنی مشین پر سیشن چلاتی ہے اور دکھاتی ہے کہ کیا ہوا۔ آپ کا کوڈ کبھی اس مشین سے باہر نہیں جاتا۔",
 		"mobile.signin.welcome.headline": "آپ کا ایجنٹ آپ کے کمپیوٹر پر چلتا ہے۔",
+		"mobile.team_bridge.actions.a11y_react": "ردعمل دیں",
 		"mobile.team_bridge.actions.copied": "کاپی ہو گیا",
 		"mobile.team_bridge.actions.copy_text": "متن کاپی کریں",
 		"mobile.team_bridge.actions.reply_in_thread": "تھریڈ میں جواب دیں",
@@ -12786,6 +12883,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "{name} کی پروفائل دیکھیں",
 		"mobile.team_bridge.profile.opens_hint": "ان کی پروفائل کھولتا ہے",
 		"mobile.team_bridge.profile.title": "پروفائل",
+		"mobile.team_bridge.reactions.add": "ردعمل شامل کریں",
+		"mobile.team_bridge.reactions.added": "ردعمل شامل ہو گیا",
+		"mobile.team_bridge.reactions.failed": "ردعمل محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
+		"mobile.team_bridge.reactions.hint_add": "آپ بھی ردعمل دینے کے لیے دو بار تھپتھپائیں",
+		"mobile.team_bridge.reactions.hint_remove": "اپنا ردعمل ہٹانے کے لیے دو بار تھپتھپائیں",
+		"mobile.team_bridge.reactions.keyboard_hint": "اپنے کی بورڈ سے کوئی ایموجی منتخب کریں",
+		"mobile.team_bridge.reactions.pill": "{emoji}، {count, plural, one {# ردعمل} other {# ردعمل}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}، {count, plural, one {# ردعمل} other {# ردعمل}}، آپ نے ردعمل دیا",
+		"mobile.team_bridge.reactions.removed": "ردعمل ہٹا دیا گیا",
+		"mobile.team_bridge.reactions.summary": "{count, plural, one {# ردعمل} other {# ردعمل}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# جواب} other {# جوابات}}",
 		"mobile.team_bridge.reply_thread.empty": "ابھی تک کوئی جواب نہیں۔ تھریڈ شروع کریں۔",
 		"mobile.team_bridge.reply_thread.error": "یہ تھریڈ لوڈ نہیں ہو سکا۔",
@@ -13941,6 +14048,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Dùng địa chỉ và mật khẩu",
 		"mobile.signin.welcome.body": "Ứng dụng này điều khiển các phiên trên chính máy của bạn và hiển thị những gì nó đã làm. Mã nguồn của bạn không bao giờ rời khỏi máy.",
 		"mobile.signin.welcome.headline": "Tác nhân của bạn chạy trên máy tính của bạn.",
+		"mobile.team_bridge.actions.a11y_react": "Bày tỏ cảm xúc",
 		"mobile.team_bridge.actions.copied": "Đã sao chép",
 		"mobile.team_bridge.actions.copy_text": "Sao chép văn bản",
 		"mobile.team_bridge.actions.reply_in_thread": "Trả lời trong chuỗi",
@@ -14092,6 +14200,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "Xem hồ sơ của {name}",
 		"mobile.team_bridge.profile.opens_hint": "Mở hồ sơ của họ",
 		"mobile.team_bridge.profile.title": "Hồ sơ",
+		"mobile.team_bridge.reactions.add": "Thêm cảm xúc",
+		"mobile.team_bridge.reactions.added": "Đã thêm cảm xúc",
+		"mobile.team_bridge.reactions.failed": "Không lưu được cảm xúc. Hãy thử lại.",
+		"mobile.team_bridge.reactions.hint_add": "Chạm hai lần để cùng bày tỏ cảm xúc",
+		"mobile.team_bridge.reactions.hint_remove": "Chạm hai lần để gỡ cảm xúc của bạn",
+		"mobile.team_bridge.reactions.keyboard_hint": "Chọn một emoji từ bàn phím",
+		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, other {# cảm xúc}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, other {# cảm xúc}}, bạn đã bày tỏ cảm xúc",
+		"mobile.team_bridge.reactions.removed": "Đã gỡ cảm xúc",
+		"mobile.team_bridge.reactions.summary": "{count, plural, other {# cảm xúc}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# phản hồi}}",
 		"mobile.team_bridge.reply_thread.empty": "Chưa có phản hồi nào. Hãy bắt đầu chuỗi.",
 		"mobile.team_bridge.reply_thread.error": "Không thể tải chuỗi này.",
@@ -15247,6 +15365,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "使用地址和密码",
 		"mobile.signin.welcome.body": "此应用在你的电脑上运行会话，并展示它做了什么。你的代码绝不会离开这台电脑。",
 		"mobile.signin.welcome.headline": "智能体运行在你的电脑上。",
+		"mobile.team_bridge.actions.a11y_react": "回应",
 		"mobile.team_bridge.actions.copied": "已复制",
 		"mobile.team_bridge.actions.copy_text": "复制文本",
 		"mobile.team_bridge.actions.reply_in_thread": "在话题中回复",
@@ -15398,6 +15517,16 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.open": "查看{name}的个人资料",
 		"mobile.team_bridge.profile.opens_hint": "打开其个人资料",
 		"mobile.team_bridge.profile.title": "个人资料",
+		"mobile.team_bridge.reactions.add": "添加回应",
+		"mobile.team_bridge.reactions.added": "已添加回应",
+		"mobile.team_bridge.reactions.failed": "无法保存回应。请重试。",
+		"mobile.team_bridge.reactions.hint_add": "轻点两下以一起回应",
+		"mobile.team_bridge.reactions.hint_remove": "轻点两下以移除你的回应",
+		"mobile.team_bridge.reactions.keyboard_hint": "从键盘中选择一个表情",
+		"mobile.team_bridge.reactions.pill": "{emoji}，{count, plural, other {# 个回应}}",
+		"mobile.team_bridge.reactions.pill_mine": "{emoji}，{count, plural, other {# 个回应}}，你已回应",
+		"mobile.team_bridge.reactions.removed": "已移除回应",
+		"mobile.team_bridge.reactions.summary": "{count, plural, other {# 个回应}}",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# 条回复}}",
 		"mobile.team_bridge.reply_thread.empty": "还没有回复。发起话题吧。",
 		"mobile.team_bridge.reply_thread.error": "无法加载此话题。",
