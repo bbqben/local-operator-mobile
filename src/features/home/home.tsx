@@ -52,6 +52,7 @@ import {
 	FolderPicker,
 	ModelPicker,
 } from "@/features/home/home-pickers";
+import { homeRecoveryKind } from "@/features/home/home-recovery";
 import { HomeRecovery, HomeSplash } from "@/features/home/home-splash";
 import {
 	type CatalogueDefault,
@@ -417,18 +418,15 @@ export default function Home({
 	const connected = routed && client !== null;
 	const offline = deviceOnline() === false;
 	const viewport = useWindowDimensions();
-	const homeRecovery =
-		busy || !coldStartSettled
-			? "restoring"
-			: refusal?.kind === "sign-in" || refusal?.kind === "account-mismatch"
-				? "auth"
-				: offline
-					? "offline"
-					: refusal !== null
-						? "error"
-						: !connected
-							? "no-host"
-							: null;
+	/* Derived from the live route, not from `busy` alone: an attempt can publish
+	 *  the route and still be awaiting startup admission (`home-recovery.ts`). */
+	const homeRecovery = homeRecoveryKind({
+		busy,
+		coldStartSettled,
+		connected,
+		offline,
+		refusal,
+	});
 	const namedRefusal = homeNamedRefusal(homeRecovery, refusal);
 
 	/* The computer's two reads, each kept as the state it really is.
