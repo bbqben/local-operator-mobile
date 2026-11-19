@@ -44,7 +44,13 @@ import {
 	userBubbleFill,
 } from "@/features/session/user-bubble";
 import { t } from "@/i18n";
-import { ROLE, SURFACE, transcriptImageId, userMessageMoreId } from "@/ui/a11y";
+import {
+	bridgeCardBodyId,
+	ROLE,
+	SURFACE,
+	transcriptImageId,
+	userMessageMoreId,
+} from "@/ui/a11y";
 import { useTheme } from "@/ui/appearance";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { cx } from "@/ui/variants";
@@ -259,7 +265,7 @@ const TranscriptRowBody = ({
 					<BridgeCardBodyRegion
 						entryId={entry.id}
 						load={loadBridgeBody}
-						testID={`${testID}-bridge-body`}
+						testID={bridgeCardBodyId(testID)}
 					/>
 				</View>
 				{anchors}

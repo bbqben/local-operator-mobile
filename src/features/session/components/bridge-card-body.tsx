@@ -13,7 +13,7 @@ import {
 	userMessageClipHeight,
 } from "@/features/session/user-message-clamp";
 import { type NoParamKey, t } from "@/i18n";
-import { ROLE } from "@/ui/a11y";
+import { bridgeCardBodyMoreId, ROLE } from "@/ui/a11y";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { useTextScale } from "@/ui/text-scale-provider";
 
@@ -115,7 +115,9 @@ export const BridgeCardBodyLines = ({
 						 *  quote painted the same edge (design round 1, D3). */
 						className="border-s-2 border-border-control ps-3"
 					>
-						<BodyClamp testID={testID ? `${testID}-more-${index}` : undefined}>
+						<BodyClamp
+							testID={testID ? bridgeCardBodyMoreId(testID, index) : undefined}
+						>
 							<Markdown text={line.markdown} />
 						</BodyClamp>
 					</View>
