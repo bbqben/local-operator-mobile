@@ -1216,17 +1216,26 @@ export type CatalogueKey =
 	| "mobile.team_bridge.profile.title"
 	| "mobile.team_bridge.reactions.add"
 	| "mobile.team_bridge.reactions.added"
+	| "mobile.team_bridge.reactions.details"
 	| "mobile.team_bridge.reactions.failed"
 	| "mobile.team_bridge.reactions.hint_add"
+	| "mobile.team_bridge.reactions.hint_inspect"
 	| "mobile.team_bridge.reactions.hint_remove"
 	| "mobile.team_bridge.reactions.keyboard_hint"
 	| "mobile.team_bridge.reactions.pill"
 	| "mobile.team_bridge.reactions.pill_mine"
 	| "mobile.team_bridge.reactions.removed"
+	| "mobile.team_bridge.reactions.sample"
+	| "mobile.team_bridge.reactions.sample_none"
+	| "mobile.team_bridge.reactions.sample_notice"
+	| "mobile.team_bridge.reactions.show_less"
+	| "mobile.team_bridge.reactions.show_more"
 	| "mobile.team_bridge.reactions.summary"
+	| "mobile.team_bridge.reactions.you_reacted"
 	| "mobile.team_bridge.reply_thread.count"
 	| "mobile.team_bridge.reply_thread.empty"
 	| "mobile.team_bridge.reply_thread.error"
+	| "mobile.team_bridge.reply_thread.last_reply"
 	| "mobile.team_bridge.reply_thread.loading"
 	| "mobile.team_bridge.reply_thread.more"
 	| "mobile.team_bridge.reply_thread.open"
@@ -2345,11 +2354,17 @@ export type NoParamKey =
 	| "mobile.team_bridge.profile.title"
 	| "mobile.team_bridge.reactions.add"
 	| "mobile.team_bridge.reactions.added"
+	| "mobile.team_bridge.reactions.details"
 	| "mobile.team_bridge.reactions.failed"
 	| "mobile.team_bridge.reactions.hint_add"
+	| "mobile.team_bridge.reactions.hint_inspect"
 	| "mobile.team_bridge.reactions.hint_remove"
 	| "mobile.team_bridge.reactions.keyboard_hint"
 	| "mobile.team_bridge.reactions.removed"
+	| "mobile.team_bridge.reactions.sample_none"
+	| "mobile.team_bridge.reactions.sample_notice"
+	| "mobile.team_bridge.reactions.show_less"
+	| "mobile.team_bridge.reactions.you_reacted"
 	| "mobile.team_bridge.reply_thread.empty"
 	| "mobile.team_bridge.reply_thread.error"
 	| "mobile.team_bridge.reply_thread.loading"
@@ -3631,17 +3646,26 @@ export type MessageParams = {
 	"mobile.team_bridge.profile.title": NoParams;
 	"mobile.team_bridge.reactions.add": NoParams;
 	"mobile.team_bridge.reactions.added": NoParams;
+	"mobile.team_bridge.reactions.details": NoParams;
 	"mobile.team_bridge.reactions.failed": NoParams;
 	"mobile.team_bridge.reactions.hint_add": NoParams;
+	"mobile.team_bridge.reactions.hint_inspect": NoParams;
 	"mobile.team_bridge.reactions.hint_remove": NoParams;
 	"mobile.team_bridge.reactions.keyboard_hint": NoParams;
 	"mobile.team_bridge.reactions.pill": { emoji: string | number; count: number };
 	"mobile.team_bridge.reactions.pill_mine": { emoji: string | number; count: number };
 	"mobile.team_bridge.reactions.removed": NoParams;
+	"mobile.team_bridge.reactions.sample": { labels: string | number; count: number };
+	"mobile.team_bridge.reactions.sample_none": NoParams;
+	"mobile.team_bridge.reactions.sample_notice": NoParams;
+	"mobile.team_bridge.reactions.show_less": NoParams;
+	"mobile.team_bridge.reactions.show_more": { count: string | number };
 	"mobile.team_bridge.reactions.summary": { count: number };
+	"mobile.team_bridge.reactions.you_reacted": NoParams;
 	"mobile.team_bridge.reply_thread.count": { count: number };
 	"mobile.team_bridge.reply_thread.empty": NoParams;
 	"mobile.team_bridge.reply_thread.error": NoParams;
+	"mobile.team_bridge.reply_thread.last_reply": { time: string | number };
 	"mobile.team_bridge.reply_thread.loading": NoParams;
 	"mobile.team_bridge.reply_thread.more": NoParams;
 	"mobile.team_bridge.reply_thread.open": { count: number };
@@ -4965,17 +4989,26 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.profile.title": "Profile",
 	"mobile.team_bridge.reactions.add": "Add reaction",
 	"mobile.team_bridge.reactions.added": "Reaction added",
+	"mobile.team_bridge.reactions.details": "Reaction details",
 	"mobile.team_bridge.reactions.failed": "Reaction couldn't be saved. Try again.",
 	"mobile.team_bridge.reactions.hint_add": "Double tap to react too",
+	"mobile.team_bridge.reactions.hint_inspect": "Double tap to inspect reaction details",
 	"mobile.team_bridge.reactions.hint_remove": "Double tap to remove your reaction",
 	"mobile.team_bridge.reactions.keyboard_hint": "Pick an emoji from your keyboard",
 	"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# reaction} other {# reactions}}",
 	"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# reaction} other {# reactions}}, you reacted",
 	"mobile.team_bridge.reactions.removed": "Reaction removed",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} and # other} other {{labels} and # others}}",
+	"mobile.team_bridge.reactions.sample_none": "No names were included in this summary.",
+	"mobile.team_bridge.reactions.sample_notice": "Names shown are a sample, not a full list.",
+	"mobile.team_bridge.reactions.show_less": "Show less",
+	"mobile.team_bridge.reactions.show_more": "Show {count} more",
 	"mobile.team_bridge.reactions.summary": "{count, plural, one {# reaction} other {# reactions}}",
+	"mobile.team_bridge.reactions.you_reacted": "You reacted",
 	"mobile.team_bridge.reply_thread.count": "{count, plural, one {# reply} other {# replies}}",
 	"mobile.team_bridge.reply_thread.empty": "No replies yet. Start the thread.",
 	"mobile.team_bridge.reply_thread.error": "This thread couldn't be loaded.",
+	"mobile.team_bridge.reply_thread.last_reply": "Last reply {time}",
 	"mobile.team_bridge.reply_thread.loading": "Loading thread…",
 	"mobile.team_bridge.reply_thread.more": "Load more replies",
 	"mobile.team_bridge.reply_thread.open": "View thread, {count, plural, one {# reply} other {# replies}}",
@@ -6284,17 +6317,26 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.profile.title": { role: "heading", note: "Profile sheet title for either a person or software agent, not their user-provided job title. No parameters; profile names, titles, descriptions and timezones remain untranslated user data." },
 	"mobile.team_bridge.reactions.add": { role: "button", note: "Accessible name of the \"+\" control that adds an emoji reaction to a message: the last cell of the quick-reaction row (opens the system emoji keyboard) and the small \"+\" after a message's reaction pills." },
 	"mobile.team_bridge.reactions.added": { role: "status", note: "Polite screen-reader announcement after the reader's reaction was saved." },
+	"mobile.team_bridge.reactions.details": { role: "heading", note: "Read-only reaction summary sheet heading; never implies verified identities." },
 	"mobile.team_bridge.reactions.failed": { role: "status", note: "Shown in small red text under a message, and announced, when adding or removing a reaction failed; the previous reactions are restored. Tapping again retries." },
 	"mobile.team_bridge.reactions.hint_add": { role: "help", note: "Screen-reader hint on a reaction pill the reader has not reacted with: double-tapping adds the same emoji as their own reaction." },
+	"mobile.team_bridge.reactions.hint_inspect": { role: "help", note: "Read-only reaction pill: tap inspects the summary, never mutates it." },
 	"mobile.team_bridge.reactions.hint_remove": { role: "help", note: "Screen-reader hint on a reaction pill the reader has reacted with: double-tapping removes their reaction." },
 	"mobile.team_bridge.reactions.keyboard_hint": { role: "help", note: "One line shown above the system keyboard after tapping \"+\" to add a reaction: the reader picks any emoji from their phone's emoji keyboard. Letters typed are ignored." },
 	"mobile.team_bridge.reactions.pill": { role: "button", note: "Screen-reader name of one reaction pill under a message, when the reader has NOT reacted with it. {emoji} is the emoji itself; VoiceOver/TalkBack speak its system name (e.g. \"thumbs up\"). {count} is how many people reacted with it. Keep the order natural for your language." },
 	"mobile.team_bridge.reactions.pill_mine": { role: "button", note: "Screen-reader name of one reaction pill when the reader HAS reacted with it (the pill is highlighted). Same as mobile.team_bridge.reactions.pill plus \"you reacted\". Example: \"thumbs up, 3 reactions, you reacted\"." },
 	"mobile.team_bridge.reactions.removed": { role: "status", note: "Polite screen-reader announcement after the reader's reaction was removed." },
+	"mobile.team_bridge.reactions.sample": { role: "meta", note: "Sample labels in original hub order, joined by locale list formatting. count is total minus sample length; ownership is independent. Zero must omit others suffix." },
+	"mobile.team_bridge.reactions.sample_none": { role: "meta", note: "The summary includes a total count but no sample labels. Do not imply missing actors or a full roster endpoint." },
+	"mobile.team_bridge.reactions.sample_notice": { role: "meta", note: "Explicitly explains that sample labels are not a full reactor roster." },
+	"mobile.team_bridge.reactions.show_less": { role: "button", note: "Collapse to three measured lines of pills." },
+	"mobile.team_bridge.reactions.show_more": { role: "button", note: "Expand collapsed reaction types; count counts hidden emoji pills, not people." },
 	"mobile.team_bridge.reactions.summary": { role: "status", note: "Spoken once before a message's reaction pills: the total number of reactions across all emoji on that message." },
+	"mobile.team_bridge.reactions.you_reacted": { role: "meta", note: "Independent reacted_by_me boolean. Never replace or reorder sample labels with this string." },
 	"mobile.team_bridge.reply_thread.count": { role: "meta", note: "Reply-thread affordance on a Team Bridge message: how many replies the thread under this message has. Served by the hub, never counted on the phone. Preserve {count}." },
 	"mobile.team_bridge.reply_thread.empty": { role: "status", note: "A reply thread whose root message has no replies left to show; the second sentence invites the reader to write the first reply (desktop wording)." },
 	"mobile.team_bridge.reply_thread.error": { role: "status", note: "Shown when a reply thread could not be read from Radient; a retry button follows." },
+	"mobile.team_bridge.reply_thread.last_reply": { role: "meta", note: "Served last_reply_at formatted as an absolute local date/time; never infer from visible replies." },
 	"mobile.team_bridge.reply_thread.loading": { role: "status", note: "Shown while a reply thread loads." },
 	"mobile.team_bridge.reply_thread.more": { role: "button", note: "Button at the end of a very long reply thread (more than one load of replies) that loads the next replies. No parameters; matches the desktop's 'Load more replies'." },
 	"mobile.team_bridge.reply_thread.open": { role: "button", note: "Accessible name of the control that opens a message's reply thread (Slack-style threads); matches the desktop's 'View thread, …'. Preserve {count}. 'Thread' means replies under one message, not the whole conversation." },
@@ -7617,17 +7659,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "Perfil",
 		"mobile.team_bridge.reactions.add": "Añadir reacción",
 		"mobile.team_bridge.reactions.added": "Reacción añadida",
+		"mobile.team_bridge.reactions.details": "Detalles de la reacción",
 		"mobile.team_bridge.reactions.failed": "No se pudo guardar la reacción. Inténtalo de nuevo.",
 		"mobile.team_bridge.reactions.hint_add": "Toca dos veces para reaccionar también",
+		"mobile.team_bridge.reactions.hint_inspect": "Toca dos veces para ver los detalles de la reacción",
 		"mobile.team_bridge.reactions.hint_remove": "Toca dos veces para quitar tu reacción",
 		"mobile.team_bridge.reactions.keyboard_hint": "Elige un emoji en tu teclado",
 		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# reacción} other {# reacciones}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# reacción} other {# reacciones}}, reaccionaste",
 		"mobile.team_bridge.reactions.removed": "Reacción quitada",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} y # más} other {{labels} y # más}}",
+		"mobile.team_bridge.reactions.sample_none": "Este resumen no incluye nombres.",
+		"mobile.team_bridge.reactions.sample_notice": "Los nombres mostrados son una muestra, no una lista completa.",
+		"mobile.team_bridge.reactions.show_less": "Mostrar menos",
+		"mobile.team_bridge.reactions.show_more": "Mostrar {count} más",
 		"mobile.team_bridge.reactions.summary": "{count, plural, one {# reacción} other {# reacciones}}",
+		"mobile.team_bridge.reactions.you_reacted": "Has reaccionado",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# respuesta} other {# respuestas}}",
 		"mobile.team_bridge.reply_thread.empty": "Aún no hay respuestas. Inicia el hilo.",
 		"mobile.team_bridge.reply_thread.error": "No se pudo cargar este hilo.",
+		"mobile.team_bridge.reply_thread.last_reply": "Última respuesta: {time}",
 		"mobile.team_bridge.reply_thread.loading": "Cargando hilo…",
 		"mobile.team_bridge.reply_thread.more": "Cargar más respuestas",
 		"mobile.team_bridge.reply_thread.open": "Ver hilo, {count, plural, one {# respuesta} other {# respuestas}}",
@@ -8934,17 +8985,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "Profil",
 		"mobile.team_bridge.reactions.add": "Ajouter une réaction",
 		"mobile.team_bridge.reactions.added": "Réaction ajoutée",
+		"mobile.team_bridge.reactions.details": "Détails de la réaction",
 		"mobile.team_bridge.reactions.failed": "La réaction n'a pas pu être enregistrée. Réessayez.",
 		"mobile.team_bridge.reactions.hint_add": "Touchez deux fois pour réagir aussi",
+		"mobile.team_bridge.reactions.hint_inspect": "Touchez deux fois pour consulter les détails de la réaction",
 		"mobile.team_bridge.reactions.hint_remove": "Touchez deux fois pour retirer votre réaction",
 		"mobile.team_bridge.reactions.keyboard_hint": "Choisissez un emoji sur votre clavier",
 		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# réaction} other {# réactions}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# réaction} other {# réactions}}, vous avez réagi",
 		"mobile.team_bridge.reactions.removed": "Réaction retirée",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} et # autre} other {{labels} et # autres}}",
+		"mobile.team_bridge.reactions.sample_none": "Aucun nom ne figure dans ce résumé.",
+		"mobile.team_bridge.reactions.sample_notice": "Les noms affichés sont un échantillon, pas une liste complète.",
+		"mobile.team_bridge.reactions.show_less": "Afficher moins",
+		"mobile.team_bridge.reactions.show_more": "Afficher {count} de plus",
 		"mobile.team_bridge.reactions.summary": "{count, plural, one {# réaction} other {# réactions}}",
+		"mobile.team_bridge.reactions.you_reacted": "Vous avez réagi",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# réponse} other {# réponses}}",
 		"mobile.team_bridge.reply_thread.empty": "Aucune réponse pour l’instant. Lancez le fil.",
 		"mobile.team_bridge.reply_thread.error": "Impossible de charger ce fil.",
+		"mobile.team_bridge.reply_thread.last_reply": "Dernière réponse : {time}",
 		"mobile.team_bridge.reply_thread.loading": "Chargement du fil…",
 		"mobile.team_bridge.reply_thread.more": "Charger plus de réponses",
 		"mobile.team_bridge.reply_thread.open": "Ouvrir le fil, {count, plural, one {# réponse} other {# réponses}}",
@@ -10251,17 +10311,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "प्रोफ़ाइल",
 		"mobile.team_bridge.reactions.add": "प्रतिक्रिया जोड़ें",
 		"mobile.team_bridge.reactions.added": "प्रतिक्रिया जोड़ी गई",
+		"mobile.team_bridge.reactions.details": "प्रतिक्रिया का विवरण",
 		"mobile.team_bridge.reactions.failed": "प्रतिक्रिया सहेजी नहीं जा सकी। फिर से कोशिश करें।",
 		"mobile.team_bridge.reactions.hint_add": "आप भी प्रतिक्रिया देने के लिए दो बार टैप करें",
+		"mobile.team_bridge.reactions.hint_inspect": "प्रतिक्रिया का विवरण देखने के लिए दो बार टैप करें",
 		"mobile.team_bridge.reactions.hint_remove": "अपनी प्रतिक्रिया हटाने के लिए दो बार टैप करें",
 		"mobile.team_bridge.reactions.keyboard_hint": "अपने कीबोर्ड से कोई इमोजी चुनें",
 		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}, आपने प्रतिक्रिया दी",
 		"mobile.team_bridge.reactions.removed": "प्रतिक्रिया हटाई गई",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels} और # अन्य}}",
+		"mobile.team_bridge.reactions.sample_none": "इस सारांश में कोई नाम नहीं दिया गया है।",
+		"mobile.team_bridge.reactions.sample_notice": "दिखाए गए नाम केवल एक नमूना हैं, पूरी सूची नहीं।",
+		"mobile.team_bridge.reactions.show_less": "कम दिखाएँ",
+		"mobile.team_bridge.reactions.show_more": "{count} और दिखाएँ",
 		"mobile.team_bridge.reactions.summary": "{count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}",
+		"mobile.team_bridge.reactions.you_reacted": "आपने प्रतिक्रिया दी",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# जवाब} other {# जवाब}}",
 		"mobile.team_bridge.reply_thread.empty": "अभी तक कोई जवाब नहीं। थ्रेड शुरू करें।",
 		"mobile.team_bridge.reply_thread.error": "यह थ्रेड लोड नहीं हो सका।",
+		"mobile.team_bridge.reply_thread.last_reply": "आखिरी जवाब: {time}",
 		"mobile.team_bridge.reply_thread.loading": "थ्रेड लोड हो रहा है…",
 		"mobile.team_bridge.reply_thread.more": "और जवाब लोड करें",
 		"mobile.team_bridge.reply_thread.open": "थ्रेड देखें, {count, plural, one {# जवाब} other {# जवाब}}",
@@ -11568,17 +11637,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "Профиль",
 		"mobile.team_bridge.reactions.add": "Добавить реакцию",
 		"mobile.team_bridge.reactions.added": "Реакция добавлена",
+		"mobile.team_bridge.reactions.details": "Сведения о реакции",
 		"mobile.team_bridge.reactions.failed": "Не удалось сохранить реакцию. Попробуйте ещё раз.",
 		"mobile.team_bridge.reactions.hint_add": "Коснитесь дважды, чтобы тоже отреагировать",
+		"mobile.team_bridge.reactions.hint_inspect": "Нажмите дважды, чтобы посмотреть сведения о реакции",
 		"mobile.team_bridge.reactions.hint_remove": "Коснитесь дважды, чтобы убрать свою реакцию",
 		"mobile.team_bridge.reactions.keyboard_hint": "Выберите эмодзи на клавиатуре",
 		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}, вы отреагировали",
 		"mobile.team_bridge.reactions.removed": "Реакция удалена",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} и ещё # участник} few {{labels} и ещё # участника} many {{labels} и ещё # участников} other {{labels} и ещё # участника}}",
+		"mobile.team_bridge.reactions.sample_none": "В этой сводке нет имён.",
+		"mobile.team_bridge.reactions.sample_notice": "Показаны лишь некоторые имена, а не полный список.",
+		"mobile.team_bridge.reactions.show_less": "Свернуть",
+		"mobile.team_bridge.reactions.show_more": "Показать ещё {count}",
 		"mobile.team_bridge.reactions.summary": "{count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}",
+		"mobile.team_bridge.reactions.you_reacted": "Вы отреагировали",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
 		"mobile.team_bridge.reply_thread.empty": "Ответов пока нет. Начните ветку.",
 		"mobile.team_bridge.reply_thread.error": "Не удалось загрузить эту ветку.",
+		"mobile.team_bridge.reply_thread.last_reply": "Последний ответ: {time}",
 		"mobile.team_bridge.reply_thread.loading": "Загрузка ветки…",
 		"mobile.team_bridge.reply_thread.more": "Загрузить ещё ответы",
 		"mobile.team_bridge.reply_thread.open": "Открыть ветку, {count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
@@ -12885,17 +12963,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "پروفائل",
 		"mobile.team_bridge.reactions.add": "ردعمل شامل کریں",
 		"mobile.team_bridge.reactions.added": "ردعمل شامل ہو گیا",
+		"mobile.team_bridge.reactions.details": "ردِعمل کی تفصیل",
 		"mobile.team_bridge.reactions.failed": "ردعمل محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
 		"mobile.team_bridge.reactions.hint_add": "آپ بھی ردعمل دینے کے لیے دو بار تھپتھپائیں",
+		"mobile.team_bridge.reactions.hint_inspect": "ردِعمل کی تفصیل دیکھنے کے لیے دو بار ٹیپ کریں",
 		"mobile.team_bridge.reactions.hint_remove": "اپنا ردعمل ہٹانے کے لیے دو بار تھپتھپائیں",
 		"mobile.team_bridge.reactions.keyboard_hint": "اپنے کی بورڈ سے کوئی ایموجی منتخب کریں",
 		"mobile.team_bridge.reactions.pill": "{emoji}، {count, plural, one {# ردعمل} other {# ردعمل}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}، {count, plural, one {# ردعمل} other {# ردعمل}}، آپ نے ردعمل دیا",
 		"mobile.team_bridge.reactions.removed": "ردعمل ہٹا دیا گیا",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels} اور # دیگر}}",
+		"mobile.team_bridge.reactions.sample_none": "اس خلاصے میں کوئی نام شامل نہیں ہے۔",
+		"mobile.team_bridge.reactions.sample_notice": "دکھائے گئے نام صرف ایک نمونہ ہیں، مکمل فہرست نہیں۔",
+		"mobile.team_bridge.reactions.show_less": "کم دکھائیں",
+		"mobile.team_bridge.reactions.show_more": "مزید {count} دکھائیں",
 		"mobile.team_bridge.reactions.summary": "{count, plural, one {# ردعمل} other {# ردعمل}}",
+		"mobile.team_bridge.reactions.you_reacted": "آپ نے ردِعمل دیا",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, one {# جواب} other {# جوابات}}",
 		"mobile.team_bridge.reply_thread.empty": "ابھی تک کوئی جواب نہیں۔ تھریڈ شروع کریں۔",
 		"mobile.team_bridge.reply_thread.error": "یہ تھریڈ لوڈ نہیں ہو سکا۔",
+		"mobile.team_bridge.reply_thread.last_reply": "آخری جواب: {time}",
 		"mobile.team_bridge.reply_thread.loading": "تھریڈ لوڈ ہو رہا ہے…",
 		"mobile.team_bridge.reply_thread.more": "مزید جوابات لوڈ کریں",
 		"mobile.team_bridge.reply_thread.open": "تھریڈ دیکھیں، {count, plural, one {# جواب} other {# جوابات}}",
@@ -14202,17 +14289,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "Hồ sơ",
 		"mobile.team_bridge.reactions.add": "Thêm cảm xúc",
 		"mobile.team_bridge.reactions.added": "Đã thêm cảm xúc",
+		"mobile.team_bridge.reactions.details": "Chi tiết biểu cảm",
 		"mobile.team_bridge.reactions.failed": "Không lưu được cảm xúc. Hãy thử lại.",
 		"mobile.team_bridge.reactions.hint_add": "Chạm hai lần để cùng bày tỏ cảm xúc",
+		"mobile.team_bridge.reactions.hint_inspect": "Nhấn đúp để xem chi tiết biểu cảm",
 		"mobile.team_bridge.reactions.hint_remove": "Chạm hai lần để gỡ cảm xúc của bạn",
 		"mobile.team_bridge.reactions.keyboard_hint": "Chọn một emoji từ bàn phím",
 		"mobile.team_bridge.reactions.pill": "{emoji}, {count, plural, other {# cảm xúc}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}, {count, plural, other {# cảm xúc}}, bạn đã bày tỏ cảm xúc",
 		"mobile.team_bridge.reactions.removed": "Đã gỡ cảm xúc",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels} và # người khác}}",
+		"mobile.team_bridge.reactions.sample_none": "Bản tóm tắt này không có tên.",
+		"mobile.team_bridge.reactions.sample_notice": "Tên hiển thị chỉ là một phần, không phải danh sách đầy đủ.",
+		"mobile.team_bridge.reactions.show_less": "Thu gọn",
+		"mobile.team_bridge.reactions.show_more": "Hiện thêm {count}",
 		"mobile.team_bridge.reactions.summary": "{count, plural, other {# cảm xúc}}",
+		"mobile.team_bridge.reactions.you_reacted": "Bạn đã bày tỏ cảm xúc",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# phản hồi}}",
 		"mobile.team_bridge.reply_thread.empty": "Chưa có phản hồi nào. Hãy bắt đầu chuỗi.",
 		"mobile.team_bridge.reply_thread.error": "Không thể tải chuỗi này.",
+		"mobile.team_bridge.reply_thread.last_reply": "Trả lời gần nhất: {time}",
 		"mobile.team_bridge.reply_thread.loading": "Đang tải chuỗi…",
 		"mobile.team_bridge.reply_thread.more": "Tải thêm phản hồi",
 		"mobile.team_bridge.reply_thread.open": "Xem chuỗi, {count, plural, other {# phản hồi}}",
@@ -15519,17 +15615,26 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.profile.title": "个人资料",
 		"mobile.team_bridge.reactions.add": "添加回应",
 		"mobile.team_bridge.reactions.added": "已添加回应",
+		"mobile.team_bridge.reactions.details": "表情回应详情",
 		"mobile.team_bridge.reactions.failed": "无法保存回应。请重试。",
 		"mobile.team_bridge.reactions.hint_add": "轻点两下以一起回应",
+		"mobile.team_bridge.reactions.hint_inspect": "轻点两下查看表情回应详情",
 		"mobile.team_bridge.reactions.hint_remove": "轻点两下以移除你的回应",
 		"mobile.team_bridge.reactions.keyboard_hint": "从键盘中选择一个表情",
 		"mobile.team_bridge.reactions.pill": "{emoji}，{count, plural, other {# 个回应}}",
 		"mobile.team_bridge.reactions.pill_mine": "{emoji}，{count, plural, other {# 个回应}}，你已回应",
 		"mobile.team_bridge.reactions.removed": "已移除回应",
+		"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels}及其他 # 位}}",
+		"mobile.team_bridge.reactions.sample_none": "此摘要未包含姓名。",
+		"mobile.team_bridge.reactions.sample_notice": "所显示的姓名仅为部分示例，并非完整列表。",
+		"mobile.team_bridge.reactions.show_less": "收起",
+		"mobile.team_bridge.reactions.show_more": "再显示 {count} 项",
 		"mobile.team_bridge.reactions.summary": "{count, plural, other {# 个回应}}",
+		"mobile.team_bridge.reactions.you_reacted": "你已回应",
 		"mobile.team_bridge.reply_thread.count": "{count, plural, other {# 条回复}}",
 		"mobile.team_bridge.reply_thread.empty": "还没有回复。发起话题吧。",
 		"mobile.team_bridge.reply_thread.error": "无法加载此话题。",
+		"mobile.team_bridge.reply_thread.last_reply": "最近回复：{time}",
 		"mobile.team_bridge.reply_thread.loading": "正在加载话题…",
 		"mobile.team_bridge.reply_thread.more": "加载更多回复",
 		"mobile.team_bridge.reply_thread.open": "查看话题，{count, plural, other {# 条回复}}",

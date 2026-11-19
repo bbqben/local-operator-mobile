@@ -72,6 +72,16 @@ export function ReplyThreadChip({
 	onLongPress?: () => void;
 }) {
 	const accent = useTokenColor("accent");
+	// Absolute, locale-formatted time does not silently age while the list rests.
+	// The summary only carries this field when the hub supplied a valid value.
+	const lastReply = summary.lastReplyAt
+		? t("mobile.team_bridge.reply_thread.last_reply", {
+				time: new Intl.DateTimeFormat(locale, {
+					dateStyle: "short",
+					timeStyle: "short",
+				}).format(new Date(summary.lastReplyAt)),
+			})
+		: undefined;
 	const unread = showsThreadUnread(summary) ? (summary.unread ?? 0) : 0;
 	const people = participantsLine(
 		summary.participants.map((p) => replierLabel(p, directory)),
@@ -88,6 +98,7 @@ export function ReplyThreadChip({
 						})
 					: t("mobile.team_bridge.reply_thread.open", { count: summary.count })
 			}
+			accessibilityHint={lastReply}
 			testID={teamBridgeReplyThreadOpenId(rootId)}
 			onPress={() => onOpen(rootId)}
 			onLongPress={onLongPress}
@@ -102,31 +113,37 @@ export function ReplyThreadChip({
 		>
 			{({ pressed }) => (
 				<View
-					className={`flex-row items-center gap-2 rounded-sm px-1 py-1 ${pressed ? "bg-row-selected" : ""}`}
+					className={`max-w-full gap-1 rounded-sm px-1 py-1 ${pressed ? "bg-row-selected" : ""}`}
 				>
-					<MessagesSquare size={15} color={accent} aria-hidden />
-					<Text className="text-meta font-semibold text-accent">
-						{t("mobile.team_bridge.reply_thread.count", {
-							count: summary.count,
-						})}
-					</Text>
-					{people ? (
-						<Text
-							className="min-w-0 shrink text-meta text-ink-muted"
-							numberOfLines={1}
-						>
-							{people}
+					<View className="flex-row items-center gap-2">
+						<MessagesSquare size={15} color={accent} aria-hidden />
+						<Text className="text-meta font-semibold text-accent">
+							{t("mobile.team_bridge.reply_thread.count", {
+								count: summary.count,
+							})}
 						</Text>
-					) : null}
-					{unread > 0 ? (
-						<View
-							className="rounded-full bg-accent px-2 py-0.5"
-							testID={teamBridgeReplyThreadUnreadId(rootId)}
-						>
-							<Text className="text-mono-label tabular-nums text-on-accent">
-								{countLabel(unread)}
+						{people ? (
+							<Text
+								className="min-w-0 shrink text-meta text-ink-muted"
+								numberOfLines={1}
+							>
+								{people}
 							</Text>
-						</View>
+						) : null}
+
+						{unread > 0 ? (
+							<View
+								className="rounded-full bg-accent px-2 py-0.5"
+								testID={teamBridgeReplyThreadUnreadId(rootId)}
+							>
+								<Text className="text-mono-label tabular-nums text-on-accent">
+									{countLabel(unread)}
+								</Text>
+							</View>
+						) : null}
+					</View>
+					{lastReply ? (
+						<Text className="text-meta text-ink-muted">{lastReply}</Text>
 					) : null}
 				</View>
 			)}

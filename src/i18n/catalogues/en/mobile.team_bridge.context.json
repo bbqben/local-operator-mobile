@@ -842,5 +842,41 @@
 	"mobile.team_bridge.unread": {
 		"role": "status",
 		"note": "Team Bridge mobile UI: unread. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state. Parameters are caller-supplied names/counts or protocol selects; do not translate their identifiers. Preserve ICU plural/select syntax and all variants; names are not translated."
+	},
+	"mobile.team_bridge.reactions.details": {
+		"role": "heading",
+		"note": "Read-only reaction summary sheet heading; never implies verified identities."
+	},
+	"mobile.team_bridge.reactions.sample": {
+		"role": "meta",
+		"note": "Sample labels in original hub order, joined by locale list formatting. count is total minus sample length; ownership is independent. Zero must omit others suffix."
+	},
+	"mobile.team_bridge.reactions.sample_notice": {
+		"role": "meta",
+		"note": "Explicitly explains that sample labels are not a full reactor roster."
+	},
+	"mobile.team_bridge.reactions.you_reacted": {
+		"role": "meta",
+		"note": "Independent reacted_by_me boolean. Never replace or reorder sample labels with this string."
+	},
+	"mobile.team_bridge.reactions.show_more": {
+		"role": "button",
+		"note": "Expand collapsed reaction types; count counts hidden emoji pills, not people."
+	},
+	"mobile.team_bridge.reactions.show_less": {
+		"role": "button",
+		"note": "Collapse to three measured lines of pills."
+	},
+	"mobile.team_bridge.reply_thread.last_reply": {
+		"role": "meta",
+		"note": "Served last_reply_at formatted as an absolute local date/time; never infer from visible replies."
+	},
+	"mobile.team_bridge.reactions.hint_inspect": {
+		"role": "help",
+		"note": "Read-only reaction pill: tap inspects the summary, never mutates it."
+	},
+	"mobile.team_bridge.reactions.sample_none": {
+		"role": "meta",
+		"note": "The summary includes a total count but no sample labels. Do not imply missing actors or a full roster endpoint."
 	}
 }

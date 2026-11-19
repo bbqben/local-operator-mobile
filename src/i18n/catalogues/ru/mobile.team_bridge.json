@@ -209,5 +209,14 @@
 	"mobile.team_bridge.thread.send_error": "Отправка сообщения не подтверждена. Черновик сохранён здесь. Повторная попытка безопасно отправит то же сообщение.",
 	"mobile.team_bridge.thread.send_retry": "Повторить отправку",
 	"mobile.team_bridge.title": "Team Bridge",
-	"mobile.team_bridge.unread": "{count, plural, one {# непрочитанное} few {# непрочитанных} many {# непрочитанных} other {# непрочитанных}}"
+	"mobile.team_bridge.unread": "{count, plural, one {# непрочитанное} few {# непрочитанных} many {# непрочитанных} other {# непрочитанных}}",
+	"mobile.team_bridge.reactions.details": "Сведения о реакции",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} и ещё # участник} few {{labels} и ещё # участника} many {{labels} и ещё # участников} other {{labels} и ещё # участника}}",
+	"mobile.team_bridge.reactions.sample_notice": "Показаны лишь некоторые имена, а не полный список.",
+	"mobile.team_bridge.reactions.you_reacted": "Вы отреагировали",
+	"mobile.team_bridge.reactions.show_more": "Показать ещё {count}",
+	"mobile.team_bridge.reactions.show_less": "Свернуть",
+	"mobile.team_bridge.reply_thread.last_reply": "Последний ответ: {time}",
+	"mobile.team_bridge.reactions.hint_inspect": "Нажмите дважды, чтобы посмотреть сведения о реакции",
+	"mobile.team_bridge.reactions.sample_none": "В этой сводке нет имён."
 }

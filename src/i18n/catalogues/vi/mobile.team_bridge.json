@@ -209,5 +209,14 @@
 	"mobile.team_bridge.thread.send_error": "Tin nhắn chưa được xác nhận. Bản nháp vẫn được lưu tại đây. Thử lại sẽ gửi lại cùng tin nhắn một cách an toàn.",
 	"mobile.team_bridge.thread.send_retry": "Thử gửi lại",
 	"mobile.team_bridge.title": "Team Bridge",
-	"mobile.team_bridge.unread": "{count, plural, other {# chưa đọc}}"
+	"mobile.team_bridge.unread": "{count, plural, other {# chưa đọc}}",
+	"mobile.team_bridge.reactions.details": "Chi tiết biểu cảm",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels} và # người khác}}",
+	"mobile.team_bridge.reactions.sample_notice": "Tên hiển thị chỉ là một phần, không phải danh sách đầy đủ.",
+	"mobile.team_bridge.reactions.you_reacted": "Bạn đã bày tỏ cảm xúc",
+	"mobile.team_bridge.reactions.show_more": "Hiện thêm {count}",
+	"mobile.team_bridge.reactions.show_less": "Thu gọn",
+	"mobile.team_bridge.reply_thread.last_reply": "Trả lời gần nhất: {time}",
+	"mobile.team_bridge.reactions.hint_inspect": "Nhấn đúp để xem chi tiết biểu cảm",
+	"mobile.team_bridge.reactions.sample_none": "Bản tóm tắt này không có tên."
 }

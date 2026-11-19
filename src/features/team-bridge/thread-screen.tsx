@@ -273,6 +273,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 	 *  (the reply thread's own rows: threads are one level deep). */
 	onOpenReplyThread?: (rootId: string) => void;
 }) {
+	const origin = useRef<View>(null);
 	const sender = model.senderLabel(message.sender, people);
 	const replies = onOpenReplyThread ? replyThreadSummary(message) : null;
 	// A sender the directory no longer knows renders a neutral silhouette + inert name.
@@ -289,13 +290,15 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 			actions
 				? {
 						id: bridgeSelectionId(actions.scope, message.id),
-						onLongPress: () => actions.open(message),
+						onLongPress: () => actions.open(message, () => origin.current),
 						accessibility: messageActionAccessibility(
 							actions.list(message),
 							(action) => actions.run(action, message),
 							/* "React" opens the same sheet at its quick row, so reacting
 							 *  never needs a hold (spec §4.6). */
-							actions.reactable ? () => actions.open(message) : undefined,
+							actions.reactable
+								? () => actions.open(message, () => origin.current)
+								: undefined,
 						),
 					}
 				: undefined,
@@ -323,6 +326,8 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 	const referent = actionsOpen || selecting;
 	return (
 		<Pressable
+			ref={origin}
+			tabIndex={-1}
 			className={`flex-row gap-3 px-4 ${continuation ? "py-0.5" : "pt-3 pb-0.5"}`}
 			testID={teamBridgeMessageId(message.id)}
 			onLongPress={host?.onLongPress}
@@ -446,7 +451,9 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					tenantId={tenantId}
 					locale={locale}
 					canReact={actions?.reactable === true}
-					onAdd={actions ? () => actions.open(message) : undefined}
+					onAdd={
+						actions ? (control) => actions.open(message, control) : undefined
+					}
 					onLongPress={host?.onLongPress}
 				/>
 				{replies && onOpenReplyThread ? (

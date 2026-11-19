@@ -209,5 +209,14 @@
 	"mobile.team_bridge.thread.send_error": "Votre message n’a pas été confirmé. Votre brouillon est conservé ici. Réessayer renvoie le même message sans risque de doublon.",
 	"mobile.team_bridge.thread.send_retry": "Réessayer l’envoi",
 	"mobile.team_bridge.title": "Team Bridge",
-	"mobile.team_bridge.unread": "{count, plural, one {# non lu} other {# non lus}}"
+	"mobile.team_bridge.unread": "{count, plural, one {# non lu} other {# non lus}}",
+	"mobile.team_bridge.reactions.details": "Détails de la réaction",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} et # autre} other {{labels} et # autres}}",
+	"mobile.team_bridge.reactions.sample_notice": "Les noms affichés sont un échantillon, pas une liste complète.",
+	"mobile.team_bridge.reactions.you_reacted": "Vous avez réagi",
+	"mobile.team_bridge.reactions.show_more": "Afficher {count} de plus",
+	"mobile.team_bridge.reactions.show_less": "Afficher moins",
+	"mobile.team_bridge.reply_thread.last_reply": "Dernière réponse : {time}",
+	"mobile.team_bridge.reactions.hint_inspect": "Touchez deux fois pour consulter les détails de la réaction",
+	"mobile.team_bridge.reactions.sample_none": "Aucun nom ne figure dans ce résumé."
 }

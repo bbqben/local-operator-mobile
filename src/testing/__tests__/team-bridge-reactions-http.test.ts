@@ -129,6 +129,33 @@ const target = (messageId: string) => ({
 });
 
 describe("reactions over the actual HTTP client and mock hub", () => {
+	it("details world serves 14 summaries with independent ownership/sample labels and a real root rollup", async () => {
+		const w = await world("reactions_details");
+		await w.poll();
+		expect(w.held("bcm_3")).toHaveLength(14);
+		expect(w.held("bcm_3")?.[0]).toEqual({
+			emoji: THUMBS,
+			count: 8,
+			reacted_by_me: true,
+			sample_labels: ["Ada", "Ben", "Cy"],
+		});
+		expect(w.held("bcm_3")?.[1]).toEqual({
+			emoji: PARTY,
+			count: 4,
+			reacted_by_me: false,
+			sample_labels: [],
+		});
+		const message = w.bridge.store
+			.getState()
+			.threads[threadKey(TENANT, CONV)]?.messages.find(
+				(row) => row.id === "bcm_3",
+			);
+		expect(message?.reply_count).toBeGreaterThan(0);
+		expect(Number.isFinite(Date.parse(message?.last_reply_at ?? ""))).toBe(
+			true,
+		);
+		expect((await w.stats()).reactionWrites).toEqual({ put: 0, delete: 0 });
+	});
 	it("history rows carry the served summary; a message without reactions carries none", async () => {
 		const w = await world("reactions");
 		await w.poll();

@@ -20,7 +20,7 @@
  * `+`, no added height (the entry point is the long-press sheet's quick row).
  */
 import { SmilePlus } from "lucide-react-native";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import {
 	AccessibilityInfo,
 	ActivityIndicator,
@@ -36,15 +36,20 @@ import { reactionTotal } from "@/team-bridge/reactions";
 import { type ReactionTarget, reactionKey } from "@/team-bridge/store";
 import { ROLE, SURFACE, teamBridgeReactionPillId } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
+import { Sheet } from "@/ui/components/sheet";
 import { cx } from "@/ui/variants";
+import {
+	collapsedReactionCount,
+	sampledReactionDetails,
+} from "./reaction-details";
 
 const NO_REACTIONS: readonly Reaction[] = [];
 
-/** Pill height (spec §4.3): 28 pt, padded to the 44 pt touch floor by an
- *  8 pt slop above and below. Wrapped lines therefore sit ≥ 16 pt apart
- *  (`gap-y-4`) so the slops never overlap ("hit areas may never overlap"). */
+/** Keep the 28 pt visual inside a real >=44x44 layout box. Slop alone neither
+ * reserves horizontal space for the inline plus nor survives a parent boundary;
+ * real boxes cannot overlap on wrapped lines or when reading direction flips. */
 const PILL_HEIGHT = 28;
-const PILL_SLOP = { top: 8, bottom: 8 } as const;
+const PILL_TOUCH = { minWidth: 44, height: 44 } as const;
 /* 16 pt glyph (spec §4.3). A style, not a type token: emoji are drawn by the
  *  system font and no text role in the kit is this size. */
 const EMOJI_GLYPH = { fontSize: 16, lineHeight: 20 } as const;
@@ -131,9 +136,9 @@ export const ReactionPills = memo(function ReactionPills({
 	/** False in a read-only conversation: pills show, but do not toggle. */
 	canReact: boolean;
 	/** The trailing `+`: opens the message-actions sheet at its quick row. */
-	onAdd?: () => void;
-	/** The row's long-press, so a hold on a pill still opens the sheet rather
-	 *  than turning into a tap on release (the reply chip's rule, PR #339). */
+	onAdd?: (origin: () => View | null) => void;
+	/** Plus holds still open message actions. Pill holds inspect their own
+	 * sampled summary instead; they must never toggle on release. */
 	onLongPress?: () => void;
 }) {
 	const { rows, pendingEmoji, failed, unserved } = useShownReactions(
@@ -141,8 +146,20 @@ export const ReactionPills = memo(function ReactionPills({
 		message,
 	);
 	const toggle = useReactionToggle();
-	const spinner = useTokenColor("ink-muted");
 	const plusColor = useTokenColor("ink-muted");
+	const [inspecting, setInspecting] = useState<string | null>(null);
+	const [expanded, setExpanded] = useState(false);
+	const [width, setWidth] = useState(0);
+	const [widths, setWidths] = useState<Record<string, number>>({});
+	const addRef = useRef<View>(null);
+	const limit = collapsedReactionCount(
+		width,
+		rows.map((r) => widths[r.emoji] ?? 0),
+		canReact && onAdd ? 44 : 0,
+	);
+	const shown = expanded ? rows : rows.slice(0, limit);
+	const detail = rows.find((r) => r.emoji === inspecting);
+	const sample = detail ? sampledReactionDetails(detail) : null;
 	if (unserved || (rows.length === 0 && !failed)) return null;
 	const target = {
 		tenantId,
@@ -151,8 +168,40 @@ export const ReactionPills = memo(function ReactionPills({
 	};
 	return (
 		<View className="mt-1" testID={SURFACE.teamBridgeReactionPills}>
+			<View
+				className="absolute start-0 end-0 top-0 items-start opacity-0"
+				pointerEvents="none"
+				accessibilityElementsHidden
+				importantForAccessibility="no-hide-descendants"
+				aria-hidden
+			>
+				{rows.map((reaction) => (
+					<View
+						key={reaction.emoji}
+						style={PILL_TOUCH}
+						className="justify-center"
+						testID={`reaction-measure-${reaction.emoji}`}
+						onLayout={(event) => {
+							const measured = event.nativeEvent.layout.width;
+							setWidths((old) =>
+								old[reaction.emoji] === measured
+									? old
+									: { ...old, [reaction.emoji]: measured },
+							);
+						}}
+					>
+						<ReactionFace reaction={reaction} locale={locale} />
+					</View>
+				))}
+			</View>
 			{rows.length > 0 ? (
-				<View className="flex-row flex-wrap items-center gap-x-1.5 gap-y-4">
+				<View
+					testID="team-bridge-reaction-wrap"
+					className="flex-row flex-wrap items-center"
+					// Match the packer's point gap even when web root rem size changes.
+					style={{ columnGap: 6 }}
+					onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
+				>
 					{/* The summary a screen reader lands on first (§4.6). Out of
 					 *  the layout, still in the accessibility tree. */}
 					<Text style={VISUALLY_HIDDEN} accessibilityRole={ROLE.text}>
@@ -160,7 +209,7 @@ export const ReactionPills = memo(function ReactionPills({
 							count: reactionTotal(rows),
 						})}
 					</Text>
-					{rows.map((reaction) => {
+					{shown.map((reaction) => {
 						const mine = reaction.reacted_by_me;
 						const busy = pendingEmoji === reaction.emoji;
 						return (
@@ -175,70 +224,124 @@ export const ReactionPills = memo(function ReactionPills({
 													? "mobile.team_bridge.reactions.hint_remove"
 													: "mobile.team_bridge.reactions.hint_add",
 											)
-										: undefined
+										: t("mobile.team_bridge.reactions.hint_inspect")
 								}
 								accessibilityState={{
 									selected: mine,
 									busy,
-									disabled: !canReact,
 								}}
-								disabled={!canReact}
-								hitSlop={PILL_SLOP}
 								testID={teamBridgeReactionPillId(reaction.emoji)}
-								onPress={() => void toggle(target, reaction.emoji)}
-								onLongPress={onLongPress}
-								style={{ height: PILL_HEIGHT }}
-								className={cx(
-									"flex-row items-center gap-1 rounded-full border px-2.5",
-									/* Mine carries an `accent-border` ring: its wash measured
-									 *  1.01:1 on the light canvas, so the hue alone cannot say
-									 *  "yours" outdoors (spec §4.3; contrast contract row
-									 *  "team bridge own reaction pill"). */
-									mine
-										? "border-accent-border bg-accent-wash"
-										: "border-border-control bg-elevated",
-								)}
+								onPress={() => {
+									if (canReact) void toggle(target, reaction.emoji);
+									else setInspecting(reaction.emoji);
+								}}
+								onLongPress={() => {
+									haptic("light");
+									setInspecting(reaction.emoji);
+								}}
+								accessibilityActions={[
+									{
+										name: "longpress",
+										label: t("mobile.team_bridge.reactions.details"),
+									},
+								]}
+								onAccessibilityAction={(event) => {
+									if (event.nativeEvent.actionName === "longpress")
+										setInspecting(reaction.emoji);
+								}}
+								style={PILL_TOUCH}
+								className="justify-center"
 							>
-								<Text style={EMOJI_GLYPH} aria-hidden>
-									{reaction.emoji}
-								</Text>
-								<View>
-									{/* Pending: the count is hidden IN PLACE under the spinner,
-									 *  so the pill keeps its width (§4.3 "pending"). */}
-									<Text
-										className={cx(
-											"text-meta tabular-nums",
-											mine ? "font-semibold text-accent" : "text-ink-muted",
-											busy && "opacity-0",
-										)}
-									>
-										{reactionCount(reaction.count, locale)}
-									</Text>
-									{busy ? (
-										<View className="absolute inset-0 items-center justify-center">
-											<ActivityIndicator size="small" color={spinner} />
-										</View>
-									) : null}
-								</View>
+								<ReactionFace
+									reaction={reaction}
+									locale={locale}
+									busy={busy}
+									testID={`${teamBridgeReactionPillId(reaction.emoji)}-visual`}
+								/>
 							</Pressable>
 						);
 					})}
-					{canReact && onAdd ? (
+					{rows.length > 0 && canReact && onAdd ? (
 						<Pressable
 							accessibilityRole={ROLE.button}
+							ref={addRef}
 							accessibilityLabel={t("mobile.team_bridge.reactions.add")}
-							hitSlop={PILL_SLOP}
 							testID={SURFACE.teamBridgeReactionAdd}
-							onPress={onAdd}
+							onPress={() => onAdd(() => addRef.current)}
 							onLongPress={onLongPress}
-							style={{ height: PILL_HEIGHT, width: PILL_HEIGHT }}
-							className="items-center justify-center rounded-full border border-border-control bg-elevated"
+							style={PILL_TOUCH}
+							className="items-center justify-center"
 						>
-							<SmilePlus size={16} color={plusColor} aria-hidden />
+							<View
+								style={{ height: PILL_HEIGHT, width: PILL_HEIGHT }}
+								className="items-center justify-center rounded-full border border-border-control bg-elevated"
+							>
+								<SmilePlus size={16} color={plusColor} aria-hidden />
+							</View>
 						</Pressable>
 					) : null}
 				</View>
 			) : null}
+			<View className="flex-row items-center gap-1.5">
+				{limit < rows.length ? (
+					<Pressable
+						accessibilityRole={ROLE.button}
+						accessibilityState={{ expanded }}
+						onPress={() => setExpanded((old) => !old)}
+						style={{ minHeight: 44 }}
+						testID="team-bridge-reactions-expand"
+						className="justify-center px-2"
+					>
+						<Text className="text-meta text-accent">
+							{expanded
+								? t("mobile.team_bridge.reactions.show_less")
+								: t("mobile.team_bridge.reactions.show_more", {
+										count: rows.length - limit,
+									})}
+						</Text>
+					</Pressable>
+				) : null}
+			</View>
+			<Sheet
+				visible={detail !== undefined}
+				onClose={() => setInspecting(null)}
+				title={t("mobile.team_bridge.reactions.details")}
+				testID="team-bridge-reaction-details"
+			>
+				{detail && sample ? (
+					<View className="gap-3 pb-4">
+						<Text className="text-body text-ink">
+							{t("mobile.team_bridge.reactions.pill", {
+								emoji: detail.emoji,
+								count: detail.count,
+							})}
+						</Text>
+						{sample.labels.length > 0 ? (
+							<Text className="text-body text-ink-muted">
+								{t("mobile.team_bridge.reactions.sample", {
+									labels: new Intl.ListFormat(locale, {
+										style: "long",
+										type: "conjunction",
+									}).format(sample.labels),
+									count: sample.others,
+								})}
+							</Text>
+						) : (
+							<Text className="text-body text-ink-muted">
+								{t("mobile.team_bridge.reactions.sample_none")}
+							</Text>
+						)}
+						<Text className="text-meta text-ink-muted">
+							{t("mobile.team_bridge.reactions.sample_notice")}
+						</Text>
+						{sample.mine ? (
+							<Text className="text-meta text-accent">
+								{t("mobile.team_bridge.reactions.you_reacted")}
+							</Text>
+						) : null}
+					</View>
+				) : null}
+			</Sheet>
 			{failed ? (
 				<Text
 					className="mt-1 text-meta text-danger"
@@ -259,3 +362,60 @@ const VISUALLY_HIDDEN = {
 	height: 1,
 	overflow: "hidden",
 } as const;
+
+/** One visual face for both visible controls and inert width probes. Sharing the
+ * exact markup keeps collapsed packing correct when hidden counts, locale or
+ * dynamic text size change; clipping a live control would leave an invisible
+ * accessibility target. Probes have no press handlers and are aria-hidden. */
+function ReactionFace({
+	reaction,
+	locale,
+	busy = false,
+	testID,
+}: {
+	reaction: Reaction;
+	locale: ShippedLocale;
+	busy?: boolean;
+	testID?: string;
+}) {
+	const mine = reaction.reacted_by_me;
+	const spinner = useTokenColor("ink-muted");
+	return (
+		<View
+			testID={testID}
+			style={{ height: PILL_HEIGHT }}
+			className={cx(
+				"flex-row items-center gap-1 rounded-full border px-2.5",
+				/* Mine carries an `accent-border` ring: its wash measured
+				 *  1.01:1 on the light canvas, so the hue alone cannot say
+				 *  "yours" outdoors (spec §4.3; contrast contract row
+				 *  "team bridge own reaction pill"). */
+				mine
+					? "border-accent-border bg-accent-wash"
+					: "border-border-control bg-elevated",
+			)}
+		>
+			<Text style={EMOJI_GLYPH} aria-hidden>
+				{reaction.emoji}
+			</Text>
+			<View>
+				{/* Pending: the count is hidden IN PLACE under the spinner,
+				 *  so the pill keeps its width (§4.3 "pending"). */}
+				<Text
+					className={cx(
+						"text-meta tabular-nums",
+						mine ? "font-semibold text-accent" : "text-ink-muted",
+						busy && "opacity-0",
+					)}
+				>
+					{reactionCount(reaction.count, locale)}
+				</Text>
+				{busy ? (
+					<View className="absolute inset-0 items-center justify-center">
+						<ActivityIndicator size="small" color={spinner} />
+					</View>
+				) : null}
+			</View>
+		</View>
+	);
+}

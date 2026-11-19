@@ -209,5 +209,14 @@
 	"mobile.team_bridge.thread.send_error": "آپ کے پیغام کی تصدیق نہیں ہوئی۔ مسودہ یہاں محفوظ ہے۔ دوبارہ کوشش کرنے سے وہی پیغام محفوظ طریقے سے بھیجا جائے گا۔",
 	"mobile.team_bridge.thread.send_retry": "دوبارہ بھیجیں",
 	"mobile.team_bridge.title": "Team Bridge",
-	"mobile.team_bridge.unread": "{count, plural, one {# نا پڑھا گیا پیغام} other {# نا پڑھے گئے پیغامات}}"
+	"mobile.team_bridge.unread": "{count, plural, one {# نا پڑھا گیا پیغام} other {# نا پڑھے گئے پیغامات}}",
+	"mobile.team_bridge.reactions.details": "ردِعمل کی تفصیل",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels} اور # دیگر}}",
+	"mobile.team_bridge.reactions.sample_notice": "دکھائے گئے نام صرف ایک نمونہ ہیں، مکمل فہرست نہیں۔",
+	"mobile.team_bridge.reactions.you_reacted": "آپ نے ردِعمل دیا",
+	"mobile.team_bridge.reactions.show_more": "مزید {count} دکھائیں",
+	"mobile.team_bridge.reactions.show_less": "کم دکھائیں",
+	"mobile.team_bridge.reply_thread.last_reply": "آخری جواب: {time}",
+	"mobile.team_bridge.reactions.hint_inspect": "ردِعمل کی تفصیل دیکھنے کے لیے دو بار ٹیپ کریں",
+	"mobile.team_bridge.reactions.sample_none": "اس خلاصے میں کوئی نام شامل نہیں ہے۔"
 }

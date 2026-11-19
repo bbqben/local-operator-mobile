@@ -495,6 +495,9 @@ export function createTeamBridgeFixture(options: { root?: string } = {}) {
 	 *
 	 *  - `tb-fixture=reactions`: seeded pills (two of others' on message 3, one
 	 *    of mine; one on message 5), routes served.
+	 *  - `reactions_details`: 14 emoji on a threaded root; ownership absent from
+	 *    its three-label sample, plus a no-label summary. Exercises inspection,
+	 *    overflow, locale/scale and chip time without inventing a reactor API.
 	 *  - `reactions_fail`: same seeds, every write answers 500 (rollback path).
 	 *  - `reactions_unserved`: an OLD hub: the route answers an UNCODED 404 and
 	 *    rows carry no `reactions` (the phone must hide every control).
@@ -528,6 +531,43 @@ export function createTeamBridgeFixture(options: { root?: string } = {}) {
 					]),
 				);
 			}
+		if (scenario === "reactions_details") {
+			const emoji = [
+				"👍",
+				"🎉",
+				"😀",
+				"😁",
+				"😂",
+				"😃",
+				"😄",
+				"😅",
+				"😆",
+				"😉",
+				"😊",
+				"😋",
+				"😎",
+				"😍",
+			];
+			for (const row of conversations)
+				held.set(
+					`${row.id}|bcm_3`,
+					new Map(
+						emoji.map((item, index) => [
+							item,
+							{
+								count: index === 0 ? 8 : index === 1 ? 4 : 2,
+								mine: index === 0,
+								labels:
+									index === 0
+										? ["Ada", "Ben", "Cy"]
+										: index === 1
+											? []
+											: ["Ada"],
+							},
+						]),
+					),
+				);
+		}
 		reactionWorlds.set(key, held);
 		return held;
 	};
@@ -1122,7 +1162,7 @@ setInterval(()=>{try{
 				const id = path.split("/")[2];
 				const row = threadRows.find((c) => c.id === id);
 				const history = histories.get(id ?? "") ?? [];
-				if (qaCase === "threads" && id) {
+				if ((qaCase === "threads" || qaCase === "reactions_details") && id) {
 					const thread = replyWorld(worldKey, id);
 					const rootOf = () => {
 						const root = history.find((entry) => entry.id === THREAD_ROOT);
