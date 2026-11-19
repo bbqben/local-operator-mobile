@@ -121,6 +121,11 @@ export interface PeerSender {
 	conversation_name?: string;
 	model_label?: string;
 	cwd?: string;
+	/** `"team_bridge_message"` on the live echo of a Team Bridge card
+	 *  (`deliver_wake` stamps it); absent on a `lop send` peer. */
+	source?: string;
+	/** The validated display receipt that live echo carries on its sender. */
+	bridge_receipt?: BridgeReceiptDisplay;
 }
 
 /** The `send` tool's settled delivery payload — `details.delivery`.
@@ -962,7 +967,7 @@ export interface BridgeCardBodyItem {
  *  behind one `team_bridge_message` row: at most 20 items, the rest counted in
  *  `more`. Served `Cache-Control: private, no-store` so revocation stays live. */
 export interface BridgeCardBody {
-	v: number;
+	v: 1;
 	items: BridgeCardBodyItem[];
 	more: number;
 }

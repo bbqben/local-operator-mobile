@@ -2,12 +2,13 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
-import type { TranscriptEntry } from "@/contracts";
+import { type TranscriptEntry, transcriptEntrySchema } from "@/contracts";
 
 /**
  * The inbound Team Bridge card (local-operator #4238): rendered through the
- * real row so the old-relay path is pinned byte-for-byte to today's receipt and
- * the new path to the body region. The Node host is the server renderer (no
+ * real row: the old-relay path keeps the receipt text and gains no body region
+ * (asserted by content, not a byte comparison with a pre-change render), and
+ * the new path renders the body region. The Node host is the server renderer (no
  * effects run), so the fetching shell is asserted in its loading frame and each
  * resolved state through `BridgeCardBodyLines`. Mocks follow
  * `transcript-row-blank.test.tsx`.
@@ -123,6 +124,99 @@ describe("inbound Team Bridge card", () => {
 		expect(markup).not.toContain("Loading message");
 	});
 
+	it("paints the live peer_message echo as the same card when bodies are served (QA Q2)", () => {
+		// The exact row `note_peer_message` emits for a live card when the owner
+		// has not negotiated peer_cycles: kind peer_message, text = the
+		// model-facing METADATA card, the typed marks only on the sender
+		// (`deliver_wake`: account_id, source, name, validated receipt).
+		// Untyped on purpose: this is the WIRE row, extra sender keys included.
+		const live = {
+			...receipt(),
+			id: "peer-f4c46524ac674537a2b37cc766690742",
+			kind: "peer_message",
+			custom_type: undefined,
+			text: "<team-bridge>\nDirect message · from Ola (human, same tenant)\nmessage_id: bcmsg_live0001",
+			details: {
+				sender: {
+					account_id: "acc_local_1",
+					source: "team_bridge_message",
+					name: "Ola",
+					bridge_receipt: {
+						v: 1,
+						sender: { name: "Ola", kind: "human" },
+						conversation: { kind: "dm" },
+					},
+				},
+			},
+		};
+		const parsed = transcriptEntrySchema.parse(live);
+		const load = vi.fn(async () => null);
+		const markup = renderToStaticMarkup(
+			createElement(TranscriptRow, { entry: parsed, loadBridgeBody: load }),
+		);
+		expect(markup).toContain("Ola · DM");
+		expect(markup).toContain("Loading message…");
+		expect(markup).toContain("-bridge-body");
+		expect(markup).not.toContain("another session");
+		// The metadata card (ids, envelope) is never painted on the card.
+		expect(markup).not.toContain("bcmsg_live0001");
+		expect(markup).not.toContain("&lt;team-bridge&gt;");
+
+		// An old relay: the echo stays the peer row it always was.
+		const old = renderToStaticMarkup(
+			createElement(TranscriptRow, { entry: parsed }),
+		);
+		expect(old).not.toContain("-bridge-body");
+		expect(old).not.toContain("Ola · DM");
+	});
+
+	it("paints the live notice arm (custom_kind only) as the card", () => {
+		const notice = {
+			...receipt(),
+			id: "peer-0001",
+			custom_type: undefined,
+			details: {
+				notice_kind: "cross_session_boundary",
+				custom_kind: "team_bridge_message",
+				sender: { account_id: "acc_local_1", source: "team_bridge_message" },
+				bridge_receipt: {
+					v: 1,
+					sender: { name: "Ada" },
+					conversation: { kind: "dm" },
+				},
+			},
+		};
+		const markup = renderToStaticMarkup(
+			createElement(TranscriptRow, {
+				entry: transcriptEntrySchema.parse(notice),
+				loadBridgeBody: async () => null,
+			}),
+		);
+		expect(markup).toContain("Ada · DM");
+		expect(markup).toContain("-bridge-body");
+	});
+
+	it("never treats an ordinary peer message as a card", () => {
+		const peer: TranscriptEntry = {
+			...receipt(),
+			id: "peer-plain",
+			kind: "peer_message",
+			custom_type: undefined,
+			text: "hello from a session",
+			details: {
+				sender: { session_id: "abcdef012345", conversation_name: "Planner" },
+			},
+		};
+		const markup = renderToStaticMarkup(
+			createElement(TranscriptRow, {
+				entry: peer,
+				loadBridgeBody: async () => null,
+			}),
+		);
+		expect(markup).not.toContain("-bridge-body");
+		expect(markup).toContain("Planner");
+	});
+
 	it("asks for the body of THIS row and shows loading until it answers", () => {
 		const load = vi.fn(async () => null);
 		const markup = renderToStaticMarkup(
@@ -143,6 +237,8 @@ describe("inbound Team Bridge card", () => {
 		expect(markup).toContain("External message · untrusted content");
 		expect(markup).toContain('data-md=""');
 		expect(markup).toContain("**ship it**");
+		// The untrusted rail is the control edge, not the blockquote hairline (D3).
+		expect(markup).toContain("border-border-control");
 		expect(markup.indexOf("untrusted content")).toBeLessThan(
 			markup.indexOf("ship it"),
 		);

@@ -143,6 +143,12 @@ describe("bridgeBodyView", () => {
 });
 
 describe("bridgeCardBodySchema", () => {
+	it("refuses an answer version this reader does not know (review M1)", () => {
+		expect(
+			bridgeCardBodySchema.safeParse({ v: 2, items: [], more: 0 }).success,
+		).toBe(false);
+	});
+
 	it("parses the relay's answer and degrades a malformed item to unavailable", () => {
 		const parsed = bridgeCardBodySchema.parse({
 			v: 1,

@@ -35,6 +35,7 @@ import {
 	hubLabel,
 	isBridgeReceipt,
 	isHubReceipt,
+	isLiveBridgeEcho,
 	peerLabel,
 	transcriptRowTestID,
 } from "@/features/session/projection";
@@ -225,6 +226,46 @@ const TranscriptRowBody = ({
 			) : null}
 		</>
 	);
+
+	/* A relay that serves `team_bridge_card_body` gets the body region in
+	 *  place of the receipt text: that text is the relay's
+	 *  `<sender> · <conversation>` line (`bridge_delivery_receipt_line`),
+	 *  which the caption already says, so painting both would repeat it.
+	 *  Without the loader (old relay, remote conversation) nothing below
+	 *  changes. Both live shapes take this arm too (`isLiveBridgeEcho`): the
+	 *  `peer_message` echo used to paint as a generic peer row until reopen. */
+	if (
+		loadBridgeBody !== undefined &&
+		(isBridgeReceipt(entry) || isLiveBridgeEcho(entry))
+	) {
+		const sender = bridgeReceiptLabel(entry);
+		const where = bridgeReceiptMeta(entry);
+		return (
+			<View
+				className={cx(
+					"flex-row items-start py-3",
+					TRACE_ROW_OUTER_CLASS,
+					TRACE_COLUMN_GAP_CLASS,
+				)}
+				testID={testID}
+			>
+				<Text className={cx(TRACE_GLYPH_BOX_CLASS, "text-accent")} aria-hidden>
+					↔
+				</Text>
+				<View className="min-w-0 flex-1">
+					<Text className="text-meta text-ink-dim">
+						{where ? `${sender} · ${where}` : sender}
+					</Text>
+					<BridgeCardBodyRegion
+						entryId={entry.id}
+						load={loadBridgeBody}
+						testID={`${testID}-bridge-body`}
+					/>
+				</View>
+				{anchors}
+			</View>
+		);
+	}
 
 	if (kind === "tool") {
 		return (
@@ -439,42 +480,6 @@ const TranscriptRowBody = ({
 			const sender = bridgeReceiptLabel(entry);
 			const where = bridgeReceiptMeta(entry);
 			const summary = firstLine(entry.text);
-			/* A relay that serves `team_bridge_card_body` gets the body region in
-			 *  place of the receipt text: that text is the relay's
-			 *  `<sender> · <conversation>` line (`bridge_delivery_receipt_line`),
-			 *  which the caption already says, so painting both would repeat it.
-			 *  Without the loader (old relay, remote conversation) nothing below
-			 *  changes. */
-			if (loadBridgeBody !== undefined) {
-				return (
-					<View
-						className={cx(
-							"flex-row items-start py-3",
-							TRACE_ROW_OUTER_CLASS,
-							TRACE_COLUMN_GAP_CLASS,
-						)}
-						testID={testID}
-					>
-						<Text
-							className={cx(TRACE_GLYPH_BOX_CLASS, "text-accent")}
-							aria-hidden
-						>
-							↔
-						</Text>
-						<View className="min-w-0 flex-1">
-							<Text className="text-meta text-ink-dim">
-								{where ? `${sender} · ${where}` : sender}
-							</Text>
-							<BridgeCardBodyRegion
-								entryId={entry.id}
-								load={loadBridgeBody}
-								testID={`${testID}-bridge-body`}
-							/>
-						</View>
-						{anchors}
-					</View>
-				);
-			}
 			if (shouldFold(entry.text)) {
 				return (
 					<View className={TRACE_ROW_OUTER_CLASS} testID={testID}>

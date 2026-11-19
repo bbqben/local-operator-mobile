@@ -202,6 +202,17 @@ export const peerSenderSchema = z.looseObject({
 	conversation_name: z.string().optional(),
 	model_label: z.string().optional(),
 	cwd: z.string().optional(),
+	/* The live echo of a Team Bridge card (core `serving.py` →
+	 *  `note_peer_message`, taken when the owner has not negotiated
+	 *  `peer_cycles`) is a `peer_message` row whose ONLY typed marks are on the
+	 *  sender the connector built (`team_bridge/connector/wake.py`
+	 *  `deliver_wake`): `source: "team_bridge_message"` and the validated
+	 *  display receipt. Lazy because the receipt schema is declared below. */
+	source: z.string().optional().catch(undefined),
+	bridge_receipt: z
+		.lazy(() => bridgeReceiptDisplaySchema)
+		.optional()
+		.catch(undefined),
 });
 
 /** The send tool's settled delivery payload (`details.delivery`).
@@ -1713,7 +1724,10 @@ export const bridgeCardBodyItemSchema = z
  *  for one `team_bridge_message` row (design §4): `{v, items, more}`, at most
  *  20 items with the remainder counted in `more`. */
 export const bridgeCardBodySchema = z.looseObject({
-	v: z.number(),
+	/* Pinned to the version this reader understands: a future `v:2` shape fails
+	 *  the parse, which the loader reads as "unavailable", rather than being
+	 *  read with v1 meaning (review round 1, M1). */
+	v: z.literal(1),
 	items: z.array(bridgeCardBodyItemSchema),
 	more: z.number().catch(0),
 });

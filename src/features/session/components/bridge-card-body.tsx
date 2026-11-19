@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { type LayoutChangeEvent, Pressable, Text, View } from "react-native";
 import type { BridgeCardBody } from "@/contracts";
 import {
@@ -9,6 +9,7 @@ import {
 import { Markdown } from "@/features/session/components/markdown";
 import {
 	needsUserMessageClamp,
+	UserMessageCollapseContext,
 	userMessageClipHeight,
 } from "@/features/session/user-message-clamp";
 import { type NoParamKey, t } from "@/i18n";
@@ -108,7 +109,11 @@ export const BridgeCardBodyLines = ({
 						// replaced whole, so the index is a stable key here.
 						// biome-ignore lint/suspicious/noArrayIndexKey: see above.
 						key={index}
-						className="border-s-2 border-hairline ps-3"
+						/* `border-control`, not `border-hairline`: this rail is what
+						 *  scopes the untrusted text, and the hairline (1.25:1 light)
+						 *  is also the markdown blockquote rule, so a sender's own
+						 *  quote painted the same edge (design round 1, D3). */
+						className="border-s-2 border-border-control ps-3"
 					>
 						<BodyClamp testID={testID ? `${testID}-more-${index}` : undefined}>
 							<Markdown text={line.markdown} />
@@ -152,6 +157,17 @@ const BodyClamp = ({
 }) => {
 	const [expanded, setExpanded] = useState(false);
 	const [height, setHeight] = useState<number | null>(null);
+	/* Show less sits at the END of an open body; collapsing removes everything
+	 *  above the finger, so the list scrolls the body's top back into view —
+	 *  the reader's own clamp's mechanism (`UserMessageClamp`), shared through
+	 *  the list's context (design round 1, D2). */
+	const keepInView = useContext(UserMessageCollapseContext);
+	const ownRef = useRef<View | null>(null);
+	const toggle = () => {
+		const next = !expanded;
+		setExpanded(next);
+		if (!next && ownRef.current && keepInView) keepInView(ownRef.current);
+	};
 	const { effectiveScale } = useTextScale();
 	const clamped =
 		height !== null && needsUserMessageClamp(height, effectiveScale);
@@ -163,6 +179,7 @@ const BodyClamp = ({
 	return (
 		<>
 			<View
+				ref={ownRef}
 				style={
 					expanded
 						? undefined
@@ -186,7 +203,10 @@ const BodyClamp = ({
 					accessibilityRole={ROLE.button}
 					accessibilityLabel={label}
 					accessibilityState={{ expanded }}
-					onPress={() => setExpanded((open) => !open)}
+					/* react-native-web does not map `accessibilityState.expanded`
+					 *  to the DOM; native does (QA round 1, Q1 / design D4). */
+					aria-expanded={expanded}
+					onPress={toggle}
 					// Real geometry, not hitSlop: react-native-web drops hitSlop.
 					style={{ minHeight: TOUCH_FLOOR }}
 					className="justify-center"
