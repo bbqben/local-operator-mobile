@@ -278,6 +278,23 @@ export function checkIosInfoPlist(plist: unknown): Finding[] {
 const XML_COMMENT = /<!--[\s\S]*?-->/g;
 const APPLICATION_OPEN_TAG = /<application\b[^>]*>/i;
 const CLEARTEXT_TRUE = /\bandroid:usesCleartextTraffic\s*=\s*"true"/i;
+const RECEIVER_ELEMENT = /<receiver\b[^>]*>/gi;
+const NAME_ATTRIBUTE = /\bandroid:name\s*=\s*["']([^"']+)["']/i;
+
+/** ADR 0010 S2: the notification receiver swap made by
+ *  `plugins/with-android-team-bridge-push.js`. Expo dispatches to the FIRST
+ *  receiver handling its action, so the merged manifest must carry ours and
+ *  NOT Expo's; either half missing would ship Team Bridge pushes without the
+ *  avatar, grouping, lock-screen version or foreground banner, silently. */
+export const TEAM_BRIDGE_RECEIVER =
+	"dev.localoperator.teambridge.LoNotificationsService";
+export const EXPO_NOTIFICATIONS_RECEIVER =
+	"expo.modules.notifications.service.NotificationsService";
+
+const receiverNames = (text: string): string[] =>
+	[...text.matchAll(RECEIVER_ELEMENT)]
+		.map((match) => NAME_ATTRIBUTE.exec(match[0])?.[1])
+		.filter((name): name is string => name !== undefined);
 
 /** Remove XML comments so a commented-out element can never satisfy a check. */
 const stripComments = (xml: string): string => xml.replace(XML_COMMENT, "");
@@ -353,6 +370,22 @@ export function checkAndroidManifest(xml: string): Finding[] {
 		});
 	}
 
+	const receivers = receiverNames(text);
+	if (!receivers.includes(TEAM_BRIDGE_RECEIVER)) {
+		findings.push({
+			field: `receiver[${TEAM_BRIDGE_RECEIVER}]`,
+			problem:
+				"missing — Team Bridge pushes would use Expo's plain presentation (no avatar, group, lock-screen version or foreground banner); is plugins/with-android-team-bridge-push.js in app.config.ts?",
+		});
+	}
+	if (receivers.includes(EXPO_NOTIFICATIONS_RECEIVER)) {
+		findings.push({
+			field: `receiver[${EXPO_NOTIFICATIONS_RECEIVER}]`,
+			problem:
+				'present — Expo picks the first matching receiver, so its own could win over LoNotificationsService; the plugin\'s tools:node="remove" did not apply',
+		});
+	}
+
 	/* The forbidden permissions, in BOTH spellings — see `declaresPermission`. */
 	for (const permission of ANDROID_FORBIDDEN_PERMISSIONS) {
 		if (declaresPermission(text, permission, { sdkGated: true })) {
@@ -419,7 +452,7 @@ export const summarize = (platform: Platform): string =>
 		? `built APK carries application-label=${JSON.stringify(LAUNCHER_LABEL)} with no locale override that differs`
 		: platform === "ios"
 			? `built Info.plist carries CFBundleDisplayName=${JSON.stringify(LAUNCHER_LABEL)}, ITSAppUsesNonExemptEncryption=false, UIBackgroundModes exactly ${JSON.stringify(IOS_BACKGROUND_MODES)}, NSLocalNetworkUsageDescription and the ATS local-networking configuration (NSAllowsLocalNetworking + ${IOS_EXCEPTION_DOMAINS.length} CIDR exceptions) and none of the ${IOS_FORBIDDEN_KEYS.length} photo/camera permission keys`
-			: `release merged manifest carries android:usesCleartextTraffic="true" and ${ANDROID_LOCAL_NETWORK_PERMISSION}, and none of the ${ANDROID_FORBIDDEN_PERMISSIONS.length} camera/media-library permissions`;
+			: `release merged manifest carries android:usesCleartextTraffic="true", ${ANDROID_LOCAL_NETWORK_PERMISSION} and the Team Bridge notification receiver (not Expo's), and none of the ${ANDROID_FORBIDDEN_PERMISSIONS.length} camera/media-library permissions`;
 
 // ---------------------------------------------------------------------------
 // CLI
