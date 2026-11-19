@@ -877,6 +877,15 @@ export const SURFACE = {
 	teamBridgeMessageActionsSheet: "team-bridge-message-actions-sheet",
 	/** The selected tint a row holds while its actions sheet is open. */
 	teamBridgeMessageActionsTint: "team-bridge-message-actions-tint",
+	/** The quick-reaction row at the top of the message-actions sheet. */
+	teamBridgeQuickReactions: "team-bridge-quick-reactions",
+	/** The row of reaction pills under a message, and its trailing "+". */
+	teamBridgeReactionPills: "team-bridge-reaction-pills",
+	teamBridgeReactionAdd: "team-bridge-reaction-add",
+	/** The "Reaction couldn't be saved" line under a refused toggle. */
+	teamBridgeReactionError: "team-bridge-reaction-error",
+	/** The hidden field that raises the system emoji keyboard (`+`). */
+	teamBridgeEmojiCapture: "team-bridge-emoji-capture",
 	teamBridgeReplyThreadList: "team-bridge-reply-thread-list",
 	teamBridgeReplyThreadLoading: "team-bridge-reply-thread-loading",
 	teamBridgeReplyThreadError: "team-bridge-reply-thread-error",
@@ -2571,6 +2580,16 @@ export const teamBridgeAttachSourceId = (value: string): string =>
 /** One row of the message-actions sheet, keyed by its action name. */
 export const teamBridgeMessageActionId = (value: string): string =>
 	`team-bridge-message-action-${value}`;
+/* Emoji are keyed by their code points, so the id is plain ASCII that any
+ *  test driver can type ("1f44d" for 👍). */
+const emojiKey = (emoji: string): string =>
+	Array.from(emoji, (c) => (c.codePointAt(0) ?? 0).toString(16)).join("-");
+/** One reaction pill under a message. */
+export const teamBridgeReactionPillId = (emoji: string): string =>
+	`team-bridge-reaction-pill-${emojiKey(emoji)}`;
+/** One emoji cell of the sheet's quick-reaction row. */
+export const teamBridgeQuickReactionId = (emoji: string): string =>
+	`team-bridge-quick-reaction-${emojiKey(emoji)}`;
 export const teamBridgeViewerId = (value: string): string =>
 	`team-bridge-viewer-${value}`;
 export const teamBridgeProfileOpenId = (value: string): string =>

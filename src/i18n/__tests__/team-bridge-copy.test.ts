@@ -90,8 +90,9 @@ describe("Team Bridge copy", () => {
 		// `thread.jump_newest` and `thread.anchor_missing` (feat/bridge-last-target's
 		// anchored open); +1: `list.catching_up`; +10: `reply_thread.*`;
 		// +9 `mentions.*` (@-mention suggestions, #305): 170 + 9 = 179;
-		// +5 `actions.*` (the message-actions sheet, #339): 184.
-		expect(keys).toHaveLength(184);
+		// +5 `actions.*` (the message-actions sheet, #339): 184;
+		// +11 reactions (slice PR b): `actions.a11y_react` + ten `reactions.*`: 195.
+		expect(keys).toHaveLength(195);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))

@@ -241,7 +241,10 @@ function ReplyThreadContent({
 	 *  already this thread. Copy and Select text on every row. */
 	const messageActions = useMessageActions({
 		scope: "reply",
+		tenantId: target.tenantId,
 		canReplyInThread: false,
+		// The root and every reply take reactions, as on the desktop's thread pane.
+		canReact: !readOnly,
 	});
 	const actionsController = messageActions.controller;
 	const actionsOpenId = messageActions.openMessageId;

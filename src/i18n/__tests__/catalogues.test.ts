@@ -89,7 +89,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 184, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON.
+		expected: 195, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, + eleven reaction keys (slice PR b: actions.a11y_react + ten reactions.*) = 195, counted over the merged en JSON.
 	},
 	{
 		name: "mobile.signin",
@@ -593,8 +593,9 @@ describe("the English catalogues", () => {
 		// (ADR 0010 chain above) = 1283, re-derived over the rebased tree.
 		/* PR #339 (Team Bridge message actions sheet): + 5 mobile.team_bridge
 		 * actions.* keys (title, reply_in_thread, copy_text, select_text,
-		 * copied): 1283 + 5 = 1288. */
-		expect(total).toBe(1288);
+		 * copied): 1283 + 5 = 1288; reactions slice PR b adds
+		 * actions.a11y_react and ten reactions.* keys: 1288 + 11 = 1299. */
+		expect(total).toBe(1299);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
