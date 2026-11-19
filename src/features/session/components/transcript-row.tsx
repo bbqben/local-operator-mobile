@@ -3,6 +3,10 @@ import { Pressable, Text, View } from "react-native";
 import type { TranscriptEntry } from "@/contracts";
 import { AskResponseRow } from "@/features/session/components/ask-response-row";
 import {
+	type BridgeBodyLoader,
+	BridgeCardBodyRegion,
+} from "@/features/session/components/bridge-card-body";
+import {
 	CollapsedRow,
 	firstLine,
 	shouldFold,
@@ -94,6 +98,10 @@ export type TranscriptRowProps = {
 	 *  carries — threaded from the screen so the route push (and its
 	 *  session-scoped params) stays the screen's business. */
 	onOpenVideo?: (entryId: string, index: number) => void;
+	/** Loads an inbound Team Bridge card's body. Absent on a relay without
+	 *  `team_bridge_card_body` (or a remote conversation, whose relay cannot
+	 *  resolve it): the receipt row then renders exactly as it always has. */
+	loadBridgeBody?: BridgeBodyLoader;
 	/** The turn interrupt, threaded to the image-gen card's Cancel. The screen
 	 *  withholds it while the composer's own Stop is not visible, so the two
 	 *  controls share one gate (`composer.controls.stopVisible`). Resolves
@@ -182,6 +190,7 @@ const TranscriptRowBody = ({
 	loadImage,
 	onOpenAgent,
 	onOpenVideo,
+	loadBridgeBody,
 	onCancelTurn,
 	open,
 	onToggleOpen,
@@ -430,6 +439,42 @@ const TranscriptRowBody = ({
 			const sender = bridgeReceiptLabel(entry);
 			const where = bridgeReceiptMeta(entry);
 			const summary = firstLine(entry.text);
+			/* A relay that serves `team_bridge_card_body` gets the body region in
+			 *  place of the receipt text: that text is the relay's
+			 *  `<sender> · <conversation>` line (`bridge_delivery_receipt_line`),
+			 *  which the caption already says, so painting both would repeat it.
+			 *  Without the loader (old relay, remote conversation) nothing below
+			 *  changes. */
+			if (loadBridgeBody !== undefined) {
+				return (
+					<View
+						className={cx(
+							"flex-row items-start py-3",
+							TRACE_ROW_OUTER_CLASS,
+							TRACE_COLUMN_GAP_CLASS,
+						)}
+						testID={testID}
+					>
+						<Text
+							className={cx(TRACE_GLYPH_BOX_CLASS, "text-accent")}
+							aria-hidden
+						>
+							↔
+						</Text>
+						<View className="min-w-0 flex-1">
+							<Text className="text-meta text-ink-dim">
+								{where ? `${sender} · ${where}` : sender}
+							</Text>
+							<BridgeCardBodyRegion
+								entryId={entry.id}
+								load={loadBridgeBody}
+								testID={`${testID}-bridge-body`}
+							/>
+						</View>
+						{anchors}
+					</View>
+				);
+			}
 			if (shouldFold(entry.text)) {
 				return (
 					<View className={TRACE_ROW_OUTER_CLASS} testID={testID}>

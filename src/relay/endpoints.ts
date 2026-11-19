@@ -1140,6 +1140,26 @@ export class RelayEndpoints {
 	}
 
 	/**
+	 * The admitted bodies behind one inbound Team Bridge card (local-operator
+	 * #4238, design §4), keyed by the transcript ROW the phone already reads —
+	 * never by a message id, so this cannot probe arbitrary messages.
+	 *
+	 * Only call it when the relay advertises `features.team_bridge_card_body`
+	 * (`bridgeCardBodyServed`): an older relay has no route. The answer is
+	 * `private, no-store` and the caller must not cache it either, so a revoked
+	 * or deleted message disappears on the next read.
+	 */
+	async bridgeCardBody(
+		sessionId: string,
+		entryId: string,
+	): Promise<Payload<"bridgeCardBody">> {
+		return this.http.json("bridgeCardBody", {
+			method: "GET",
+			path: `/api/sessions/${encodeURIComponent(sessionId)}/bridge-cards/${encodeURIComponent(entryId)}/body`,
+		});
+	}
+
+	/**
 	 * One recorded file callout's bytes, addressed by the ROW's own index (§2.7).
 	 *
 	 * There is deliberately no path parameter: the only addressable file is the

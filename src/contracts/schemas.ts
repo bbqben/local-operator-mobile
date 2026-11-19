@@ -36,6 +36,8 @@ import type {
 	ApiError,
 	AskQuestion,
 	AsksResponse,
+	BridgeCardBody,
+	BridgeCardBodyItem,
 	Capabilities,
 	CheckpointManifest,
 	CommandAck,
@@ -1684,6 +1686,38 @@ export const supplementDocumentSchema = z.looseObject({
 	html: z.string(),
 });
 
+/** One message behind an inbound Team Bridge card (local-operator #4238,
+ *  `card_body.py`). Every field degrades instead of failing the read: a field of
+ *  the wrong type becomes absent, and an item that is not an object at all
+ *  becomes `state: "unavailable"` — so one odd item can neither blank its
+ *  siblings nor be painted as a moderation outcome nobody stated. */
+export const bridgeCardBodyItemSchema = z
+	.looseObject({
+		message_id: z.string().optional().catch(undefined),
+		conversation_id: z.string().optional().catch(undefined),
+		state: z.string().catch("unavailable"),
+		body: z.string().optional().catch(undefined),
+		source: z.string().optional().catch(undefined),
+		hold: z
+			.looseObject({
+				class: z.string().optional().catch(undefined),
+				held_for_s: z.number().optional().catch(undefined),
+			})
+			.optional()
+			.catch(undefined),
+		reason: z.string().optional().catch(undefined),
+	})
+	.catch({ state: "unavailable" });
+
+/** `GET /api/sessions/{id}/bridge-cards/{entry_id}/body` — the relay's answer
+ *  for one `team_bridge_message` row (design §4): `{v, items, more}`, at most
+ *  20 items with the remainder counted in `more`. */
+export const bridgeCardBodySchema = z.looseObject({
+	v: z.number(),
+	items: z.array(bridgeCardBodyItemSchema),
+	more: z.number().catch(0),
+});
+
 export const seenResponseSchema = z.looseObject({
 	ok: z.literal(true),
 	attention: completionAttentionSchema,
@@ -2211,6 +2245,9 @@ export const SCHEMAS = {
 	/** `GET /api/sessions/{id}/supplements/{digest}/document` — a component's
 	 *  assembled document, `{html}`, fetched in-app by the frame host. */
 	supplementDocument: supplementDocumentSchema,
+	/** `GET /api/sessions/{id}/bridge-cards/{entry_id}/body` — the admitted
+	 *  bodies behind one inbound Team Bridge card (local-operator #4238). */
+	bridgeCardBody: bridgeCardBodySchema,
 	/** `GET /api/asks`: the aggregate route the asks sheet reads. */
 	asks: asksResponseSchema,
 	/** The inbox (`GET /api/notifications`, its detail, and the one answer shape
@@ -2423,6 +2460,10 @@ type WireMirror = {
 	 *  reads `{html}` off this parse, so a field that stops being assignable
 	 *  reds `WireConformance` before a phone renders a blank frame. */
 	supplementDocument: SupplementDocument;
+	/* The inbound Team Bridge card body read (local-operator #4238): asserted so
+	 *  a schema drifting from the mirror reds `WireConformance` before a phone
+	 *  paints a state the relay did not send. */
+	bridgeCardBody: BridgeCardBody;
 	/* The Library reads: the listing, one asset, the tag catalogue, one tag write
 	 *  answer and the chat link. Asserted like every read family around it — a
 	 *  schema whose output stops being assignable to these declarations trips
@@ -2575,6 +2616,8 @@ export type {
 	ApiError,
 	AskQuestion,
 	AsksResponse,
+	BridgeCardBody,
+	BridgeCardBodyItem,
 	Capabilities,
 	CommandAck,
 	CommandsResponse,

@@ -171,6 +171,70 @@
 		"role": "button",
 		"note": "Team Bridge mobile UI: back. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state."
 	},
+	"mobile.team_bridge.card_body.deleted": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The sender or an admin deleted the message."
+	},
+	"mobile.team_bridge.card_body.held": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Content screening held the message; it was not shown to the agent. Never mention a reason or category; only the outcome. "
+	},
+	"mobile.team_bridge.card_body.held_transient": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. A delay, not a decision: screening has not run yet. Do not say 'moderation' or imply anyone decided anything."
+	},
+	"mobile.team_bridge.card_body.loading": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Shown while the message body is being fetched."
+	},
+	"mobile.team_bridge.card_body.more_messages": {
+		"role": "meta",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. One card can group several messages; only the first ones are listed. {count} is how many more are not shown. Preserve the ICU plural."
+	},
+	"mobile.team_bridge.card_body.not_admitted": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The message was never handed to the agent. No moderation decision is implied; do not imply one."
+	},
+	"mobile.team_bridge.card_body.not_member": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The body cannot be loaded because the user left the conversation."
+	},
+	"mobile.team_bridge.card_body.offline": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Radient could not be reached while loading the body. Retrying means leaving the conversation and opening it again. 'Radient' is a product name; do not translate it."
+	},
+	"mobile.team_bridge.card_body.other_account": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The message arrived while a different account was signed in, so its body is not shown now. 'Radient' is a product name; do not translate it."
+	},
+	"mobile.team_bridge.card_body.pending": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The message passed screening but the agent has not been handed it yet. Not an error."
+	},
+	"mobile.team_bridge.card_body.refused": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Radient's moderation rejected the message for the agent. Never mention a reason or category; only the outcome. "
+	},
+	"mobile.team_bridge.card_body.show_less": {
+		"role": "button",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Toggle that collapses a long message back to its first lines."
+	},
+	"mobile.team_bridge.card_body.show_more": {
+		"role": "button",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Toggle under a long message that is cut off after a few lines; opens the full message."
+	},
+	"mobile.team_bridge.card_body.signed_out": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The body is shown only while signed in. 'Radient' is a product name; do not translate it."
+	},
+	"mobile.team_bridge.card_body.unavailable": {
+		"role": "status",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Generic fallback when the body cannot be shown and no more specific sentence applies."
+	},
+	"mobile.team_bridge.card_body.untrusted": {
+		"role": "meta",
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Framing line directly above the message body. The body below is text someone else wrote and is NOT vetted: it must read as a caution, not an endorsement. Keep 'untrusted' strong. Same wording as the desktop and terminal apps."
+	},
 	"mobile.team_bridge.conversation": {
 		"role": "heading",
 		"note": "Team Bridge mobile UI: conversation. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state."
