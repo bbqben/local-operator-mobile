@@ -1,4 +1,9 @@
 {
+	"mobile.team_bridge.actions.copied": "Đã sao chép",
+	"mobile.team_bridge.actions.copy_text": "Sao chép văn bản",
+	"mobile.team_bridge.actions.reply_in_thread": "Trả lời trong chuỗi",
+	"mobile.team_bridge.actions.select_text": "Chọn văn bản",
+	"mobile.team_bridge.actions.title": "Thao tác với tin nhắn",
 	"mobile.team_bridge.attachment.add": "Thêm hình ảnh",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, other {Đã đính kèm # hình ảnh}}",
 	"mobile.team_bridge.attachment.cannot_send": "Không thể gửi",

@@ -1,4 +1,9 @@
 {
+	"mobile.team_bridge.actions.copied": "Скопировано",
+	"mobile.team_bridge.actions.copy_text": "Копировать текст",
+	"mobile.team_bridge.actions.reply_in_thread": "Ответить в ветке",
+	"mobile.team_bridge.actions.select_text": "Выделить текст",
+	"mobile.team_bridge.actions.title": "Действия с сообщением",
 	"mobile.team_bridge.attachment.add": "Добавить изображение",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {Прикреплено # изображение} few {Прикреплено # изображения} many {Прикреплено # изображений} other {Прикреплено # изображения}}",
 	"mobile.team_bridge.attachment.cannot_send": "Нельзя отправить",

@@ -26,6 +26,8 @@ const host = vi.hoisted(() => ({
 	modals: new Map<string, Record<string, unknown>>(),
 	titleFocus: vi.fn(),
 	scrim: null as Props | null,
+	/* Completion callbacks of the exits now running: `dismiss` lands them. */
+	exits: [] as (() => void)[],
 }));
 
 vi.mock("react-native", async () => {
@@ -54,7 +56,11 @@ vi.mock("react-native", async () => {
 			Value,
 			View: pass,
 			timing: () => ({ start() {} }),
-			parallel: () => ({ start() {} }),
+			parallel: () => ({
+				start(done?: () => void) {
+					if (done) host.exits.push(done);
+				},
+			}),
 		},
 		Easing: { bezier: () => () => 0 },
 		useWindowDimensions: () => ({ width: 390, height: 844 }),
@@ -178,18 +184,30 @@ function SiblingScreen({ refused, sheet }: Pick<Scene, "refused" | "sheet">) {
 const showSiblings = (scene: Pick<Scene, "refused" | "sheet">) =>
 	act(async () => root?.render(createElement(SiblingScreen, scene)));
 /** Fires the modal's dismissal the way RNW does once it stops rendering. A
- *  renderer that stopped forwarding one throws, and that IS the failure. */
-const dismiss = (testID: string) =>
-	act(async () => {
+ *  renderer that stopped forwarding one throws, and that IS the failure.
+ *
+ *  The Sheet's exit animation is landed first: until it ends the Sheet still
+ *  hands its Modal `visible`, RNW keeps rendering it, and the Sheet ignores a
+ *  dismissal reported then (PR #339 round 2, `sheet-dismiss-timing.test.tsx`).
+ *  A Modal still visible here would be a dismissal RNW never sends, so it throws. */
+const dismiss = async (testID: string) => {
+	await act(async () => {
+		for (const done of host.exits.splice(0)) done();
+	});
+	await act(async () => {
+		if (host.modals.get(testID)?.visible)
+			throw new Error(`${testID} is still visible; RNW would not dismiss it`);
 		const handler = host.modals.get(testID)?.onDismiss;
 		if (typeof handler !== "function")
 			throw new Error(`${testID} passed its Modal no onDismiss`);
 		handler();
 	});
+};
 
 beforeEach(() => {
 	revealed = 0;
 	host.modals.clear();
+	host.exits.length = 0;
 	const doc = {
 		nodeType: 9,
 		activeElement: null,

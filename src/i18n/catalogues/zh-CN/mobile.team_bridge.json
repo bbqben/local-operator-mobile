@@ -1,4 +1,9 @@
 {
+	"mobile.team_bridge.actions.copied": "已复制",
+	"mobile.team_bridge.actions.copy_text": "复制文本",
+	"mobile.team_bridge.actions.reply_in_thread": "在话题中回复",
+	"mobile.team_bridge.actions.select_text": "选择文本",
+	"mobile.team_bridge.actions.title": "消息操作",
 	"mobile.team_bridge.attachment.add": "添加图片",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, other {已附加 # 张图片}}",
 	"mobile.team_bridge.attachment.cannot_send": "无法发送",

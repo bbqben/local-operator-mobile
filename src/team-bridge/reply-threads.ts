@@ -256,9 +256,17 @@ export function withRoot(
 	return next;
 }
 
-/** The route a root row and a reply push open. */
-export const replyThreadPath = (target: ReplyThreadTarget): string =>
-	`/team-bridge/${encodeURIComponent(target.tenantId)}/${encodeURIComponent(target.conversationId)}/thread/${encodeURIComponent(target.rootId)}`;
+/** The route a root row and a reply push open. `compose` asks the thread
+ *  screen to focus its composer on arrival: the actions sheet's "Reply in
+ *  thread" means "I am about to type", unlike opening the chip to read. */
+export const replyThreadPath = (
+	target: ReplyThreadTarget,
+	options: { compose?: boolean } = {},
+): string =>
+	`/team-bridge/${encodeURIComponent(target.tenantId)}/${encodeURIComponent(target.conversationId)}/thread/${encodeURIComponent(target.rootId)}${options.compose ? `?${REPLY_THREAD_COMPOSE_PARAM}=1` : ""}`;
+
+/** The query parameter `replyThreadPath(…, { compose: true })` sets. */
+export const REPLY_THREAD_COMPOSE_PARAM = "compose";
 
 export const replyThreadKey = (target: ReplyThreadTarget): string =>
 	`${target.tenantId}/${target.conversationId}/${target.rootId}`;

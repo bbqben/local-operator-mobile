@@ -120,8 +120,9 @@ describe("Team Bridge copy", () => {
 		// `thread.jump_newest` and `thread.anchor_missing` (feat/bridge-last-target's
 		// anchored open); +1: `list.catching_up`; +10: `reply_thread.*`;
 		// +9 `mentions.*` (@-mention suggestions, #305): 170 + 9 = 179;
-		// +16 `card_body.*` (inbound card bodies, #344): 179 + 16 = 195.
-		expect(keys).toHaveLength(195);
+		// +5 `actions.*` (the message-actions sheet, #339): 184.
+		// +16 `card_body.*` (inbound card bodies, #344), merged: 184 + 16 = 200.
+		expect(keys).toHaveLength(200);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))

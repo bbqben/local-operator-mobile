@@ -1,4 +1,9 @@
 {
+	"mobile.team_bridge.actions.copied": "کاپی ہو گیا",
+	"mobile.team_bridge.actions.copy_text": "متن کاپی کریں",
+	"mobile.team_bridge.actions.reply_in_thread": "تھریڈ میں جواب دیں",
+	"mobile.team_bridge.actions.select_text": "متن منتخب کریں",
+	"mobile.team_bridge.actions.title": "پیغام کی کارروائیاں",
 	"mobile.team_bridge.attachment.add": "تصویر شامل کریں",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# تصویر شامل کی گئی} other {# تصاویر شامل کی گئیں}}",
 	"mobile.team_bridge.attachment.cannot_send": "بھیج نہیں سکتے",
