@@ -198,7 +198,7 @@ export function useMessageActions({
 	 *  the sheet's `onDismiss` on the web as well as on iOS
 	 *  (`runsAfterDismissal`). Android, which never fires `onDismiss`, still
 	 *  runs it at once. */
-	const handoff = useRef(createAttachmentSheetHandoff()).current;
+	const handoff = useRef(createAttachmentSheetHandoff(0)).current;
 	useEffect(() => () => handoff.cancel(), [handoff]);
 	const replyRef = useRef(onReplyInThread);
 	replyRef.current = onReplyInThread;

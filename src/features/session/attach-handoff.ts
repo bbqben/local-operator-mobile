@@ -27,6 +27,17 @@
  * stranded: the reader presses Attach again, whose `cancel()` re-admits a fresh
  * choice.
  *
+ * **A short settle after `onDismiss`, measured.** `onDismiss` is not late enough
+ * on iOS 27.2: launching synchronously inside it presents the picker and UIKit
+ * takes it down again 0.2–0.4 s later, so the promise never settles (simulator,
+ * Debug build of main `ce2cacf0`, Photo Library, fresh launch each trial:
+ * opened 0 of 8 and 1 of 8 times; deferring the launch by 0 ms opened 4 of 8,
+ * 50 ms 8 of 8, 100 ms 8 of 8, 300 ms 7 of 8). The launch therefore runs
+ * `LAUNCH_AFTER_DISMISS_MS` after `onDismiss`, not inside it. This is a settle
+ * after the native event, not the old press-time guess it replaced above: it can
+ * only start once the dismissal has finished, and a lost `onDismiss` still
+ * launches nothing. Not verified on a physical device.
+ *
  * **Android and web launch immediately.** Android's pickers are separate
  * activities started for a result, not controllers presented over the dialog,
  * and the web chooser is the browser's own; neither has the dismissal race, and
@@ -36,10 +47,24 @@
  * — the composer's attach sheet and Team Bridge's — share one tested rule.
  * Split from local-operator-mobile PR #278 without its camera work.
  */
-export function createAttachmentSheetHandoff() {
+/** How long after the sheet's native dismissal an iOS picker may be presented.
+ *  Measured on the iOS 27.2 simulator: 50 and 100 ms opened the picker 8 of 8
+ *  times, 0 ms opened it 4 of 8. 100 ms is the value with margin on a busy
+ *  thread. */
+export const LAUNCH_AFTER_DISMISS_MS = 100;
+
+export function createAttachmentSheetHandoff(
+	/** Pickers keep the default. A caller whose action is not a system picker
+	 *  (the message-actions sheet's reply/copy) passes 0 and runs inside
+	 *  `onDismiss`, as before. */
+	settleMs: number = LAUNCH_AFTER_DISMISS_MS,
+) {
 	let pending: (() => void) | undefined;
 	let chosen = false;
+	let settling: ReturnType<typeof setTimeout> | undefined;
 	const cancel = () => {
+		if (settling !== undefined) clearTimeout(settling);
+		settling = undefined;
 		pending = undefined;
 		chosen = false;
 	};
@@ -48,7 +73,16 @@ export function createAttachmentSheetHandoff() {
 		// Consuming a selection is NOT reopening the sheet: queued row events
 		// after onDismiss must not launch a second, different picker.
 		pending = undefined;
-		launch?.();
+		if (launch === undefined) return;
+		if (settleMs <= 0) {
+			launch();
+			return;
+		}
+		if (settling !== undefined) clearTimeout(settling);
+		settling = setTimeout(() => {
+			settling = undefined;
+			launch();
+		}, settleMs);
 	};
 	return {
 		choose: (launch: () => void, platform: string) => {

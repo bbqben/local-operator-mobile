@@ -1,6 +1,9 @@
 import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createAttachmentSheetHandoff } from "./attach-handoff";
+import {
+	createAttachmentSheetHandoff,
+	LAUNCH_AFTER_DISMISS_MS,
+} from "./attach-handoff";
 
 const OWNER_ATTACH_FINALLY = /finally\s*\{\s*setAttaching\(false\)/;
 const CANCEL_BEFORE_REOPEN =
@@ -67,6 +70,7 @@ describe("native attachment sheet handoff", () => {
 		});
 		handoff.choose(launch, "ios");
 		handoff.dismissed();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS);
 		expect(launch).toHaveBeenCalledOnce();
 		expect(busy).toBe(true);
 		handoff.cancel();
@@ -101,6 +105,7 @@ describe("native attachment sheet handoff", () => {
 		vi.advanceTimersByTime(5_000);
 		expect(library).not.toHaveBeenCalled();
 		handoff.dismissed();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS);
 		expect(library).toHaveBeenCalledOnce();
 		expect(documents).not.toHaveBeenCalled();
 		handoff.choose(documents, "ios");
@@ -117,6 +122,7 @@ describe("native attachment sheet handoff", () => {
 		handoff.dismissed();
 		handoff.choose(documents, "ios");
 		handoff.dismissed();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS);
 		expect(library).toHaveBeenCalledOnce();
 		expect(documents).not.toHaveBeenCalled();
 		handoff.cancel();
@@ -134,6 +140,7 @@ describe("native attachment sheet handoff", () => {
 		vi.advanceTimersByTime(499);
 		expect(launch).not.toHaveBeenCalled();
 		handoff.dismissed();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS);
 		expect(launch).toHaveBeenCalledTimes(1);
 		vi.runAllTimers();
 		handoff.dismissed();
@@ -189,7 +196,55 @@ describe("native attachment sheet handoff", () => {
 		vi.advanceTimersByTime(5_000);
 		expect(launch).not.toHaveBeenCalled();
 		handoff.dismissed();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS);
 		expect(launch).toHaveBeenCalledOnce();
+	});
+	it("never presents the picker inside onDismiss: it waits a settle after the native event (iOS 27.2 simulator)", () => {
+		vi.useFakeTimers();
+		const handoff = create();
+		const launch = vi.fn();
+		handoff.choose(launch, "ios");
+		handoff.dismissed();
+		// Inside the dismissal callback UIKit is still tearing the sheet down.
+		expect(launch).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS - 1);
+		expect(launch).not.toHaveBeenCalled();
+		vi.advanceTimersByTime(1);
+		expect(launch).toHaveBeenCalledOnce();
+	});
+	it("a repeated onDismiss while settling launches once; cancel during the settle launches nothing", () => {
+		vi.useFakeTimers();
+		const handoff = create();
+		const launch = vi.fn();
+		handoff.choose(launch, "ios");
+		handoff.dismissed();
+		handoff.dismissed();
+		vi.advanceTimersByTime(LAUNCH_AFTER_DISMISS_MS);
+		expect(launch).toHaveBeenCalledOnce();
+		const stale = vi.fn();
+		handoff.cancel();
+		handoff.choose(stale, "ios");
+		handoff.dismissed();
+		handoff.cancel(); // unmount or the paperclip reopening the sheet
+		vi.runAllTimers();
+		expect(stale).not.toHaveBeenCalled();
+	});
+	it("a zero settle (the message-actions sheet's non-picker actions) still runs inside onDismiss", () => {
+		vi.useFakeTimers();
+		const handoff = createAttachmentSheetHandoff(0);
+		const run = vi.fn();
+		handoff.choose(run, "ios");
+		handoff.dismissed();
+		expect(run).toHaveBeenCalledOnce();
+	});
+	it("the attach sheets keep the picker settle; only the message-actions sheet opts out", () => {
+		expect(source).toContain("useRef(createAttachmentSheetHandoff()).current");
+		expect(read("../team-bridge/thread-screen.tsx")).toContain(
+			"useRef(createAttachmentSheetHandoff()).current",
+		);
+		expect(read("../team-bridge/message-actions-sheet.tsx")).toContain(
+			"createAttachmentSheetHandoff(0)",
+		);
 	});
 	it("wires the real composer choice and native dismissal without changing close/layout", () => {
 		expect(source).toContain("onDismiss={attachmentHandoff.dismissed}");
