@@ -120,6 +120,7 @@ import { parseThreadAnchor, type ThreadAnchor } from "./thread-anchor";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
 import {
 	createThreadViewport,
+	landingRenderCount,
 	showsMetadataOverlay,
 	type ThreadViewport,
 } from "./thread-viewport";
@@ -1210,6 +1211,12 @@ function ThreadContent({
 									maintainVisibleContentPosition={
 										positioned ? { minIndexForVisible: 0 } : undefined
 									}
+									// Mount the whole held page before landing, so the landing never
+									// measures (and reveals) a partial page (`landingRenderCount`).
+									initialNumToRender={landingRenderCount(
+										items.length,
+										positioned,
+									)}
 									style={{ opacity: initialRowsHidden ? 0 : 1 }}
 									accessibilityElementsHidden={initialRowsHidden}
 									importantForAccessibility={

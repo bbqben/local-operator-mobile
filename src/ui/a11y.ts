@@ -420,6 +420,10 @@ export const CONTROL = {
 	/** Settings → Notifications, denied: "Turn on notifications" opens this
 	 *  app's page in the OS settings (PR #264 UX R1 U6). */
 	settingsNotificationsOpenSettings: "settings-notifications-open-settings",
+	/** Android only: opens the system page of the Team Bridge channel the
+	 *  reader switched off there (ADR 0010 S4). */
+	settingsNotificationsBridgeChannelSettings:
+		"settings-notifications-bridge-channel-settings",
 	settingsAccountRoutingGroup: "settings-account-routing-group",
 	settingsAccountRoutingSave: "settings-account-routing-save",
 	settingsAccountRoutingRetry: "settings-account-routing-retry",

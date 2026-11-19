@@ -483,6 +483,12 @@ const config: ExpoConfig = {
 		// from `name`, so this plugin rewrites the `app_name` string the template's
 		// `<application android:label>` points at. Its comment has the ordering why.
 		["./plugins/with-android-launcher-label.js", { label: LAUNCHER_LABEL }],
+		// ADR 0010 S2: swap Expo's notification receiver for
+		// `modules/lop-team-bridge-push`'s subclass, which draws Team Bridge
+		// pushes as conversations with the sender's face, groups them, hides the
+		// sender on a private lock screen, shows the foreground banner Expo drops,
+		// and routes session pushes to the HIGH `alert.*` channels.
+		"./plugins/with-android-team-bridge-push.js",
 	],
 	experiments: {
 		typedRoutes: true,

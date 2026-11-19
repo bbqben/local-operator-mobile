@@ -413,6 +413,8 @@ export type CatalogueKey =
 	| "mobile.notifications.channel.system"
 	| "mobile.notifications.channel.tape_warble"
 	| "mobile.notifications.channel.task_complete"
+	| "mobile.notifications.channel.team_bridge"
+	| "mobile.notifications.channel.team_bridge_description"
 	| "mobile.notifications.channel.two_note_chime"
 	| "mobile.notifications.computer_registration.failed"
 	| "mobile.notifications.computer_registration.no_token"
@@ -454,6 +456,8 @@ export type CatalogueKey =
 	| "mobile.notifications.preferences.agent_note"
 	| "mobile.notifications.preferences.bridge_heading"
 	| "mobile.notifications.preferences.bridge_note"
+	| "mobile.notifications.preferences.bridge_system_off"
+	| "mobile.notifications.preferences.bridge_system_open"
 	| "mobile.notifications.preferences.completions"
 	| "mobile.notifications.preferences.computer_keeps_sending"
 	| "mobile.notifications.preferences.disabled_hint"
@@ -470,6 +474,7 @@ export type CatalogueKey =
 	| "mobile.notifications.priority_high"
 	| "mobile.notifications.section.waiting"
 	| "mobile.notifications.section.waiting_count"
+	| "mobile.notifications.team_bridge.self_name"
 	| "mobile.notifications.title"
 	| "mobile.notifications.turn_on"
 	| "mobile.oauth.failed"
@@ -1494,6 +1499,8 @@ export type NoParamKey =
 	| "mobile.notifications.channel.system"
 	| "mobile.notifications.channel.tape_warble"
 	| "mobile.notifications.channel.task_complete"
+	| "mobile.notifications.channel.team_bridge"
+	| "mobile.notifications.channel.team_bridge_description"
 	| "mobile.notifications.channel.two_note_chime"
 	| "mobile.notifications.computer_registration.failed"
 	| "mobile.notifications.computer_registration.no_token"
@@ -1533,6 +1540,8 @@ export type NoParamKey =
 	| "mobile.notifications.preferences.agent_heading"
 	| "mobile.notifications.preferences.agent_note"
 	| "mobile.notifications.preferences.bridge_heading"
+	| "mobile.notifications.preferences.bridge_system_off"
+	| "mobile.notifications.preferences.bridge_system_open"
 	| "mobile.notifications.preferences.completions"
 	| "mobile.notifications.preferences.computer_keeps_sending"
 	| "mobile.notifications.preferences.disabled_hint"
@@ -1548,6 +1557,7 @@ export type NoParamKey =
 	| "mobile.notifications.primer.title"
 	| "mobile.notifications.priority_high"
 	| "mobile.notifications.section.waiting"
+	| "mobile.notifications.team_bridge.self_name"
 	| "mobile.notifications.title"
 	| "mobile.notifications.turn_on"
 	| "mobile.oauth.failed"
@@ -2483,6 +2493,8 @@ export type MessageParams = {
 	"mobile.notifications.channel.system": NoParams;
 	"mobile.notifications.channel.tape_warble": NoParams;
 	"mobile.notifications.channel.task_complete": NoParams;
+	"mobile.notifications.channel.team_bridge": NoParams;
+	"mobile.notifications.channel.team_bridge_description": NoParams;
 	"mobile.notifications.channel.two_note_chime": NoParams;
 	"mobile.notifications.computer_registration.failed": NoParams;
 	"mobile.notifications.computer_registration.no_token": NoParams;
@@ -2524,6 +2536,8 @@ export type MessageParams = {
 	"mobile.notifications.preferences.agent_note": NoParams;
 	"mobile.notifications.preferences.bridge_heading": NoParams;
 	"mobile.notifications.preferences.bridge_note": { all: string | number; mentions: string | number; muted: string | number };
+	"mobile.notifications.preferences.bridge_system_off": NoParams;
+	"mobile.notifications.preferences.bridge_system_open": NoParams;
 	"mobile.notifications.preferences.completions": NoParams;
 	"mobile.notifications.preferences.computer_keeps_sending": NoParams;
 	"mobile.notifications.preferences.disabled_hint": NoParams;
@@ -2540,6 +2554,7 @@ export type MessageParams = {
 	"mobile.notifications.priority_high": NoParams;
 	"mobile.notifications.section.waiting": NoParams;
 	"mobile.notifications.section.waiting_count": { count: string | number };
+	"mobile.notifications.team_bridge.self_name": NoParams;
 	"mobile.notifications.title": NoParams;
 	"mobile.notifications.turn_on": NoParams;
 	"mobile.oauth.failed": NoParams;
@@ -3630,6 +3645,8 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.channel.system": "System sound",
 	"mobile.notifications.channel.tape_warble": "Tape warble",
 	"mobile.notifications.channel.task_complete": "Task complete",
+	"mobile.notifications.channel.team_bridge": "Team Bridge",
+	"mobile.notifications.channel.team_bridge_description": "Messages from your teammates and their agents.",
 	"mobile.notifications.channel.two_note_chime": "Two-note chime",
 	"mobile.notifications.computer_registration.failed": "Could not register this phone for alerts from this computer. It tries again when you reopen the app.",
 	"mobile.notifications.computer_registration.no_token": "This phone has no push address yet, so this computer cannot alert it. Reopen the app to try again.",
@@ -3671,6 +3688,8 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.preferences.agent_note": "Turn off both agent types to keep only Team Bridge notifications.",
 	"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 	"mobile.notifications.preferences.bridge_note": "For each DM, group or channel, open its bell menu and choose {all}, {mentions} or {muted}.",
+	"mobile.notifications.preferences.bridge_system_off": "Team Bridge notifications are turned off in Android settings, so none will appear on this phone.",
+	"mobile.notifications.preferences.bridge_system_open": "Open Android settings",
 	"mobile.notifications.preferences.completions": "Agent finished",
 	"mobile.notifications.preferences.computer_keeps_sending": "Your computer will keep sending agent notifications until Local Operator is updated on it.",
 	"mobile.notifications.preferences.disabled_hint": "Needs a newer Local Operator on your computer.",
@@ -3687,6 +3706,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.notifications.priority_high": "High",
 	"mobile.notifications.section.waiting": "Waiting on you",
 	"mobile.notifications.section.waiting_count": "Waiting on you · {count}",
+	"mobile.notifications.team_bridge.self_name": "You",
 	"mobile.notifications.title": "Notifications",
 	"mobile.notifications.turn_on": "Turn on notifications",
 	"mobile.oauth.failed": "Sign-in could not finish. Try again.",
@@ -4762,6 +4782,8 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.channel.system": { role: "meta", note: "Name of the Android notification channel that plays the phone's own default notification sound, used when the computer's sound is set to the system sound. Shown in the system's app notification settings. Sentence case, no final full stop." },
 	"mobile.notifications.channel.tape_warble": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.channel.task_complete": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
+	"mobile.notifications.channel.team_bridge": { role: "meta", note: "Name of the Team Bridge notification channel in Android's notification settings. Product name; keep it untranslated unless the product name is localised elsewhere." },
+	"mobile.notifications.channel.team_bridge_description": { role: "help", note: "Description under the Team Bridge channel in Android's notification settings. Teammates are people; agents are their AI agents." },
 	"mobile.notifications.channel.two_note_chime": { role: "meta", note: "Name of an Android notification channel, shown in the system's app notification settings. It is the name of one of Local Operator's built-in notification sounds; use the same translation as the desktop app's sound picker (wire.notification_sound.sound.*). Sentence case, no final full stop." },
 	"mobile.notifications.computer_registration.failed": { role: "status", note: "Settings › Notifications, a status line: registering this phone for the computer's push notifications failed for a temporary reason; the app retries when it is opened again." },
 	"mobile.notifications.computer_registration.no_token": { role: "status", note: "Settings › Notifications, a status line: the phone's operating system has not given the app a push address (device token), so the computer cannot send push notifications to it. 'Reopen the app' is the remedy." },
@@ -4803,6 +4825,8 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.preferences.agent_note": { role: "help", note: "Both refers to Agent finished and Agent hit an error. The global master must remain enabled to keep Team Bridge." },
 	"mobile.notifications.preferences.bridge_heading": { role: "heading", note: "Product name, subsection heading." },
 	"mobile.notifications.preferences.bridge_note": { role: "help", note: "Directions to existing per-conversation notification controls for DMs, groups and channels; use the same option names as the Team Bridge bell menu." },
+	"mobile.notifications.preferences.bridge_system_off": { role: "help", note: "Shown under the Team Bridge switch in Settings when the reader has switched off the Team Bridge channel in Android's system settings. States the consequence; the app cannot turn it back on itself." },
+	"mobile.notifications.preferences.bridge_system_open": { role: "button", note: "Button that opens Android's system settings page for the Team Bridge notification channel." },
 	"mobile.notifications.preferences.completions": { role: "button", note: "Settings › Notifications, a switch row: notify when an AI agent on the computer finishes its turn. Short, past tense." },
 	"mobile.notifications.preferences.computer_keeps_sending": { role: "help", note: "Settings › Notifications, when the reader turned notifications (or one kind) off but the connected computer runs an older Local Operator that cannot honour it: that computer keeps sending agent notifications until it is updated. Plain and honest; Local Operator is a brand." },
 	"mobile.notifications.preferences.disabled_hint": { role: "help", note: "Screen-reader hint on a dimmed notification switch, saying why it cannot be changed. Not shown on screen. Local Operator is a brand." },
@@ -4819,6 +4843,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.notifications.priority_high": { role: "status", note: "Badge on a notification the sender marked high priority. One word." },
 	"mobile.notifications.section.waiting": { role: "heading", note: "Pinned section heading at the top of the notifications inbox: the asks that are blocked on the reader. Short heading, ~20 characters. No placeholders." },
 	"mobile.notifications.section.waiting_count": { role: "heading", note: "The same pinned section heading with the number of items in it, e.g. 'Waiting on you · 3'. {count} is an integer shown as digits; no noun follows it, so no plural arms. Keep the middle dot separator." },
+	"mobile.notifications.team_bridge.self_name": { role: "meta", note: "The reader's own name in an Android conversation notification (the 'me' person of a message thread). One short pronoun." },
 	"mobile.notifications.title": { role: "heading", note: "Title of the notifications inbox screen." },
 	"mobile.notifications.turn_on": { role: "button", note: "The one label of every control that turns this phone's notifications on: the first-run sheet's primary button (raises the phone's permission dialog), the Settings › Notifications button, and the 'Notifications are off' row's button (opens this app's page in the system settings). Use the same words in all three places." },
 	"mobile.oauth.failed": { role: "status", note: "App sign-in failure when Android native transport or browser cannot complete. Cancellation is a separate existing state. No native error/URL/code is shown." },
@@ -5908,6 +5933,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Sonido del sistema",
 		"mobile.notifications.channel.tape_warble": "Cinta ondulante",
 		"mobile.notifications.channel.task_complete": "Tarea completada",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Mensajes de tus compañeros de equipo y sus agentes.",
 		"mobile.notifications.channel.two_note_chime": "Campanilla de dos notas",
 		"mobile.notifications.computer_registration.failed": "No se pudo registrar este teléfono para recibir alertas de esta máquina. Se volverá a intentar cuando vuelvas a abrir la app.",
 		"mobile.notifications.computer_registration.no_token": "Este teléfono aún no tiene una dirección push, así que esta máquina no puede enviarle alertas. Vuelve a abrir la app para intentarlo de nuevo.",
@@ -5949,6 +5976,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Desactiva ambos tipos del agente para recibir solo notificaciones de Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Para cada mensaje directo, grupo o canal, abre el menú de la campana y elige {all}, {mentions} o {muted}.",
+		"mobile.notifications.preferences.bridge_system_off": "Las notificaciones de Team Bridge están desactivadas en los ajustes de Android, así que no aparecerá ninguna en este teléfono.",
+		"mobile.notifications.preferences.bridge_system_open": "Abrir ajustes de Android",
 		"mobile.notifications.preferences.completions": "El agente terminó",
 		"mobile.notifications.preferences.computer_keeps_sending": "Tu máquina seguirá enviando notificaciones de agentes hasta que se actualice Local Operator en ella.",
 		"mobile.notifications.preferences.disabled_hint": "Requiere un Local Operator más reciente en tu máquina.",
@@ -5965,6 +5994,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Alta",
 		"mobile.notifications.section.waiting": "Te esperan",
 		"mobile.notifications.section.waiting_count": "Te esperan · {count}",
+		"mobile.notifications.team_bridge.self_name": "Tú",
 		"mobile.notifications.title": "Notificaciones",
 		"mobile.notifications.turn_on": "Activar notificaciones",
 		"mobile.oauth.failed": "No se pudo completar el inicio de sesión. Inténtalo de nuevo.",
@@ -7038,6 +7068,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Son du système",
 		"mobile.notifications.channel.tape_warble": "Bande ondulante",
 		"mobile.notifications.channel.task_complete": "Tâche terminée",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Messages de vos coéquipiers et de leurs agents.",
 		"mobile.notifications.channel.two_note_chime": "Carillon à deux notes",
 		"mobile.notifications.computer_registration.failed": "Impossible d’enregistrer ce téléphone pour les alertes de cet ordinateur. Une nouvelle tentative aura lieu à la réouverture de l’app.",
 		"mobile.notifications.computer_registration.no_token": "Ce téléphone n’a pas encore d’adresse push, cet ordinateur ne peut donc pas lui envoyer d’alertes. Rouvrez l’app pour réessayer.",
@@ -7079,6 +7111,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Désactivez les deux types de notifications des agents pour ne garder que celles de Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Pour chaque message privé, groupe ou canal, ouvrez le menu de la cloche et choisissez {all}, {mentions} ou {muted}.",
+		"mobile.notifications.preferences.bridge_system_off": "Les notifications Team Bridge sont désactivées dans les paramètres Android : aucune n’apparaîtra sur ce téléphone.",
+		"mobile.notifications.preferences.bridge_system_open": "Ouvrir les paramètres Android",
 		"mobile.notifications.preferences.completions": "L'agent a terminé",
 		"mobile.notifications.preferences.computer_keeps_sending": "Votre ordinateur continuera d'envoyer les notifications des agents jusqu'à la mise à jour de Local Operator sur celui-ci.",
 		"mobile.notifications.preferences.disabled_hint": "Nécessite une version plus récente de Local Operator sur votre ordinateur.",
@@ -7095,6 +7129,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Élevée",
 		"mobile.notifications.section.waiting": "À traiter",
 		"mobile.notifications.section.waiting_count": "À traiter · {count}",
+		"mobile.notifications.team_bridge.self_name": "Vous",
 		"mobile.notifications.title": "Notifications",
 		"mobile.notifications.turn_on": "Activer les notifications",
 		"mobile.oauth.failed": "La connexion n’a pas pu aboutir. Réessayez.",
@@ -8168,6 +8203,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "सिस्टम ध्वनि",
 		"mobile.notifications.channel.tape_warble": "लहराती टेप",
 		"mobile.notifications.channel.task_complete": "काम पूरा",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "आपके साथियों और उनके एजेंटों के संदेश।",
 		"mobile.notifications.channel.two_note_chime": "दो सुरों वाली घंटी",
 		"mobile.notifications.computer_registration.failed": "इस कंप्यूटर से अलर्ट के लिए यह फ़ोन रजिस्टर नहीं हो सका। ऐप दोबारा खोलने पर फिर से कोशिश की जाएगी।",
 		"mobile.notifications.computer_registration.no_token": "इस फ़ोन का अभी कोई पुश पता नहीं है, इसलिए यह कंप्यूटर इसे अलर्ट नहीं भेज सकता। फिर से कोशिश करने के लिए ऐप दोबारा खोलें।",
@@ -8209,6 +8246,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "केवल Team Bridge की सूचनाएँ पाने के लिए एजेंट की दोनों तरह की सूचनाएँ बंद करें।",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "हर सीधे संदेश, समूह या चैनल में घंटी का मेन्यू खोलें और {all}, {mentions} या {muted} चुनें।",
+		"mobile.notifications.preferences.bridge_system_off": "Android सेटिंग्स में Team Bridge सूचनाएँ बंद हैं, इसलिए इस फ़ोन पर कोई सूचना नहीं दिखेगी।",
+		"mobile.notifications.preferences.bridge_system_open": "Android सेटिंग्स खोलें",
 		"mobile.notifications.preferences.completions": "एजेंट ने काम पूरा किया",
 		"mobile.notifications.preferences.computer_keeps_sending": "जब तक आपके कंप्यूटर पर Local Operator अपडेट नहीं होता, वह एजेंट की सूचनाएँ भेजता रहेगा।",
 		"mobile.notifications.preferences.disabled_hint": "आपके कंप्यूटर पर Local Operator का नया संस्करण चाहिए।",
@@ -8225,6 +8264,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "उच्च",
 		"mobile.notifications.section.waiting": "आपका इंतज़ार",
 		"mobile.notifications.section.waiting_count": "आपका इंतज़ार · {count}",
+		"mobile.notifications.team_bridge.self_name": "आप",
 		"mobile.notifications.title": "सूचनाएँ",
 		"mobile.notifications.turn_on": "सूचनाएँ चालू करें",
 		"mobile.oauth.failed": "साइन-इन पूरा नहीं हो सका। फिर से कोशिश करें।",
@@ -9298,6 +9338,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Системный звук",
 		"mobile.notifications.channel.tape_warble": "Плывущая плёнка",
 		"mobile.notifications.channel.task_complete": "Задача выполнена",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Сообщения от ваших коллег и их агентов.",
 		"mobile.notifications.channel.two_note_chime": "Двухнотный звон",
 		"mobile.notifications.computer_registration.failed": "Не удалось зарегистрировать этот телефон для оповещений с этого компьютера. Попытка повторится, когда вы снова откроете приложение.",
 		"mobile.notifications.computer_registration.no_token": "У этого телефона пока нет push-адреса, поэтому компьютер не может отправлять ему оповещения. Откройте приложение снова, чтобы повторить попытку.",
@@ -9339,6 +9381,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Отключите оба типа уведомлений агентов, чтобы получать только уведомления Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "В каждом личном чате, группе или канале откройте меню колокольчика и выберите «{all}», «{mentions}» или «{muted}».",
+		"mobile.notifications.preferences.bridge_system_off": "Уведомления Team Bridge отключены в настройках Android, поэтому на этом телефоне они не появятся.",
+		"mobile.notifications.preferences.bridge_system_open": "Открыть настройки Android",
 		"mobile.notifications.preferences.completions": "Агент закончил",
 		"mobile.notifications.preferences.computer_keeps_sending": "Компьютер будет присылать уведомления агентов, пока на нём не обновят Local Operator.",
 		"mobile.notifications.preferences.disabled_hint": "Нужна более новая версия Local Operator на компьютере.",
@@ -9355,6 +9399,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Важно",
 		"mobile.notifications.section.waiting": "Ждут вас",
 		"mobile.notifications.section.waiting_count": "Ждут вас · {count}",
+		"mobile.notifications.team_bridge.self_name": "Вы",
 		"mobile.notifications.title": "Уведомления",
 		"mobile.notifications.turn_on": "Включить уведомления",
 		"mobile.oauth.failed": "Не удалось завершить вход. Попробуйте ещё раз.",
@@ -10428,6 +10473,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "سسٹم کی آواز",
 		"mobile.notifications.channel.tape_warble": "لرزتی ٹیپ",
 		"mobile.notifications.channel.task_complete": "کام مکمل",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "آپ کے ساتھیوں اور ان کے ایجنٹس کے پیغامات۔",
 		"mobile.notifications.channel.two_note_chime": "دو سُری گھنٹی",
 		"mobile.notifications.computer_registration.failed": "اس کمپیوٹر سے الرٹس کے لیے یہ فون رجسٹر نہیں ہو سکا۔ ایپ دوبارہ کھولنے پر پھر کوشش کی جائے گی۔",
 		"mobile.notifications.computer_registration.no_token": "اس فون کا ابھی کوئی پُش پتہ نہیں ہے، اس لیے یہ کمپیوٹر اسے الرٹ نہیں بھیج سکتا۔ دوبارہ کوشش کے لیے ایپ پھر سے کھولیں۔",
@@ -10469,6 +10516,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "صرف Team Bridge کی اطلاعات حاصل کرنے کے لیے ایجنٹ کی دونوں قسم کی اطلاعات بند کریں۔",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "ہر نجی پیغام، گروپ یا چینل میں گھنٹی کا مینو کھولیں اور {all}، {mentions} یا {muted} منتخب کریں۔",
+		"mobile.notifications.preferences.bridge_system_off": "Android کی ترتیبات میں Team Bridge کی اطلاعات بند ہیں، اس لیے اس فون پر کوئی اطلاع نظر نہیں آئے گی۔",
+		"mobile.notifications.preferences.bridge_system_open": "Android کی ترتیبات کھولیں",
 		"mobile.notifications.preferences.completions": "ایجنٹ نے کام مکمل کیا",
 		"mobile.notifications.preferences.computer_keeps_sending": "جب تک آپ کے کمپیوٹر پر Local Operator اپ ڈیٹ نہیں ہوتا، وہ ایجنٹ کی اطلاعات بھیجتا رہے گا۔",
 		"mobile.notifications.preferences.disabled_hint": "آپ کے کمپیوٹر پر Local Operator کا نیا ورژن درکار ہے۔",
@@ -10485,6 +10534,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "اعلیٰ",
 		"mobile.notifications.section.waiting": "آپ کا انتظار",
 		"mobile.notifications.section.waiting_count": "آپ کا انتظار · {count}",
+		"mobile.notifications.team_bridge.self_name": "آپ",
 		"mobile.notifications.title": "اطلاعات",
 		"mobile.notifications.turn_on": "اطلاعات آن کریں",
 		"mobile.oauth.failed": "سائن اِن مکمل نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
@@ -11558,6 +11608,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "Âm thanh hệ thống",
 		"mobile.notifications.channel.tape_warble": "Băng rung",
 		"mobile.notifications.channel.task_complete": "Hoàn tất tác vụ",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "Tin nhắn từ đồng đội của bạn và các tác tử của họ.",
 		"mobile.notifications.channel.two_note_chime": "Chuông hai nốt",
 		"mobile.notifications.computer_registration.failed": "Không thể đăng ký điện thoại này để nhận cảnh báo từ máy tính này. Ứng dụng sẽ thử lại khi bạn mở lại.",
 		"mobile.notifications.computer_registration.no_token": "Điện thoại này chưa có địa chỉ push, nên máy tính này không thể gửi cảnh báo đến nó. Hãy mở lại ứng dụng để thử lại.",
@@ -11599,6 +11651,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "Tắt cả hai loại thông báo tác nhân để chỉ giữ thông báo Team Bridge.",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "Với mỗi tin nhắn riêng, nhóm hoặc kênh, mở menu chuông và chọn {all}, {mentions} hoặc {muted}.",
+		"mobile.notifications.preferences.bridge_system_off": "Thông báo Team Bridge đang tắt trong cài đặt Android, nên sẽ không có thông báo nào hiện trên điện thoại này.",
+		"mobile.notifications.preferences.bridge_system_open": "Mở cài đặt Android",
 		"mobile.notifications.preferences.completions": "Agent đã hoàn tất",
 		"mobile.notifications.preferences.computer_keeps_sending": "Máy tính của bạn sẽ vẫn gửi thông báo của agent cho đến khi Local Operator trên máy được cập nhật.",
 		"mobile.notifications.preferences.disabled_hint": "Cần phiên bản Local Operator mới hơn trên máy tính của bạn.",
@@ -11615,6 +11669,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "Cao",
 		"mobile.notifications.section.waiting": "Chờ bạn",
 		"mobile.notifications.section.waiting_count": "Chờ bạn · {count}",
+		"mobile.notifications.team_bridge.self_name": "Bạn",
 		"mobile.notifications.title": "Thông báo",
 		"mobile.notifications.turn_on": "Bật thông báo",
 		"mobile.oauth.failed": "Không thể hoàn tất đăng nhập. Hãy thử lại.",
@@ -12688,6 +12743,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.channel.system": "系统声音",
 		"mobile.notifications.channel.tape_warble": "磁带颤音",
 		"mobile.notifications.channel.task_complete": "任务完成",
+		"mobile.notifications.channel.team_bridge": "Team Bridge",
+		"mobile.notifications.channel.team_bridge_description": "来自你的队友及其智能体的消息。",
 		"mobile.notifications.channel.two_note_chime": "双音钟声",
 		"mobile.notifications.computer_registration.failed": "无法为此手机注册来自这台电脑的提醒。重新打开应用时会再次尝试。",
 		"mobile.notifications.computer_registration.no_token": "此手机还没有推送地址，因此这台电脑无法向它发送提醒。请重新打开应用再试一次。",
@@ -12729,6 +12786,8 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.preferences.agent_note": "关闭两种智能体通知，即可仅保留 Team Bridge 通知。",
 		"mobile.notifications.preferences.bridge_heading": "Team Bridge",
 		"mobile.notifications.preferences.bridge_note": "在各私聊、群组或频道中，打开铃铛菜单，选择{all}、{mentions}或{muted}。",
+		"mobile.notifications.preferences.bridge_system_off": "Team Bridge 通知已在 Android 设置中关闭，因此此手机上不会显示任何通知。",
+		"mobile.notifications.preferences.bridge_system_open": "打开 Android 设置",
 		"mobile.notifications.preferences.completions": "智能体已完成",
 		"mobile.notifications.preferences.computer_keeps_sending": "在你的电脑上更新 Local Operator 之前，它会继续发送智能体通知。",
 		"mobile.notifications.preferences.disabled_hint": "你的电脑需要更新版本的 Local Operator。",
@@ -12745,6 +12804,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.notifications.priority_high": "高",
 		"mobile.notifications.section.waiting": "等待你处理",
 		"mobile.notifications.section.waiting_count": "等待你处理 · {count}",
+		"mobile.notifications.team_bridge.self_name": "你",
 		"mobile.notifications.title": "通知",
 		"mobile.notifications.turn_on": "开启通知",
 		"mobile.oauth.failed": "无法完成登录。请重试。",
