@@ -1195,6 +1195,15 @@ export const SURFACE = {
 	 *  Present only while it is telling the truth (the body overflows and is not
 	 *  scrolled to its end), so a frame can measure the cue its own state earns. */
 	sheetBodyFade: "sheet-body-fade",
+	/** Its mirror under a sheet's `pinned` region: present only while the body
+	 *  has scrolled rows up under the pinned field (design D1, PR #343). */
+	sheetPinnedFade: "sheet-pinned-fade",
+	/** The Sheet kit's scrolling body, its `pinned` region (above the body, never
+	 *  scrolls — a search field over its results), and the spacer that lifts the
+	 *  surface onto the software keyboard's top on native (TestFlight 1295). */
+	sheetBody: "sheet-body",
+	sheetPinned: "sheet-pinned",
+	sheetKeyboardSpacer: "sheet-keyboard-spacer",
 
 	/* --- the turn-supplement block ("Highlights", memo §2.8, lane N): the
 	 *  pieces under a final answer. Named in full because the capture cells
