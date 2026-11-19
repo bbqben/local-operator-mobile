@@ -34,7 +34,13 @@ import type { Message, Reaction } from "@/team-bridge/contract";
 import { useTeamBridge, useTeamBridgeState } from "@/team-bridge/provider";
 import { reactionTotal } from "@/team-bridge/reactions";
 import { type ReactionTarget, reactionKey } from "@/team-bridge/store";
-import { ROLE, SURFACE, teamBridgeReactionPillId } from "@/ui/a11y";
+import {
+	ROLE,
+	SURFACE,
+	teamBridgeReactionMeasureId,
+	teamBridgeReactionPillId,
+	teamBridgeReactionVisualId,
+} from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Sheet } from "@/ui/components/sheet";
 import { cx } from "@/ui/variants";
@@ -180,7 +186,7 @@ export const ReactionPills = memo(function ReactionPills({
 						key={reaction.emoji}
 						style={PILL_TOUCH}
 						className="justify-center"
-						testID={`reaction-measure-${reaction.emoji}`}
+						testID={teamBridgeReactionMeasureId(reaction.emoji)}
 						onLayout={(event) => {
 							const measured = event.nativeEvent.layout.width;
 							setWidths((old) =>
@@ -196,7 +202,7 @@ export const ReactionPills = memo(function ReactionPills({
 			</View>
 			{rows.length > 0 ? (
 				<View
-					testID="team-bridge-reaction-wrap"
+					testID={SURFACE.teamBridgeReactionWrap}
 					className="flex-row flex-wrap items-center"
 					// Match the packer's point gap even when web root rem size changes.
 					style={{ columnGap: 6 }}
@@ -256,7 +262,7 @@ export const ReactionPills = memo(function ReactionPills({
 									reaction={reaction}
 									locale={locale}
 									busy={busy}
-									testID={`${teamBridgeReactionPillId(reaction.emoji)}-visual`}
+									testID={teamBridgeReactionVisualId(reaction.emoji)}
 								/>
 							</Pressable>
 						);
@@ -289,7 +295,7 @@ export const ReactionPills = memo(function ReactionPills({
 						accessibilityState={{ expanded }}
 						onPress={() => setExpanded((old) => !old)}
 						style={{ minHeight: 44 }}
-						testID="team-bridge-reactions-expand"
+						testID={SURFACE.teamBridgeReactionsExpand}
 						className="justify-center px-2"
 					>
 						<Text className="text-meta text-accent">
@@ -306,7 +312,7 @@ export const ReactionPills = memo(function ReactionPills({
 				visible={detail !== undefined}
 				onClose={() => setInspecting(null)}
 				title={t("mobile.team_bridge.reactions.details")}
-				testID="team-bridge-reaction-details"
+				testID={SURFACE.teamBridgeReactionDetails}
 			>
 				{detail && sample ? (
 					<View className="gap-3 pb-4">

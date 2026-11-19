@@ -1216,7 +1216,7 @@ describe("reactions: pills, quick row, rollback", () => {
 			await act(async () => {
 				for (const item of emoji)
 					handler(
-						rec.child.get(`reaction-measure-${item}`),
+						rec.child.get(a11y.teamBridgeReactionMeasureId(item)),
 						"onLayout",
 					)({ nativeEvent: { layout: { width: 44 } } });
 				handler(

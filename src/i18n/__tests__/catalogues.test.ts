@@ -89,7 +89,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 211, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON. Merged with #344: + sixteen card_body.* (inbound card body states, framing, show more/less, more count): 184 + 16 = 200, counted over the merged en JSON + eleven reaction keys (reactions slice PR b: actions.a11y_react + ten reactions.*) = 211.
+		expected: 220, // +9 #348: eight reaction-inspection keys + reply_thread.last_reply (211 + 9), counted in merged JSON. 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON. Merged with #344: + sixteen card_body.* (inbound card body states, framing, show more/less, more count): 184 + 16 = 200, counted over the merged en JSON + eleven reaction keys (reactions slice PR b: actions.a11y_react + ten reactions.*) = 211.
 	},
 	{
 		name: "mobile.signin",
@@ -600,7 +600,12 @@ describe("the English catalogues", () => {
 		 * the merged tree. */
 		/* Reactions slice PR b (#345): + actions.a11y_react and ten
 		 * reactions.* keys: 1304 + 11 = 1315. */
-		expect(total).toBe(1315);
+		/* Inspection/thread slice (#348): reactions.details, hint_inspect,
+		 * sample, sample_none, sample_notice, show_less, show_more, you_reacted,
+		 * plus reply_thread.last_reply: 1315 + 9 = 1324. Independently counted
+		 * across the 26 JSON namespaces in each of the eight shipped locales;
+		 * retain an explicit total, not a self-adjusting catalogue expectation. */
+		expect(total).toBe(1324);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

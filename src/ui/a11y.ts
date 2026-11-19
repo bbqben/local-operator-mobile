@@ -881,6 +881,9 @@ export const SURFACE = {
 	teamBridgeQuickReactions: "team-bridge-quick-reactions",
 	/** The row of reaction pills under a message, and its trailing "+". */
 	teamBridgeReactionPills: "team-bridge-reaction-pills",
+	teamBridgeReactionWrap: "team-bridge-reaction-wrap",
+	teamBridgeReactionsExpand: "team-bridge-reactions-expand",
+	teamBridgeReactionDetails: "team-bridge-reaction-details",
 	teamBridgeReactionAdd: "team-bridge-reaction-add",
 	/** The "Reaction couldn't be saved" line under a refused toggle. */
 	teamBridgeReactionError: "team-bridge-reaction-error",
@@ -2610,6 +2613,13 @@ const emojiKey = (emoji: string): string =>
 /** One reaction pill under a message. */
 export const teamBridgeReactionPillId = (emoji: string): string =>
 	`team-bridge-reaction-pill-${emojiKey(emoji)}`;
+/** The painted face stays addressable separately from its larger touch box. */
+export const teamBridgeReactionVisualId = (emoji: string): string =>
+	`${teamBridgeReactionPillId(emoji)}-visual`;
+/** Inert layout probes use the same code-point encoding as visible pills: raw
+ * emoji in selectors are fragile for variation selectors, skin tones and ZWJ. */
+export const teamBridgeReactionMeasureId = (emoji: string): string =>
+	`team-bridge-reaction-measure-${emojiKey(emoji)}`;
 /** One emoji cell of the sheet's quick-reaction row. */
 export const teamBridgeQuickReactionId = (emoji: string): string =>
 	`team-bridge-quick-reaction-${emojiKey(emoji)}`;
