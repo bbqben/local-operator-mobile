@@ -69,8 +69,10 @@ export function OrgSwitcherSheet({
 			 *  so options sit flush with the sheet header's 16 pt margin. */}
 			<View className="gap-1 pb-2">
 				{/* Amendment A §2: private organizations and communities are two
-				 *  groups; the heading only appears when the second one does. */}
-				{communityEnabled() ? (
+				 *  groups; the heading only appears when the second one does, and
+				 *  only over rows: a community-only reader saw "ORGANIZATIONS" over
+				 *  nothing, which reads as a failed load (design round 2, D12). */}
+				{communityEnabled() && organizations.length > 0 ? (
 					<SectionHeader label={t("mobile.community.switcher.organizations")} />
 				) : null}
 				{organizations.map((o) => {

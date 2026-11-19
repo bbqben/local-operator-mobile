@@ -14,7 +14,9 @@
  *   Team Bridge convention in `profile-card.tsx`);
  * - a pending member (the server's "New member · NNNN" placeholder): the
  *   default mark, not "NM" initials (D9);
- * - anyone else: their initials.
+ * - anyone else: their mark (`memberMarkOf`): Latin initials as before, else
+ *   the first grapheme of a name in any script (D11, round 2), else the
+ *   default mark — never "?".
  *
  * When the proxy ships, read the bytes with the community bearer into a
  * `data:` URI (the `team-bridge/avatars.ts` pattern) and pass it as
@@ -23,8 +25,9 @@
 import { Bot, UserRound } from "lucide-react-native";
 import { isPlaceholderName } from "@/community/model";
 import { useTokenColor } from "@/ui/appearance";
-import { Avatar, initialsOf } from "@/ui/components/avatar";
+import { Avatar } from "@/ui/components/avatar";
 import { AVATAR_SIZES, type AvatarSize } from "@/ui/variants";
+import { memberMarkOf } from "./member-mark";
 
 export function MemberAvatar({
 	name,
@@ -46,7 +49,8 @@ export function MemberAvatar({
 				fallback={<Bot size={glyph} color={agentInk} />}
 			/>
 		);
-	if (kind !== "human" || isPlaceholderName(name))
+	const mark = memberMarkOf(name);
+	if (kind !== "human" || isPlaceholderName(name) || mark === null)
 		return (
 			<Avatar
 				initials=""
@@ -54,5 +58,5 @@ export function MemberAvatar({
 				fallback={<UserRound size={glyph} color={mutedInk} />}
 			/>
 		);
-	return <Avatar initials={initialsOf(name)} size={size} />;
+	return <Avatar initials={mark} size={size} />;
 }
