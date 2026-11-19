@@ -1,4 +1,9 @@
 {
+	"mobile.team_bridge.actions.copied": "कॉपी हो गया",
+	"mobile.team_bridge.actions.copy_text": "टेक्स्ट कॉपी करें",
+	"mobile.team_bridge.actions.reply_in_thread": "थ्रेड में जवाब दें",
+	"mobile.team_bridge.actions.select_text": "टेक्स्ट चुनें",
+	"mobile.team_bridge.actions.title": "संदेश की कार्रवाइयाँ",
 	"mobile.team_bridge.attachment.add": "चित्र जोड़ें",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# चित्र जोड़ा गया} other {# चित्र जोड़े गए}}",
 	"mobile.team_bridge.attachment.cannot_send": "भेज नहीं सकते",

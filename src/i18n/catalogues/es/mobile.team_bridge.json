@@ -1,4 +1,9 @@
 {
+	"mobile.team_bridge.actions.copied": "Copiado",
+	"mobile.team_bridge.actions.copy_text": "Copiar texto",
+	"mobile.team_bridge.actions.reply_in_thread": "Responder en el hilo",
+	"mobile.team_bridge.actions.select_text": "Seleccionar texto",
+	"mobile.team_bridge.actions.title": "Acciones del mensaje",
 	"mobile.team_bridge.attachment.add": "Añadir imagen",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# imagen adjunta} other {# imágenes adjuntas}}",
 	"mobile.team_bridge.attachment.cannot_send": "No se puede enviar",
