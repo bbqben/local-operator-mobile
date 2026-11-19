@@ -14,6 +14,7 @@ import type { PromptImage } from "@/contracts";
 import { avatarRefOf } from "@/features/agent-avatar/agent-avatar";
 import { HeaderAgentAvatar } from "@/features/agent-avatar/agent-avatar-view";
 import { useListState } from "@/features/auth/connection-provider";
+import { homeEffortChip, modelLabel } from "@/features/home/picker-model";
 import { useStartup } from "@/features/new-session/use-startup";
 import {
 	activityCounts,
@@ -107,6 +108,10 @@ import { useCompletionAck } from "@/features/session/use-completion-ack";
 import { draftSlashQuery, useComposer } from "@/features/session/use-composer";
 import { useFind } from "@/features/session/use-find";
 import { useSessionRuntime } from "@/features/session/use-session";
+import {
+	storedEfforts,
+	useStoredModel,
+} from "@/features/session/use-stored-model";
 import {
 	remoteConversationOf,
 	sessionCapabilities,
@@ -287,7 +292,18 @@ function Session() {
 		listRow !== undefined &&
 		!isRemoteRow(listRow) &&
 		canAssignSessionTags(capabilities);
+	const storedModel = useStoredModel({
+		client: runtime.source.endpoints,
+		sessionId,
+		// Resume has no remote form: never route a cold remote choice through
+		// the connected computer even if it advertises live model switching.
+		enabled:
+			headerHealth(runtime.projection, runtime.link) === "ended" &&
+			ownerLabel === null,
+		ended: headerHealth(runtime.projection, runtime.link) === "ended",
+	});
 	const composer = useComposer({
+		beforeSend: storedModel.prepare,
 		sessionId,
 		source: runtime.source,
 		streaming: runtime.streaming,
@@ -466,10 +482,25 @@ function Session() {
 	 * the same fact, and an empty ladder means the selected model has no effort
 	 * control — a sheet with no rows and nothing to press is the dead-end modal the
 	 * QA round found (Q3). */
-	const effortLadder = useMemo(
-		() => projection?.effort_ladder ?? [],
-		[projection?.effort_ladder],
-	);
+	const storedPicker =
+		headerHealth(projection, runtime.link) === "ended" && ownerLabel === null;
+	const pickerModels = storedPicker ? storedModel.models : runtime.models;
+	const selectedModel =
+		storedModel.pending?.model ??
+		pickerModels.find(
+			(model) =>
+				model.selector ===
+					(projection?.model_selector || listRow?.model_label) ||
+				`${model.provider}/${model.model_id}` ===
+					(projection?.model_selector || listRow?.model_label) ||
+				model.model_id === listRow?.model_label,
+		) ??
+		null;
+	const effortLadder = storedPicker
+		? selectedModel === null
+			? []
+			: storedEfforts(selectedModel)
+		: (projection?.effort_ladder ?? []);
 
 	const todos = useMemo(
 		() => projectTodos(projection?.todos ?? []),
@@ -522,14 +553,45 @@ function Session() {
 	 *  never-started conversation is served a durable fold with no model or
 	 *  effort, while the row still names what it last ran (TestFlight 578;
 	 *  `session-chips.ts` carries the whole rule, including why an ended
-	 *  session's chips are shown but disabled). */
+	 *  session's chips defer their changes until Resume/Send). */
 	const sessionChips = sessionChipLabels({
 		projection,
 		row: listRow ?? null,
-		models: runtime.models,
+		models: pickerModels,
 		connection: chipConnection,
 		ended: headerHealth(projection, runtime.link) === "ended",
 	});
+	if (storedModel.pending !== null) {
+		const name = modelLabel(storedModel.pending.model);
+		sessionChips.model = {
+			kind: "value",
+			text: name,
+			accessibilityLabel: `Model, ${name}`,
+		};
+	}
+	if (storedPicker) {
+		sessionChips.effort =
+			effortLadder.length === 0
+				? null
+				: homeEffortChip({
+						offer: {
+							kind: "ladder",
+							rungs: effortLadder,
+							exact: selectedModel?.efforts !== undefined,
+						},
+						chosenEffort:
+							storedModel.pending !== null
+								? storedModel.pending.effort
+								: effortLadder.includes(
+											projection?.effort || listRow?.effort || "",
+										)
+									? projection?.effort || listRow?.effort || null
+									: null,
+						defaultEffort: null,
+						catalogueLoading: storedModel.loading,
+						connection: chipConnection,
+					});
+	}
 	/* A remote conversation keeps its model/effort VALUE visible but disabled
 	 *  when the relay does not forward `set_model`/`set_effort` (R1-1/U2). */
 	const chipLabels =
@@ -538,7 +600,8 @@ function Session() {
 			: {
 					model: remoteChip(
 						sessionChips.model,
-						controlPolicy.allows("set_model"),
+						headerHealth(projection, runtime.link) !== "ended" &&
+							controlPolicy.allows("set_model"),
 						ownerLabel,
 					),
 					effort:
@@ -546,7 +609,8 @@ function Session() {
 							? null
 							: remoteChip(
 									sessionChips.effort,
-									controlPolicy.allows("set_effort"),
+									headerHealth(projection, runtime.link) !== "ended" &&
+										controlPolicy.allows("set_effort"),
 									ownerLabel,
 								),
 				};
@@ -632,7 +696,7 @@ function Session() {
 	 *  dot, no announcement (review M3, UX U4/U5). */
 	const health = headerHealth(projection, runtime.link);
 	const ended = health === "ended";
-	const resume = useResume(sessionId, ended);
+	const resume = useResume(sessionId, ended, storedModel.resume);
 	/* Resume is a connected-computer route with no remote form in v1; offered only
 	 *  when the relay advertises it for this conversation (always, for local). */
 	const resumeOffered = ended && controlPolicy.allows("resume");
@@ -1951,10 +2015,22 @@ function Session() {
 			<ModelSheet
 				visible={modelsOpen}
 				onClose={() => setModelsOpen(false)}
-				models={runtime.models}
-				selected={projection?.model_selector ?? ""}
+				models={pickerModels}
+				selected={
+					storedModel.pending?.model.selector ??
+					projection?.model_selector ??
+					""
+				}
+				loading={storedPicker && storedModel.loading}
+				failed={storedPicker && storedModel.failed}
+				onRetry={storedPicker ? storedModel.retry : undefined}
 				onPick={(model) => {
+					if (composer.sending || resume.busy) return;
 					setChipError(null);
+					if (storedPicker) {
+						storedModel.pick(model);
+						return;
+					}
 					void runtime.source.endpoints
 						?.command(sessionId, {
 							op: "set_model",
@@ -1971,9 +2047,14 @@ function Session() {
 				visible={effortOpen && effortLadder.length > 0}
 				onClose={() => setEffortOpen(false)}
 				ladder={effortLadder}
-				selected={projection?.effort ?? ""}
+				selected={storedModel.pending?.effort ?? projection?.effort ?? ""}
 				onPick={(effort) => {
+					if (composer.sending || resume.busy) return;
 					setChipError(null);
+					if (storedPicker) {
+						if (selectedModel !== null) storedModel.pick(selectedModel, effort);
+						return;
+					}
 					void runtime.source.endpoints
 						?.command(sessionId, {
 							op: "set_effort",

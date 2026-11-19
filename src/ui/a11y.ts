@@ -666,6 +666,8 @@ export const CONTROL = {
 	 *  swallowed into an empty catalogue, which read as "connected, no model". */
 	homeModelsBanner: "home-models-banner",
 	homeModelsRetry: "home-models-retry",
+	/** The stored-session picker can recover its catalogue without waking a host. */
+	sessionModelsRetry: "session-models-retry",
 	/** The model picker's "back to what the computer would have used" row, shown
 	 *  while the computer names no default model (reviews R5, #174 D1). With a named
 	 *  default, that model's own row is the way back. */
