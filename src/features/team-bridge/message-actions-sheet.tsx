@@ -49,6 +49,7 @@ import type { Message } from "@/team-bridge/contract";
 import { ROLE, SURFACE, teamBridgeMessageActionId } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Sheet } from "@/ui/components/sheet";
+import { useIsRTL } from "@/ui/direction";
 import { cx } from "@/ui/variants";
 
 export type MessageAction = "reply_in_thread" | "copy_text" | "select_text";
@@ -75,6 +76,33 @@ export const messageActions = (
 	return list;
 };
 
+/**
+ * Whether a chosen action waits for the sheet's `onDismiss` before it runs.
+ *
+ * iOS: a push or a focused selection view started under a still-presented
+ * modal is swallowed by it (the attach sheet's rule, `attach-handoff.ts`).
+ *
+ * WEB, TOO (PR #339 round 1, U1/D1/Q2): react-native-web's Modal returns
+ * focus to the element that held it when the sheet OPENED, and it does that
+ * after `visible` went false — while the closing sheet is still mounted, its
+ * focus trap also pulls focus back to its own Close button. "Reply in thread"
+ * pushed at once, the thread screen's `autoFocus` composer took focus, and
+ * the closing sheet took it straight back (measured: composer focused at
+ * 1197 ms, Close at 1198 ms, `body` once the sheet unmounted; focused on
+ * arrival in 1 of 4 QA trials). The kit's web `onDismiss` fires only after
+ * that focus return (`Sheet`, `@/ui/modal-dismissal-ledger`), so an action
+ * run from it — the push, the copy, the selection — is the last thing to
+ * move focus. Deferring the navigation was chosen over suppressing the
+ * sheet's focus return because the return is RNW's own (no kit seam turns
+ * it off) and is correct for every action that does NOT navigate.
+ *
+ * ANDROID runs at once: it never fires `onDismiss`, and its Modal does no
+ * DOM focus return. No timer fallback anywhere, for the attach sheet's
+ * reason: a lost `onDismiss` drops the action, and a second press works.
+ */
+export const runsAfterDismissal = (os: string): boolean =>
+	os === "ios" || os === "web";
+
 /** The selection-mode id of one message on one screen (`HostSelection.id`). */
 export const bridgeSelectionId = (
 	scope: MessageActionsScope,
@@ -92,6 +120,13 @@ const ACTION_ICON = {
 	copy_text: Copy,
 	select_text: TextCursor,
 } as const;
+
+/* The reply glyph's arrow points back at the message being answered, a
+ *  reading-direction affordance like `BackIcon`'s, so it mirrors in RTL
+ *  (design round 1, D6). Lucide has no mirrored twin of `MessageSquareReply`,
+ *  so this one is flipped with a transform; Copy and the text cursor depict
+ *  objects and stay as drawn. */
+const MIRRORS_IN_RTL: ReadonlySet<MessageAction> = new Set(["reply_in_thread"]);
 
 const NO_ACCESSIBILITY: SelectTextAccessibility = {};
 
@@ -146,10 +181,10 @@ export function useMessageActions({
 		open: boolean;
 	} | null>(null);
 	const showToast = useUiStore((state) => state.showToast);
-	/* The attach sheet's handoff rule: on iOS a choice runs only after the
-	 *  modal's native dismissal (`onDismiss`), because a push or a focused
-	 *  selection view started under a still-presented modal is swallowed by
-	 *  it. Elsewhere it runs at once (Android never fires `onDismiss`). */
+	/* The attach sheet's handoff, with one difference: here a choice waits for
+	 *  the sheet's `onDismiss` on the web as well as on iOS
+	 *  (`runsAfterDismissal`). Android, which never fires `onDismiss`, still
+	 *  runs it at once. */
 	const handoff = useRef(createAttachmentSheetHandoff()).current;
 	useEffect(() => () => handoff.cancel(), [handoff]);
 	const replyRef = useRef(onReplyInThread);
@@ -205,10 +240,16 @@ export function useMessageActions({
 		(action: MessageAction) => {
 			if (!message) return;
 			close();
-			handoff.choose(() => run(action, message), Platform.OS);
+			const afterDismissal = runsAfterDismissal(Platform.OS);
+			/* The shared handoff spells "wait for onDismiss" as the "ios"
+			 *  platform; `runsAfterDismissal` decides which platforms take it. */
+			handoff.choose(
+				() => run(action, message),
+				afterDismissal ? "ios" : Platform.OS,
+			);
 			// Android never fires `onDismiss`, so nothing else clears the
 			// closed target there; keeping it would pin the row's tint.
-			if (Platform.OS !== "ios")
+			if (!afterDismissal)
 				setTarget((current) => (current && !current.open ? null : current));
 		},
 		[message, close, handoff, run],
@@ -248,6 +289,7 @@ export function MessageActionsSheet({
 	onDismiss?: () => void;
 }) {
 	const iconColor = useTokenColor("ink-muted");
+	const rtl = useIsRTL();
 	return (
 		<Sheet
 			visible={visible}
@@ -276,7 +318,15 @@ export function MessageActionsSheet({
 										pressed ? "bg-row-hover" : "bg-transparent",
 									)}
 								>
-									<Icon size={20} color={iconColor} aria-hidden />
+									<View
+										style={
+											rtl && MIRRORS_IN_RTL.has(action)
+												? { transform: [{ scaleX: -1 }] }
+												: undefined
+										}
+									>
+										<Icon size={20} color={iconColor} aria-hidden />
+									</View>
 									<Text className="min-w-0 flex-1 text-body text-ink">
 										{label}
 									</Text>

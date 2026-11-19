@@ -28,6 +28,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocaleFrame } from "@/features/auth/connection-provider";
+import {
+	textSelectionContainerScroll,
+	textSelectionContainerTouch,
+	textSelectionContainerTouchCancel,
+	textSelectionContainerTouchEnd,
+} from "@/features/session/text-selection";
 import { activeLocale, t } from "@/i18n";
 import type { DirectoryMember, Message } from "@/team-bridge/contract";
 import * as model from "@/team-bridge/model";
@@ -205,14 +211,18 @@ function ReplyThreadContent({
 	const rows = useMemo<Row[]>(() => {
 		if (!thread?.root) return [];
 		const root = thread.root;
+		// The SERVED count, never `replies.length`: a page can hold fewer.
+		const count = root.reply_count ?? 0;
 		return [
 			{ type: "message", key: root.id, message: root, root: true },
-			{
-				type: "divider",
-				key: "divider",
-				// The SERVED count, never `replies.length`: a page can hold fewer.
-				count: root.reply_count ?? 0,
-			},
+			/* No "0 replies" divider over the empty line ("No replies yet. Start
+			 *  the thread."): it said the same thing twice, and "Reply in
+			 *  thread" made that the first frame of the headline flow (PR #339
+			 *  design round 1, D5). Kept when replies are loaded even if the
+			 *  served count lags behind them. */
+			...(count === 0 && thread.replies.length === 0
+				? []
+				: [{ type: "divider" as const, key: "divider", count }]),
 			...thread.replies.map(
 				(message): Row => ({
 					type: "message",
@@ -357,6 +367,15 @@ function ReplyThreadContent({
 						renderItem={renderItem}
 						onViewableItemsChanged={onViewableItemsChanged}
 						viewabilityConfig={viewabilityConfig}
+						/* The timeline's selection-mode container handlers: on
+						 *  Android the hosted "Select text" mode ends only when these
+						 *  see a tap outside the message, so without them it never
+						 *  ended here and that row's hold started native selection
+						 *  instead of opening the sheet (PR #339 round 1, m2). */
+						onTouchStart={textSelectionContainerTouch}
+						onTouchEnd={textSelectionContainerTouchEnd}
+						onTouchCancel={textSelectionContainerTouchCancel}
+						onScrollBeginDrag={textSelectionContainerScroll}
 						refreshControl={
 							<RefreshControl refreshing={refreshing} onRefresh={refresh} />
 						}

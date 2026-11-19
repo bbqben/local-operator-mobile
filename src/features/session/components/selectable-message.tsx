@@ -50,6 +50,7 @@ import {
 } from "react";
 import {
 	type AccessibilityActionEvent,
+	Platform,
 	Pressable,
 	Text,
 	TextInput,
@@ -108,7 +109,7 @@ export type SelectTextAccessibility = Pick<
  * rest and become selectable only for the message put in the mode — the one
  * regression this costs (partial selection is one tap further away, in
  * Bridge only; the session transcript passes no host selection and is
- * unchanged).
+ * unchanged). The web keeps its leaves selectable at rest (`leaves` below).
  */
 export type HostSelection = {
 	/** Stable, screen-unique id; the mode store and `requestTextSelection`
@@ -294,7 +295,16 @@ export function SelectableMessage({
 	);
 
 	const hostLongPress = host?.onLongPress;
-	const leaves = hosted ? !usesSelectionMode() && selecting : LEAF_SELECTABLE;
+	/* WEB keeps its leaves selectable at rest even with a host (PR #339 QA
+	 *  round 1, Q3): a desktop browser reader expects to drag-select text, and
+	 *  a mouse drag does not race the row's long-press the way Android's
+	 *  native `selectable` hold does (a press-and-hold without moving selects
+	 *  nothing, so the sheet still opens). Android stays off until the mode. */
+	const leaves = hosted
+		? Platform.OS === "web"
+			? leafSelectable()
+			: !usesSelectionMode() && selecting
+		: LEAF_SELECTABLE;
 	const context = useMemo(
 		() => ({
 			// A nested pressable's hold opens the host's sheet, not the mode.

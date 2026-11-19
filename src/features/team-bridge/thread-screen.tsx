@@ -6,7 +6,15 @@ import {
 	ClipboardPaste,
 	ImagePlus,
 } from "lucide-react-native";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	memo,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from "react";
 import {
 	Animated,
 	AppState,
@@ -25,10 +33,13 @@ import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff"
 import { Markdown } from "@/features/session/components/markdown";
 import type { HostSelection } from "@/features/session/components/selectable-message";
 import {
+	activeTextSelection,
+	subscribeTextSelection,
 	textSelectionContainerScroll,
 	textSelectionContainerTouch,
 	textSelectionContainerTouchCancel,
 	textSelectionContainerTouchEnd,
+	usesSelectionMode,
 } from "@/features/session/text-selection";
 import { activeLocale, type ShippedLocale, t } from "@/i18n";
 import { useUiStore } from "@/state/ui-store";
@@ -286,6 +297,26 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 				: undefined,
 		[actions, message, locale],
 	);
+	/* A message with no text has no body leaf to carry the screen-reader
+	 *  actions: its timestamp, its "no text" line and its attachment tiles do
+	 *  instead. The tiles matter for a same-sender continuation, which renders
+	 *  no timestamp (PR #339 round 1, M2). */
+	const bodylessAccessibility =
+		host && !message.body?.trim() ? host.accessibility : undefined;
+	/* Off iOS, "Select text" only makes the leaves selectable — nothing you can
+	 *  see (design round 1, D2: 0 pixels changed). The row holds the same
+	 *  referent layer while it is in the mode, so the reader can see which
+	 *  message is armed and that a tap elsewhere ends it. iOS swaps in its own
+	 *  visible selection view, so it is excluded. */
+	const hostId = host?.id;
+	const selecting = useSyncExternalStore(
+		subscribeTextSelection,
+		() =>
+			hostId !== undefined &&
+			!usesSelectionMode() &&
+			activeTextSelection() === hostId,
+	);
+	const referent = actionsOpen || selecting;
 	return (
 		<Pressable
 			className={`flex-row gap-3 px-4 ${continuation ? "py-0.5" : "pt-3 pb-0.5"}`}
@@ -302,13 +333,18 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					: undefined
 			}
 		>
-			{actionsOpen ? (
+			{referent ? (
 				/* Painted beneath the content on its own layer, like the anchor
-				 *  highlight, so opening the sheet shifts no geometry. */
+				 *  highlight, so opening the sheet shifts no geometry.
+				 *  The ACCENT start edge is what survives the sheet's scrim (design
+				 *  round 1, D3): `row-selected` is 1.06:1 against the canvas, and
+				 *  under the 70 % scrim it measured 1.03:1 (light) / 1.04:1 (dark) —
+				 *  the pressed row could not be picked out. `border-s` is logical,
+				 *  so the edge follows the reading start in RTL. */
 				<View
 					pointerEvents="none"
 					aria-hidden
-					className="absolute inset-0 bg-row-selected"
+					className="absolute inset-0 border-s-4 border-accent bg-row-selected"
 					testID={SURFACE.teamBridgeMessageActionsTint}
 				/>
 			) : null}
@@ -318,7 +354,11 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 			<View className="w-8">
 				{!continuation &&
 					(subject ? (
-						<ProfileAuthorPhoto subject={subject} onOpen={onOpenProfile} />
+						<ProfileAuthorPhoto
+							subject={subject}
+							onOpen={onOpenProfile}
+							onLongPress={host?.onLongPress}
+						/>
 					) : (
 						<View className="mt-0.5">
 							<UnknownSenderAvatar kind={message.sender.kind} size="sm" />
@@ -339,6 +379,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 								label={sender}
 								onOpen={onOpenProfile}
 								testID={teamBridgeProfileOpenId(message.id)}
+								onLongPress={host?.onLongPress}
 							/>
 						) : (
 							<Text className="py-0.5 text-body-read font-semibold text-ink">
@@ -350,7 +391,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 							/* A message with no text has no body leaf to carry the
 							 *  actions (an image-only root): its time does instead, so
 							 *  "Reply in thread" stays reachable without a hold. */
-							{...(host && !message.body?.trim() ? host.accessibility : {})}
+							{...bodylessAccessibility}
 						>
 							{/* The APP language, not the device default: with no locale
 							 *  `toLocaleTimeString` follows the device, so a Spanish-UI
@@ -360,7 +401,10 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					</View>
 				)}
 				{message.body === null ? (
-					<Text className="text-body-read italic text-ink-dim">
+					<Text
+						className="text-body-read italic text-ink-dim"
+						{...bodylessAccessibility}
+					>
 						{t("mobile.team_bridge.thread.body_unavailable")}
 					</Text>
 				) : message.body.trim() === "" ? (
@@ -370,7 +414,10 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					 * this build does not render), say so instead of an empty bubble.
 					 */
 					attachments.length === 0 ? (
-						<Text className="text-body-read italic text-ink-dim">
+						<Text
+							className="text-body-read italic text-ink-dim"
+							{...bodylessAccessibility}
+						>
 							{t("mobile.team_bridge.attachment.unsupported_content")}
 						</Text>
 					) : null
@@ -384,6 +431,8 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					messageId={message.id}
 					attachments={attachments}
 					initialViewerIndex={initialViewerIndex}
+					onLongPress={host?.onLongPress}
+					accessibility={bodylessAccessibility}
 				/>
 				<MessageDelivery message={message} onHelp={onDeliveryHelp} />
 				{replies && onOpenReplyThread ? (
@@ -393,6 +442,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 						people={people}
 						locale={locale}
 						onOpen={onOpenReplyThread}
+						onLongPress={host?.onLongPress}
 					/>
 				) : null}
 			</View>

@@ -25,13 +25,34 @@ const rec = vi.hoisted(() => ({
 	visible: false,
 	clipboard: [] as string[],
 	haptics: [] as string[],
+	rtl: false,
+	/** Mount counts by testID: a memoised row that does not re-render keeps
+	 *  its children mounted, so presence is tracked by effect, not by render. */
+	mounted: new Map<string, number>(),
+	viewStyles: [] as unknown[],
+	/** Props the stubbed children last received, by component. */
+	child: new Map<string, Record<string, unknown>>(),
 }));
 
 vi.mock("react-native", async (importOriginal) => {
 	const rnw = (await importOriginal()) as Record<string, unknown>;
-	const { createElement } = await import("react");
+	const { createElement, useEffect } = await import("react");
 	return {
 		...rnw,
+		View: (props: { testID?: string; style?: unknown; className?: string }) => {
+			useEffect(() => {
+				const id = props.testID;
+				if (!id) return;
+				rec.mounted.set(id, (rec.mounted.get(id) ?? 0) + 1);
+				return () => {
+					rec.mounted.set(id, (rec.mounted.get(id) ?? 1) - 1);
+				};
+			}, [props.testID]);
+			if (props.style) rec.viewStyles.push(props.style);
+			if (props.testID)
+				rec.child.set(props.testID, props as Record<string, unknown>);
+			return createElement(rnw.View as never, props);
+		},
 		Platform: {
 			...(rnw.Platform as object),
 			get OS() {
@@ -174,14 +195,33 @@ vi.mock("@/ui/components/sheet", () => ({
 	},
 }));
 vi.mock("./profile-card", () => ({
-	ProfileAuthorName: () => null,
-	ProfileAuthorPhoto: () => null,
+	ProfileAuthorName: (props: Record<string, unknown>) => {
+		rec.child.set("ProfileAuthorName", props);
+		return null;
+	},
+	ProfileAuthorPhoto: (props: Record<string, unknown>) => {
+		rec.child.set("ProfileAuthorPhoto", props);
+		return null;
+	},
 	ProfileSheet: () => null,
 	UnknownSenderAvatar: () => null,
 }));
 vi.mock("./attachment-views", () => ({
-	MessageAttachments: () => null,
+	MessageAttachments: (props: Record<string, unknown>) => {
+		rec.child.set("MessageAttachments", props);
+		return null;
+	},
 	ComposerAttachments: () => null,
+}));
+vi.mock("./reply-thread-chip", () => ({
+	ReplyThreadChip: (props: Record<string, unknown>) => {
+		rec.child.set("ReplyThreadChip", props);
+		return null;
+	},
+}));
+vi.mock("@/ui/direction", async (importOriginal) => ({
+	...((await importOriginal()) as object),
+	useIsRTL: () => rec.rtl,
 }));
 vi.mock("./message-delivery", () => ({ MessageDelivery: () => null }));
 /* The rest of thread-screen's import graph that ships native or Flow source
@@ -242,9 +282,11 @@ vi.mock("uniwind", () => ({
 
 const { installDomShim } = await import("@/testing/dom-shim");
 const { resetLocaleSource, setLocaleSource } = await import("@/i18n/locale");
-const { message: fixture, SELF } = await import(
-	"@/team-bridge/__tests__/fixtures"
-);
+const {
+	message: fixture,
+	person: personFixture,
+	SELF,
+} = await import("@/team-bridge/__tests__/fixtures");
 const { replyThreadPath } = await import("@/team-bridge/reply-threads");
 const { useUiStore } = await import("@/state/ui-store");
 const a11y = await import("@/ui/a11y");
@@ -267,11 +309,17 @@ function Harness({
 	scope = "timeline",
 	canReplyInThread = true,
 	onReplyInThread,
+	continuation = false,
+	onOpenReplyThread,
+	people = [],
 }: {
 	message: Message;
 	scope?: "timeline" | "reply";
 	canReplyInThread?: boolean;
 	onReplyInThread?: (rootId: string) => void;
+	continuation?: boolean;
+	onOpenReplyThread?: (rootId: string) => void;
+	people?: readonly unknown[];
 }) {
 	const actions = sheetModule.useMessageActions({
 		scope,
@@ -284,8 +332,9 @@ function Harness({
 		null,
 		createElement(ThreadMessageRow, {
 			message,
-			continuation: false,
-			people: [],
+			continuation,
+			onOpenReplyThread,
+			people: people as never,
 			hub,
 			tenantId: "ten_x",
 			onOpenProfile: () => {},
@@ -309,6 +358,10 @@ beforeEach(() => {
 	rec.visible = false;
 	rec.clipboard.length = 0;
 	rec.haptics.length = 0;
+	rec.rtl = false;
+	rec.mounted.clear();
+	rec.viewStyles.length = 0;
+	rec.child.clear();
 	setLocaleSource(() => "en");
 	useUiStore.setState({ toast: null });
 	dom = installDomShim();
@@ -336,6 +389,9 @@ const longPress = (m: Message) => {
 	return act(async () => press());
 };
 const sheetOpen = () => rec.visible;
+/** The row's referent layer (sheet open, or in the Select text mode). */
+const tinted = () =>
+	(rec.mounted.get(a11y.SURFACE.teamBridgeMessageActionsTint) ?? 0) > 0;
 const offered = () =>
 	(["reply_in_thread", "copy_text", "select_text"] as const).filter((a) =>
 		rec.presses.has(a11y.teamBridgeMessageActionId(a)),
@@ -388,11 +444,17 @@ describe("long-press opens the sheet (timeline row)", () => {
 	it("opens with a light haptic, tints the row, offers all three actions", async () => {
 		await render({ message: ROOT, onReplyInThread: vi.fn() });
 		expect(sheetOpen()).toBe(false);
-		expect(dom.container.innerHTML ?? "").not.toContain(
-			a11y.SURFACE.teamBridgeMessageActionsTint,
-		);
+		expect(tinted()).toBe(false);
 		await longPress(ROOT);
 		expect(rec.haptics).toEqual(["light"]);
+		expect(tinted()).toBe(true);
+		/* Design round 1 D3: `row-selected` alone measured 1.03:1 under the
+		 *  scrim; the accent start edge is what marks the referent there. */
+		expect(
+			String(
+				rec.child.get(a11y.SURFACE.teamBridgeMessageActionsTint)?.className,
+			).split(" "),
+		).toEqual(expect.arrayContaining(["border-s-4", "border-accent"]));
 		expect(offered()).toEqual(["reply_in_thread", "copy_text", "select_text"]);
 		expect(
 			rec.presses.get(a11y.teamBridgeMessageActionId("reply_in_thread"))
@@ -419,6 +481,29 @@ describe("long-press opens the sheet (timeline row)", () => {
 		await longPress(ROOT);
 		await choose("reply_in_thread");
 		expect(onReplyInThread).toHaveBeenCalledWith(ROOT.id);
+	});
+
+	/* Round 1 U1/D1/Q2: on web the closing sheet's focus return took focus
+	 *  back from the composer the push had just focused. */
+	it("web waits for the sheet's onDismiss (after its focus return) before pushing", async () => {
+		rec.os = "web";
+		const onReplyInThread = vi.fn();
+		await render({ message: ROOT, onReplyInThread });
+		await longPress(ROOT);
+		await choose("reply_in_thread");
+		expect(onReplyInThread).not.toHaveBeenCalled();
+		await nativeDismiss();
+		expect(onReplyInThread).toHaveBeenCalledTimes(1);
+		expect(onReplyInThread).toHaveBeenCalledWith(ROOT.id);
+		expect(tinted()).toBe(false);
+	});
+
+	it("which platforms run a choice after the dismissal", () => {
+		expect(
+			(["ios", "web", "android"] as const).map((os) =>
+				sheetModule.runsAfterDismissal(os),
+			),
+		).toEqual([true, true, false]);
 	});
 
 	it("Copy text puts the PLAIN text on the clipboard and confirms with a toast", async () => {
@@ -454,6 +539,36 @@ describe("long-press opens the sheet (timeline row)", () => {
 		await longPress(ROOT);
 		await choose("select_text");
 		expect(bodyLeaf()).toBe(true);
+	});
+
+	/* Design round 1 D2: off iOS the mode changed nothing you could see. */
+	it("Android holds the referent tint while the message is in the mode, and drops it on exit", async () => {
+		rec.os = "android";
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		await longPress(ROOT);
+		await choose("select_text");
+		expect(sheetOpen()).toBe(false);
+		expect(tinted()).toBe(true);
+		await act(async () => selection.exitTextSelection());
+		expect(tinted()).toBe(false);
+	});
+
+	it("iOS adds no row tint in the mode (its selection view is the visible state)", async () => {
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		await longPress(ROOT);
+		await choose("select_text");
+		await nativeDismiss();
+		expect(selection.activeTextSelection()).not.toBeNull();
+		expect(tinted()).toBe(false);
+	});
+
+	/* QA round 1 Q3: desktop-browser readers expect to drag-select. */
+	it("web keeps the body selectable at rest", async () => {
+		rec.os = "web";
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		expect(rec.texts.filter((t) => "selectable" in t).at(-1)?.selectable).toBe(
+			true,
+		);
 	});
 
 	it("a read-only conversation does not offer Reply in thread", async () => {
@@ -508,6 +623,31 @@ describe("screen readers reach every action without a long-press", () => {
 		]);
 	});
 
+	/* Round 1 M2: a same-sender continuation renders no timestamp, so an
+	 *  image-only one had no element carrying the actions. */
+	it("an image-only CONTINUATION carries the actions on its attachment tiles", async () => {
+		const onReplyInThread = vi.fn();
+		await render({ message: IMAGE_ONLY, onReplyInThread, continuation: true });
+		const tiles = rec.child.get("MessageAttachments");
+		expect(tiles?.accessibility).toMatchObject({
+			accessibilityActions: [
+				{ name: "reply_in_thread", label: "Reply in thread" },
+			],
+		});
+		await act(async () =>
+			handler(
+				tiles?.accessibility as Record<string, unknown>,
+				"onAccessibilityAction",
+			)({ nativeEvent: { actionName: "reply_in_thread" } }),
+		);
+		expect(onReplyInThread).toHaveBeenCalledWith(IMAGE_ONLY.id);
+	});
+
+	it("a message WITH text leaves the tiles to their own labels", async () => {
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		expect(rec.child.get("MessageAttachments")?.accessibility).toBeUndefined();
+	});
+
 	it("the row container is not one accessibility element (links stay reachable)", async () => {
 		await render({ message: ROOT, onReplyInThread: vi.fn() });
 		expect(row(ROOT)?.accessible).toBe(false);
@@ -535,5 +675,84 @@ describe("the reply thread focuses its composer when opened to compose", () => {
 	});
 	it("the composer field passes autoFocus through to its input", () => {
 		expect(source("./thread-chrome.tsx")).toMatch(FIELD_AUTOFOCUS);
+	});
+});
+
+/* Round 1 m1/U2/U6: a Pressable with onPress and no onLongPress releases a
+ *  hold as a press, so the image, name, photo and reply chip swallowed it. */
+describe("a hold on a control inside the row opens the row's sheet", () => {
+	const REPLIED = { ...ROOT, reply_count: 2 } as Message;
+	for (const child of [
+		"MessageAttachments",
+		"ProfileAuthorName",
+		"ProfileAuthorPhoto",
+		"ReplyThreadChip",
+	]) {
+		it(child, async () => {
+			rec.child.clear();
+			await render({
+				message: REPLIED,
+				onReplyInThread: vi.fn(),
+				onOpenReplyThread: vi.fn(),
+				// A sender the directory knows, so the name and photo render.
+				people: [personFixture(SELF, "Sam")],
+			});
+			const hold = handler(rec.child.get(child), "onLongPress");
+			await act(async () => hold());
+			expect(sheetOpen()).toBe(true);
+			expect(rec.haptics).toEqual(["light"]);
+		});
+	}
+});
+
+/* Design round 1 D6. */
+describe("the Reply in thread icon mirrors in RTL", () => {
+	const mirrored = () =>
+		rec.viewStyles.filter(
+			(style) =>
+				JSON.stringify(style) ===
+				JSON.stringify({ transform: [{ scaleX: -1 }] }),
+		).length;
+	it("ltr: drawn as is", async () => {
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		await longPress(ROOT);
+		expect(mirrored()).toBe(0);
+	});
+	it("rtl: only the reply glyph flips", async () => {
+		rec.rtl = true;
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		rec.viewStyles.length = 0;
+		await longPress(ROOT);
+		expect(offered()).toEqual(["reply_in_thread", "copy_text", "select_text"]);
+		expect(mirrored()).toBeGreaterThan(0);
+	});
+	it("rtl: Copy and Select text stay as drawn", async () => {
+		rec.rtl = true;
+		await render({ message: REPLY, scope: "reply", canReplyInThread: false });
+		rec.viewStyles.length = 0;
+		await longPress(REPLY);
+		expect(offered()).toEqual(["copy_text", "select_text"]);
+		expect(mirrored()).toBe(0);
+	});
+});
+
+const SELECTION_CONTAINER_WIRING = [
+	/onTouchStart=\{textSelectionContainerTouch\}/,
+	/onTouchEnd=\{textSelectionContainerTouchEnd\}/,
+	/onTouchCancel=\{textSelectionContainerTouchCancel\}/,
+	/onScrollBeginDrag=\{textSelectionContainerScroll\}/,
+];
+const NO_DIVIDER_AT_ZERO =
+	/count === 0 && thread\.replies\.length === 0\s*\?\s*\[\]/;
+/* The reply screen is pinned in source (see above). */
+describe("the reply thread screen", () => {
+	const screen = () =>
+		readFileSync(new URL("./reply-thread-screen.tsx", import.meta.url), "utf8");
+	it("wires the selection container handlers, so an outside tap ends Select text (round 1, m2)", () => {
+		for (const wiring of SELECTION_CONTAINER_WIRING)
+			expect(screen()).toMatch(wiring);
+	});
+	it("omits the divider at zero replies (design round 1, D5)", () => {
+		expect(screen()).toMatch(NO_DIVIDER_AT_ZERO);
 	});
 });
