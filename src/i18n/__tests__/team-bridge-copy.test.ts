@@ -89,8 +89,9 @@ describe("Team Bridge copy", () => {
 		// Exact merged attachment + consent + established key union; +2:
 		// `thread.jump_newest` and `thread.anchor_missing` (feat/bridge-last-target's
 		// anchored open); +1: `list.catching_up`; +10: `reply_thread.*`;
-		// +9 `mentions.*` (@-mention suggestions, #305): 170 + 9 = 179.
-		expect(keys).toHaveLength(179);
+		// +9 `mentions.*` (@-mention suggestions, #305): 170 + 9 = 179;
+		// +5 `actions.*` (the message-actions sheet, #339): 184.
+		expect(keys).toHaveLength(184);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))
@@ -215,14 +216,12 @@ describe("Team Bridge copy", () => {
 	it("wires scanner-blind row, composer and preference copy through the runtime", () => {
 		for (const [file, keys] of [
 			["navigation", ["navigation.entry", "navigation.caption"]],
+			// The org switcher sheet moved out of the list (community review round
+			// 1, R1-3) so a community can open it too; its row label went with it.
+			["org-switcher-sheet", ["list.organization_label", "list.organization"]],
 			[
 				"list-screen",
-				[
-					"list.organization_label",
-					"list.organization_selected",
-					"unread",
-					"list.person_unavailable",
-				],
+				["list.organization_selected", "unread", "list.person_unavailable"],
 			],
 			[
 				"thread-screen",

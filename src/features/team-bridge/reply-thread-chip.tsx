@@ -57,6 +57,7 @@ export function ReplyThreadChip({
 	people: directory,
 	locale,
 	onOpen,
+	onLongPress,
 }: {
 	rootId: string;
 	summary: ReplyThreadSummary;
@@ -64,6 +65,11 @@ export function ReplyThreadChip({
 	people: readonly DirectoryMember[];
 	locale: ShippedLocale;
 	onOpen: (rootId: string) => void;
+	/** The message row's long-press (its actions sheet). A Pressable with
+	 *  `onPress` but no `onLongPress` turns a hold into a press on release, so
+	 *  without this the innermost control took the hold and the row's sheet
+	 *  never opened (PR #339 round 1, m1/U2/U6). */
+	onLongPress?: () => void;
 }) {
 	const accent = useTokenColor("accent");
 	const unread = showsThreadUnread(summary) ? (summary.unread ?? 0) : 0;
@@ -84,6 +90,7 @@ export function ReplyThreadChip({
 			}
 			testID={teamBridgeReplyThreadOpenId(rootId)}
 			onPress={() => onOpen(rootId)}
+			onLongPress={onLongPress}
 			/* The touch floor, not the text's height: this is the only way into
 			 *  the thread from the timeline. Content TOP-aligned inside that floor
 			 *  (design review D2): centred, the 18 pt line floated 20 pt under its

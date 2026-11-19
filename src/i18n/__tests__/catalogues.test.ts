@@ -20,6 +20,8 @@ import chromeContext from "@/i18n/catalogues/en/mobile.chrome.context.json";
 import chrome from "@/i18n/catalogues/en/mobile.chrome.json";
 import commonContext from "@/i18n/catalogues/en/mobile.common.context.json";
 import common from "@/i18n/catalogues/en/mobile.common.json";
+import communityContext from "@/i18n/catalogues/en/mobile.community.context.json";
+import community from "@/i18n/catalogues/en/mobile.community.json";
 import composerInputContext from "@/i18n/catalogues/en/mobile.composer_input.context.json";
 import composerInput from "@/i18n/catalogues/en/mobile.composer_input.json";
 import computersContext from "@/i18n/catalogues/en/mobile.computers.context.json";
@@ -74,11 +76,20 @@ const JSON_SUFFIX = /\.json$/;
 
 const NAMESPACES = [
 	{
+		name: "mobile.community",
+		messages: community,
+		context: communityContext,
+		// The public community client (RFC v2.4, dark behind EXPO_PUBLIC_COMMUNITY):
+		// 140 keys, +10 in review round 1's remediation = 150, counted over the
+		// en JSON.
+		expected: 150,
+	},
+	{
 		name: "mobile.team_bridge",
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 179, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, counted over the merged en JSON.
+		expected: 184, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON.
 	},
 	{
 		name: "mobile.signin",
@@ -577,7 +588,13 @@ describe("the English catalogues", () => {
 		 * #292 Pele diagrams +8, #305 mentions +9): all chains kept; main's 1128
 		 * + ADR 0010's 5 = 1133, as `generate.ts --check` reports for the merged
 		 * tree. */
-		expect(total).toBe(1133);
+		// feat/community: +140 mobile.community.* (the public community client)
+		// and +10 more from its review round 1 remediation, on main's 1133
+		// (ADR 0010 chain above) = 1283, re-derived over the rebased tree.
+		/* PR #339 (Team Bridge message actions sheet): + 5 mobile.team_bridge
+		 * actions.* keys (title, reply_in_thread, copy_text, select_text,
+		 * copied): 1283 + 5 = 1288. */
+		expect(total).toBe(1288);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -758,6 +775,14 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"« Message » is the French noun, spelled as in English (as « Messages » for relay.transcript.label.messages); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
 		"mobile.settings.section.notifications":
 			"« Notifications » is the French plural, spelled as in English (as mobile.notifications.title); the fr audit passed this Settings section header (i18n/audits/evidence/fr/mobile.settings/o3a-fr-b3177c/).",
+		"mobile.community.approvals.agent":
+			"Agent is also the French term for a software agent; this approval badge is the same idiomatic cognate as mobile.team_bridge.profile.badge_agent, not an English fallback.",
+		"mobile.community.conversation.agent":
+			"Agent is also the French term for a software agent; the author badge on an agent post matches mobile.team_bridge.profile.badge_agent, not an English fallback.",
+		"mobile.community.profile.message":
+			"« Message » is the French noun for the profile contact action, as mobile.team_bridge.profile.message; it sends a DM request, not an English fallback.",
+		"mobile.community.requests.dm":
+			"« Messages » is the French plural, spelled as in English (as relay.transcript.label.messages); the segment names direct-message requests.",
 	},
 	/* Spanish preserves these placeholder-only templates: names and separators
 	 * have no English prose to translate. Each key remains explicitly listed. */

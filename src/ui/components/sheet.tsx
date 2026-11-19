@@ -505,6 +505,25 @@ export const Sheet = ({
 				onDismiss={
 					Platform.OS === "web"
 						? () => {
+								/* ONLY ONCE THE SURFACE IS GONE (PR #339 round 2: UX U1,
+								 *  design D1, QA Q2). `useModalExit` sets `exiting` in an effect,
+								 *  so for the one commit between the caller's close and that
+								 *  update RNW's Modal is handed `visible=false`. With
+								 *  `animationType="none"` its `ModalAnimation` drops `isRendering`
+								 *  at once and calls this, although the next commit hands it
+								 *  `visible` again and the sheet — focus trap and scrim included —
+								 *  stays in the DOM for the whole exit. Anything a caller runs
+								 *  "after dismissal" then ran ~110 ms early: a route pushed from
+								 *  here had its autofocused composer robbed by the closing sheet's
+								 *  scrim, and focus ended on `body` at the real unmount (measured
+								 *  on the hosted web export, 0/10). While `shown` is still true
+								 *  the dismissal is that blip, not a dismissal; the real one
+								 *  arrives when the exit releases the Modal (`shown` false), so
+								 *  it is skipped here rather than delayed. Keyed on `shown`, not
+								 *  `exiting`: a sheet covered mid-exit is released too and must
+								 *  still settle. Pinned by `sheet-dismiss-timing.test.tsx`
+								 *  against RNW's real `ModalAnimation`. */
+								if (shown) return;
 								// Settle the fallback before publishing the ledger transition; Settings'
 								// refusal reveal must run after ALL focus-return work (#122).
 								if (

@@ -1,4 +1,24 @@
 {
+	"mobile.team_bridge.actions.copied": {
+		"role": "status",
+		"note": "Brief confirmation shown after Copy text put the message on the clipboard. Past participle, no object."
+	},
+	"mobile.team_bridge.actions.copy_text": {
+		"role": "button",
+		"note": "Row in the message-actions sheet that copies the whole message, as plain text without formatting, to the clipboard. Also a screen-reader action on the message."
+	},
+	"mobile.team_bridge.actions.reply_in_thread": {
+		"role": "button",
+		"note": "Row in the message-actions sheet that opens this message's reply thread (starting one if it has no replies yet) with the reply box focused. Same wording as mobile.team_bridge.reply_thread.reply; keep them identical."
+	},
+	"mobile.team_bridge.actions.select_text": {
+		"role": "button",
+		"note": "Row in the message-actions sheet that lets the reader select part of the message with drag handles, then copy or share it. Slack's label for the same action. Also a screen-reader action on the message."
+	},
+	"mobile.team_bridge.actions.title": {
+		"role": "heading",
+		"note": "Accessible name and title of the sheet that rises when a Team Bridge message is long-pressed (Slack-style message menu). Names the menu, not an action."
+	},
 	"mobile.team_bridge.back": {
 		"role": "button",
 		"note": "Team Bridge mobile UI: back. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state."
