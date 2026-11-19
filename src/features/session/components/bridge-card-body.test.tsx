@@ -154,7 +154,7 @@ describe("inbound Team Bridge card", () => {
 		["refused", "Refused by moderation."],
 		["pending", "Waiting to be delivered to your agent."],
 		["deleted", "This message was deleted."],
-		["offline", "Couldn't reach Radient — close and reopen to retry."],
+		["offline", "Couldn't reach Radient — reopen the conversation to retry."],
 		["unavailable", "Message body unavailable."],
 	] as const)("says %s in words, with no untrusted framing", (state, copy) => {
 		const markup = lines({ lines: [{ kind: "state", state }], more: 0 });

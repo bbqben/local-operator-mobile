@@ -1105,6 +1105,22 @@ export type CatalogueKey =
 	| "mobile.team_bridge.attachment.viewer"
 	| "mobile.team_bridge.attachment.wait_uploads"
 	| "mobile.team_bridge.back"
+	| "mobile.team_bridge.card_body.deleted"
+	| "mobile.team_bridge.card_body.held"
+	| "mobile.team_bridge.card_body.held_transient"
+	| "mobile.team_bridge.card_body.loading"
+	| "mobile.team_bridge.card_body.more_messages"
+	| "mobile.team_bridge.card_body.not_admitted"
+	| "mobile.team_bridge.card_body.not_member"
+	| "mobile.team_bridge.card_body.offline"
+	| "mobile.team_bridge.card_body.other_account"
+	| "mobile.team_bridge.card_body.pending"
+	| "mobile.team_bridge.card_body.refused"
+	| "mobile.team_bridge.card_body.show_less"
+	| "mobile.team_bridge.card_body.show_more"
+	| "mobile.team_bridge.card_body.signed_out"
+	| "mobile.team_bridge.card_body.unavailable"
+	| "mobile.team_bridge.card_body.untrusted"
 	| "mobile.team_bridge.conversation"
 	| "mobile.team_bridge.default_on.body"
 	| "mobile.team_bridge.default_on.dismiss"
@@ -2218,6 +2234,21 @@ export type NoParamKey =
 	| "mobile.team_bridge.attachment.viewer"
 	| "mobile.team_bridge.attachment.wait_uploads"
 	| "mobile.team_bridge.back"
+	| "mobile.team_bridge.card_body.deleted"
+	| "mobile.team_bridge.card_body.held"
+	| "mobile.team_bridge.card_body.held_transient"
+	| "mobile.team_bridge.card_body.loading"
+	| "mobile.team_bridge.card_body.not_admitted"
+	| "mobile.team_bridge.card_body.not_member"
+	| "mobile.team_bridge.card_body.offline"
+	| "mobile.team_bridge.card_body.other_account"
+	| "mobile.team_bridge.card_body.pending"
+	| "mobile.team_bridge.card_body.refused"
+	| "mobile.team_bridge.card_body.show_less"
+	| "mobile.team_bridge.card_body.show_more"
+	| "mobile.team_bridge.card_body.signed_out"
+	| "mobile.team_bridge.card_body.unavailable"
+	| "mobile.team_bridge.card_body.untrusted"
 	| "mobile.team_bridge.conversation"
 	| "mobile.team_bridge.default_on.body"
 	| "mobile.team_bridge.default_on.dismiss"
@@ -3460,6 +3491,22 @@ export type MessageParams = {
 	"mobile.team_bridge.attachment.viewer": NoParams;
 	"mobile.team_bridge.attachment.wait_uploads": NoParams;
 	"mobile.team_bridge.back": NoParams;
+	"mobile.team_bridge.card_body.deleted": NoParams;
+	"mobile.team_bridge.card_body.held": NoParams;
+	"mobile.team_bridge.card_body.held_transient": NoParams;
+	"mobile.team_bridge.card_body.loading": NoParams;
+	"mobile.team_bridge.card_body.more_messages": { count: number };
+	"mobile.team_bridge.card_body.not_admitted": NoParams;
+	"mobile.team_bridge.card_body.not_member": NoParams;
+	"mobile.team_bridge.card_body.offline": NoParams;
+	"mobile.team_bridge.card_body.other_account": NoParams;
+	"mobile.team_bridge.card_body.pending": NoParams;
+	"mobile.team_bridge.card_body.refused": NoParams;
+	"mobile.team_bridge.card_body.show_less": NoParams;
+	"mobile.team_bridge.card_body.show_more": NoParams;
+	"mobile.team_bridge.card_body.signed_out": NoParams;
+	"mobile.team_bridge.card_body.unavailable": NoParams;
+	"mobile.team_bridge.card_body.untrusted": NoParams;
 	"mobile.team_bridge.conversation": NoParams;
 	"mobile.team_bridge.default_on.body": NoParams;
 	"mobile.team_bridge.default_on.dismiss": NoParams;
@@ -4762,6 +4809,22 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.attachment.viewer": "Image viewer",
 	"mobile.team_bridge.attachment.wait_uploads": "Send is available when the images finish uploading.",
 	"mobile.team_bridge.back": "Back",
+	"mobile.team_bridge.card_body.deleted": "This message was deleted.",
+	"mobile.team_bridge.card_body.held": "Held by moderation.",
+	"mobile.team_bridge.card_body.held_transient": "Waiting for screening — not shown to your agent yet.",
+	"mobile.team_bridge.card_body.loading": "Loading message…",
+	"mobile.team_bridge.card_body.more_messages": "{count, plural, one {# more message in this card} other {# more messages in this card}}",
+	"mobile.team_bridge.card_body.not_admitted": "Not delivered to your agent.",
+	"mobile.team_bridge.card_body.not_member": "You are no longer in this conversation.",
+	"mobile.team_bridge.card_body.offline": "Couldn't reach Radient — reopen the conversation to retry.",
+	"mobile.team_bridge.card_body.other_account": "Received under another Radient account.",
+	"mobile.team_bridge.card_body.pending": "Waiting to be delivered to your agent.",
+	"mobile.team_bridge.card_body.refused": "Refused by moderation.",
+	"mobile.team_bridge.card_body.show_less": "Show less",
+	"mobile.team_bridge.card_body.show_more": "Show more",
+	"mobile.team_bridge.card_body.signed_out": "Sign in to Radient to see this message.",
+	"mobile.team_bridge.card_body.unavailable": "Message body unavailable.",
+	"mobile.team_bridge.card_body.untrusted": "External message · untrusted content",
 	"mobile.team_bridge.conversation": "Conversation",
 	"mobile.team_bridge.default_on.body": "Your organization’s agents can message your chief of staff. You can turn this off at any time.",
 	"mobile.team_bridge.default_on.dismiss": "Dismiss",
@@ -6049,6 +6112,22 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.attachment.viewer": { role: "status", note: "Team Bridge image attachments: viewer. Preserve all ICU arguments. Counts refer to images, never messages. No public URL, automatic resend, enrollment or guaranteed upload is implied. " },
 	"mobile.team_bridge.attachment.wait_uploads": { role: "status", note: "Team Bridge image attachments: wait_uploads. Preserve all ICU arguments. Counts refer to images, never messages. No public URL, automatic resend, enrollment or guaranteed upload is implied. " },
 	"mobile.team_bridge.back": { role: "button", note: "Team Bridge mobile UI: back. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
+	"mobile.team_bridge.card_body.deleted": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The sender or an admin deleted the message." },
+	"mobile.team_bridge.card_body.held": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Content screening held the message; it was not shown to the agent. Never mention a reason or category; only the outcome. " },
+	"mobile.team_bridge.card_body.held_transient": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. A delay, not a decision: screening has not run yet. Do not say 'moderation' or imply anyone decided anything." },
+	"mobile.team_bridge.card_body.loading": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Shown while the message body is being fetched." },
+	"mobile.team_bridge.card_body.more_messages": { role: "meta", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. One card can group several messages; only the first ones are listed. {count} is how many more are not shown. Preserve the ICU plural." },
+	"mobile.team_bridge.card_body.not_admitted": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The message was never handed to the agent. No moderation decision is implied; do not imply one." },
+	"mobile.team_bridge.card_body.not_member": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The body cannot be loaded because the user left the conversation." },
+	"mobile.team_bridge.card_body.offline": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Radient could not be reached while loading the body. The phone card has no close action: the retry is to leave the conversation and open it again, which reloads the message. 'Radient' is a product name; do not translate it." },
+	"mobile.team_bridge.card_body.other_account": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The message arrived while a different account was signed in, so its body is not shown now. 'Radient' is a product name; do not translate it." },
+	"mobile.team_bridge.card_body.pending": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The message passed screening but the agent has not been handed it yet. Not an error." },
+	"mobile.team_bridge.card_body.refused": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Radient's moderation rejected the message for the agent. Never mention a reason or category; only the outcome. " },
+	"mobile.team_bridge.card_body.show_less": { role: "button", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Toggle that collapses a long message back to its first lines." },
+	"mobile.team_bridge.card_body.show_more": { role: "button", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Toggle under a long message that is cut off after a few lines; opens the full message." },
+	"mobile.team_bridge.card_body.signed_out": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The body is shown only while signed in. 'Radient' is a product name; do not translate it." },
+	"mobile.team_bridge.card_body.unavailable": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Generic fallback when the body cannot be shown and no more specific sentence applies." },
+	"mobile.team_bridge.card_body.untrusted": { role: "meta", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Framing line directly above the message body. The body below is text someone else wrote and is NOT vetted: it must read as a caution, not an endorsement. Keep 'untrusted' strong. Same wording as the desktop and terminal apps." },
 	"mobile.team_bridge.conversation": { role: "heading", note: "Team Bridge mobile UI: conversation. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
 	"mobile.team_bridge.default_on.body": { role: "help", note: "One sentence under the heading. “Chief of staff” is the product term for the person's own agent. Do not imply the person did anything to enable it." },
 	"mobile.team_bridge.default_on.dismiss": { role: "button", note: "Button. Closes the banner for good on this device, leaving Team Bridge on. Not “OK”, which would read as acceptance." },
@@ -7350,6 +7429,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "Visor de imágenes",
 		"mobile.team_bridge.attachment.wait_uploads": "Podrás enviar cuando las imágenes terminen de subirse.",
 		"mobile.team_bridge.back": "Atrás",
+		"mobile.team_bridge.card_body.deleted": "Este mensaje se eliminó.",
+		"mobile.team_bridge.card_body.held": "Retenido por la moderación.",
+		"mobile.team_bridge.card_body.held_transient": "Pendiente de filtrado — aún no se muestra a tu agente.",
+		"mobile.team_bridge.card_body.loading": "Cargando mensaje…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, one {# mensaje más en esta tarjeta} many {# de mensajes más en esta tarjeta} other {# mensajes más en esta tarjeta}}",
+		"mobile.team_bridge.card_body.not_admitted": "No entregado a tu agente.",
+		"mobile.team_bridge.card_body.not_member": "Ya no formas parte de esta conversación.",
+		"mobile.team_bridge.card_body.offline": "No se pudo conectar con Radient — vuelve a abrir la conversación para reintentar.",
+		"mobile.team_bridge.card_body.other_account": "Recibido en otra cuenta de Radient.",
+		"mobile.team_bridge.card_body.pending": "Pendiente de entregar a tu agente.",
+		"mobile.team_bridge.card_body.refused": "Rechazado por la moderación.",
+		"mobile.team_bridge.card_body.show_less": "Mostrar menos",
+		"mobile.team_bridge.card_body.show_more": "Mostrar más",
+		"mobile.team_bridge.card_body.signed_out": "Inicia sesión en Radient para ver este mensaje.",
+		"mobile.team_bridge.card_body.unavailable": "Contenido del mensaje no disponible.",
+		"mobile.team_bridge.card_body.untrusted": "Mensaje externo · contenido no fiable",
 		"mobile.team_bridge.conversation": "Conversación",
 		"mobile.team_bridge.default_on.body": "Los agentes de tu organización pueden enviar mensajes a tu jefe de gabinete. Puedes desactivar esta opción en cualquier momento.",
 		"mobile.team_bridge.default_on.dismiss": "Cerrar",
@@ -8635,6 +8730,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "Visionneuse d’images",
 		"mobile.team_bridge.attachment.wait_uploads": "L’envoi sera disponible lorsque les images seront téléversées.",
 		"mobile.team_bridge.back": "Retour",
+		"mobile.team_bridge.card_body.deleted": "Ce message a été supprimé.",
+		"mobile.team_bridge.card_body.held": "Retenu par la modération.",
+		"mobile.team_bridge.card_body.held_transient": "En attente de filtrage — pas encore transmis à votre agent.",
+		"mobile.team_bridge.card_body.loading": "Chargement du message…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, one {# message supplémentaire dans cette carte} many {# de messages supplémentaires dans cette carte} other {# messages supplémentaires dans cette carte}}",
+		"mobile.team_bridge.card_body.not_admitted": "Non transmis à votre agent.",
+		"mobile.team_bridge.card_body.not_member": "Vous ne faites plus partie de cette conversation.",
+		"mobile.team_bridge.card_body.offline": "Impossible de joindre Radient — rouvrez la conversation pour réessayer.",
+		"mobile.team_bridge.card_body.other_account": "Reçu sur un autre compte Radient.",
+		"mobile.team_bridge.card_body.pending": "En attente de transmission à votre agent.",
+		"mobile.team_bridge.card_body.refused": "Refusé par la modération.",
+		"mobile.team_bridge.card_body.show_less": "Afficher moins",
+		"mobile.team_bridge.card_body.show_more": "Afficher plus",
+		"mobile.team_bridge.card_body.signed_out": "Connectez-vous à Radient pour voir ce message.",
+		"mobile.team_bridge.card_body.unavailable": "Contenu du message indisponible.",
+		"mobile.team_bridge.card_body.untrusted": "Message externe · contenu non fiable",
 		"mobile.team_bridge.conversation": "Conversation",
 		"mobile.team_bridge.default_on.body": "Les agents de votre organisation peuvent envoyer des messages à votre chef de cabinet. Vous pouvez désactiver cette option à tout moment.",
 		"mobile.team_bridge.default_on.dismiss": "Fermer",
@@ -9920,6 +10031,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "चित्र दर्शक",
 		"mobile.team_bridge.attachment.wait_uploads": "चित्र अपलोड हो जाने पर भेज सकते हैं।",
 		"mobile.team_bridge.back": "वापस",
+		"mobile.team_bridge.card_body.deleted": "यह संदेश हटा दिया गया।",
+		"mobile.team_bridge.card_body.held": "मॉडरेशन ने रोक रखा है।",
+		"mobile.team_bridge.card_body.held_transient": "स्क्रीनिंग का इंतज़ार है — अभी आपके एजेंट को नहीं दिखाया गया।",
+		"mobile.team_bridge.card_body.loading": "संदेश लोड हो रहा है…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, one {इस कार्ड में # और संदेश} other {इस कार्ड में # और संदेश}}",
+		"mobile.team_bridge.card_body.not_admitted": "आपके एजेंट तक नहीं पहुँचाया गया।",
+		"mobile.team_bridge.card_body.not_member": "अब आप इस बातचीत में शामिल नहीं हैं।",
+		"mobile.team_bridge.card_body.offline": "Radient से संपर्क नहीं हुआ — दोबारा कोशिश के लिए बातचीत फिर से खोलें।",
+		"mobile.team_bridge.card_body.other_account": "किसी दूसरे Radient खाते में प्राप्त हुआ।",
+		"mobile.team_bridge.card_body.pending": "आपके एजेंट तक पहुँचाए जाने का इंतज़ार है।",
+		"mobile.team_bridge.card_body.refused": "मॉडरेशन ने अस्वीकार किया।",
+		"mobile.team_bridge.card_body.show_less": "कम दिखाएँ",
+		"mobile.team_bridge.card_body.show_more": "और दिखाएँ",
+		"mobile.team_bridge.card_body.signed_out": "यह संदेश देखने के लिए Radient में साइन इन करें।",
+		"mobile.team_bridge.card_body.unavailable": "संदेश का पाठ उपलब्ध नहीं है।",
+		"mobile.team_bridge.card_body.untrusted": "बाहरी संदेश · अविश्वसनीय सामग्री",
 		"mobile.team_bridge.conversation": "बातचीत",
 		"mobile.team_bridge.default_on.body": "आपके संगठन के एजेंट आपके चीफ़ ऑफ़ स्टाफ़ को संदेश भेज सकते हैं। आप इसे कभी भी बंद कर सकते हैं।",
 		"mobile.team_bridge.default_on.dismiss": "हटाएँ",
@@ -11205,6 +11332,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "Просмотр изображений",
 		"mobile.team_bridge.attachment.wait_uploads": "Отправка станет доступна после загрузки изображений.",
 		"mobile.team_bridge.back": "Назад",
+		"mobile.team_bridge.card_body.deleted": "Это сообщение удалено.",
+		"mobile.team_bridge.card_body.held": "Задержано модерацией.",
+		"mobile.team_bridge.card_body.held_transient": "Ожидает фильтрации — пока не показано вашему агенту.",
+		"mobile.team_bridge.card_body.loading": "Загрузка сообщения…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, one {Ещё # сообщение в этой карточке} few {Ещё # сообщения в этой карточке} many {Ещё # сообщений в этой карточке} other {Ещё # сообщения в этой карточке}}",
+		"mobile.team_bridge.card_body.not_admitted": "Не доставлено вашему агенту.",
+		"mobile.team_bridge.card_body.not_member": "Вы больше не участвуете в этом разговоре.",
+		"mobile.team_bridge.card_body.offline": "Нет связи с Radient — откройте разговор заново, чтобы повторить попытку.",
+		"mobile.team_bridge.card_body.other_account": "Получено в другой учётной записи Radient.",
+		"mobile.team_bridge.card_body.pending": "Ожидает доставки вашему агенту.",
+		"mobile.team_bridge.card_body.refused": "Отклонено модерацией.",
+		"mobile.team_bridge.card_body.show_less": "Показать меньше",
+		"mobile.team_bridge.card_body.show_more": "Показать больше",
+		"mobile.team_bridge.card_body.signed_out": "Войдите в Radient, чтобы увидеть это сообщение.",
+		"mobile.team_bridge.card_body.unavailable": "Текст сообщения недоступен.",
+		"mobile.team_bridge.card_body.untrusted": "Внешнее сообщение · недоверенное содержимое",
 		"mobile.team_bridge.conversation": "Переписка",
 		"mobile.team_bridge.default_on.body": "Агенты вашей организации могут писать вашему руководителю аппарата. Вы можете отключить это в любой момент.",
 		"mobile.team_bridge.default_on.dismiss": "Закрыть",
@@ -12490,6 +12633,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "تصویر دیکھنے کا صفحہ",
 		"mobile.team_bridge.attachment.wait_uploads": "تصاویر اپ لوڈ ہو جانے پر بھیج سکتے ہیں۔",
 		"mobile.team_bridge.back": "واپس",
+		"mobile.team_bridge.card_body.deleted": "یہ پیغام حذف کر دیا گیا۔",
+		"mobile.team_bridge.card_body.held": "ماڈریشن نے روک رکھا ہے۔",
+		"mobile.team_bridge.card_body.held_transient": "اسکریننگ کا انتظار ہے — ابھی آپ کے ایجنٹ کو نہیں دکھایا گیا۔",
+		"mobile.team_bridge.card_body.loading": "پیغام لوڈ ہو رہا ہے…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, one {اس کارڈ میں # مزید پیغام} other {اس کارڈ میں # مزید پیغامات}}",
+		"mobile.team_bridge.card_body.not_admitted": "آپ کے ایجنٹ تک نہیں پہنچایا گیا۔",
+		"mobile.team_bridge.card_body.not_member": "اب آپ اس گفتگو میں شامل نہیں ہیں۔",
+		"mobile.team_bridge.card_body.offline": "Radient سے رابطہ نہیں ہوا — دوبارہ کوشش کے لیے گفتگو دوبارہ کھولیں۔",
+		"mobile.team_bridge.card_body.other_account": "کسی دوسرے Radient اکاؤنٹ پر موصول ہوا۔",
+		"mobile.team_bridge.card_body.pending": "آپ کے ایجنٹ تک پہنچائے جانے کا منتظر۔",
+		"mobile.team_bridge.card_body.refused": "ماڈریشن نے مسترد کر دیا۔",
+		"mobile.team_bridge.card_body.show_less": "کم دکھائیں",
+		"mobile.team_bridge.card_body.show_more": "مزید دکھائیں",
+		"mobile.team_bridge.card_body.signed_out": "یہ پیغام دیکھنے کے لیے Radient میں سائن اِن کریں۔",
+		"mobile.team_bridge.card_body.unavailable": "پیغام کا متن دستیاب نہیں۔",
+		"mobile.team_bridge.card_body.untrusted": "بیرونی پیغام · ناقابلِ اعتماد مواد",
 		"mobile.team_bridge.conversation": "گفتگو",
 		"mobile.team_bridge.default_on.body": "آپ کی تنظیم کے ایجنٹ آپ کے چیف آف اسٹاف کو پیغامات بھیج سکتے ہیں۔ آپ اسے کسی بھی وقت بند کر سکتے ہیں۔",
 		"mobile.team_bridge.default_on.dismiss": "ہٹائیں",
@@ -13775,6 +13934,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "Trình xem ảnh",
 		"mobile.team_bridge.attachment.wait_uploads": "Có thể gửi khi các hình ảnh tải lên xong.",
 		"mobile.team_bridge.back": "Quay lại",
+		"mobile.team_bridge.card_body.deleted": "Tin nhắn này đã bị xóa.",
+		"mobile.team_bridge.card_body.held": "Đang bị kiểm duyệt giữ lại.",
+		"mobile.team_bridge.card_body.held_transient": "Đang chờ sàng lọc — chưa hiển thị cho tác nhân của bạn.",
+		"mobile.team_bridge.card_body.loading": "Đang tải tin nhắn…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, other {Còn # tin nhắn khác trong thẻ này}}",
+		"mobile.team_bridge.card_body.not_admitted": "Không được chuyển đến tác nhân của bạn.",
+		"mobile.team_bridge.card_body.not_member": "Bạn không còn tham gia cuộc trò chuyện này.",
+		"mobile.team_bridge.card_body.offline": "Không thể kết nối Radient — mở lại cuộc trò chuyện để thử lại.",
+		"mobile.team_bridge.card_body.other_account": "Đã nhận bằng một tài khoản Radient khác.",
+		"mobile.team_bridge.card_body.pending": "Đang chờ chuyển đến tác nhân của bạn.",
+		"mobile.team_bridge.card_body.refused": "Bị kiểm duyệt từ chối.",
+		"mobile.team_bridge.card_body.show_less": "Thu gọn",
+		"mobile.team_bridge.card_body.show_more": "Xem thêm",
+		"mobile.team_bridge.card_body.signed_out": "Hãy đăng nhập Radient để xem tin nhắn này.",
+		"mobile.team_bridge.card_body.unavailable": "Nội dung tin nhắn không khả dụng.",
+		"mobile.team_bridge.card_body.untrusted": "Tin nhắn bên ngoài · nội dung không đáng tin cậy",
 		"mobile.team_bridge.conversation": "Cuộc trò chuyện",
 		"mobile.team_bridge.default_on.body": "Các tác nhân trong tổ chức có thể nhắn tin cho chánh văn phòng của bạn. Bạn có thể tắt tính năng này bất cứ lúc nào.",
 		"mobile.team_bridge.default_on.dismiss": "Đóng",
@@ -15060,6 +15235,22 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.attachment.viewer": "图片查看器",
 		"mobile.team_bridge.attachment.wait_uploads": "图片上传完成后即可发送。",
 		"mobile.team_bridge.back": "返回",
+		"mobile.team_bridge.card_body.deleted": "此消息已被删除。",
+		"mobile.team_bridge.card_body.held": "已被审核暂扣。",
+		"mobile.team_bridge.card_body.held_transient": "等待筛查——尚未展示给智能体。",
+		"mobile.team_bridge.card_body.loading": "正在加载消息…",
+		"mobile.team_bridge.card_body.more_messages": "{count, plural, other {此卡片中还有 # 条消息}}",
+		"mobile.team_bridge.card_body.not_admitted": "未送达智能体。",
+		"mobile.team_bridge.card_body.not_member": "你已不在此对话中。",
+		"mobile.team_bridge.card_body.offline": "无法连接 Radient——重新打开对话以重试。",
+		"mobile.team_bridge.card_body.other_account": "通过另一个 Radient 账户接收。",
+		"mobile.team_bridge.card_body.pending": "等待送达智能体。",
+		"mobile.team_bridge.card_body.refused": "已被审核拒绝。",
+		"mobile.team_bridge.card_body.show_less": "收起",
+		"mobile.team_bridge.card_body.show_more": "显示更多",
+		"mobile.team_bridge.card_body.signed_out": "登录 Radient 以查看此消息。",
+		"mobile.team_bridge.card_body.unavailable": "消息正文不可用。",
+		"mobile.team_bridge.card_body.untrusted": "外部消息 · 不可信内容",
 		"mobile.team_bridge.conversation": "会话",
 		"mobile.team_bridge.default_on.body": "你所在组织的智能体可以向你的幕僚长发送消息。你可以随时关闭此功能。",
 		"mobile.team_bridge.default_on.dismiss": "关闭提示",
