@@ -29,6 +29,7 @@
 
 import { Platform } from "react-native";
 
+import type { TranscribeAudioBytesPart } from "@/relay/endpoints";
 import { MAX_RECORDING_SECONDS } from "@/stt/dictation";
 import { meterFraction } from "@/stt/levels";
 
@@ -427,6 +428,37 @@ export async function discardRecording(
 	} catch {
 		/* See above: cleanup never fails the caller. */
 	}
+}
+
+/**
+ * The `audio` part `POST /api/transcribe` uploads, to be handed to
+ * `endpoints.transcribe`.
+ *
+ * The recording cannot travel as React Native's `{ uri, name, type }`
+ * descriptor: SDK 57's global `fetch` is `expo/fetch`, whose multipart encoder
+ * reads a string, a `Blob` or anything with `bytes()`, and refuses the
+ * descriptor with "Unsupported FormDataPart implementation" before a request
+ * leaves. Every dictation then looked like a relay failure. So the file is read
+ * here and handed over as bytes — the shape the encoder does read.
+ *
+ * Lazy, like `discardRecording`, and for the same two reasons: the SDK import
+ * costs nothing until an upload runs, and a Node test never loads it. A read
+ * failure PROPAGATES, unlike the discard's swallow: an unreadable recording is
+ * an upload that failed, and the caller owes the reader the retry sentence
+ * rather than a silent drop.
+ */
+export async function recordingUploadPart(
+	recording: MicrophoneRecording,
+): Promise<TranscribeAudioBytesPart> {
+	const { File } = await import("expo-file-system");
+	/* Constructed now, read on demand: `File` only holds the URI, and the encoder
+	 * asks for `bytes()` once, on the upload's own turn. */
+	const file = new File(recording.uri);
+	return {
+		name: recording.name,
+		type: recording.mimeType,
+		bytes: () => file.bytes(),
+	};
 }
 
 /** The extension, with its dot, of a file URI path. */
