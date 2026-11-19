@@ -65,14 +65,24 @@ export type MessageActionsScope = "timeline" | "reply";
  */
 export const messageActions = (
 	message: Pick<Message, "body" | "thread_root_id">,
-	options: { canReplyInThread: boolean },
+	options: {
+		canReplyInThread: boolean;
+		/** The body can already be drag-selected without entering a mode. */
+		selectableAtRest?: boolean;
+	},
 ): MessageAction[] => {
 	const list: MessageAction[] = [];
 	if (options.canReplyInThread && !message.thread_root_id)
 		list.push("reply_in_thread");
 	// An image-only message has `body: ""`: nothing to copy or select.
-	if ((message.body ?? "").trim().length > 0)
-		list.push("copy_text", "select_text");
+	if ((message.body ?? "").trim().length > 0) {
+		list.push("copy_text");
+		/* WEB OMITS IT (PR #339 round 2: UX U7, design D8, QA N1). Web bodies are
+		 *  selectable at rest (round-1 Q3), so the row only added a tint, and the
+		 *  mode's exits are touch handlers (`text-selection.ts`): with a mouse
+		 *  nothing ended it and the row stayed tinted until the screen left. */
+		if (!options.selectableAtRest) list.push("select_text");
+	}
 	return list;
 };
 
@@ -90,7 +100,10 @@ export const messageActions = (
  * the closing sheet took it straight back (measured: composer focused at
  * 1197 ms, Close at 1198 ms, `body` once the sheet unmounted; focused on
  * arrival in 1 of 4 QA trials). The kit's web `onDismiss` fires only after
- * that focus return (`Sheet`, `@/ui/modal-dismissal-ledger`), so an action
+ * the sheet has left the DOM and after that focus return (`Sheet`,
+ * `@/ui/modal-dismissal-ledger`; until round 2 it also fired once at the START
+ * of the exit animation, which still let the trap win — pinned by
+ * `sheet-dismiss-timing.test.tsx`), so an action
  * run from it — the push, the copy, the selection — is the last thing to
  * move focus. Deferring the navigation was chosen over suppressing the
  * sheet's focus return because the return is RNW's own (no kit seam turns
@@ -193,7 +206,10 @@ export function useMessageActions({
 
 	const list = useCallback(
 		(message: Message) =>
-			messageActions(message, { canReplyInThread: replyable }),
+			messageActions(message, {
+				canReplyInThread: replyable,
+				selectableAtRest: Platform.OS === "web",
+			}),
 		[replyable],
 	);
 	const run = useCallback(

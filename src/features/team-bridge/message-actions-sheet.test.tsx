@@ -420,6 +420,14 @@ describe("the action list (pure)", () => {
 			sheetModule.messageActions(REPLY, { canReplyInThread: true }),
 		).toEqual(["copy_text", "select_text"]);
 	});
+	it("a body selectable at rest drops Select text and keeps Copy text", () => {
+		expect(
+			sheetModule.messageActions(ROOT, {
+				canReplyInThread: true,
+				selectableAtRest: true,
+			}),
+		).toEqual(["reply_in_thread", "copy_text"]);
+	});
 	it("no text: nothing to copy or select; a null body is not a crash", () => {
 		expect(
 			sheetModule.messageActions(IMAGE_ONLY, { canReplyInThread: true }),
@@ -569,6 +577,15 @@ describe("long-press opens the sheet (timeline row)", () => {
 		expect(rec.texts.filter((t) => "selectable" in t).at(-1)?.selectable).toBe(
 			true,
 		);
+	});
+
+	/* Round 2 (UX U7, design D8, QA N1): on web the mode added nothing but a
+	 *  tint no mouse could clear, since the body is already selectable. */
+	it("web does not offer Select text (the body is selectable at rest)", async () => {
+		rec.os = "web";
+		await render({ message: ROOT, onReplyInThread: vi.fn() });
+		await longPress(ROOT);
+		expect(offered()).toEqual(["reply_in_thread", "copy_text"]);
 	});
 
 	it("a read-only conversation does not offer Reply in thread", async () => {
