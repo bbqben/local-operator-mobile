@@ -29,6 +29,7 @@
 
 import { Platform } from "react-native";
 
+import type { TranscribeAudioBytesPart } from "@/relay/endpoints";
 import { MAX_RECORDING_SECONDS } from "@/stt/dictation";
 import { meterFraction } from "@/stt/levels";
 
@@ -298,16 +299,43 @@ export async function startRecording(options?: {
 			const permission = await module.getRecordingPermissionsAsync();
 			if (permission.status !== "granted") return null;
 		}
-		/* The iOS audio session has to allow recording before `record()`; without
-		 * it the recorder starts and captures silence. */
-		await module.setAudioModeAsync({ allowsRecording: true });
+		/* The iOS audio session has to allow recording before `record()`. It must ALSO
+		 * play in silent mode: expo-audio's iOS `validateAudioMode` rejects
+		 * `allowsRecording: true` with `playsInSilentMode: false` (its default) as an
+		 * invalid mode, and the catch below turned that throw into the "Couldn’t start
+		 * recording" line straight after the reader granted access. On Android
+		 * `setAudioModeAsync` (build/ExpoAudio.js) drops `allowsRecording` and forwards
+		 * `playsInSilentMode`, whose native default is already true
+		 * (AudioRecords.kt), so the mode there is unchanged. */
+		await module.setAudioModeAsync({
+			allowsRecording: true,
+			playsInSilentMode: true,
+		});
+		const preset = module.RecordingPresets.HIGH_QUALITY;
 		const recorder = new module.AudioModule.AudioRecorder({
-			...module.RecordingPresets.HIGH_QUALITY,
+			/* FLAT, the way expo-audio's own `createRecordingOptions`
+			 * (build/utils/options.js — not exported from the package index) builds them
+			 * for this constructor. The native side reads top-level fields only
+			 * (ios/AudioRecords.swift `RecordingOptions`, android/…/AudioRecords.kt), so a
+			 * spread of the preset hands iOS no `outputFormat` and the recorder writes
+			 * uncompressed PCM inside the `.m4a`. Measured on a device (expo-audio 58,
+			 * iPhone): the nested preset wrote 535,528 bytes for 3 s, this flat object
+			 * 95,001 bytes (AAC). At the 120 s cap that is ~21 MB against the app's
+			 * 20 MB upload limit (`stt/transcribe.ts`). */
+			extension: preset.extension,
+			sampleRate: preset.sampleRate,
+			numberOfChannels: preset.numberOfChannels,
+			bitRate: preset.bitRate,
 			/* Drives the recording meter (design §2.5's fourth state carrier). Costs
 			 * one status field per read; a platform that ignores it leaves `metering`
 			 * undefined and `level()` answers null, so the meter degrades rather than
 			 * invents a level. */
 			isMeteringEnabled: true,
+			...(Platform.OS === "ios"
+				? preset.ios
+				: Platform.OS === "android"
+					? preset.android
+					: preset.web),
 		});
 		await recorder.prepareToRecordAsync();
 		recorder.record({ forDuration: MAX_RECORDING_SECONDS });
@@ -359,6 +387,37 @@ export async function discardRecording(
 	} catch {
 		/* See above: cleanup never fails the caller. */
 	}
+}
+
+/**
+ * The `audio` part `POST /api/transcribe` uploads, to be handed to
+ * `endpoints.transcribe`.
+ *
+ * The recording cannot travel as React Native's `{ uri, name, type }`
+ * descriptor: SDK 57's global `fetch` is `expo/fetch`, whose multipart encoder
+ * reads a string, a `Blob` or anything with `bytes()`, and refuses the
+ * descriptor with "Unsupported FormDataPart implementation" before a request
+ * leaves. Every dictation then looked like a relay failure. So the file is read
+ * here and handed over as bytes — the shape the encoder does read.
+ *
+ * Lazy, like `discardRecording`, and for the same two reasons: the SDK import
+ * costs nothing until an upload runs, and a Node test never loads it. A read
+ * failure PROPAGATES, unlike the discard's swallow: an unreadable recording is
+ * an upload that failed, and the caller owes the reader the retry sentence
+ * rather than a silent drop.
+ */
+export async function recordingUploadPart(
+	recording: MicrophoneRecording,
+): Promise<TranscribeAudioBytesPart> {
+	const { File } = await import("expo-file-system");
+	/* Constructed now, read on demand: `File` only holds the URI, and the encoder
+	 * asks for `bytes()` once, on the upload's own turn. */
+	const file = new File(recording.uri);
+	return {
+		name: recording.name,
+		type: recording.mimeType,
+		bytes: () => file.bytes(),
+	};
 }
 
 /** The extension, with its dot, of a file URI path. */

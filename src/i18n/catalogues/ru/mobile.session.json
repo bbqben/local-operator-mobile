@@ -89,5 +89,13 @@
 	"mobile.session.outbox.composer_stopped": "Предыдущее сообщение перестало отправляться. Повторите или отбросьте его выше, чтобы отправить это.",
 	"mobile.session.outbox.composer_discarding": "Предыдущее сообщение отбрасывается. Это можно будет отправить через мгновение.",
 	"mobile.session.sheet_title.commands": "слэш-команды",
-	"mobile.session.sheet_title.attach": "прикрепить"
+	"mobile.session.sheet_title.attach": "прикрепить",
+	"mobile.session.diagram.label": "Диаграмма {type}",
+	"mobile.session.diagram.label_titled": "Диаграмма {type}: {title}",
+	"mobile.session.diagram.copied": "скопировано",
+	"mobile.session.diagram.error": "Не удалось нарисовать диаграмму. Вместо неё показан исходный код.",
+	"mobile.session.diagram.open_hint": "Открывает диаграмму на весь экран",
+	"mobile.session.diagram.copy": "Скопировать исходный код диаграммы",
+	"mobile.session.diagram.close": "Закрыть диаграмму",
+	"mobile.session.diagram.viewer": "Просмотр диаграммы"
 }

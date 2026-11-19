@@ -198,6 +198,7 @@ attachments have their own opt-in cases, so the cases above keep a hub with no
 | `attachments_send_expired` | a send with images answers 404 `attachment_not_found` | chips turn expired, send error names it |
 | `attachments_fetch_error` | byte reads answer 500 | "This image did not load." + Retry in each bubble |
 | `attachments_quota` | uploads answer 409 `attachment_quota_exceeded` | final failed chip naming the 8-image limit |
+| `threads` | message 3 of every conversation roots a reply thread (an agent and a teammate replied; two replies unread); replies, thread reads and thread replies answer like the hub's routes | the root row's reply count, repliers and unread badge; with the row tapped, the thread screen; back on the timeline, the badge cleared |
 
 With `case=attachments&thread=1`, message `bcm_8` is the 2×2 grid. Add
 `viewer=bcm_8:1` to `/__phone` (it becomes `tb-viewer=` on the app URL) to
