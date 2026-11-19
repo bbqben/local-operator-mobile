@@ -89,7 +89,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 195, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, + eleven reaction keys (slice PR b: actions.a11y_react + ten reactions.*) = 195, counted over the merged en JSON.
+		expected: 211, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON. Merged with #344: + sixteen card_body.* (inbound card body states, framing, show more/less, more count): 184 + 16 = 200, counted over the merged en JSON + eleven reaction keys (reactions slice PR b: actions.a11y_react + ten reactions.*) = 211.
 	},
 	{
 		name: "mobile.signin",
@@ -593,9 +593,14 @@ describe("the English catalogues", () => {
 		// (ADR 0010 chain above) = 1283, re-derived over the rebased tree.
 		/* PR #339 (Team Bridge message actions sheet): + 5 mobile.team_bridge
 		 * actions.* keys (title, reply_in_thread, copy_text, select_text,
-		 * copied): 1283 + 5 = 1288; reactions slice PR b adds
-		 * actions.a11y_react and ten reactions.* keys: 1288 + 11 = 1299. */
-		expect(total).toBe(1299);
+		 * copied): 1283 + 5 = 1288. */
+		/* Convergence of PR #344 (feat/bridge-card-body) with main ce8ca546
+		 * (#339): both chains kept; main's 1288 + sixteen
+		 * mobile.team_bridge.card_body.* = 1304, as `generate.ts` reports for
+		 * the merged tree. */
+		/* Reactions slice PR b (#345): + actions.a11y_react and ten
+		 * reactions.* keys: 1304 + 11 = 1315. */
+		expect(total).toBe(1315);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

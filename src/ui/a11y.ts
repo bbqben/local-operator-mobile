@@ -2433,6 +2433,20 @@ export const findResultId = (entryId: string): string =>
 export const completionAnchorId = (anchorId: string): string =>
 	`completion-anchor-${anchorId}`;
 
+/** An inbound Team Bridge card's body region, under its row's own id: a flow
+ *  that found the row finds the body beside it. Built here rather than as a
+ *  template `testID` at the call site, which the identifier check cannot
+ *  follow (`a11y.e2e.test.ts`, "never types an identifier as a literal"). */
+export const bridgeCardBodyId = (rowTestID: string): string =>
+	`${rowTestID}-bridge-body`;
+
+/** The Show more / Show less toggle of one body inside that region, by the
+ *  item's index in the relay's answer. */
+export const bridgeCardBodyMoreId = (
+	regionTestID: string,
+	index: number,
+): string => `${regionTestID}-more-${index}`;
+
 /** One image inside a transcript row, disambiguated by its index within the row. */
 export const transcriptImageId = (entryId: string, index: number): string =>
 	`transcript-image-${entryId}-${index}`;
