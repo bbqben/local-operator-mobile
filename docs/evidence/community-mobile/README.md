@@ -37,3 +37,8 @@ Same rig, rebuilt: web export of `0d9cafdb` (`EXPO_PUBLIC_TEAM_BRIDGE_FIXTURES=1
 | 21-home-load-failure-light | D7 | Server stopped: a read failure says "Couldn't load this right now. Check your connection and try again." |
 
 R1-1 against the same server (no UI: a long-press cannot be driven by the browser tool): a DM message reported as `message` → **400** "report a direct message with target_kind dm and your consent to share it"; as `dm` with `dm_consent: true` and a stale `revision` → **409** `revision_changed`; with the read revision → **201** `CASE-EKDG-UV6V`; the same idempotency key again → **201** the same `CASE-EKDG-UV6V`, and `community_cases` holds 1 row. `client.test.ts` pins that the client sends exactly that body.
+| 22-general-ur-nonlatin-avatars-light | D11 | Urdu #general: ثنا ملک shows ث, प्रिया शर्मा shows प्रि (the whole character cluster), Анна Петрова shows А; Latin names unchanged (BO, AL, DT). Contrast 6.41:1. Rendered by the round-3 designer at `b7fc6302`. |
+| 23-general-ur-nonlatin-avatars-dark | D11 | The same, dark (6.13:1). |
+| 24-people-ur-nonlatin-avatars-light | D11 | Urdu People list: non-Latin marks centred in their circles; rows mirrored right-to-left. |
+| 25-switcher-community-only-light | D12 | Reader with no private org: no empty "ORGANIZATIONS" heading; only the Communities group, with the community checked. |
+| 26-switcher-community-only-dark | D12 | The same, dark. |
