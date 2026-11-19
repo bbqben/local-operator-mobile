@@ -29,7 +29,11 @@ import {
 } from "@/features/session/use-composer";
 import type { RelayEndpoints } from "@/relay";
 import { DICTATION_OUTCOME_COPY } from "@/stt/dictation-machine";
-import type { ActiveRecording, MicPermission } from "@/stt/recorder";
+import type {
+	ActiveRecording,
+	MicPermission,
+	MicrophoneRecording,
+} from "@/stt/recorder";
 import { type DomShim, installDomShim } from "@/testing/dom-shim";
 
 /** What the fake platform answers on the next press. */
@@ -45,6 +49,13 @@ vi.mock("@/stt/recorder", async (importOriginal) => ({
 	requestMicPermission: async () => mic.permission,
 	startRecording: async () => mic.start(),
 	discardRecording: async () => undefined,
+	/* The upload reads the file through `expo-file-system` (#337), which has no
+	 * Node host; the stand-in keeps the real part's shape. */
+	recordingUploadPart: async (rec: MicrophoneRecording) => ({
+		name: rec.name,
+		type: rec.mimeType,
+		bytes: async () => new Uint8Array([1]),
+	}),
 }));
 
 // Native UUID generation belongs to Expo; this Node hook host has no bridge.
