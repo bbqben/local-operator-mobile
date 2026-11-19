@@ -32,7 +32,7 @@ import {
 	type ThreadData,
 	threadKey,
 } from "@/team-bridge/store";
-import { message, SELF, TENANT } from "./fixtures";
+import { message, SELF, status, TENANT } from "./fixtures";
 
 const THUMBS = "👍";
 const PARTY = "🎉";
@@ -232,7 +232,10 @@ function rigStore(react: HubClient["react"]) {
 	return { bridge, hub, held, timelineRows, shown };
 }
 
-afterEach(() => clearTeamBridgeEmoji());
+afterEach(() => {
+	clearTeamBridgeEmoji();
+	vi.restoreAllMocks();
+});
 
 describe("store.toggleReaction (spec §4.8)", () => {
 	it("shows the optimistic +1 at once, then the server's summary replaces it", async () => {
@@ -435,5 +438,296 @@ describe("store.toggleReaction (spec §4.8)", () => {
 		expect(s.reactionPending).toEqual({});
 		expect(s.threads).toEqual({});
 		expect(teamBridgeFrequentEmoji(SELF, 1_000)[0]).toBe(QUICK_EMOJI[0]);
+	});
+});
+
+describe("reaction remediation regressions", () => {
+	it.each(["absent", "undefined"])(
+		"preserves full emoji with Intl.Segmenter %s and rejects malformed clusters",
+		async (mode) => {
+			const original = Intl.Segmenter;
+			try {
+				if (mode === "absent") Reflect.deleteProperty(Intl, "Segmenter");
+				else
+					Object.defineProperty(Intl, "Segmenter", {
+						value: undefined,
+						configurable: true,
+					});
+				vi.resetModules();
+				const fallback = await import("@/team-bridge/reactions");
+				for (const emoji of [
+					"👍🏽",
+					"👩🏽‍💻",
+					"🇻🇳",
+					"1️⃣",
+					"🏴\u{E0067}\u{E0062}\u{E007F}",
+				]) {
+					expect(fallback.firstEmoji(emoji)).toBe(emoji);
+					expect(fallback.isSingleEmoji(emoji)).toBe(true);
+				}
+				for (const invalid of ["👍‍", "👍🏽🏽", "👍a", "🇻", "👍\u{E0067}"]) {
+					expect(fallback.isSingleEmoji(invalid)).toBe(false);
+				}
+				expect(fallback.firstEmoji("👍‍")).toBeNull();
+			} finally {
+				Object.defineProperty(Intl, "Segmenter", {
+					value: original,
+					configurable: true,
+				});
+				vi.resetModules();
+			}
+		},
+	);
+	it("retires pending on a concurrent plan refusal, recovers through status, and protects the successor", async () => {
+		const old = deferred<{ message_id: string; reactions: Reaction[] }>();
+		const next = deferred<{ message_id: string; reactions: Reaction[] }>();
+		const { bridge, hub } = rigStore(
+			vi
+				.fn()
+				.mockReturnValueOnce(old.promise)
+				.mockReturnValueOnce(next.promise),
+		);
+		hub.listMessages = vi
+			.fn()
+			.mockRejectedValue(
+				new HubError({ kind: "plan", message: "Plan required" }),
+			);
+		hub.status = vi.fn().mockResolvedValue(status());
+		const pending = bridge.actions.toggleReaction(target, THUMBS);
+		await bridge.actions.loadThread(TENANT, CONV);
+		expect(bridge.store.getState().reactionPending).toEqual({});
+		expect(bridge.store.getState().gate).toBe("plan_required");
+		expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe("ignored");
+		await bridge.actions.checkStatus();
+		expect(bridge.store.getState().gate).toBe("open");
+		const successor = bridge.actions.toggleReaction(target, PARTY);
+		old.resolve({
+			message_id: target.messageId,
+			reactions: [r(THUMBS, 9, true)],
+		});
+		expect(await pending).toBe("ignored");
+		expect(
+			bridge.store.getState().reactionPending[reactionKey(target)]?.emoji,
+		).toBe(PARTY);
+		next.resolve({
+			message_id: target.messageId,
+			reactions: [r(PARTY, 1, true)],
+		});
+		expect(await successor).toBe("added");
+		expect(bridge.store.getState().reactionPending).toEqual({});
+	});
+	it("blocks another write and optimistic change for the server Retry-After", async () => {
+		let now = 1000;
+		const react = vi
+			.fn()
+			.mockRejectedValueOnce(
+				new HubError({
+					kind: "rate_limited",
+					message: "Wait",
+					status: 429,
+					retryAfterMs: 20000,
+				}),
+			)
+			.mockResolvedValue({ reactions: [] });
+		const bridge = createTeamBridgeStore({
+			hub: () => ({ react }) as unknown as HubClient,
+			accessToken: async () => "synthetic",
+			now: () => now,
+		});
+		expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe("failed");
+		expect(
+			await bridge.actions.toggleReaction(
+				{ ...target, messageId: "other" },
+				PARTY,
+			),
+		).toBe("ignored");
+		expect(react).toHaveBeenCalledTimes(1);
+		expect(bridge.store.getState().reactionPending).toEqual({});
+		now += 20001;
+		expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe("added");
+	});
+});
+
+describe("reaction rate-limit transport and ownership", () => {
+	it.each(["60", "Thu, 19 Nov 2026 00:01:00 GMT"])(
+		"honours parsed Retry-After %s and resets account waits",
+		async (header) => {
+			let now = Date.parse("2026-11-19T00:00:00Z");
+			vi.spyOn(Date, "now").mockImplementation(() => now);
+			const fetchImpl = vi
+				.fn()
+				.mockResolvedValueOnce(
+					new Response("{}", {
+						status: 429,
+						headers: { "Retry-After": header },
+					}),
+				)
+				.mockImplementation(() =>
+					Promise.resolve(
+						new Response(
+							JSON.stringify({
+								result: { message_id: target.messageId, reactions: [] },
+							}),
+							{ status: 200 },
+						),
+					),
+				);
+			const hub = createHubClient({
+				baseUrl: "https://synthetic.invalid",
+				accessToken: async () => "synthetic",
+				fetchImpl,
+			});
+			const bridge = createTeamBridgeStore({
+				hub: () => hub,
+				accessToken: async () => "synthetic",
+				now: () => now,
+			});
+			expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe(
+				"failed",
+			);
+			const snapshot = bridge.store.getState();
+			now += 59999;
+			expect(await bridge.actions.toggleReaction(target, PARTY)).toBe(
+				"ignored",
+			);
+			expect(bridge.store.getState()).toBe(snapshot);
+			expect(fetchImpl).toHaveBeenCalledTimes(1);
+			now += 2;
+			expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe("added");
+			expect(fetchImpl).toHaveBeenCalledTimes(2);
+			fetchImpl.mockResolvedValueOnce(
+				new Response("{}", { status: 429, headers: { "Retry-After": "60" } }),
+			);
+			expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe(
+				"failed",
+			);
+			bridge.actions.reset();
+			expect(await bridge.actions.toggleReaction(target, THUMBS)).toBe("added");
+			expect(fetchImpl).toHaveBeenCalledTimes(4);
+		},
+	);
+	it("a success already in flight cannot erase a newer refusal", async () => {
+		const old = deferred<{ message_id: string; reactions: Reaction[] }>();
+		const react = vi
+			.fn()
+			.mockReturnValueOnce(old.promise)
+			.mockRejectedValueOnce(
+				new HubError({
+					kind: "rate_limited",
+					status: 429,
+					message: "Wait",
+					retryAfterMs: 60000,
+				}),
+			);
+		const { bridge } = rigStore(react);
+		const first = bridge.actions.toggleReaction(target, THUMBS);
+		expect(
+			await bridge.actions.toggleReaction(
+				{ ...target, messageId: "other" },
+				PARTY,
+			),
+		).toBe("failed");
+		old.resolve({ message_id: target.messageId, reactions: [] });
+		expect(await first).toBe("added");
+		expect(await bridge.actions.toggleReaction(target, PARTY)).toBe("ignored");
+		expect(react).toHaveBeenCalledTimes(2);
+	});
+});
+
+describe("reaction snapshot fences on neighbouring history paths", () => {
+	it.each(["root", "reply"])(
+		"keeps confirmed %s reactions when a pre-write reply read settles late",
+		async (kind) => {
+			const { bridge, hub, held, timelineRows } = rigStore(
+				async (_tenant, _conv, messageId, _emoji, active) => ({
+					message_id: messageId,
+					reactions: [r(THUMBS, active ? 3 : 2, active)],
+				}),
+			);
+			const reply = message(2, SELF, "2026-11-19T09:01:00Z", {
+				thread_root_id: held.id,
+				reactions: [r(THUMBS, 2)],
+			});
+			const replyTarget = {
+				tenantId: TENANT,
+				conversationId: CONV,
+				rootId: held.id,
+			};
+			const key = replyThreadKey(replyTarget);
+			bridge.store.setState({
+				replyThreads: {
+					[key]: {
+						root: held,
+						replies: [reply],
+						state: "ready",
+						error: null,
+						moreAfterSeq: null,
+					},
+				},
+			});
+			const page = { root: held, replies: [reply], has_more: false };
+			const delayed = deferred<typeof page>();
+			hub.listReplies = vi
+				.fn()
+				.mockReturnValueOnce(delayed.promise)
+				.mockResolvedValue(page);
+			const read = bridge.actions.loadReplyThread(replyTarget);
+			const reactionTarget = {
+				...target,
+				messageId: kind === "root" ? held.id : reply.id,
+			};
+			expect(await bridge.actions.toggleReaction(reactionTarget, THUMBS)).toBe(
+				"added",
+			);
+			delayed.resolve({
+				...page,
+				root: { ...held, body: "Fresh body from delayed history" },
+			});
+			await read;
+			const shown = () =>
+				kind === "root"
+					? bridge.store.getState().replyThreads[key]?.root
+					: bridge.store.getState().replyThreads[key]?.replies[0];
+			expect(shown()?.reactions).toEqual([r(THUMBS, 3, true)]);
+			expect(bridge.store.getState().replyThreads[key]?.root?.body).toBe(
+				"Fresh body from delayed history",
+			);
+			if (kind === "root") expect(timelineRows()).toEqual([r(THUMBS, 3, true)]);
+			expect(await bridge.actions.toggleReaction(reactionTarget, THUMBS)).toBe(
+				"removed",
+			);
+			expect(vi.mocked(hub.react).mock.calls.map((call) => call[4])).toEqual([
+				true,
+				false,
+			]);
+			await bridge.actions.loadReplyThread(replyTarget);
+			expect(shown()?.reactions?.[0]?.reacted_by_me).toBe(false);
+		},
+	);
+	it("protects reactions, not message content, in a delayed older page", async () => {
+		const { bridge, hub, held, timelineRows } = rigStore(async () => ({
+			message_id: target.messageId,
+			reactions: [r(THUMBS, 3, true)],
+		}));
+		const key = threadKey(TENANT, CONV);
+		bridge.store.setState((s) => ({
+			threads: {
+				...s.threads,
+				[key]: { ...(s.threads[key] as ThreadData), hasMore: true },
+			},
+		}));
+		const page = deferred<{ messages: (typeof held)[]; has_more: boolean }>();
+		hub.listMessages = vi.fn().mockReturnValue(page.promise);
+		const read = bridge.actions.loadOlder(TENANT, CONV);
+		await bridge.actions.toggleReaction(target, THUMBS);
+		page.resolve({
+			messages: [{ ...held, body: "Updated body" }],
+			has_more: false,
+		});
+		await read;
+		expect(timelineRows()).toEqual([r(THUMBS, 3, true)]);
+		expect(bridge.store.getState().threads[key]?.messages[0]?.body).toBe(
+			"Updated body",
+		);
 	});
 });

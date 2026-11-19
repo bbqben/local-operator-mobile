@@ -548,6 +548,7 @@ export function createTeamBridgeStore(deps: {
 		const client = deps.hub();
 		if (!client) return;
 		const key = replyThreadKey(target);
+		const readRevision = reactionRevision;
 		if (store.getState().replyThreads[key]?.state !== "ready")
 			patchReplyThread(key, { state: "loading", error: null });
 		try {
@@ -586,7 +587,15 @@ export function createTeamBridgeStore(deps: {
 			}
 			if (!root) return;
 			const held = store.getState().replyThreads[key];
-			const merged = mergeMessages(held?.replies ?? [], replies);
+			const merged = mergeMessages(
+				held?.replies ?? [],
+				protectReactions(
+					target.tenantId,
+					target.conversationId,
+					replies,
+					readRevision,
+				),
+			);
 			/* A refresh re-reads from the top, so on a capped thread its own cursor
 			 * would point back at reply ~500 even when the reader already continued
 			 * further. Resume from the furthest of the two: the newest reply held
@@ -597,7 +606,13 @@ export function createTeamBridgeStore(deps: {
 			);
 			// A load that ended on the hub's own "no more" leaves nothing outstanding.
 			const moreAfterSeq = more === null ? null : Math.max(more, newestHeld);
-			const servedRoot = root;
+			const servedRoot =
+				protectReactions(
+					target.tenantId,
+					target.conversationId,
+					[root],
+					readRevision,
+				)[0] ?? root;
 			const nextRoot = rootFromServedPage(held?.root, servedRoot);
 			patchReplyThread(key, {
 				root:
@@ -704,6 +719,28 @@ export function createTeamBridgeStore(deps: {
 	 * stale answer can never overwrite a newer one.
 	 */
 	let generation = 0;
+	// History has no server revision. A GET started before a confirmed write
+	// must not undo it, including copies in reply roots and older pages. Only
+	// reactions are protected: the rest of that history answer still merges.
+	let reactionRevision = 0;
+	const reactionSettled = new Map<string, number>();
+	function protectReactions(
+		tenantId: string,
+		conversationId: string,
+		messages: Message[],
+		readRevision: number,
+	): Message[] {
+		return messages.map((message) => {
+			const target = { tenantId, conversationId, messageId: message.id };
+			const key = reactionKey(target);
+			if (
+				store.getState().reactionPending[key] ||
+				(reactionSettled.get(key) ?? 0) > readRevision
+			)
+				return { ...message, reactions: heldReactions(target) };
+			return message;
+		});
+	}
 	// Reset is recoverable within a live provider; retirement is permanent even
 	// if the same account logs in again. Retained closures cannot regain grants.
 	let closed = false;
@@ -765,6 +802,7 @@ export function createTeamBridgeStore(deps: {
 	}
 	function clearBackoff() {
 		backoff.clear();
+		reactionSettled.clear();
 		for (const timer of retryTimers.values()) clearTimeout(timer);
 		retryTimers.clear();
 	}
@@ -839,6 +877,10 @@ export function createTeamBridgeStore(deps: {
 			store.setState({
 				gate: "plan_required",
 				gateError: error,
+				// This boundary retires ALL writes, not just the request that
+				// discovered the refusal. Old continuations cannot settle new ones.
+				reactionPending: {},
+				reactionFailed: {},
 				defaultOnNoticeBusy: false,
 				defaultOnNoticeError: null,
 			});
@@ -1350,6 +1392,7 @@ export function createTeamBridgeStore(deps: {
 				if (!client) return;
 				// The screen's 20 s poll must not re-ask inside the hub's Retry-After.
 				if (backedOff(`thread:${key}`, clock())) return;
+				const readRevision = reactionRevision;
 				const held = store.getState().threads[key];
 				if (held?.state !== "ready")
 					patchThread(key, { state: "loading", error: null });
@@ -1414,7 +1457,15 @@ export function createTeamBridgeStore(deps: {
 							});
 						const current = store.getState().threads[key];
 						const first = !current || current.messages.length === 0;
-						const messages = mergeMessages(current?.messages ?? [], incoming);
+						const messages = mergeMessages(
+							current?.messages ?? [],
+							protectReactions(
+								tenantId,
+								conversationId,
+								incoming,
+								readRevision,
+							),
+						);
 						/* An unchanged poll is not an update (Bridge thread flicker):
 						 *  publishing it re-rendered the open thread, its memoised rows
 						 *  and the viewport's admission recheck for nothing. `mergeMessages`
@@ -1485,6 +1536,7 @@ export function createTeamBridgeStore(deps: {
 				if (!client || !held?.hasMore || held.messages.length === 0) return;
 				const oldest = held.messages[0];
 				if (!oldest) return;
+				const readRevision = reactionRevision;
 				patchThread(key, { loadingOlder: true, olderError: null });
 				try {
 					const page = await client.listMessages(tenantId, conversationId, {
@@ -1494,7 +1546,15 @@ export function createTeamBridgeStore(deps: {
 					if (!owned()) return;
 					const current = store.getState().threads[key] ?? emptyThread();
 					patchThread(key, {
-						messages: mergeMessages(current.messages, page.messages),
+						messages: mergeMessages(
+							current.messages,
+							protectReactions(
+								tenantId,
+								conversationId,
+								page.messages,
+								readRevision,
+							),
+						),
 						hasMore: page.has_more === true && page.messages.length > 0,
 						loadingOlder: false,
 					});
@@ -1865,6 +1925,12 @@ export function createTeamBridgeStore(deps: {
 			if (closed) return "ignored";
 			const state = store.getState();
 			if (state.reactionsUnserved) return "unserved";
+			if (
+				state.gate === "plan_required" ||
+				state.gate === "signed_out" ||
+				backedOff("reactions", clock())
+			)
+				return "ignored";
 			const key = reactionKey(target);
 			if (state.reactionPending[key]) return "ignored";
 			const client = deps.hub();
@@ -1880,6 +1946,7 @@ export function createTeamBridgeStore(deps: {
 				reactionFailed: failed,
 			});
 			const epoch = generation;
+			const priorBackoff = backoff.get("reactions");
 			const settle = (change: Partial<TeamBridgeState>) =>
 				store.setState((s) => {
 					const { [key]: _done, ...pending } = s.reactionPending;
@@ -1895,6 +1962,11 @@ export function createTeamBridgeStore(deps: {
 				);
 				// An account change mid-write: the reset already cleared everything.
 				if (closed || epoch !== generation) return "ignored";
+				reactionSettled.set(key, ++reactionRevision);
+				// A different message may have received a 429 while this write
+				// was in flight. Its newer refusal must survive this success.
+				if (backoff.get("reactions") === priorBackoff)
+					backoff.delete("reactions");
 				patchMessage(target, (m) => ({ ...m, reactions: answer.reactions }));
 				settle({});
 				if (active)
@@ -1910,6 +1982,9 @@ export function createTeamBridgeStore(deps: {
 					settle({ reactionsUnserved: true });
 					return "unserved";
 				}
+				// Writes share an account bucket. Reuse its refusal policy but never
+				// schedule an automatic toggle (which would invert user intent).
+				if (isRateLimited(error)) noteTransient("reactions", error, clock());
 				settle({
 					reactionFailed: { ...store.getState().reactionFailed, [key]: true },
 				});

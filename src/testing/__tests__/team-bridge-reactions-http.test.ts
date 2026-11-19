@@ -8,6 +8,7 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
@@ -82,13 +83,14 @@ afterEach(async () => {
 const CONV = "bcv_humans";
 const THUMBS = "\u{1F44D}";
 const PARTY = "\u{1F389}";
-async function world(scenario: string) {
+async function world(scenario: string, fetchImpl?: typeof globalThis.fetch) {
 	const fixture = await rig();
 	const { url } = await fixture.listen();
 	const base = `${url}/mock-hub/${scenario}/v1/messaging`;
 	const accessToken = async () => TEAM_BRIDGE_FIXTURE_TOKEN;
 	const hub = createHubClient({
 		baseUrl: `${url}/mock-hub/${scenario}`,
+		fetchImpl,
 		accessToken,
 	});
 	const bridge = createTeamBridgeStore({ hub: () => hub, accessToken });
@@ -239,4 +241,142 @@ describe("reactions over the actual HTTP client and mock hub", () => {
 			(await w.stats()).requests.filter((r) => r.path.includes("/reactions/")),
 		).toHaveLength(1);
 	});
+});
+
+it("rejects a delayed pre-write HTTP history answer, then accepts a fresh poll and sends DELETE", async () => {
+	let hold = false;
+	let release!: () => void;
+	let captured!: () => void;
+	const snapshotReady = new Promise<void>((yes) => {
+		captured = yes;
+	});
+	const released = new Promise<void>((yes) => {
+		release = yes;
+	});
+	const w = await world("reactions", async (input, init) => {
+		const response = await fetch(input, init);
+		if (
+			hold &&
+			String(input).includes("/messages?") &&
+			(!init?.method || init.method === "GET")
+		) {
+			hold = false;
+			// Drain the actual HTTP answer BEFORE the write; only its delivery is delayed.
+			const body = await response.text();
+			captured();
+			await released;
+			return new Response(body, {
+				status: response.status,
+				headers: response.headers,
+			});
+		}
+		return response;
+	});
+	await w.poll();
+	hold = true;
+	const oldPoll = w.poll();
+	await snapshotReady;
+	try {
+		expect(await w.bridge.actions.toggleReaction(target("bcm_3"), THUMBS)).toBe(
+			"added",
+		);
+	} finally {
+		release();
+	}
+	await oldPoll;
+	expect(w.held("bcm_3")?.find((r) => r.emoji === THUMBS)?.reacted_by_me).toBe(
+		true,
+	);
+	expect(await w.bridge.actions.toggleReaction(target("bcm_3"), THUMBS)).toBe(
+		"removed",
+	);
+	expect(
+		(await w.stats()).requests
+			.filter((r) => r.path.includes("/reactions/"))
+			.map((r) => r.method),
+	).toEqual(["PUT", "DELETE"]);
+	await w.desktop("PUT", "bcm_3", THUMBS);
+	await w.poll();
+	expect(w.held("bcm_3")?.find((r) => r.emoji === THUMBS)?.reacted_by_me).toBe(
+		true,
+	);
+});
+
+it("honours a real HTTP 429 Retry-After across messages without optimistic leaks", async () => {
+	let now = 1000;
+	const methods: string[] = [];
+	const statuses: number[] = [];
+	const server = createServer((request, response) => {
+		request.resume();
+		methods.push(request.method ?? "");
+		const status = methods.length === 1 ? 429 : 200;
+		statuses.push(status);
+		response.writeHead(status, {
+			"content-type": "application/json",
+			...(status === 429 ? { "Retry-After": "60" } : {}),
+		});
+		response.end(
+			JSON.stringify(
+				status === 429
+					? { error: "Rate limited", code: "rate_limited" }
+					: {
+							result: {
+								message_id: "bcm_1",
+								reactions: [
+									{
+										emoji: THUMBS,
+										count: 1,
+										reacted_by_me: true,
+										sample_labels: [],
+									},
+								],
+							},
+						},
+			),
+		);
+	});
+	server.listen(0, "127.0.0.1");
+	await once(server, "listening");
+	rigs.push({
+		close: async () => {
+			server.closeAllConnections();
+			await new Promise<void>((yes, no) =>
+				server.close((error) => (error ? no(error) : yes())),
+			);
+		},
+	});
+	const address = server.address();
+	if (!address || typeof address === "string")
+		throw new Error("Missing fixture address");
+	const accessToken = async () => TEAM_BRIDGE_FIXTURE_TOKEN;
+	const hub = createHubClient({
+		baseUrl: `http://127.0.0.1:${address.port}`,
+		accessToken,
+	});
+	const bridge = createTeamBridgeStore({
+		hub: () => hub,
+		accessToken,
+		now: () => now,
+	});
+	expect(await bridge.actions.toggleReaction(target("bcm_1"), THUMBS)).toBe(
+		"failed",
+	);
+	const before = bridge.store.getState();
+	expect(before.reactionPending).toEqual({});
+	expect(await bridge.actions.toggleReaction(target("bcm_3"), PARTY)).toBe(
+		"ignored",
+	);
+	expect(bridge.store.getState()).toBe(before);
+	now += 59999;
+	expect(await bridge.actions.toggleReaction(target("bcm_1"), THUMBS)).toBe(
+		"ignored",
+	);
+	expect(methods).toEqual(["PUT"]);
+	now += 2;
+	expect(await bridge.actions.toggleReaction(target("bcm_1"), THUMBS)).toBe(
+		"added",
+	);
+	expect(statuses).toEqual([429, 200]);
+	expect(methods).toEqual(["PUT", "PUT"]);
+	expect(bridge.store.getState().reactionPending).toEqual({});
 });
