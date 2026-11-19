@@ -697,8 +697,11 @@ export const Sheet = ({
 								 *  bottom-anchored (to the keyboard, while it is up), so a hugging body
 								 *  moved the field the reader is typing in by every result a keystroke
 								 *  removed — 59 → ≈272 pt for one query on a 430×932 phone. Sheets
-								 *  without one keep hugging; a `content` detent with the keyboard down
-								 *  has no cap, so nothing is held there either. */
+								 *  without one keep hugging. The cap is held with the keyboard down
+								 *  too: the `content` detent (`SHEET_DETENTS.content`, 0.6) still
+								 *  yields a cap, so a narrowed query keeps the sheet at that height
+								 *  after the keyboard is dismissed — the field stays put, and the
+								 *  held height never exceeds the detent. */
 								style={
 									maxContentHeight === undefined
 										? undefined

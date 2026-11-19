@@ -324,15 +324,16 @@ const ALLOWLIST: {
 	{
 		file: "src/ui/components/sheet.tsx",
 		token: "left",
-		count: 1,
+		count: 2,
 		reason:
-			"the body fade spans the sheet between the device's safe-area insets",
+			"the body fade and the pinned-region fade each span the sheet between the device's safe-area insets",
 	},
 	{
 		file: "src/ui/components/sheet.tsx",
 		token: "right",
-		count: 1,
-		reason: "the other safe-area inset of the same pair",
+		count: 2,
+		reason:
+			"the other safe-area inset of the same pair, once per fade (body and pinned)",
 	},
 	{
 		file: "src/ui/components/toast.tsx",
