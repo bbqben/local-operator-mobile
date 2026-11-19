@@ -209,5 +209,14 @@
 	"mobile.team_bridge.thread.send_error": "Your message was not confirmed. Your draft is saved here. Retry sends the same message safely.",
 	"mobile.team_bridge.thread.send_retry": "Retry send",
 	"mobile.team_bridge.title": "Team Bridge",
-	"mobile.team_bridge.unread": "{count, plural, one {# unread} other {# unread}}"
+	"mobile.team_bridge.unread": "{count, plural, one {# unread} other {# unread}}",
+	"mobile.team_bridge.reactions.details": "Reaction details",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} one {{labels} and # other} other {{labels} and # others}}",
+	"mobile.team_bridge.reactions.sample_notice": "Names shown are a sample, not a full list.",
+	"mobile.team_bridge.reactions.you_reacted": "You reacted",
+	"mobile.team_bridge.reactions.show_more": "Show {count} more",
+	"mobile.team_bridge.reactions.show_less": "Show less",
+	"mobile.team_bridge.reply_thread.last_reply": "Last reply {time}",
+	"mobile.team_bridge.reactions.hint_inspect": "Double tap to inspect reaction details",
+	"mobile.team_bridge.reactions.sample_none": "No names were included in this summary."
 }

@@ -35,10 +35,12 @@ export function EmojiCapture({
 	onCancel: () => void;
 }) {
 	const input = useRef<TextInput>(null);
+	const settled = useRef(false);
 	const [value, setValue] = useState("");
 	const keyboard = useKeyboardFrame();
 	useEffect(() => {
 		if (!active) return;
+		settled.current = false;
 		setValue("");
 		input.current?.focus();
 	}, [active]);
@@ -67,11 +69,19 @@ export function EmojiCapture({
 						setValue("");
 						return;
 					}
+					if (settled.current) return;
+					// Blur can dispatch synchronously. Mark completion first so its
+					// cancellation path cannot restore focus or finish a second time.
+					settled.current = true;
 					setValue("");
 					input.current?.blur();
 					onPick(emoji);
 				}}
-				onBlur={onCancel}
+				onBlur={() => {
+					if (settled.current) return;
+					settled.current = true;
+					onCancel();
+				}}
 			/>
 			<View className="border-t border-hairline bg-elevated px-4 py-2">
 				<Text className="text-meta text-ink-muted">

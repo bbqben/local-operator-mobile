@@ -76,6 +76,7 @@ import { Sheet } from "@/ui/components/sheet";
 import { useIsRTL } from "@/ui/direction";
 import { cx } from "@/ui/variants";
 import { EmojiCapture } from "./emoji-capture";
+import { captureReactionFocus } from "./reaction-focus";
 import { useReactionToggle } from "./reaction-pills";
 
 /**
@@ -230,7 +231,7 @@ export type MessageActionsController = {
 	 *  serves them. False hides the quick row, `+` and "React". */
 	reactable: boolean;
 	list: (message: Message) => MessageAction[];
-	open: (message: Message) => void;
+	open: (message: Message, origin?: () => View | null) => void;
 	run: (action: MessageAction, message: Message) => void;
 };
 
@@ -260,6 +261,17 @@ export function useMessageActions({
 	const toggle = useReactionToggle();
 	/** The message whose `+` is waiting on the system emoji keyboard. */
 	const [capturing, setCapturing] = useState<Message | null>(null);
+	const returnFocus = useRef<(() => void) | null>(null);
+	const restoreAfterCapture = useRef(false);
+	// Commit the hidden input's removal before returning focus. No input focus,
+	// modal re-open, or timeout race with the sheet's dismissal handoff.
+	useEffect(() => {
+		if (!capturing && restoreAfterCapture.current) {
+			restoreAfterCapture.current = false;
+			returnFocus.current?.();
+			returnFocus.current = null;
+		}
+	}, [capturing]);
 	const [target, setTarget] = useState<{
 		message: Message;
 		open: boolean;
@@ -300,7 +312,8 @@ export function useMessageActions({
 		[scope, showToast],
 	);
 	const open = useCallback(
-		(message: Message) => {
+		(message: Message, origin?: () => View | null) => {
+			returnFocus.current = captureReactionFocus(origin);
 			// The spec's long-press tick (§4.5): an action was taken.
 			haptic("light");
 			handoff.cancel();
@@ -415,10 +428,14 @@ export function useMessageActions({
 				active={capturing !== null}
 				onPick={(emoji) => {
 					const on = capturing;
+					restoreAfterCapture.current = true;
 					setCapturing(null);
 					if (on) pick(emoji, on);
 				}}
-				onCancel={() => setCapturing(null)}
+				onCancel={() => {
+					restoreAfterCapture.current = true;
+					setCapturing(null);
+				}}
 			/>
 		</>
 	);

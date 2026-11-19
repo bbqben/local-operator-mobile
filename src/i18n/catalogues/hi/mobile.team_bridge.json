@@ -209,5 +209,14 @@
 	"mobile.team_bridge.thread.send_error": "आपके संदेश की पुष्टि नहीं हुई। ड्राफ़्ट यहाँ सुरक्षित है। फिर कोशिश करने पर वही संदेश सुरक्षित तरीके से भेजा जाएगा।",
 	"mobile.team_bridge.thread.send_retry": "भेजने की फिर कोशिश करें",
 	"mobile.team_bridge.title": "Team Bridge",
-	"mobile.team_bridge.unread": "{count, plural, one {# अपठित} other {# अपठित}}"
+	"mobile.team_bridge.unread": "{count, plural, one {# अपठित} other {# अपठित}}",
+	"mobile.team_bridge.reactions.details": "प्रतिक्रिया का विवरण",
+	"mobile.team_bridge.reactions.sample": "{count, plural, =0 {{labels}} other {{labels} और # अन्य}}",
+	"mobile.team_bridge.reactions.sample_notice": "दिखाए गए नाम केवल एक नमूना हैं, पूरी सूची नहीं।",
+	"mobile.team_bridge.reactions.you_reacted": "आपने प्रतिक्रिया दी",
+	"mobile.team_bridge.reactions.show_more": "{count} और दिखाएँ",
+	"mobile.team_bridge.reactions.show_less": "कम दिखाएँ",
+	"mobile.team_bridge.reply_thread.last_reply": "आखिरी जवाब: {time}",
+	"mobile.team_bridge.reactions.hint_inspect": "प्रतिक्रिया का विवरण देखने के लिए दो बार टैप करें",
+	"mobile.team_bridge.reactions.sample_none": "इस सारांश में कोई नाम नहीं दिया गया है।"
 }

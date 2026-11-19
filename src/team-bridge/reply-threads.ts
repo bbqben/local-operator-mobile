@@ -49,6 +49,8 @@ export interface ReplyThreadSummary {
 	count: number;
 	participants: ReplyParticipant[];
 	unread: number | null;
+	/** Only a valid hub rollup timestamp, never inferred from visible replies. */
+	lastReplyAt?: string;
 }
 
 /**
@@ -67,6 +69,7 @@ export function replyThreadSummary(
 		| "reply_participants"
 		| "reply_participant_ids"
 		| "thread_unread_count"
+		| "last_reply_at"
 	>,
 ): ReplyThreadSummary | null {
 	if (message.thread_root_id) return null;
@@ -91,6 +94,10 @@ export function replyThreadSummary(
 			.filter((p): p is ReplyParticipant => p !== null)
 			.slice(0, 3),
 		unread: message.thread_unread_count ?? null,
+		...(message.last_reply_at &&
+		Number.isFinite(Date.parse(message.last_reply_at))
+			? { lastReplyAt: message.last_reply_at }
+			: {}),
 	};
 }
 

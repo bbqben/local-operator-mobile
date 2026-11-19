@@ -123,7 +123,11 @@ describe("Team Bridge copy", () => {
 		// +5 `actions.*` (the message-actions sheet, #339): 184.
 		// +16 `card_body.*` (inbound card bodies, #344), merged: 184 + 16 = 200.
 		// +11 reactions (#345): `actions.a11y_react` + ten `reactions.*`: 211.
-		expect(keys).toHaveLength(211);
+		// +9 inspection/thread keys (#348): reactions.details, hint_inspect,
+		// sample, sample_none, sample_notice, show_less, show_more, you_reacted;
+		// reply_thread.last_reply. Counted in all eight merged JSON catalogues:
+		// 211 + 9 = 220. Keep the literal count so unrelated additions still fail.
+		expect(keys).toHaveLength(220);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))

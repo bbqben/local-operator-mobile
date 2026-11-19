@@ -23,6 +23,8 @@ const rec = vi.hoisted(() => ({
 	inputs: [] as Record<string, unknown>[],
 	sheet: null as null | { onDismiss?: () => void; onClose: () => void },
 	visible: false,
+	details: null as null | { visible: boolean; onClose: () => void },
+	focusReturns: 0,
 	clipboard: [] as string[],
 	haptics: [] as string[],
 	rtl: false,
@@ -222,8 +224,11 @@ vi.mock("@/ui/components/sheet", () => ({
 		onDismiss?: () => void;
 		onClose: () => void;
 	}) => {
-		rec.sheet = props;
-		rec.visible = props.visible;
+		if (props.testID === "team-bridge-reaction-details") rec.details = props;
+		else {
+			rec.sheet = props;
+			rec.visible = props.visible;
+		}
 		return props.visible
 			? createElement(
 					"section",
@@ -231,6 +236,11 @@ vi.mock("@/ui/components/sheet", () => ({
 					props.children,
 				)
 			: null;
+	},
+}));
+vi.mock("./reaction-focus", () => ({
+	captureReactionFocus: () => () => {
+		rec.focusReturns++;
 	},
 }));
 vi.mock("./profile-card", () => ({
@@ -252,12 +262,15 @@ vi.mock("./attachment-views", () => ({
 	},
 	ComposerAttachments: () => null,
 }));
-vi.mock("./reply-thread-chip", () => ({
-	ReplyThreadChip: (props: Record<string, unknown>) => {
-		rec.child.set("ReplyThreadChip", props);
-		return null;
-	},
-}));
+vi.mock("./reply-thread-chip", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("./reply-thread-chip")>();
+	return {
+		ReplyThreadChip: (props: Record<string, unknown>) => {
+			rec.child.set("ReplyThreadChip", props);
+			return createElement(actual.ReplyThreadChip, props as never);
+		},
+	};
+});
 vi.mock("@/ui/direction", async (importOriginal) => ({
 	...((await importOriginal()) as object),
 	useIsRTL: () => rec.rtl,
@@ -815,6 +828,28 @@ const SELECTION_CONTAINER_WIRING = [
 const NO_DIVIDER_AT_ZERO =
 	/count === 0 && thread\.replies\.length === 0\s*\?\s*\[\]/;
 /* The reply screen is pinned in source (see above). */
+describe("served last-reply chip", () => {
+	it.each([undefined, "not-a-time", "2026-11-17T10:05:00Z"])(
+		"renders time only for a valid authoritative rollup (%s)",
+		async (last_reply_at) => {
+			await act(async () =>
+				root.render(
+					createElement(Harness, {
+						message: { ...ROOT, reply_count: 2, last_reply_at },
+						onOpenReplyThread: () => {},
+					}),
+				),
+			);
+			const chip = rec.presses.get(a11y.teamBridgeReplyThreadOpenId(ROOT.id));
+			if (last_reply_at?.startsWith("2026")) {
+				const expected = `Last reply ${new Intl.DateTimeFormat("en", { dateStyle: "short", timeStyle: "short" }).format(new Date(last_reply_at))}`;
+				expect(chip?.accessibilityHint).toBe(expected);
+				expect(rec.texts.some((text) => text.children === expected)).toBe(true);
+			} else expect(chip?.accessibilityHint).toBeUndefined();
+		},
+	);
+});
+
 describe("the reply thread screen", () => {
 	const screen = () =>
 		readFileSync(new URL("./reply-thread-screen.tsx", import.meta.url), "utf8");
@@ -917,8 +952,18 @@ describe("reactions: pills, quick row, rollback", () => {
 		expect(pill(PARTY)?.accessibilityHint).toBe("Double tap to react too");
 		expect(rec.texts.some((t) => t.children === "4 reactions")).toBe(true);
 		// Mine carries the accent ring (contrast row "team bridge own reaction pill").
-		expect(String(pill(THUMBS)?.className)).toContain("border-accent-border");
-		expect(String(pill(PARTY)?.className)).toContain("border-border-control");
+		expect(
+			String(
+				rec.child.get(`${a11y.teamBridgeReactionPillId(THUMBS)}-visual`)
+					?.className,
+			),
+		).toContain("border-accent-border");
+		expect(
+			String(
+				rec.child.get(`${a11y.teamBridgeReactionPillId(PARTY)}-visual`)
+					?.className,
+			),
+		).toContain("border-border-control");
 	});
 
 	it("tap another's pill: +1 and mine at once; the answer replaces it; tap again reverts", async () => {
@@ -1121,10 +1166,134 @@ describe("reactions: pills, quick row, rollback", () => {
 		expect(sheetOpen()).toBe(true);
 	});
 
+	it("pill hold inspects sampled labels independently of mine; it does not toggle or open message actions", async () => {
+		const hub = seed(
+			[{ ...rx(THUMBS, 8, true), sample_labels: ["Ada", "Ben", "Cy"] }],
+			async () => ({}),
+		);
+		await mount();
+		await act(async () => handler(pill(THUMBS), "onLongPress")());
+		expect(rec.details?.visible).toBe(true);
+		expect(rec.visible).toBe(false);
+		expect(
+			rec.texts.some(
+				(text) => text.children === "Ada, Ben, and Cy and 5 others",
+			),
+		).toBe(true);
+		expect(rec.texts.some((text) => text.children === "You reacted")).toBe(
+			true,
+		);
+		expect(hub.react).not.toHaveBeenCalled();
+		await act(async () => rec.details?.onClose());
+		expect(rec.details?.visible).toBe(false);
+	});
+
+	it.each([false, true])(
+		"14 pills collapse at three measured lines and expand without losing counts (RTL=%s)",
+		async (rtl) => {
+			rec.rtl = rtl;
+			const emoji = [
+				"👍",
+				"🎉",
+				"😀",
+				"😁",
+				"😂",
+				"😃",
+				"😄",
+				"😅",
+				"😆",
+				"😉",
+				"😊",
+				"😋",
+				"😎",
+				"😍",
+			];
+			seed(
+				emoji.map((item) => rx(item, 2)),
+				async () => ({}),
+			);
+			await mount();
+			await act(async () => {
+				for (const item of emoji)
+					handler(
+						rec.child.get(a11y.teamBridgeReactionMeasureId(item)),
+						"onLayout",
+					)({ nativeEvent: { layout: { width: 44 } } });
+				handler(
+					rec.child.get("team-bridge-reaction-wrap"),
+					"onLayout",
+				)({ nativeEvent: { layout: { width: 150 } } });
+			});
+			expect(emoji.filter((item) => pill(item))).toHaveLength(8);
+			expect(rec.texts.some((text) => text.children === "28 reactions")).toBe(
+				true,
+			);
+			const expand = () => rec.presses.get("team-bridge-reactions-expand");
+			expect(expand()?.accessibilityState).toMatchObject({ expanded: false });
+			await act(async () => handler(expand(), "onPress")());
+			expect(emoji.filter((item) => pill(item))).toHaveLength(14);
+			expect(expand()?.accessibilityState).toMatchObject({ expanded: true });
+			await act(async () => handler(expand(), "onPress")());
+			expect(emoji.filter((item) => pill(item))).toHaveLength(8);
+			// These are native layout contracts, NOT a rendered geometry claim.
+			expect(pill(THUMBS)?.style).toMatchObject({ minWidth: 44, height: 44 });
+			expect(
+				rec.presses.get(a11y.SURFACE.teamBridgeReactionAdd)?.style,
+			).toMatchObject({ minWidth: 44, height: 44 });
+			expect(
+				rec.presses.get(a11y.SURFACE.teamBridgeReactionAdd)?.hitSlop,
+			).toBeUndefined();
+		},
+	);
+
+	it.each(["cancel", "pick"])(
+		"custom emoji %s returns origin focus once, only after capture unmount",
+		async (ending) => {
+			seed([rx(THUMBS, 1)], async () => ({
+				message_id: ROOT.id,
+				reactions: [rx(THUMBS, 1), rx("🦄", 1, true)],
+			}));
+			await mount();
+			await longPress(ROOT);
+			await act(async () =>
+				handler(
+					rec.presses.get(a11y.teamBridgeQuickReactionId("+")),
+					"onPress",
+				)(),
+			);
+			await nativeDismiss();
+			const field = rec.inputs
+				.filter((item) => item.testID === a11y.SURFACE.teamBridgeEmojiCapture)
+				.at(-1);
+			const before = rec.focusReturns;
+			await act(async () => {
+				if (ending === "pick") handler(field, "onChangeText")("🦄");
+				handler(field, "onBlur")();
+			});
+			expect(rec.focusReturns).toBe(before + 1);
+			await act(async () => handler(field, "onBlur")());
+			expect(rec.focusReturns).toBe(before + 1);
+		},
+	);
+
 	it("a read-only conversation shows pills but offers no toggle, `+` or quick row", async () => {
 		const hub = seed([rx(THUMBS, 2)], async () => ({}));
 		await mount(false);
-		expect(pill(THUMBS)?.disabled).toBe(true);
+		expect(pill(THUMBS)?.disabled).not.toBe(true);
+		await tap(THUMBS);
+		expect(rec.details?.visible).toBe(true);
+		expect(
+			rec.texts.some(
+				(text) => text.children === "No names were included in this summary.",
+			),
+		).toBe(true);
+		expect(rec.texts.some((text) => text.children === "You reacted")).toBe(
+			false,
+		);
+		expect(pill(THUMBS)?.accessibilityHint).toBe(
+			"Double tap to inspect reaction details",
+		);
+		expect(hub.react).not.toHaveBeenCalled();
 		expect(rec.presses.has(a11y.SURFACE.teamBridgeReactionAdd)).toBe(false);
 		await longPress(ROOT);
 		expect(rec.presses.has(a11y.teamBridgeQuickReactionId(THUMBS))).toBe(false);
