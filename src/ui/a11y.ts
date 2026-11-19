@@ -835,6 +835,10 @@ export const SURFACE = {
 	sidebarViewSheet: "sidebar-view-sheet",
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeAttachSheet: "team-bridge-attach-sheet",
+	/** The long-press message-actions sheet (Reply in thread, Copy, Select). */
+	teamBridgeMessageActionsSheet: "team-bridge-message-actions-sheet",
+	/** The selected tint a row holds while its actions sheet is open. */
+	teamBridgeMessageActionsTint: "team-bridge-message-actions-tint",
 	teamBridgeReplyThreadList: "team-bridge-reply-thread-list",
 	teamBridgeReplyThreadLoading: "team-bridge-reply-thread-loading",
 	teamBridgeReplyThreadError: "team-bridge-reply-thread-error",
@@ -2506,6 +2510,9 @@ export const teamBridgeAttachmentId = (value: string): string =>
 	`team-bridge-attachment-${value}`;
 export const teamBridgeAttachSourceId = (value: string): string =>
 	`team-bridge-attach-source-${value}`;
+/** One row of the message-actions sheet, keyed by its action name. */
+export const teamBridgeMessageActionId = (value: string): string =>
+	`team-bridge-message-action-${value}`;
 export const teamBridgeViewerId = (value: string): string =>
 	`team-bridge-viewer-${value}`;
 export const teamBridgeProfileOpenId = (value: string): string =>

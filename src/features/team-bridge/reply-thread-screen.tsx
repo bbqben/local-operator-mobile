@@ -36,6 +36,7 @@ import { useTeamBridge, useTeamBridgeState } from "@/team-bridge/provider";
 import {
 	isReplyRootGone,
 	newestDisplayedReplySeq,
+	REPLY_THREAD_COMPOSE_PARAM,
 	type ReplyThreadTarget,
 	replyThreadKey,
 } from "@/team-bridge/reply-threads";
@@ -49,6 +50,7 @@ import { Skeleton } from "@/ui/components/skeleton";
 import { useCompactChrome } from "@/ui/layout";
 import { BridgeComposerDock } from "./composer-dock";
 import { BridgeBack, BridgeGate } from "./gate";
+import { useMessageActions } from "./message-actions-sheet";
 import { ProfileSheet } from "./profile-card";
 import { BridgeComposerField, BridgeThreadTitle } from "./thread-chrome";
 import { ThreadMessageRow } from "./thread-screen";
@@ -73,7 +75,15 @@ type Row =
 	| { type: "message"; key: string; message: Message; root: boolean }
 	| { type: "divider"; key: string; count: number };
 
-function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
+function ReplyThreadContent({
+	target,
+	compose = false,
+}: {
+	target: ReplyThreadTarget;
+	/** Opened from the actions sheet's "Reply in thread": focus the
+	 *  composer on arrival (`replyThreadPath(…, { compose: true })`). */
+	compose?: boolean;
+}) {
 	const { actions, hub } = useTeamBridge();
 	const insets = useSafeAreaInsets();
 	const chromeGlass = useChromeGlass();
@@ -216,6 +226,15 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 
 	const [profile, setProfile] = useState<ProfileSubject | null>(null);
 	const [deliveryHelp, setDeliveryHelp] = useState<string | null>(null);
+	/* The timeline's actions sheet, minus "Reply in thread": threads are one
+	 *  level deep (the hub refuses a reply as a root), and the root here is
+	 *  already this thread. Copy and Select text on every row. */
+	const messageActions = useMessageActions({
+		scope: "reply",
+		canReplyInThread: false,
+	});
+	const actionsController = messageActions.controller;
+	const actionsOpenId = messageActions.openMessageId;
 	const renderItem = useCallback(
 		({ item }: { item: Row }) =>
 			item.type === "divider" ? (
@@ -235,9 +254,11 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 					onOpenProfile={setProfile}
 					onDeliveryHelp={setDeliveryHelp}
 					locale={locale}
+					actions={actionsController}
+					actionsOpen={item.message.id === actionsOpenId}
 				/>
 			),
-		[people, hub, target.tenantId, locale],
+		[people, hub, target.tenantId, locale, actionsController, actionsOpenId],
 	);
 
 	/* The composer: one pending reply, idempotent on retry. The same text keeps
@@ -390,6 +411,7 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 							onSend={() => {
 								void send();
 							}}
+							autoFocus={compose}
 						/>
 					</BridgeComposerDock>
 				) : null}
@@ -400,6 +422,7 @@ function ReplyThreadContent({ target }: { target: ReplyThreadTarget }) {
 				onClose={() => setProfile(null)}
 				currentConversationId={target.conversationId}
 			/>
+			{messageActions.sheet}
 			<Sheet
 				visible={deliveryHelp !== null}
 				onClose={() => setDeliveryHelp(null)}
@@ -423,6 +446,7 @@ export default function TeamBridgeReplyThreadScreen() {
 		tenantId?: string;
 		conversationId?: string;
 		rootId?: string;
+		compose?: string;
 	}>();
 	const tenantId = single(params.tenantId);
 	const conversationId = single(params.conversationId);
@@ -444,6 +468,7 @@ export default function TeamBridgeReplyThreadScreen() {
 				 *  visibility evidence survives into another one. */
 				key={`${selfAccountId}/${tenantId}/${conversationId}/${rootId}`}
 				target={target}
+				compose={single(params[REPLY_THREAD_COMPOSE_PARAM]) === "1"}
 			/>
 		</BridgeGate>
 	);

@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocaleFrame } from "@/features/auth/connection-provider";
 import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
 import { Markdown } from "@/features/session/components/markdown";
+import type { HostSelection } from "@/features/session/components/selectable-message";
 import {
 	textSelectionContainerScroll,
 	textSelectionContainerTouch,
@@ -107,6 +108,12 @@ import {
 } from "./mentions/mention-strip";
 import { serializeMentions } from "./mentions/tokens";
 import { useMentions } from "./mentions/use-mentions";
+import {
+	bridgeSelectionId,
+	type MessageActionsController,
+	messageActionAccessibility,
+	useMessageActions,
+} from "./message-actions-sheet";
 import { MessageDelivery } from "./message-delivery";
 import { createMessageSender } from "./message-sender";
 import {
@@ -219,9 +226,18 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 	fadeMs = DURATIONS.draw,
 	onAnchorLayout,
 	locale,
+	actions,
+	actionsOpen = false,
 }: {
 	message: Message;
 	continuation: boolean;
+	/** The screen's message-actions sheet (`message-actions-sheet.tsx`):
+	 *  long-press opens it, and its actions ride on the body leaves for screen
+	 *  readers. Absent: the row is inert to long-press. */
+	actions?: MessageActionsController;
+	/** This row's sheet is open: the row holds the selected tint so the
+	 *  reader keeps the referent while choosing (spec §4.2). */
+	actionsOpen?: boolean;
 	/** The app language the row renders in. A PROP rather than an
 	 *  `activeLocale()` read because this row is `memo()`: a read inside it is
 	 *  only re-run when some other prop changes, so a language frame would leave
@@ -250,10 +266,35 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 	// A sender the directory no longer knows renders a neutral silhouette + inert name.
 	const subject = senderSubject(message.sender, people);
 	const attachments = messageAttachments(message);
+	/* The body hands its long-press and screen-reader actions to the row
+	 *  (`HostSelection`): long-press now opens the actions sheet instead of
+	 *  entering selection directly, which moved into the sheet as "Select
+	 *  text" (Slack's pattern). Recomputed on a language change so the action
+	 *  labels follow it (`locale` is in the deps for exactly that). */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `locale` is a TRIGGER: the action labels are read live through t()
+	const host = useMemo<HostSelection | undefined>(
+		() =>
+			actions
+				? {
+						id: bridgeSelectionId(actions.scope, message.id),
+						onLongPress: () => actions.open(message),
+						accessibility: messageActionAccessibility(
+							actions.list(message),
+							(action) => actions.run(action, message),
+						),
+					}
+				: undefined,
+		[actions, message, locale],
+	);
 	return (
-		<View
+		<Pressable
 			className={`flex-row gap-3 px-4 ${continuation ? "py-0.5" : "pt-3 pb-0.5"}`}
 			testID={teamBridgeMessageId(message.id)}
+			onLongPress={host?.onLongPress}
+			/* NOT one accessibility element: an accessible container hides its
+			 *  children on iOS, swallowing the author link, the body's links and
+			 *  the attachments. Screen readers reach the actions on the leaves. */
+			accessible={false}
 			onLayout={
 				onAnchorLayout
 					? (event) =>
@@ -261,6 +302,16 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					: undefined
 			}
 		>
+			{actionsOpen ? (
+				/* Painted beneath the content on its own layer, like the anchor
+				 *  highlight, so opening the sheet shifts no geometry. */
+				<View
+					pointerEvents="none"
+					aria-hidden
+					className="absolute inset-0 bg-row-selected"
+					testID={SURFACE.teamBridgeMessageActionsTint}
+				/>
+			) : null}
 			{highlight ? (
 				<AnchorHighlight fading={highlight === "fade"} fadeMs={fadeMs} />
 			) : null}
@@ -294,7 +345,13 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 								{sender}
 							</Text>
 						)}
-						<Text className="text-meta text-ink-muted">
+						<Text
+							className="text-meta text-ink-muted"
+							/* A message with no text has no body leaf to carry the
+							 *  actions (an image-only root): its time does instead, so
+							 *  "Reply in thread" stays reachable without a hold. */
+							{...(host && !message.body?.trim() ? host.accessibility : {})}
+						>
 							{/* The APP language, not the device default: with no locale
 							 *  `toLocaleTimeString` follows the device, so a Spanish-UI
 							 *  reader on an English device got English times. */}
@@ -318,7 +375,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 						</Text>
 					) : null
 				) : (
-					<Markdown text={message.body} />
+					<Markdown text={message.body} host={host} />
 				)}
 				<MessageAttachments
 					hub={hub}
@@ -339,7 +396,7 @@ export const ThreadMessageRow = memo(function ThreadMessageRow({
 					/>
 				) : null}
 			</View>
-		</View>
+		</Pressable>
 	);
 });
 
@@ -945,6 +1002,29 @@ function ThreadContent({
 		},
 		[router, tenantId, conversationId],
 	);
+	/* The actions sheet's "Reply in thread": the chip's route plus `compose`,
+	 *  so the thread screen lands with its composer focused. This is the only
+	 *  way to START a thread from the timeline — the chip renders only once a
+	 *  root has replies. Not offered read-only: that thread has no composer. */
+	const startReplyThread = useCallback(
+		(rootId: string) => {
+			if (!conversationId) return;
+			router.push(
+				replyThreadPath(
+					{ tenantId, conversationId, rootId },
+					{ compose: true },
+				) as never,
+			);
+		},
+		[router, tenantId, conversationId],
+	);
+	const messageActions = useMessageActions({
+		scope: "timeline",
+		canReplyInThread: !readOnly && !!conversationId,
+		onReplyInThread: startReplyThread,
+	});
+	const actionsController = messageActions.controller;
+	const actionsOpenId = messageActions.openMessageId;
 	const renderItem = useCallback(
 		({ item }: { item: model.ThreadItem }) => {
 			if (item.type === "day")
@@ -990,6 +1070,8 @@ function ThreadContent({
 						item.message.id === highlightId ? measureRow : undefined
 					}
 					locale={locale}
+					actions={actionsController}
+					actionsOpen={item.message.id === actionsOpenId}
 				/>
 			);
 		},
@@ -1005,6 +1087,8 @@ function ThreadContent({
 			measureRow,
 			locale,
 			openReplyThread,
+			actionsController,
+			actionsOpenId,
 		],
 	);
 	const validDraft = routeId === "new" && !!target;
@@ -1476,6 +1560,7 @@ function ThreadContent({
 				onClose={() => setProfile(null)}
 				currentConversationId={conversationId}
 			/>
+			{messageActions.sheet}
 			<Sheet
 				visible={currentDeliveryHelp?.open === true}
 				onClose={() =>

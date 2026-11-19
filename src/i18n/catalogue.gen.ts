@@ -912,6 +912,11 @@ export type CatalogueKey =
 	| "mobile.signin.use_address"
 	| "mobile.signin.welcome.body"
 	| "mobile.signin.welcome.headline"
+	| "mobile.team_bridge.actions.copied"
+	| "mobile.team_bridge.actions.copy_text"
+	| "mobile.team_bridge.actions.reply_in_thread"
+	| "mobile.team_bridge.actions.select_text"
+	| "mobile.team_bridge.actions.title"
 	| "mobile.team_bridge.attachment.add"
 	| "mobile.team_bridge.attachment.attached_summary"
 	| "mobile.team_bridge.attachment.cannot_send"
@@ -1911,6 +1916,11 @@ export type NoParamKey =
 	| "mobile.signin.use_address"
 	| "mobile.signin.welcome.body"
 	| "mobile.signin.welcome.headline"
+	| "mobile.team_bridge.actions.copied"
+	| "mobile.team_bridge.actions.copy_text"
+	| "mobile.team_bridge.actions.reply_in_thread"
+	| "mobile.team_bridge.actions.select_text"
+	| "mobile.team_bridge.actions.title"
 	| "mobile.team_bridge.attachment.add"
 	| "mobile.team_bridge.attachment.cannot_send"
 	| "mobile.team_bridge.attachment.close"
@@ -2992,6 +3002,11 @@ export type MessageParams = {
 	"mobile.signin.use_address": NoParams;
 	"mobile.signin.welcome.body": NoParams;
 	"mobile.signin.welcome.headline": NoParams;
+	"mobile.team_bridge.actions.copied": NoParams;
+	"mobile.team_bridge.actions.copy_text": NoParams;
+	"mobile.team_bridge.actions.reply_in_thread": NoParams;
+	"mobile.team_bridge.actions.select_text": NoParams;
+	"mobile.team_bridge.actions.title": NoParams;
 	"mobile.team_bridge.attachment.add": NoParams;
 	"mobile.team_bridge.attachment.attached_summary": { count: number };
 	"mobile.team_bridge.attachment.cannot_send": NoParams;
@@ -4144,6 +4159,11 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.signin.use_address": "Use an address and password",
 	"mobile.signin.welcome.body": "This app drives the sessions on your own machine and shows what it did. Your code never leaves it.",
 	"mobile.signin.welcome.headline": "Your agent runs on your computer.",
+	"mobile.team_bridge.actions.copied": "Copied",
+	"mobile.team_bridge.actions.copy_text": "Copy text",
+	"mobile.team_bridge.actions.reply_in_thread": "Reply in thread",
+	"mobile.team_bridge.actions.select_text": "Select text",
+	"mobile.team_bridge.actions.title": "Message actions",
 	"mobile.team_bridge.attachment.add": "Add image",
 	"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# image attached} other {# images attached}}",
 	"mobile.team_bridge.attachment.cannot_send": "Can't send",
@@ -5281,6 +5301,11 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.signin.use_address": { role: "button", note: "Button that opens the manual connect screen where the reader types a relay address and password. Used on the sign-in screen and in the 'sign-in unavailable' panel; same wording at both." },
 	"mobile.signin.welcome.body": { role: "help", note: "Supporting paragraph on the welcome screen under the headline: the app controls sessions on the reader's own machine and shows the results; code never leaves the machine ('it' = the machine). Keep the privacy promise exact." },
 	"mobile.signin.welcome.headline": { role: "heading", note: "Headline of the first-run welcome screen (screen-reader header). One sentence with a full stop; 'agent' is the product's own word for the assistant." },
+	"mobile.team_bridge.actions.copied": { role: "status", note: "Brief confirmation shown after Copy text put the message on the clipboard. Past participle, no object." },
+	"mobile.team_bridge.actions.copy_text": { role: "button", note: "Row in the message-actions sheet that copies the whole message, as plain text without formatting, to the clipboard. Also a screen-reader action on the message." },
+	"mobile.team_bridge.actions.reply_in_thread": { role: "button", note: "Row in the message-actions sheet that opens this message's reply thread (starting one if it has no replies yet) with the reply box focused. Same wording as mobile.team_bridge.reply_thread.reply; keep them identical." },
+	"mobile.team_bridge.actions.select_text": { role: "button", note: "Row in the message-actions sheet that lets the reader select part of the message with drag handles, then copy or share it. Slack's label for the same action. Also a screen-reader action on the message." },
+	"mobile.team_bridge.actions.title": { role: "heading", note: "Accessible name and title of the sheet that rises when a Team Bridge message is long-pressed (Slack-style message menu). Names the menu, not an action." },
 	"mobile.team_bridge.attachment.add": { role: "button", note: "Team Bridge image attachments: add. Preserve all ICU arguments. Counts refer to images, never messages. No public URL, automatic resend, enrollment or guaranteed upload is implied. " },
 	"mobile.team_bridge.attachment.attached_summary": { role: "status", note: "Team Bridge image attachments: attached_summary. Preserve all ICU arguments. Counts refer to images, never messages. No public URL, automatic resend, enrollment or guaranteed upload is implied. " },
 	"mobile.team_bridge.attachment.cannot_send": { role: "status", note: "Team Bridge image attachments: cannot_send. Preserve all ICU arguments. Counts refer to images, never messages. No public URL, automatic resend, enrollment or guaranteed upload is implied. Remove only the failing chip; retry is not available for final refusals." },
@@ -6432,6 +6457,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Usar una dirección y contraseña",
 		"mobile.signin.welcome.body": "Esta app dirige las sesiones de tu propia máquina y muestra lo que hizo. Tu código nunca sale de ella.",
 		"mobile.signin.welcome.headline": "Tu agente se ejecuta en tu máquina.",
+		"mobile.team_bridge.actions.copied": "Copiado",
+		"mobile.team_bridge.actions.copy_text": "Copiar texto",
+		"mobile.team_bridge.actions.reply_in_thread": "Responder en el hilo",
+		"mobile.team_bridge.actions.select_text": "Seleccionar texto",
+		"mobile.team_bridge.actions.title": "Acciones del mensaje",
 		"mobile.team_bridge.attachment.add": "Añadir imagen",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# imagen adjunta} other {# imágenes adjuntas}}",
 		"mobile.team_bridge.attachment.cannot_send": "No se puede enviar",
@@ -7567,6 +7597,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Utiliser une adresse et un mot de passe",
 		"mobile.signin.welcome.body": "Cette app pilote les sessions sur votre propre machine et en montre le résultat. Votre code ne la quitte jamais.",
 		"mobile.signin.welcome.headline": "Votre agent s’exécute sur votre ordinateur.",
+		"mobile.team_bridge.actions.copied": "Copié",
+		"mobile.team_bridge.actions.copy_text": "Copier le texte",
+		"mobile.team_bridge.actions.reply_in_thread": "Répondre dans le fil",
+		"mobile.team_bridge.actions.select_text": "Sélectionner le texte",
+		"mobile.team_bridge.actions.title": "Actions sur le message",
 		"mobile.team_bridge.attachment.add": "Ajouter une image",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# image jointe} other {# images jointes}}",
 		"mobile.team_bridge.attachment.cannot_send": "Envoi impossible",
@@ -8702,6 +8737,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "पता और पासवर्ड से कनेक्ट करें",
 		"mobile.signin.welcome.body": "यह ऐप आपकी अपनी मशीन पर सत्र चलाता है और दिखाता है कि क्या हुआ। आपका कोड उस मशीन से कभी बाहर नहीं जाता।",
 		"mobile.signin.welcome.headline": "आपका एजेंट आपके कंप्यूटर पर चलता है।",
+		"mobile.team_bridge.actions.copied": "कॉपी हो गया",
+		"mobile.team_bridge.actions.copy_text": "टेक्स्ट कॉपी करें",
+		"mobile.team_bridge.actions.reply_in_thread": "थ्रेड में जवाब दें",
+		"mobile.team_bridge.actions.select_text": "टेक्स्ट चुनें",
+		"mobile.team_bridge.actions.title": "संदेश की कार्रवाइयाँ",
 		"mobile.team_bridge.attachment.add": "चित्र जोड़ें",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# चित्र जोड़ा गया} other {# चित्र जोड़े गए}}",
 		"mobile.team_bridge.attachment.cannot_send": "भेज नहीं सकते",
@@ -9837,6 +9877,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Войти по адресу и паролю",
 		"mobile.signin.welcome.body": "Это приложение управляет сессиями на вашей машине и показывает, что было сделано. Ваш код её не покидает.",
 		"mobile.signin.welcome.headline": "Ваш агент работает на вашем компьютере.",
+		"mobile.team_bridge.actions.copied": "Скопировано",
+		"mobile.team_bridge.actions.copy_text": "Копировать текст",
+		"mobile.team_bridge.actions.reply_in_thread": "Ответить в ветке",
+		"mobile.team_bridge.actions.select_text": "Выделить текст",
+		"mobile.team_bridge.actions.title": "Действия с сообщением",
 		"mobile.team_bridge.attachment.add": "Добавить изображение",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {Прикреплено # изображение} few {Прикреплено # изображения} many {Прикреплено # изображений} other {Прикреплено # изображения}}",
 		"mobile.team_bridge.attachment.cannot_send": "Нельзя отправить",
@@ -10972,6 +11017,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "پتہ اور پاس ورڈ استعمال کریں",
 		"mobile.signin.welcome.body": "یہ ایپ آپ کی اپنی مشین پر سیشن چلاتی ہے اور دکھاتی ہے کہ کیا ہوا۔ آپ کا کوڈ کبھی اس مشین سے باہر نہیں جاتا۔",
 		"mobile.signin.welcome.headline": "آپ کا ایجنٹ آپ کے کمپیوٹر پر چلتا ہے۔",
+		"mobile.team_bridge.actions.copied": "کاپی ہو گیا",
+		"mobile.team_bridge.actions.copy_text": "متن کاپی کریں",
+		"mobile.team_bridge.actions.reply_in_thread": "تھریڈ میں جواب دیں",
+		"mobile.team_bridge.actions.select_text": "متن منتخب کریں",
+		"mobile.team_bridge.actions.title": "پیغام کی کارروائیاں",
 		"mobile.team_bridge.attachment.add": "تصویر شامل کریں",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, one {# تصویر شامل کی گئی} other {# تصاویر شامل کی گئیں}}",
 		"mobile.team_bridge.attachment.cannot_send": "بھیج نہیں سکتے",
@@ -12107,6 +12157,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "Dùng địa chỉ và mật khẩu",
 		"mobile.signin.welcome.body": "Ứng dụng này điều khiển các phiên trên chính máy của bạn và hiển thị những gì nó đã làm. Mã nguồn của bạn không bao giờ rời khỏi máy.",
 		"mobile.signin.welcome.headline": "Tác nhân của bạn chạy trên máy tính của bạn.",
+		"mobile.team_bridge.actions.copied": "Đã sao chép",
+		"mobile.team_bridge.actions.copy_text": "Sao chép văn bản",
+		"mobile.team_bridge.actions.reply_in_thread": "Trả lời trong chuỗi",
+		"mobile.team_bridge.actions.select_text": "Chọn văn bản",
+		"mobile.team_bridge.actions.title": "Thao tác với tin nhắn",
 		"mobile.team_bridge.attachment.add": "Thêm hình ảnh",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, other {Đã đính kèm # hình ảnh}}",
 		"mobile.team_bridge.attachment.cannot_send": "Không thể gửi",
@@ -13242,6 +13297,11 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.signin.use_address": "使用地址和密码",
 		"mobile.signin.welcome.body": "此应用在你的电脑上运行会话，并展示它做了什么。你的代码绝不会离开这台电脑。",
 		"mobile.signin.welcome.headline": "智能体运行在你的电脑上。",
+		"mobile.team_bridge.actions.copied": "已复制",
+		"mobile.team_bridge.actions.copy_text": "复制文本",
+		"mobile.team_bridge.actions.reply_in_thread": "在话题中回复",
+		"mobile.team_bridge.actions.select_text": "选择文本",
+		"mobile.team_bridge.actions.title": "消息操作",
 		"mobile.team_bridge.attachment.add": "添加图片",
 		"mobile.team_bridge.attachment.attached_summary": "{count, plural, other {已附加 # 张图片}}",
 		"mobile.team_bridge.attachment.cannot_send": "无法发送",
