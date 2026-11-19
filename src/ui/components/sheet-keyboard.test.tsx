@@ -32,6 +32,11 @@ const host = vi.hoisted(() => ({
 	nodes: new Map<string, Rec>(),
 	platform: "ios" as string,
 	layoutAnimations: [] as { duration: number; type: string }[],
+	/* What `useModalExit` reports: true while a closed sheet's exit runs. */
+	exiting: false,
+	/* Every ScrollView's latest props, keyed or not (the slash sheet's nested
+	 *  list has no testID). */
+	scrollViews: [] as Record<string, unknown>[],
 }));
 
 /** #216's keyboard store, controllable: same exports, same contract. */
@@ -109,6 +114,7 @@ vi.mock("react-native", async () => {
 		}
 	}
 	const done = { start: (cb?: () => void) => cb?.() };
+	const ScrollRecorder = recorder("ScrollView");
 	return {
 		AccessibilityInfo: { setAccessibilityFocus: () => {} },
 		Animated: {
@@ -134,7 +140,10 @@ vi.mock("react-native", async () => {
 			select: (o: Record<string, unknown>) => o[host.platform] ?? o.default,
 		},
 		Pressable: recorder("Pressable"),
-		ScrollView: recorder("ScrollView"),
+		ScrollView: (props: Record<string, unknown>) => {
+			host.scrollViews.push(props);
+			return React.createElement(ScrollRecorder, props);
+		},
 		Text: recorder("Text"),
 		TextInput: recorder("TextInput"),
 		View: recorder("View"),
@@ -190,7 +199,7 @@ vi.mock("@/ui/modal-dismissal-ledger", () => ({
 vi.mock("@/ui/modal-exit", () => ({
 	createTransitionTick: () => () => {},
 	exitPointerEvents: () => "auto",
-	useModalExit: () => false,
+	useModalExit: () => host.exiting,
 }));
 vi.mock("@/ui/components/input", async () => {
 	const { TextInput } = await import("react-native");
@@ -222,6 +231,9 @@ const bodyPadding = () =>
 			| { paddingBottom?: number }
 			| undefined
 	)?.paddingBottom;
+const bodyMinHeight = () =>
+	(node(SURFACE.sheetBody)?.props.style as { minHeight?: number } | undefined)
+		?.minHeight;
 const bodyMaxHeight = () =>
 	(node(SURFACE.sheetBody)?.props.style as { maxHeight?: number } | undefined)
 		?.maxHeight;
@@ -244,6 +256,8 @@ beforeEach(() => {
 	host.nodes.clear();
 	host.platform = "ios";
 	host.layoutAnimations = [];
+	host.exiting = false;
+	host.scrollViews = [];
 	store.current = store.hidden;
 	dom = installDomShim();
 	root = createRoot(dom.container as Element);
@@ -257,11 +271,11 @@ afterEach(async () => {
  *  onLayout is never fired here and the sheet spends the seed. */
 const TITLE_ROW = 64;
 const PINNED = 56;
-const mountSheet = async (pinned?: ReactNode) => {
+const mountSheet = async (pinned?: ReactNode, visible = true) => {
 	await act(async () =>
 		root.render(
 			<Sheet
-				visible
+				visible={visible}
 				onClose={() => {}}
 				title="Model"
 				detent="full"
@@ -315,6 +329,71 @@ describe("Sheet over the software keyboard (TestFlight 1295)", () => {
 		expect(bodyMaxHeight()).toBe(
 			WINDOW.height - INSETS.top - KEYBOARD - TITLE_ROW - PINNED,
 		);
+	});
+
+	it("holds the cap under a pinned slot so the field does not move as results change (design D2)", async () => {
+		await mountSheet(<p>search</p>);
+		await layout(SURFACE.sheetPinned, PINNED);
+		await showKeyboard();
+		const cap = WINDOW.height - INSETS.top - KEYBOARD - TITLE_ROW - PINNED;
+		expect(bodyMaxHeight()).toBe(cap);
+		expect(bodyMinHeight()).toBe(cap);
+	});
+
+	it("keeps hugging its content without a pinned slot", async () => {
+		await mountSheet();
+		await showKeyboard();
+		expect(bodyMaxHeight()).toBeGreaterThan(0);
+		expect(bodyMinHeight()).toBeUndefined();
+	});
+
+	it("marks the pinned edge with a hairline, and fades rows scrolled under it (design D1)", async () => {
+		await mountSheet(<p>search</p>);
+		await layout(SURFACE.sheetPinned, PINNED);
+		expect(node(SURFACE.sheetPinned)?.props.className).toContain(
+			"border-hairline",
+		);
+		const scroll = (y: number) =>
+			act(() =>
+				(node(SURFACE.sheetBody)?.props.onScroll as (e: unknown) => void)?.({
+					nativeEvent: { contentOffset: { y } },
+				}),
+			);
+		expect(node(SURFACE.sheetPinnedFade)).toBeUndefined();
+		await scroll(40);
+		const fade = node(SURFACE.sheetPinnedFade)?.props.style as {
+			top?: number;
+		};
+		/* Placed at the pinned region's bottom edge (title seed + pinned). */
+		expect(fade?.top).toBe(TITLE_ROW + PINNED);
+		await scroll(0);
+		expect(node(SURFACE.sheetPinnedFade)).toBeUndefined();
+	});
+
+	it("stays on the keyboard through the exit of a sheet closed with the keyboard up (R1-m1)", async () => {
+		await mountSheet();
+		await showKeyboard();
+		expect(spacerHeight()).toBe(KEYBOARD);
+		/* A pick closes the sheet; the focused field keeps the keyboard up while
+		 *  the Modal stays mounted for the exit. */
+		host.exiting = true;
+		await mountSheet(undefined, false);
+		expect(spacerHeight()).toBe(KEYBOARD);
+		/* The exit landed: the frame is dropped with the subscription. */
+		host.exiting = false;
+		await mountSheet(undefined, false);
+		expect(node(SURFACE.sheetKeyboardSpacer)).toBeUndefined();
+	});
+
+	it("restores the home-indicator inset with the overlap, not at didHide (R1-n1)", async () => {
+		await mountSheet();
+		await showKeyboard();
+		expect(bodyPadding()).toBe(24);
+		/* iOS's hide `willChangeFrame`: overlap 0 while `visible` holds. */
+		await act(() =>
+			store.emit({ visible: true, overlap: 0, duration: 250 } as KeyboardFrame),
+		);
+		expect(bodyPadding()).toBe(24 + INSETS.bottom);
 	});
 
 	it("does not double-lift on Android when the window already resized for the keyboard", async () => {
@@ -421,5 +500,59 @@ describe("ModelPicker search (TestFlight 1295)", () => {
 		expect(onPick).toHaveBeenCalledWith(
 			MODELS.find((m) => modelOptionId(m.model_id) === row?.[0]),
 		);
+	});
+
+	it("keeps the search field where it was while typing narrows the results (design D2)", async () => {
+		await mountPicker(() => {});
+		await layout("column", WINDOW.height);
+		await layout(SURFACE.sheetPinned, PINNED);
+		await showKeyboard();
+		const rowCount = () =>
+			[...host.nodes.keys()].filter((k) =>
+				MODELS.some((m) => modelOptionId(m.model_id) === k),
+			).length;
+		const before = {
+			rows: rowCount(),
+			min: bodyMinHeight(),
+			max: bodyMaxHeight(),
+		};
+		expect(before.min).toBe(before.max);
+		const search = node(CONTROL.homeModelSearch);
+		await act(() =>
+			(search?.props.onChangeText as (q: string) => void)?.("m-1"),
+		);
+		/* Fewer rows, the same body: the bottom-anchored surface keeps its height,
+		 *  so the field's y (keyboard top − surface height + title row) holds. */
+		expect(rowCount()).toBeLessThan(before.rows);
+		expect(bodyMinHeight()).toBe(before.min);
+		expect(bodyMaxHeight()).toBe(before.max);
+		expect(spacerHeight()).toBe(KEYBOARD);
+	});
+});
+
+describe("SlashSheet with the keyboard up (review R1-m2)", () => {
+	it("lets its nested results list take a row tap in one tap", async () => {
+		const { SlashSheet } = await import(
+			"@/features/session/components/slash-sheet"
+		);
+		await act(async () =>
+			root.render(
+				<SlashSheet
+					visible
+					onClose={() => {}}
+					commands={[{ name: "goal", description: "Set a goal" } as never]}
+					query=""
+					onPick={() => {}}
+				/>,
+			),
+		);
+		/* Body + the nested list: RN's tap capture is per ScrollView, so BOTH
+		 *  must persist handled taps. */
+		const latest = new Map<string, Record<string, unknown>>();
+		for (const p of host.scrollViews)
+			latest.set((p.testID as string | undefined) ?? "nested", p);
+		expect(latest.size).toBe(2);
+		for (const p of latest.values())
+			expect(p.keyboardShouldPersistTaps).toBe("handled");
 	});
 });

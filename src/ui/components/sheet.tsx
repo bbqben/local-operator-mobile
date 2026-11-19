@@ -310,8 +310,14 @@ export const Sheet = ({
 	 * the animation is configured inside the native event, before the commit.
 	 */
 	const [keyboard, setKeyboard] = useState<KeyboardFrame>(KEYBOARD_HIDDEN);
+	/* Keyed on the Modal being MOUNTED, not on `visible` (review R1-m1): a pick
+	 *  closes the sheet while its focused field keeps the keyboard up, and the
+	 *  Modal stays mounted through the exit. Dropping the frame at `visible=false`
+	 *  pulled the surface down behind the still-open keyboard for the whole exit;
+	 *  holding it until the exit lands lets the sheet leave from where it was. */
+	const keyboardLive = visible || exiting;
 	useEffect(() => {
-		if (!visible) return;
+		if (!keyboardLive) return;
 		const unsubscribe = subscribeKeyboardFrame((frame) => {
 			if (!reduceMotion && Platform.OS !== "web") {
 				LayoutAnimation.configureNext({
@@ -333,7 +339,7 @@ export const Sheet = ({
 			unsubscribe();
 			setKeyboard(KEYBOARD_HIDDEN);
 		};
-	}, [visible, reduceMotion]);
+	}, [keyboardLive, reduceMotion]);
 	const keyboardLift = keyboard.visible
 		? sheetKeyboardLift({
 				overlap: keyboard.overlap,
@@ -392,7 +398,12 @@ export const Sheet = ({
 				);
 	/* The home indicator is behind the keyboard while it is up, so its inset is
 	 *  not spent under the last row (the composer's #219 rule, `composerOuterGap`). */
-	const bottomInset = keyboard.visible ? 0 : insets.bottom;
+	/*  Keyed on the OVERLAP, not `visible` (review R1-n1 / design D3): iOS's hide
+	 *  reports overlap 0 on `keyboardWillChangeFrame` but keeps `visible` until
+	 *  `didHide`, so keying on `visible` restored the inset in a second, later
+	 *  animation after the sheet had already ridden down with the keyboard. */
+	const bottomInset =
+		keyboard.visible && keyboard.overlap > 0 ? 0 : insets.bottom;
 	/* The body's scroll facts collapse to ONE boolean ("there is more below"):
 	 * the raw numbers live in a ref because a state update per scroll tick would
 	 * re-render the sheet's whole subtree to move a gradient; `syncBodyCue` is
@@ -400,17 +411,22 @@ export const Sheet = ({
 	 * own handlers. */
 	const scrollFacts = useRef({ contentH: 0, viewportH: 0, y: 0 });
 	const [bodyCue, setBodyCue] = useState(false);
+	/* "Something has scrolled up under the pinned region" — the mirror of
+	 *  `bodyCue`, drawn only under a `pinned` slot (design D1). */
+	const [topCue, setTopCue] = useState(false);
 	const syncBodyCue = () => {
 		const { contentH, viewportH, y } = scrollFacts.current;
 		setBodyCue(
 			viewportH > 0 && contentH > viewportH + 1 && y + viewportH < contentH - 2,
 		);
+		setTopCue(y > 1);
 	};
 	const fadeId = useRef("");
 	if (fadeId.current === "") {
 		sheetFadeSeq += 1;
 		fadeId.current = `sheet-body-fade-${sheetFadeSeq}`;
 	}
+	const topFadeId = `${fadeId.current}-top`;
 	const ground = useTokenColor("elevated");
 	/* A modal that mounts while another is up stands down rather than painting a
 	 *  second full-viewport surface over it — the rule and its reasoning are in
@@ -656,7 +672,11 @@ export const Sheet = ({
 							</View>
 							{pinned === undefined ? null : (
 								<View
-									className="px-4"
+									/* The hairline is the pinned region's edge (design D1): rows scroll
+									 *  up UNDER it, and without a line a provider label cut mid-glyph
+									 *  under the field read as a rendering fault — the footer's own
+									 *  boundary, mirrored. */
+									className="px-4 border-b border-hairline"
 									testID={SURFACE.sheetPinned}
 									onLayout={(event) =>
 										setPinnedHeight(event.nativeEvent.layout.height)
@@ -672,10 +692,22 @@ export const Sheet = ({
 								 *  which in a search sheet reads as "the row didn't respond". A tap
 								 *  on empty body space still dismisses it (`handled`). */
 								keyboardShouldPersistTaps="handled"
+								/* A sheet with a `pinned` slot is a search over its body, so it HOLDS
+								 *  its cap instead of hugging its content (design D2): the surface is
+								 *  bottom-anchored (to the keyboard, while it is up), so a hugging body
+								 *  moved the field the reader is typing in by every result a keystroke
+								 *  removed — 59 → ≈272 pt for one query on a 430×932 phone. Sheets
+								 *  without one keep hugging; a `content` detent with the keyboard down
+								 *  has no cap, so nothing is held there either. */
 								style={
 									maxContentHeight === undefined
 										? undefined
-										: { maxHeight: maxContentHeight }
+										: pinned === undefined
+											? { maxHeight: maxContentHeight }
+											: {
+													maxHeight: maxContentHeight,
+													minHeight: maxContentHeight,
+												}
 								}
 								contentContainerClassName="px-4"
 								/* `pb-6` (24) plus the safe-area inset, computed rather than spelled
@@ -726,6 +758,56 @@ export const Sheet = ({
 									{footer}
 								</View>
 							)}
+							{pinned !== undefined && pinnedHeight > 0 && topCue ? (
+								/* The footer fade's mirror under the pinned region (design D1):
+								 *  solid at the hairline, transparent toward the content, shown only
+								 *  while rows have scrolled up under it. The header's measured height
+								 *  (its seed for the one frame before `onLayout`) places it. */
+								<View
+									pointerEvents="none"
+									aria-hidden
+									testID={SURFACE.sheetPinnedFade}
+									style={{
+										position: "absolute",
+										left: insets.left,
+										right: insets.right,
+										top:
+											(headerHeight > 0 ? headerHeight : CHROME_SEED_HEADER) +
+											pinnedHeight,
+										height: SHEET_BODY_FADE,
+									}}
+								>
+									<Svg width="100%" height="100%">
+										<Defs>
+											<LinearGradient
+												id={topFadeId}
+												x1="0%"
+												y1="0%"
+												x2="0%"
+												y2="100%"
+											>
+												<Stop
+													key="far"
+													offset="0"
+													stopColor={ground}
+													stopOpacity={1}
+												/>
+												<Stop
+													key="near"
+													offset="1"
+													stopColor={ground}
+													stopOpacity={0}
+												/>
+											</LinearGradient>
+										</Defs>
+										<Rect
+											width="100%"
+											height="100%"
+											fill={`url(#${topFadeId})`}
+										/>
+									</Svg>
+								</View>
+							) : null}
 							{footer !== undefined && footerHeight > 0 && bodyCue ? (
 								/* The cut-edge cue (design D63-1): a band of the sheet's own ground
 								 *  over the bottom of the scrolling body, transparent at the content
