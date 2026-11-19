@@ -8,11 +8,13 @@
  * from content-free invalidations; leaving stops it.
  */
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Hash, Inbox, Search, User } from "lucide-react-native";
+import { ChevronsUpDown, Hash, Inbox, Search, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import { communityEnabled } from "@/community/flag";
 import { guidelinesStep, pendingApprovals } from "@/community/model";
 import { useCommunity, useCommunityState } from "@/community/provider";
+import { OrgSwitcherSheet } from "@/features/team-bridge/org-switcher-sheet";
 import { t } from "@/i18n";
 import {
 	CONTROL,
@@ -24,6 +26,7 @@ import {
 import { useTokenColor } from "@/ui/appearance";
 import { Banner } from "@/ui/components/banner";
 import { Button } from "@/ui/components/button";
+import { IconButton } from "@/ui/components/icon-button";
 import { Skeleton } from "@/ui/components/skeleton";
 import { JoinSheet } from "./join-sheet";
 import {
@@ -44,12 +47,31 @@ export default function CommunityHomeScreen() {
 }
 
 function HomeFrame({ communityId }: { communityId: string }) {
+	const router = useRouter();
+	const { actions } = useCommunity();
 	const name = useCommunityState(
 		(s) => s.bootstraps[communityId]?.data?.community.name,
 	);
+	const [switching, setSwitching] = useState(false);
+	/* Being in a community IS being in its scope (Amendment A §3), however the
+	 * reader arrived: the switcher's one check lands on this row, and the next
+	 * Team Bridge open this session lands here until they switch back. */
+	useEffect(() => {
+		if (communityEnabled()) actions.select({ kind: "community", communityId });
+	}, [actions, communityId]);
 	return (
 		<CommunityFrame
 			title={name ?? t("mobile.community.directory.title")}
+			headerAction={
+				<IconButton
+					accessibilityLabel={t("mobile.community.home.switch")}
+					icon={({ color, size }) => (
+						<ChevronsUpDown color={color} size={size} />
+					)}
+					onPress={() => setSwitching(true)}
+					testID={CONTROL.communityHomeSwitcher}
+				/>
+			}
 			headerDetail={
 				name ? (
 					<Text className="text-meta text-ink-dim">
@@ -60,6 +82,17 @@ function HomeFrame({ communityId }: { communityId: string }) {
 			testID={SCREEN.communityHome}
 		>
 			<HomeBody communityId={communityId} />
+			{/* The same sheet as the Team Bridge list's (R1-3): it shows this
+			 *  community checked, and a private pick leaves for that org's list. */}
+			<OrgSwitcherSheet
+				visible={switching}
+				onClose={() => setSwitching(false)}
+				onPrivatePicked={() =>
+					router.dismissTo(
+						"/team-bridge" as Parameters<typeof router.dismissTo>[0],
+					)
+				}
+			/>
 		</CommunityFrame>
 	);
 }

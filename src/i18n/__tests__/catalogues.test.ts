@@ -80,8 +80,9 @@ const NAMESPACES = [
 		messages: community,
 		context: communityContext,
 		// The public community client (RFC v2.4, dark behind EXPO_PUBLIC_COMMUNITY):
-		// 140 keys, counted over the en JSON.
-		expected: 140,
+		// 140 keys, +10 in review round 1's remediation = 150, counted over the
+		// en JSON.
+		expected: 150,
 	},
 	{
 		name: "mobile.team_bridge",
@@ -588,8 +589,9 @@ describe("the English catalogues", () => {
 		 * + ADR 0010's 5 = 1133, as `generate.ts --check` reports for the merged
 		 * tree. */
 		// feat/community: +140 mobile.community.* (the public community client)
-		// on 1133 = 1273, re-derived over the rebased tree.
-		expect(total).toBe(1273);
+		// and +10 more from its review round 1 remediation, on main's 1133
+		// (ADR 0010 chain above) = 1283, re-derived over the rebased tree.
+		expect(total).toBe(1283);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

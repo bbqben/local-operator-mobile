@@ -201,3 +201,59 @@ describe("refusal ladder", () => {
 		expect(error.guidelinesVersion).toBe("2026-12");
 	});
 });
+
+describe("reports (review round 1, R1-1)", () => {
+	const receipt = () =>
+		json(201, { case_reference: "MOD-AAAA-BBBB", state: "submitted" });
+
+	it("a DM message is reported as dm with consent and the revision read", async () => {
+		const { calls, fetchImpl } = recorder([receipt()]);
+		const client = createCommunityClient({
+			accessToken: async () => "t",
+			fetchImpl,
+		});
+		await client.report("loc", {
+			targetKind: "dm",
+			targetId: "m1",
+			category: "harassment_or_abuse",
+			dmConsent: true,
+			revision: 3,
+			idempotencyKey: "k".repeat(32),
+		});
+		expect(JSON.parse(String(calls[0]?.init.body))).toEqual({
+			target_kind: "dm",
+			target_id: "m1",
+			category: "harassment_or_abuse",
+			dm_consent: true,
+			revision: 3,
+		});
+		expect(header(calls[0], "idempotency-key")).toBe("k".repeat(32));
+	});
+
+	it("a channel message carries no DM fields", async () => {
+		const { calls, fetchImpl } = recorder([receipt()]);
+		const client = createCommunityClient({
+			accessToken: async () => "t",
+			fetchImpl,
+		});
+		await client.report("loc", {
+			targetKind: "message",
+			targetId: "m1",
+			category: "spam_or_promotion",
+			idempotencyKey: "k".repeat(32),
+		});
+		expect(JSON.parse(String(calls[0]?.init.body))).toEqual({
+			target_kind: "message",
+			target_id: "m1",
+			category: "spam_or_promotion",
+		});
+	});
+
+	it("409 revision_changed is a conflict that names its code", async () => {
+		const error = await communityErrorFrom(
+			json(409, { code: "revision_changed", message: "edited" }),
+		);
+		expect(error.kind).toBe("conflict");
+		expect(error.code).toBe("revision_changed");
+	});
+});

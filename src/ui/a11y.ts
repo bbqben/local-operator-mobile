@@ -208,6 +208,11 @@ export const CONTROL = {
 	communityLoadOlder: "community-load-older",
 	communityComposerInput: "community-composer-input",
 	communitySend: "community-send",
+	communityAttach: "community-attach",
+	communityImagesNoteDismiss: "community-images-note-dismiss",
+	communityHomeSwitcher: "community-home-switcher",
+	communityReportConsent: "community-report-consent",
+	communityChannelJoin: "community-channel-join",
 	communityAttemptCancel: "community-attempt-cancel",
 	communityAttemptRetry: "community-attempt-retry",
 	communityAttemptDismiss: "community-attempt-dismiss",
@@ -906,6 +911,7 @@ export const SURFACE = {
 	communityReportSheet: "community-report-sheet",
 	communityAttempt: "community-attempt",
 	communityHistory: "community-history",
+	communityImagesNote: "community-images-note",
 	communityReacceptBanner: "community-reaccept-banner",
 	/** The Team Bridge pane inside the workspace drawer. */
 	teamBridgeDrawerPane: "team-bridge-drawer-pane",
@@ -1352,6 +1358,7 @@ export const IDENTIFIER_FAMILIES: readonly string[] = [
 	"community-dm-row-",
 	"community-person-",
 	"community-message-",
+	"community-author-",
 	"community-request-",
 	"community-approval-",
 	"community-report-category-",
@@ -2576,6 +2583,9 @@ export const communityPersonId = (publicId: string): string =>
 	`community-person-${publicId}`;
 export const communityMessageId = (messageId: string): string =>
 	`community-message-${messageId}`;
+/** The author avatar of one message: the profile tap target (design D1/D5). */
+export const communityAuthorId = (messageId: string): string =>
+	`community-author-${messageId}`;
 export const communityRequestId = (requestId: string, action: string): string =>
 	`community-request-${requestId}-${action}`;
 export const communityApprovalId = (

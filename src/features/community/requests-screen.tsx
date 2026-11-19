@@ -17,9 +17,13 @@
 import { useLocalSearchParams } from "expo-router";
 import { Bot, Laptop } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
-import type { AgentApproval, CommunityRequest } from "@/community/contract";
-import { hoursLeft, pendingApprovals } from "@/community/model";
+import { Pressable, Text, View } from "react-native";
+import type {
+	AgentApproval,
+	CommunityRequest,
+	Profile,
+} from "@/community/contract";
+import { pendingApprovals } from "@/community/model";
 import { useCommunity, useCommunityState } from "@/community/provider";
 import { t } from "@/i18n";
 import {
@@ -35,9 +39,12 @@ import { Button } from "@/ui/components/button";
 import { Card } from "@/ui/components/card";
 import { Segmented } from "@/ui/components/segmented";
 import { Skeleton } from "@/ui/components/skeleton";
+import { TOUCH_FLOOR } from "@/ui/layout";
 import { communityPath } from "./home-screen";
-import { errorSentence } from "./labels";
+import { errorSentence, expirySentence } from "./labels";
+import { MemberAvatar } from "./member-avatar";
 import { CommunityFrame, LoadFailure } from "./parts";
+import { ProfileSheet } from "./profile-sheet";
 
 type Mode = "dm" | "approvals";
 
@@ -71,8 +78,26 @@ function Requests({ communityId }: { communityId: string }) {
 		) ?? [];
 	const stubs = pendingApprovals(approvals?.data ?? [], Date.now());
 	const loaded = mode === "dm" ? requests : approvals;
+	const [profile, setProfile] = useState<Profile | null>(null);
+	const [profileError, setProfileError] = useState<string | null>(null);
+	const openProfile = async (publicId: string) => {
+		setProfileError(null);
+		const result = await actions.profile(communityId, publicId);
+		if (result && "public_id" in result) setProfile(result);
+		else setProfileError(errorSentence(result, "read"));
+	};
 	return (
 		<View className="gap-3 px-4 pb-6 pt-3">
+			<ProfileSheet
+				communityId={communityId}
+				profile={profile}
+				onClose={() => setProfile(null)}
+			/>
+			{profileError ? (
+				<Text accessibilityRole={ROLE.alert} className="text-meta text-danger">
+					{profileError}
+				</Text>
+			) : null}
 			<Segmented<Mode>
 				label={t("mobile.community.requests.mode")}
 				options={[
@@ -109,6 +134,7 @@ function Requests({ communityId }: { communityId: string }) {
 							key={request.id}
 							communityId={communityId}
 							request={request}
+							onProfile={(id) => void openProfile(id)}
 						/>
 					))
 				) : (
@@ -136,9 +162,11 @@ function Requests({ communityId }: { communityId: string }) {
 function RequestCard({
 	communityId,
 	request,
+	onProfile,
 }: {
 	communityId: string;
 	request: CommunityRequest;
+	onProfile: (publicId: string) => void;
 }) {
 	const { actions } = useCommunity();
 	const [busy, setBusy] = useState<string | null>(null);
@@ -151,16 +179,47 @@ function RequestCard({
 		if (error) setFailure(errorSentence(error));
 	};
 	const name = request.counterpart?.display_name ?? "";
-	return (
-		<Card inList>
-			<View className="gap-2">
+	const title = request.counterpart?.title;
+	const publicId = request.counterpart?.public_id;
+	/* The recipient decides on the sender's COMMUNITY profile (RFC §5.7), so
+	 * the card leads with who they are — avatar, name, title — and a tap opens
+	 * the full card (review round 1, R1-9). */
+	const who = (
+		<View className="flex-row items-center gap-3">
+			<MemberAvatar name={name} size="sm" />
+			<View className="min-w-0 flex-1">
 				<Text className="text-body text-ink">
 					{t("mobile.community.requests.dm_body", { name })}
 				</Text>
+				{title ? (
+					<Text className="text-meta text-ink-muted" numberOfLines={2}>
+						{title}
+					</Text>
+				) : null}
+			</View>
+		</View>
+	);
+	return (
+		<Card inList>
+			<View className="gap-2">
+				{publicId ? (
+					<Pressable
+						accessibilityRole={ROLE.button}
+						accessibilityHint={t("mobile.community.conversation.view_profile", {
+							name,
+						})}
+						onPress={() => onProfile(publicId)}
+						testID={communityRequestId(request.id, "profile")}
+						style={{ minHeight: TOUCH_FLOOR }}
+						className="justify-center"
+					>
+						{who}
+					</Pressable>
+				) : (
+					who
+				)}
 				<Text className="text-meta text-ink-dim">
-					{t("mobile.community.requests.expires", {
-						hours: hoursLeft(request.expires_at, Date.now()),
-					})}
+					{expirySentence("request", request.expires_at, Date.now())}
 				</Text>
 				<View className="flex-row flex-wrap gap-2">
 					<Button
@@ -234,9 +293,7 @@ function ApprovalCard({
 						<Badge label={t("mobile.community.approvals.agent")} />
 					</View>
 					<Text className="text-meta text-ink-muted">
-						{t("mobile.community.approvals.expires", {
-							hours: hoursLeft(approval.expires_at, Date.now()),
-						})}
+						{expirySentence("approval", approval.expires_at, Date.now())}
 					</Text>
 				</View>
 				<Text

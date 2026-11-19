@@ -53,6 +53,7 @@ import {
 	type CommunityRow,
 	communityUnread,
 	mergeMessages,
+	replaceNewestWindow,
 	retryKeepsKey,
 } from "@/community/model";
 import { randomState } from "@/connection/pkce";
@@ -89,6 +90,13 @@ export interface CommunityState {
 	approvals: Record<string, Loaded<AgentApproval[]>>;
 	/** Amendment A §3: the scope picked this app session; memory only. */
 	session: BridgeSelection | null;
+	/**
+	 * Channels opened from Browse WITHOUT joining, keyed like `threads`.
+	 * A member may read every public channel without a seat, so looking is not
+	 * joining (review round 1, R1-6); the conversation screen reads its name and
+	 * state from here and offers an explicit Join instead of the composer.
+	 */
+	previews: Record<string, Channel>;
 }
 
 export const conversationKey = (communityId: string, conversationId: string) =>
@@ -107,6 +115,7 @@ export const initialCommunityState = (): CommunityState => ({
 	requests: {},
 	approvals: {},
 	session: null,
+	previews: {},
 });
 
 const emptyThread = (): ThreadData => ({
@@ -165,6 +174,8 @@ export function createCommunityStore(deps: {
 	/** One events loop per community; the count is how many screens watch it. */
 	const watchers = new Map<string, { count: number; stop: AbortController }>();
 	let closed = false;
+	/* `holdOpening`'s one-shot; not state, nothing renders from it. */
+	let openingHeld = false;
 
 	const client = () => {
 		const value = closed ? null : deps.client();
@@ -342,8 +353,15 @@ export function createCommunityStore(deps: {
 					void refetchViews(communityId);
 					continue;
 				}
-				if (failure?.kind === "sign_in" || failure?.kind === "not_found")
+				if (failure?.kind === "sign_in" || failure?.kind === "not_found") {
+					/* The loop is over for good, so its entry must go too: a later
+					 * `watch()` that found it would only bump `count` and never
+					 * start a loop again (review round 1, R1-4). Only this loop's
+					 * own entry — a newer one under the same id is left alone. */
+					if (watchers.get(communityId)?.stop.signal === stop)
+						watchers.delete(communityId);
 					return;
+				}
 				const wait =
 					failure?.kind === "rate_limited" && failure.retryAfterMs !== null
 						? failure.retryAfterMs
@@ -488,20 +506,23 @@ export function createCommunityStore(deps: {
 
 		async loadThread(communityId: string, conversationId: string) {
 			const key = conversationKey(communityId, conversationId);
-			const existing = store.getState().threads[key];
 			setThread(key, { state: "loading", error: null });
 			try {
 				const page = await client().messages(communityId, conversationId);
 				if (closed) return;
+				/* Read what is held AFTER the await: a `loadOlder` may have landed
+				 * meanwhile, and its page must survive this refresh. */
+				const held = store.getState().threads[key] ?? emptyThread();
+				const next = replaceNewestWindow(
+					held.messages,
+					page.items,
+					!page.next_cursor,
+				);
 				setThread(key, {
 					state: "ready",
-					messages: mergeMessages(existing?.messages ?? [], page.items),
-					/* Keep the deeper cursor if older pages were already read. */
-					olderCursor:
-						existing?.state === "ready" &&
-						existing.messages.length > page.items.length
-							? existing.olderCursor
-							: page.next_cursor,
+					messages: next.messages,
+					/* Keep the deeper cursor while older pages are still held. */
+					olderCursor: next.keptOlder ? held.olderCursor : page.next_cursor,
 				});
 			} catch (error) {
 				if (closed) return;
@@ -509,7 +530,11 @@ export function createCommunityStore(deps: {
 			}
 		},
 
-		/** A refresh after an event or a publish: newest page merged in, nothing dropped. */
+		/**
+		 * A refresh after an event or a publish. The newest page REPLACES the
+		 * window it covers, so a message deleted, removed or cut off by a block
+		 * since the last read leaves the screen (`replaceNewestWindow`).
+		 */
 		refreshThread(communityId: string, conversationId: string) {
 			return actions.loadThread(communityId, conversationId);
 		},
@@ -766,6 +791,16 @@ export function createCommunityStore(deps: {
 		},
 
 		/** Join a public channel from Browse, then refresh the joined list. */
+		/** Remember a channel opened from Browse without joining (`previews`). */
+		previewChannel(communityId: string, channel: Channel) {
+			store.setState((state) => ({
+				previews: {
+					...state.previews,
+					[conversationKey(communityId, channel.id)]: channel,
+				},
+			}));
+		},
+
 		async joinChannel(
 			communityId: string,
 			channelId: string,
@@ -791,7 +826,22 @@ export function createCommunityStore(deps: {
 			}
 		},
 
-		/** One report = one key; resubmitting the same sheet would mint a second case. */
+		/** A fresh report idempotency key; the sheet holds ONE per report (`report`). */
+		reportKey(): Promise<string> {
+			return newKey();
+		},
+
+		/**
+		 * Send one report. The CALLER owns the key (`reportKey`) and passes the
+		 * same one for every submit of the same sheet: a submit whose answer was
+		 * lost (`unreachable`) may already have opened a case, and a second key
+		 * would open a second one (review round 1, R1-1).
+		 *
+		 * A DM message goes as `target_kind: "dm"` with the reporter's explicit
+		 * consent and the revision they read (RFC §6.4): the case copies exactly
+		 * that revision to Trust & Safety, and a `message` report of a DM is a
+		 * 400 by contract.
+		 */
 		async report(
 			communityId: string,
 			input: {
@@ -799,21 +849,45 @@ export function createCommunityStore(deps: {
 				targetId: string;
 				category: RefusalCategory;
 				note?: string;
+				dmConsent?: boolean;
+				revision?: number;
+				idempotencyKey: string;
 			},
 		): Promise<{ reference: string } | CommunityError | null> {
 			try {
-				const reference = await client().report(communityId, {
-					...input,
-					idempotencyKey: await newKey(),
-				});
+				const reference = await client().report(communityId, input);
 				return { reference };
 			} catch (error) {
 				return asError(error);
 			}
 		},
 
+		/**
+		 * Record this app session's scope (Amendment A §3: a switch "lasts until
+		 * you switch back or restart the app"). Memory only, so a restart
+		 * reapplies the opening rule. Read by the Team Bridge list's opening
+		 * redirect and by the switcher's check mark.
+		 */
 		select(selection: BridgeSelection | null) {
 			store.setState({ session: selection });
+		},
+
+		/**
+		 * A reader who leaves a community for the private list by its own Back
+		 * (with no history to pop, so the list mounts fresh) has switched back:
+		 * the next list mount must NOT apply the opening rule, or a session
+		 * community (or rule 7's only community) would send them straight back
+		 * into the community they just left — a Back that never goes back.
+		 * One-shot: `takeOpeningHold` spends it.
+		 */
+		holdOpening() {
+			openingHeld = true;
+		},
+
+		takeOpeningHold(): boolean {
+			const held = openingHeld;
+			openingHeld = false;
+			return held;
 		},
 
 		/**

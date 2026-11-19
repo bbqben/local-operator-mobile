@@ -16,7 +16,7 @@
  * of offering toggles that the server would refuse.
  */
 import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { guidelinesStep } from "@/community/model";
 import { useCommunity, useCommunityState } from "@/community/provider";
 import { t } from "@/i18n";
@@ -24,10 +24,8 @@ import { CONTROL, ROLE, SURFACE } from "@/ui/a11y";
 import { Button } from "@/ui/components/button";
 import { Sheet } from "@/ui/components/sheet";
 import { Skeleton } from "@/ui/components/skeleton";
-import { TOUCH_FLOOR } from "@/ui/layout";
-import { cx } from "@/ui/variants";
 import { errorSentence } from "./labels";
-import { LoadFailure } from "./parts";
+import { ConsentTick, LoadFailure } from "./parts";
 
 export function JoinSheet({
 	communityId,
@@ -48,10 +46,20 @@ export function JoinSheet({
 	useEffect(() => {
 		if (visible && !boot) void actions.loadBootstrap(communityId);
 	}, [visible, boot, actions, communityId]);
-	/* A new version on screen is a new decision: the tick never carries over. */
+	/* Every OPENING, and every new version on screen, is a new decision: the
+	 * tick never carries over. The sheet stays mounted between openings (the
+	 * no-plan card, the home), so resetting on the version alone let a tick
+	 * survive close and reopen (review round 1, R1-5). */
 	const version = boot?.data?.guidelines.version ?? null;
 	useEffect(() => {
-		if (version) setAgreed(false);
+		if (!visible) return;
+		setAgreed(false);
+		setNotice(null);
+	}, [visible]);
+	/* The "guidelines changed" notice must survive this one: it explains why. */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `version` is a TRIGGER: a new text on screen clears the tick.
+	useEffect(() => {
+		setAgreed(false);
 	}, [version]);
 	const step = boot?.data ? guidelinesStep(boot.data) : null;
 	const reaccept = step === "reaccept";
@@ -85,35 +93,14 @@ export function JoinSheet({
 			footer={
 				boot?.data ? (
 					<View className="gap-2 pb-2">
-						<Pressable
-							accessibilityRole={ROLE.checkbox}
-							accessibilityState={{ checked: agreed }}
-							accessibilityLabel={t("mobile.community.join.agree", {
+						<ConsentTick
+							checked={agreed}
+							label={t("mobile.community.join.agree", {
 								version: version ?? "",
 							})}
-							onPress={() => setAgreed((value) => !value)}
+							onToggle={() => setAgreed((value) => !value)}
 							testID={CONTROL.communityJoinAgree}
-							style={{ minHeight: TOUCH_FLOOR }}
-						>
-							<View className="flex-row items-start gap-3 py-1">
-								<View
-									className={cx(
-										"mt-0.5 h-5 w-5 items-center justify-center rounded-sm border",
-										agreed
-											? "border-accent bg-accent"
-											: "border-border-control bg-transparent",
-									)}
-									aria-hidden
-								>
-									{agreed ? (
-										<Text className="text-mono-label text-on-accent">✓</Text>
-									) : null}
-								</View>
-								<Text className="min-w-0 flex-1 text-body-sm text-ink">
-									{t("mobile.community.join.agree", { version: version ?? "" })}
-								</Text>
-							</View>
-						</Pressable>
+						/>
 						<Button
 							label={
 								reaccept

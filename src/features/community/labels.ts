@@ -9,7 +9,7 @@
  */
 import type { CommunityError } from "@/community/client";
 import type { CommunityRole, RefusalCategory } from "@/community/contract";
-import type { AttemptState } from "@/community/model";
+import { type AttemptState, expiryLeft } from "@/community/model";
 import { t } from "@/i18n";
 
 /** RFC canon labels ("Unsafe or illegal content", …); only the sender sees them. */
@@ -40,8 +40,18 @@ export function roleLabel(role: CommunityRole | undefined): string | null {
 	}
 }
 
-/** A failed READ (or a non-message action), as one sentence. */
-export function errorSentence(error: CommunityError | null): string {
+/**
+ * A failed read or a non-message action, as one sentence.
+ *
+ * `mode` picks the catch-all. An ACTION's ("Something went wrong. Nothing was
+ * changed.") reassures that a write did not half-happen; on a failed READ that
+ * sentence answers a question nobody asked, so a read says what did not load
+ * and what to do (design review round 1, D7).
+ */
+export function errorSentence(
+	error: CommunityError | null,
+	mode: "action" | "read" = "action",
+): string {
 	switch (error?.kind) {
 		case "sign_in":
 			return t("mobile.community.error.sign_in");
@@ -54,7 +64,9 @@ export function errorSentence(error: CommunityError | null): string {
 		case "rate_limited":
 			return t("mobile.community.error.rate_limited");
 		default:
-			return t("mobile.community.error.generic");
+			return mode === "read"
+				? t("mobile.community.error.load_failed")
+				: t("mobile.community.error.generic");
 	}
 }
 
@@ -119,10 +131,34 @@ export function attemptSentences(
 			};
 		case "failed":
 			return { headline: t("mobile.community.composer.failed"), detail: null };
+		case "invalid":
+			return {
+				headline: t("mobile.community.composer.invalid"),
+				detail: null,
+			};
 		case "cancelled":
 			return {
 				headline: t("mobile.community.composer.cancelled"),
 				detail: null,
 			};
 	}
+}
+
+/**
+ * "Expires in 7 days" / "expires in 5 h" for a DM request or an approval stub:
+ * hours up to 48, whole days beyond (design review round 1, D6).
+ */
+export function expirySentence(
+	kind: "request" | "approval",
+	expiresAt: string,
+	now: number,
+): string {
+	const left = expiryLeft(expiresAt, now);
+	if (kind === "request")
+		return left.unit === "days"
+			? t("mobile.community.requests.expires_days", { days: left.count })
+			: t("mobile.community.requests.expires", { hours: left.count });
+	return left.unit === "days"
+		? t("mobile.community.approvals.expires_days", { days: left.count })
+		: t("mobile.community.approvals.expires", { hours: left.count });
 }

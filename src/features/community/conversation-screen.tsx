@@ -12,12 +12,18 @@
  * - The draft stays in memory (store) until a publish spends it, so every
  *   other outcome — refused, limited, unavailable, dropped — keeps the text.
  * - Retry reuses the attempt's idempotency key (the store owns that rule).
- * - Images: this composer offers no attach control. The server refuses
- *   community images (`images_unavailable`) until the CSAM gate ships, and a
- *   control that can only fail is not offered; the outcome copy still covers a
- *   refusal for any client that sends one.
+ * - Images: the attach control is present (frame M2; the operator asked for
+ *   attachments), but while the server refuses community images
+ *   (`images_unavailable`, until the CSAM gate ships) it opens the existing
+ *   "images can't be posted yet" explanation instead of a picker. A picker
+ *   would let a reader choose a photo the send can only refuse, and lose that
+ *   work (design review round 1, D3). When the gate ships, the control opens
+ *   the picker and the explanation goes away; nothing else moves.
+ * - 4000 characters is the contract's cap (`SubmissionForm.text`): the field
+ *   stops there, and a server 400/413 is `invalid`, never a Retry loop.
  */
 import { useLocalSearchParams } from "expo-router";
+import { ImagePlus } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	KeyboardAvoidingView,
@@ -28,29 +34,49 @@ import {
 	View,
 } from "react-native";
 import type { CommunityMessage, Profile } from "@/community/contract";
-import { postingBlock } from "@/community/model";
+import {
+	postingBlock,
+	SUBMISSION_MAX_CHARS,
+	startsGroup,
+} from "@/community/model";
 import { useCommunity, useCommunityState } from "@/community/provider";
 import { conversationKey } from "@/community/store";
-import { t } from "@/i18n";
-import { CONTROL, communityMessageId, ROLE, SCREEN, SURFACE } from "@/ui/a11y";
+import { useLocaleFrame } from "@/features/auth/connection-provider";
+import { activeLocale, t } from "@/i18n";
+import { messageTime } from "@/team-bridge/model";
+import {
+	CONTROL,
+	communityAuthorId,
+	communityMessageId,
+	ROLE,
+	SCREEN,
+	SURFACE,
+} from "@/ui/a11y";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
+import { IconButton } from "@/ui/components/icon-button";
 import { Skeleton } from "@/ui/components/skeleton";
 import { Textarea } from "@/ui/components/textarea";
+import { TOUCH_FLOOR } from "@/ui/layout";
 import { cx } from "@/ui/variants";
 import { JoinSheet } from "./join-sheet";
 import { attemptSentences, errorSentence } from "./labels";
+import { MemberAvatar } from "./member-avatar";
 import { CommunityFrame, LoadFailure } from "./parts";
-import { ProfileSheet, ReportSheet } from "./profile-sheet";
+import { ProfileSheet, ReportSheet, type ReportTarget } from "./profile-sheet";
 
 export default function CommunityConversationScreen() {
 	const { communityId = "", conversationId = "" } = useLocalSearchParams<{
 		communityId: string;
 		conversationId: string;
 	}>();
-	const channel = useCommunityState((s) =>
+	const joinedChannel = useCommunityState((s) =>
 		s.channels[communityId]?.data.find((c) => c.id === conversationId),
 	);
+	const preview = useCommunityState(
+		(s) => s.previews[conversationKey(communityId, conversationId)],
+	);
+	const channel = joinedChannel ?? preview;
 	const direct = useCommunityState((s) =>
 		s.directs[communityId]?.data.find(
 			(d) => d.conversation_id === conversationId,
@@ -95,9 +121,22 @@ function Conversation({
 	const key = conversationKey(communityId, conversationId);
 	const thread = useCommunityState((s) => s.threads[key]);
 	const boot = useCommunityState((s) => s.bootstraps[communityId]);
-	const channel = useCommunityState((s) =>
+	const joinedChannel = useCommunityState((s) =>
 		s.channels[communityId]?.data.find((c) => c.id === conversationId),
 	);
+	const preview = useCommunityState((s) => s.previews[key]);
+	const channel = joinedChannel ?? preview;
+	/* Opened from Browse without a seat (R1-6): read-only until an explicit Join. */
+	const previewing = !joinedChannel && Boolean(preview) && !preview?.member;
+	const [joining, setJoining] = useState(false);
+	const [joinError, setJoinError] = useState<string | null>(null);
+	const joinChannel = async () => {
+		setJoining(true);
+		setJoinError(null);
+		const failure = await actions.joinChannel(communityId, conversationId);
+		setJoining(false);
+		if (failure) setJoinError(errorSentence(failure));
+	};
 	const direct = useCommunityState((s) =>
 		s.directs[communityId]?.data.find(
 			(d) => d.conversation_id === conversationId,
@@ -105,6 +144,10 @@ function Conversation({
 	);
 	const [profile, setProfile] = useState<Profile | null>(null);
 	const [reportId, setReportId] = useState<string | null>(null);
+	/* The APP language, not the device's (review round 1, R1-7): the same
+	 * subscription + read pair as Team Bridge's thread (`thread-screen.tsx`). */
+	useLocaleFrame();
+	const locale = activeLocale();
 	const [notice, setNotice] = useState<string | null>(null);
 	const scroller = useRef<ScrollView | null>(null);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: `boot` is read once to skip a duplicate bootstrap read; it must not re-run the loads when it arrives.
@@ -118,13 +161,14 @@ function Conversation({
 	}, [actions, communityId, conversationId]);
 	const newestSeq = thread?.messages.at(-1)?.seq;
 	useEffect(() => {
-		if (newestSeq !== undefined)
+		/* A previewed channel has no seat, so no read state to advance. */
+		if (newestSeq !== undefined && !previewing)
 			void actions.markRead(communityId, conversationId);
-	}, [actions, communityId, conversationId, newestSeq]);
+	}, [actions, communityId, conversationId, newestSeq, previewing]);
 	const openProfile = async (publicId: string) => {
 		const result = await actions.profile(communityId, publicId);
 		if (result && "public_id" in result) setProfile(result);
-		else setNotice(errorSentence(result));
+		else setNotice(errorSentence(result, "read"));
 	};
 	const block = channel
 		? postingBlock(channel, {
@@ -185,10 +229,12 @@ function Conversation({
 						onRetry={() => void actions.loadThread(communityId, conversationId)}
 					/>
 				) : thread.messages.length ? (
-					thread.messages.map((message) => (
+					thread.messages.map((message, index) => (
 						<MessageRow
 							key={message.id}
 							message={message}
+							locale={locale}
+							first={startsGroup(thread.messages[index - 1], message)}
 							onAuthor={(id) => void openProfile(id)}
 							onReport={() => setReportId(message.id)}
 						/>
@@ -207,13 +253,39 @@ function Conversation({
 					</Text>
 				) : null}
 			</ScrollView>
-			<Composer
-				communityId={communityId}
-				conversationId={conversationId}
-				name={channel?.name ?? direct?.counterpart.display_name ?? ""}
-				dm={!channel && Boolean(direct)}
-				block={block}
-			/>
+			{previewing && channel ? (
+				<View className="gap-2 border-t border-hairline px-4 py-3">
+					<Text className="text-body-sm text-ink-muted">
+						{t("mobile.community.conversation.join_prompt", {
+							name: channel.name,
+						})}
+					</Text>
+					<View className="self-start">
+						<Button
+							label={t("mobile.community.browse.join")}
+							loading={joining}
+							onPress={() => void joinChannel()}
+							testID={CONTROL.communityChannelJoin}
+						/>
+					</View>
+					{joinError ? (
+						<Text
+							accessibilityRole={ROLE.alert}
+							className="text-body-sm text-danger"
+						>
+							{joinError}
+						</Text>
+					) : null}
+				</View>
+			) : (
+				<Composer
+					communityId={communityId}
+					conversationId={conversationId}
+					name={channel?.name ?? direct?.counterpart.display_name ?? ""}
+					dm={!channel && Boolean(direct)}
+					block={block}
+				/>
+			)}
 			<ProfileSheet
 				communityId={communityId}
 				profile={profile}
@@ -221,20 +293,54 @@ function Conversation({
 			/>
 			<ReportSheet
 				communityId={communityId}
-				target={reportId ? { kind: "message", id: reportId } : null}
+				target={reportTarget(
+					reportId,
+					!channel && Boolean(direct),
+					thread?.messages,
+				)}
+				onRevisionChanged={() =>
+					void actions.refreshThread(communityId, conversationId)
+				}
 				onClose={() => setReportId(null)}
 			/>
 		</KeyboardAvoidingView>
 	);
 }
 
-/** One message. Long-press reports it; the author's name opens their card. */
+/**
+ * What a report of one message targets (review round 1, R1-1). In a DM the
+ * message is reported as `dm` with the revision the reader is looking at: the
+ * case copies exactly that revision to Trust & Safety (RFC §6.4), and a
+ * `message` report of a DM is a 400 by contract. The revision is read from the
+ * LIVE history, so after a `revision_changed` refresh the sheet consents to
+ * the text now on screen.
+ */
+function reportTarget(
+	messageId: string | null,
+	dm: boolean,
+	messages: readonly CommunityMessage[] | undefined,
+): ReportTarget | null {
+	if (!messageId) return null;
+	if (!dm) return { kind: "message", id: messageId };
+	const message = messages?.find((m) => m.id === messageId);
+	return { kind: "dm", id: messageId, revision: message?.revision ?? 1 };
+}
+
+/**
+ * One message. Long-press reports it. The author's AVATAR is the profile tap
+ * target (design D1/D5): a 48 pt square around a 32 pt avatar, where the name
+ * alone was a 20 pt-tall target.
+ */
 function MessageRow({
 	message,
+	locale,
+	first,
 	onAuthor,
 	onReport,
 }: {
 	message: CommunityMessage;
+	locale: string;
+	first: boolean;
 	onAuthor: (publicId: string) => void;
 	onReport: () => void;
 }) {
@@ -243,16 +349,15 @@ function MessageRow({
 		author.kind === "former_member"
 			? t("mobile.community.conversation.former_member")
 			: author.display_name;
-	const time = useMemo(() => {
-		const at = new Date(message.created_at);
-		return Number.isNaN(at.getTime())
-			? ""
-			: at.toLocaleTimeString(undefined, {
-					hour: "numeric",
-					minute: "2-digit",
-				});
-	}, [message.created_at]);
+	const time = useMemo(
+		() => messageTime(message.created_at, locale),
+		[message.created_at, locale],
+	);
 	const deleted = message.deleted || author.kind === "deleted";
+	const openable = Boolean(author.public_id) && author.kind !== "former_member";
+	const avatar = (
+		<MemberAvatar name={author.display_name} kind={author.kind} size="sm" />
+	);
 	return (
 		<Pressable
 			onLongPress={deleted ? undefined : onReport}
@@ -260,47 +365,81 @@ function MessageRow({
 				deleted ? undefined : t("mobile.community.conversation.report")
 			}
 			testID={communityMessageId(message.id)}
-			className="py-1.5"
+			className={cx("flex-row gap-2", first ? "pt-2" : "")}
 		>
-			<View className="flex-row flex-wrap items-center gap-2">
-				{author.public_id && author.kind !== "former_member" ? (
-					<Pressable
-						accessibilityRole={ROLE.button}
-						onPress={() => author.public_id && onAuthor(author.public_id)}
-					>
-						<Text className="text-body-sm font-semibold text-ink">{name}</Text>
-					</Pressable>
-				) : (
-					<Text className="text-body-sm font-semibold text-ink-muted">
-						{name}
-					</Text>
-				)}
-				{author.kind === "agent" ? (
-					<Badge label={t("mobile.community.conversation.agent")} />
+			{/* The avatar column keeps its width on continuation rows so the text
+			 *  of one speaker's run stays in one column. */}
+			<View style={{ width: TOUCH_FLOOR }} className="items-center">
+				{first ? (
+					openable ? (
+						<Pressable
+							accessibilityRole={ROLE.button}
+							accessibilityLabel={t(
+								"mobile.community.conversation.view_profile",
+								{
+									name,
+								},
+							)}
+							onPress={() => author.public_id && onAuthor(author.public_id)}
+							testID={communityAuthorId(message.id)}
+							style={{ minHeight: TOUCH_FLOOR, minWidth: TOUCH_FLOOR }}
+							className="items-center justify-center"
+						>
+							{avatar}
+						</Pressable>
+					) : (
+						<View
+							style={{ minHeight: TOUCH_FLOOR }}
+							className="items-center justify-center"
+						>
+							{avatar}
+						</View>
+					)
 				) : null}
-				<Text className="text-meta text-ink-dim">{time}</Text>
-				{message.edited ? (
+			</View>
+			<View className="min-w-0 flex-1 justify-center py-1">
+				{first ? (
+					<View className="flex-row flex-wrap items-center gap-2">
+						<Text
+							className={cx(
+								"text-body-sm font-semibold",
+								openable ? "text-ink" : "text-ink-muted",
+							)}
+						>
+							{name}
+						</Text>
+						{author.kind === "agent" ? (
+							<Badge label={t("mobile.community.conversation.agent")} />
+						) : null}
+						<Text className="text-meta text-ink-dim">{time}</Text>
+						{message.edited ? (
+							<Text className="text-meta text-ink-dim">
+								{t("mobile.community.conversation.edited")}
+							</Text>
+						) : null}
+					</View>
+				) : message.edited ? (
 					<Text className="text-meta text-ink-dim">
 						{t("mobile.community.conversation.edited")}
 					</Text>
 				) : null}
+				{deleted ? (
+					<Text className="text-body-sm italic text-ink-dim">
+						{t("mobile.community.conversation.deleted")}
+					</Text>
+				) : (
+					<Text className="text-body text-ink" selectable>
+						{message.text ?? ""}
+					</Text>
+				)}
+				{message.reply_count ? (
+					<Text className="text-meta text-ink-dim">
+						{t("mobile.community.conversation.replies", {
+							count: message.reply_count,
+						})}
+					</Text>
+				) : null}
 			</View>
-			{deleted ? (
-				<Text className="text-body-sm italic text-ink-dim">
-					{t("mobile.community.conversation.deleted")}
-				</Text>
-			) : (
-				<Text className="text-body text-ink" selectable>
-					{message.text ?? ""}
-				</Text>
-			)}
-			{message.reply_count ? (
-				<Text className="text-meta text-ink-dim">
-					{t("mobile.community.conversation.replies", {
-						count: message.reply_count,
-					})}
-				</Text>
-			) : null}
 		</Pressable>
 	);
 }
@@ -324,6 +463,7 @@ function Composer({
 	const attempt = useCommunityState((s) => s.attempts[key]);
 	const [now, setNow] = useState(Date.now());
 	const [reaccepting, setReaccepting] = useState(false);
+	const [imagesNote, setImagesNote] = useState(false);
 	const limited =
 		attempt?.state.kind === "limited" ? attempt.state.retryAt : null;
 	useEffect(() => {
@@ -435,9 +575,17 @@ function Composer({
 						}
 						disabled={checking}
 						maxLines={6}
+						maxLength={SUBMISSION_MAX_CHARS}
 						testID={CONTROL.communityComposerInput}
 					/>
 				</View>
+				<IconButton
+					accessibilityLabel={t("mobile.community.composer.attach")}
+					icon={({ color, size }) => <ImagePlus color={color} size={size} />}
+					disabled={checking}
+					onPress={() => setImagesNote((open) => !open)}
+					testID={CONTROL.communityAttach}
+				/>
 				<Button
 					label={t("mobile.community.composer.send")}
 					disabled={checking || !draft.trim()}
@@ -445,6 +593,27 @@ function Composer({
 					testID={CONTROL.communitySend}
 				/>
 			</View>
+			{imagesNote ? (
+				/* The server's own refusal sentence for images, shown BEFORE any
+				 * picking: nothing chosen, so nothing lost (D3). Polite, not an
+				 * alert: it answers the reader's own tap. */
+				<View
+					testID={SURFACE.communityImagesNote}
+					accessibilityLiveRegion="polite"
+					className="flex-row items-start gap-2 rounded-sm bg-elevated px-3 py-2"
+				>
+					<Text className="min-w-0 flex-1 text-body-sm text-ink">
+						{attemptSentences({ kind: "images_unavailable" }, now).headline}
+					</Text>
+					<Button
+						label={t("mobile.community.composer.dismiss")}
+						variant="quiet"
+						size="sm"
+						onPress={() => setImagesNote(false)}
+						testID={CONTROL.communityImagesNoteDismiss}
+					/>
+				</View>
+			) : null}
 			<Text className="text-meta text-ink-dim">
 				{dm
 					? t("mobile.community.composer.audience_dm", { name })

@@ -331,3 +331,143 @@ describe("events", () => {
 		expect(bootstrap).toHaveBeenCalled();
 	});
 });
+
+/* ---------------------------------------------------------------------------
+ * Review round 1 remediation (R1-1, R1-2, R1-3, R1-4, R1-6).
+ * ------------------------------------------------------------------------- */
+
+const message = (id: string, seq: number) => ({
+	id,
+	conversation_id: CONV,
+	seq,
+	author: { kind: "human" as const, public_id: "p1", display_name: "Ada" },
+	text: id,
+	created_at: "2026-11-18T10:00:00Z",
+});
+
+describe("history refresh (R1-2)", () => {
+	it("a message deleted between two reads leaves the screen", async () => {
+		const messages = vi
+			.fn<CommunityClient["messages"]>()
+			.mockResolvedValueOnce({
+				items: [message("m2", 2), message("m1", 1)],
+				next_cursor: null,
+			})
+			/* m2 deleted by its author (or removed by a moderator) since. */
+			.mockResolvedValueOnce({ items: [message("m1", 1)], next_cursor: null });
+		const { store, actions } = setup({ messages });
+		await actions.loadThread(CID, CONV);
+		expect(store.getState().threads[KEY]?.messages.map((m) => m.id)).toEqual([
+			"m1",
+			"m2",
+		]);
+		await actions.refreshThread(CID, CONV);
+		expect(store.getState().threads[KEY]?.messages.map((m) => m.id)).toEqual([
+			"m1",
+		]);
+	});
+
+	it("older pages survive a refresh, and so does their deeper cursor", async () => {
+		const messages = vi
+			.fn<CommunityClient["messages"]>()
+			.mockResolvedValueOnce({
+				items: [message("m4", 4), message("m3", 3)],
+				next_cursor: "older-1",
+			})
+			.mockResolvedValueOnce({
+				items: [message("m2", 2), message("m1", 1)],
+				next_cursor: "older-2",
+			})
+			.mockResolvedValueOnce({
+				items: [message("m5", 5), message("m4", 4)],
+				next_cursor: "older-1b",
+			});
+		const { store, actions } = setup({ messages });
+		await actions.loadThread(CID, CONV);
+		await actions.loadOlder(CID, CONV);
+		await actions.refreshThread(CID, CONV);
+		const thread = store.getState().threads[KEY];
+		/* The refreshed page's window starts at seq 4, so m1..m3 are older
+		 * history the reader loaded and stay, with the deeper cursor. */
+		expect(thread?.messages.map((m) => m.id)).toEqual([
+			"m1",
+			"m2",
+			"m3",
+			"m4",
+			"m5",
+		]);
+		expect(thread?.olderCursor).toBe("older-2");
+	});
+});
+
+describe("reports (R1-1)", () => {
+	it("passes the caller's key through and sends the DM fields", async () => {
+		const report = vi.fn<CommunityClient["report"]>(
+			async () => "MOD-AAAA-BBBB",
+		);
+		const { actions } = setup({ report });
+		const key = await actions.reportKey();
+		const input = {
+			targetKind: "dm" as const,
+			targetId: "m1",
+			category: "harassment_or_abuse" as const,
+			dmConsent: true,
+			revision: 2,
+			idempotencyKey: key,
+		};
+		expect(await actions.report(CID, input)).toEqual({
+			reference: "MOD-AAAA-BBBB",
+		});
+		await actions.report(CID, input);
+		expect(report.mock.calls.map(([, sent]) => sent.idempotencyKey)).toEqual([
+			key,
+			key,
+		]);
+		expect(report.mock.calls[0]?.[1]).toMatchObject({
+			dmConsent: true,
+			revision: 2,
+		});
+	});
+});
+
+describe("events loop lifetime (R1-4)", () => {
+	it("a loop that ended on sign_in is started again by the next watch", async () => {
+		let calls = 0;
+		const events = vi.fn<CommunityClient["events"]>(async () => {
+			calls += 1;
+			if (calls === 1) throw new CommunityError({ kind: "sign_in" });
+			return new Promise(() => undefined);
+		});
+		const { actions } = setup({ events });
+		const first = actions.watch(CID);
+		await vi.waitFor(() => expect(calls).toBe(1));
+		/* The first screen is still mounted; a second one watches. */
+		const second = actions.watch(CID);
+		await vi.waitFor(() => expect(calls).toBe(2));
+		first();
+		second();
+	});
+});
+
+describe("opening hold and previews (R1-3, R1-6)", () => {
+	it("holdOpening is spent by exactly one take", () => {
+		const { actions } = setup({});
+		expect(actions.takeOpeningHold()).toBe(false);
+		actions.holdOpening();
+		expect(actions.takeOpeningHold()).toBe(true);
+		expect(actions.takeOpeningHold()).toBe(false);
+	});
+
+	it("a previewed channel is remembered without any join call", () => {
+		const joinChannel = vi.fn<CommunityClient["joinChannel"]>();
+		const { store, actions } = setup({ joinChannel });
+		actions.previewChannel(CID, {
+			id: CONV,
+			name: "general",
+			visibility: "public",
+			member: false,
+		} as never);
+		expect(store.getState().previews[KEY]?.name).toBe("general");
+		expect(joinChannel).not.toHaveBeenCalled();
+	});
+});

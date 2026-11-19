@@ -15,6 +15,10 @@
 		"role": "meta",
 		"note": "Lower-case; time left before the approval lapses."
 	},
+	"mobile.community.approvals.expires_days": {
+		"role": "meta",
+		"note": "Lower-case; time left before an agent approval lapses when more than 48 hours remain, in whole days."
+	},
 	"mobile.community.approvals.failed": {
 		"role": "status",
 		"note": "Answering the approval failed."
@@ -119,6 +123,10 @@
 		"role": "heading",
 		"note": "Heading when the community cannot be shown (flag off, not found, or a failed read)."
 	},
+	"mobile.community.composer.attach": {
+		"role": "button",
+		"note": "Icon button beside Send: attach an image. While communities refuse images it opens an explanation instead of a picker. Accessible name only."
+	},
 	"mobile.community.composer.audience": {
 		"role": "help",
 		"note": "Audience line under the composer in a public channel."
@@ -174,6 +182,10 @@
 	"mobile.community.composer.images_unavailable": {
 		"role": "status",
 		"note": "Image posting is not available yet."
+	},
+	"mobile.community.composer.invalid": {
+		"role": "status",
+		"note": "Shown to the sender when the server rejected the message itself (too long or malformed). There is no Retry; editing the text and sending again is the way out."
 	},
 	"mobile.community.composer.label": {
 		"role": "help",
@@ -239,6 +251,10 @@
 		"role": "meta",
 		"note": "Author label for an erased account whose posts remain."
 	},
+	"mobile.community.conversation.join_prompt": {
+		"role": "help",
+		"note": "Replaces the composer in a channel opened from Browse without joining. {name} is the channel name WITHOUT the # sign; keep the # before it."
+	},
 	"mobile.community.conversation.load_older": {
 		"role": "button",
 		"note": "Loads the previous page of history."
@@ -258,6 +274,10 @@
 	"mobile.community.conversation.subtitle": {
 		"role": "meta",
 		"note": "Under the channel title. {community} is the community name."
+	},
+	"mobile.community.conversation.view_profile": {
+		"role": "button",
+		"note": "Accessible name of a message author's avatar (and hint on a DM request card); opens that member's community profile. {name} is the member's display name."
 	},
 	"mobile.community.directory.empty": {
 		"role": "status",
@@ -286,6 +306,10 @@
 	"mobile.community.error.generic": {
 		"role": "status",
 		"note": "Any other failure of a read or a non-message action."
+	},
+	"mobile.community.error.load_failed": {
+		"role": "status",
+		"note": "A screen or list could not be READ (nothing was being changed). Says what to do; must not imply that an action failed."
 	},
 	"mobile.community.error.not_found": {
 		"role": "status",
@@ -358,6 +382,10 @@
 	"mobile.community.home.requests_count": {
 		"role": "button",
 		"note": "Requests button with the number of pending items (DM requests + agent approvals)."
+	},
+	"mobile.community.home.switch": {
+		"role": "button",
+		"note": "Icon button in a community's header: opens the switcher listing private organizations and communities. Accessible name only."
 	},
 	"mobile.community.join.agree": {
 		"role": "confirm",
@@ -459,6 +487,10 @@
 		"role": "help",
 		"note": "Accessible name of the category choice."
 	},
+	"mobile.community.report.dm_consent": {
+		"role": "confirm",
+		"note": "Consent tick in the report sheet for a DIRECT MESSAGE; Submit stays disabled until ticked. The message goes to Radient Trust & Safety only, never to community moderators. 'Radient' is a product name."
+	},
 	"mobile.community.report.failed": {
 		"role": "status",
 		"note": "The report could not be sent; nothing was filed."
@@ -466,6 +498,10 @@
 	"mobile.community.report.note": {
 		"role": "help",
 		"note": "Optional note field label."
+	},
+	"mobile.community.report.revision_changed": {
+		"role": "status",
+		"note": "The direct message was edited after the reporter opened it, so nothing was sent. They must read the current text and tick the consent again."
 	},
 	"mobile.community.report.sent": {
 		"role": "status",
@@ -510,6 +546,10 @@
 	"mobile.community.requests.expires": {
 		"role": "meta",
 		"note": "Time left on a request, in whole hours."
+	},
+	"mobile.community.requests.expires_days": {
+		"role": "meta",
+		"note": "Time left on a DM request when more than 48 hours remain, in whole days. Sentence case, like the hours variant."
 	},
 	"mobile.community.requests.mode": {
 		"role": "help",

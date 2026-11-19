@@ -10,6 +10,7 @@
  * two checks.
  */
 import { useRouter } from "expo-router";
+import { Check } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
 import type { CommunityError } from "@/community/client";
@@ -22,6 +23,7 @@ import { state as a11yState, CONTROL, ROLE } from "@/ui/a11y";
 import { BackButton } from "@/ui/components/back-button";
 import { Button } from "@/ui/components/button";
 import { Screen } from "@/ui/components/screen";
+import { useComposedDir } from "@/ui/direction";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { cx } from "@/ui/variants";
 import { errorSentence } from "./labels";
@@ -32,15 +34,22 @@ export function CommunityBack({
 	fallback?: string;
 }) {
 	const router = useRouter();
+	const { actions } = useCommunity();
 	return (
 		<BackButton
 			accessibilityLabel={t("mobile.team_bridge.back")}
 			testID={CONTROL.teamBridgeBack}
-			onPress={() =>
-				router.canGoBack()
-					? router.back()
-					: router.replace(fallback as Parameters<typeof router.replace>[0])
-			}
+			onPress={() => {
+				if (router.canGoBack()) {
+					router.back();
+					return;
+				}
+				/* No history: the fallback MOUNTS the list fresh, and its opening
+				 * rule would send a reader leaving this community straight back
+				 * into it (`CommunityOpening`). Leaving is switching back. */
+				if (fallback === "/team-bridge") actions.holdOpening();
+				router.replace(fallback as Parameters<typeof router.replace>[0]);
+			}}
 		/>
 	);
 }
@@ -117,7 +126,7 @@ export function LoadFailure({
 	return (
 		<View className="gap-2 px-4 py-3">
 			<Text accessibilityRole={ROLE.alert} className="text-body-sm text-danger">
-				{errorSentence(error)}
+				{errorSentence(error, "read")}
 			</Text>
 			<View className="self-start">
 				<Button
@@ -132,7 +141,20 @@ export function LoadFailure({
 	);
 }
 
-/** A tappable list row: a leading glyph, a label, an optional detail, a trailing slot. */
+/**
+ * A tappable list row: a leading glyph, a label, an optional detail, a trailing slot.
+ *
+ * THE LABEL STATES THE PAGE'S DIRECTION (design review round 1, D2). Channel,
+ * member and community names are usually Latin; left to react-native-web's
+ * `dir="auto"`, a Latin name lays out left-to-right inside a mirrored RTL row,
+ * so in Urdu `general` sat ~260 px away from its `#` glyph. The page's base is
+ * stated instead (`useComposedDir`, the fix `computers.tsx` and
+ * `transient-notice.tsx` already carry); a Latin word inside an RTL paragraph
+ * still renders left-to-right by the bidi algorithm, so nothing is reversed.
+ *
+ * `inset="switcher"` matches the private org rows in the switcher sheet (px-3,
+ * a 24 pt leading tile), so both groups share one column (D4).
+ */
 export function CommunityRow({
 	label,
 	detail,
@@ -141,6 +163,7 @@ export function CommunityRow({
 	accessibilityLabel,
 	selected,
 	bold,
+	inset = "list",
 	onPress,
 	testID,
 }: {
@@ -151,9 +174,12 @@ export function CommunityRow({
 	accessibilityLabel?: string;
 	selected?: boolean;
 	bold?: boolean;
+	inset?: "list" | "switcher";
 	onPress: () => void;
 	testID: string;
 }) {
+	/* See `SectionHeader`: `dir` is a react-native-web prop RN's TextProps lack. */
+	const dir: object = useComposedDir();
 	return (
 		<Pressable
 			accessibilityRole={ROLE.button}
@@ -166,7 +192,8 @@ export function CommunityRow({
 			{({ pressed }) => (
 				<View
 					className={cx(
-						"flex-1 flex-row items-center gap-3 rounded-sm px-4 py-2",
+						"flex-1 flex-row items-center gap-3 rounded-sm py-2",
+						inset === "switcher" ? "px-3" : "px-4",
 						selected
 							? "bg-row-selected"
 							: pressed
@@ -176,6 +203,11 @@ export function CommunityRow({
 				>
 					{leading ? (
 						<View
+							className={
+								inset === "switcher"
+									? "h-6 w-6 items-center justify-center"
+									: ""
+							}
 							aria-hidden
 							accessibilityElementsHidden
 							importantForAccessibility="no-hide-descendants"
@@ -185,13 +217,18 @@ export function CommunityRow({
 					) : null}
 					<View className="min-w-0 flex-1 justify-center">
 						<Text
+							{...dir}
 							className={cx("text-body text-ink", bold ? "font-semibold" : "")}
 							numberOfLines={1}
 						>
 							{label}
 						</Text>
 						{detail ? (
-							<Text className="text-meta text-ink-dim" numberOfLines={2}>
+							<Text
+								{...dir}
+								className="text-meta text-ink-dim"
+								numberOfLines={2}
+							>
 								{detail}
 							</Text>
 						) : null}
@@ -217,5 +254,78 @@ export function UnreadPill({ count }: { count: number }) {
 				{countLabel(count)}
 			</Text>
 		</View>
+	);
+}
+
+/**
+ * The trailing column every switcher row shares: unread pill, then the check.
+ * The check keeps its 18 pt slot even when unchecked so pills line up down the
+ * sheet whichever row is selected.
+ */
+export function SwitcherTrailing({
+	unread,
+	checked,
+	checkColor,
+}: {
+	unread: number;
+	checked: boolean;
+	checkColor: string;
+}) {
+	return (
+		<View className="flex-row items-center gap-2">
+			<UnreadPill count={unread} />
+			<View className="h-[18px] w-[18px]" aria-hidden>
+				{checked ? <Check size={18} color={checkColor} aria-hidden /> : null}
+			</View>
+		</View>
+	);
+}
+
+/**
+ * An explicit agreement tick: starts unticked, the whole row is the target, and
+ * it is a real checkbox to assistive tech. Shared by the guidelines agreement
+ * (join) and the DM report consent, because both are consent the server takes
+ * as a literal `true` and neither may ever be pre-ticked.
+ */
+export function ConsentTick({
+	checked,
+	label,
+	onToggle,
+	disabled,
+	testID,
+}: {
+	checked: boolean;
+	label: string;
+	onToggle: () => void;
+	disabled?: boolean;
+	testID: string;
+}) {
+	return (
+		<Pressable
+			accessibilityRole={ROLE.checkbox}
+			accessibilityState={{ checked, disabled: disabled || undefined }}
+			accessibilityLabel={label}
+			disabled={disabled}
+			onPress={onToggle}
+			testID={testID}
+			style={{ minHeight: TOUCH_FLOOR }}
+		>
+			<View className="flex-row items-start gap-3 py-1">
+				<View
+					className={cx(
+						"mt-0.5 h-5 w-5 items-center justify-center rounded-sm border",
+						checked
+							? "border-accent bg-accent"
+							: "border-border-control bg-transparent",
+					)}
+					aria-hidden
+				>
+					{checked ? (
+						<Text className="text-mono-label text-on-accent">✓</Text>
+					) : null}
+				</View>
+				<Text className="min-w-0 flex-1 text-body-sm text-ink">{label}</Text>
+			</View>
+		</Pressable>
 	);
 }

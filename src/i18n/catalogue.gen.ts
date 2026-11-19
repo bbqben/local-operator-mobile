@@ -93,6 +93,7 @@ export type CatalogueKey =
 	| "mobile.community.approvals.decline"
 	| "mobile.community.approvals.empty"
 	| "mobile.community.approvals.expires"
+	| "mobile.community.approvals.expires_days"
 	| "mobile.community.approvals.failed"
 	| "mobile.community.approvals.open_computer"
 	| "mobile.community.approvals.review"
@@ -119,6 +120,7 @@ export type CatalogueKey =
 	| "mobile.community.common.loading"
 	| "mobile.community.common.retry"
 	| "mobile.community.common.unavailable"
+	| "mobile.community.composer.attach"
 	| "mobile.community.composer.audience"
 	| "mobile.community.composer.audience_dm"
 	| "mobile.community.composer.blocked_archived"
@@ -133,6 +135,7 @@ export type CatalogueKey =
 	| "mobile.community.composer.forbidden"
 	| "mobile.community.composer.guidelines"
 	| "mobile.community.composer.images_unavailable"
+	| "mobile.community.composer.invalid"
 	| "mobile.community.composer.label"
 	| "mobile.community.composer.label_dm"
 	| "mobile.community.composer.limited"
@@ -149,11 +152,13 @@ export type CatalogueKey =
 	| "mobile.community.conversation.edited"
 	| "mobile.community.conversation.empty"
 	| "mobile.community.conversation.former_member"
+	| "mobile.community.conversation.join_prompt"
 	| "mobile.community.conversation.load_older"
 	| "mobile.community.conversation.older_error"
 	| "mobile.community.conversation.replies"
 	| "mobile.community.conversation.report"
 	| "mobile.community.conversation.subtitle"
+	| "mobile.community.conversation.view_profile"
 	| "mobile.community.directory.empty"
 	| "mobile.community.directory.featured"
 	| "mobile.community.directory.joined"
@@ -161,6 +166,7 @@ export type CatalogueKey =
 	| "mobile.community.directory.title"
 	| "mobile.community.error.auth_unavailable"
 	| "mobile.community.error.generic"
+	| "mobile.community.error.load_failed"
 	| "mobile.community.error.not_found"
 	| "mobile.community.error.rate_limited"
 	| "mobile.community.error.sign_in"
@@ -179,6 +185,7 @@ export type CatalogueKey =
 	| "mobile.community.home.reaccept_banner"
 	| "mobile.community.home.requests"
 	| "mobile.community.home.requests_count"
+	| "mobile.community.home.switch"
 	| "mobile.community.join.agree"
 	| "mobile.community.join.changed"
 	| "mobile.community.join.failed"
@@ -204,8 +211,10 @@ export type CatalogueKey =
 	| "mobile.community.profile.report"
 	| "mobile.community.profile.title"
 	| "mobile.community.report.category"
+	| "mobile.community.report.dm_consent"
 	| "mobile.community.report.failed"
 	| "mobile.community.report.note"
+	| "mobile.community.report.revision_changed"
 	| "mobile.community.report.sent"
 	| "mobile.community.report.submit"
 	| "mobile.community.report.title"
@@ -217,6 +226,7 @@ export type CatalogueKey =
 	| "mobile.community.requests.dm_body"
 	| "mobile.community.requests.dm_empty"
 	| "mobile.community.requests.expires"
+	| "mobile.community.requests.expires_days"
 	| "mobile.community.requests.mode"
 	| "mobile.community.requests.title"
 	| "mobile.community.role.community_admin"
@@ -1387,6 +1397,7 @@ export type NoParamKey =
 	| "mobile.community.common.loading"
 	| "mobile.community.common.retry"
 	| "mobile.community.common.unavailable"
+	| "mobile.community.composer.attach"
 	| "mobile.community.composer.audience"
 	| "mobile.community.composer.blocked_archived"
 	| "mobile.community.composer.blocked_locked"
@@ -1400,6 +1411,7 @@ export type NoParamKey =
 	| "mobile.community.composer.forbidden"
 	| "mobile.community.composer.guidelines"
 	| "mobile.community.composer.images_unavailable"
+	| "mobile.community.composer.invalid"
 	| "mobile.community.composer.limited"
 	| "mobile.community.composer.retry"
 	| "mobile.community.composer.review"
@@ -1420,6 +1432,7 @@ export type NoParamKey =
 	| "mobile.community.directory.title"
 	| "mobile.community.error.auth_unavailable"
 	| "mobile.community.error.generic"
+	| "mobile.community.error.load_failed"
 	| "mobile.community.error.not_found"
 	| "mobile.community.error.rate_limited"
 	| "mobile.community.error.sign_in"
@@ -1435,6 +1448,7 @@ export type NoParamKey =
 	| "mobile.community.home.reaccept"
 	| "mobile.community.home.reaccept_banner"
 	| "mobile.community.home.requests"
+	| "mobile.community.home.switch"
 	| "mobile.community.join.changed"
 	| "mobile.community.join.failed"
 	| "mobile.community.join.hint"
@@ -1457,8 +1471,10 @@ export type NoParamKey =
 	| "mobile.community.profile.report"
 	| "mobile.community.profile.title"
 	| "mobile.community.report.category"
+	| "mobile.community.report.dm_consent"
 	| "mobile.community.report.failed"
 	| "mobile.community.report.note"
+	| "mobile.community.report.revision_changed"
 	| "mobile.community.report.submit"
 	| "mobile.community.report.title"
 	| "mobile.community.requests.accept"
@@ -2432,6 +2448,7 @@ export type MessageParams = {
 	"mobile.community.approvals.decline": NoParams;
 	"mobile.community.approvals.empty": NoParams;
 	"mobile.community.approvals.expires": { hours: number };
+	"mobile.community.approvals.expires_days": { days: number };
 	"mobile.community.approvals.failed": NoParams;
 	"mobile.community.approvals.open_computer": NoParams;
 	"mobile.community.approvals.review": NoParams;
@@ -2458,6 +2475,7 @@ export type MessageParams = {
 	"mobile.community.common.loading": NoParams;
 	"mobile.community.common.retry": NoParams;
 	"mobile.community.common.unavailable": NoParams;
+	"mobile.community.composer.attach": NoParams;
 	"mobile.community.composer.audience": NoParams;
 	"mobile.community.composer.audience_dm": { name: string | number };
 	"mobile.community.composer.blocked_archived": NoParams;
@@ -2472,6 +2490,7 @@ export type MessageParams = {
 	"mobile.community.composer.forbidden": NoParams;
 	"mobile.community.composer.guidelines": NoParams;
 	"mobile.community.composer.images_unavailable": NoParams;
+	"mobile.community.composer.invalid": NoParams;
 	"mobile.community.composer.label": { name: string | number };
 	"mobile.community.composer.label_dm": { name: string | number };
 	"mobile.community.composer.limited": NoParams;
@@ -2488,11 +2507,13 @@ export type MessageParams = {
 	"mobile.community.conversation.edited": NoParams;
 	"mobile.community.conversation.empty": NoParams;
 	"mobile.community.conversation.former_member": NoParams;
+	"mobile.community.conversation.join_prompt": { name: string | number };
 	"mobile.community.conversation.load_older": NoParams;
 	"mobile.community.conversation.older_error": NoParams;
 	"mobile.community.conversation.replies": { count: number };
 	"mobile.community.conversation.report": NoParams;
 	"mobile.community.conversation.subtitle": { community: string | number };
+	"mobile.community.conversation.view_profile": { name: string | number };
 	"mobile.community.directory.empty": NoParams;
 	"mobile.community.directory.featured": NoParams;
 	"mobile.community.directory.joined": NoParams;
@@ -2500,6 +2521,7 @@ export type MessageParams = {
 	"mobile.community.directory.title": NoParams;
 	"mobile.community.error.auth_unavailable": NoParams;
 	"mobile.community.error.generic": NoParams;
+	"mobile.community.error.load_failed": NoParams;
 	"mobile.community.error.not_found": NoParams;
 	"mobile.community.error.rate_limited": NoParams;
 	"mobile.community.error.sign_in": NoParams;
@@ -2518,6 +2540,7 @@ export type MessageParams = {
 	"mobile.community.home.reaccept_banner": NoParams;
 	"mobile.community.home.requests": NoParams;
 	"mobile.community.home.requests_count": { count: number };
+	"mobile.community.home.switch": NoParams;
 	"mobile.community.join.agree": { version: string | number };
 	"mobile.community.join.changed": NoParams;
 	"mobile.community.join.failed": NoParams;
@@ -2543,8 +2566,10 @@ export type MessageParams = {
 	"mobile.community.profile.report": NoParams;
 	"mobile.community.profile.title": NoParams;
 	"mobile.community.report.category": NoParams;
+	"mobile.community.report.dm_consent": NoParams;
 	"mobile.community.report.failed": NoParams;
 	"mobile.community.report.note": NoParams;
+	"mobile.community.report.revision_changed": NoParams;
 	"mobile.community.report.sent": { reference: string | number };
 	"mobile.community.report.submit": NoParams;
 	"mobile.community.report.title": NoParams;
@@ -2556,6 +2581,7 @@ export type MessageParams = {
 	"mobile.community.requests.dm_body": { name: string | number };
 	"mobile.community.requests.dm_empty": NoParams;
 	"mobile.community.requests.expires": { hours: number };
+	"mobile.community.requests.expires_days": { days: number };
 	"mobile.community.requests.mode": NoParams;
 	"mobile.community.requests.title": NoParams;
 	"mobile.community.role.community_admin": NoParams;
@@ -3724,6 +3750,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.approvals.decline": "Don't post",
 	"mobile.community.approvals.empty": "No agent posts are waiting for you.",
 	"mobile.community.approvals.expires": "{hours, plural, one {expires in # h} other {expires in # h}}",
+	"mobile.community.approvals.expires_days": "{days, plural, one {expires in # day} other {expires in # days}}",
 	"mobile.community.approvals.failed": "That didn't go through. Try again.",
 	"mobile.community.approvals.open_computer": "Open Local Operator on your computer to read the exact text and choose.",
 	"mobile.community.approvals.review": "Review on your computer",
@@ -3750,6 +3777,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.common.loading": "Loading the community…",
 	"mobile.community.common.retry": "Try again",
 	"mobile.community.common.unavailable": "The community is unavailable",
+	"mobile.community.composer.attach": "Attach an image",
 	"mobile.community.composer.audience": "Visible to all community members",
 	"mobile.community.composer.audience_dm": "Only you and {name} can see this conversation",
 	"mobile.community.composer.blocked_archived": "This channel is archived.",
@@ -3764,6 +3792,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.composer.forbidden": "You can't post here.",
 	"mobile.community.composer.guidelines": "The Community Guidelines changed. Accept them, then try again.",
 	"mobile.community.composer.images_unavailable": "Images can't be posted in communities yet. Your text is still here.",
+	"mobile.community.composer.invalid": "This message can't be sent as it is. Shorten or edit it, then send again.",
 	"mobile.community.composer.label": "Message #{name}",
 	"mobile.community.composer.label_dm": "Message {name}",
 	"mobile.community.composer.limited": "You're sending faster than the community allows.",
@@ -3780,11 +3809,13 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.conversation.edited": "edited",
 	"mobile.community.conversation.empty": "No messages yet.",
 	"mobile.community.conversation.former_member": "Former member",
+	"mobile.community.conversation.join_prompt": "You're reading #{name}. Join the channel to post here.",
 	"mobile.community.conversation.load_older": "Load older messages",
 	"mobile.community.conversation.older_error": "Older messages could not load.",
 	"mobile.community.conversation.replies": "{count, plural, one {# reply} other {# replies}}",
 	"mobile.community.conversation.report": "Report message",
 	"mobile.community.conversation.subtitle": "{community} · Public",
+	"mobile.community.conversation.view_profile": "View profile for {name}",
 	"mobile.community.directory.empty": "No communities are open to join right now.",
 	"mobile.community.directory.featured": "Featured",
 	"mobile.community.directory.joined": "Joined",
@@ -3792,6 +3823,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.directory.title": "Communities",
 	"mobile.community.error.auth_unavailable": "Radient couldn't check your sign-in right now. Try again in a moment.",
 	"mobile.community.error.generic": "Something went wrong. Nothing was changed.",
+	"mobile.community.error.load_failed": "Couldn't load this right now. Check your connection and try again.",
 	"mobile.community.error.not_found": "This community isn't available to this account.",
 	"mobile.community.error.rate_limited": "You're doing that faster than the community allows. Try again shortly.",
 	"mobile.community.error.sign_in": "Sign in to Radient to use the community.",
@@ -3810,6 +3842,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.home.reaccept_banner": "The Community Guidelines changed. Review and accept them to keep posting.",
 	"mobile.community.home.requests": "Requests",
 	"mobile.community.home.requests_count": "{count, plural, one {Requests · #} other {Requests · #}}",
+	"mobile.community.home.switch": "Switch organization or community",
 	"mobile.community.join.agree": "I agree to the Community Guidelines ({version}). My profile and posts are visible to all members.",
 	"mobile.community.join.changed": "The guidelines changed while you were reading. Review the new version, then accept again.",
 	"mobile.community.join.failed": "Joining didn't complete. Try again.",
@@ -3835,8 +3868,10 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.profile.report": "Report",
 	"mobile.community.profile.title": "Profile",
 	"mobile.community.report.category": "What's wrong?",
+	"mobile.community.report.dm_consent": "Share this message with Radient Trust & Safety. Only their case reviewers see it; community moderators never do.",
 	"mobile.community.report.failed": "The report didn't send. Try again.",
 	"mobile.community.report.note": "Anything else we should know? (optional)",
+	"mobile.community.report.revision_changed": "This message was edited after you opened it. Read it again, then confirm and report the current version.",
 	"mobile.community.report.sent": "Report sent. Reference {reference}.",
 	"mobile.community.report.submit": "Send report",
 	"mobile.community.report.title": "Report to Radient Trust & Safety",
@@ -3848,6 +3883,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.community.requests.dm_body": "{name} wants to send you direct messages.",
 	"mobile.community.requests.dm_empty": "No message requests.",
 	"mobile.community.requests.expires": "{hours, plural, one {Expires in # h} other {Expires in # h}}",
+	"mobile.community.requests.expires_days": "{days, plural, one {Expires in # day} other {Expires in # days}}",
 	"mobile.community.requests.mode": "Show",
 	"mobile.community.requests.title": "Requests",
 	"mobile.community.role.community_admin": "Community admin",
@@ -5001,6 +5037,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.approvals.decline": { role: "button", note: "Declines the agent post from the phone." },
 	"mobile.community.approvals.empty": { role: "status", note: "Empty approvals list." },
 	"mobile.community.approvals.expires": { role: "meta", note: "Lower-case; time left before the approval lapses." },
+	"mobile.community.approvals.expires_days": { role: "meta", note: "Lower-case; time left before an agent approval lapses when more than 48 hours remain, in whole days." },
 	"mobile.community.approvals.failed": { role: "status", note: "Answering the approval failed." },
 	"mobile.community.approvals.open_computer": { role: "help", note: "Instruction. 'Local Operator' is a product name." },
 	"mobile.community.approvals.review": { role: "button", note: "Keeps the approval waiting; does not approve." },
@@ -5027,6 +5064,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.common.loading": { role: "status", note: "Accessible label of the loading placeholder." },
 	"mobile.community.common.retry": { role: "button", note: "Retries a failed read." },
 	"mobile.community.common.unavailable": { role: "heading", note: "Heading when the community cannot be shown (flag off, not found, or a failed read)." },
+	"mobile.community.composer.attach": { role: "button", note: "Icon button beside Send: attach an image. While communities refuse images it opens an explanation instead of a picker. Accessible name only." },
 	"mobile.community.composer.audience": { role: "help", note: "Audience line under the composer in a public channel." },
 	"mobile.community.composer.audience_dm": { role: "help", note: "Audience line in a direct message." },
 	"mobile.community.composer.blocked_archived": { role: "status", note: "No composer: archived channel." },
@@ -5041,6 +5079,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.composer.forbidden": { role: "status", note: "No seat, locked channel, or similar." },
 	"mobile.community.composer.guidelines": { role: "status", note: "The accepted guidelines version is stale; nothing was posted." },
 	"mobile.community.composer.images_unavailable": { role: "status", note: "Image posting is not available yet." },
+	"mobile.community.composer.invalid": { role: "status", note: "Shown to the sender when the server rejected the message itself (too long or malformed). There is no Retry; editing the text and sending again is the way out." },
 	"mobile.community.composer.label": { role: "help", note: "Composer field label and placeholder. {name} is the channel name without '#'." },
 	"mobile.community.composer.label_dm": { role: "help", note: "Composer placeholder in a direct message. {name} is the other person." },
 	"mobile.community.composer.limited": { role: "status", note: "A per-sender limit applied; nothing was checked or stored." },
@@ -5057,11 +5096,13 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.conversation.edited": { role: "meta", note: "Lower-case marker after an edited message's time." },
 	"mobile.community.conversation.empty": { role: "status", note: "Empty channel history." },
 	"mobile.community.conversation.former_member": { role: "meta", note: "Author label for an erased account whose posts remain." },
+	"mobile.community.conversation.join_prompt": { role: "help", note: "Replaces the composer in a channel opened from Browse without joining. {name} is the channel name WITHOUT the # sign; keep the # before it." },
 	"mobile.community.conversation.load_older": { role: "button", note: "Loads the previous page of history." },
 	"mobile.community.conversation.older_error": { role: "status", note: "Failed to load an older page." },
 	"mobile.community.conversation.replies": { role: "meta", note: "Number of replies in a message's thread; {count} counts replies." },
 	"mobile.community.conversation.report": { role: "button", note: "Accessible hint/long-press action to report a message." },
 	"mobile.community.conversation.subtitle": { role: "meta", note: "Under the channel title. {community} is the community name." },
+	"mobile.community.conversation.view_profile": { role: "button", note: "Accessible name of a message author's avatar (and hint on a DM request card); opens that member's community profile. {name} is the member's display name." },
 	"mobile.community.directory.empty": { role: "status", note: "Empty state of the featured list." },
 	"mobile.community.directory.featured": { role: "heading", note: "Section: communities Radient features that the user has not joined." },
 	"mobile.community.directory.joined": { role: "heading", note: "Section: communities the user is a member of." },
@@ -5069,6 +5110,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.directory.title": { role: "heading", note: "Screen title listing communities joined and joinable." },
 	"mobile.community.error.auth_unavailable": { role: "status", note: "The server could not verify the sign-in (temporary). Not a sign-out." },
 	"mobile.community.error.generic": { role: "status", note: "Any other failure of a read or a non-message action." },
+	"mobile.community.error.load_failed": { role: "status", note: "A screen or list could not be READ (nothing was being changed). Says what to do; must not imply that an action failed." },
 	"mobile.community.error.not_found": { role: "status", note: "Unknown, hidden, or not joined. Do not say the community does not exist." },
 	"mobile.community.error.rate_limited": { role: "status", note: "A per-person limit; not a ban." },
 	"mobile.community.error.sign_in": { role: "status", note: "The Radient sign-in is missing or expired." },
@@ -5087,6 +5129,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.home.reaccept_banner": { role: "status", note: "Banner when the accepted guidelines version is no longer current." },
 	"mobile.community.home.requests": { role: "button", note: "Opens message requests and agent approvals." },
 	"mobile.community.home.requests_count": { role: "button", note: "Requests button with the number of pending items (DM requests + agent approvals)." },
+	"mobile.community.home.switch": { role: "button", note: "Icon button in a community's header: opens the switcher listing private organizations and communities. Accessible name only." },
 	"mobile.community.join.agree": { role: "confirm", note: "Checkbox label; starts unchecked. {version} is verbatim, e.g. 2026-11." },
 	"mobile.community.join.changed": { role: "status", note: "The version the user accepted was replaced during the dialog; nothing was recorded." },
 	"mobile.community.join.failed": { role: "status", note: "Join failed for another reason; nothing was recorded." },
@@ -5112,8 +5155,10 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.profile.report": { role: "button", note: "Opens the report form for this profile." },
 	"mobile.community.profile.title": { role: "heading", note: "Title of a member's profile sheet." },
 	"mobile.community.report.category": { role: "help", note: "Accessible name of the category choice." },
+	"mobile.community.report.dm_consent": { role: "confirm", note: "Consent tick in the report sheet for a DIRECT MESSAGE; Submit stays disabled until ticked. The message goes to Radient Trust & Safety only, never to community moderators. 'Radient' is a product name." },
 	"mobile.community.report.failed": { role: "status", note: "The report could not be sent; nothing was filed." },
 	"mobile.community.report.note": { role: "help", note: "Optional note field label." },
+	"mobile.community.report.revision_changed": { role: "status", note: "The direct message was edited after the reporter opened it, so nothing was sent. They must read the current text and tick the consent again." },
 	"mobile.community.report.sent": { role: "status", note: "{reference} is a case reference; keep verbatim." },
 	"mobile.community.report.submit": { role: "button", note: "Submits the report; disabled until a category is chosen." },
 	"mobile.community.report.title": { role: "heading", note: "Report sheet title. 'Radient Trust & Safety' is a team name." },
@@ -5125,6 +5170,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.community.requests.dm_body": { role: "help", note: "Incoming DM request. {name} is the requester." },
 	"mobile.community.requests.dm_empty": { role: "status", note: "The incoming direct-message request list is empty." },
 	"mobile.community.requests.expires": { role: "meta", note: "Time left on a request, in whole hours." },
+	"mobile.community.requests.expires_days": { role: "meta", note: "Time left on a DM request when more than 48 hours remain, in whole days. Sentence case, like the hours variant." },
 	"mobile.community.requests.mode": { role: "help", note: "Accessible name of the Messages/Agent approvals segmented control." },
 	"mobile.community.requests.title": { role: "heading", note: "Requests screen title." },
 	"mobile.community.role.community_admin": { role: "meta", note: "Member badge: administers this community (not a Radient employee)." },
@@ -6292,6 +6338,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "No publicar",
 		"mobile.community.approvals.empty": "No hay publicaciones de agentes esperando tu aprobación.",
 		"mobile.community.approvals.expires": "{hours, plural, one {vence en # h} other {vence en # h}}",
+		"mobile.community.approvals.expires_days": "{days, plural, one {vence en # día} other {vence en # días}}",
 		"mobile.community.approvals.failed": "No se completó. Inténtalo de nuevo.",
 		"mobile.community.approvals.open_computer": "Abre Local Operator en tu ordenador para leer el texto exacto y decidir.",
 		"mobile.community.approvals.review": "Revisar en tu ordenador",
@@ -6318,6 +6365,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "Cargando la comunidad…",
 		"mobile.community.common.retry": "Reintentar",
 		"mobile.community.common.unavailable": "La comunidad no está disponible",
+		"mobile.community.composer.attach": "Adjuntar una imagen",
 		"mobile.community.composer.audience": "Visible para todos los miembros de la comunidad",
 		"mobile.community.composer.audience_dm": "Solo tú y {name} pueden ver esta conversación",
 		"mobile.community.composer.blocked_archived": "Este canal está archivado.",
@@ -6332,6 +6380,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "No puedes publicar aquí.",
 		"mobile.community.composer.guidelines": "Las normas de la comunidad cambiaron. Acéptalas y vuelve a intentarlo.",
 		"mobile.community.composer.images_unavailable": "Todavía no se pueden publicar imágenes en las comunidades. Tu texto sigue aquí.",
+		"mobile.community.composer.invalid": "Este mensaje no se puede enviar así. Acórtalo o edítalo y vuelve a enviarlo.",
 		"mobile.community.composer.label": "Mensaje en #{name}",
 		"mobile.community.composer.label_dm": "Mensaje para {name}",
 		"mobile.community.composer.limited": "Estás enviando más rápido de lo que permite la comunidad.",
@@ -6348,11 +6397,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "editado",
 		"mobile.community.conversation.empty": "Todavía no hay mensajes.",
 		"mobile.community.conversation.former_member": "Antiguo miembro",
+		"mobile.community.conversation.join_prompt": "Estás leyendo #{name}. Únete al canal para publicar aquí.",
 		"mobile.community.conversation.load_older": "Cargar mensajes anteriores",
 		"mobile.community.conversation.older_error": "No se pudieron cargar los mensajes anteriores.",
 		"mobile.community.conversation.replies": "{count, plural, one {# respuesta} other {# respuestas}}",
 		"mobile.community.conversation.report": "Denunciar mensaje",
 		"mobile.community.conversation.subtitle": "{community} · Pública",
+		"mobile.community.conversation.view_profile": "Ver el perfil de {name}",
 		"mobile.community.directory.empty": "Ahora mismo no hay comunidades abiertas para unirse.",
 		"mobile.community.directory.featured": "Destacadas",
 		"mobile.community.directory.joined": "Te uniste",
@@ -6360,6 +6411,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "Comunidades",
 		"mobile.community.error.auth_unavailable": "Radient no pudo comprobar tu sesión ahora mismo. Inténtalo de nuevo en un momento.",
 		"mobile.community.error.generic": "Algo salió mal. No se cambió nada.",
+		"mobile.community.error.load_failed": "No se pudo cargar en este momento. Comprueba tu conexión e inténtalo de nuevo.",
 		"mobile.community.error.not_found": "Esta comunidad no está disponible para esta cuenta.",
 		"mobile.community.error.rate_limited": "Lo estás haciendo más rápido de lo que permite la comunidad. Inténtalo de nuevo en breve.",
 		"mobile.community.error.sign_in": "Inicia sesión en Radient para usar la comunidad.",
@@ -6378,6 +6430,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "Las normas de la comunidad cambiaron. Revísalas y acéptalas para seguir publicando.",
 		"mobile.community.home.requests": "Solicitudes",
 		"mobile.community.home.requests_count": "{count, plural, one {Solicitudes · #} other {Solicitudes · #}}",
+		"mobile.community.home.switch": "Cambiar de organización o comunidad",
 		"mobile.community.join.agree": "Acepto las normas de la comunidad ({version}). Mi perfil y mis publicaciones son visibles para todos los miembros.",
 		"mobile.community.join.changed": "Las normas cambiaron mientras leías. Revisa la nueva versión y vuelve a aceptarla.",
 		"mobile.community.join.failed": "No se completó la unión. Inténtalo de nuevo.",
@@ -6403,8 +6456,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "Denunciar",
 		"mobile.community.profile.title": "Perfil",
 		"mobile.community.report.category": "¿Qué ocurre?",
+		"mobile.community.report.dm_consent": "Compartir este mensaje con Trust & Safety de Radient. Solo lo ven sus revisores de casos; los moderadores de la comunidad nunca.",
 		"mobile.community.report.failed": "La denuncia no se envió. Inténtalo de nuevo.",
 		"mobile.community.report.note": "¿Algo más que debamos saber? (opcional)",
+		"mobile.community.report.revision_changed": "Este mensaje se editó después de que lo abrieras. Vuelve a leerlo y luego confirma y denuncia la versión actual.",
 		"mobile.community.report.sent": "Denuncia enviada. Referencia {reference}.",
 		"mobile.community.report.submit": "Enviar denuncia",
 		"mobile.community.report.title": "Denunciar a Radient Trust & Safety",
@@ -6416,6 +6471,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} quiere enviarte mensajes directos.",
 		"mobile.community.requests.dm_empty": "No hay solicitudes de mensaje.",
 		"mobile.community.requests.expires": "{hours, plural, one {Vence en # h} other {Vence en # h}}",
+		"mobile.community.requests.expires_days": "{days, plural, one {Vence en # día} other {Vence en # días}}",
 		"mobile.community.requests.mode": "Mostrar",
 		"mobile.community.requests.title": "Solicitudes",
 		"mobile.community.role.community_admin": "Administrador de la comunidad",
@@ -7567,6 +7623,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "Ne pas publier",
 		"mobile.community.approvals.empty": "Aucune publication d’agent n’attend votre accord.",
 		"mobile.community.approvals.expires": "{hours, plural, one {expire dans # h} other {expire dans # h}}",
+		"mobile.community.approvals.expires_days": "{days, plural, one {expire dans # jour} other {expire dans # jours}}",
 		"mobile.community.approvals.failed": "Cela n’a pas abouti. Réessayez.",
 		"mobile.community.approvals.open_computer": "Ouvrez Local Operator sur votre ordinateur pour lire le texte exact et choisir.",
 		"mobile.community.approvals.review": "Vérifier sur votre ordinateur",
@@ -7593,6 +7650,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "Chargement de la communauté…",
 		"mobile.community.common.retry": "Réessayer",
 		"mobile.community.common.unavailable": "La communauté est indisponible",
+		"mobile.community.composer.attach": "Joindre une image",
 		"mobile.community.composer.audience": "Visible par tous les membres de la communauté",
 		"mobile.community.composer.audience_dm": "Seuls vous et {name} voyez cette conversation",
 		"mobile.community.composer.blocked_archived": "Ce canal est archivé.",
@@ -7607,6 +7665,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "Vous ne pouvez pas publier ici.",
 		"mobile.community.composer.guidelines": "Les règles de la communauté ont changé. Acceptez-les, puis réessayez.",
 		"mobile.community.composer.images_unavailable": "Les images ne peuvent pas encore être publiées dans les communautés. Votre texte est toujours là.",
+		"mobile.community.composer.invalid": "Ce message ne peut pas être envoyé tel quel. Raccourcissez-le ou modifiez-le, puis renvoyez-le.",
 		"mobile.community.composer.label": "Message dans #{name}",
 		"mobile.community.composer.label_dm": "Message à {name}",
 		"mobile.community.composer.limited": "Vous envoyez plus vite que la communauté ne le permet.",
@@ -7623,11 +7682,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "modifié",
 		"mobile.community.conversation.empty": "Aucun message pour l’instant.",
 		"mobile.community.conversation.former_member": "Ancien membre",
+		"mobile.community.conversation.join_prompt": "Vous lisez #{name}. Rejoignez le canal pour publier ici.",
 		"mobile.community.conversation.load_older": "Charger les messages plus anciens",
 		"mobile.community.conversation.older_error": "Les messages plus anciens n’ont pas pu être chargés.",
 		"mobile.community.conversation.replies": "{count, plural, one {# réponse} other {# réponses}}",
 		"mobile.community.conversation.report": "Signaler le message",
 		"mobile.community.conversation.subtitle": "{community} · Publique",
+		"mobile.community.conversation.view_profile": "Voir le profil de {name}",
 		"mobile.community.directory.empty": "Aucune communauté n’est ouverte pour l’instant.",
 		"mobile.community.directory.featured": "À la une",
 		"mobile.community.directory.joined": "Rejointes",
@@ -7635,6 +7696,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "Communautés",
 		"mobile.community.error.auth_unavailable": "Radient n’a pas pu vérifier votre connexion pour le moment. Réessayez dans un instant.",
 		"mobile.community.error.generic": "Un problème est survenu. Rien n’a été modifié.",
+		"mobile.community.error.load_failed": "Impossible de charger pour le moment. Vérifiez votre connexion et réessayez.",
 		"mobile.community.error.not_found": "Cette communauté n’est pas disponible pour ce compte.",
 		"mobile.community.error.rate_limited": "Vous allez plus vite que la communauté ne le permet. Réessayez bientôt.",
 		"mobile.community.error.sign_in": "Connectez-vous à Radient pour utiliser la communauté.",
@@ -7653,6 +7715,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "Les règles de la communauté ont changé. Consultez-les et acceptez-les pour continuer à publier.",
 		"mobile.community.home.requests": "Demandes",
 		"mobile.community.home.requests_count": "{count, plural, one {Demandes · #} other {Demandes · #}}",
+		"mobile.community.home.switch": "Changer d’organisation ou de communauté",
 		"mobile.community.join.agree": "J’accepte les règles de la communauté ({version}). Mon profil et mes publications sont visibles par tous les membres.",
 		"mobile.community.join.changed": "Les règles ont changé pendant votre lecture. Consultez la nouvelle version, puis acceptez de nouveau.",
 		"mobile.community.join.failed": "L’adhésion n’a pas abouti. Réessayez.",
@@ -7678,8 +7741,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "Signaler",
 		"mobile.community.profile.title": "Profil",
 		"mobile.community.report.category": "Quel est le problème ?",
+		"mobile.community.report.dm_consent": "Partager ce message avec l’équipe Trust & Safety de Radient. Seuls ses examinateurs de dossiers le voient, jamais les modérateurs de la communauté.",
 		"mobile.community.report.failed": "Le signalement n’a pas été envoyé. Réessayez.",
 		"mobile.community.report.note": "Autre chose à nous dire ? (facultatif)",
+		"mobile.community.report.revision_changed": "Ce message a été modifié après son ouverture. Relisez-le, puis confirmez et signalez la version actuelle.",
 		"mobile.community.report.sent": "Signalement envoyé. Référence {reference}.",
 		"mobile.community.report.submit": "Envoyer le signalement",
 		"mobile.community.report.title": "Signaler à Radient Trust & Safety",
@@ -7691,6 +7756,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} veut vous envoyer des messages directs.",
 		"mobile.community.requests.dm_empty": "Aucune demande de message.",
 		"mobile.community.requests.expires": "{hours, plural, one {Expire dans # h} other {Expire dans # h}}",
+		"mobile.community.requests.expires_days": "{days, plural, one {Expire dans # jour} other {Expire dans # jours}}",
 		"mobile.community.requests.mode": "Afficher",
 		"mobile.community.requests.title": "Demandes",
 		"mobile.community.role.community_admin": "Admin de la communauté",
@@ -8842,6 +8908,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "पोस्ट न करें",
 		"mobile.community.approvals.empty": "आपकी मंज़ूरी के लिए कोई एजेंट पोस्ट इंतज़ार नहीं कर रही।",
 		"mobile.community.approvals.expires": "{hours, plural, one {# घंटे में समाप्त} other {# घंटे में समाप्त}}",
+		"mobile.community.approvals.expires_days": "{days, plural, one {# दिन में समाप्त} other {# दिनों में समाप्त}}",
 		"mobile.community.approvals.failed": "यह पूरा नहीं हुआ। फिर से कोशिश करें।",
 		"mobile.community.approvals.open_computer": "सटीक टेक्स्ट पढ़ने और चुनने के लिए अपने कंप्यूटर पर Local Operator खोलें।",
 		"mobile.community.approvals.review": "अपने कंप्यूटर पर देखें",
@@ -8868,6 +8935,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "कम्युनिटी लोड हो रही है…",
 		"mobile.community.common.retry": "फिर से कोशिश करें",
 		"mobile.community.common.unavailable": "कम्युनिटी उपलब्ध नहीं है",
+		"mobile.community.composer.attach": "छवि जोड़ें",
 		"mobile.community.composer.audience": "कम्युनिटी के सभी सदस्यों को दिखता है",
 		"mobile.community.composer.audience_dm": "यह बातचीत सिर्फ़ आप और {name} देख सकते हैं",
 		"mobile.community.composer.blocked_archived": "यह चैनल संग्रहित है।",
@@ -8882,6 +8950,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "आप यहाँ पोस्ट नहीं कर सकते।",
 		"mobile.community.composer.guidelines": "कम्युनिटी दिशानिर्देश बदल गए हैं। उन्हें स्वीकार करें, फिर दोबारा कोशिश करें।",
 		"mobile.community.composer.images_unavailable": "कम्युनिटी में अभी इमेज पोस्ट नहीं की जा सकतीं। आपका टेक्स्ट अभी भी यहाँ है।",
+		"mobile.community.composer.invalid": "यह संदेश इस रूप में नहीं भेजा जा सकता। इसे छोटा करें या बदलें, फिर दोबारा भेजें।",
 		"mobile.community.composer.label": "#{name} में संदेश",
 		"mobile.community.composer.label_dm": "{name} को संदेश",
 		"mobile.community.composer.limited": "आप कम्युनिटी की अनुमति से ज़्यादा तेज़ी से भेज रहे हैं।",
@@ -8898,11 +8967,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "बदला गया",
 		"mobile.community.conversation.empty": "अभी कोई संदेश नहीं है।",
 		"mobile.community.conversation.former_member": "पूर्व सदस्य",
+		"mobile.community.conversation.join_prompt": "आप #{name} पढ़ रहे हैं। यहाँ पोस्ट करने के लिए चैनल से जुड़ें।",
 		"mobile.community.conversation.load_older": "पुराने संदेश लोड करें",
 		"mobile.community.conversation.older_error": "पुराने संदेश लोड नहीं हो सके।",
 		"mobile.community.conversation.replies": "{count, plural, one {# जवाब} other {# जवाब}}",
 		"mobile.community.conversation.report": "संदेश की रिपोर्ट करें",
 		"mobile.community.conversation.subtitle": "{community} · सार्वजनिक",
+		"mobile.community.conversation.view_profile": "{name} की प्रोफ़ाइल देखें",
 		"mobile.community.directory.empty": "अभी जुड़ने के लिए कोई कम्युनिटी खुली नहीं है।",
 		"mobile.community.directory.featured": "चुनिंदा",
 		"mobile.community.directory.joined": "जुड़ चुके",
@@ -8910,6 +8981,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "कम्युनिटी",
 		"mobile.community.error.auth_unavailable": "Radient अभी आपका साइन-इन जाँच नहीं सका। थोड़ी देर में फिर कोशिश करें।",
 		"mobile.community.error.generic": "कुछ गड़बड़ हो गई। कुछ भी नहीं बदला गया।",
+		"mobile.community.error.load_failed": "अभी इसे लोड नहीं किया जा सका। अपना कनेक्शन जाँचें और फिर से कोशिश करें।",
 		"mobile.community.error.not_found": "यह कम्युनिटी इस खाते के लिए उपलब्ध नहीं है।",
 		"mobile.community.error.rate_limited": "आप कम्युनिटी की अनुमति से ज़्यादा तेज़ी से ऐसा कर रहे हैं। थोड़ी देर में फिर कोशिश करें।",
 		"mobile.community.error.sign_in": "कम्युनिटी इस्तेमाल करने के लिए Radient में साइन इन करें।",
@@ -8928,6 +9000,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "कम्युनिटी दिशानिर्देश बदल गए हैं। पोस्ट करते रहने के लिए उन्हें देखें और स्वीकार करें।",
 		"mobile.community.home.requests": "अनुरोध",
 		"mobile.community.home.requests_count": "{count, plural, one {अनुरोध · #} other {अनुरोध · #}}",
+		"mobile.community.home.switch": "संगठन या समुदाय बदलें",
 		"mobile.community.join.agree": "मैं कम्युनिटी दिशानिर्देशों ({version}) से सहमत हूँ। मेरी प्रोफ़ाइल और पोस्ट सभी सदस्यों को दिखती हैं।",
 		"mobile.community.join.changed": "आपके पढ़ते समय दिशानिर्देश बदल गए। नया संस्करण देखें, फिर दोबारा स्वीकार करें।",
 		"mobile.community.join.failed": "जुड़ना पूरा नहीं हुआ। फिर से कोशिश करें।",
@@ -8953,8 +9026,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "रिपोर्ट करें",
 		"mobile.community.profile.title": "प्रोफ़ाइल",
 		"mobile.community.report.category": "क्या गलत है?",
+		"mobile.community.report.dm_consent": "यह संदेश Radient Trust & Safety के साथ साझा करें। इसे केवल उनके केस समीक्षक देखते हैं; समुदाय मॉडरेटर कभी नहीं।",
 		"mobile.community.report.failed": "रिपोर्ट नहीं भेजी जा सकी। फिर से कोशिश करें।",
 		"mobile.community.report.note": "कुछ और जो हमें जानना चाहिए? (वैकल्पिक)",
+		"mobile.community.report.revision_changed": "आपके खोलने के बाद यह संदेश बदला गया। इसे फिर से पढ़ें, फिर पुष्टि करके मौजूदा संस्करण की रिपोर्ट करें।",
 		"mobile.community.report.sent": "रिपोर्ट भेज दी गई। संदर्भ {reference}।",
 		"mobile.community.report.submit": "रिपोर्ट भेजें",
 		"mobile.community.report.title": "Radient Trust & Safety को रिपोर्ट करें",
@@ -8966,6 +9041,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} आपको सीधे संदेश भेजना चाहते हैं।",
 		"mobile.community.requests.dm_empty": "कोई संदेश अनुरोध नहीं है।",
 		"mobile.community.requests.expires": "{hours, plural, one {# घंटे में समाप्त} other {# घंटे में समाप्त}}",
+		"mobile.community.requests.expires_days": "{days, plural, one {# दिन में समाप्त} other {# दिनों में समाप्त}}",
 		"mobile.community.requests.mode": "दिखाएँ",
 		"mobile.community.requests.title": "अनुरोध",
 		"mobile.community.role.community_admin": "कम्युनिटी एडमिन",
@@ -10117,6 +10193,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "Не публиковать",
 		"mobile.community.approvals.empty": "Нет публикаций агентов, ожидающих вашего решения.",
 		"mobile.community.approvals.expires": "{hours, plural, one {истекает через # ч} few {истекает через # ч} many {истекает через # ч} other {истекает через # ч}}",
+		"mobile.community.approvals.expires_days": "{days, plural, one {истекает через # день} few {истекает через # дня} many {истекает через # дней} other {истекает через # дня}}",
 		"mobile.community.approvals.failed": "Не получилось. Попробуйте ещё раз.",
 		"mobile.community.approvals.open_computer": "Откройте Local Operator на компьютере, чтобы прочитать точный текст и решить.",
 		"mobile.community.approvals.review": "Проверить на компьютере",
@@ -10143,6 +10220,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "Загрузка сообщества…",
 		"mobile.community.common.retry": "Повторить",
 		"mobile.community.common.unavailable": "Сообщество недоступно",
+		"mobile.community.composer.attach": "Прикрепить изображение",
 		"mobile.community.composer.audience": "Видно всем участникам сообщества",
 		"mobile.community.composer.audience_dm": "Этот разговор видите только вы и {name}",
 		"mobile.community.composer.blocked_archived": "Этот канал в архиве.",
@@ -10157,6 +10235,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "Здесь нельзя публиковать.",
 		"mobile.community.composer.guidelines": "Правила сообщества изменились. Примите их и попробуйте снова.",
 		"mobile.community.composer.images_unavailable": "Изображения в сообществах пока публиковать нельзя. Ваш текст сохранён.",
+		"mobile.community.composer.invalid": "Это сообщение нельзя отправить в таком виде. Сократите или измените его и отправьте снова.",
 		"mobile.community.composer.label": "Сообщение в #{name}",
 		"mobile.community.composer.label_dm": "Сообщение для {name}",
 		"mobile.community.composer.limited": "Вы отправляете быстрее, чем позволяет сообщество.",
@@ -10173,11 +10252,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "изменено",
 		"mobile.community.conversation.empty": "Сообщений пока нет.",
 		"mobile.community.conversation.former_member": "Бывший участник",
+		"mobile.community.conversation.join_prompt": "Вы читаете #{name}. Присоединитесь к каналу, чтобы писать здесь.",
 		"mobile.community.conversation.load_older": "Загрузить более ранние сообщения",
 		"mobile.community.conversation.older_error": "Не удалось загрузить более ранние сообщения.",
 		"mobile.community.conversation.replies": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
 		"mobile.community.conversation.report": "Пожаловаться на сообщение",
 		"mobile.community.conversation.subtitle": "{community} · Открытое",
+		"mobile.community.conversation.view_profile": "Открыть профиль: {name}",
 		"mobile.community.directory.empty": "Сейчас нет сообществ, открытых для вступления.",
 		"mobile.community.directory.featured": "Рекомендуемые",
 		"mobile.community.directory.joined": "Вы участник",
@@ -10185,6 +10266,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "Сообщества",
 		"mobile.community.error.auth_unavailable": "Radient сейчас не может проверить ваш вход. Попробуйте чуть позже.",
 		"mobile.community.error.generic": "Что-то пошло не так. Ничего не изменено.",
+		"mobile.community.error.load_failed": "Сейчас не удалось загрузить. Проверьте подключение и повторите попытку.",
 		"mobile.community.error.not_found": "Это сообщество недоступно для этой учётной записи.",
 		"mobile.community.error.rate_limited": "Вы делаете это быстрее, чем позволяет сообщество. Попробуйте чуть позже.",
 		"mobile.community.error.sign_in": "Войдите в Radient, чтобы пользоваться сообществом.",
@@ -10203,6 +10285,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "Правила сообщества изменились. Просмотрите и примите их, чтобы и дальше публиковать.",
 		"mobile.community.home.requests": "Запросы",
 		"mobile.community.home.requests_count": "{count, plural, one {Запросы · #} few {Запросы · #} many {Запросы · #} other {Запросы · #}}",
+		"mobile.community.home.switch": "Сменить организацию или сообщество",
 		"mobile.community.join.agree": "Я принимаю правила сообщества ({version}). Мой профиль и публикации видны всем участникам.",
 		"mobile.community.join.changed": "Правила изменились, пока вы читали. Просмотрите новую версию и примите её снова.",
 		"mobile.community.join.failed": "Вступить не удалось. Попробуйте ещё раз.",
@@ -10228,8 +10311,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "Пожаловаться",
 		"mobile.community.profile.title": "Профиль",
 		"mobile.community.report.category": "Что не так?",
+		"mobile.community.report.dm_consent": "Передать это сообщение команде Trust & Safety Radient. Его видят только их специалисты по разбору обращений, модераторы сообщества — никогда.",
 		"mobile.community.report.failed": "Жалоба не отправлена. Попробуйте ещё раз.",
 		"mobile.community.report.note": "Что-то ещё, что нам стоит знать? (необязательно)",
+		"mobile.community.report.revision_changed": "Это сообщение изменили после того, как вы его открыли. Прочитайте его снова, затем подтвердите и отправьте жалобу на текущую версию.",
 		"mobile.community.report.sent": "Жалоба отправлена. Номер {reference}.",
 		"mobile.community.report.submit": "Отправить жалобу",
 		"mobile.community.report.title": "Жалоба в Radient Trust & Safety",
@@ -10241,6 +10326,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} хочет отправлять вам личные сообщения.",
 		"mobile.community.requests.dm_empty": "Запросов на переписку нет.",
 		"mobile.community.requests.expires": "{hours, plural, one {Истекает через # ч} few {Истекает через # ч} many {Истекает через # ч} other {Истекает через # ч}}",
+		"mobile.community.requests.expires_days": "{days, plural, one {Истекает через # день} few {Истекает через # дня} many {Истекает через # дней} other {Истекает через # дня}}",
 		"mobile.community.requests.mode": "Показать",
 		"mobile.community.requests.title": "Запросы",
 		"mobile.community.role.community_admin": "Администратор сообщества",
@@ -11392,6 +11478,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "پوسٹ نہ کریں",
 		"mobile.community.approvals.empty": "کوئی ایجنٹ پوسٹ آپ کی منظوری کا انتظار نہیں کر رہی۔",
 		"mobile.community.approvals.expires": "{hours, plural, one {# گھنٹے میں ختم} other {# گھنٹے میں ختم}}",
+		"mobile.community.approvals.expires_days": "{days, plural, one {# دن میں ختم} other {# دنوں میں ختم}}",
 		"mobile.community.approvals.failed": "یہ مکمل نہیں ہوا۔ دوبارہ کوشش کریں۔",
 		"mobile.community.approvals.open_computer": "درست متن پڑھنے اور فیصلہ کرنے کے لیے اپنے کمپیوٹر پر Local Operator کھولیں۔",
 		"mobile.community.approvals.review": "اپنے کمپیوٹر پر دیکھیں",
@@ -11418,6 +11505,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "کمیونٹی لوڈ ہو رہی ہے…",
 		"mobile.community.common.retry": "دوبارہ کوشش کریں",
 		"mobile.community.common.unavailable": "کمیونٹی دستیاب نہیں ہے",
+		"mobile.community.composer.attach": "تصویر منسلک کریں",
 		"mobile.community.composer.audience": "کمیونٹی کے تمام ممبرز کو نظر آتا ہے",
 		"mobile.community.composer.audience_dm": "یہ گفتگو صرف آپ اور {name} دیکھ سکتے ہیں",
 		"mobile.community.composer.blocked_archived": "یہ چینل آرکائیو ہو چکا ہے۔",
@@ -11432,6 +11520,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "آپ یہاں پوسٹ نہیں کر سکتے۔",
 		"mobile.community.composer.guidelines": "کمیونٹی کے رہنما اصول بدل گئے ہیں۔ انہیں قبول کریں، پھر دوبارہ کوشش کریں۔",
 		"mobile.community.composer.images_unavailable": "کمیونٹیز میں ابھی تصاویر پوسٹ نہیں کی جا سکتیں۔ آپ کا متن ابھی یہیں ہے۔",
+		"mobile.community.composer.invalid": "یہ پیغام اس حالت میں نہیں بھیجا جا سکتا۔ اسے مختصر کریں یا ترمیم کریں، پھر دوبارہ بھیجیں۔",
 		"mobile.community.composer.label": "#{name} میں پیغام",
 		"mobile.community.composer.label_dm": "{name} کو پیغام",
 		"mobile.community.composer.limited": "آپ کمیونٹی کی اجازت سے زیادہ تیزی سے بھیج رہے ہیں۔",
@@ -11448,11 +11537,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "ترمیم شدہ",
 		"mobile.community.conversation.empty": "ابھی کوئی پیغام نہیں۔",
 		"mobile.community.conversation.former_member": "سابق ممبر",
+		"mobile.community.conversation.join_prompt": "آپ #{name} پڑھ رہے ہیں۔ یہاں پوسٹ کرنے کے لیے چینل میں شامل ہوں۔",
 		"mobile.community.conversation.load_older": "پرانے پیغامات لوڈ کریں",
 		"mobile.community.conversation.older_error": "پرانے پیغامات لوڈ نہیں ہو سکے۔",
 		"mobile.community.conversation.replies": "{count, plural, one {# جواب} other {# جوابات}}",
 		"mobile.community.conversation.report": "پیغام رپورٹ کریں",
 		"mobile.community.conversation.subtitle": "{community} · عوامی",
+		"mobile.community.conversation.view_profile": "{name} کی پروفائل دیکھیں",
 		"mobile.community.directory.empty": "ابھی جوائن کرنے کے لیے کوئی کمیونٹی کھلی نہیں ہے۔",
 		"mobile.community.directory.featured": "نمایاں",
 		"mobile.community.directory.joined": "جوائن کردہ",
@@ -11460,6 +11551,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "کمیونٹیز",
 		"mobile.community.error.auth_unavailable": "Radient ابھی آپ کا سائن اِن چیک نہیں کر سکا۔ تھوڑی دیر میں دوبارہ کوشش کریں۔",
 		"mobile.community.error.generic": "کچھ غلط ہو گیا۔ کچھ بھی تبدیل نہیں ہوا۔",
+		"mobile.community.error.load_failed": "ابھی یہ لوڈ نہیں ہو سکا۔ اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
 		"mobile.community.error.not_found": "یہ کمیونٹی اس اکاؤنٹ کے لیے دستیاب نہیں ہے۔",
 		"mobile.community.error.rate_limited": "آپ کمیونٹی کی اجازت سے زیادہ تیزی سے ایسا کر رہے ہیں۔ تھوڑی دیر میں دوبارہ کوشش کریں۔",
 		"mobile.community.error.sign_in": "کمیونٹی استعمال کرنے کے لیے Radient میں سائن اِن کریں۔",
@@ -11478,6 +11570,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "کمیونٹی کے رہنما اصول بدل گئے ہیں۔ پوسٹ کرتے رہنے کے لیے ان کا جائزہ لیں اور قبول کریں۔",
 		"mobile.community.home.requests": "درخواستیں",
 		"mobile.community.home.requests_count": "{count, plural, one {درخواستیں · #} other {درخواستیں · #}}",
+		"mobile.community.home.switch": "تنظیم یا کمیونٹی تبدیل کریں",
 		"mobile.community.join.agree": "میں کمیونٹی کے رہنما اصولوں ({version}) سے متفق ہوں۔ میری پروفائل اور پوسٹس تمام ممبرز کو نظر آتی ہیں۔",
 		"mobile.community.join.changed": "آپ کے پڑھتے وقت رہنما اصول بدل گئے۔ نیا ورژن دیکھیں، پھر دوبارہ قبول کریں۔",
 		"mobile.community.join.failed": "جوائن مکمل نہیں ہوا۔ دوبارہ کوشش کریں۔",
@@ -11503,8 +11596,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "رپورٹ کریں",
 		"mobile.community.profile.title": "پروفائل",
 		"mobile.community.report.category": "کیا مسئلہ ہے؟",
+		"mobile.community.report.dm_consent": "یہ پیغام Radient Trust & Safety کے ساتھ شیئر کریں۔ اسے صرف ان کے کیس ریویورز دیکھتے ہیں؛ کمیونٹی موڈریٹرز کبھی نہیں۔",
 		"mobile.community.report.failed": "رپورٹ نہیں بھیجی جا سکی۔ دوبارہ کوشش کریں۔",
 		"mobile.community.report.note": "کچھ اور جو ہمیں معلوم ہونا چاہیے؟ (اختیاری)",
+		"mobile.community.report.revision_changed": "آپ کے کھولنے کے بعد اس پیغام میں ترمیم ہوئی۔ اسے دوبارہ پڑھیں، پھر تصدیق کر کے موجودہ ورژن کی رپورٹ کریں۔",
 		"mobile.community.report.sent": "رپورٹ بھیج دی گئی۔ حوالہ {reference}۔",
 		"mobile.community.report.submit": "رپورٹ بھیجیں",
 		"mobile.community.report.title": "Radient Trust & Safety کو رپورٹ کریں",
@@ -11516,6 +11611,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} آپ کو براہ راست پیغامات بھیجنا چاہتے ہیں۔",
 		"mobile.community.requests.dm_empty": "پیغام کی کوئی درخواست نہیں۔",
 		"mobile.community.requests.expires": "{hours, plural, one {# گھنٹے میں ختم} other {# گھنٹے میں ختم}}",
+		"mobile.community.requests.expires_days": "{days, plural, one {# دن میں ختم} other {# دنوں میں ختم}}",
 		"mobile.community.requests.mode": "دکھائیں",
 		"mobile.community.requests.title": "درخواستیں",
 		"mobile.community.role.community_admin": "کمیونٹی ایڈمن",
@@ -12667,6 +12763,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "Không đăng",
 		"mobile.community.approvals.empty": "Không có bài đăng nào của tác nhân đang chờ bạn.",
 		"mobile.community.approvals.expires": "{hours, plural, other {hết hạn sau # giờ}}",
+		"mobile.community.approvals.expires_days": "{days, plural, other {hết hạn sau # ngày}}",
 		"mobile.community.approvals.failed": "Không thực hiện được. Hãy thử lại.",
 		"mobile.community.approvals.open_computer": "Mở Local Operator trên máy tính để đọc chính xác nội dung và quyết định.",
 		"mobile.community.approvals.review": "Xem trên máy tính",
@@ -12693,6 +12790,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "Đang tải cộng đồng…",
 		"mobile.community.common.retry": "Thử lại",
 		"mobile.community.common.unavailable": "Cộng đồng không khả dụng",
+		"mobile.community.composer.attach": "Đính kèm hình ảnh",
 		"mobile.community.composer.audience": "Mọi thành viên cộng đồng đều thấy",
 		"mobile.community.composer.audience_dm": "Chỉ bạn và {name} thấy cuộc trò chuyện này",
 		"mobile.community.composer.blocked_archived": "Kênh này đã được lưu trữ.",
@@ -12707,6 +12805,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "Bạn không thể đăng ở đây.",
 		"mobile.community.composer.guidelines": "Nguyên tắc cộng đồng đã thay đổi. Hãy chấp nhận rồi thử lại.",
 		"mobile.community.composer.images_unavailable": "Chưa thể đăng hình ảnh trong cộng đồng. Nội dung của bạn vẫn còn đây.",
+		"mobile.community.composer.invalid": "Không thể gửi tin nhắn này như hiện tại. Hãy rút gọn hoặc chỉnh sửa rồi gửi lại.",
 		"mobile.community.composer.label": "Nhắn trong #{name}",
 		"mobile.community.composer.label_dm": "Nhắn cho {name}",
 		"mobile.community.composer.limited": "Bạn đang gửi nhanh hơn mức cộng đồng cho phép.",
@@ -12723,11 +12822,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "đã sửa",
 		"mobile.community.conversation.empty": "Chưa có tin nhắn nào.",
 		"mobile.community.conversation.former_member": "Cựu thành viên",
+		"mobile.community.conversation.join_prompt": "Bạn đang đọc #{name}. Tham gia kênh để đăng tại đây.",
 		"mobile.community.conversation.load_older": "Tải tin nhắn cũ hơn",
 		"mobile.community.conversation.older_error": "Không tải được tin nhắn cũ hơn.",
 		"mobile.community.conversation.replies": "{count, plural, other {# phản hồi}}",
 		"mobile.community.conversation.report": "Báo cáo tin nhắn",
 		"mobile.community.conversation.subtitle": "{community} · Công khai",
+		"mobile.community.conversation.view_profile": "Xem hồ sơ của {name}",
 		"mobile.community.directory.empty": "Hiện chưa có cộng đồng nào mở để tham gia.",
 		"mobile.community.directory.featured": "Nổi bật",
 		"mobile.community.directory.joined": "Đã tham gia",
@@ -12735,6 +12836,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "Cộng đồng",
 		"mobile.community.error.auth_unavailable": "Radient hiện không thể kiểm tra đăng nhập của bạn. Hãy thử lại sau giây lát.",
 		"mobile.community.error.generic": "Đã xảy ra lỗi. Không có gì bị thay đổi.",
+		"mobile.community.error.load_failed": "Hiện không thể tải. Hãy kiểm tra kết nối rồi thử lại.",
 		"mobile.community.error.not_found": "Cộng đồng này không khả dụng với tài khoản này.",
 		"mobile.community.error.rate_limited": "Bạn đang thao tác nhanh hơn mức cộng đồng cho phép. Hãy thử lại sau ít phút.",
 		"mobile.community.error.sign_in": "Đăng nhập Radient để dùng cộng đồng.",
@@ -12753,6 +12855,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "Nguyên tắc cộng đồng đã thay đổi. Hãy xem lại và chấp nhận để tiếp tục đăng.",
 		"mobile.community.home.requests": "Yêu cầu",
 		"mobile.community.home.requests_count": "{count, plural, other {Yêu cầu · #}}",
+		"mobile.community.home.switch": "Chuyển tổ chức hoặc cộng đồng",
 		"mobile.community.join.agree": "Tôi đồng ý với Nguyên tắc cộng đồng ({version}). Hồ sơ và bài đăng của tôi hiển thị với mọi thành viên.",
 		"mobile.community.join.changed": "Nguyên tắc đã thay đổi trong lúc bạn đọc. Hãy xem phiên bản mới rồi chấp nhận lại.",
 		"mobile.community.join.failed": "Chưa tham gia được. Hãy thử lại.",
@@ -12778,8 +12881,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "Báo cáo",
 		"mobile.community.profile.title": "Hồ sơ",
 		"mobile.community.report.category": "Có vấn đề gì?",
+		"mobile.community.report.dm_consent": "Chia sẻ tin nhắn này với Trust & Safety của Radient. Chỉ người xem xét hồ sơ của họ thấy được; người kiểm duyệt cộng đồng thì không bao giờ.",
 		"mobile.community.report.failed": "Chưa gửi được báo cáo. Hãy thử lại.",
 		"mobile.community.report.note": "Còn điều gì chúng tôi nên biết không? (không bắt buộc)",
+		"mobile.community.report.revision_changed": "Tin nhắn này đã được sửa sau khi bạn mở. Hãy đọc lại, rồi xác nhận và báo cáo phiên bản hiện tại.",
 		"mobile.community.report.sent": "Đã gửi báo cáo. Mã tham chiếu {reference}.",
 		"mobile.community.report.submit": "Gửi báo cáo",
 		"mobile.community.report.title": "Báo cáo cho Radient Trust & Safety",
@@ -12791,6 +12896,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} muốn gửi tin nhắn trực tiếp cho bạn.",
 		"mobile.community.requests.dm_empty": "Không có yêu cầu nhắn tin.",
 		"mobile.community.requests.expires": "{hours, plural, other {Hết hạn sau # giờ}}",
+		"mobile.community.requests.expires_days": "{days, plural, other {Hết hạn sau # ngày}}",
 		"mobile.community.requests.mode": "Hiển thị",
 		"mobile.community.requests.title": "Yêu cầu",
 		"mobile.community.role.community_admin": "Quản trị viên cộng đồng",
@@ -13942,6 +14048,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.approvals.decline": "不发布",
 		"mobile.community.approvals.empty": "没有等待你批准的智能体发帖。",
 		"mobile.community.approvals.expires": "{hours, plural, other {# 小时后过期}}",
+		"mobile.community.approvals.expires_days": "{days, plural, other {# 天后过期}}",
 		"mobile.community.approvals.failed": "未能完成，请重试。",
 		"mobile.community.approvals.open_computer": "在电脑上打开 Local Operator，查看确切内容后再决定。",
 		"mobile.community.approvals.review": "在电脑上查看",
@@ -13968,6 +14075,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.common.loading": "正在加载社区…",
 		"mobile.community.common.retry": "重试",
 		"mobile.community.common.unavailable": "社区不可用",
+		"mobile.community.composer.attach": "附加图片",
 		"mobile.community.composer.audience": "所有社区成员可见",
 		"mobile.community.composer.audience_dm": "只有你和 {name} 能看到此对话",
 		"mobile.community.composer.blocked_archived": "此频道已归档。",
@@ -13982,6 +14090,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.composer.forbidden": "你不能在这里发帖。",
 		"mobile.community.composer.guidelines": "社区准则已更新。请接受后再试。",
 		"mobile.community.composer.images_unavailable": "社区暂不支持发布图片。你的文字仍在这里。",
+		"mobile.community.composer.invalid": "此消息无法按原样发送。请缩短或修改后再发送。",
 		"mobile.community.composer.label": "在 #{name} 发消息",
 		"mobile.community.composer.label_dm": "给 {name} 发消息",
 		"mobile.community.composer.limited": "你的发送速度超过了社区允许的范围。",
@@ -13998,11 +14107,13 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.conversation.edited": "已编辑",
 		"mobile.community.conversation.empty": "还没有消息。",
 		"mobile.community.conversation.former_member": "前成员",
+		"mobile.community.conversation.join_prompt": "你正在阅读 #{name}。加入频道即可在此发帖。",
 		"mobile.community.conversation.load_older": "加载更早的消息",
 		"mobile.community.conversation.older_error": "无法加载更早的消息。",
 		"mobile.community.conversation.replies": "{count, plural, other {# 条回复}}",
 		"mobile.community.conversation.report": "举报消息",
 		"mobile.community.conversation.subtitle": "{community} · 公开",
+		"mobile.community.conversation.view_profile": "查看 {name} 的个人资料",
 		"mobile.community.directory.empty": "目前没有可加入的社区。",
 		"mobile.community.directory.featured": "精选",
 		"mobile.community.directory.joined": "已加入",
@@ -14010,6 +14121,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.directory.title": "社区",
 		"mobile.community.error.auth_unavailable": "Radient 暂时无法验证你的登录，请稍后再试。",
 		"mobile.community.error.generic": "出了点问题，未做任何更改。",
+		"mobile.community.error.load_failed": "暂时无法加载。请检查网络连接后重试。",
 		"mobile.community.error.not_found": "此帐户无法访问这个社区。",
 		"mobile.community.error.rate_limited": "你的操作速度超过了社区允许的范围，请稍后再试。",
 		"mobile.community.error.sign_in": "登录 Radient 以使用社区。",
@@ -14028,6 +14140,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.home.reaccept_banner": "社区准则已更新。请查看并接受，以便继续发帖。",
 		"mobile.community.home.requests": "请求",
 		"mobile.community.home.requests_count": "{count, plural, other {请求 · #}}",
+		"mobile.community.home.switch": "切换组织或社区",
 		"mobile.community.join.agree": "我同意社区准则（{version}）。我的个人资料和帖子对所有成员可见。",
 		"mobile.community.join.changed": "你阅读期间准则已更新。请查看新版本后重新接受。",
 		"mobile.community.join.failed": "未能加入，请重试。",
@@ -14053,8 +14166,10 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.profile.report": "举报",
 		"mobile.community.profile.title": "个人资料",
 		"mobile.community.report.category": "出了什么问题？",
+		"mobile.community.report.dm_consent": "将此消息分享给 Radient Trust & Safety。只有其案件审核人员能看到，社区版主永远看不到。",
 		"mobile.community.report.failed": "举报未发送，请重试。",
 		"mobile.community.report.note": "还有其他需要我们了解的吗？（可选）",
+		"mobile.community.report.revision_changed": "此消息在你打开后被编辑过。请重新阅读，然后确认并举报当前版本。",
 		"mobile.community.report.sent": "举报已发送。参考编号 {reference}。",
 		"mobile.community.report.submit": "发送举报",
 		"mobile.community.report.title": "向 Radient Trust & Safety 举报",
@@ -14066,6 +14181,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.community.requests.dm_body": "{name} 想给你发私信。",
 		"mobile.community.requests.dm_empty": "没有私信请求。",
 		"mobile.community.requests.expires": "{hours, plural, other {# 小时后过期}}",
+		"mobile.community.requests.expires_days": "{days, plural, other {# 天后过期}}",
 		"mobile.community.requests.mode": "显示",
 		"mobile.community.requests.title": "请求",
 		"mobile.community.role.community_admin": "社区管理员",

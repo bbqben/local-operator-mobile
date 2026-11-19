@@ -299,6 +299,10 @@ export type ReportInput = {
 	targetId: string;
 	category: RefusalCategory;
 	note?: string;
+	/** `dm` only: the reporter consents to share that exact revision with T&S. */
+	dmConsent?: boolean;
+	/** `dm` only: the `Message.revision` the reporter read. */
+	revision?: number;
 	idempotencyKey: string;
 };
 
@@ -645,6 +649,12 @@ export function createCommunityClient(deps: CommunityClientDeps) {
 						target_id: input.targetId,
 						category: input.category,
 						...(input.note?.trim() ? { note: input.note.trim() } : {}),
+						...(input.targetKind === "dm"
+							? {
+									dm_consent: input.dmConsent === true,
+									revision: input.revision,
+								}
+							: {}),
 					},
 					headers: { "idempotency-key": input.idempotencyKey },
 				},

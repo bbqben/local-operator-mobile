@@ -9,7 +9,7 @@
  * the same profile sheet as an author tap in a conversation.
  */
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Hash, Lock, User } from "lucide-react-native";
+import { Hash, Lock } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import type { CommunityError } from "@/community/client";
@@ -28,7 +28,8 @@ import { Input } from "@/ui/components/input";
 import { Segmented } from "@/ui/components/segmented";
 import { Skeleton } from "@/ui/components/skeleton";
 import { communityPath } from "./home-screen";
-import { errorSentence, roleLabel } from "./labels";
+import { roleLabel } from "./labels";
+import { MemberAvatar } from "./member-avatar";
 import { CommunityFrame, CommunityRow, LoadFailure } from "./parts";
 import { ProfileSheet } from "./profile-sheet";
 
@@ -70,7 +71,6 @@ function Browse({ communityId }: { communityId: string }) {
 	const [state, setState] = useState<"loading" | "ready" | "error">("loading");
 	const [error, setError] = useState<CommunityError | null>(null);
 	const [profile, setProfile] = useState<Profile | null>(null);
-	const [joinError, setJoinError] = useState<string | null>(null);
 	const ink = useTokenColor("ink-dim");
 	const generation = useRef(0);
 	const read = useCallback(
@@ -106,15 +106,13 @@ function Browse({ communityId }: { communityId: string }) {
 	const joined = (id: string) =>
 		store.getState().channels[communityId]?.data.some((c) => c.id === id) ??
 		false;
-	const openChannel = async (channel: Channel) => {
-		setJoinError(null);
-		if (!channel.member && !joined(channel.id)) {
-			const failure = await actions.joinChannel(communityId, channel.id);
-			if (failure) {
-				setJoinError(errorSentence(failure));
-				return;
-			}
-		}
+	/* Opening a channel never joins it (review round 1, R1-6): the server lets a
+	 * member read every public channel without a seat, and a join changes the
+	 * channel's member list — browsing must leave no trace. The conversation
+	 * offers an explicit Join in place of the composer. */
+	const openChannel = (channel: Channel) => {
+		if (!channel.member && !joined(channel.id))
+			actions.previewChannel(communityId, channel);
 		router.push(communityPath(communityId, "c", channel.id) as never);
 	};
 	return (
@@ -149,9 +147,6 @@ function Browse({ communityId }: { communityId: string }) {
 					testID={CONTROL.communityBrowseMode}
 				/>
 			</View>
-			{joinError ? (
-				<Text className="px-4 text-body-sm text-danger">{joinError}</Text>
-			) : null}
 			{state === "error" && !items.length ? (
 				<LoadFailure error={error} onRetry={() => void read(null)} />
 			) : state === "loading" && !items.length ? (
@@ -175,7 +170,9 @@ function Browse({ communityId }: { communityId: string }) {
 									.filter(Boolean)
 									.join(" · ") || null
 							}
-							leading={<User size={18} color={ink} />}
+							leading={
+								<MemberAvatar name={row.person.display_name} size="sm" />
+							}
 							onPress={() => setProfile(row.person)}
 							testID={communityPersonId(row.person.public_id)}
 						/>
@@ -193,12 +190,10 @@ function Browse({ communityId }: { communityId: string }) {
 							}
 							trailing={
 								<Text className="text-meta font-semibold text-accent">
-									{row.channel.member || joined(row.channel.id)
-										? t("mobile.community.browse.open")
-										: t("mobile.community.browse.join")}
+									{t("mobile.community.browse.open")}
 								</Text>
 							}
-							onPress={() => void openChannel(row.channel)}
+							onPress={() => openChannel(row.channel)}
 							testID={communityChannelRowId(row.channel.id)}
 						/>
 					),

@@ -4,15 +4,18 @@
  * ONLY APPROVED PROFILE FIELDS. The card renders exactly what the server's
  * `Profile` carries: the member chose which Radient fields to show and each was
  * moderated before it is served. Email and organizations are never part of the
- * shape, so they cannot leak from here. Photos are not drawn yet: the assets
- * proxy is `x-status: planned`, and a URL is never fetched from a profile
- * field, so the avatar is initials until the proxy ships.
+ * shape, so they cannot leak from here. The avatar is `MemberAvatar`, the same
+ * mark every author line and People row shows (its header says why it is not
+ * a photo yet).
+ *
+ * NOT HERE YET (design review round 1, D8): frame M9's Mute and "Request agent
+ * contact". Both are follow-ups to this PR, recorded in its remediation reply.
  *
  * Message sends a DM REQUEST, not a message (RFC §5.7): the other person
  * accepts before anything can be sent, so the sheet says the request was sent
  * rather than opening a conversation that does not exist yet.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { type CommunityError, isCommunityError } from "@/community/client";
 import type {
@@ -20,10 +23,11 @@ import type {
 	RefusalCategory,
 	ReportTargetKind,
 } from "@/community/contract";
+import { joinedMonthLabel } from "@/community/model";
 import { useCommunity } from "@/community/provider";
-import { t } from "@/i18n";
+import { useLocaleFrame } from "@/features/auth/connection-provider";
+import { activeLocale, t } from "@/i18n";
 import { CONTROL, communityReportCategoryId, ROLE, SURFACE } from "@/ui/a11y";
-import { Avatar, initialsOf } from "@/ui/components/avatar";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import { Sheet } from "@/ui/components/sheet";
@@ -31,6 +35,8 @@ import { Textarea } from "@/ui/components/textarea";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { cx } from "@/ui/variants";
 import { categoryLabel, errorSentence, roleLabel } from "./labels";
+import { MemberAvatar } from "./member-avatar";
+import { ConsentTick } from "./parts";
 
 export function ProfileSheet({
 	communityId,
@@ -67,6 +73,9 @@ export function ProfileSheet({
 		);
 	};
 	const badge = roleLabel(profile?.role);
+	/* "Joined {month}" in the APP language, never raw `YYYY-MM` (R1-7). */
+	useLocaleFrame();
+	const locale = activeLocale();
 	return (
 		<>
 			<Sheet
@@ -78,7 +87,7 @@ export function ProfileSheet({
 				{profile ? (
 					<View className="gap-3 pb-3">
 						<View className="flex-row items-center gap-3">
-							<Avatar initials={initialsOf(profile.display_name)} size="lg" />
+							<MemberAvatar name={profile.display_name} size="lg" />
 							<View className="min-w-0 flex-1 gap-0.5">
 								<Text
 									className="text-label font-semibold text-ink"
@@ -99,7 +108,7 @@ export function ProfileSheet({
 								{profile.joined_month ? (
 									<Text className="text-meta text-ink-dim">
 										{t("mobile.community.profile.joined", {
-											month: profile.joined_month,
+											month: joinedMonthLabel(profile.joined_month, locale),
 										})}
 									</Text>
 								) : null}
@@ -174,6 +183,9 @@ export function ProfileSheet({
 	);
 }
 
+/** The contract's cap on a report note (`ReportCreate.note` maxLength). */
+const REPORT_NOTE_MAX_CHARS = 1000;
+
 const CATEGORIES: readonly RefusalCategory[] = [
 	"unsafe_or_illegal",
 	"harassment_or_abuse",
@@ -182,53 +194,104 @@ const CATEGORIES: readonly RefusalCategory[] = [
 ];
 
 /**
- * Report a message, profile or channel to Radient Trust & Safety. One sheet =
- * one idempotency key (minted by the store per submit), and a sent report
- * shows its case reference so the reporter can follow it up.
+ * What a report targets. A DM message carries the revision the reporter read:
+ * the server copies exactly that revision into the case (RFC §6.4).
+ */
+export type ReportTarget =
+	| { kind: Exclude<ReportTargetKind, "dm">; id: string }
+	| { kind: "dm"; id: string; revision: number };
+
+/**
+ * Report a message, profile, channel or DM message to Radient Trust & Safety.
+ *
+ * ONE SHEET = ONE IDEMPOTENCY KEY (review round 1, R1-1). The key is minted on
+ * the first submit and reused by every later submit of the same report: a
+ * submit whose answer was lost may already have opened a case, and a fresh key
+ * would open a second. A new target is a new report and a new key.
+ *
+ * A DM MESSAGE NEEDS CONSENT. The reporter must tick that the message goes to
+ * Radient Trust & Safety (and never to community moderators) before Submit is
+ * enabled; the body then carries `dm_consent: true` and the revision on screen.
+ * If the sender edited it meanwhile the server answers 409 `revision_changed`
+ * and stores nothing: the sheet asks the reporter to re-read, the caller
+ * refreshes the history, and the consent is cleared because it was given for
+ * text that is no longer there. A re-consented report is a new report with a
+ * new key.
  */
 export function ReportSheet({
 	communityId,
 	target,
 	onClose,
+	onRevisionChanged,
 }: {
 	communityId: string;
-	target: { kind: ReportTargetKind; id: string } | null;
+	target: ReportTarget | null;
 	onClose: () => void;
+	/** `dm` only: re-read the history so the sheet shows the current revision. */
+	onRevisionChanged?: () => void;
 }) {
 	const { actions } = useCommunity();
 	const [category, setCategory] = useState<RefusalCategory | null>(null);
 	const [note, setNote] = useState("");
+	const [consent, setConsent] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [result, setResult] = useState<{ text: string; error: boolean } | null>(
 		null,
 	);
+	const key = useRef<string | null>(null);
+	const dm = target?.kind === "dm";
+	const revision = target?.kind === "dm" ? target.revision : null;
 	// biome-ignore lint/correctness/useExhaustiveDependencies: the target is a TRIGGER to start a fresh report, not a read.
 	useEffect(() => {
 		setCategory(null);
 		setNote("");
+		setConsent(false);
 		setResult(null);
+		key.current = null;
 	}, [target?.kind, target?.id]);
+	/* Consent is to ONE revision: a newer one on screen needs a new tick. */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `revision` is a TRIGGER.
+	useEffect(() => {
+		setConsent(false);
+	}, [revision]);
 	const sent = result !== null && !result.error;
+	const ready = Boolean(category) && (!dm || consent);
 	const submit = async () => {
-		if (!target || !category || busy || sent) return;
+		if (!target || !category || busy || sent || (dm && !consent)) return;
 		setBusy(true);
+		key.current ??= await actions.reportKey();
 		const outcome = await actions.report(communityId, {
 			targetKind: target.kind,
 			targetId: target.id,
 			category,
 			note,
+			...(target.kind === "dm"
+				? { dmConsent: true, revision: target.revision }
+				: {}),
+			idempotencyKey: key.current,
 		});
 		setBusy(false);
-		setResult(
-			outcome && !isCommunityError(outcome)
-				? {
-						text: t("mobile.community.report.sent", {
-							reference: outcome.reference,
-						}),
-						error: false,
-					}
-				: { text: t("mobile.community.report.failed"), error: true },
-		);
+		if (outcome && !isCommunityError(outcome)) {
+			setResult({
+				text: t("mobile.community.report.sent", {
+					reference: outcome.reference,
+				}),
+				error: false,
+			});
+			return;
+		}
+		if (outcome?.kind === "conflict" && outcome.code === "revision_changed") {
+			/* Nothing was stored under this key; the re-consented report is new. */
+			key.current = null;
+			setConsent(false);
+			onRevisionChanged?.();
+			setResult({
+				text: t("mobile.community.report.revision_changed"),
+				error: true,
+			});
+			return;
+		}
+		setResult({ text: t("mobile.community.report.failed"), error: true });
 	};
 	return (
 		<Sheet
@@ -283,11 +346,21 @@ export function ReportSheet({
 					value={note}
 					onChangeText={setNote}
 					disabled={sent}
+					maxLength={REPORT_NOTE_MAX_CHARS}
 					testID={CONTROL.communityReportNote}
 				/>
+				{dm ? (
+					<ConsentTick
+						checked={consent}
+						label={t("mobile.community.report.dm_consent")}
+						onToggle={() => setConsent((value) => !value)}
+						disabled={sent}
+						testID={CONTROL.communityReportConsent}
+					/>
+				) : null}
 				<Button
 					label={t("mobile.community.report.submit")}
-					disabled={!category || sent}
+					disabled={!ready || sent}
 					loading={busy}
 					onPress={() => void submit()}
 					testID={CONTROL.communityReportSubmit}
