@@ -65,6 +65,7 @@
 	"mobile.session.chip.model_change_failed": "ماڈل تبدیل نہیں ہو سکا۔",
 	"mobile.session.chip.effort_change_failed": "استدلال کی شدت تبدیل نہیں ہو سکی۔",
 	"mobile.session.composer.retained_instruction": "ممکن ہے پچھلی ہدایت پہنچ چکی ہو۔ موجودہ مسودہ بھیجنے سے پہلے پچھلی ہدایت دوبارہ بھیجنے کی کوشش کریں۔",
+	"mobile.session.composer.settings_not_applied": "سیشن دوبارہ کھل گیا، لیکن آپ کا منتخب کردہ ماڈل یا استدلال کی شدت لاگو نہیں ہو سکی، اس لیے آپ کا پیغام نہیں بھیجا گیا۔ دوبارہ کوشش کے لیے پھر سے بھیجیں۔",
 	"mobile.session.tray.context": "{percent}% سیاق",
 	"mobile.session.tray.context_short": "{percent}% سیاق",
 	"mobile.session.tray.context_estimate": "{percent}% سیاق (تخمینی)",

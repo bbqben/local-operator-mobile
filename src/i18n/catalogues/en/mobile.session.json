@@ -65,6 +65,7 @@
 	"mobile.session.chip.model_change_failed": "Could not change the model.",
 	"mobile.session.chip.effort_change_failed": "Could not change the effort.",
 	"mobile.session.composer.retained_instruction": "An earlier instruction may have been delivered. Retry that earlier instruction before sending your current draft.",
+	"mobile.session.composer.settings_not_applied": "The session reopened, but your model or effort choice couldn’t be applied, so your message wasn’t sent. Send again to retry.",
 	"mobile.session.tray.context": "{percent}% context",
 	"mobile.session.tray.context_short": "{percent}% ctx",
 	"mobile.session.tray.context_estimate": "{percent}% context (est.)",

@@ -263,6 +263,10 @@
 		"role": "confirm",
 		"note": "Notice above the composer when an earlier instruction is retained and may already have been delivered, so the user must retry it before sending the current draft. Two sentences."
 	},
+	"mobile.session.composer.settings_not_applied": {
+		"role": "status",
+		"note": "Composer error after Send on an ended session: the session DID reopen (its header now reads Live or Idle), but the model or effort the reader picked for it was refused, so the message was held back and is still in the composer. Must not say the session failed to reopen, and must not point at the header's Ended control, which is no longer shown. 'Effort' is the product's word for how hard the model works; reuse the term from the effort-change error."
+	},
 	"mobile.session.tray.context": {
 		"role": "meta",
 		"note": "Activity tray fact: how full the model's context window is. {percent} is a whole number; keep the percent sign. Lower case \"context\"."

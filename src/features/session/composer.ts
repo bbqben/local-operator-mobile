@@ -88,6 +88,11 @@ export const composerCopy = () => ({
 	 *  honest remedies are send again, or Resume from the header's status sheet —
 	 *  the same sentence the sheet's own failure uses. */
 	endedSendFailed: healthCopy()["relay.health.ended_send_failed"],
+	/** The send-failure sentence when the session DID reopen (or was live) but
+	 *  the stored model/effort was refused, so the message was held back. Kept
+	 *  apart from `endedSendFailed`, whose "tap Ended" remedy no longer exists
+	 *  once the header reads Live/Idle (PR #350 D2/U1). */
+	settingsNotApplied: t("mobile.session.composer.settings_not_applied"),
 	/** Under the composer while a send to an ENDED session is in flight: the
 	 *  send IS the reopen and the daemon's engage takes seconds, so "…" on the
 	 *  button alone said nothing (UX round 1, U2). The same acceptance line the

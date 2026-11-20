@@ -23,6 +23,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRelayClient } from "@/connection";
 import type { PromptImage } from "@/contracts";
 import * as attachmentSources from "@/features/session/attach";
+import { composerCopy, composerFeedback } from "@/features/session/composer";
 import { outbox } from "@/features/session/outbox";
 import {
 	clearPendingEchoes,
@@ -531,6 +532,140 @@ describe("stored session model intent through the real composer", () => {
 		await settle();
 		expect(calls.filter((op) => op === "prompt")).toHaveLength(1);
 		expect(c().draft).toBe("");
+	});
+
+	/* PR #350 deferred D2/U1: a Send on an ENDED session resumes it, then applies
+	 * the stored model/effort. When resume succeeds but a setting is refused, the
+	 * composer used to say the session "couldn't be reopened" and point at the
+	 * header's Ended control — which the now-Live/Idle header no longer shows.
+	 * Both a typed relay refusal (the QA repro: set_effort 409) and an untyped
+	 * failure must take the settings sentence; the draft stays for the retry. */
+	it.each([
+		["a relay 409", () => new RelayError("rejected", "busy", { status: 409 })],
+		["an untyped failure", () => new Error("synthetic refusal")],
+	])(
+		"a settings refusal after a successful resume (%s) says the settings, not the reopen, failed",
+		async (_label, refusal) => {
+			storedSettings = true;
+			const calls: string[] = [];
+			const client = {
+				models: async () => ({ models: [model] }),
+				resumeSession: async () => {
+					calls.push("resume");
+					return { ok: true, session_id: SID, pid: 42 };
+				},
+				command: async (_id: string, body: Record<string, unknown>) => {
+					calls.push(String(body.op));
+					if (body.op === "set_effort") throw refusal();
+					return { ok: true, detail: "accepted" };
+				},
+			} as unknown as RelayEndpoints;
+			await mount(client, "retained", false, true);
+			await act(async () => storedModel.pick(model, "high"));
+			await act(async () => c().send());
+			await settle();
+			expect(calls).toEqual(["resume", "set_model", "set_effort"]);
+			expect(c().error).toBe(composerCopy().settingsNotApplied);
+			expect(c().error).not.toBe(composerCopy().endedSendFailed);
+			// The card the screen actually renders: a plain error line, never the
+			// combined reopen-failure card with its "Try again" retry.
+			expect(
+				composerFeedback({
+					ended: false,
+					error: c().error,
+					retainedMessage: null,
+				}).errorText,
+			).toBe(composerCopy().settingsNotApplied);
+			expect(c().draft).toBe("retained");
+			expect(storedModel.pending?.effort).toBe("high");
+		},
+	);
+
+	it("a failed RESUME keeps the existing reopen-failure sentence", async () => {
+		storedSettings = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => {
+				calls.push("resume");
+				throw new RelayError("transport", "offline");
+			},
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "retained", false, true);
+		await act(async () => storedModel.pick(model, "high"));
+		await act(async () => c().send());
+		await settle();
+		expect(calls).toEqual(["resume"]);
+		expect(c().error).toBe(composerCopy().endedSendFailed);
+		expect(c().draft).toBe("retained");
+	});
+
+	/* PR #350 deferred U2: "Could not change the model." outlived the recovery —
+	 * the screen kept it in its own state and nothing retired it when the same
+	 * stored choice was later applied (and the message delivered). The hook now
+	 * owns that error, so it clears exactly when the settings it names land. */
+	it("retires the model-change error once the stored choice it names is applied and the message delivered", async () => {
+		storedSettings = true;
+		let fail = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => ({ ok: true, session_id: SID, pid: 42 }),
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (fail && body.op === "set_effort")
+					throw new RelayError("rejected", "busy", { status: 409 });
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "retained", false, true);
+		await act(async () => storedModel.pick(model, "high"));
+		await act(async () => c().send());
+		await settle();
+		// The session is Live/Idle now; a newer model choice still rides the
+		// stored lane (pending exists) and is refused by the same effort fault.
+		await mount(client, "retained", false, false);
+		await act(async () =>
+			storedModel
+				.selectModel({ ...model, model_id: "model-b", selector: "example/b" })
+				.catch(() => {}),
+		);
+		await settle();
+		expect(storedModel.settingsError).toBe("model");
+		fail = false;
+		await act(async () => c().send());
+		await settle();
+		expect(calls.filter((op) => op === "prompt")).toHaveLength(1);
+		expect(storedModel.pending).toBeNull();
+		expect(storedModel.settingsError).toBeNull();
+	});
+
+	it("keeps a live model-change error through an unrelated delivered message", async () => {
+		storedSettings = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => ({ ok: true, session_id: SID, pid: 42 }),
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (body.op === "set_model")
+					throw new RelayError("rejected", "busy", { status: 409 });
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		// Live session, no stored intent: the switch goes straight to the runtime.
+		await mount(client, "hello", false, false);
+		await act(async () => storedModel.selectModel(model).catch(() => {}));
+		expect(storedModel.settingsError).toBe("model");
+		await act(async () => c().send());
+		await settle();
+		expect(calls).toEqual(["set_model", "prompt"]);
+		// The model still was not changed: the delivered message is no recovery.
+		expect(storedModel.settingsError).toBe("model");
 	});
 
 	it("retries a failed daemon-wide catalogue without waking a session and clamps a new model's effort", async () => {

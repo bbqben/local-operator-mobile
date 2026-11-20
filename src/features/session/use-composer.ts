@@ -59,6 +59,7 @@ import {
 	type DictationState,
 	useDictation,
 } from "@/features/session/use-dictation";
+import { isStoredSettingsRefusal } from "@/features/session/use-stored-model";
 import { haptic } from "@/lib/haptics";
 import { type ContinuationEnvelope, isRelayError } from "@/relay";
 import {
@@ -636,7 +637,18 @@ export const useComposer = (input: {
 				 * which reads the relay error layer's own `envelope` directive — so this
 				 * handler presents and does not decide. Settling again here would be a second
 				 * reading of one failure, which is how one failure acquires two rules. */
-				if (receipt !== null) {
+				if (isStoredSettingsRefusal(failure)) {
+					/* `beforeSend` got the session reachable (it resumed, or was already
+					 * live) and THEN a model/effort change was refused, so nothing was
+					 * sent and the draft is untouched. The ended-session sentence below
+					 * would claim the reopen failed and send the reader to an Ended
+					 * control the now-Live/Idle header no longer shows (PR #350 D2/U1);
+					 * `ended` is this attempt's captured value, stale by now. An earlier
+					 * held envelope, if any, is unchanged by this attempt: read it back
+					 * rather than guess. */
+					setRetained(await envelopeStore.peek(sessionId));
+					setError(composerCopy().settingsNotApplied);
+				} else if (receipt !== null) {
 					setRetained(
 						receipt.kind === "ambiguous" || receipt.kind === "not-sent"
 							? await envelopeStore.peek(sessionId)

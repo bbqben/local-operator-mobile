@@ -65,6 +65,7 @@
 	"mobile.session.chip.model_change_failed": "Не удалось сменить модель.",
 	"mobile.session.chip.effort_change_failed": "Не удалось изменить усилие.",
 	"mobile.session.composer.retained_instruction": "Предыдущее указание, возможно, уже доставлено. Отправьте это указание ещё раз, прежде чем отправлять текущий черновик.",
+	"mobile.session.composer.settings_not_applied": "Сессия снова открыта, но выбранную модель или усилие применить не удалось, поэтому сообщение не отправлено. Отправьте его ещё раз, чтобы повторить попытку.",
 	"mobile.session.tray.context": "{percent}% контекста",
 	"mobile.session.tray.context_short": "{percent}% конт.",
 	"mobile.session.tray.context_estimate": "{percent}% контекста (прибл.)",
