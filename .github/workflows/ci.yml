@@ -463,6 +463,10 @@ jobs:
     # subcommand is what the pixel fallback calls), so both are installed below.
     runs-on: macos-26
     timeout-minutes: 25
+    env:
+      # Synthetic listing evidence only, outside the checkout and browser profile.
+      # Both invocations retain their own actuals; a red gate still uploads them.
+      CAPTURE_DIAGNOSTICS_DIR: ${{ runner.temp }}/listing-render-diagnostics
     steps:
       - uses: actions/checkout@v7
 
@@ -494,6 +498,9 @@ jobs:
             fi
           done
           echo "chrome: $(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version 2>&1 | head -1)"
+
+      - name: Diagnostic retention and metadata allowlists (no browser)
+        run: node --test --test-concurrency=1 design/preview/capture-diagnostics.test.mjs
 
       - name: Styling layer is current with the tokens
         # Through the package script, not a path: the file was `.mjs` when this
@@ -619,6 +626,15 @@ jobs:
         # the tolerance had to absorb at zero tolerance, and the largest channel
         # difference, so the values can be re-derived from the log.
         run: node design/preview/capture.mjs --target frames --check
+
+      - name: Upload listing renderer diagnostics even when the gate fails
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: listing-render-diagnostics
+          path: ${{ runner.temp }}/listing-render-diagnostics/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Render the preview sheet for the review rounds
         # These are the frames a designer or UX round looks at. They are written
