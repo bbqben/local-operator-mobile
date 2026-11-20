@@ -235,6 +235,50 @@ export function rootFromServedPage<T extends Message>(
 	};
 }
 
+/**
+ * `rootFromServedPage` for every root in a TIMELINE page (a refresh, its
+ * bridging reads, or an older page), against the copies the timeline holds
+ * when the page is APPLIED.
+ *
+ * The timeline carries the same cursor/unread pair as a reply page, so it has
+ * the same race: a GET that left before a thread read and answers after it
+ * would put the pre-read pair back (held 3/0 -> stale 0/2). The check has to
+ * run at application time, against `held` as it is then, not a snapshot from
+ * when the request started: the read lands in between, and that is exactly
+ * what the stale page must not undo. Messages the timeline does not hold yet,
+ * or holds without a cursor, are taken as served.
+ *
+ * Returns `incoming` itself when no root needed protecting, so the caller's
+ * `mergeMessages` keeps its structural sharing; a protected root equal to the
+ * held copy is then also kept as the held object by `mergeMessages`.
+ */
+export function protectHeldThreadCursors<T extends Message>(
+	held: readonly T[],
+	incoming: readonly T[],
+): T[] {
+	// Only held copies that carry a cursor can be regressed; most messages are
+	// not thread roots, so this is usually empty and the page passes through.
+	const cursors = new Map<string, T>();
+	for (const message of held)
+		if (message.thread_last_read_seq !== undefined)
+			cursors.set(message.id, message);
+	if (cursors.size === 0) return incoming as T[];
+	let changed = false;
+	const out = incoming.map((served) => {
+		const kept = cursors.get(served.id);
+		if (!kept) return served;
+		const next = rootFromServedPage(kept, served);
+		if (
+			next.thread_last_read_seq === served.thread_last_read_seq &&
+			next.thread_unread_count === served.thread_unread_count
+		)
+			return served;
+		changed = true;
+		return next;
+	});
+	return changed ? out : (incoming as T[]);
+}
+
 /** Whether a failed thread read means the root itself is gone, so retrying
  *  can never succeed (UX review U3): the hub's 404 `message_not_found`. */
 export const isReplyRootGone = (
