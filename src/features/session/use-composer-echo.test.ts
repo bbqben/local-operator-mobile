@@ -14,10 +14,13 @@
  * store is the real `RetryEnvelopeStore` over the in-memory backing the relay
  * tests use.
  */
+import { createServer, type Server } from "node:http";
+import type { AddressInfo } from "node:net";
 import { act, createElement, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createRelayClient } from "@/connection";
 import type { PromptImage } from "@/contracts";
 import * as attachmentSources from "@/features/session/attach";
 import { outbox } from "@/features/session/outbox";
@@ -32,6 +35,7 @@ import {
 	type ComposerState,
 	useComposer,
 } from "@/features/session/use-composer";
+import { useStoredModel } from "@/features/session/use-stored-model";
 import { type RelayEndpoints, RelayError } from "@/relay";
 import { MAX_STORED_ENVELOPE_CHARS } from "@/relay/retry-envelope";
 import { type DomShim, installDomShim } from "@/testing/dom-shim";
@@ -111,6 +115,10 @@ let dom: DomShim | null = null;
 let root: ReturnType<typeof createRoot> | null = null;
 let composer: ComposerState | null = null;
 let rows: PendingEcho[] = [];
+let storedSettings = false;
+let ownership = "local";
+let settingsServer: Server | null = null;
+let storedModel: ReturnType<typeof useStoredModel>;
 
 function Host({
 	client,
@@ -119,7 +127,7 @@ function Host({
 	ended,
 	slashRefusal = null,
 }: {
-	client: RelayEndpoints;
+	client: RelayEndpoints | null;
 	initial: string;
 	streaming: boolean;
 	ended: boolean;
@@ -127,7 +135,15 @@ function Host({
 }) {
 	const [draft, setDraft] = useState(initial);
 	const [images, setImages] = useState<PromptImage[]>([]);
+	storedModel = useStoredModel({
+		client,
+		sessionId: SID,
+		enabled: storedSettings && ended && ownership === "local",
+		ownership,
+		ended,
+	});
 	composer = useComposer({
+		beforeSend: storedSettings ? storedModel.prepare : undefined,
 		sessionId: SID,
 		source: {
 			endpoints: client,
@@ -146,7 +162,7 @@ function Host({
 }
 
 const mount = async (
-	client: RelayEndpoints,
+	client: RelayEndpoints | null,
 	initial: string,
 	streaming = true,
 	ended = false,
@@ -167,6 +183,8 @@ const settle = async () => {
 const c = () => composer as ComposerState;
 
 beforeEach(() => {
+	storedSettings = false;
+	ownership = "local";
 	storageFault.failWrite = false;
 	storageFault.reads = 0;
 	storageFault.failReadAt = 0;
@@ -183,12 +201,385 @@ afterEach(async () => {
 	/* The outbox is process-wide: a send one test left waiting must not retry
 	 *  into the next test's session. */
 	outbox.abandonAll();
+	if (settingsServer) {
+		const server = settingsServer;
+		await new Promise<void>((resolve, reject) =>
+			server.close((error) => (error ? reject(error) : resolve())),
+		);
+		settingsServer = null;
+	}
 	vi.restoreAllMocks();
 	await act(async () => root?.unmount());
 	root = null;
 	dom?.dispose();
 	dom = null;
 	clearPendingEchoes();
+});
+
+describe("stored session model intent through the real composer", () => {
+	it("an unavailable route is a catalogue failure, not an endless loading spinner", async () => {
+		storedSettings = true;
+		await mount(null, "draft", false, true);
+		expect(storedModel.failed).toBe(true);
+		expect(storedModel.loading).toBe(false);
+		expect(c().draft).toBe("draft");
+	});
+	const model = {
+		selector: "example/model-a",
+		provider: "example",
+		model_id: "model-a",
+		name: "Model A",
+		efforts: ["low", "high"],
+		connected: true,
+	};
+	it.each(["before", "resume", "set_model", "set_effort"])(
+		"revokes local intent on ownership drift at %s",
+		async (stage) => {
+			storedSettings = true;
+			let release!: () => void;
+			const calls: string[] = [];
+			const client = {
+				models: async () => ({ models: [model] }),
+				resumeSession: async () => {
+					calls.push("resume");
+					if (stage === "resume")
+						await new Promise<void>((resolve) => {
+							release = resolve;
+						});
+				},
+				command: async (_id: string, body: Record<string, unknown>) => {
+					calls.push(String(body.op));
+					if (stage === body.op)
+						await new Promise<void>((resolve) => {
+							release = resolve;
+						});
+				},
+			} as unknown as RelayEndpoints;
+			await mount(client, "retained", false, true);
+			await act(async () => storedModel.pick(model, "high"));
+			let result: Promise<unknown> | undefined;
+			if (stage !== "before") {
+				result = storedModel.prepare().catch((error) => error);
+				await settle();
+			}
+			ownership = "remote:other-device";
+			await mount(client, "retained", false, true);
+			if (stage !== "before") release();
+			else result = storedModel.prepare().catch((error) => error);
+			expect(await result).toBeInstanceOf(Error);
+			expect(calls).toEqual(
+				stage === "before"
+					? []
+					: stage === "resume"
+						? ["resume"]
+						: stage === "set_model"
+							? ["resume", "set_model"]
+							: ["resume", "set_model", "set_effort"],
+			);
+			await act(async () => c().send());
+			await settle();
+			expect(calls).not.toContain("prompt");
+			expect(c().draft).toBe("retained");
+		},
+	);
+
+	it.each(["model", "effort"])(
+		"new live %s intent supersedes partial preparation before send",
+		async (kind) => {
+			storedSettings = true;
+			let fail = true;
+			let appliedModel = "";
+			let appliedEffort = "";
+			const requests: string[] = [];
+			settingsServer = createServer(async (request, response) => {
+				let data = "";
+				for await (const chunk of request) data += String(chunk);
+				const body = data ? JSON.parse(data) : {};
+				const op =
+					request.url === "/api/models"
+						? "models"
+						: request.url === "/api/sessions/resume"
+							? "resume"
+							: body.op;
+				requests.push(op);
+				if (op === "set_model") appliedModel = String(body.model_id);
+				const refused = op === "set_effort" && fail;
+				if (op === "set_effort" && !refused)
+					appliedEffort = String(body.effort);
+				response.writeHead(refused ? 409 : 200, {
+					"content-type": "application/json",
+				});
+				response.end(
+					JSON.stringify(
+						refused
+							? { error: "synthetic effort refusal" }
+							: op === "models"
+								? { models: [model] }
+								: op === "resume"
+									? { ok: true, session_id: SID, pid: 42 }
+									: { ok: true, detail: "accepted" },
+					),
+				);
+			});
+			const server = settingsServer;
+			await new Promise<void>((resolve) =>
+				server.listen(0, "127.0.0.1", resolve),
+			);
+			const port = (settingsServer.address() as AddressInfo).port;
+			const client = createRelayClient({
+				route: {
+					mode: "custom",
+					baseUrl: `http://127.0.0.1:${port}`,
+					allowInsecure: true,
+				},
+			});
+			await mount(client, "retained", false, true);
+			const image: PromptImage = {
+				data_b64: "aGVsbG8=",
+				mime_type: "image/png",
+			};
+			await act(async () => {
+				storedModel.pick(model, "high");
+				c().addImage(image);
+			});
+			await act(async () => {
+				await expect(storedModel.prepare()).rejects.toMatchObject({
+					status: 409,
+				});
+			});
+			await mount(client, "retained", false, false);
+			// Use precisely the callbacks wired to the production sheets. A second
+			// refusal must retain the NEW intent, not restore the failed old choice.
+			await act(async () => {
+				const selection =
+					kind === "model"
+						? storedModel.selectModel({
+								...model,
+								model_id: "model-b",
+								selector: "example/model-b",
+							})
+						: storedModel.selectEffort("low");
+				await expect(selection).rejects.toMatchObject({ status: 409 });
+			});
+			expect(storedModel.pending?.model.model_id).toBe(
+				kind === "model" ? "model-b" : "model-a",
+			);
+			expect(storedModel.pending?.effort).toBe(
+				kind === "effort" ? "low" : "high",
+			);
+			expect(c().draft).toBe("retained");
+			expect(c().images).toEqual([image]);
+			fail = false;
+			// No render between the explicit choice and Send: the synchronous intent
+			// ref, shared preparation barrier and ACKs determine admission.
+			await act(async () => {
+				const selection =
+					kind === "model"
+						? storedModel.selectModel({
+								...model,
+								model_id: "model-b",
+								selector: "example/model-b",
+							})
+						: storedModel.selectEffort("low");
+				c().send();
+				await selection;
+			});
+			await settle();
+			expect(appliedModel).toBe(kind === "model" ? "model-b" : "model-a");
+			expect(appliedEffort).toBe(kind === "effort" ? "low" : "high");
+			expect(c().error).toBeNull();
+			expect(requests.filter((op) => op !== "models")).toEqual([
+				"resume",
+				"set_model",
+				"set_effort",
+				"set_model",
+				"set_effort",
+				"set_model",
+				"set_effort",
+				"prompt",
+			]);
+		},
+	);
+
+	it("a newer live choice during an old ACK is the only model admitted by Send", async () => {
+		storedSettings = true;
+		let release!: () => void;
+		let hold = true;
+		let appliedModel = "";
+		let promptModel = "";
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => ({ ok: true, session_id: SID, pid: 42 }),
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (body.op === "set_model") {
+					if (hold)
+						await new Promise<void>((resolve) => {
+							release = resolve;
+						});
+					appliedModel = String(body.model_id);
+				}
+				if (body.op === "prompt") promptModel = appliedModel;
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "retained", false, true);
+		await act(async () => storedModel.pick(model, "high"));
+		const preparing = storedModel.resume();
+		await settle();
+		await mount(client, "retained", false, false);
+		hold = false;
+		await act(async () => {
+			const selecting = storedModel.selectModel({
+				...model,
+				model_id: "model-b",
+				selector: "example/model-b",
+				efforts: ["low"],
+			});
+			c().send();
+			release();
+			await Promise.all([preparing, selecting]);
+		});
+		await settle();
+		// The new ladder excludes high, so the existing picker policy resets to
+		// the model default (null): no stale high effort may reach the computer.
+		expect(calls).toEqual(["set_model", "set_model", "prompt"]);
+		expect(promptModel).toBe("model-b");
+		expect(storedModel.pending).toBeNull();
+		expect(c().error).toBeNull();
+	});
+
+	it("loads without a runtime, picks without waking, and sends once after same-session resume/model/effort", async () => {
+		storedSettings = true;
+		const calls: { sessionId: string; body: Record<string, unknown> }[] = [];
+		const client = {
+			models: vi.fn(async () => ({ models: [model] })),
+			resumeSession: vi.fn(async (sessionId: string) => {
+				calls.push({ sessionId, body: { op: "resume" } });
+				return { ok: true, session_id: sessionId, pid: 42 };
+			}),
+			command: vi.fn(
+				async (sessionId: string, body: Record<string, unknown>) => {
+					calls.push({ sessionId, body });
+					return { ok: true, detail: "accepted" };
+				},
+			),
+		} as unknown as RelayEndpoints;
+		await mount(client, "keep this conversation", false, true);
+		expect(storedModel.models).toEqual([model]);
+		expect(client.models).toHaveBeenCalledTimes(1);
+		await act(async () => storedModel.pick(model, "high"));
+		expect(calls).toEqual([]);
+		expect(c().draft).toBe("keep this conversation");
+		const image: PromptImage = { data_b64: "aGVsbG8=", mime_type: "image/png" };
+		await act(async () => c().addImage(image));
+		await act(async () => {
+			const reopening = storedModel.resume();
+			c().send();
+			c().send();
+			await reopening;
+		});
+		await settle();
+		expect(calls.map((call) => call.body.op)).toEqual([
+			"resume",
+			"set_model",
+			"set_effort",
+			"prompt",
+		]);
+		expect(calls.every((call) => call.sessionId === SID)).toBe(true);
+		expect(calls[1]?.body).toEqual({
+			op: "set_model",
+			provider: "example",
+			model_id: "model-a",
+		});
+		expect(calls[2]?.body).toEqual({ op: "set_effort", effort: "high" });
+		expect(calls[3]?.body).toMatchObject({
+			text: "keep this conversation",
+			images: [image],
+		});
+		expect(c().error).toBeNull();
+	});
+
+	it("settings refusal admits no prompt and preserves draft, attachment and choice for retry", async () => {
+		storedSettings = true;
+		let fail = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => ({ ok: true, session_id: SID, pid: 42 }),
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (fail && body.op === "set_effort")
+					throw new Error("synthetic refusal");
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "retained", false, true);
+		await act(async () => storedModel.pick(model, "high"));
+		const image: PromptImage = { data_b64: "aGVsbG8=", mime_type: "image/png" };
+		await act(async () => c().addImage(image));
+		await act(async () => c().send());
+		await settle();
+		expect(calls).toEqual(["set_model", "set_effort"]);
+		expect(c().draft).toBe("retained");
+		expect(c().images).toEqual([image]);
+		expect(storedModel.pending?.effort).toBe("high");
+		expect(c().error).not.toBeNull();
+		fail = false;
+		await act(async () => c().send());
+		await settle();
+		expect(calls.filter((op) => op === "prompt")).toHaveLength(1);
+		expect(c().draft).toBe("");
+	});
+
+	it("retries a failed daemon-wide catalogue without waking a session and clamps a new model's effort", async () => {
+		storedSettings = true;
+		let fail = true;
+		const client = {
+			models: vi.fn(async () => {
+				if (fail) throw new Error("offline");
+				return { models: [model] };
+			}),
+			command: vi.fn(),
+			resumeSession: vi.fn(),
+		} as unknown as RelayEndpoints;
+		await mount(client, "draft", false, true);
+		expect(storedModel.failed).toBe(true);
+		fail = false;
+		await act(async () => storedModel.retry());
+		expect(storedModel.models).toEqual([model]);
+		await act(async () => storedModel.pick(model, "high"));
+		await act(async () =>
+			storedModel.pick({ ...model, model_id: "plain", efforts: [] }),
+		);
+		expect(storedModel.pending?.effort).toBeNull();
+		expect(client.resumeSession).not.toHaveBeenCalled();
+		expect(client.command).not.toHaveBeenCalled();
+	});
+
+	it("represents loading and empty catalogues and refuses disconnected choices without waking", async () => {
+		storedSettings = true;
+		let answer!: (value: { models: (typeof model)[] }) => void;
+		const catalogue = new Promise<{ models: (typeof model)[] }>((resolve) => {
+			answer = resolve;
+		});
+		const client = {
+			models: () => catalogue,
+			resumeSession: vi.fn(),
+			command: vi.fn(),
+		} as unknown as RelayEndpoints;
+		await mount(client, "draft", false, true);
+		expect(storedModel.loading).toBe(true);
+		await act(async () => answer({ models: [] }));
+		expect(storedModel.loading).toBe(false);
+		expect(storedModel.failed).toBe(false);
+		expect(storedModel.models).toEqual([]);
+		await act(async () => storedModel.pick({ ...model, connected: false }));
+		expect(storedModel.pending).toBeNull();
+		expect(client.resumeSession).not.toHaveBeenCalled();
+		expect(client.command).not.toHaveBeenCalled();
+	});
 });
 
 describe("useComposer's remote slash refusal (PR #271 R1-1/U2)", () => {

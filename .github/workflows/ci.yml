@@ -495,6 +495,9 @@ jobs:
           done
           echo "chrome: $(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version 2>&1 | head -1)"
 
+      - name: Diagnostic retention and metadata allowlists (no browser)
+        run: node --test --test-concurrency=1 design/preview/capture-diagnostics.test.mjs
+
       - name: Styling layer is current with the tokens
         # Through the package script, not a path: the file was `.mjs` when this
         # was written and is `.ts` now, and a rename should not touch CI.
@@ -529,6 +532,9 @@ jobs:
         run: node design/app-icon/build-icons.mjs --check
 
       - name: Preview sheet and feature graphic re-render identically
+        # runner.temp is a step context, not valid in job-level env.
+        env:
+          CAPTURE_DIAGNOSTICS_DIR: ${{ runner.temp }}/listing-render-diagnostics
         # `--check` defaults to every target (design/README.md is explicit that a
         # gate whose default scope is narrower than the page it documents is the
         # same defect as one that cannot fail), so this also covers the four
@@ -602,6 +608,8 @@ jobs:
         run: node design/preview/capture-stale.probe.mjs
 
       - name: The committed listing frames re-render identically
+        env:
+          CAPTURE_DIAGNOSTICS_DIR: ${{ runner.temp }}/listing-render-diagnostics
         # A HARD gate, and separate from the step above on purpose. That step has
         # to tolerate failure while the preview sheet's shipped faces live in a
         # sibling checkout (docs/ci.md, "When a run goes red"), so a stale LISTING
@@ -619,6 +627,15 @@ jobs:
         # the tolerance had to absorb at zero tolerance, and the largest channel
         # difference, so the values can be re-derived from the log.
         run: node design/preview/capture.mjs --target frames --check
+
+      - name: Upload listing renderer diagnostics even when the gate fails
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: listing-render-diagnostics
+          path: ${{ runner.temp }}/listing-render-diagnostics/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Render the preview sheet for the review rounds
         # These are the frames a designer or UX round looks at. They are written

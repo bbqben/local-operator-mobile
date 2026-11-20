@@ -163,6 +163,10 @@ export const useComposer = (input: {
 	 *  frame must never be sendable (PR #246 R1/Q1-1). Optional so hosts that
 	 *  never hydrate (the provisional editor) need not pass it. */
 	cached?: boolean;
+	/** Apply a stored conversation's model intent before admitting any message.
+	 * A failure leaves the editor and envelope untouched; this runs inside the
+	 * existing in-flight guard, so double taps cannot duplicate the reopen. */
+	beforeSend?: () => Promise<void>;
 	/** The relay's capability block, off the list frame. Decides whether a mic
 	 *  exists at all (`capabilities.stt`, absence = unavailable). */
 	capabilities: Capabilities | null | undefined;
@@ -190,6 +194,7 @@ export const useComposer = (input: {
 	const { sessionId, source, streaming, ended, capabilities, onSent } = input;
 	const slashRefusal = input.slashRefusal ?? null;
 	const cached = input.cached === true;
+	const beforeSend = input.beforeSend;
 	const endpoints = source.endpoints;
 	const authorization = useSyncExternalStore(
 		subscribeStartupAuthorization,
@@ -481,6 +486,7 @@ export const useComposer = (input: {
 			setError(null);
 			setNotice(null);
 			try {
+				await beforeSend?.();
 				if (parsed !== null) {
 					/* No envelope: a slash command carries no durable identity to replay,
 					 * so there is nothing whose outcome could be ambiguous. The send itself
@@ -678,6 +684,7 @@ export const useComposer = (input: {
 			cancelDictationForSend,
 			echoDraft,
 			slashRefusal,
+			beforeSend,
 		],
 	);
 
@@ -718,6 +725,7 @@ export const useComposer = (input: {
 			const retryImages = imagesRef.current;
 			let painted: PaintedEcho | null = null;
 			try {
+				await beforeSend?.();
 				/* The retry IS the replay: `holdNew` returns the stored envelope for this
 				 * session, so this sends the bytes and the UUID it was minted with. */
 				const outcome = await outbox.deliver({
@@ -824,6 +832,7 @@ export const useComposer = (input: {
 		ended,
 		echoDraft,
 		cached,
+		beforeSend,
 	]);
 
 	/**
