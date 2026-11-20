@@ -91,7 +91,11 @@ export const composerCopy = () => ({
 	/** The send-failure sentence when the session DID reopen (or was live) but
 	 *  the stored model/effort was refused, so the message was held back. Kept
 	 *  apart from `endedSendFailed`, whose "tap Ended" remedy no longer exists
-	 *  once the header reads Live/Idle (PR #350 D2/U1). */
+	 *  once the header reads Live/Idle (PR #350 D2/U1). It ends on a
+	 *  button-neutral "try again" because it shows on two paths with different
+	 *  working controls: after Send (Send enabled) and after Retry of a held
+	 *  instruction (Send disabled, the card's Retry works) — naming either
+	 *  button would be false on the other path (PR #353 U1). */
 	settingsNotApplied: t("mobile.session.composer.settings_not_applied"),
 	/** Under the composer while a send to an ENDED session is in flight: the
 	 *  send IS the reopen and the daemon's engage takes seconds, so "…" on the

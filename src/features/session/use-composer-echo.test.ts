@@ -41,6 +41,10 @@ import { type RelayEndpoints, RelayError } from "@/relay";
 import { MAX_STORED_ENVELOPE_CHARS } from "@/relay/retry-envelope";
 import { type DomShim, installDomShim } from "@/testing/dom-shim";
 
+// PR #353 U1: the settings sentence must name neither the Send nor the Retry button.
+const NAMES_SEND = /\bsend\b/i;
+const NAMES_RETRY = /\bretry\b/i;
+
 const storageFault = vi.hoisted(() => ({
 	failWrite: false,
 	reads: 0,
@@ -540,6 +544,19 @@ describe("stored session model intent through the real composer", () => {
 	 * header's Ended control — which the now-Live/Idle header no longer shows.
 	 * Both a typed relay refusal (the QA repro: set_effort 409) and an untyped
 	 * failure must take the settings sentence; the draft stays for the retry. */
+	/* PR #353 U1: the settings sentence shows after Send (Send enabled) AND
+	 * after Retry of a held instruction (Send disabled until it is resolved),
+	 * so its remedy must name neither button. Pinned against the rendered en
+	 * text, not only the copy accessor, so a reword that says "send again"
+	 * fails here on both paths. */
+	const SETTINGS_SENTENCE_EN =
+		"The session reopened, but your model or effort choice couldn’t be applied, so nothing was sent. Try again, or choose a different model or effort.";
+	const expectButtonNeutralSettingsSentence = (text: string | null) => {
+		expect(text).toBe(SETTINGS_SENTENCE_EN);
+		expect(text).not.toMatch(NAMES_SEND);
+		expect(text).not.toMatch(NAMES_RETRY);
+	};
+
 	it.each([
 		["a relay 409", () => new RelayError("rejected", "busy", { status: 409 })],
 		["an untyped failure", () => new Error("synthetic refusal")],
@@ -576,6 +593,8 @@ describe("stored session model intent through the real composer", () => {
 					retainedMessage: null,
 				}).errorText,
 			).toBe(composerCopy().settingsNotApplied);
+			// Send path: the wording points at no specific control.
+			expectButtonNeutralSettingsSentence(c().error);
 			expect(c().draft).toBe("retained");
 			expect(storedModel.pending?.effort).toBe("high");
 		},
@@ -614,6 +633,9 @@ describe("stored session model intent through the real composer", () => {
 		expect(calls).toEqual(["resume", "set_model", "set_effort"]);
 		expect(c().error).toBe(composerCopy().settingsNotApplied);
 		expect(c().retained).not.toBeNull();
+		// Retry path: Send is disabled behind the held instruction, so the
+		// sentence must not tell the reader to send again.
+		expectButtonNeutralSettingsSentence(c().error);
 	});
 
 	it("a failed RESUME keeps the existing reopen-failure sentence", async () => {

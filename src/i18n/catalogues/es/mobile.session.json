@@ -65,7 +65,7 @@
 	"mobile.session.chip.model_change_failed": "No se pudo cambiar el modelo.",
 	"mobile.session.chip.effort_change_failed": "No se pudo cambiar el esfuerzo.",
 	"mobile.session.composer.retained_instruction": "Puede que ya se haya entregado una instrucción anterior. Reintenta enviarla antes de enviar tu borrador actual.",
-	"mobile.session.composer.settings_not_applied": "La sesión se reabrió, pero no se pudo aplicar el modelo o el esfuerzo que elegiste, así que tu mensaje no se envió. Vuelve a enviarlo para reintentarlo.",
+	"mobile.session.composer.settings_not_applied": "La sesión se reabrió, pero no se pudo aplicar el modelo o el esfuerzo que elegiste, así que no se envió nada. Vuelve a intentarlo o elige otro modelo u otro esfuerzo.",
 	"mobile.session.tray.context": "{percent}% de contexto",
 	"mobile.session.tray.context_short": "{percent}% de contexto",
 	"mobile.session.tray.context_estimate": "{percent}% de contexto (aprox.)",
