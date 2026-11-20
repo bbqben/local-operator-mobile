@@ -3655,55 +3655,59 @@ describe("the account's computers outlive a pick and a failed refresh (PR #121 r
 	 * `reconnectDelay`'s curve, unit-tested to its 15 s cap) and honour the
 	 * control plane's Retry-After, not POST every 2 s. Read from the scheduled
 	 * delays of the provider's own `run` restarts, so no test waits them out. */
-	it("backs the list stream's renewal retries off and honours Retry-After", async () => {
-		const mock = await signedIn({});
-		const computer = connectionStore.getState().computers[0];
-		if (!computer) throw new Error("missing fixture computer");
-		await act(async () => {
-			await latest.selectComputer(computer);
-		});
-		await until(() => connectionStore.getState().phase === "live");
-		/* The list stream is the list's only first read now (the cold-start REST
-		 * read that used to hold `goLive` open until the stream was up is gone),
-		 * so wait for it to be OPEN: ending streams before one is open ends
-		 * nothing. Not `frameCount`: a warm-cache list from an earlier test on the
-		 * same synthetic route paints before any stream opens. */
-		await until(() => latest.streamHealth === "live");
-		/* A pass-through spy (no replacement): Node's own timers must keep their
-		 * receiver and arguments. Only the provider's `run` restarts are read. */
-		const timers = vi.spyOn(globalThis, "setTimeout");
-		const restarts = () =>
-			timers.mock.calls
-				.filter(
-					([handler]) =>
-						typeof handler === "function" && handler.name === "run",
-				)
-				.map(([, ms]) => ms ?? 0);
-		const realSetTimeout = setTimeout;
-		/* `Retry-After: 0` first (R2-1: it was a zero-delay loop), then 7 s where
-		 * the curve's step (4 s) is shorter, so the server's longer ask wins. */
-		mock.failRefreshAfter(503, 0);
-		mock.failRefreshAfter(503, 7);
-		const realNow = Date.now.bind(Date);
-		const clock = vi
-			.spyOn(Date, "now")
-			.mockImplementation(() => realNow() + 301_000);
-		try {
+	it.each([503, 429])(
+		"backs the list stream's renewal %s retries off and honours Retry-After",
+		async (status) => {
+			const mock = await signedIn({});
+			const computer = connectionStore.getState().computers[0];
+			if (!computer) throw new Error("missing fixture computer");
 			await act(async () => {
-				mock.endCatalogueStreams();
+				await latest.selectComputer(computer);
 			});
-			const deadline = realNow() + 10_000;
-			while (restarts().length < 2 && realNow() < deadline)
+			await until(() => connectionStore.getState().phase === "live");
+			/* The list stream is the list's only first read now (the cold-start REST
+			 * read that used to hold `goLive` open until the stream was up is gone),
+			 * so wait for it to be OPEN: ending streams before one is open ends
+			 * nothing. Not `frameCount`: a warm-cache list from an earlier test on the
+			 * same synthetic route paints before any stream opens. */
+			await until(() => latest.streamHealth === "live");
+			/* A pass-through spy (no replacement): Node's own timers must keep their
+			 * receiver and arguments. Only the provider's `run` restarts are read. */
+			const timers = vi.spyOn(globalThis, "setTimeout");
+			const restarts = () =>
+				timers.mock.calls
+					.filter(
+						([handler]) =>
+							typeof handler === "function" && handler.name === "run",
+					)
+					.map(([, ms]) => ms ?? 0);
+			const realSetTimeout = setTimeout;
+			/* `Retry-After: 0` first (R2-1: it was a zero-delay loop), then 7 s where
+			 * the curve's step (4 s) is shorter, so the server's longer ask wins. */
+			mock.failRefreshAfter(status, 0);
+			mock.failRefreshAfter(status, 7);
+			const realNow = Date.now.bind(Date);
+			const clock = vi
+				.spyOn(Date, "now")
+				.mockImplementation(() => realNow() + 301_000);
+			try {
 				await act(async () => {
-					await new Promise<void>((resolve) => realSetTimeout(resolve, 20));
+					mock.endCatalogueStreams();
 				});
-			// The curve is the floor (never 0), and a longer Retry-After wins.
-			expect(restarts().slice(0, 2)).toEqual([2_000, 7_000]);
-		} finally {
-			clock.mockRestore();
-			timers.mockRestore();
-		}
-	}, 20_000);
+				const deadline = realNow() + 10_000;
+				while (restarts().length < 2 && realNow() < deadline)
+					await act(async () => {
+						await new Promise<void>((resolve) => realSetTimeout(resolve, 20));
+					});
+				// The curve is the floor (never 0), and a longer Retry-After wins.
+				expect(restarts().slice(0, 2)).toEqual([2_000, 7_000]);
+			} finally {
+				clock.mockRestore();
+				timers.mockRestore();
+			}
+		},
+		20_000,
+	);
 
 	it("389 treats a granted refresh that is still refused as genuine revocation", async () => {
 		// The other half of the rule: a refresh only buys one retry. If the grant is
@@ -5302,6 +5306,40 @@ describe("PR #261 round-2 remediation: the provider's side", () => {
 		await until(() => latest.streamHealth === "live");
 		return mock;
 	}
+
+	it("does not publish an old refresh refusal after changing computers", async () => {
+		const mock = await liveRadient();
+		const held = mock.holdNextSessions();
+		let refresh: Promise<void> = Promise.resolve();
+		const reads = mock.events.filter(
+			(event) => event === "GET /api/sessions",
+		).length;
+		await act(async () => {
+			refresh = latest.refreshList();
+		});
+		await until(
+			() =>
+				mock.events.filter((event) => event === "GET /api/sessions").length >
+				reads,
+		);
+		const replacement = await relay();
+		await act(async () => {
+			await latest.connectCustom({
+				url: replacement.origin,
+				password: "test-only",
+				allowInsecure: true,
+			});
+		});
+		await until(() => connectionStore.getState().phase === "live");
+		mock.refuseRelay(true);
+		await act(async () => {
+			held.resolve();
+			await refresh;
+		});
+		expect(connectionStore.getState().phase).toBe("live");
+		expect(connectionStore.getState().surface).toBeNull();
+		expect(latest.lastError).toBeNull();
+	});
 
 	it.each([
 		{

@@ -5,6 +5,7 @@ import {
 	Animated,
 	Easing,
 	findNodeHandle,
+	LayoutAnimation,
 	Modal,
 	Platform,
 	Pressable,
@@ -16,6 +17,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 import { ScopedVariables } from "uniwind";
+import {
+	KEYBOARD_HIDDEN,
+	type KeyboardFrame,
+	keyboardFrameNow,
+	subscribeKeyboardFrame,
+} from "@/features/session/keyboard-frame";
 import { t } from "@/i18n";
 import { haptic } from "@/lib/haptics";
 import { CONTROL, ROLE, SURFACE } from "@/ui/a11y";
@@ -35,6 +42,7 @@ import {
 	useModalExit,
 } from "@/ui/modal-exit";
 import { effectiveDuration, parseCubicBezier } from "@/ui/motion";
+import { sheetKeyboardLift, sheetKeyboardRoom } from "@/ui/sheet-keyboard";
 import { useTextScale } from "@/ui/text-scale-provider";
 import { DURATIONS, EASINGS } from "@/ui/tokens.gen";
 import {
@@ -138,6 +146,18 @@ export type SheetProps = {
 	 * header, the scrolling body, and a pinned action region that never scrolls.
 	 */
 	footer?: React.ReactNode;
+	/**
+	 * A pinned region UNDER the title and ABOVE the scrolling body: what must stay
+	 * in view while the body scrolls — a search field above its results (the
+	 * model picker). Measured into the chrome the cap is spent on, like the title
+	 * row and the footer.
+	 *
+	 * Why a slot and not "put it first in the body": a field in the body scrolls
+	 * away with the rows it filters, and with the keyboard up the body is a few
+	 * rows tall — the reader typed into a field they could no longer see
+	 * (TestFlight 1295).
+	 */
+	pinned?: React.ReactNode;
 	/** How many lines the title may wrap to. ONE by default (the app's
 	 *  truncation idiom, below); a sheet whose title IS its state — the session
 	 *  health sheet's "Not answering" — passes 2, because an ellipsis there cuts
@@ -157,6 +177,7 @@ export const Sheet = ({
 	detent = "content",
 	children,
 	footer,
+	pinned,
 	titleLines = 1,
 	testID,
 }: SheetProps) => {
@@ -256,10 +277,80 @@ export const Sheet = ({
 	 * the captured FRAME of the same cell (taken after the settle window, when
 	 * `onLayout` had landed) was correctly capped. The window's height is the right
 	 * seed rather than a guess: the column IS the window until a keyboard opens,
-	 * which is the case `onLayout` exists to correct.
+	 * which is the case `onLayout` exists to correct — ON THE WEB ONLY. A native
+	 * `Modal` is not resized for the keyboard (iOS keeps the full window; Android
+	 * is edge-to-edge, so the IME is an inset), so there the column never shrinks
+	 * and the keyboard is handled from its own frame below (`keyboardLift`).
 	 */
 	const windowHeight = useWindowDimensions().height;
 	const capHeight = columnHeight > 0 ? columnHeight : windowHeight;
+
+	/*
+	 * THE KEYBOARD (TestFlight 1295: the model sheet's search field sat under the
+	 * keyboard, so the reader could see neither what they typed nor what matched).
+	 *
+	 * The frame is #216's ONE keyboard store, the source both composers already
+	 * lift from — not a `KeyboardAvoidingView`, which measures its own frame
+	 * against the keyboard and has already been taken out of the Team Bridge
+	 * thread for being fragile (`composer-dock.tsx`). The store never subscribes
+	 * on the web, where the column's `onLayout` above already shrinks with the
+	 * visual viewport, so web keeps its old behaviour.
+	 *
+	 * Two effects, both from the same lift: the surface's bottom edge moves up to
+	 * the keyboard's top (a spacer under it in the bottom-anchored column), and
+	 * the cap becomes the space between the safe top and the keyboard top, so the
+	 * header, a `pinned` field and as many rows as fit stay visible while the body
+	 * scrolls. `sheetKeyboardLift` subtracts any resize the host already did, so a
+	 * resizing Android window is not lifted twice.
+	 *
+	 * The change is committed under a `LayoutAnimation` — RN's own
+	 * `KeyboardAvoidingView` technique — because it is the one API that can run a
+	 * LAYOUT change on iOS's private keyboard curve (`Types.keyboard`) with the
+	 * keyboard's own duration. Subscribed directly rather than through the hook so
+	 * the animation is configured inside the native event, before the commit.
+	 */
+	const [keyboard, setKeyboard] = useState<KeyboardFrame>(KEYBOARD_HIDDEN);
+	/* Keyed on the Modal being MOUNTED, not on `visible` (review R1-m1): a pick
+	 *  closes the sheet while its focused field keeps the keyboard up, and the
+	 *  Modal stays mounted through the exit. Dropping the frame at `visible=false`
+	 *  pulled the surface down behind the still-open keyboard for the whole exit;
+	 *  holding it until the exit lands lets the sheet leave from where it was. */
+	const keyboardLive = visible || exiting;
+	useEffect(() => {
+		if (!keyboardLive) return;
+		const unsubscribe = subscribeKeyboardFrame((frame) => {
+			if (!reduceMotion && Platform.OS !== "web") {
+				LayoutAnimation.configureNext({
+					duration: frame.duration,
+					update: {
+						duration: frame.duration,
+						type:
+							Platform.OS === "ios"
+								? LayoutAnimation.Types.keyboard
+								: LayoutAnimation.Types.easeInEaseOut,
+					},
+				});
+			}
+			setKeyboard(frame);
+		});
+		/* A sheet opened over an already-open keyboard starts above it. */
+		setKeyboard(keyboardFrameNow());
+		return () => {
+			unsubscribe();
+			setKeyboard(KEYBOARD_HIDDEN);
+		};
+	}, [keyboardLive, reduceMotion]);
+	const keyboardLift = keyboard.visible
+		? sheetKeyboardLift({
+				overlap: keyboard.overlap,
+				columnHeight,
+				windowHeight,
+			})
+		: 0;
+	/* The surface's own ceiling with the keyboard up; `null` while it is down. */
+	const keyboardRoom = keyboard.visible
+		? sheetKeyboardRoom({ capHeight, lift: keyboardLift, safeTop: insets.top })
+		: null;
 	/*
 	 * THE CAP IS SPENT ACROSS THREE REGIONS, not on the body alone.
 	 *
@@ -282,17 +373,37 @@ export const Sheet = ({
 	 */
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
+	const [pinnedHeight, setPinnedHeight] = useState(0);
 	const measuredChrome = headerHeight + footerHeight;
 	const chrome =
-		measuredChrome > 0
+		(measuredChrome > 0
 			? measuredChrome
 			: footer === undefined
 				? CHROME_SEED_HEADER
-				: CHROME_SEED_HEADER + CHROME_SEED_FOOTER;
-	const maxContentHeight =
+				: CHROME_SEED_HEADER + CHROME_SEED_FOOTER) +
+		(pinned === undefined ? 0 : pinnedHeight);
+	const detentContentHeight =
 		fraction === null
 			? undefined
 			: Math.max(MIN_CONTENT_HEIGHT, Math.round(capHeight * fraction) - chrome);
+	/* With the keyboard up the body gets what the keyboard leaves, and no floor:
+	 *  `MIN_CONTENT_HEIGHT` would push the title back above the safe top, which
+	 *  is the one thing that must stay visible. */
+	const maxContentHeight =
+		keyboardRoom === null
+			? detentContentHeight
+			: Math.min(
+					detentContentHeight ?? Number.POSITIVE_INFINITY,
+					Math.max(0, keyboardRoom - chrome),
+				);
+	/* The home indicator is behind the keyboard while it is up, so its inset is
+	 *  not spent under the last row (the composer's #219 rule, `composerOuterGap`). */
+	/*  Keyed on the OVERLAP, not `visible` (review R1-n1 / design D3): iOS's hide
+	 *  reports overlap 0 on `keyboardWillChangeFrame` but keeps `visible` until
+	 *  `didHide`, so keying on `visible` restored the inset in a second, later
+	 *  animation after the sheet had already ridden down with the keyboard. */
+	const bottomInset =
+		keyboard.visible && keyboard.overlap > 0 ? 0 : insets.bottom;
 	/* The body's scroll facts collapse to ONE boolean ("there is more below"):
 	 * the raw numbers live in a ref because a state update per scroll tick would
 	 * re-render the sheet's whole subtree to move a gradient; `syncBodyCue` is
@@ -300,17 +411,22 @@ export const Sheet = ({
 	 * own handlers. */
 	const scrollFacts = useRef({ contentH: 0, viewportH: 0, y: 0 });
 	const [bodyCue, setBodyCue] = useState(false);
+	/* "Something has scrolled up under the pinned region" — the mirror of
+	 *  `bodyCue`, drawn only under a `pinned` slot (design D1). */
+	const [topCue, setTopCue] = useState(false);
 	const syncBodyCue = () => {
 		const { contentH, viewportH, y } = scrollFacts.current;
 		setBodyCue(
 			viewportH > 0 && contentH > viewportH + 1 && y + viewportH < contentH - 2,
 		);
+		setTopCue(y > 1);
 	};
 	const fadeId = useRef("");
 	if (fadeId.current === "") {
 		sheetFadeSeq += 1;
 		fadeId.current = `sheet-body-fade-${sheetFadeSeq}`;
 	}
+	const topFadeId = `${fadeId.current}-top`;
 	const ground = useTokenColor("elevated");
 	/* A modal that mounts while another is up stands down rather than painting a
 	 *  second full-viewport surface over it — the rule and its reasoning are in
@@ -389,6 +505,25 @@ export const Sheet = ({
 				onDismiss={
 					Platform.OS === "web"
 						? () => {
+								/* ONLY ONCE THE SURFACE IS GONE (PR #339 round 2: UX U1,
+								 *  design D1, QA Q2). `useModalExit` sets `exiting` in an effect,
+								 *  so for the one commit between the caller's close and that
+								 *  update RNW's Modal is handed `visible=false`. With
+								 *  `animationType="none"` its `ModalAnimation` drops `isRendering`
+								 *  at once and calls this, although the next commit hands it
+								 *  `visible` again and the sheet — focus trap and scrim included —
+								 *  stays in the DOM for the whole exit. Anything a caller runs
+								 *  "after dismissal" then ran ~110 ms early: a route pushed from
+								 *  here had its autofocused composer robbed by the closing sheet's
+								 *  scrim, and focus ended on `body` at the real unmount (measured
+								 *  on the hosted web export, 0/10). While `shown` is still true
+								 *  the dismissal is that blip, not a dismissal; the real one
+								 *  arrives when the exit releases the Modal (`shown` false), so
+								 *  it is skipped here rather than delayed. Keyed on `shown`, not
+								 *  `exiting`: a sheet covered mid-exit is released too and must
+								 *  still settle. Pinned by `sheet-dismiss-timing.test.tsx`
+								 *  against RNW's real `ModalAnimation`. */
+								if (shown) return;
 								// Settle the fallback before publishing the ledger transition; Settings'
 								// refusal reveal must run after ALL focus-return work (#122).
 								if (
@@ -554,11 +689,47 @@ export const Sheet = ({
 									icon={({ color, size }) => <X color={color} size={size} />}
 								/>
 							</View>
+							{pinned === undefined ? null : (
+								<View
+									/* The hairline is the pinned region's edge (design D1): rows scroll
+									 *  up UNDER it, and without a line a provider label cut mid-glyph
+									 *  under the field read as a rendering fault — the footer's own
+									 *  boundary, mirrored. */
+									className="px-4 border-b border-hairline"
+									testID={SURFACE.sheetPinned}
+									onLayout={(event) =>
+										setPinnedHeight(event.nativeEvent.layout.height)
+									}
+								>
+									{pinned}
+								</View>
+							)}
 							<ScrollView
+								testID={SURFACE.sheetBody}
+								/* A row tapped while the keyboard is up is picked in ONE tap. The
+								 *  default (`never`) spends the first tap dismissing the keyboard,
+								 *  which in a search sheet reads as "the row didn't respond". A tap
+								 *  on empty body space still dismisses it (`handled`). */
+								keyboardShouldPersistTaps="handled"
+								/* A sheet with a `pinned` slot is a search over its body, so it HOLDS
+								 *  its cap instead of hugging its content (design D2): the surface is
+								 *  bottom-anchored (to the keyboard, while it is up), so a hugging body
+								 *  moved the field the reader is typing in by every result a keystroke
+								 *  removed — 59 → ≈272 pt for one query on a 430×932 phone. Sheets
+								 *  without one keep hugging. The cap is held with the keyboard down
+								 *  too: the `content` detent (`SHEET_DETENTS.content`, 0.6) still
+								 *  yields a cap, so a narrowed query keeps the sheet at that height
+								 *  after the keyboard is dismissed — the field stays put, and the
+								 *  held height never exceeds the detent. */
 								style={
 									maxContentHeight === undefined
 										? undefined
-										: { maxHeight: maxContentHeight }
+										: pinned === undefined
+											? { maxHeight: maxContentHeight }
+											: {
+													maxHeight: maxContentHeight,
+													minHeight: maxContentHeight,
+												}
 								}
 								contentContainerClassName="px-4"
 								/* `pb-6` (24) plus the safe-area inset, computed rather than spelled
@@ -568,7 +739,7 @@ export const Sheet = ({
 								 *  so the body keeps only the gutters — double-spending it would leave a
 								 *  dead band between the last field and the action. */
 								contentContainerStyle={{
-									paddingBottom: footer === undefined ? 24 + insets.bottom : 16,
+									paddingBottom: footer === undefined ? 24 + bottomInset : 16,
 								}}
 								/* The three readings the cut-edge fade is earned from (its own
 								 *  comment on `syncBodyCue`): the viewport, the content, and the scroll
@@ -604,11 +775,61 @@ export const Sheet = ({
 									onLayout={(event) =>
 										setFooterHeight(event.nativeEvent.layout.height)
 									}
-									style={{ paddingBottom: 24 + insets.bottom }}
+									style={{ paddingBottom: 24 + bottomInset }}
 								>
 									{footer}
 								</View>
 							)}
+							{pinned !== undefined && pinnedHeight > 0 && topCue ? (
+								/* The footer fade's mirror under the pinned region (design D1):
+								 *  solid at the hairline, transparent toward the content, shown only
+								 *  while rows have scrolled up under it. The header's measured height
+								 *  (its seed for the one frame before `onLayout`) places it. */
+								<View
+									pointerEvents="none"
+									aria-hidden
+									testID={SURFACE.sheetPinnedFade}
+									style={{
+										position: "absolute",
+										left: insets.left,
+										right: insets.right,
+										top:
+											(headerHeight > 0 ? headerHeight : CHROME_SEED_HEADER) +
+											pinnedHeight,
+										height: SHEET_BODY_FADE,
+									}}
+								>
+									<Svg width="100%" height="100%">
+										<Defs>
+											<LinearGradient
+												id={topFadeId}
+												x1="0%"
+												y1="0%"
+												x2="0%"
+												y2="100%"
+											>
+												<Stop
+													key="far"
+													offset="0"
+													stopColor={ground}
+													stopOpacity={1}
+												/>
+												<Stop
+													key="near"
+													offset="1"
+													stopColor={ground}
+													stopOpacity={0}
+												/>
+											</LinearGradient>
+										</Defs>
+										<Rect
+											width="100%"
+											height="100%"
+											fill={`url(#${topFadeId})`}
+										/>
+									</Svg>
+								</View>
+							) : null}
 							{footer !== undefined && footerHeight > 0 && bodyCue ? (
 								/* The cut-edge cue (design D63-1): a band of the sheet's own ground
 								 *  over the bottom of the scrolling body, transparent at the content
@@ -660,6 +881,18 @@ export const Sheet = ({
 								</View>
 							) : null}
 						</Animated.View>
+						{/* The keyboard's footprint, under the bottom-anchored surface: the
+						 *  column is `justify-end`, so this lifts the surface's bottom edge to
+						 *  the keyboard's top. A spacer, not a margin on the surface, because
+						 *  the surface's transform runs on the native driver and a layout
+						 *  property cannot share that node's animation. */}
+						{keyboardLift > 0 ? (
+							<View
+								pointerEvents="none"
+								testID={SURFACE.sheetKeyboardSpacer}
+								style={{ height: keyboardLift }}
+							/>
+						) : null}
 					</DirectionView>
 				</ScopedVariables>
 			</Modal>
