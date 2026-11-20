@@ -211,7 +211,9 @@ describe("D15: Settings labels its controls and ranks its actions alike", () => 
 			return block.match(VARIANT)?.[1];
 		});
 		expect(new Set(variants).size).toBe(1);
-		expect(variants[0]).toBe("quiet");
+		/* `outline` since the settings UX pass: as borderless `quiet` text the
+		 *  three barely read as tappable. Still one variant for the three. */
+		expect(variants[0]).toBe("outline");
 	});
 });
 
