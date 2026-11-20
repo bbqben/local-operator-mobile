@@ -10,7 +10,7 @@ const CANCEL_BEFORE_REOPEN =
  * the native timing is run in `ui/components/sheet-ios-picker-handoff.test.tsx`). */
 const SHEET_HANDOFF_CLOSE = /setHandingOff\(true\);\s*onChoose\(source\);/;
 const COMPOSER_CHOOSE =
-	/setAttachSheetOpen\(false\);[^]*?attachmentHandoff\.choose\(\(\) => onAttach\(source\), Platform\.OS\);/;
+	/setAttachSheetOpen\(false\);[\s\S]*?attachmentHandoff\.choose\(\(\) => onAttach\(source\), Platform\.OS\);/;
 const BRIDGE_CHOOSE =
 	/setAttachOpen\(false\);\s*attachHandoff\.choose\(\(\) => \{\s*void addImages\(source\);\s*\}, Platform\.OS\);/;
 const BRIDGE_CANCEL_BEFORE_REOPEN =
