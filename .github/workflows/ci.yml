@@ -321,6 +321,12 @@ jobs:
     # run is cited in the pull request's evidence table).
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # `actions: read` is for the visibility wait below (it lists this run's
+    # artefacts); `contents: read` restates the workflow default, which a job-level
+    # block would otherwise drop. Nothing here writes.
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v7
 
@@ -343,6 +349,7 @@ jobs:
         # must not be mistakable for a release one). Single-sourced on purpose: a
         # probe that re-spells the upload block cannot catch that block drifting
         # away from the staging step it feeds.
+        id: upload-android
         uses: ./.github/actions/upload-android-release
         with:
           aab: android/app/build/outputs/bundle/release/app-release.aab
@@ -350,11 +357,91 @@ jobs:
           name: android-release-probe
 
       - name: Upload the IPA exactly as release.yml does
+        id: upload-ipa
         uses: actions/upload-artifact@v7
         with:
           name: ios-ipa-probe
           path: ${{ runner.temp }}/ipa/*.ipa
           retention-days: 1
+
+      - name: Wait until both probe artefacts are listed for this run
+        # WHY THIS STEP EXISTS. Uploading and downloading in the SAME job races the
+        # artefact backend, whose listing is eventually consistent just after an
+        # upload finalizes. Three unrelated pull requests went red here with the
+        # artefact not yet visible, each green on one rerun: #348 (job 135857781891,
+        # "Artifact not found for name: ios-ipa-probe" ~0.75 s after finalize; the
+        # artefact, id 14569594432, existed afterwards), #349 (job 135907423135,
+        # "No artifacts found for ID: 14578420722" ~1.23 s after finalize — so an
+        # ID-based download alone does not fix it) and #350 (job 136012395453,
+        # "Artifact not found for name: ios-ipa-probe" ~1.09 s after finalize).
+        # release.yml never meets this race: its downloads run in a later job, long
+        # after the build jobs' uploads finalized, so it gets no such wait and the
+        # download steps below stay byte-for-byte the shape release.yml uses.
+        #
+        # THIS ATTEMPT ONLY. A job rerun keeps the run's earlier attempts' artefacts
+        # in the listing under the same names (run 44622457070 lists ios-ipa-probe
+        # 14578420722 from attempt 1 beside 14579372496 from attempt 2), so a
+        # name-only match passes on the first poll of a rerun, before this attempt's
+        # uploads are visible. Each entry is therefore `name=<artifact-id>`, the ID
+        # the upload step above output, and only that exact pair counts. An empty
+        # ID means an upload output went missing: that fails at once, never falls
+        # back to names.
+        #
+        # THE BOUND. Observed lag is ~1 s (n=3 above: 0.75, 1.09, 1.23 s); the limit
+        # is 60 s with backoff, well above that, every sleep is capped at the time
+        # left so the wait never sleeps past the limit, and the step's own
+        # timeout-minutes is the hard stop. Never-visible is a real failure: it
+        # exits 1 with the last listing, it is never skipped or continued past.
+        #
+        # THE LIMIT. download-artifact resolves names through the runtime's internal
+        # artefact service, which a shell step cannot call; the public run listing
+        # polled here is the nearest observable signal of the same backend. If the
+        # two ever diverge, the download below still fails loudly — this narrows the
+        # race, it does not hide a failure.
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          EXPECTED: android-release-probe=${{ steps.upload-android.outputs.artifact-id }} ios-ipa-probe=${{ steps.upload-ipa.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          for entry in $EXPECTED; do
+            if [ -z "${entry#*=}" ]; then
+              echo "::error::upload step output no artifact-id for ${entry%%=*}; cannot tell this attempt's artefact from an earlier one"
+              exit 1
+            fi
+          done
+          limit=60
+          start=$SECONDS
+          deadline=$((start + limit))
+          delay=1
+          while :; do
+            # A transient API error is just another not-yet-visible poll; the
+            # deadline still bounds it.
+            listed=$(gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts?per_page=100" \
+              --jq '.artifacts[] | select(.expired | not) | "\(.name)=\(.id)"' 2>&1) || true
+            missing=""
+            for entry in $EXPECTED; do
+              grep -qxF "$entry" <<<"$listed" || missing="$missing $entry"
+            done
+            if [ -z "$missing" ]; then
+              echo "visible after $((SECONDS - start))s: $EXPECTED"
+              break
+            fi
+            left=$((deadline - SECONDS))
+            if [ "$left" -le 0 ]; then
+              echo "::error::probe artefact(s) not listed for run $RUN_ID within ${limit}s:$missing"
+              echo "--- last listing"
+              echo "$listed"
+              exit 1
+            fi
+            # Never sleep past the deadline: the next poll lands at it at the latest.
+            [ "$delay" -gt "$left" ] && delay=$left
+            echo "not yet listed:$missing — retrying in ${delay}s"
+            sleep "$delay"
+            delay=$((delay * 2 > 8 ? 8 : delay * 2))
+          done
 
       - name: Download them into `artifacts/` exactly as release.yml does
         uses: actions/download-artifact@v8
