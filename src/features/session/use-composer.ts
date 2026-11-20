@@ -13,17 +13,13 @@ import {
 } from "@/connection/startup-authorization";
 
 import type { Capabilities, PromptImage, SlashCommand } from "@/contracts";
-import {
-	pasteImage,
-	pickImageFromFiles,
-	pickImageFromLibrary,
-	readWebImageFile,
-} from "@/features/session/attach";
+import { readImageFrom, readWebImageFile } from "@/features/session/attach";
 import { createAttachLatch } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import {
 	acknowledgedCurrentDraft,
 	ambiguousMessage,
+	attachFailureLine,
 	chooseOp,
 	composerControls,
 	composerCopy,
@@ -118,6 +114,9 @@ export interface ComposerState {
 	pasteFile: (file: File) => void;
 	/** A picker is open or an image is being read. */
 	attaching: boolean;
+	/** Attach was pressed: a pick still in flight is not on screen, so it stops
+	 *  holding the composer (`createAttachLatch().abandon`, native only). */
+	abandonAttach: () => void;
 	/** The instruction retained under an unknown outcome, or `null`. */
 	retained: ContinuationEnvelope | null;
 	sending: boolean;
@@ -976,12 +975,10 @@ export const useComposer = (input: {
 				 * R3). */
 				setError(null);
 				try {
-					const image =
-						source === "library"
-							? await pickImageFromLibrary()
-							: source === "paste"
-								? await pasteImage()
-								: await pickImageFromFiles();
+					const image = await readImageFrom(source);
+					/* Abandoned by an Attach press, or superseded by a newer pick
+					 *  (`attach-latch.ts`, R1): the reader has moved on. */
+					if (!endAttach.current()) return;
 					if (image !== null) {
 						setImages((current) => [...current, image]);
 					} else if (source === "paste") {
@@ -991,7 +988,8 @@ export const useComposer = (input: {
 						setError(pasteNothingLine(via, Platform.OS));
 					}
 				} catch {
-					setError(composerCopy().attachError);
+					if (!endAttach.current()) return;
+					setError(attachFailureLine(source));
 				} finally {
 					endAttach();
 				}
@@ -1127,6 +1125,7 @@ export const useComposer = (input: {
 		attach,
 		pasteFile,
 		attaching,
+		abandonAttach: attachLatch.abandon,
 		retained,
 		sending,
 		error,

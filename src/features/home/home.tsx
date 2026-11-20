@@ -72,17 +72,16 @@ import {
 } from "@/features/new-session/startup-transcript";
 import { useStartup } from "@/features/new-session/use-startup";
 import { notificationsEnabled } from "@/features/notifications/notifications-model";
-import {
-	pasteImage,
-	pickImageFromFiles,
-	pickImageFromLibrary,
-	readWebImageFile,
-} from "@/features/session/attach";
+import { readImageFrom, readWebImageFile } from "@/features/session/attach";
 import { createAttachLatch } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import { Composer } from "@/features/session/components/composer";
 import type { ComposerControls } from "@/features/session/composer";
-import { composerCopy, pasteNothingLine } from "@/features/session/composer";
+import {
+	attachFailureLine,
+	composerCopy,
+	pasteNothingLine,
+} from "@/features/session/composer";
 import { heldTimer } from "@/features/session/resume-hold";
 import { deviceOnline } from "@/features/session/runtime";
 import { useHomeDictation } from "@/features/session/use-dictation";
@@ -630,12 +629,10 @@ export default function Home({
 				const endAttach = attachLatch.begin();
 				setComposerError(null);
 				try {
-					const image =
-						source === "library"
-							? await pickImageFromLibrary()
-							: source === "paste"
-								? await pasteImage()
-								: await pickImageFromFiles();
+					const image = await readImageFrom(source);
+					/* Abandoned by an Attach press, or superseded by a newer pick
+					 *  (`attach-latch.ts`, R1): the reader has moved on. */
+					if (!endAttach.current()) return;
 					if (image !== null) {
 						setImages((current) => [...current, image]);
 					} else if (source === "paste") {
@@ -644,8 +641,9 @@ export default function Home({
 						setComposerError(pasteNothingLine(via, Platform.OS));
 					}
 				} catch {
+					if (!endAttach.current()) return;
 					/* Said, never swallowed — the composer's own error line. */
-					setComposerError(composerCopy().attachError);
+					setComposerError(attachFailureLine(source));
 				} finally {
 					endAttach();
 				}
@@ -1057,6 +1055,7 @@ export default function Home({
 				onAttach={attach}
 				onPasteFile={pasteFile}
 				attaching={attaching}
+				onAttachOpen={attachLatch.abandon}
 				/* A send takes the composer: a take still live is dropped and said at
 				 *  the tap (design §2.5/U2); a resting mic line ends only once the
 				 *  message is admitted (#323, round 1 m1). */

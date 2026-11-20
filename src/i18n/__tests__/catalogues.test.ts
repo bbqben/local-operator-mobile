@@ -113,7 +113,7 @@ const NAMESPACES = [
 		name: "mobile.composer_input",
 		messages: composerInput,
 		context: composerInputContext,
-		expected: 14, // +2: the failure notice's short Retry / Dismiss actions (visual audit D6)
+		expected: 24, // +2: the failure notice's short Retry / Dismiss actions (visual audit D6); +10: the attach sheet's row labels and Take Photo's notices/error
 	},
 	{
 		name: "mobile.library",
@@ -608,7 +608,10 @@ describe("the English catalogues", () => {
 		/* PR #353 (settings refusal after resume): + mobile.session
 		 * composer.settings_not_applied: 1324 + 1 = 1325, as `generate.ts
 		 * --check` reports for the tree merged with main 2c3aee9a. */
-		expect(total).toBe(1325);
+		/* Attach camera (Take Photo): mobile.composer_input.attach.library,
+		 * camera, files, paste, choose_image, camera_denied, camera_refused,
+		 * open_settings, camera_unavailable, camera_error: 1325 + 10 = 1335. */
+		expect(total).toBe(1335);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

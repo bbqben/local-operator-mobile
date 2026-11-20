@@ -49,6 +49,15 @@
  * a path word and milliseconds. Plain closes, the web and Android record
  * nothing, so the trail is exactly the sample `DISMISS_FALLBACK_MS` needs.
  *
+ * **The caller must close the sheet with `exitInstantly` (TestFlight 1333).**
+ * `onDismiss` means "the controller is gone" only when the Modal is given ONE
+ * `visible` edge. An animated close hands it `false`, then `true` again for the
+ * exit (`useModalExit` sets `exiting` in an effect), and iOS fires `onDismiss`
+ * from that first, momentary dismissal while it presents the sheet again — the
+ * picker launched onto the returning sheet and was taken down with it. A row
+ * that calls `choose` therefore sets its owner's hand-off flag in the same
+ * update as the close (`Sheet`'s `exitInstantly` has the native-source detail).
+ *
  * **Android and web launch immediately.** Android's pickers are separate
  * activities started for a result, not controllers presented over the dialog,
  * and the web chooser is the browser's own; neither has the dismissal race, and
