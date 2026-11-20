@@ -143,6 +143,7 @@ describe("reply-thread rules", () => {
 	it("summarises a root as served, and nothing for a reply or an empty thread", () => {
 		expect(replyThreadSummary(root())).toEqual({
 			count: 3,
+			lastReplyAt: "2026-11-17T10:05:00Z",
 			participants: [
 				{ label: "Ada", accountId: ADA, kind: "human" },
 				{ label: "Ben's agent", accountId: "acct_ben", kind: "agent" },
@@ -153,6 +154,18 @@ describe("reply-thread rules", () => {
 		expect(replyThreadSummary(root({ reply_count: 0 }))).toBeNull();
 		expect(
 			replyThreadSummary(message(1, ADA, "2026-11-17T09:00:00Z")),
+		).toBeNull();
+	});
+
+	it("never manufactures a last-reply time from missing or invalid rollups", () => {
+		expect(
+			replyThreadSummary(root({ last_reply_at: undefined }))?.lastReplyAt,
+		).toBeUndefined();
+		expect(
+			replyThreadSummary(root({ last_reply_at: "not-a-time" }))?.lastReplyAt,
+		).toBeUndefined();
+		expect(
+			replyThreadSummary(reply(5, { last_reply_at: "2026-11-17T10:05:00Z" })),
 		).toBeNull();
 	});
 
