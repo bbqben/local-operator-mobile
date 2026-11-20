@@ -23,6 +23,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRelayClient } from "@/connection";
 import type { PromptImage } from "@/contracts";
 import * as attachmentSources from "@/features/session/attach";
+import { composerCopy, composerFeedback } from "@/features/session/composer";
 import { outbox } from "@/features/session/outbox";
 import {
 	clearPendingEchoes,
@@ -39,6 +40,10 @@ import { useStoredModel } from "@/features/session/use-stored-model";
 import { type RelayEndpoints, RelayError } from "@/relay";
 import { MAX_STORED_ENVELOPE_CHARS } from "@/relay/retry-envelope";
 import { type DomShim, installDomShim } from "@/testing/dom-shim";
+
+// PR #353 U1: the settings sentence must name neither the Send nor the Retry button.
+const NAMES_SEND = /\bsend\b/i;
+const NAMES_RETRY = /\bretry\b/i;
 
 const storageFault = vi.hoisted(() => ({
 	failWrite: false,
@@ -531,6 +536,193 @@ describe("stored session model intent through the real composer", () => {
 		await settle();
 		expect(calls.filter((op) => op === "prompt")).toHaveLength(1);
 		expect(c().draft).toBe("");
+	});
+
+	/* PR #350 deferred D2/U1: a Send on an ENDED session resumes it, then applies
+	 * the stored model/effort. When resume succeeds but a setting is refused, the
+	 * composer used to say the session "couldn't be reopened" and point at the
+	 * header's Ended control — which the now-Live/Idle header no longer shows.
+	 * Both a typed relay refusal (the QA repro: set_effort 409) and an untyped
+	 * failure must take the settings sentence; the draft stays for the retry. */
+	/* PR #353 U1: the settings sentence shows after Send (Send enabled) AND
+	 * after Retry of a held instruction (Send disabled until it is resolved),
+	 * so its remedy must name neither button. Pinned against the rendered en
+	 * text, not only the copy accessor, so a reword that says "send again"
+	 * fails here on both paths. */
+	const SETTINGS_SENTENCE_EN =
+		"The session reopened, but your model or effort choice couldn’t be applied, so nothing was sent. Try again, or choose a different model or effort.";
+	const expectButtonNeutralSettingsSentence = (text: string | null) => {
+		expect(text).toBe(SETTINGS_SENTENCE_EN);
+		expect(text).not.toMatch(NAMES_SEND);
+		expect(text).not.toMatch(NAMES_RETRY);
+	};
+
+	it.each([
+		["a relay 409", () => new RelayError("rejected", "busy", { status: 409 })],
+		["an untyped failure", () => new Error("synthetic refusal")],
+	])(
+		"a settings refusal after a successful resume (%s) says the settings, not the reopen, failed",
+		async (_label, refusal) => {
+			storedSettings = true;
+			const calls: string[] = [];
+			const client = {
+				models: async () => ({ models: [model] }),
+				resumeSession: async () => {
+					calls.push("resume");
+					return { ok: true, session_id: SID, pid: 42 };
+				},
+				command: async (_id: string, body: Record<string, unknown>) => {
+					calls.push(String(body.op));
+					if (body.op === "set_effort") throw refusal();
+					return { ok: true, detail: "accepted" };
+				},
+			} as unknown as RelayEndpoints;
+			await mount(client, "retained", false, true);
+			await act(async () => storedModel.pick(model, "high"));
+			await act(async () => c().send());
+			await settle();
+			expect(calls).toEqual(["resume", "set_model", "set_effort"]);
+			expect(c().error).toBe(composerCopy().settingsNotApplied);
+			expect(c().error).not.toBe(composerCopy().endedSendFailed);
+			// The card the screen actually renders: a plain error line, never the
+			// combined reopen-failure card with its "Try again" retry.
+			expect(
+				composerFeedback({
+					ended: false,
+					error: c().error,
+					retainedMessage: null,
+				}).errorText,
+			).toBe(composerCopy().settingsNotApplied);
+			// Send path: the wording points at no specific control.
+			expectButtonNeutralSettingsSentence(c().error);
+			expect(c().draft).toBe("retained");
+			expect(storedModel.pending?.effort).toBe("high");
+		},
+	);
+
+	it("Retry of a held instruction on an ended session words a settings refusal the same way", async () => {
+		storedSettings = true;
+		let promptFails = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => {
+				calls.push("resume");
+				return { ok: true, session_id: SID, pid: 42 };
+			},
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (body.op === "prompt" && promptFails)
+					throw new RelayError("transport", "lost ack");
+				if (body.op === "set_effort")
+					throw new RelayError("rejected", "busy", { status: 409 });
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "earlier instruction", false, true);
+		await act(async () => c().send());
+		await settle();
+		// The relaunch shape: the envelope is persisted, the in-memory outbox
+		// job is gone, so Retry runs the composer's own replay path.
+		outbox.abandonAll();
+		promptFails = false;
+		await act(async () => storedModel.pick(model, "high"));
+		calls.length = 0;
+		await act(async () => c().retry());
+		await settle();
+		expect(calls).toEqual(["resume", "set_model", "set_effort"]);
+		expect(c().error).toBe(composerCopy().settingsNotApplied);
+		expect(c().retained).not.toBeNull();
+		// Retry path: Send is disabled behind the held instruction, so the
+		// sentence must not tell the reader to send again.
+		expectButtonNeutralSettingsSentence(c().error);
+	});
+
+	it("a failed RESUME keeps the existing reopen-failure sentence", async () => {
+		storedSettings = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => {
+				calls.push("resume");
+				throw new RelayError("transport", "offline");
+			},
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "retained", false, true);
+		await act(async () => storedModel.pick(model, "high"));
+		await act(async () => c().send());
+		await settle();
+		expect(calls).toEqual(["resume"]);
+		expect(c().error).toBe(composerCopy().endedSendFailed);
+		expect(c().draft).toBe("retained");
+	});
+
+	/* PR #350 deferred U2: "Could not change the model." outlived the recovery —
+	 * the screen kept it in its own state and nothing retired it when the same
+	 * stored choice was later applied (and the message delivered). The hook now
+	 * owns that error, so it clears exactly when the settings it names land. */
+	it("retires the model-change error once the stored choice it names is applied and the message delivered", async () => {
+		storedSettings = true;
+		let fail = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => ({ ok: true, session_id: SID, pid: 42 }),
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (fail && body.op === "set_effort")
+					throw new RelayError("rejected", "busy", { status: 409 });
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "retained", false, true);
+		await act(async () => storedModel.pick(model, "high"));
+		await act(async () => c().send());
+		await settle();
+		// The session is Live/Idle now; a newer model choice still rides the
+		// stored lane (pending exists) and is refused by the same effort fault.
+		await mount(client, "retained", false, false);
+		await act(async () =>
+			storedModel
+				.selectModel({ ...model, model_id: "model-b", selector: "example/b" })
+				.catch(() => {}),
+		);
+		await settle();
+		expect(storedModel.settingsError).toBe("model");
+		fail = false;
+		await act(async () => c().send());
+		await settle();
+		expect(calls.filter((op) => op === "prompt")).toHaveLength(1);
+		expect(storedModel.pending).toBeNull();
+		expect(storedModel.settingsError).toBeNull();
+	});
+
+	it("keeps a live model-change error through an unrelated delivered message", async () => {
+		storedSettings = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => ({ ok: true, session_id: SID, pid: 42 }),
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (body.op === "set_model")
+					throw new RelayError("rejected", "busy", { status: 409 });
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		// Live session, no stored intent: the switch goes straight to the runtime.
+		await mount(client, "hello", false, false);
+		await act(async () => storedModel.selectModel(model).catch(() => {}));
+		expect(storedModel.settingsError).toBe("model");
+		await act(async () => c().send());
+		await settle();
+		expect(calls).toEqual(["set_model", "prompt"]);
+		// The model still was not changed: the delivered message is no recovery.
+		expect(storedModel.settingsError).toBe("model");
 	});
 
 	it("retries a failed daemon-wide catalogue without waking a session and clamps a new model's effort", async () => {

@@ -263,6 +263,10 @@
 		"role": "confirm",
 		"note": "Notice above the composer when an earlier instruction is retained and may already have been delivered, so the user must retry it before sending the current draft. Two sentences."
 	},
+	"mobile.session.composer.settings_not_applied": {
+		"role": "status",
+		"note": "Composer error when the session DID reopen (its header now reads Live or Idle) but the model or effort the reader picked for it was refused, so nothing was sent. It shows on two paths: after Send (the message is still in the composer and Send is enabled) and after Retry of a held earlier instruction (that instruction stays held and Send is disabled until it is resolved; the card's Retry is the working control). The remedy must therefore name no specific button: say 'try again' generically, never 'send again', and offer picking a different model or effort as the way out of a repeated refusal. Must not say the session failed to reopen, and must not point at the header's Ended control, which is no longer shown. 'Effort' is the product's word for how hard the model works; reuse the term from the effort-change error."
+	},
 	"mobile.session.tray.context": {
 		"role": "meta",
 		"note": "Activity tray fact: how full the model's context window is. {percent} is a whole number; keep the percent sign. Lower case \"context\"."
