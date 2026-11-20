@@ -113,7 +113,7 @@ const NAMESPACES = [
 		name: "mobile.composer_input",
 		messages: composerInput,
 		context: composerInputContext,
-		expected: 14, // +2: the failure notice's short Retry / Dismiss actions (visual audit D6)
+		expected: 24, // +2: the failure notice's short Retry / Dismiss actions (visual audit D6); +10: the attach sheet's row labels and Take Photo's notices/error
 	},
 	{
 		name: "mobile.library",
@@ -605,7 +605,10 @@ describe("the English catalogues", () => {
 		 * plus reply_thread.last_reply: 1315 + 9 = 1324. Independently counted
 		 * across the 26 JSON namespaces in each of the eight shipped locales;
 		 * retain an explicit total, not a self-adjusting catalogue expectation. */
-		expect(total).toBe(1324);
+		/* Attach camera (Take Photo): mobile.composer_input.attach.library,
+		 * camera, files, paste, choose_image, camera_denied, camera_refused,
+		 * open_settings, camera_unavailable, camera_error: 1324 + 10 = 1334. */
+		expect(total).toBe(1334);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

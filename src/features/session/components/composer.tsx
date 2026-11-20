@@ -48,11 +48,11 @@ import { useClipboardImageOffer } from "@/features/session/attach-clipboard";
 import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
 import {
 	type AttachSource,
-	attachActions,
 	type PasteVia,
 	pasteOfferComposing,
 } from "@/features/session/attach-rule";
 import type { ComposerChip } from "@/features/session/chip-labels";
+import { AttachSheet } from "@/features/session/components/attach-sheet";
 import { ComposerStateMarkers } from "@/features/session/components/state-markers";
 import {
 	attachmentLabel,
@@ -104,7 +104,6 @@ import { t } from "@/i18n";
 import { formatDuration } from "@/stt/dictation";
 import { MIC_HINT, micLabel } from "@/stt/dictation-machine";
 import {
-	attachOptionId,
 	CONTROL,
 	composerAttachmentId,
 	LIVE_REGION,
@@ -784,10 +783,6 @@ export const Composer = ({
 	/* The attach sheet's open state. Local, not the host's: the sheet is this
 	 *  component's own surface, so both hosts inherit it without a second copy. */
 	const [attachSheetOpen, setAttachSheetOpen] = useState(false);
-	/* Set with the close when a row hands off to a system picker: the sheet then
-	 *  closes with no exit animation on iOS, so its native `onDismiss` fires once,
-	 *  after the controller is gone (`Sheet`'s `exitInstantly` has the why). */
-	const [attachHandingOff, setAttachHandingOff] = useState(false);
 	/* One handoff per composer mount. Unmount cancels a latched choice so a
 	 * dismissal arriving after the component is gone launches nothing. */
 	const attachmentHandoff = useRef(createAttachmentSheetHandoff()).current;
@@ -2064,7 +2059,6 @@ export const Composer = ({
 			 *  a stale latch from the previous open must not survive it. */
 			onPress={() => {
 				attachmentHandoff.cancel();
-				setAttachHandingOff(false);
 				setAttachSheetOpen(true);
 			}}
 			testID={CONTROL.composerAttach}
@@ -2221,46 +2215,24 @@ export const Composer = ({
 	/* One attach sheet instance, rendered once by the shell: the dock's two rows
 	 *  are layout, so the sheet must not be mounted twice. */
 	const attachSheet = (
-		<Sheet
+		<AttachSheet
 			visible={attachSheetOpen}
 			onClose={() => setAttachSheetOpen(false)}
 			onDismiss={attachmentHandoff.dismissed}
-			exitInstantly={attachHandingOff && Platform.OS === "ios"}
 			/* Keyed with the lower-case English it already shipped; Title-casing it
 			 * like the other `sheet_title.*` keys (visual audit D14) is a copy
 			 * decision left to design, not part of keying it. */
 			title={t("mobile.session.sheet_title.attach")}
-			testID={SURFACE.attachSheet}
-		>
-			<View className="py-1">
-				{attachActions(Platform.OS === "web" ? "web" : "native").map(
-					(action) => (
-						<Pressable
-							key={action.source}
-							accessibilityRole={ROLE.button}
-							accessibilityLabel={action.label}
-							onPress={() => {
-								/* Closed first: the picker opens over a dismissed sheet, never
-								 *  under one — a system picker presented from behind a modal is
-								 *  how a cancel lands back on a sheet nobody reopened. */
-								setAttachHandingOff(true);
-								setAttachSheetOpen(false);
-								// The handoff waits for native dismissal; state alone is not that acknowledgement.
-								attachmentHandoff.choose(
-									() => onAttach(action.source),
-									Platform.OS,
-								);
-							}}
-							testID={attachOptionId(action.source)}
-						>
-							<View className="min-h-11 flex-row items-center px-3">
-								<Text className="text-body-sm text-ink">{action.label}</Text>
-							</View>
-						</Pressable>
-					),
-				)}
-			</View>
-		</Sheet>
+			onChoose={(source) => {
+				/* Closed first: the picker opens over a dismissed sheet, never
+				 *  under one — a system picker presented from behind a modal is
+				 *  how a cancel lands back on a sheet nobody reopened. The sheet
+				 *  marks this close as a hand-off (no iOS exit animation). */
+				setAttachSheetOpen(false);
+				// The handoff waits for native dismissal; state alone is not that acknowledgement.
+				attachmentHandoff.choose(() => onAttach(source), Platform.OS);
+			}}
+		/>
 	);
 
 	const main = (

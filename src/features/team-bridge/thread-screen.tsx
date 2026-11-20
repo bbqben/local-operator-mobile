@@ -1,11 +1,5 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import {
-	Bell,
-	BellOff,
-	Check,
-	ClipboardPaste,
-	ImagePlus,
-} from "lucide-react-native";
+import { Bell, BellOff, Check } from "lucide-react-native";
 import {
 	memo,
 	useCallback,
@@ -30,6 +24,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocaleFrame } from "@/features/auth/connection-provider";
 import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
+import type { AttachSource } from "@/features/session/attach-rule";
+import { AttachSheet } from "@/features/session/components/attach-sheet";
 import { Markdown } from "@/features/session/components/markdown";
 import type { HostSelection } from "@/features/session/components/selectable-message";
 import {
@@ -105,6 +101,7 @@ import {
 	pickTeamBridgeImages,
 	prepareTeamBridgeImage,
 	releaseTeamBridgeSource,
+	takeTeamBridgePhoto,
 } from "./attachment-source";
 import { ComposerAttachments, MessageAttachments } from "./attachment-views";
 import { BridgeComposerDock } from "./composer-dock";
@@ -223,6 +220,14 @@ function AnchorHighlight({
 /** One empty directory for every render: a fresh `[]` per render was a new
  *  `people` prop on every memoised row (Bridge thread flicker). */
 const NO_PEOPLE: readonly DirectoryMember[] = [];
+
+/** Team Bridge's rows in the shared add-image sheet: every source its upload
+ *  pipeline can bound (no Files — see AttachSheet's `sources`). */
+const TEAM_BRIDGE_ATTACH_SOURCES: readonly AttachSource[] = [
+	"library",
+	"camera",
+	"paste",
+];
 
 export const ThreadMessageRow = memo(function ThreadMessageRow({
 	message,
@@ -557,7 +562,6 @@ function ThreadContent({
 	const activeNow = useRef(AppState.currentState === "active");
 	const mounted = useRef(true);
 	const checkColor = useTokenColor("accent");
-	const sheetIconColor = useTokenColor("ink-muted");
 	// Derive visibility synchronously from the actual account/route identity,
 	// not a passive reset effect: even the first boundary render cannot display
 	// another account's help or return focus to its opener.
@@ -606,10 +610,6 @@ function ThreadContent({
 	const viewerFixture = useMemo(() => teamBridgeViewerFixture(), []);
 	const [, setDraftVersion] = useState(0);
 	const [attachOpen, setAttachOpen] = useState(false);
-	/* Set with the close when a row hands off to a picker: no exit animation
-	 *  on iOS, so `onDismiss` means the controller is gone (`Sheet`'s
-	 *  `exitInstantly` has the why, TestFlight 1333). */
-	const [attachHandingOff, setAttachHandingOff] = useState(false);
 	/* The attach sheet's picker launch waits for the sheet's native dismissal on
 	 *  iOS (`attach-handoff.ts` has the why): launching PHPicker on the same tick
 	 *  as the close presents it from a dismissing controller, and it never
@@ -619,7 +619,6 @@ function ThreadContent({
 	const openAttach = () => {
 		// Explicit reopen is the only re-admission point for a fresh choice.
 		attachHandoff.cancel();
-		setAttachHandingOff(false);
 		setAttachOpen(true);
 	};
 	const [attachNotice, setAttachNotice] = useState<string | null>(null);
@@ -655,13 +654,14 @@ function ThreadContent({
 			? (draftImages.current?.draft ?? null)
 			: null;
 	const chips = images?.chips() ?? [];
-	const addImages = async (source: "library" | "paste") => {
+	const addImages = async (source: "library" | "camera" | "paste") => {
 		setAttachOpen(false);
 		setAttachNotice(null);
 		const draft = images;
 		if (!draft) return;
 		await addDraftImages(draft, source, {
 			pick: pickTeamBridgeImages,
+			capture: takeTeamBridgePhoto,
 			paste: pasteTeamBridgeImage,
 			// A capability/conversation replacement can happen while the screen
 			// remains mounted, so mounted ownership alone is not enough.
@@ -1663,61 +1663,32 @@ function ThreadContent({
 					{t("mobile.team_bridge.delivery.help")}
 				</Text>
 			</Sheet>
-			<Sheet
+			{/* The session composer's AttachSheet, not a Team Bridge copy: one
+			 *  add-image menu across the app, Take Photo included. Files is left
+			 *  out because this pipeline bounds images from a URI with known
+			 *  dimensions (AttachSheet's `sources`). The sheet asks for camera
+			 *  permission on the press; the launch still waits for the iOS
+			 *  dismissal through the shared handoff (and the sheet closes with no
+			 *  exit animation for it — `Sheet`'s `exitInstantly`), and the bytes
+			 *  still go through Team Bridge's own upload path. The existing test
+			 *  IDs are kept so automation keeps addressing them. */}
+			<AttachSheet
 				visible={attachOpen}
 				onClose={() => setAttachOpen(false)}
 				onDismiss={attachHandoff.dismissed}
-				exitInstantly={attachHandingOff && Platform.OS === "ios"}
 				title={t("mobile.team_bridge.attachment.add")}
+				sources={TEAM_BRIDGE_ATTACH_SOURCES}
 				testID={SURFACE.teamBridgeAttachSheet}
-			>
-				<View className="gap-1 pb-2">
-					{(
-						[
-							[
-								"library",
-								t("mobile.team_bridge.attachment.library"),
-								ImagePlus,
-							],
-							[
-								"paste",
-								t("mobile.team_bridge.attachment.paste"),
-								ClipboardPaste,
-							],
-						] as const
-					).map(([source, text, Icon]) => (
-						<Pressable
-							key={source}
-							accessibilityRole={ROLE.button}
-							accessibilityLabel={text}
-							testID={teamBridgeAttachSourceId(source)}
-							onPress={() => {
-								// Closed first; the picker opens over a dismissed sheet.
-								setAttachHandingOff(true);
-								setAttachOpen(false);
-								attachHandoff.choose(() => {
-									void addImages(source);
-								}, Platform.OS);
-							}}
-							style={{ minHeight: TOUCH_FLOOR }}
-						>
-							{({ pressed }) => (
-								<View
-									className={cx(
-										"flex-1 flex-row items-center gap-3 rounded-sm px-3 py-2",
-										pressed ? "bg-row-hover" : "bg-transparent",
-									)}
-								>
-									<Icon size={18} color={sheetIconColor} aria-hidden />
-									<Text className="min-w-0 flex-1 text-body text-ink">
-										{text}
-									</Text>
-								</View>
-							)}
-						</Pressable>
-					))}
-				</View>
-			</Sheet>
+				optionId={teamBridgeAttachSourceId}
+				onChoose={(source) => {
+					if (source === "files") return;
+					// Closed first; the picker opens over a dismissed sheet.
+					setAttachOpen(false);
+					attachHandoff.choose(() => {
+						void addImages(source);
+					}, Platform.OS);
+				}}
+			/>
 			<Sheet
 				visible={notifyOpen}
 				onClose={() => setNotifyOpen(false)}

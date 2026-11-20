@@ -146,30 +146,29 @@ const Owner = () => {
 		setHandingOff(false);
 		setOpen(true);
 	};
-	return createElement(
-		Sheet,
-		{
-			visible: open,
-			onClose: () => setOpen(false),
-			onDismiss: handoff.dismissed,
-			exitInstantly: handingOff,
-			title: "attach",
+	const row = createElement(Pressable, {
+		testID: "row-library",
+		onPress: () => {
+			setHandingOff(true);
+			setOpen(false);
+			handoff.choose(() => {
+				native.events.push(
+					native.isPresented || native.dismissInFlight > 0
+						? "launch(onto-sheet)"
+						: "launch",
+				);
+			}, "ios");
 		},
-		createElement(Pressable, {
-			testID: "row-library",
-			onPress: () => {
-				setHandingOff(true);
-				setOpen(false);
-				handoff.choose(() => {
-					native.events.push(
-						native.isPresented || native.dismissInFlight > 0
-							? "launch(onto-sheet)"
-							: "launch",
-					);
-				}, "ios");
-			},
-		}),
-	);
+	});
+	const props = {
+		visible: open,
+		onClose: () => setOpen(false),
+		onDismiss: handoff.dismissed,
+		exitInstantly: handingOff,
+		title: "attach",
+		children: row,
+	};
+	return createElement(Sheet, props);
 };
 
 describe("iOS attach sheet → system picker, against the native modal host", () => {
