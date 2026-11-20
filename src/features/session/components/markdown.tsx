@@ -22,6 +22,7 @@ import {
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 import { DiagramBlock } from "@/features/session/components/diagram-block";
 import {
+	type HostSelection,
 	SelectableMessage,
 	useTextSelection,
 } from "@/features/session/components/selectable-message";
@@ -43,7 +44,6 @@ import {
 } from "@/features/session/markdown-links";
 import { NATIVE_MONO_FAMILY } from "@/features/session/mono-face";
 import { forcedTableScroll } from "@/features/session/table-scroll-hook";
-import { leafSelectable } from "@/features/session/text-selection";
 import { CONTROL, ROLE, SURFACE } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { estimatedColumnWidth } from "@/ui/column";
@@ -81,9 +81,9 @@ import { cx } from "@/ui/variants";
  *  traces" — is that ratio; with the trace on `trace` 13 (`tool-row.tsx`) it is
  *  now the relay's 1.08x (review round 1, m1). */
 const MESSAGE_BODY_CLASS = "text-body-read text-ink";
-/** Native selection on the leaf `<Text>` (Android, web); iOS selects through
- *  `SelectableMessage`'s mode instead — `text-selection.ts` has the why. */
-const LEAF_SELECTABLE = leafSelectable();
+/* Leaf selectability comes from `useTextSelection().leafSelectable`: the
+ *  platform policy (`text-selection.ts` has the why), except a host-driven
+ *  Bridge message on Android, selectable only while in the mode. */
 
 /* The mono face's native family name lives in `mono-face.ts` (the diagram block
  * needs it too); the reason web differs is recorded there. */
@@ -142,10 +142,10 @@ const Inline = memo(function Inline({
 	 *  same text: on a long answer that is the frame budget spent on work whose
 	 *  input did not change. */
 	const spans = useMemo(() => parseInline(text), [text]);
-	const { selectionColor, accessibility } = useTextSelection();
+	const { selectionColor, accessibility, leafSelectable } = useTextSelection();
 	return (
 		<Text
-			selectable={LEAF_SELECTABLE}
+			selectable={leafSelectable}
 			selectionColor={selectionColor}
 			{...accessibility}
 			className={cx(base ?? MESSAGE_BODY_CLASS)}
@@ -619,7 +619,7 @@ function CodeBlockView({
 	language: string;
 }) {
 	const [copied, setCopied] = useState(false);
-	const { enter, selectionColor } = useTextSelection();
+	const { enter, selectionColor, leafSelectable } = useTextSelection();
 	const body = lines.join("\n");
 	return (
 		<Pressable
@@ -659,7 +659,7 @@ function CodeBlockView({
 				    column never widens (the transcript's own overflow guard). */}
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
 					<Text
-						selectable={LEAF_SELECTABLE}
+						selectable={leafSelectable}
 						selectionColor={selectionColor}
 						className="px-2 py-1 font-mono text-mono-sm text-ink-muted"
 						/* Code keeps its own direction inside an Urdu transcript: the block
@@ -685,7 +685,15 @@ const HEADING_CLASS: Record<number, string> = {
 	3: "text-body-lg font-medium text-ink",
 };
 
-export const Markdown = memo(function Markdown({ text }: { text: string }) {
+export const Markdown = memo(function Markdown({
+	text,
+	host,
+}: {
+	text: string;
+	/** A host that owns the long-press (Team Bridge's actions sheet); see
+	 *  `HostSelection`. Pass a memoised object: this component is `memo`. */
+	host?: HostSelection;
+}) {
 	/* THE PARSE IS A FUNCTION OF THE TEXT AND NOTHING ELSE (design pass item E,
 	 *  cause 2), so it is memoised on the text alone: a re-render that arrives with
 	 *  the same answer (a panel opening, a scroll-linked parent, the row's own
@@ -696,7 +704,11 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
 	return (
 		/* The whole answer is ONE selection surface, so a drag can run across
 		 *  paragraphs, lists and code (iOS mode; `selectable-message.tsx`). */
-		<SelectableMessage text={plainText} textClassName={MESSAGE_BODY_CLASS}>
+		<SelectableMessage
+			text={plainText}
+			textClassName={MESSAGE_BODY_CLASS}
+			host={host}
+		>
 			{/* ONE gap container, and every block carries no outer margin of its own
 			 * (`components.md` §22, "the container owns the gap"). Before this an
 			 * answer's only separation was each block's own line-box leading: a code
