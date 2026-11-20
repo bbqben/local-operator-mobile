@@ -581,6 +581,41 @@ describe("stored session model intent through the real composer", () => {
 		},
 	);
 
+	it("Retry of a held instruction on an ended session words a settings refusal the same way", async () => {
+		storedSettings = true;
+		let promptFails = true;
+		const calls: string[] = [];
+		const client = {
+			models: async () => ({ models: [model] }),
+			resumeSession: async () => {
+				calls.push("resume");
+				return { ok: true, session_id: SID, pid: 42 };
+			},
+			command: async (_id: string, body: Record<string, unknown>) => {
+				calls.push(String(body.op));
+				if (body.op === "prompt" && promptFails)
+					throw new RelayError("transport", "lost ack");
+				if (body.op === "set_effort")
+					throw new RelayError("rejected", "busy", { status: 409 });
+				return { ok: true, detail: "accepted" };
+			},
+		} as unknown as RelayEndpoints;
+		await mount(client, "earlier instruction", false, true);
+		await act(async () => c().send());
+		await settle();
+		// The relaunch shape: the envelope is persisted, the in-memory outbox
+		// job is gone, so Retry runs the composer's own replay path.
+		outbox.abandonAll();
+		promptFails = false;
+		await act(async () => storedModel.pick(model, "high"));
+		calls.length = 0;
+		await act(async () => c().retry());
+		await settle();
+		expect(calls).toEqual(["resume", "set_model", "set_effort"]);
+		expect(c().error).toBe(composerCopy().settingsNotApplied);
+		expect(c().retained).not.toBeNull();
+	});
+
 	it("a failed RESUME keeps the existing reopen-failure sentence", async () => {
 		storedSettings = true;
 		const calls: string[] = [];

@@ -804,7 +804,14 @@ export const useComposer = (input: {
 						? "refused"
 						: "unconfirmed",
 				);
-				if (receipt !== null) {
+				if (isStoredSettingsRefusal(failure)) {
+					/* Same as `runSend`: the resume landed and a model/effort change was
+					 * refused, so the held envelope was never replayed and stays the
+					 * retry target. Not the ended "couldn't be reopened" sentence
+					 * (PR #350 D2/U1). */
+					setRetained(await envelopeStore.peek(sessionId));
+					setError(composerCopy().settingsNotApplied);
+				} else if (receipt !== null) {
 					setRetained(
 						receipt.kind === "ambiguous" || receipt.kind === "not-sent"
 							? await envelopeStore.peek(sessionId)
