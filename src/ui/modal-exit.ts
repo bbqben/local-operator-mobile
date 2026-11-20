@@ -103,6 +103,10 @@ export const useModalExit = (input: {
 	durationMs: number;
 	animateOut: (done: () => void) => void;
 	reset: () => void;
+	/** Close in ONE commit, with no exit, even when one would be allowed: read
+	 *  at the closing commit, so it must be set in the same update as the close.
+	 *  For a close that hands off to a system picker on iOS — see `skipsExit`. */
+	skip?: boolean;
 }): boolean => {
 	const [exiting, setExiting] = useState(false);
 	const was = useRef(input.visible);
@@ -117,9 +121,11 @@ export const useModalExit = (input: {
 			setExiting(false);
 			return undefined;
 		}
-		const { reduceMotion, durationMs, animateOut, reset } = latest.current;
+		const { reduceMotion, durationMs, animateOut, reset, skip } =
+			latest.current;
 		if (
 			!closed ||
+			skip === true ||
 			!shouldAnimateExit({ reduceMotion, othersOpen: modalStackDepth() })
 		) {
 			reset();

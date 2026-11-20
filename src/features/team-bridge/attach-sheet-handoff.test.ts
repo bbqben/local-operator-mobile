@@ -29,7 +29,7 @@ const CHOOSE_THROUGH_HANDOFF =
 	/attachHandoff\.choose\(\s*\(\) => \{\s*void addImages\(source\);\s*\},\s*Platform\.OS,?\s*\)/;
 const DIRECT_LAUNCH = /onPress=\{\(\) => \{\s*void addImages\(source\);/;
 const CANCEL_BEFORE_REOPEN =
-	/const openAttach = \(\) => \{[^}]*attachHandoff\.cancel\(\);\s*setAttachOpen\(true\);\s*\};/;
+	/const openAttach = \(\) => \{[^}]*attachHandoff\.cancel\(\);\s*setAttachHandingOff\(false\);\s*setAttachOpen\(true\);\s*\};/;
 const OPEN_ONLY_WITH_DRAFT = /onAttach=\{images \? openAttach : undefined\}/;
 
 describe("Team Bridge attach sheet hand-off to the native picker", () => {

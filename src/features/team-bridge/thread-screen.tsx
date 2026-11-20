@@ -606,6 +606,10 @@ function ThreadContent({
 	const viewerFixture = useMemo(() => teamBridgeViewerFixture(), []);
 	const [, setDraftVersion] = useState(0);
 	const [attachOpen, setAttachOpen] = useState(false);
+	/* Set with the close when a row hands off to a picker: no exit animation
+	 *  on iOS, so `onDismiss` means the controller is gone (`Sheet`'s
+	 *  `exitInstantly` has the why, TestFlight 1333). */
+	const [attachHandingOff, setAttachHandingOff] = useState(false);
 	/* The attach sheet's picker launch waits for the sheet's native dismissal on
 	 *  iOS (`attach-handoff.ts` has the why): launching PHPicker on the same tick
 	 *  as the close presents it from a dismissing controller, and it never
@@ -615,6 +619,7 @@ function ThreadContent({
 	const openAttach = () => {
 		// Explicit reopen is the only re-admission point for a fresh choice.
 		attachHandoff.cancel();
+		setAttachHandingOff(false);
 		setAttachOpen(true);
 	};
 	const [attachNotice, setAttachNotice] = useState<string | null>(null);
@@ -1662,6 +1667,7 @@ function ThreadContent({
 				visible={attachOpen}
 				onClose={() => setAttachOpen(false)}
 				onDismiss={attachHandoff.dismissed}
+				exitInstantly={attachHandingOff && Platform.OS === "ios"}
 				title={t("mobile.team_bridge.attachment.add")}
 				testID={SURFACE.teamBridgeAttachSheet}
 			>
@@ -1687,6 +1693,7 @@ function ThreadContent({
 							testID={teamBridgeAttachSourceId(source)}
 							onPress={() => {
 								// Closed first; the picker opens over a dismissed sheet.
+								setAttachHandingOff(true);
 								setAttachOpen(false);
 								attachHandoff.choose(() => {
 									void addImages(source);

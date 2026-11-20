@@ -4,11 +4,18 @@ import { createAttachmentSheetHandoff } from "./attach-handoff";
 
 const OWNER_ATTACH_FINALLY = /finally\s*\{\s*setAttaching\(false\)/;
 const CANCEL_BEFORE_REOPEN =
-	/onPress=\{\(\) => \{\s*attachmentHandoff\.cancel\(\);\s*setAttachSheetOpen\(true\);/;
+	/onPress=\{\(\) => \{\s*attachmentHandoff\.cancel\(\);\s*setAttachHandingOff\(false\);\s*setAttachSheetOpen\(true\);/;
+/* A picker row marks the close as a hand-off in the SAME update that closes
+ * the sheet, so the iOS sheet closes in one commit (`Sheet`'s `exitInstantly`;
+ * the native timing is run in `ui/components/sheet-ios-picker-handoff.test.tsx`). */
+const COMPOSER_HANDOFF_CLOSE =
+	/setAttachHandingOff\(true\);\s*setAttachSheetOpen\(false\);/;
+const BRIDGE_HANDOFF_CLOSE =
+	/setAttachHandingOff\(true\);\s*setAttachOpen\(false\);/;
 const BRIDGE_CHOOSE =
 	/setAttachOpen\(false\);\s*attachHandoff\.choose\(\(\) => \{\s*void addImages\(source\);\s*\}, Platform\.OS\);/;
 const BRIDGE_CANCEL_BEFORE_REOPEN =
-	/attachHandoff\.cancel\(\);\s*setAttachOpen\(true\);/;
+	/attachHandoff\.cancel\(\);\s*setAttachHandingOff\(false\);\s*setAttachOpen\(true\);/;
 const BRIDGE_DIRECT_LAUNCH =
 	/onPress=\{\(\) => \{\s*void addImages\(source\);\s*\}\}/;
 const HOME_DISMISS_SHOWN_LINE =
@@ -200,6 +207,10 @@ describe("native attachment sheet handoff", () => {
 		);
 		expect(source).toContain("() => onAttach(action.source)");
 		expect(source).toContain("onClose={() => setAttachSheetOpen(false)}");
+		expect(source).toMatch(COMPOSER_HANDOFF_CLOSE);
+		expect(source).toContain(
+			'exitInstantly={attachHandingOff && Platform.OS === "ios"}',
+		);
 		// One shared rule: the composer imports it rather than keeping a copy.
 		expect(source).toContain(
 			'import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";',
@@ -221,6 +232,10 @@ describe("native attachment sheet handoff", () => {
 		expect(bridge).toContain("onDismiss={attachHandoff.dismissed}");
 		expect(bridge).toMatch(BRIDGE_CHOOSE);
 		expect(bridge).toMatch(BRIDGE_CANCEL_BEFORE_REOPEN);
+		expect(bridge).toMatch(BRIDGE_HANDOFF_CLOSE);
+		expect(bridge).toContain(
+			'exitInstantly={attachHandingOff && Platform.OS === "ios"}',
+		);
 		expect(bridge).toContain(
 			"useEffect(() => () => attachHandoff.cancel(), [attachHandoff]);",
 		);

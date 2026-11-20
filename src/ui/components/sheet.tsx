@@ -118,6 +118,27 @@ export type SheetProps = {
 	/** Web: after focus return. RN fires this after native dismissal on iOS,
 	 * not Android (https://reactnative.dev/docs/modal#ondismiss). */
 	onDismiss?: () => void;
+	/**
+	 * Close in ONE commit, with no exit animation. Set it in the SAME update
+	 * that closes the sheet, for a close whose `onDismiss` launches a system
+	 * picker (`@/features/session/attach-handoff`).
+	 *
+	 * WHY ("Photo Library / Files does nothing", TestFlight 1333). `useModalExit`
+	 * sets `exiting` in a passive effect, so an animated close hands the native
+	 * `Modal` `visible=false` for one commit and `visible=true` again on the next.
+	 * iOS's modal host acts on every `visible` it is given (react-native 0.86
+	 * `RCTModalHostViewComponentView.mm`, `updateProps` →
+	 * `ensurePresentedOnlyIfNeeded`): it dismisses the controller, presents it
+	 * AGAIN for the exit, and fires `onDismiss` from the FIRST dismissal's
+	 * completion. A picker launched from that `onDismiss` is presented onto the
+	 * re-presented sheet (expo-modules-core `currentViewController()` walks to
+	 * it) and the exit's final dismissal takes it down with the sheet: no picker,
+	 * no callback, no error. Without the exit there is one `visible` edge, one
+	 * native dismissal, and `onDismiss` fires only once the controller is gone
+	 * — the moment a presentation is safe. Pinned against an emulation of that
+	 * host in `sheet-ios-picker-handoff.test.tsx`.
+	 */
+	exitInstantly?: boolean;
 	/** The sheet's accessible name; also its visible title. */
 	title: string;
 	/** Opt-in for a picker whose first announcement is its purpose, not Close. */
@@ -171,6 +192,7 @@ export const Sheet = ({
 	visible,
 	onClose,
 	onDismiss,
+	exitInstantly = false,
 	title,
 	focusTitle = false,
 	returnFocusTestID,
@@ -210,6 +232,7 @@ export const Sheet = ({
 		visible,
 		reduceMotion,
 		durationMs: exitMs,
+		skip: exitInstantly,
 		reset: () => {
 			rise.setValue(0);
 			scrimFade.setValue(0);
