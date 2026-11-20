@@ -59,6 +59,7 @@ import {
 import { reactionAdds, toggleReaction } from "@/team-bridge/reactions";
 import {
 	isReplyThreadPageFor,
+	protectHeldThreadCursors,
 	type ReplyThreadTarget,
 	replyThreadKey,
 	rootAfterThreadRead,
@@ -1457,13 +1458,19 @@ export function createTeamBridgeStore(deps: {
 							});
 						const current = store.getState().threads[key];
 						const first = !current || current.messages.length === 0;
+						/* `current`, not the `held` snapshot from before the GET: a thread
+						 *  read that landed while this page was in flight moved the root's
+						 *  cursor, and a page from before it must not move it back. */
 						const messages = mergeMessages(
 							current?.messages ?? [],
-							protectReactions(
-								tenantId,
-								conversationId,
-								incoming,
-								readRevision,
+							protectHeldThreadCursors(
+								current?.messages ?? [],
+								protectReactions(
+									tenantId,
+									conversationId,
+									incoming,
+									readRevision,
+								),
 							),
 						);
 						/* An unchanged poll is not an update (Bridge thread flicker):
@@ -1546,13 +1553,18 @@ export function createTeamBridgeStore(deps: {
 					if (!owned()) return;
 					const current = store.getState().threads[key] ?? emptyThread();
 					patchThread(key, {
+						// An older page can restate a held root (an edit, a rollup) with
+						// the cursor from before a read that landed meanwhile.
 						messages: mergeMessages(
 							current.messages,
-							protectReactions(
-								tenantId,
-								conversationId,
-								page.messages,
-								readRevision,
+							protectHeldThreadCursors(
+								current.messages,
+								protectReactions(
+									tenantId,
+									conversationId,
+									page.messages,
+									readRevision,
+								),
 							),
 						),
 						hasMore: page.has_more === true && page.messages.length > 0,
