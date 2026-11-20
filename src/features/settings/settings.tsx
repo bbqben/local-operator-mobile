@@ -28,6 +28,7 @@ import {
 } from "@/features/auth/connection-provider";
 import { diagnosticReason } from "@/features/auth/stream-health-reason";
 import { TransientNotice } from "@/features/auth/transient-notice";
+import { attachHandoffDiagnostics } from "@/features/session/attach-handoff";
 import {
 	diagnosticsReasonValue,
 	diagnosticsText,
@@ -725,6 +726,7 @@ export default function Settings() {
 									lastErrorAt: diagnosticError?.at ?? null,
 									version,
 									platform: Platform.OS,
+									attachHandoff: attachHandoffDiagnostics(),
 								}),
 							)
 						}

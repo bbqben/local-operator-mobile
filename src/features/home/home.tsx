@@ -78,6 +78,7 @@ import {
 	pickImageFromLibrary,
 	readWebImageFile,
 } from "@/features/session/attach";
+import { createAttachLatch } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import { Composer } from "@/features/session/components/composer";
 import type { ComposerControls } from "@/features/session/composer";
@@ -224,6 +225,9 @@ export default function Home({
 	const [catalogueDefault, setCatalogueDefault] =
 		useState<CatalogueDefault>(undefined);
 	const [attaching, setAttaching] = useState(false);
+	/* Busy from a pick's start until it settles; only a pick the attach
+	 *  handoff's fallback launched can be released early (`attach-latch.ts`). */
+	const attachLatch = useRef(createAttachLatch(setAttaching)).current;
 	const [editing, setEditing] = useState(false);
 	const [composerError, setComposerError] = useState<string | null>(null);
 	/** The folder the next start names: the reader's pick in the sheet, else the
@@ -623,7 +627,7 @@ export default function Home({
 	const attach = useCallback(
 		(source: AttachSource, via: PasteVia = "sheet") => {
 			void (async () => {
-				setAttaching(true);
+				const endAttach = attachLatch.begin();
 				setComposerError(null);
 				try {
 					const image =
@@ -643,11 +647,11 @@ export default function Home({
 					/* Said, never swallowed — the composer's own error line. */
 					setComposerError(composerCopy().attachError);
 				} finally {
-					setAttaching(false);
+					endAttach();
 				}
 			})();
 		},
-		[setImages],
+		[attachLatch, setImages],
 	);
 
 	/** The web paste event's image file: same strip, same failure line as the
