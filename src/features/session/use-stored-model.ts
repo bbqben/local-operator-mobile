@@ -8,6 +8,37 @@ import type { RelayEndpoints } from "@/relay";
 
 export type StoredModelChoice = { model: ModelEntry; effort: string | null };
 
+/**
+ * Failures where the runtime refused `set_model`/`set_effort` AFTER the session
+ * was reachable (resumed by this attempt, or already live). Told apart from a
+ * failed resume on purpose: the composer words an ended-session Send failure as
+ * "couldn't be reopened … tap Ended", which is false once the resume landed —
+ * the header already reads Live/Idle and has no Ended control (PR #350 D2/U1).
+ *
+ * A mark, not a wrapper class: the thrown value stays the relay's own error, so
+ * its `status`/`kind` reach every existing reader (the sheet callers and the
+ * HTTP contract tests assert the 409) unchanged. Only the relay commands are
+ * marked; local pre-checks and ownership-drift errors are not a statement about
+ * a reopened session and keep the old wording.
+ */
+const refusedSettings = new WeakSet<object>();
+
+export const isStoredSettingsRefusal = (error: unknown): boolean =>
+	typeof error === "object" && error !== null && refusedSettings.has(error);
+
+const markedRefusal = async (run: () => Promise<unknown>) => {
+	try {
+		await run();
+	} catch (error) {
+		const marked =
+			typeof error === "object" && error !== null
+				? error
+				: new Error(String(error));
+		refusedSettings.add(marked);
+		throw marked;
+	}
+};
+
 export const storedEfforts = (model: ModelEntry) => {
 	const offer = effortOffer({
 		supported: true,
@@ -39,17 +70,19 @@ export async function applyStoredModel(
 	assertCurrent();
 	if (resume) await client.resumeSession(sessionId);
 	assertCurrent();
-	await client.command(sessionId, {
-		op: "set_model",
-		provider: choice.model.provider,
-		model_id: choice.model.model_id,
-	});
+	await markedRefusal(() =>
+		client.command(sessionId, {
+			op: "set_model",
+			provider: choice.model.provider,
+			model_id: choice.model.model_id,
+		}),
+	);
 	assertCurrent();
-	if (choice.effort !== null)
-		await client.command(sessionId, {
-			op: "set_effort",
-			effort: choice.effort,
-		});
+	const effort = choice.effort;
+	if (effort !== null)
+		await markedRefusal(() =>
+			client.command(sessionId, { op: "set_effort", effort }),
+		);
 	assertCurrent();
 }
 
@@ -82,6 +115,16 @@ export function useStoredModel(input: {
 		value: StoredModelChoice;
 	} | null>(null);
 	const pending = choice?.owner === owner ? choice.value : null;
+	/* Which picker change last failed, owned HERE rather than in the screen
+	 * (PR #350 U2): the screen's own state had no way to learn that the choice it
+	 * described was later applied, so "Could not change the model." outlived a
+	 * successful retry and delivery. It clears only when settings this lane owns
+	 * land (a new pick's ACK, or `prepare` applying the stored choice) — never on
+	 * a delivered message by itself, which says nothing about a live switch that
+	 * was refused and is still not in effect. */
+	const [settingsError, setSettingsError] = useState<"model" | "effort" | null>(
+		null,
+	);
 	// Retain revoked intent as a refusal rather than silently sending with a
 	// different model. The screen hides it, but Send must still explain failure.
 	const choiceRef = useRef(choice);
@@ -214,6 +257,9 @@ export function useStoredModel(input: {
 					pendingRef.current = null;
 					choiceRef.current = null;
 					setChoice(null);
+					// The newest stored choice is now the runtime's: any earlier
+					// picker failure on this lane no longer applies (U2).
+					setSettingsError(null);
 				}
 			} catch (error) {
 				assertOwner();
@@ -223,56 +269,73 @@ export function useStoredModel(input: {
 			}
 		}
 	}, [assertOwner, sessionId, owner]);
+	/* A picker change starts by retiring the previous failure (the reader acted
+	 * again) and records its own kind if it fails; the rejection still reaches
+	 * the caller, whose sheet handler only needs to stop it going unhandled. */
+	const recordingFailure = useCallback(
+		async (kind: "model" | "effort", run: () => Promise<void>) => {
+			setSettingsError(null);
+			try {
+				await run();
+			} catch (error) {
+				setSettingsError(kind);
+				throw error;
+			}
+		},
+		[],
+	);
 	// Both sheet callbacks use this same intent lane after Resume. A failed
 	// effort ACK must never resurrect model A over a later explicit model B.
 	const selectModel = useCallback(
-		async (model: ModelEntry) => {
-			const endpoints = assertOwner();
-			if (live.current.enabled) {
-				pick(model);
-				return;
-			}
-			if (pendingRef.current) {
-				remember({
-					model,
-					effort: effortAfterModelChange(
-						pendingRef.current.effort,
-						effortOffer({
-							supported: true,
-							chosenModel: model,
-							models: [model],
-							catalogueDefault: undefined,
-						}),
-					),
-				});
-				await prepare();
-			} else {
-				await endpoints.command(sessionId, {
-					op: "set_model",
-					provider: model.provider,
-					model_id: model.model_id,
-				});
-				assertOwner();
-			}
-		},
-		[assertOwner, pick, remember, prepare, sessionId],
+		async (model: ModelEntry) =>
+			recordingFailure("model", async () => {
+				const endpoints = assertOwner();
+				if (live.current.enabled) {
+					pick(model);
+					return;
+				}
+				if (pendingRef.current) {
+					remember({
+						model,
+						effort: effortAfterModelChange(
+							pendingRef.current.effort,
+							effortOffer({
+								supported: true,
+								chosenModel: model,
+								models: [model],
+								catalogueDefault: undefined,
+							}),
+						),
+					});
+					await prepare();
+				} else {
+					await endpoints.command(sessionId, {
+						op: "set_model",
+						provider: model.provider,
+						model_id: model.model_id,
+					});
+					assertOwner();
+				}
+			}),
+		[assertOwner, pick, remember, prepare, sessionId, recordingFailure],
 	);
 	const selectEffort = useCallback(
-		async (effort: string, model?: ModelEntry | null) => {
-			const endpoints = assertOwner();
-			if (live.current.enabled) {
-				if (model) pick(model, effort);
-				return;
-			}
-			if (pendingRef.current) {
-				remember({ ...pendingRef.current, effort });
-				await prepare();
-			} else {
-				await endpoints.command(sessionId, { op: "set_effort", effort });
-				assertOwner();
-			}
-		},
-		[assertOwner, pick, remember, prepare, sessionId],
+		async (effort: string, model?: ModelEntry | null) =>
+			recordingFailure("effort", async () => {
+				const endpoints = assertOwner();
+				if (live.current.enabled) {
+					if (model) pick(model, effort);
+					return;
+				}
+				if (pendingRef.current) {
+					remember({ ...pendingRef.current, effort });
+					await prepare();
+				} else {
+					await endpoints.command(sessionId, { op: "set_effort", effort });
+					assertOwner();
+				}
+			}),
+		[assertOwner, pick, remember, prepare, sessionId, recordingFailure],
 	);
 	const resume = useCallback(async () => {
 		const endpoints = assertOwner();
@@ -289,6 +352,8 @@ export function useStoredModel(input: {
 		selectModel,
 		selectEffort,
 		prepare,
+		settingsError,
+		clearSettingsError: () => setSettingsError(null),
 		models: catalogue.owner === owner ? catalogue.models : [],
 		loading: catalogue.owner !== owner || catalogue.loading,
 		failed: catalogue.owner === owner && catalogue.failed,

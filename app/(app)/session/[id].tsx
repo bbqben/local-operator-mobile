@@ -385,7 +385,14 @@ function Session() {
 	 *  sheet, a dropped route) was a silent `void` (review round 1, m1): the
 	 *  chip kept its old value and nothing said why. It rides the composer's
 	 *  own error line, as home's refused abort does; the next pick clears it. */
-	const [chipError, setChipError] = useState<string | null>(null);
+	/* Owned by `useStoredModel` (PR #350 U2) so it retires when the settings it
+	 * names are applied; the screen only words it. */
+	const chipError =
+		storedModel.settingsError === "model"
+			? t("mobile.session.chip.model_change_failed")
+			: storedModel.settingsError === "effort"
+				? t("mobile.session.chip.effort_change_failed")
+				: null;
 	/** The composer's field, so the asks sheet's auto-open can READ focus at the
 	 *  moment it decides (focus is not React state). */
 	const composerFieldRef = useRef<TextInput | null>(null);
@@ -1923,11 +1930,11 @@ function Session() {
 						onSend={composer.send}
 						onClearDraft={() => {
 							composer.clearUnsentDraft();
-							setChipError(null);
+							storedModel.clearSettingsError();
 						}}
 						onDismissError={() => {
 							composer.dismissError();
-							setChipError(null);
+							storedModel.clearSettingsError();
 						}}
 						onStop={composer.stop}
 						stopping={composer.stopping}
@@ -2031,12 +2038,9 @@ function Session() {
 				onRetry={storedPicker ? storedModel.retry : undefined}
 				onPick={(model) => {
 					if (composer.sending || resume.busy) return;
-					setChipError(null);
-					void storedModel
-						.selectModel(model)
-						.catch(() =>
-							setChipError(t("mobile.session.chip.model_change_failed")),
-						);
+					// The hook records the failure as `settingsError`; the rejection
+					// is only kept from going unhandled here.
+					void storedModel.selectModel(model).catch(() => {});
 				}}
 			/>
 
@@ -2047,12 +2051,9 @@ function Session() {
 				selected={storedModel.pending?.effort ?? projection?.effort ?? ""}
 				onPick={(effort) => {
 					if (composer.sending || resume.busy) return;
-					setChipError(null);
-					void storedModel
-						.selectEffort(effort, selectedModel)
-						.catch(() =>
-							setChipError(t("mobile.session.chip.effort_change_failed")),
-						);
+					// The hook records the failure as `settingsError`; the rejection
+					// is only kept from going unhandled here.
+					void storedModel.selectEffort(effort, selectedModel).catch(() => {});
 				}}
 			/>
 
