@@ -69,7 +69,18 @@ export const createDiagnostics = ({ directory, invocation, renderer, fonts, make
 		}, null, 2)}\n`);
 		if (metrics.stale) {
 			copyFileSync(reference, join(target, "reference.png"));
-			makeDifference(fresh, reference, join(target, "delta.png"));
+			/* The fast Checks lane can have Chrome without ImageMagick. Its original
+			 * stale-frame verdict still works (null means no decoder), but a delta PNG
+			 * cannot be manufactured there. Record that prerequisite, never claim a
+			 * pixel comparison or silently omit the diagnostic. The design lane installs
+			 * the decoder and must still produce the actual delta. */
+			if (metrics.beyondFuzz === null) {
+				writeFileSync(join(target, "delta-status.json"), `${JSON.stringify({
+					available: false, reason: "image-decoder-unavailable",
+				})}\n`);
+			} else {
+				makeDifference(fresh, reference, join(target, "delta.png"));
+			}
 		}
 	};
 };

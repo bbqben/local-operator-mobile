@@ -159,12 +159,25 @@ export const checkStaleFrame = () => {
 		);
 		expect(run.status !== 0, "the gate exited 0 on a stale frame");
 		const retained = join(work, "diagnostics", `frames-${run.pid}`, SURFACE, SLUG);
-		for (const name of ["actual.png", "reference.png", "delta.png", "comparison.json"]) {
+		for (const name of ["actual.png", "reference.png", "comparison.json"]) {
 			expect(existsSync(join(retained, name)), `failed-frame evidence missing: ${name}`);
 		}
 		if (existsSync(join(retained, "comparison.json"))) {
-			expect(JSON.parse(readFileSync(join(retained, "comparison.json"), "utf8")).stale === true,
-				"retained evidence changed the stale verdict");
+			const comparison = JSON.parse(readFileSync(join(retained, "comparison.json"), "utf8"));
+			expect(comparison.stale === true, "retained evidence changed the stale verdict");
+			if (comparison.beyondFuzz === null) {
+				// The fast lane need not install a decoder; the design job's arithmetic
+				// probe separately requires one. Never accept an unexplained missing delta.
+				const statusPath = join(retained, "delta-status.json");
+				expect(existsSync(statusPath), "missing explicit decoder-unavailable evidence");
+				if (existsSync(statusPath)) {
+					const status = JSON.parse(readFileSync(statusPath, "utf8"));
+					expect(status.available === false && status.reason === "image-decoder-unavailable",
+						"invalid decoder-unavailable evidence");
+				}
+			} else {
+				expect(existsSync(join(retained, "delta.png")), "failed-frame evidence missing: delta.png");
+			}
 		}
 		expect(
 			!(existsSync(scratchBase) && readdirSync(scratchBase).length > 0),

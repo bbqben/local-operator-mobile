@@ -73,6 +73,27 @@ test("artifact allowlists reject private paths and omit secret-bearing metadata 
 	assert.match(metadata, /synthetic backend/);
 }));
 
+test("a stale frame without a decoder retains explicit unavailability, not a fictitious delta", () => fixture((directory, fresh) => {
+	const retain = createDiagnostics({ directory, invocation: "frames", renderer: {}, fonts: {},
+		makeDifference: () => { assert.fail("a missing decoder cannot render a delta"); } });
+	const previous = process.exitCode;
+	try {
+		process.exitCode = 1;
+		retain({ surface: "appstore-ipad-13", slug: "01-session-transcript", fresh, reference: fresh,
+			metrics: { strict: null, beyondFuzz: null, largest: null, fuzz: 1, stale: true } });
+		const target = join(directory, `frames-${process.pid}`, "appstore-ipad-13/01-session-transcript");
+		assert.deepEqual(JSON.parse(readFileSync(join(target, "delta-status.json"))), {
+			available: false, reason: "image-decoder-unavailable",
+		});
+		assert.ok(!readdirSync(target).includes("delta.png"));
+		assert.deepEqual(readFileSync(join(target, "actual.png")), readFileSync(fresh));
+		assert.deepEqual(readFileSync(join(target, "reference.png")), readFileSync(fresh));
+		assert.equal(process.exitCode, 1);
+	} finally {
+		process.exitCode = previous;
+	}
+}));
+
 test("diagnostic failure leaves both passing and failing exit statuses untouched, with no secret output", () => {
 	const previous = process.exitCode;
 	try {
