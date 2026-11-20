@@ -19,6 +19,25 @@ const fixture = (run) => {
 };
 const metrics = { strict: 19, beyondFuzz: 19, largest: 19, fuzz: 1, stale: true };
 
+// GitHub rejects runner.* before creating jobs if it occurs in job-level env.
+// Keep the same artifact directory on the two capture steps, where it is valid.
+// This narrow contract complements the actual forge parser; it is not a YAML parser.
+test("diagnostic runner context is step-local and the failure upload stays narrowly scoped", () => {
+	const workflow = readFileSync(new URL("../../.github/workflows/ci.yml", import.meta.url), "utf8");
+	const design = workflow.slice(workflow.indexOf("  design-kit:"), workflow.indexOf("  ci-gate:"));
+	assert.ok(design.includes("    steps:"));
+	assert.doesNotMatch(design.slice(0, design.indexOf("    steps:")), /\$\{\{\s*runner\./);
+	for (const name of ["Preview sheet and feature graphic re-render identically", "The committed listing frames re-render identically"]) {
+		const start = design.indexOf(`      - name: ${name}\n`);
+		assert.ok(start >= 0);
+		const end = design.indexOf("\n      - name:", start + 1);
+		const step = design.slice(start, end < 0 ? undefined : end);
+		assert.match(step, /        env:\n          CAPTURE_DIAGNOSTICS_DIR: \$\{\{ runner.temp \}\}\/listing-render-diagnostics/);
+	}
+	assert.match(design, /name: Upload listing renderer diagnostics even when the gate fails\n        if: always\(\)/);
+	assert.match(design, /path: \$\{\{ runner.temp \}\}\/listing-render-diagnostics\//);
+});
+
 test("both invocations and every surface retain distinct actuals; only stale frames get deltas", () => fixture((directory, fresh) => {
 	let differences = 0;
 	for (const invocation of ["all", "frames"]) {

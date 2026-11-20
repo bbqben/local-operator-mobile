@@ -463,10 +463,6 @@ jobs:
     # subcommand is what the pixel fallback calls), so both are installed below.
     runs-on: macos-26
     timeout-minutes: 25
-    env:
-      # Synthetic listing evidence only, outside the checkout and browser profile.
-      # Both invocations retain their own actuals; a red gate still uploads them.
-      CAPTURE_DIAGNOSTICS_DIR: ${{ runner.temp }}/listing-render-diagnostics
     steps:
       - uses: actions/checkout@v7
 
@@ -536,6 +532,9 @@ jobs:
         run: node design/app-icon/build-icons.mjs --check
 
       - name: Preview sheet and feature graphic re-render identically
+        # runner.temp is a step context, not valid in job-level env.
+        env:
+          CAPTURE_DIAGNOSTICS_DIR: ${{ runner.temp }}/listing-render-diagnostics
         # `--check` defaults to every target (design/README.md is explicit that a
         # gate whose default scope is narrower than the page it documents is the
         # same defect as one that cannot fail), so this also covers the four
@@ -609,6 +608,8 @@ jobs:
         run: node design/preview/capture-stale.probe.mjs
 
       - name: The committed listing frames re-render identically
+        env:
+          CAPTURE_DIAGNOSTICS_DIR: ${{ runner.temp }}/listing-render-diagnostics
         # A HARD gate, and separate from the step above on purpose. That step has
         # to tolerate failure while the preview sheet's shipped faces live in a
         # sibling checkout (docs/ci.md, "When a run goes red"), so a stale LISTING
