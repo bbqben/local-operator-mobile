@@ -68,6 +68,7 @@ import {
 	sameProjectionOwner,
 	sessionContent,
 } from "./session-content";
+import { olderFillReady } from "./underflow-fill";
 import { warmCache } from "./warm-store";
 
 /**
@@ -101,6 +102,9 @@ export interface SessionRuntime {
 	loadingOlder: boolean;
 	historyError: string | null;
 	hasOlder: boolean;
+	/** The list may page older on its own to fill a short first window
+	 *  (`olderFillReady`, issue #322). */
+	olderFillReady: boolean;
 	/** A hole the automatic fill could not close; false while it is filling. */
 	historyGap: boolean;
 	/** Entry id of the first row after the newest hole, where the list marks it. */
@@ -1100,6 +1104,14 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 				? null
 				: historyWindow.error,
 		hasOlder: historyWindow.hasMore,
+		olderFillReady: olderFillReady({
+			read: historyWindow.read,
+			loading: historyWindow.loading,
+			hasMore: historyWindow.hasMore,
+			olderState: historyWindow.olderState,
+			frameRows: projection?.transcript.length ?? 0,
+			frameHeadPinned: projection?.transcript_head_pinned,
+		}),
 		// The notice is for a hole the automatic fill could not close; while the
 		// fill runs the list shows nothing (no flash, no layout jump).
 		historyGap: historyWindow.hasGap && historyWindow.healState !== "healing",
