@@ -80,6 +80,7 @@ import {
 	type QuietGroup,
 	type TranscriptItem,
 } from "@/features/session/turn-condensing";
+import { useUnderflowFill } from "@/features/session/use-underflow-fill";
 import {
 	collapseScrollOffset,
 	UserMessageCollapseContext,
@@ -158,6 +159,10 @@ export type TranscriptListProps = {
 	historyErrorScope?: "newest" | "older" | null;
 	loadingOlder?: boolean;
 	hasOlder?: boolean;
+	/** `olderFillReady`: the list may page older on its own while its first
+	 *  window is shorter than the viewport or shows no conversation row
+	 *  (`underflow-fill.ts`, issue #322). Off unless the caller passes it. */
+	olderFillReady?: boolean;
 	historyGap?: boolean;
 	/** Entry id of the first row after the newest hole; the gap marker sits there. */
 	historyGapBefore?: string | null;
@@ -354,6 +359,7 @@ export const TranscriptList = ({
 	historyErrorScope = null,
 	loadingOlder = false,
 	hasOlder = false,
+	olderFillReady = false,
 	historyGap = false,
 	historyGapBefore = null,
 	historyError = null,
@@ -1503,6 +1509,16 @@ export const TranscriptList = ({
 		items: folded.items.length,
 	};
 
+	const underflowMeasured = useUnderflowFill({
+		sessionId,
+		items: folded.items,
+		olderReady: olderFillReady,
+		hasError: historyError !== null,
+		loadOlder,
+		positioned: () => frozenInitialIndexRef.current?.session === sessionId,
+		viewportPt: () => viewportRef.current,
+	});
+
 	/* The offset is restored once, after the first content change: before that there
 	 * is nothing to scroll, and a restore that ran into an empty list would silently
 	 * lose the position (F-6.11 — Back preserves scroll). Keyed on the session so a
@@ -1531,6 +1547,7 @@ export const TranscriptList = ({
 				// Content is the other fact: a list that grew past its viewport has
 				// edges to fade, and one that shrank under it has none.
 				driveFades();
+				underflowMeasured(height);
 				if (restoredFor.current !== sessionId) {
 					restoredFor.current = sessionId;
 					const saved = scrollPlaces.get(sessionId);
@@ -1599,7 +1616,14 @@ export const TranscriptList = ({
 				}
 				recompute();
 			},
-			[driveFades, sessionId, recompute, scrollAnchor, pinTail],
+			[
+				driveFades,
+				underflowMeasured,
+				sessionId,
+				recompute,
+				scrollAnchor,
+				pinTail,
+			],
 		);
 
 	useLayoutEffect(() => {

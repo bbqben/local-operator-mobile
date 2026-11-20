@@ -29,7 +29,7 @@
  */
 
 import { LARGE_TEXT_SCALE, lineBoxPt } from "@/ui/text-scale";
-import { TOUCH_TARGET } from "@/ui/tokens.gen";
+import { type ColorRole, TOUCH_TARGET } from "@/ui/tokens.gen";
 
 /** Join class names, dropping falsy entries. Local by design: `clsx` is not in
  * the shared dependency set, and this is all of it that the app needs. */
@@ -1085,3 +1085,71 @@ export const toastClasses =
 /** Long enough for one short line to be read: 1.5 × `duration.beat`. */
 export const TOAST_MIN_MS = 1050;
 export const TOAST_EXIT_MS = 120;
+
+/* -------------------------------------------------------------------------- */
+/* Switch                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * How the platform draws its switch, which decides what the thumb is seen
+ * against. iOS's thumb sits INSIDE the track (`inset`). react-native-web's and
+ * Android's thumb is taller than the track (`overhang`), so the thumb's edge
+ * sits on the page and has to read against it.
+ */
+export type SwitchGeometry = "inset" | "overhang";
+
+export const switchGeometry = (os: string): SwitchGeometry =>
+	os === "ios" ? "inset" : "overhang";
+
+type SwitchPair = { track: ColorRole; thumb: ColorRole };
+
+/**
+ * The platform switch's colours, as roles (a `Switch` takes colour VALUES, so
+ * `SwitchRow` resolves these with `useTokenColor`). The platform defaults
+ * painted it before: react-native-web's teal thumb on the green track, and
+ * iOS's white thumb, which on the dark accent is the kit's one hard
+ * prohibition (2.16:1, components.md § 2).
+ *
+ *  - `inset` (iOS): on is the `accent` track with `on-accent`, the accent's own
+ *    ink, as the thumb; off is the neutral `border-control` track with an
+ *    `elevated` thumb. The track is the shape on the page, so it clears 3:1.
+ *  - `overhang` (web, Android): the THUMB carries the state, because it is
+ *    what reaches the page. On is an `accent` disc on an `accent-muted` track
+ *    (the Material dark pattern); off is an `ink-muted` disc on a
+ *    `hairline-strong` track. Both thumbs clear 3:1 against the track AND
+ *    against canvas, surface and elevated in every shipped palette — review
+ *    round 1 (Q1/D1) measured the first fix's dark thumbs at 1.00–1.28:1 on the
+ *    page, so a dark switch read as a bar with a notch.
+ *  - `disabled`, either geometry: the kit's disabled ink on the decorative
+ *    `hairline` track, in both states. A colour step, never an opacity
+ *    (components.md § 0); exempt from contrast as an inactive control. Without
+ *    it an explicit thumb overrides react-native-web's own disabled grey, and a
+ *    disabled switch looked enabled (Q3).
+ *
+ * Colour is never the only signal: the thumb's side is the state, and the row
+ * announces `checked`. `switch-colours.test.ts` pins every rule above over all
+ * shipped palettes.
+ */
+export const SWITCH_ROLES = {
+	inset: {
+		on: { track: "accent", thumb: "on-accent" },
+		off: { track: "border-control", thumb: "elevated" },
+	},
+	overhang: {
+		on: { track: "accent-muted", thumb: "accent" },
+		off: { track: "hairline-strong", thumb: "ink-muted" },
+	},
+	disabled: { track: "hairline", thumb: "ink-disabled" },
+} as const satisfies Record<SwitchGeometry, Record<"on" | "off", SwitchPair>> &
+	Record<"disabled", SwitchPair>;
+
+/** The roles one switch paints: its geometry's pair for `value`, or the
+ *  disabled pair whatever the value. */
+export const switchRoles = (
+	geometry: SwitchGeometry,
+	value: boolean,
+	disabled: boolean,
+): SwitchPair =>
+	disabled
+		? SWITCH_ROLES.disabled
+		: SWITCH_ROLES[geometry][value ? "on" : "off"];

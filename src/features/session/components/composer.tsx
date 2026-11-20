@@ -2219,9 +2219,8 @@ export const Composer = ({
 			visible={attachSheetOpen}
 			onClose={() => setAttachSheetOpen(false)}
 			onDismiss={attachmentHandoff.dismissed}
-			/* Keyed with the lower-case English it already shipped; Title-casing it
-			 * like the other `sheet_title.*` keys (visual audit D14) is a copy
-			 * decision left to design, not part of keying it. */
+			onHidden={attachmentHandoff.hidden}
+			/* Title case, like the Model and Effort sheets (#248; visual audit D14). */
 			title={t("mobile.session.sheet_title.attach")}
 			onChoose={(source) => {
 				/* Closed first: the picker opens over a dismissed sheet, never

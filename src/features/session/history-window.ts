@@ -29,7 +29,7 @@ export const journalAddressableRow = (row: TranscriptEntry): boolean =>
  * says so with `transcript_head_pinned`. Older wires lack the flag, so infer the
  * same shape they produced. */
 /** The relay's frame cap: the pinned opener plus the newest 79 rows. */
-const FRAME_CAP = 80;
+export const FRAME_CAP = 80;
 /** ONLY A FRAME AT EXACTLY THE CAP CAN BE INFERRED CAPPED. A flagless frame
  * longer than the cap is not a capped projection at all (a legacy oversized
  * render, or a relay that sent the whole conversation): reading it as

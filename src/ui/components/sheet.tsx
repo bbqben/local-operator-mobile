@@ -139,6 +139,10 @@ export type SheetProps = {
 	 * host in `sheet-ios-picker-handoff.test.tsx`.
 	 */
 	exitInstantly?: boolean;
+	/** Once per close, after the commit that stops holding the native Modal
+	 * shown (after any exit animation): the earliest point a caller may start
+	 * a fallback for an `onDismiss` that never arrives (#248). */
+	onHidden?: () => void;
 	/** The sheet's accessible name; also its visible title. */
 	title: string;
 	/** Opt-in for a picker whose first announcement is its purpose, not Close. */
@@ -193,6 +197,7 @@ export const Sheet = ({
 	onClose,
 	onDismiss,
 	exitInstantly = false,
+	onHidden,
 	title,
 	focusTitle = false,
 	returnFocusTestID,
@@ -254,6 +259,7 @@ export const Sheet = ({
 				}),
 			]).start(done);
 		},
+		onHidden,
 	});
 	/* One tick when the sheet arrives and one when it leaves (P16) — on a real
 	 *  transition only, never for a sheet that mounts closed. Through the shared

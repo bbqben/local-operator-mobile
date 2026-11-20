@@ -83,7 +83,23 @@ describe("mobile.time renders the English it replaced", () => {
 		expect(en("mobile.projects.section.linked_sessions")).toBe(
 			"linked sessions",
 		);
-		expect(en("mobile.session.sheet_title.attach")).toBe("attach");
 		expect(en("mobile.session.sheet_title.commands")).toBe("commands");
+	});
+
+	/* #248: the attach sheet's title shipped as lower-case "attach" beside
+	 * "Model" and "Effort". Title case in English; in the other cased scripts
+	 * the same word, capitalised — a casing fix, not a retranslation. */
+	it("the attach sheet's title is capitalised in every cased locale", () => {
+		expect(en("mobile.session.sheet_title.attach")).toBe("Attach");
+		const cased = {
+			fr: "Joindre",
+			es: "Adjuntar",
+			ru: "Прикрепить",
+			vi: "Đính kèm",
+		} as const;
+		for (const [locale, title] of Object.entries(cased))
+			expect(renderFor("mobile.session.sheet_title.attach", {}, locale)).toBe(
+				title,
+			);
 	});
 });

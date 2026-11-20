@@ -78,6 +78,10 @@ export type AttachSheetProps = {
 	onClose: () => void;
 	/** The Modal's dismissal, forwarded to the composer's picker handoff. */
 	onDismiss: () => void;
+	/** Forwarded to `Sheet`: the commit that let the native Modal go, where the
+	 *  handoff arms its fallback for an `onDismiss` that never comes (#328).
+	 *  With this sheet's instant iOS hand-off close that is the close commit. */
+	onHidden?: () => void;
 	/** A source the reader chose and that is ready to open. */
 	onChoose: (source: AttachSource) => void;
 	/** Test seam for the camera's readiness check; the product passes nothing. */
@@ -116,6 +120,7 @@ export const AttachSheet = ({
 	visible,
 	onClose,
 	onDismiss,
+	onHidden,
 	onChoose,
 	checkCamera = prepareCamera,
 	sources,
@@ -190,6 +195,7 @@ export const AttachSheet = ({
 			visible={visible}
 			onClose={onClose}
 			onDismiss={onDismiss}
+			onHidden={onHidden}
 			exitInstantly={handingOff && Platform.OS === "ios"}
 			title={title}
 			testID={testID}

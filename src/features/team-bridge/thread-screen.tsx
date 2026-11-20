@@ -1676,6 +1676,7 @@ function ThreadContent({
 				visible={attachOpen}
 				onClose={() => setAttachOpen(false)}
 				onDismiss={attachHandoff.dismissed}
+				onHidden={attachHandoff.hidden}
 				title={t("mobile.team_bridge.attachment.add")}
 				sources={TEAM_BRIDGE_ATTACH_SOURCES}
 				testID={SURFACE.teamBridgeAttachSheet}

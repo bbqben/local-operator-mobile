@@ -658,6 +658,52 @@ const ANSWERS: readonly string[] = [
 ];
 
 /**
+ * Issue #322's conversation: older user and assistant turns, then a run of
+ * 200 peer receipts and tool rows — longer than the relay's 80-row live frame
+ * AND the first 80-row older page together, so whichever of the two the
+ * screen reads first (the frame, or the mount's history read), the reader
+ * opens on a window with no conversation row in it. Returns the full journal
+ * (`history`), the 80-row live tail, and the id of the last answer — the
+ * completion anchor, which exists ONLY in history. Journal-style ids
+ * throughout (`m-…`): none of the live-only prefixes the pager refuses as a
+ * cursor (`journalAddressableRow`).
+ */
+function peerTailConversation(base: SessionProjection): {
+	history: SessionProjection["transcript"];
+	tail: SessionProjection["transcript"];
+	anchorId: string;
+} {
+	const tool = base.transcript.find((entry) => entry.kind === "tool");
+	const peer = base.transcript.find((entry) => entry.kind === "peer_message");
+	if (tool === undefined || peer === undefined) {
+		throw new Error("the peer-tail base projection is missing a row to clone");
+	}
+	const turns = longConversation(base, 3, 4);
+	const anchorId = turns.at(-1)?.id ?? "";
+	const run: SessionProjection["transcript"] = [];
+	for (let step = 0; run.length < 200; step += 1) {
+		const at = String(step).padStart(3, "0");
+		run.push({
+			...structuredClone(peer),
+			id: `m-tail-${at}-peer`,
+			text: `Handoff ${step + 1}: shard ${step % 7} is reconciled; nothing for you.`,
+		});
+		run.push({
+			...structuredClone(tool),
+			id: `m-tail-${at}-tool`,
+			tool_call_id: `tail-${step}`,
+			tool_name: "bash",
+			tool_state: "done",
+			summary: `checking shard ${step % 7}`,
+			text: "",
+			images: [],
+			error: "",
+		});
+	}
+	return { history: [...turns, ...run], tail: run.slice(-80), anchorId };
+}
+
+/**
  * Build the scenario registry against a loaded fixture corpus.
  * `fix` is the object `loadFixtures()` returns.
  */
@@ -2957,6 +3003,49 @@ export function buildScenarios(fix: FixtureCorpus): ScenarioRegistry {
 			return {
 				projections: { [projection.session_id]: projection },
 				history: longConversation(everyKind),
+			};
+		},
+	);
+
+	add(
+		"peer-tail-history",
+		"Issue #322: an ended conversation whose last 200 rows are peer receipts and tool rows, so its 80-row live frame and first older page hold no conversation; the earlier user and assistant turns are only in deeper /history pages, and an unseen completion is anchored on the last answer, which no live row carries.",
+		[],
+		() => {
+			const { history, tail, anchorId } = peerTailConversation(everyKind);
+			/* The token is the one the corpus's `/seen` success capture answers
+			 *  for this session, so a receipt the app sends here settles. */
+			const projection = projectionFrom(everyKind, {
+				transcript: tail,
+				transcript_head_pinned: false,
+				// Settled and ended, like `sse_projection_ended`: the base frame is
+				// mid-turn, and its activity, queue and panels would read as work.
+				ended: true,
+				pid: 0,
+				streaming: false,
+				activity: "",
+				activity_started_s: null,
+				queued_count: 0,
+				todos: [],
+				subagents: [],
+				attention: {
+					conversation_id: `session/${everyKind.session_id}`,
+					completion_token: "cf6b89c0-1fde-4b8f-9032-700119607c60",
+					anchor_id: anchorId,
+					kind: "complete",
+					reason: "",
+					cause: "",
+					notify: true,
+					unseen: true,
+					revision: [2, 1],
+				},
+			});
+			return {
+				projections: { [projection.session_id]: projection },
+				history,
+				rowOverridesById: {
+					[projection.session_id]: { unseen: true, section: "active" },
+				},
 			};
 		},
 	);

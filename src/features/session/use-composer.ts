@@ -14,6 +14,7 @@ import {
 
 import type { Capabilities, PromptImage, SlashCommand } from "@/contracts";
 import { readImageFrom, readWebImageFile } from "@/features/session/attach";
+import { createAttachLatch } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import {
 	acknowledgedCurrentDraft,
@@ -274,6 +275,9 @@ export const useComposer = (input: {
 	const [error, setError] = useState<string | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
 	const [attaching, setAttaching] = useState(false);
+	/* Busy from a pick's start until it settles; only a pick the attach
+	 *  handoff's fallback launched can be released early (`attach-latch.ts`). */
+	const attachLatch = useRef(createAttachLatch(setAttaching)).current;
 
 	/* The draft window's provenance (design §2.1): sticky per window, reset by an
 	 * empty draft. A ref, not state — nothing renders differently from it, and the
@@ -429,6 +433,19 @@ export const useComposer = (input: {
 		},
 	});
 	const cancelDictationForSend = voice.cancelForSend;
+	const clearDictationOutcome = voice.clearOutcome;
+
+	/** The FIELD's change handler (what the screen hands the TextInput): the
+	 *  reader's own edit also ends a resting dictation line (issue #323). Kept off
+	 *  the internal `setDraft`, which echo restores and acks also call, and off
+	 *  `commitDraft`, the transcript append that `added` announces. */
+	const editDraft = useCallback(
+		(text: string) => {
+			clearDictationOutcome();
+			setDraft(text);
+		},
+		[clearDictationOutcome, setDraft],
+	);
 
 	/* --------------------------------------------------------------- the send */
 
@@ -928,7 +945,7 @@ export const useComposer = (input: {
 	const attach = useCallback(
 		(source: AttachSource, via: PasteVia = "sheet") => {
 			void (async () => {
-				setAttaching(true);
+				const endAttach = attachLatch.begin();
 				/* A new attach supersedes the last failure the way `home.tsx`'s copies of
 				 * this handler already do (`setComposerError(null)`): without it, "No image
 				 * was pasted…" stayed up after a later SUCCESSFUL attach, so the error line
@@ -948,11 +965,11 @@ export const useComposer = (input: {
 				} catch {
 					setError(attachFailureLine(source));
 				} finally {
-					setAttaching(false);
+					endAttach();
 				}
 			})();
 		},
-		[setImages],
+		[attachLatch, setImages],
 	);
 
 	/** The web paste EVENT's file. Same failure copy as the pickers, same strip
@@ -1059,7 +1076,7 @@ export const useComposer = (input: {
 		draft:
 			editor !== undefined || draftReadFor === storageIdentity ? draft : "",
 		draftReady: editor !== undefined || draftReadFor === storageIdentity,
-		setDraft,
+		setDraft: editDraft,
 		images:
 			editor !== undefined || draftReadFor === storageIdentity ? images : [],
 		addImage: (image) => setImages((current) => [...current, image]),
@@ -1074,6 +1091,9 @@ export const useComposer = (input: {
 			setImages([]);
 			setError(null);
 			setNotice(null);
+			/* The × is the reader's own deletion, so a resting dictation line ends
+			 * with the draft it sat under (issue #323; round 1, D1/Q1). */
+			clearDictationOutcome();
 		},
 		dismissError: () => setError(null),
 		attach,
