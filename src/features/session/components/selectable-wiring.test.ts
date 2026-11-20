@@ -28,12 +28,14 @@ const TEXT_BLOCK = /const TextBlock = /;
 const OUTPUT_WELL =
 	/<SelectableMessage text=\{joined\}[^>]*>\s*<SelectableLeafText/;
 const MARKDOWN = /export const Markdown = /;
-const ANSWER_WRAPPER = /<SelectableMessage text=\{plainText\}/;
+const ANSWER_WRAPPER = /<SelectableMessage\s+text=\{plainText\}/;
 const CODE_BLOCK_USE = /<CodeBlock\b/;
 const CODE_BLOCK_MEMO = /const CodeBlock = memo\(\s*CodeBlockView\b/;
 const CODE_BLOCK_VIEW = /function CodeBlockView\(/;
 const FORWARDS_HOLD = /onLongPress=\{enter\}/;
-const THREAD_BODY = /<Markdown text=\{message\.body\} \/>/;
+/* A Bridge thread body hands its long-press to the row's actions sheet
+ *  (`HostSelection`, spec PR a): "Select text" lives in that sheet. */
+const THREAD_BODY = /<Markdown text=\{message\.body\} host=\{host\} \/>/;
 const BRIDGE_CARD_BODY = /<Markdown text=\{bridgeMessage\} \/>/;
 const TEXT_CLASS_PROP = /textClassName=\{([^}]+)\}/g;
 const STRING_LITERAL = /^"([^"]*)"$/;
