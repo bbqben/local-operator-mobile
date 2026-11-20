@@ -59,6 +59,12 @@ export type A11yRole = (typeof ROLE)[keyof typeof ROLE];
 export const SCREEN = {
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeList: "team-bridge-list",
+	/* The public community client (RFC v2.4; dark behind EXPO_PUBLIC_COMMUNITY). */
+	communityDirectory: "community-directory",
+	communityHome: "community-home",
+	communityConversation: "community-conversation",
+	communityBrowse: "community-browse",
+	communityRequests: "community-requests",
 	teamBridgeThread: "team-bridge-thread",
 	/** One message's reply thread (root + replies), not a conversation. */
 	teamBridgeReplyThread: "team-bridge-reply-thread",
@@ -183,6 +189,38 @@ export const CONTROL = {
 	teamBridgeMenu: "team-bridge-menu",
 	teamBridgeConversationsRetry: "team-bridge-conversations-retry",
 	teamBridgeGateRetry: "team-bridge-gate-retry",
+	communityNoPlanJoin: "community-no-plan-join",
+	communitySwitcherBrowse: "community-switcher-browse",
+	communityLoadRetry: "community-load-retry",
+	communityJoinOpen: "community-join-open",
+	communityJoinAgree: "community-join-agree",
+	communityJoinSubmit: "community-join-submit",
+	communityReaccept: "community-reaccept",
+	communityBrowseOpen: "community-browse-open",
+	communityRequestsOpen: "community-requests-open",
+	communitySearch: "community-search",
+	communityBrowseMode: "community-browse-mode",
+	communityBrowseChannels: "community-browse-channels",
+	communityBrowsePeople: "community-browse-people",
+	communityRequestsMode: "community-requests-mode",
+	communityRequestsDm: "community-requests-dm",
+	communityRequestsApprovals: "community-requests-approvals",
+	communityLoadOlder: "community-load-older",
+	communityComposerInput: "community-composer-input",
+	communitySend: "community-send",
+	communityAttach: "community-attach",
+	communityImagesNoteDismiss: "community-images-note-dismiss",
+	communityHomeSwitcher: "community-home-switcher",
+	communityReportConsent: "community-report-consent",
+	communityChannelJoin: "community-channel-join",
+	communityAttemptCancel: "community-attempt-cancel",
+	communityAttemptRetry: "community-attempt-retry",
+	communityAttemptDismiss: "community-attempt-dismiss",
+	communityProfileMessage: "community-profile-message",
+	communityProfileBlock: "community-profile-block",
+	communityProfileReport: "community-profile-report",
+	communityReportNote: "community-report-note",
+	communityReportSubmit: "community-report-submit",
 	teamBridgeJoin: "team-bridge-join",
 	teamBridgeJumpNewest: "team-bridge-jump-newest",
 	teamBridgeLoadOlder: "team-bridge-load-older",
@@ -835,6 +873,22 @@ export const SURFACE = {
 	sidebarViewSheet: "sidebar-view-sheet",
 	/** Team Bridge is hub-owned: these selectors remain stable without a relay connection. */
 	teamBridgeAttachSheet: "team-bridge-attach-sheet",
+	/** The long-press message-actions sheet (Reply in thread, Copy, Select). */
+	teamBridgeMessageActionsSheet: "team-bridge-message-actions-sheet",
+	/** The selected tint a row holds while its actions sheet is open. */
+	teamBridgeMessageActionsTint: "team-bridge-message-actions-tint",
+	/** The quick-reaction row at the top of the message-actions sheet. */
+	teamBridgeQuickReactions: "team-bridge-quick-reactions",
+	/** The row of reaction pills under a message, and its trailing "+". */
+	teamBridgeReactionPills: "team-bridge-reaction-pills",
+	teamBridgeReactionWrap: "team-bridge-reaction-wrap",
+	teamBridgeReactionsExpand: "team-bridge-reactions-expand",
+	teamBridgeReactionDetails: "team-bridge-reaction-details",
+	teamBridgeReactionAdd: "team-bridge-reaction-add",
+	/** The "Reaction couldn't be saved" line under a refused toggle. */
+	teamBridgeReactionError: "team-bridge-reaction-error",
+	/** The hidden field that raises the system emoji keyboard (`+`). */
+	teamBridgeEmojiCapture: "team-bridge-emoji-capture",
 	teamBridgeReplyThreadList: "team-bridge-reply-thread-list",
 	teamBridgeReplyThreadLoading: "team-bridge-reply-thread-loading",
 	teamBridgeReplyThreadError: "team-bridge-reply-thread-error",
@@ -866,6 +920,15 @@ export const SURFACE = {
 	teamBridgeDeliveryHelpSheet: "team-bridge-delivery-help-sheet",
 	teamBridgeNotifySheet: "team-bridge-notify-sheet",
 	teamBridgeOrganizations: "team-bridge-organizations",
+	communitySwitcherGroup: "community-switcher-group",
+	communityNoPlanCard: "community-no-plan-card",
+	communityJoinSheet: "community-join-sheet",
+	communityProfileSheet: "community-profile-sheet",
+	communityReportSheet: "community-report-sheet",
+	communityAttempt: "community-attempt",
+	communityHistory: "community-history",
+	communityImagesNote: "community-images-note",
+	communityReacceptBanner: "community-reaccept-banner",
 	/** The Team Bridge pane inside the workspace drawer. */
 	teamBridgeDrawerPane: "team-bridge-drawer-pane",
 	teamBridgeProfile: "team-bridge-profile",
@@ -1144,6 +1207,15 @@ export const SURFACE = {
 	 *  Present only while it is telling the truth (the body overflows and is not
 	 *  scrolled to its end), so a frame can measure the cue its own state earns. */
 	sheetBodyFade: "sheet-body-fade",
+	/** Its mirror under a sheet's `pinned` region: present only while the body
+	 *  has scrolled rows up under the pinned field (design D1, PR #343). */
+	sheetPinnedFade: "sheet-pinned-fade",
+	/** The Sheet kit's scrolling body, its `pinned` region (above the body, never
+	 *  scrolls — a search field over its results), and the spacer that lifts the
+	 *  surface onto the software keyboard's top on native (TestFlight 1295). */
+	sheetBody: "sheet-body",
+	sheetPinned: "sheet-pinned",
+	sheetKeyboardSpacer: "sheet-keyboard-spacer",
 
 	/* --- the turn-supplement block ("Highlights", memo §2.8, lane N): the
 	 *  pieces under a final answer. Named in full because the capture cells
@@ -1304,6 +1376,17 @@ export const IDENTIFIER_FAMILIES: readonly string[] = [
 	"team-bridge-chief-",
 	"team-bridge-org-",
 	"team-bridge-message-",
+	// Community rows are keyed by server ids (community, channel, public profile, request, approval, message).
+	"community-row-",
+	"community-featured-",
+	"community-channel-row-",
+	"community-dm-row-",
+	"community-person-",
+	"community-message-",
+	"community-author-",
+	"community-request-",
+	"community-approval-",
+	"community-report-category-",
 	"team-bridge-notify-",
 	/* Image attachments: one composer chip per staged image (its remove/retry
 	 *  controls derive from it), one rendered image per message attachment, and
@@ -2362,6 +2445,20 @@ export const findResultId = (entryId: string): string =>
 export const completionAnchorId = (anchorId: string): string =>
 	`completion-anchor-${anchorId}`;
 
+/** An inbound Team Bridge card's body region, under its row's own id: a flow
+ *  that found the row finds the body beside it. Built here rather than as a
+ *  template `testID` at the call site, which the identifier check cannot
+ *  follow (`a11y.e2e.test.ts`, "never types an identifier as a literal"). */
+export const bridgeCardBodyId = (rowTestID: string): string =>
+	`${rowTestID}-bridge-body`;
+
+/** The Show more / Show less toggle of one body inside that region, by the
+ *  item's index in the relay's answer. */
+export const bridgeCardBodyMoreId = (
+	regionTestID: string,
+	index: number,
+): string => `${regionTestID}-more-${index}`;
+
 /** One image inside a transcript row, disambiguated by its index within the row. */
 export const transcriptImageId = (entryId: string, index: number): string =>
 	`transcript-image-${entryId}-${index}`;
@@ -2506,7 +2603,53 @@ export const teamBridgeAttachmentId = (value: string): string =>
 	`team-bridge-attachment-${value}`;
 export const teamBridgeAttachSourceId = (value: string): string =>
 	`team-bridge-attach-source-${value}`;
+/** One row of the message-actions sheet, keyed by its action name. */
+export const teamBridgeMessageActionId = (value: string): string =>
+	`team-bridge-message-action-${value}`;
+/* Emoji are keyed by their code points, so the id is plain ASCII that any
+ *  test driver can type ("1f44d" for 👍). */
+const emojiKey = (emoji: string): string =>
+	Array.from(emoji, (c) => (c.codePointAt(0) ?? 0).toString(16)).join("-");
+/** One reaction pill under a message. */
+export const teamBridgeReactionPillId = (emoji: string): string =>
+	`team-bridge-reaction-pill-${emojiKey(emoji)}`;
+/** The painted face stays addressable separately from its larger touch box. */
+export const teamBridgeReactionVisualId = (emoji: string): string =>
+	`${teamBridgeReactionPillId(emoji)}-visual`;
+/** Inert layout probes use the same code-point encoding as visible pills: raw
+ * emoji in selectors are fragile for variation selectors, skin tones and ZWJ. */
+export const teamBridgeReactionMeasureId = (emoji: string): string =>
+	`team-bridge-reaction-measure-${emojiKey(emoji)}`;
+/** One emoji cell of the sheet's quick-reaction row. */
+export const teamBridgeQuickReactionId = (emoji: string): string =>
+	`team-bridge-quick-reaction-${emojiKey(emoji)}`;
 export const teamBridgeViewerId = (value: string): string =>
 	`team-bridge-viewer-${value}`;
 export const teamBridgeProfileOpenId = (value: string): string =>
 	`team-bridge-profile-open-${value}`;
+
+/* The community client's id-keyed rows (families above). Server ids only:
+ * never a display name, so a selector survives a rename. */
+export const communityRowId = (communityId: string): string =>
+	`community-row-${communityId}`;
+export const communityFeaturedId = (communityId: string): string =>
+	`community-featured-${communityId}`;
+export const communityChannelRowId = (channelId: string): string =>
+	`community-channel-row-${channelId}`;
+export const communityDmRowId = (conversationId: string): string =>
+	`community-dm-row-${conversationId}`;
+export const communityPersonId = (publicId: string): string =>
+	`community-person-${publicId}`;
+export const communityMessageId = (messageId: string): string =>
+	`community-message-${messageId}`;
+/** The author avatar of one message: the profile tap target (design D1/D5). */
+export const communityAuthorId = (messageId: string): string =>
+	`community-author-${messageId}`;
+export const communityRequestId = (requestId: string, action: string): string =>
+	`community-request-${requestId}-${action}`;
+export const communityApprovalId = (
+	approvalId: string,
+	action: string,
+): string => `community-approval-${approvalId}-${action}`;
+export const communityReportCategoryId = (category: string): string =>
+	`community-report-category-${category}`;
