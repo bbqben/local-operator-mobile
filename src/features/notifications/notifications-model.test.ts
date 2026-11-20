@@ -6,6 +6,7 @@ import {
 	conversationName,
 	countLabel,
 	detailMetaLine,
+	dismissReceiptShowing,
 	hasUnread,
 	inboxEmpty,
 	inboxRows,
@@ -21,6 +22,7 @@ import {
 	toggleSelection,
 	unionTokens,
 } from "@/features/notifications/notifications-model";
+import type { ConversationDismissPhase } from "@/features/notifications/use-conversation-dismiss";
 import { resetLocaleSource, setLocaleSource } from "@/i18n";
 
 function item(overrides: Partial<NotificationItem> = {}): NotificationItem {
@@ -512,5 +514,69 @@ describe("C1-class fragments stay wholly English under a non-en locale", () => {
 				nowMs: NOW,
 			}),
 		).toBe("untitled");
+	});
+});
+
+/**
+ * Whether the list's pinned footer holds the dismiss receipt (#321).
+ *
+ * The footer pays the bottom safe-area inset only while it has something in it,
+ * and `DismissReceipt` returns null on this same predicate, so one rule decides
+ * both. The table is exhaustive over the phase union (`satisfies` fails to
+ * compile on a new kind).
+ */
+const RECEIPT_PHASES = {
+	idle: { phase: { kind: "idle" }, showing: false },
+	counting: { phase: { kind: "counting", title: "Aida" }, showing: true },
+	confirming: {
+		phase: { kind: "confirming", target: { kind: "tokens", tokens: [] } },
+		showing: false,
+	},
+	applying: {
+		phase: { kind: "applying", target: { kind: "tokens", tokens: [] } },
+		showing: false,
+	},
+	done: {
+		phase: {
+			kind: "done",
+			target: { kind: "tokens", tokens: [] },
+			receipt: { changed: [], refused: [] } as never,
+			sentence: "Dismissed 1 update.",
+			complete: true,
+		},
+		showing: true,
+	},
+	undoing: {
+		phase: {
+			kind: "undoing",
+			target: { kind: "tokens", tokens: [] },
+			receipt: { changed: [], refused: [] } as never,
+		},
+		showing: false,
+	},
+	undone: {
+		phase: { kind: "undone", sentence: "Restored 1 update.", complete: true },
+		showing: true,
+	},
+	none: {
+		phase: { kind: "none", sentence: "Nothing to dismiss." },
+		showing: true,
+	},
+	failed: {
+		phase: { kind: "failed", sentence: "Couldn't dismiss." },
+		showing: true,
+	},
+} satisfies {
+	[K in ConversationDismissPhase["kind"]]: {
+		phase: Extract<ConversationDismissPhase, { kind: K }>;
+		showing: boolean;
+	};
+};
+
+describe("the dismiss receipt's footer slot (#321)", () => {
+	it("is occupied exactly while the receipt has something to say", () => {
+		for (const [kind, { phase, showing }] of Object.entries(RECEIPT_PHASES)) {
+			expect([kind, dismissReceiptShowing(phase)]).toEqual([kind, showing]);
+		}
 	});
 });

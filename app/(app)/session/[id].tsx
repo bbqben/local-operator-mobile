@@ -474,6 +474,7 @@ function Session() {
 		sessionId,
 		endpoints: runtime.source.endpoints,
 		projection: runtime.projection,
+		entries: runtime.entries,
 		anchorVisible: completionVisible,
 		blocked: overlaysBlocked({
 			models: modelsOpen,
@@ -1097,6 +1098,7 @@ function Session() {
 					historyErrorScope={runtime.historyErrorScope}
 					loadingOlder={runtime.loadingOlder}
 					hasOlder={runtime.hasOlder}
+					olderFillReady={runtime.olderFillReady}
 					historyError={runtime.historyError}
 					historyGap={runtime.historyGap}
 					historyGapBefore={runtime.historyGapBefore}
