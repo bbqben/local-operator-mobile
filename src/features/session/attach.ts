@@ -111,7 +111,8 @@ export const prepareCamera = async (): Promise<CameraReadiness> => {
 		// can undo this" — see `cameraAnswer`.
 		return cameraAnswer(asked);
 	} catch {
-		return "unavailable";
+		// A thrown check is not a missing camera (U3): retryable, see `failed`.
+		return "failed";
 	}
 };
 

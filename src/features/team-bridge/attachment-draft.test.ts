@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 
+import { t } from "@/i18n";
 import { HubError } from "@/team-bridge/client";
 import { TOUCH_TARGET } from "@/ui/tokens.gen";
 
@@ -119,6 +120,29 @@ describe("deferred picker/paste authority", () => {
 		});
 		expect(deps.prepare).not.toHaveBeenCalled();
 		expect(notice).not.toHaveBeenCalled();
+		expect(draft.chips()).toEqual([]);
+	});
+
+	/* PR #354 U2: a camera that failed to open has no image to "not read". */
+	it.each([
+		["camera", "mobile.composer_input.attach.camera_error"],
+		["library", "mobile.team_bridge.attachment.read_error"],
+		["paste", "mobile.team_bridge.attachment.read_error"],
+	] as const)("a %s that throws says %s", async (source, key) => {
+		const { draft } = setup();
+		const notice = vi.fn();
+		const fail = async (): Promise<never> => {
+			throw new Error("launch failed");
+		};
+		await addDraftImages(draft, source, {
+			pick: fail,
+			capture: fail,
+			paste: fail,
+			isCurrent: () => true,
+			release: vi.fn(),
+			notice,
+		});
+		expect(notice).toHaveBeenCalledWith(t(key));
 		expect(draft.chips()).toEqual([]);
 	});
 

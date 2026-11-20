@@ -35,6 +35,8 @@ const native = vi.hoisted(() => ({
 	dismissInFlight: 0,
 	finishExit: null as null | (() => void),
 	presses: new Map<string, { onPress?: () => void }>(),
+	/** Withhold every `onDismiss` (the case #328's fallback exists for). */
+	dropDismiss: false,
 }));
 
 vi.mock("react-native", async (importOriginal) => {
@@ -66,7 +68,7 @@ vi.mock("react-native", async (importOriginal) => {
 				setTimeout(() => {
 					native.dismissInFlight -= 1;
 					native.events.push("native:dismissed");
-					latest.current.onDismiss?.();
+					if (!native.dropDismiss) latest.current.onDismiss?.();
 				}, 0);
 			}
 		}, [props.visible]);
@@ -124,7 +126,7 @@ vi.mock("uniwind", () => ({
 
 const { installDomShim } = await import("@/testing/dom-shim");
 const { Sheet } = await import("@/ui/components/sheet");
-const { createAttachmentSheetHandoff } = await import(
+const { createAttachmentSheetHandoff, DISMISS_FALLBACK_MS } = await import(
 	"@/features/session/attach-handoff"
 );
 const { Pressable } = await import("react-native");
@@ -137,10 +139,20 @@ const { Pressable } = await import("react-native");
  * pinned to this same wiring in `attachment-handoff.test.ts`.
  */
 let openSheet: () => void = () => {};
+/* The owner's wiring knobs. `instant: false` is the RED control (review R3):
+ *  the same owner without #354's instant close, so the suite itself shows the
+ *  emulation tells the two apart. `traces` is #328's diagnostics trail, which
+ *  Copy diagnostics reads to say which path launched the picker. */
+const wiring = {
+	instant: true,
+	traces: [] as Array<{ via: string; afterHiddenMs: number | null }>,
+};
 const Owner = () => {
 	const [open, setOpen] = useState(false);
 	const [handingOff, setHandingOff] = useState(false);
-	const handoff = useRef(createAttachmentSheetHandoff()).current;
+	const handoff = useRef(
+		createAttachmentSheetHandoff((event) => wiring.traces.push(event)),
+	).current;
 	openSheet = () => {
 		handoff.cancel();
 		setHandingOff(false);
@@ -164,7 +176,9 @@ const Owner = () => {
 		visible: open,
 		onClose: () => setOpen(false),
 		onDismiss: handoff.dismissed,
-		exitInstantly: handingOff,
+		// #328: arms the 1 s fallback from the commit that let the Modal go.
+		onHidden: handoff.hidden,
+		exitInstantly: wiring.instant && handingOff,
 		title: "attach",
 		children: row,
 	};
@@ -182,6 +196,9 @@ describe("iOS attach sheet → system picker, against the native modal host", ()
 		native.dismissInFlight = 0;
 		native.finishExit = null;
 		native.presses.clear();
+		native.dropDismiss = false;
+		wiring.instant = true;
+		wiring.traces = [];
 		dom = installDomShim();
 		root = createRoot(dom.container as Element);
 	});
@@ -224,5 +241,54 @@ describe("iOS attach sheet → system picker, against the native modal host", ()
 		await act(async () => openSheet());
 		expect(native.events).toEqual(["native:present"]);
 		expect(native.isPresented).toBe(true);
+	});
+
+	/* PR #354 round 2: #328 (onHidden → 1 s fallback, consume-once, trace)
+	 *  composed with #354's instant close. The instant close reports hidden on
+	 *  the close commit itself, so the fallback is armed BEFORE onDismiss; the
+	 *  one native dismissal's onDismiss must launch, disarm it, and leave no
+	 *  second launch however long the timers run. */
+	it("with #328's fallback armed, onDismiss launches once and the fallback never fires", async () => {
+		await pressLibrary();
+		await act(async () => {
+			vi.advanceTimersByTime(DISMISS_FALLBACK_MS * 3);
+		});
+		expect(native.events).toEqual([
+			"native:present",
+			"native:dismiss",
+			"native:dismissed",
+			"launch",
+		]);
+		// Copy diagnostics: launched by onDismiss, measured from the hide.
+		expect(wiring.traces).toEqual([{ via: "onDismiss", afterHiddenMs: 0 }]);
+		expect(vi.getTimerCount()).toBe(0);
+	});
+
+	it("still falls back once, after the sheet is gone, when onDismiss never comes", async () => {
+		native.dropDismiss = true;
+		// `pressLibrary` drains pending timers, which includes the fallback's.
+		await pressLibrary();
+		await act(async () => {
+			vi.advanceTimersByTime(DISMISS_FALLBACK_MS * 3);
+		});
+		expect(native.events).toEqual([
+			"native:present",
+			"native:dismiss",
+			"native:dismissed",
+			"launch",
+		]);
+		expect(wiring.traces).toEqual([
+			{ via: "fallback", afterHiddenMs: DISMISS_FALLBACK_MS },
+		]);
+	});
+
+	it("RED control: without the instant close the picker launches onto the re-presented sheet", async () => {
+		wiring.instant = false;
+		await pressLibrary();
+		expect(native.events).toContain("native:present(during-dismiss)");
+		expect(native.events).toContain("launch(onto-sheet)");
+		/* The device signature QA and review named: onDismiss before any hide,
+		 *  so the trail reads `onDismiss ?ms`. */
+		expect(wiring.traces[0]).toEqual({ via: "onDismiss", afterHiddenMs: null });
 	});
 });

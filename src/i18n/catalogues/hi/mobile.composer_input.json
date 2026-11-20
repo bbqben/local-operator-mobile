@@ -19,7 +19,7 @@
 	"mobile.composer_input.attach.paste": "चित्र पेस्ट करें",
 	"mobile.composer_input.attach.choose_image": "चित्र चुनें",
 	"mobile.composer_input.attach.camera_denied": "कैमरा एक्सेस बंद है। फ़ोटो लेने के लिए इसे सेटिंग्स में चालू करें।",
-	"mobile.composer_input.attach.camera_refused": "कैमरा एक्सेस की अनुमति नहीं मिली।",
+	"mobile.composer_input.attach.camera_refused": "कैमरा एक्सेस की अनुमति नहीं मिली। फिर से पूछे जाने के लिए फ़ोटो लें पर टैप करें।",
 	"mobile.composer_input.attach.open_settings": "सेटिंग्स खोलें",
 	"mobile.composer_input.attach.camera_unavailable": "इस डिवाइस पर कोई कैमरा उपलब्ध नहीं है।",
 	"mobile.composer_input.attach.camera_error": "कैमरा नहीं खुल सका। फिर से कोशिश करें।"

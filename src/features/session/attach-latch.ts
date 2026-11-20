@@ -39,26 +39,78 @@ import { launchingFromFallback } from "@/features/session/attach-handoff";
  *
  * Q4: a released pick that settles later must not end a NEWER pick's busy.
  * Each pick ends once — by its `finally` or by its release, whichever comes
- * first — so a late settle after the release changes nothing. No count is
- * needed: while a pick holds busy, Attach is disabled, so a second pick can
- * start only after the first was released (and so has already ended).
+ * first — so a late settle after the release changes nothing. Since PR #354
+ * a second pick CAN start while the first is in flight (native Attach stays
+ * pressable, `attachLocksWhilePicking`), so each pick also carries a
+ * generation: only the newest pick ends busy, and an older pick's result is
+ * dropped by its owner (`AttachTicket.current`).
  */
 export const ATTACH_STRANDED_MS = 3_000;
 
-export const createAttachLatch = (setBusy: (busy: boolean) => void) => ({
-	/** Marks a pick in flight; call the returned function in `finally`. */
-	begin: (): (() => void) => {
-		setBusy(true);
-		let ended = false;
-		const end = () => {
-			if (ended) return;
-			ended = true;
-			if (watchdog !== undefined) clearTimeout(watchdog);
+/**
+ * Whether a pick in flight disables the Attach button itself, on this platform.
+ *
+ * WHY NOT ON NATIVE (PR #354 review round 1, R1). The watchdog above covers
+ * only fallback-launched picks; the NORMAL iOS launch is the sheet's
+ * `onDismiss`, and a picker launched there that never presents (taken down
+ * with a sheet, refused by UIKit) also never settles. With Attach disabled by
+ * the latch that left Attach, Paste and Clear dead with no message until the
+ * composer remounted, and no timer can tell that pick from a reader browsing
+ * a large library. Native gives a better signal instead: a live system picker
+ * (PHPicker, the document picker, the camera; an Android picker activity)
+ * covers the app, so a press the reader can land on Attach means the pick
+ * behind it is not on screen. Attach therefore stays pressable on iOS and
+ * Android, and that press `abandon`s the pick (below).
+ *
+ * WEB KEEPS THE LOCK: its chooser does not cover the page reliably (a
+ * mouse-driven reader can reach Attach with the chooser up), so a second
+ * press there would race a live pick. Unchanged from before this PR.
+ */
+export const attachLocksWhilePicking = (os: string): boolean => os === "web";
+
+/** A pick's end, plus whether it is still the owner's current pick. */
+export type AttachTicket = (() => void) & {
+	/** False once a newer pick began or the pick was abandoned: its late result
+	 *  or error is dropped, so a superseded read never lands on the strip or the
+	 *  error line under the reader's newer choice. */
+	current: () => boolean;
+};
+
+export const createAttachLatch = (setBusy: (busy: boolean) => void) => {
+	/* Q4 (above) relied on Attach being disabled while busy to rule out two
+	 *  picks at once. On native that no longer holds, so each pick takes a
+	 *  generation, and only the current generation may end busy. */
+	let generation = 0;
+	return {
+		/** Marks a pick in flight; call the returned ticket in `finally`. */
+		begin: (): AttachTicket => {
+			generation += 1;
+			const mine = generation;
+			setBusy(true);
+			let ended = false;
+			const end = () => {
+				if (ended) return;
+				ended = true;
+				if (watchdog !== undefined) clearTimeout(watchdog);
+				if (mine === generation) setBusy(false);
+			};
+			const watchdog = launchingFromFallback()
+				? setTimeout(end, ATTACH_STRANDED_MS)
+				: undefined;
+			return Object.assign(end, { current: () => mine === generation });
+		},
+		/**
+		 * The reader pressed Attach while a pick was in flight (native only, see
+		 * `attachLocksWhilePicking`): that pick is not on screen, so it no longer
+		 * holds Attach, Paste or Clear. Its result, if it ever comes, is dropped.
+		 * The cost: a pick that DID present and is past its picker — an iCloud
+		 * original still downloading — is dropped too if the reader presses
+		 * Attach before it lands; they are choosing again, and get that choice.
+		 * A no-op when nothing is in flight.
+		 */
+		abandon: (): void => {
+			generation += 1;
 			setBusy(false);
-		};
-		const watchdog = launchingFromFallback()
-			? setTimeout(end, ATTACH_STRANDED_MS)
-			: undefined;
-		return end;
-	},
-});
+		},
+	};
+};

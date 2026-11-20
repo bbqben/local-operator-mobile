@@ -19,7 +19,7 @@
 	"mobile.composer_input.attach.paste": "Вставить изображение",
 	"mobile.composer_input.attach.choose_image": "Выбрать изображение",
 	"mobile.composer_input.attach.camera_denied": "Доступ к камере выключен. Включите его в Настройках, чтобы сделать фото.",
-	"mobile.composer_input.attach.camera_refused": "Доступ к камере не разрешён.",
+	"mobile.composer_input.attach.camera_refused": "Доступ к камере не разрешён. Нажмите «Сделать фото», чтобы запрос появился снова.",
 	"mobile.composer_input.attach.open_settings": "Открыть Настройки",
 	"mobile.composer_input.attach.camera_unavailable": "На этом устройстве нет доступной камеры.",
 	"mobile.composer_input.attach.camera_error": "Не удалось открыть камеру. Попробуйте ещё раз."

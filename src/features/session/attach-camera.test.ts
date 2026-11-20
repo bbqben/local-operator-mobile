@@ -20,6 +20,8 @@ const native = vi.hoisted(() => ({
 	requestAnswer: { granted: true, canAskAgain: true },
 	launchResult: null as unknown,
 	deleted: [] as string[],
+	/** The permission read rejects (PR #354 U3). */
+	readThrows: false,
 }));
 
 vi.mock("react-native", () => ({
@@ -33,6 +35,7 @@ vi.mock("react-native", () => ({
 vi.mock("expo-image-picker", () => ({
 	getCameraPermissionsAsync: async () => {
 		native.calls.push("getCameraPermissionsAsync");
+		if (native.readThrows) throw new Error("permission read failed");
 		return native.permission;
 	},
 	requestCameraPermissionsAsync: async () => {
@@ -111,6 +114,7 @@ beforeEach(() => {
 	native.requestAnswer = { granted: true, canAskAgain: true };
 	native.launchResult = null;
 	native.deleted = [];
+	native.readThrows = false;
 });
 
 describe("the camera's permission step (prepareCamera)", () => {
@@ -151,6 +155,14 @@ describe("the camera's permission step (prepareCamera)", () => {
 		native.permission = { granted: false, canAskAgain: false };
 		expect(await prepareCamera()).toBe("denied");
 		expect(native.calls).toEqual(["getCameraPermissionsAsync"]);
+	});
+
+	/* PR #354 U3: a check that threw is retryable, not "no camera". */
+	it("answers failed, NOT unavailable, when the permission check itself throws", async () => {
+		native.readThrows = true;
+		expect(await prepareCamera()).toBe("failed");
+		native.os = "android";
+		expect(await prepareCamera()).toBe("failed");
 	});
 
 	it("answers unavailable on the iOS simulator BEFORE touching the picker, which would crash it", async () => {

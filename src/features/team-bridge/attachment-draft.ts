@@ -385,8 +385,16 @@ export async function addDraftImages<Raw>(
 		else if (source === "paste")
 			deps.notice(t("mobile.team_bridge.attachment.paste_empty"));
 	} catch {
+		/* A camera that failed to open has no image to "not read" (PR #354 U2):
+		 *  the composer's camera sentence, as `attachFailureLine` says there. */
 		if (deps.isCurrent())
-			deps.notice(t("mobile.team_bridge.attachment.read_error"));
+			deps.notice(
+				t(
+					source === "camera"
+						? "mobile.composer_input.attach.camera_error"
+						: "mobile.team_bridge.attachment.read_error",
+				),
+			);
 	}
 }
 

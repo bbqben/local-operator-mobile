@@ -120,12 +120,19 @@ export type SheetProps = {
 	onDismiss?: () => void;
 	/**
 	 * Close in ONE commit, with no exit animation. Set it in the SAME update
-	 * that closes the sheet, for a close whose `onDismiss` launches a system
-	 * picker (`@/features/session/attach-handoff`).
+	 * that closes the sheet, for every hand-off close whose `onDismiss` starts
+	 * the next step — a system picker, or the Paste read, which waits on the
+	 * same dismissal (`@/features/session/attach-handoff`).
 	 *
 	 * WHY ("Photo Library / Files does nothing", TestFlight 1333). `useModalExit`
 	 * sets `exiting` in a passive effect, so an animated close hands the native
 	 * `Modal` `visible=false` for one commit and `visible=true` again on the next.
+	 * The two reach native separately: React flushes passive effects at Default
+	 * priority, not Sync (`ReactFabric-prod.js` `flushPassiveEffects`,
+	 * `currentUpdatePriority = max(32, renderPriority)`), so the `setExiting`
+	 * renders in a LATER scheduler task, and Fabric mounts once per JS task
+	 * (`RuntimeScheduler_Modern.cpp` `updateRendering`) — the `false` revision
+	 * is mounted on its own before the `true` one, never diffed away.
 	 * iOS's modal host acts on every `visible` it is given (react-native 0.86
 	 * `RCTModalHostViewComponentView.mm`, `updateProps` →
 	 * `ensurePresentedOnlyIfNeeded`): it dismisses the controller, presents it

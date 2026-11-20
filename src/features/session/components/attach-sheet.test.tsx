@@ -5,6 +5,7 @@ import type { CameraReadiness } from "@/features/session/attach-rule";
 import { t } from "@/i18n";
 import { type DomShim, installDomShim } from "@/testing/dom-shim";
 import { CONTROL, SURFACE } from "@/ui/a11y";
+import { CONTROL_DISABLED_INK } from "@/ui/variants";
 
 /*
  * The add-image sheet's behaviour, rendered: which rows exist, what a press on
@@ -23,6 +24,8 @@ const host = vi.hoisted(() => ({
 	/** The last `exitInstantly` the Sheet was rendered with. */
 	exitInstantly: undefined as boolean | undefined,
 	disabled: new Map<string, boolean | undefined>(),
+	/** Each Text's className by its text, for the disabled-ink check (D1). */
+	textClass: new Map<string, string | undefined>(),
 }));
 
 vi.mock("react-native", () => ({
@@ -38,7 +41,16 @@ vi.mock("react-native", () => ({
 		},
 	},
 	View: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
-	Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
+	Text: ({
+		children,
+		className,
+	}: {
+		children?: ReactNode;
+		className?: string;
+	}) => {
+		host.textClass.set(String(children), className);
+		return <span>{children}</span>;
+	},
 	ActivityIndicator: () => <span>busy</span>,
 	Pressable: ({
 		children,
@@ -129,6 +141,7 @@ beforeEach(() => {
 	host.presses.clear();
 	host.openSettings.mockClear();
 	host.announced = [];
+	host.textClass.clear();
 });
 afterEach(async () => {
 	await act(async () => root.unmount());
@@ -337,5 +350,39 @@ describe("the add-image sheet", () => {
 		expect(host.presses.has("team-bridge-attach-source-files")).toBe(false);
 		await press("team-bridge-attach-source-camera");
 		expect(onChoose).toHaveBeenCalledWith("camera");
+	});
+
+	/* PR #354 U3: a check that threw is not "no camera". */
+	it("says the camera could not be opened, and keeps Take Photo live, when the check fails", async () => {
+		const check = vi.fn(async (): Promise<CameraReadiness> => "failed");
+		const onChoose = await renderSheet(check);
+		await press("attach-option-camera");
+		expect(onChoose).not.toHaveBeenCalled();
+		expect(shown()).toContain(t("mobile.composer_input.attach.camera_error"));
+		expect(shown()).not.toContain(
+			t("mobile.composer_input.attach.camera_unavailable"),
+		);
+		expect(host.disabled.get("attach-option-camera")).toBe(false);
+		await press("attach-option-camera");
+		expect(check).toHaveBeenCalledTimes(2);
+	});
+
+	/* PR #354 D1/U3: a disabled row must not look like the live ones. */
+	it("dims Take Photo with the kit's disabled ink once it is disabled", async () => {
+		await renderSheet(async () => "unavailable");
+		const camera = t("mobile.composer_input.attach.camera");
+		const library = t("mobile.composer_input.attach.library");
+		expect(host.textClass.get(camera)).toContain("text-ink");
+		expect(host.textClass.get(camera)).not.toContain(CONTROL_DISABLED_INK);
+		await press("attach-option-camera");
+		expect(host.textClass.get(camera)).toContain(CONTROL_DISABLED_INK);
+		expect(host.textClass.get(library)).not.toContain(CONTROL_DISABLED_INK);
+	});
+
+	/* PR #354 U4: the Android first-refusal notice names the next step. */
+	it("tells the reader that tapping Take Photo again asks again", () => {
+		expect(t("mobile.composer_input.attach.camera_refused")).toContain(
+			t("mobile.composer_input.attach.camera"),
+		);
 	});
 });

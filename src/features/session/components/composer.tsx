@@ -46,6 +46,7 @@ import Animated, {
 import type { PromptImage } from "@/contracts";
 import { useClipboardImageOffer } from "@/features/session/attach-clipboard";
 import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
+import { attachLocksWhilePicking } from "@/features/session/attach-latch";
 import {
 	type AttachSource,
 	type PasteVia,
@@ -267,6 +268,11 @@ export type ComposerProps = {
 	 *  the listener that reads it lives here, the read lives with the host. */
 	onPasteFile: (file: File) => void;
 	attaching?: boolean;
+	/** Called on every Attach press, before the sheet opens. The owner abandons
+	 *  a pick still in flight: on native Attach stays pressable while picking,
+	 *  because a press that lands means the picker is not on screen
+	 *  (`attachLocksWhilePicking`, PR #354 R1). */
+	onAttachOpen?: () => void;
 	/** The voice mic's state. `null`/absent means this surface shows no mic. Both
 	 *  hosts pass one now — the session view and the home (TestFlight 578: the
 	 *  new-conversation page had no mic). A relay without `capabilities.stt`
@@ -690,6 +696,7 @@ export const Composer = ({
 	onAttach,
 	onPasteFile,
 	attaching = false,
+	onAttachOpen,
 	voice = null,
 	onSend,
 	onClearDraft,
@@ -2047,17 +2054,21 @@ export const Composer = ({
 			testID={CONTROL.composerPasteImage}
 		/>
 	) : null;
+	/* Web only: a native press on Attach proves the pick in flight is not on
+	 *  screen, and recovers it (`attachLocksWhilePicking`). */
+	const attachLocked = attaching && attachLocksWhilePicking(Platform.OS);
 	const attach = (
 		<Pressable
 			style={{ minWidth: TOUCH_FLOOR, minHeight: TOUCH_FLOOR }}
 			className="items-center justify-center"
 			accessibilityRole={ROLE.button}
 			accessibilityLabel="Attach an image"
-			accessibilityState={state({ busy: attaching, disabled: attaching })}
-			disabled={attaching}
+			accessibilityState={state({ busy: attaching, disabled: attachLocked })}
+			disabled={attachLocked}
 			/* Explicit reopen is the only re-admission point for a fresh choice;
 			 *  a stale latch from the previous open must not survive it. */
 			onPress={() => {
+				onAttachOpen?.();
 				attachmentHandoff.cancel();
 				setAttachSheetOpen(true);
 			}}

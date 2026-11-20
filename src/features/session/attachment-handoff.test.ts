@@ -7,8 +7,10 @@ import {
 } from "./attach-handoff";
 
 const OWNER_ATTACH_FINALLY = /finally\s*\{\s*endAttach\(\);/;
+/* The owner's `onAttachOpen` (abandon a pick in flight, PR #354 R1) may run
+ *  first; cancel must still come immediately before the reopen. */
 const CANCEL_BEFORE_REOPEN =
-	/onPress=\{\(\) => \{\s*attachmentHandoff\.cancel\(\);\s*setAttachSheetOpen\(true\);/;
+	/onPress=\{\(\) => \{\s*(?:onAttachOpen\?\.\(\);\s*)?attachmentHandoff\.cancel\(\);\s*setAttachSheetOpen\(true\);/;
 /* A chosen row marks the close as a hand-off in the SAME update that closes
  * the sheet, so the iOS sheet closes in one commit (`Sheet`'s `exitInstantly`;
  * the native timing is run in `ui/components/sheet-ios-picker-handoff.test.tsx`). */

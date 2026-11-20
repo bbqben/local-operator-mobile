@@ -19,7 +19,7 @@
 	"mobile.composer_input.attach.paste": "粘贴图片",
 	"mobile.composer_input.attach.choose_image": "选择图片",
 	"mobile.composer_input.attach.camera_denied": "相机访问已关闭。请在“设置”中开启，以便拍照。",
-	"mobile.composer_input.attach.camera_refused": "未允许访问相机。",
+	"mobile.composer_input.attach.camera_refused": "未允许访问相机。轻点“拍照”可再次请求。",
 	"mobile.composer_input.attach.open_settings": "打开设置",
 	"mobile.composer_input.attach.camera_unavailable": "此设备上没有可用的相机。",
 	"mobile.composer_input.attach.camera_error": "无法打开相机。请重试。"

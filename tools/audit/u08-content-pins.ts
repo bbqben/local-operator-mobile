@@ -343,8 +343,12 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// added one dependency (package.json + pnpm-lock.yaml) without re-pinning
 	// them, so main itself fails this check; re-derived with --print over the
 	// staged merge tree. #305 touches neither file. Not a U-08 web layout input.
+	// --print re-pin (PR #354): the expo-image-picker `cameraPermission`
+	// (NSCameraUsageDescription), the Android CAMERA permission and the
+	// optional-camera `uses-feature` plugin for Take Photo; native build
+	// config, not a U-08 web layout input.
 	"app.config.ts":
-		"d4ebf2193a3ee15a84c765485a6be336022d97c82f3074a1b7bb57b5df81f43a",
+		"6110454ab30ab65bd5971c1325699557051ff09df32bd6d342509963b264c3b0",
 	"metro.config.js":
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module

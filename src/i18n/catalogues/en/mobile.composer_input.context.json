@@ -81,7 +81,7 @@
 	},
 	"mobile.composer_input.attach.camera_refused": {
 		"role": "status",
-		"note": "Notice inside the add-image sheet when the reader has just declined the system camera prompt but the system will ask again on the next tap (Android after a first refusal). States only that camera access was not allowed: no Settings action, no instruction, because tapping Take Photo again shows the system prompt again. Must not blame the reader. One short sentence with final full stop."
+		"note": "Notice inside the add-image sheet when the reader has just declined the system camera prompt but the system will ask again on the next tap (Android after a first refusal). States that camera access was not allowed, then that tapping Take Photo (the row's own label, mobile.composer_input.attach.camera) shows the system prompt again; no Settings action. Must not blame the reader. Two short sentences with final full stops."
 	},
 	"mobile.composer_input.attach.open_settings": {
 		"role": "button",

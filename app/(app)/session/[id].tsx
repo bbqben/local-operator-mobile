@@ -1919,6 +1919,7 @@ function Session() {
 						onAttach={composer.attach}
 						onPasteFile={composer.pasteFile}
 						attaching={composer.attaching}
+						onAttachOpen={composer.abandonAttach}
 						voice={composer.voice}
 						onSend={composer.send}
 						onClearDraft={() => {

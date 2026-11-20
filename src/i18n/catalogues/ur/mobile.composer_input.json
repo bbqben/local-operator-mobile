@@ -19,7 +19,7 @@
 	"mobile.composer_input.attach.paste": "تصویر پیسٹ کریں",
 	"mobile.composer_input.attach.choose_image": "تصویر منتخب کریں",
 	"mobile.composer_input.attach.camera_denied": "کیمرے کی رسائی بند ہے۔ تصویر کھینچنے کے لیے اسے ترتیبات میں آن کریں۔",
-	"mobile.composer_input.attach.camera_refused": "کیمرے تک رسائی کی اجازت نہیں ملی۔",
+	"mobile.composer_input.attach.camera_refused": "کیمرے تک رسائی کی اجازت نہیں ملی۔ دوبارہ پوچھے جانے کے لیے تصویر کھینچیں پر ٹیپ کریں۔",
 	"mobile.composer_input.attach.open_settings": "ترتیبات کھولیں",
 	"mobile.composer_input.attach.camera_unavailable": "اس ڈیوائس پر کوئی کیمرا دستیاب نہیں ہے۔",
 	"mobile.composer_input.attach.camera_error": "کیمرا نہیں کھل سکا۔ دوبارہ کوشش کریں۔"

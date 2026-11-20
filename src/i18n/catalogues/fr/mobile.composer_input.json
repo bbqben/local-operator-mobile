@@ -19,7 +19,7 @@
 	"mobile.composer_input.attach.paste": "Coller l’image",
 	"mobile.composer_input.attach.choose_image": "Choisir une image",
 	"mobile.composer_input.attach.camera_denied": "L’accès à l’appareil photo est désactivé. Activez-le dans Réglages pour prendre une photo.",
-	"mobile.composer_input.attach.camera_refused": "L’accès à l’appareil photo n’a pas été autorisé.",
+	"mobile.composer_input.attach.camera_refused": "L’accès à l’appareil photo n’a pas été autorisé. Touchez Prendre une photo pour qu’il soit redemandé.",
 	"mobile.composer_input.attach.open_settings": "Ouvrir Réglages",
 	"mobile.composer_input.attach.camera_unavailable": "Aucun appareil photo n’est disponible sur cet appareil.",
 	"mobile.composer_input.attach.camera_error": "Impossible d’ouvrir l’appareil photo. Réessayez."

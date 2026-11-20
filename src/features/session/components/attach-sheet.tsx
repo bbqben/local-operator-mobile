@@ -27,6 +27,7 @@ import { attachOptionId, CONTROL, ROLE, SURFACE, state } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Banner, Sheet } from "@/ui/components";
 import { TOUCH_FLOOR } from "@/ui/layout";
+import { CONTROL_DISABLED_INK } from "@/ui/variants";
 
 /**
  * The composer's add-image menu: one bottom sheet of icon-led rows behind the
@@ -113,6 +114,9 @@ const noticeMessage = (notice: Exclude<CameraReadiness, "ready">): string => {
 			return t("mobile.composer_input.attach.camera_refused");
 		case "unavailable":
 			return t("mobile.composer_input.attach.camera_unavailable");
+		case "failed":
+			// The composer's own camera error line: the same fact, one sentence.
+			return t("mobile.composer_input.attach.camera_error");
 	}
 };
 
@@ -129,6 +133,7 @@ export const AttachSheet = ({
 	title,
 }: AttachSheetProps) => {
 	const glyphInk = useTokenColor("ink-muted");
+	const disabledGlyphInk = useTokenColor("ink-dim");
 	const pressedGround = useTokenColor("row-hover");
 	const [cameraNotice, setCameraNotice] = useState<Exclude<
 		CameraReadiness,
@@ -225,10 +230,12 @@ export const AttachSheet = ({
 					.map((action) => {
 						const Glyph = SOURCE_GLYPH[action.source];
 						const busy = action.source === "camera" && checking;
-						/* No camera on this device (the iOS simulator; a status read
-						 *  that throws): the notice says so, and the row stays
-						 *  disabled for the rest of this open instead of re-offering
-						 *  a press that cannot work. */
+						/* No camera on this device (the iOS simulator): the notice
+						 *  says so, and the row stays disabled for the rest of this
+						 *  open instead of re-offering a press that cannot work. A
+						 *  check that THREW is `failed` and stays live (U3). Dimmed
+						 *  with the kit's disabled ink so it does not look tappable
+						 *  (D1/U3; `CONTROL_DISABLED_INK`). */
 						const disabled =
 							action.source === "camera" && cameraNotice === "unavailable";
 						return (
@@ -261,10 +268,18 @@ export const AttachSheet = ({
 										{busy ? (
 											<ActivityIndicator size="small" color={glyphInk} />
 										) : (
-											<Glyph size={ROW_GLYPH_PT} color={glyphInk} aria-hidden />
+											<Glyph
+												size={ROW_GLYPH_PT}
+												color={disabled ? disabledGlyphInk : glyphInk}
+												aria-hidden
+											/>
 										)}
 									</View>
-									<Text className="min-w-0 flex-1 text-body text-ink">
+									<Text
+										className={`min-w-0 flex-1 text-body ${
+											disabled ? CONTROL_DISABLED_INK : "text-ink"
+										}`}
+									>
 										{action.label}
 									</Text>
 								</View>

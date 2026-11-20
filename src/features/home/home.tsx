@@ -630,6 +630,9 @@ export default function Home({
 				setComposerError(null);
 				try {
 					const image = await readImageFrom(source);
+					/* Abandoned by an Attach press, or superseded by a newer pick
+					 *  (`attach-latch.ts`, R1): the reader has moved on. */
+					if (!endAttach.current()) return;
 					if (image !== null) {
 						setImages((current) => [...current, image]);
 					} else if (source === "paste") {
@@ -638,6 +641,7 @@ export default function Home({
 						setComposerError(pasteNothingLine(via, Platform.OS));
 					}
 				} catch {
+					if (!endAttach.current()) return;
 					/* Said, never swallowed — the composer's own error line. */
 					setComposerError(attachFailureLine(source));
 				} finally {
@@ -1051,6 +1055,7 @@ export default function Home({
 				onAttach={attach}
 				onPasteFile={pasteFile}
 				attaching={attaching}
+				onAttachOpen={attachLatch.abandon}
 				/* A send takes the composer: a take still live is dropped and said at
 				 *  the tap (design §2.5/U2); a resting mic line ends only once the
 				 *  message is admitted (#323, round 1 m1). */

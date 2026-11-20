@@ -115,7 +115,8 @@ export const useModalExit = (input: {
 	reset: () => void;
 	/** Close in ONE commit, with no exit, even when one would be allowed: read
 	 *  at the closing commit, so it must be set in the same update as the close.
-	 *  For a close that hands off to a system picker on iOS — see `skipsExit`. */
+	 *  For a close that hands off to a system picker on iOS — see `Sheet`'s
+	 *  `exitInstantly`. */
 	skip?: boolean;
 	onHidden?: () => void;
 }): boolean => {

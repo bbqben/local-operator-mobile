@@ -19,7 +19,7 @@
 	"mobile.composer_input.attach.paste": "Paste image",
 	"mobile.composer_input.attach.choose_image": "Choose image",
 	"mobile.composer_input.attach.camera_denied": "Camera access is off. Turn it on in Settings to take a photo.",
-	"mobile.composer_input.attach.camera_refused": "Camera access wasn’t allowed.",
+	"mobile.composer_input.attach.camera_refused": "Camera access wasn’t allowed. Tap Take Photo to ask again.",
 	"mobile.composer_input.attach.open_settings": "Open Settings",
 	"mobile.composer_input.attach.camera_unavailable": "No camera is available on this device.",
 	"mobile.composer_input.attach.camera_error": "Couldn’t open the camera. Try again."

@@ -157,12 +157,23 @@ export interface CameraPermissionState {
  * - `refused` — the reader just said no to the OS prompt, but the OS WILL ask
  *   again on the next press (Android after a first "Don't allow":
  *   `canAskAgain` stays true). Sending them to Settings would be wrong — a
- *   second press re-prompts — so the sheet says only that access wasn't
- *   allowed, with no Settings detour (PR #278 round 1, R2/U3/Q2).
+ *   second press re-prompts — so the sheet says access wasn't allowed and
+ *   that the next press asks again, with no Settings detour (PR #278 round 1,
+ *   R2/U3/Q2; PR #354 U4).
  * - `unavailable` — there is no camera to open (the iOS simulator; a device or
  *   emulator with no camera app). Said, never crashed into.
+ * - `failed` — the check itself threw (the picker module would not load, the
+ *   permission read rejected). Not "no camera": on a real phone that sentence
+ *   would be false, and `unavailable` disables the row for the rest of the
+ *   open. A failed check says the camera could not be opened and leaves the
+ *   row live, so the next press checks again (PR #354 U3).
  */
-export type CameraReadiness = "ready" | "refused" | "denied" | "unavailable";
+export type CameraReadiness =
+	| "ready"
+	| "refused"
+	| "denied"
+	| "unavailable"
+	| "failed";
 
 /**
  * Whether to raise the OS prompt, given what the OS already knows.
@@ -188,7 +199,7 @@ export const cameraPermissionStep = (
  */
 export const cameraAnswer = (
 	asked: CameraPermissionState,
-): Exclude<CameraReadiness, "unavailable"> =>
+): Exclude<CameraReadiness, "unavailable" | "failed"> =>
 	asked.granted ? "ready" : asked.canAskAgain ? "refused" : "denied";
 
 /**
