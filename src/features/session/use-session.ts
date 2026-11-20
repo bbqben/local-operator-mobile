@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppState } from "react-native";
 import { useStore } from "zustand";
 import type {
+	BridgeCardBody,
 	ModelEntry,
 	SlashCommand,
 	SubagentDetail,
@@ -141,6 +142,11 @@ export interface SessionRuntime {
 	 *  has the bytes. The caller revokes a web object URL when done with it
 	 *  (`loadVideoSource`'s contract). */
 	loadVideo: (entryId: string, index: number) => Promise<string | null>;
+	/** Loads the admitted body (or the relay's stated outcome) behind one
+	 *  inbound Team Bridge card, or `null` when the read failed. Never cached:
+	 *  each call is a fresh read, so revocation stays live. The screen offers it
+	 *  to rows only when the relay advertises `team_bridge_card_body`. */
+	loadBridgeBody: (entryId: string) => Promise<BridgeCardBody | null>;
 	/** Loads a child's full detail, which the aggregate roster strips. */
 	loadAgent: (jobId: string) => Promise<SubagentDetail | null>;
 	/** Turn supplements (memo §2.4/§3.1 row 18): the projection's newest beat
@@ -948,6 +954,18 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 		[endpoints, sessionId],
 	);
 
+	const loadBridgeBody = useCallback(
+		async (entryId: string): Promise<BridgeCardBody | null> => {
+			if (endpoints === null) return null;
+			try {
+				return await endpoints.bridgeCardBody(sessionId, entryId);
+			} catch {
+				return null;
+			}
+		},
+		[endpoints, sessionId],
+	);
+
 	const loadAgent = useCallback(
 		async (jobId: string): Promise<SubagentDetail | null> => {
 			if (endpoints === null) return null;
@@ -1108,6 +1126,7 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 		loadImage,
 		loadFile,
 		loadVideo,
+		loadBridgeBody,
 		loadAgent,
 		supplements,
 		projectionPid: projection?.pid ?? 0,

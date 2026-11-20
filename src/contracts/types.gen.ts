@@ -121,6 +121,11 @@ export interface PeerSender {
 	conversation_name?: string;
 	model_label?: string;
 	cwd?: string;
+	/** `"team_bridge_message"` on the live echo of a Team Bridge card
+	 *  (`deliver_wake` stamps it); absent on a `lop send` peer. */
+	source?: string;
+	/** The validated display receipt that live echo carries on its sender. */
+	bridge_receipt?: BridgeReceiptDisplay;
 }
 
 /** The `send` tool's settled delivery payload — `details.delivery`.
@@ -938,6 +943,33 @@ export interface CommandAck {
  *  and no browsing context is navigated to a URL. */
 export interface SupplementDocument {
 	html: string;
+}
+
+/** One message behind an inbound Team Bridge card, as the relay resolves it
+ *  (`team_bridge/card_body.py::resolve_card_body`, local-operator #4238).
+ *  `state` and `reason` stay open strings: a newer relay may add a value, and
+ *  the reader maps an unknown one to "unavailable" rather than guessing a
+ *  moderation outcome (`features/session/bridge-card-body.ts`). */
+export interface BridgeCardBodyItem {
+	message_id?: string;
+	conversation_id?: string;
+	/** admitted | pending | held | refused | not_admitted | unavailable. */
+	state: string;
+	/** Markdown, written by someone else: untrusted, never cached. */
+	body?: string;
+	source?: string;
+	hold?: { class?: string; held_for_s?: number };
+	/** signed_out | other_account | not_member | deleted | hub_unsupported | offline. */
+	reason?: string;
+}
+
+/** `GET /api/sessions/{id}/bridge-cards/{entry_id}/body` — the admitted bodies
+ *  behind one `team_bridge_message` row: at most 20 items, the rest counted in
+ *  `more`. Served `Cache-Control: private, no-store` so revocation stays live. */
+export interface BridgeCardBody {
+	v: 1;
+	items: BridgeCardBodyItem[];
+	more: number;
 }
 
 export interface ApiError {

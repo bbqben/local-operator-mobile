@@ -24,6 +24,7 @@ import {
 	blockingPending,
 	outstandingAsks,
 } from "@/features/session/asks";
+import { bridgeCardBodyServed } from "@/features/session/bridge-card-body";
 import {
 	attentionRecord,
 	overlaysBlocked,
@@ -1041,6 +1042,15 @@ function Session() {
 						capabilities,
 					)}
 					onOpenVideo={openVideo}
+					/* Inbound Team Bridge bodies: only where the relay serves the
+					   route AND can resolve this conversation — the route answers
+					   durable sessions on its own machine, so a remote conversation
+					   keeps today's receipt row rather than a guaranteed failure. */
+					loadBridgeBody={
+						!remoteConversation && bridgeCardBodyServed(capabilities)
+							? runtime.loadBridgeBody
+							: undefined
+					}
 					/* The image-gen card's Cancel is the composer's OWN stop path (the
 					   one turn-interrupt — no second mechanism). The gate is the
 					   composer's own (`stopVisible` = a turn is running), so the two

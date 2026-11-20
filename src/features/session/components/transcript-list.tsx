@@ -19,6 +19,7 @@ import {
 
 import type { TranscriptEntry } from "@/contracts";
 import { anchorBottomVisible } from "@/features/session/completion-visibility";
+import type { BridgeBodyLoader } from "@/features/session/components/bridge-card-body";
 import { FoldBar } from "@/features/session/components/fold-bar";
 import { GroupGuides } from "@/features/session/components/group-guides";
 import { OlderHistoryEdge } from "@/features/session/components/older-history-edge";
@@ -187,6 +188,10 @@ export type TranscriptListProps = {
 	/** Opens the full-screen player for a video artifact a generation row
 	 *  carries (threaded to the card; the screen owns the route push). */
 	onOpenVideo?: (entryId: string, index: number) => void;
+	/** Loads an inbound Team Bridge card's body; supplied only when the relay
+	 *  serves the route (`bridgeCardBodyServed`), so an old relay's receipt
+	 *  rows render exactly as before. */
+	loadBridgeBody?: BridgeBodyLoader;
 	/** The turn interrupt, threaded to image-gen cards (the composer's Stop
 	 *  path). `undefined` while no turn is live; resolves whether the request
 	 *  reached the relay (review round 1, F2). */
@@ -364,6 +369,7 @@ export const TranscriptList = ({
 	loadFile,
 	onOpenAgent,
 	onOpenVideo,
+	loadBridgeBody,
 	onCancelTurn,
 	supplements,
 	projectionPid = 0,
@@ -1811,6 +1817,7 @@ export const TranscriptList = ({
 							loadFile={loadFile}
 							onOpenAgent={onOpenAgent}
 							onOpenVideo={onOpenVideo}
+							loadBridgeBody={loadBridgeBody}
 							onCancelTurn={onCancelTurn}
 							open={rowOpen.get(canonicalRowKey(item.entry))}
 							onToggleOpen={toggleRowOpen}
@@ -1848,6 +1855,7 @@ export const TranscriptList = ({
 			loadFile,
 			onOpenAgent,
 			onOpenVideo,
+			loadBridgeBody,
 			onCancelTurn,
 			anchorId,
 			measureRow,
