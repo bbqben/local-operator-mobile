@@ -23,9 +23,20 @@
  * "renderer: unavailable" in that case). The frozen copy is the guarantee; this
  * is the check that the guarantee was in force wherever it can be read.
  *
- * Run: `node design/preview/renderer-drift.mjs <diagnostics-dir> "<frozen --version output>"`.
- * Exit 0 when consistent, 1 on drift or an unreadable frozen version.
+ * ON-DISK RE-READ. CDP only says what a pass rendered with; it cannot see a copy
+ * that changed after the last pass, and a pass whose CDP answer was unavailable
+ * hides a change entirely. PR #355's first CI run (44855933617) showed the copy
+ * itself being updated in place mid-job (`all` on 157.0.8103.79, `frames` on
+ * .80 from the same path), so when given the frozen binary's path this also
+ * runs its `--version` now and fails if that moved or cannot be read. That is
+ * the job's own measurement of the copy, not an observational renderer fact, so
+ * unlike a missing renderer.json it DOES fail.
+ *
+ * Run: `node design/preview/renderer-drift.mjs <diagnostics-dir> "<frozen --version output>" [<frozen binary>]`.
+ * Exit 0 when consistent, 1 on drift, an unreadable frozen version, or a frozen
+ * binary whose on-disk version moved or cannot be read.
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -51,8 +62,21 @@ export const recordedRenderers = (directory) => {
 		});
 };
 
-/** The verdict as a value so it can be tested without a runner. */
-export const rendererDrift = ({ frozen, records }) => {
+/** The frozen binary's `--version` output as it is on disk now; null when it
+ * will not run or answer within 30 s (the job's original read took well under
+ * a second). Never throws: "cannot read" is reported by the verdict. */
+export const onDiskVersion = (binary) => {
+	try {
+		return execFileSync(binary, ["--version"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "pipe"] }).split("\n")[0];
+	} catch {
+		return null;
+	}
+};
+
+/** The verdict as a value so it can be tested without a runner. `onDisk` is the
+ * frozen binary's `--version` re-read at check time: undefined = not checked,
+ * null = could not be read (fails closed). */
+export const rendererDrift = ({ frozen, records, onDisk }) => {
 	const frozenVersion = rendererVersion(frozen);
 	if (!frozenVersion) {
 		return { ok: false, message: `the frozen capture renderer's version is unreadable (${JSON.stringify(frozen ?? "")}); cannot prove the job used one renderer` };
@@ -60,9 +84,22 @@ export const rendererDrift = ({ frozen, records }) => {
 	const seen = records.filter((r) => r.version);
 	const drifted = seen.filter((r) => r.version !== frozenVersion);
 	const missing = PASSES.filter((pass) => !seen.some((r) => r.pass === pass));
-	const summary = [`frozen ${frozenVersion}`, ...records.map((r) => `${r.run} ${r.version ?? "unavailable"}`)].join(", ");
+	const diskVersion = onDisk === undefined ? undefined : rendererVersion(onDisk);
+	const summary = [
+		`frozen ${frozenVersion}`,
+		...records.map((r) => `${r.run} ${r.version ?? "unavailable"}`),
+		...(onDisk === undefined ? [] : [`on-disk copy now ${diskVersion ?? "unreadable"}`]),
+	].join(", ");
 	if (drifted.length) {
 		return { ok: false, message: `the capture renderer changed mid-job; the gate's verdict would be meaningless (${summary})` };
+	}
+	if (onDisk !== undefined && diskVersion !== frozenVersion) {
+		return {
+			ok: false,
+			message: diskVersion
+				? `the frozen capture renderer was modified on disk during the job; the freeze did not hold (${summary})`
+				: `the frozen capture renderer no longer reports a version on disk (${JSON.stringify(onDisk ?? "")}); cannot prove the job used one renderer (${summary})`,
+		};
 	}
 	return {
 		ok: true,
@@ -72,12 +109,12 @@ export const rendererDrift = ({ frozen, records }) => {
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	const [directory, frozen] = process.argv.slice(2);
+	const [directory, frozen, binary] = process.argv.slice(2);
 	if (!directory) {
-		console.error('usage: node design/preview/renderer-drift.mjs <diagnostics-dir> "<frozen --version output>"');
+		console.error('usage: node design/preview/renderer-drift.mjs <diagnostics-dir> "<frozen --version output>" [<frozen binary>]');
 		process.exit(1);
 	}
-	const verdict = rendererDrift({ frozen, records: recordedRenderers(directory) });
+	const verdict = rendererDrift({ frozen, records: recordedRenderers(directory), onDisk: binary ? onDiskVersion(binary) : undefined });
 	if (verdict.warning) console.log(`::warning::${verdict.warning}`);
 	console.log(verdict.ok ? verdict.message : `::error::${verdict.message}`);
 	process.exit(verdict.ok ? 0 : 1);

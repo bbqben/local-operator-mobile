@@ -2,12 +2,12 @@
 // run there with plain `node --test` next to capture-diagnostics.test.mjs.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import { rendererLine, rendererVersion } from "./capture-diagnostics.mjs";
-import { recordedRenderers, rendererDrift } from "./renderer-drift.mjs";
+import { onDiskVersion, recordedRenderers, rendererDrift } from "./renderer-drift.mjs";
 
 const script = new URL("./renderer-drift.mjs", import.meta.url).pathname;
 
@@ -101,6 +101,72 @@ test("the CLI exits 1 with an ::error:: on drift and 0 when the renderer held", 
 	}
 });
 
+// PR #355 run 44855933617: the copy itself was updated in place mid-job. A stub
+// "binary" stands in for the frozen copy so the on-disk re-read is exercised for
+// real (execFileSync of a path), with no browser.
+const withStubBinary = (output, run, status = 0) => {
+	const directory = mkdtempSync(join(process.env.LOCAL_OPERATOR_SCRATCHPAD ?? tmpdir(), "renderer-drift-bin-"));
+	try {
+		const binary = join(directory, "Google Chrome");
+		writeFileSync(binary, `#!/bin/sh\nprintf '%s\\n' ${JSON.stringify(output)}\nexit ${status}\n`);
+		chmodSync(binary, 0o755);
+		return run(binary);
+	} finally {
+		rmSync(directory, { recursive: true, force: true });
+	}
+};
+
+const held = [{ pass: "all", run: "all-1", version: "157.0.8103.79" }, { pass: "frames", run: "frames-2", version: "157.0.8103.79" }];
+
+test("the on-disk re-read reads a binary's first --version line, and null when it will not run", () => {
+	withStubBinary("Google Chrome 157.0.8103.79 ", (binary) => assert.equal(onDiskVersion(binary), "Google Chrome 157.0.8103.79 "));
+	withStubBinary("boom", (binary) => assert.equal(onDiskVersion(binary), null), 3);
+	assert.equal(onDiskVersion("/nonexistent/Google Chrome"), null);
+});
+
+test("FAILS when every pass held but the copy on disk changed after them", () => {
+	const verdict = rendererDrift({ frozen: "Google Chrome 157.0.8103.79 ", records: held, onDisk: "Google Chrome 157.0.8103.80 " });
+	assert.equal(verdict.ok, false);
+	assert.match(verdict.message, /modified on disk during the job; the freeze did not hold/);
+	assert.ok(verdict.message.includes("on-disk copy now 157.0.8103.80"));
+});
+
+test("FAILS when CDP recorded nothing but the copy on disk changed (independent of CDP)", () => {
+	const records = [{ pass: "all", run: "all-1", version: null }, { pass: "frames", run: "frames-2", version: null }];
+	assert.equal(rendererDrift({ frozen: "Google Chrome 157.0.8103.79", records, onDisk: "Google Chrome 158.0.8127.36" }).ok, false);
+});
+
+test("FAILS closed when the copy on disk no longer reports a version", () => {
+	for (const onDisk of [null, "", "Google Chrome"]) {
+		const verdict = rendererDrift({ frozen: "Google Chrome 157.0.8103.79", records: held, onDisk });
+		assert.equal(verdict.ok, false);
+		assert.match(verdict.message, /no longer reports a version on disk/);
+	}
+});
+
+test("passes when the passes and the on-disk copy all still match; not checked when no binary is given", () => {
+	const verdict = rendererDrift({ frozen: "Google Chrome 157.0.8103.79 ", records: held, onDisk: "Google Chrome 157.0.8103.79 " });
+	assert.equal(verdict.ok, true);
+	assert.match(verdict.message, /on-disk copy now 157\.0\.8103\.79/);
+	assert.doesNotMatch(rendererDrift({ frozen: "Google Chrome 157.0.8103.79", records: held }).message, /on-disk/);
+});
+
+test("the CLI re-reads the frozen binary it is given and exits 1 when the copy moved", () => {
+	withDiagnostics({
+		"all-1": { product: "HeadlessChrome/157.0.8103.79" },
+		"frames-2": { product: "HeadlessChrome/157.0.8103.79" },
+	}, (directory) => {
+		for (const [disk, status] of [["Google Chrome 157.0.8103.79 ", 0], ["Google Chrome 157.0.8103.80 ", 1]]) {
+			withStubBinary(disk, (binary) => {
+				const child = spawnSync(process.execPath, [script, directory, "Google Chrome 157.0.8103.79 ", binary], { encoding: "utf8", timeout: 10000 });
+				assert.equal(child.status, status, child.stdout + child.stderr);
+				if (status) assert.match(child.stdout, /^::error::the frozen capture renderer was modified on disk/m);
+				else assert.match(child.stdout, /on-disk copy now 157\.0\.8103\.79/);
+			});
+		}
+	});
+});
+
 test("the design-kit job freezes Chrome before any use and checks drift after the listing gate", () => {
 	const workflow = readFileSync(new URL("../../.github/workflows/ci.yml", import.meta.url), "utf8");
 	const design = workflow.slice(workflow.indexOf("  design-kit:"), workflow.indexOf("  ci-gate:"));
@@ -111,8 +177,23 @@ test("the design-kit job freezes Chrome before any use and checks drift after th
 	// mutable /Applications bundle as the binary to run.
 	assert.doesNotMatch(design.slice(0, freeze), /Google Chrome/);
 	assert.doesNotMatch(design.slice(freeze).split("\n      - name:").slice(1).join(""), /\/Applications\/Google/);
-	assert.ok(design.slice(freeze).includes('echo "CHROME=$frozen/Contents/MacOS/Google Chrome" >> "$GITHUB_ENV"'));
+	assert.ok(design.slice(freeze).includes('frozen_bin="$frozen/Contents/MacOS/Google Chrome"'));
+	assert.ok(design.slice(freeze).includes('echo "CHROME=$frozen_bin" >> "$GITHUB_ENV"'));
 	const drift = at("The capture renderer did not change mid-job");
 	assert.ok(drift > at("The committed listing frames re-render identically"));
-	assert.match(design.slice(drift), /node design\/preview\/renderer-drift\.mjs "\$RUNNER_TEMP\/listing-render-diagnostics" "\$CAPTURE_CHROME_VERSION"/);
+	assert.match(design.slice(drift), /node design\/preview\/renderer-drift\.mjs "\$RUNNER_TEMP\/listing-render-diagnostics" "\$CAPTURE_CHROME_VERSION" "\$CHROME"/);
+	// Review R1-2: only after a successful freeze and a listing step that ran.
+	assert.match(design.slice(drift), /if: \$\{\{ !cancelled\(\) && steps\.freeze\.outcome == 'success' && \(steps\.listing\.outcome == 'success' \|\| steps\.listing\.outcome == 'failure'\) \}\}/);
+	assert.match(design.slice(freeze), /^        id: freeze$/m);
+	assert.match(design.slice(at("The committed listing frames re-render identically")), /^        id: listing$/m);
+	// Run 44855933617: a copy alone was updated in place. Both locks, the smoke
+	// launch of the LOCKED copy, and the unlock at job end must stay.
+	const freezeStep = design.slice(freeze, design.indexOf("\n      - ", freeze + 1));
+	assert.match(freezeStep, /launchctl bootout "gui\/\$\(id -u\)\/\$label"/);
+	assert.match(freezeStep, /sudo -n launchctl bootout "system\/\$label"/);
+	assert.match(freezeStep, /pgrep -fl -i "\$updater"/);
+	const lock = freezeStep.indexOf('chflags -R uchg "$frozen_dir"');
+	assert.ok(lock > 0 && lock < freezeStep.indexOf("--dump-dom about:blank"));
+	assert.ok(at("Unlock the frozen capture renderer") > drift);
+	assert.match(design.slice(at("Unlock the frozen capture renderer")), /if: always\(\)\n        run: chflags -R nouchg "\$RUNNER_TEMP\/chrome-frozen"/);
 });
