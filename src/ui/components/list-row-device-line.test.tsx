@@ -43,6 +43,20 @@ function Recorder(props: Record<string, unknown>): ReactNode {
 	const nested: ReactNode[] = [];
 	for (const [name, value] of Object.entries(props)) {
 		if (name === "children") continue;
+		/* The paragraph base the native half of `useComposedDir()` states — the
+		 *  one non-string prop the direction test needs to read back. */
+		if (
+			name === "style" &&
+			value !== null &&
+			typeof value === "object" &&
+			typeof (value as { writingDirection?: unknown }).writingDirection ===
+				"string"
+		)
+			host.records.push({
+				testID,
+				prop: "writingDirection",
+				text: (value as { writingDirection: string }).writingDirection,
+			});
 		if (typeof value === "string")
 			host.records.push({ testID, prop: name, text: value });
 		else if (isValidElement(value)) nested.push(value);
@@ -113,22 +127,38 @@ afterEach(async () => {
 	resetLocaleSource();
 });
 
-async function mountRemoteRow(): Promise<void> {
+/** Mounts the real row; `direction` wraps it in the app's DirectionProvider,
+ *  as the root does for the active catalogue. */
+async function mountRemoteRow(direction?: "ltr" | "rtl"): Promise<void> {
 	const { ListRow } = await import("@/ui/components/list-row");
+	const { DirectionProvider } = await import("@/ui/direction");
+	const row = createElement(ListRow, {
+		title: "Payments",
+		remote: {
+			device: DEVICE,
+			reachable: true,
+			indicatorTestID: INDICATOR,
+		},
+		onPress: () => undefined,
+	});
 	await act(async () =>
 		root.render(
-			createElement(ListRow, {
-				title: "Payments",
-				remote: {
-					device: DEVICE,
-					reachable: true,
-					indicatorTestID: INDICATOR,
-				},
-				onPress: () => undefined,
-			}),
+			direction === undefined
+				? row
+				: createElement(DirectionProvider, {
+						direction,
+						locale: direction === "rtl" ? "ur" : "en",
+						// biome-ignore lint/correctness/noChildrenProp: createElement form
+						children: row,
+					}),
 		),
 	);
 }
+
+const deviceLineBase = (): string[] =>
+	host.records
+		.filter((r) => r.testID === INDICATOR && r.prop === "writingDirection")
+		.map((r) => r.text);
 
 const deviceLine = (): string[] =>
 	host.records
@@ -174,5 +204,24 @@ describe("a remote row's device line is keyed", () => {
 				"ur",
 			),
 		);
+	});
+});
+
+/* Audit ondev-ur-5a0f53 (A-ur-1/R-ur-1): the line mixes the Urdu frame with a
+ * usually-Latin name, so it must state the page's base rather than inherit one
+ * from its first strong character. Platform is mocked as iOS, where the answer
+ * is the `writingDirection` style. */
+describe("a remote row's device line states the page's direction", () => {
+	it("an RTL page gives the line an rtl base", async () => {
+		setLocaleSource(() => "ur");
+		await mountRemoteRow("rtl");
+		expect(deviceLineBase()).toEqual(["rtl"]);
+	});
+
+	it("an LTR page adds nothing (the catalogue's own base stands)", async () => {
+		setLocaleSource(() => "en");
+		await mountRemoteRow("ltr");
+		expect(deviceLineBase()).toEqual([]);
+		expect(deviceLine()).toEqual([`On ${DEVICE}`]);
 	});
 });
