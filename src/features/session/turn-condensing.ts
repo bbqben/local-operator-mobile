@@ -37,13 +37,27 @@
  *      latch at the condense moment, so a frame that mutates an old row cannot
  *      change the bar's string — and therefore cannot change its height.
  *
- * A PROSE TURN KEEPS ITS WORDS. The bar stands for WORK. In a turn with no tool
- * row, every assistant message that hands something over (no `calls_tools`)
- * stays on screen beside the bar, however long it is: a second message or a
- * quiet `no_reply` close after a long reply used to fold the reply itself into
- * a bar reading `Turn condensed`, which looked like a lost message. A turn that
- * did tool work is the tool-turn contract and is unchanged
- * (`docs/design/native-interaction-guidelines.md`). See `turnPinsProse`.
+ * THE BAR STANDS FOR WORK, NEVER FOR WHAT THE READER IS OWED. Two kinds of row
+ * stay on screen beside the bar in EVERY turn, prose or tool
+ * (`staysVisibleOutsideTurnBar`):
+ *   - every assistant message that hands something over (`isHandoverProse`: has
+ *     content, no `calls_tools`), however long it is and whether or not more
+ *     work followed it. A turn that answered and was then continued — a steer,
+ *     a hub reply, a wake, the todo guardrail's "stop, then more work" — used to
+ *     fold its FIRST answer into the bar, and a merged/extended latch swallowed
+ *     replies the reader had already seen (operator report on TestFlight 1411:
+ *     "final responses are being tucked into condensed messages"). This is a
+ *     SUPERSET of the relay web client's partition (`partitionRun` V3/V5,
+ *     `isFinalResponse`, `condense-segments.ts` in local-operator), not a
+ *     match: web pins a final response only inside a RESPONSE cycle, while
+ *     this rule has no cycle scoping and pins every handover. Showing more is
+ *     the safe direction for the report above.
+ *   - every `user` / `steer` row inside the span: the one row in a turn the
+ *     READER wrote (`partitionRun` V3). A mid-turn steer used to vanish under
+ *     the bar with the work it steered, together with the answers to it.
+ * Mid-turn narration (carries `calls_tools`), tool rows and finished reasoning
+ * are still what the bar stands for, so a tool turn still reads as one line of
+ * work followed by the words it produced.
  *
  * Completion is NOT invented here: a turn may condense only when its closing
  * answer is `entryComplete` (final AND text_complete — see
@@ -248,19 +262,15 @@ const isHandoverProse = (entry: TranscriptEntry): boolean =>
 		entry.images.length > 0 ||
 		(entry.files?.length ?? 0) > 0);
 
-/** Rows that own visible media artifacts or error notices stay on screen outside
- *  the collapsed span even when the surrounding turn condenses. So does the
- *  agent's own handover prose, but only in a PROSE turn (`pinsProse`, see
- *  `turnPinsProse`): a turn that did tool work keeps the tool-turn contract
- *  (`docs/design/native-interaction-guidelines.md`: "Tool-turn condensing is a
- *  separate contract and must not change incidentally"), where the bar states
- *  the work and its counts. */
-export function staysVisibleOutsideTurnBar(
-	entry: TranscriptEntry,
-	pinsProse = false,
-): boolean {
+/** Rows that stay on screen outside the collapsed span even when the
+ *  surrounding turn condenses: visible media artifacts, unhandled error
+ *  notices, compactions, the reader's own messages (`user` / `steer`) and the
+ *  agent's handover prose — in every turn, tool work or not (see the module
+ *  note "THE BAR STANDS FOR WORK"). */
+export function staysVisibleOutsideTurnBar(entry: TranscriptEntry): boolean {
 	if (isUnhandledErrorNotice(entry)) return true;
-	if (pinsProse && isHandoverProse(entry)) return true;
+	if (entry.kind === "user" || entry.kind === "steer") return true;
+	if (isHandoverProse(entry)) return true;
 	if (entry.kind === "compaction") return true;
 	if (entry.kind === "tool") {
 		if (MEDIA_ARTIFACT_TOOLS.has(entry.tool_name.trim().toLowerCase())) {
@@ -372,12 +382,6 @@ export interface LatchedTurn {
 	 * after this row"; without it (older latches) the span never extends.
 	 */
 	spanEndKey?: string;
-	/**
-	 * This turn kept its handover prose outside the bar (see `turnPinsProse`).
-	 * Frozen with the latch so the turn's kind cannot change when a continuation
-	 * adds tool work. Absent on a tool turn and on a latch from an older caller.
-	 */
-	pinsProse?: boolean;
 }
 
 /** One row of the rendered transcript list. A bar's id is the a11y builder's
@@ -540,14 +544,10 @@ export function condensePlan(input: CondenseInput): CondensePlan {
 		 * a first frame can honestly freeze, minus pinned media/error rows); for a
 		 * latched turn, the frozen list.
 		 */
-		const pinsProse =
-			latchedTurn !== undefined
-				? latchedTurn.pinsProse === true
-				: closing !== null && turnPinsProse(entries, turn, closing);
 		const spanIds: readonly string[] =
 			latchedTurn !== undefined
 				? latchedTurn.hiddenIds
-				: spanBetween(entries, turn, closing, pinsProse);
+				: spanBetween(entries, turn, closing);
 		/*
 		 * Invariant 2 outranks the active-turn rule in the corner that should not
 		 * occur (a replacement frame — not an append — that makes a latched turn
@@ -562,12 +562,9 @@ export function condensePlan(input: CondenseInput): CondensePlan {
 				!isActive &&
 				closing !== null &&
 				spanIds.length > 0 &&
-				!spanHidesProseWithoutWork(entries, turn, closing, pinsProse));
+				!spanHidesProseWithoutWork(entries, turn, closing));
 		if (latchedTurn === undefined && condensed && closing !== null) {
-			latch.set(
-				turn.key,
-				latchedTurnFor(entries, turn, closing, spanIds, pinsProse),
-			);
+			latch.set(turn.key, latchedTurnFor(entries, turn, closing, spanIds));
 		}
 		const facts = latch.get(turn.key)?.facts ?? null;
 		const open = input.expanded.has(turn.key);
@@ -651,27 +648,6 @@ export function condensePlan(input: CondenseInput): CondensePlan {
 	return { items, turns: views, latch };
 }
 
-/**
- * Whether a turn is a PROSE turn: no tool row between its opening message and
- * its closing row (a settled `no_reply` close is the turn's own ending, not
- * work). Only a prose turn pins its handover messages outside the bar, so a
- * tool turn's fold is byte-for-byte what it was.
- */
-function turnPinsProse(
-	entries: readonly TranscriptEntry[],
-	turn: TranscriptTurn,
-	closing: number,
-): boolean {
-	const limit = Math.min(closing, turn.end + 1);
-	for (let at = turn.start + 1; at < limit; at += 1) {
-		const row = entries[at];
-		if (row !== undefined && row.kind === "tool" && !isQuietCloseEntry(row)) {
-			return false;
-		}
-	}
-	return true;
-}
-
 /** The rows between the opening user row and the closing answer, as one frame
  *  carries them: a first condensation can only freeze what it can see (a window
  *  that has already slid may have lost the span's oldest rows — nothing can
@@ -680,14 +656,13 @@ function spanBetween(
 	entries: readonly TranscriptEntry[],
 	turn: TranscriptTurn,
 	closing: number | null,
-	pinsProse: boolean,
 ): readonly string[] {
 	if (closing === null || closing <= turn.start + 1) return [];
 	const ids: string[] = [];
 	const limit = Math.min(closing, turn.end + 1);
 	for (let at = turn.start + 1; at < limit; at += 1) {
 		const row = entries[at];
-		if (row === undefined || staysVisibleOutsideTurnBar(row, pinsProse)) {
+		if (row === undefined || staysVisibleOutsideTurnBar(row)) {
 			continue;
 		}
 		ids.push(row.id);
@@ -706,9 +681,8 @@ function spanHidesProseWithoutWork(
 	entries: readonly TranscriptEntry[],
 	turn: TranscriptTurn,
 	closing: number,
-	pinsProse: boolean,
 ): boolean {
-	const rows = rowsBetween(entries, turn, closing, pinsProse);
+	const rows = rowsBetween(entries, turn, closing);
 	const facts = factsOverRows(rows);
 	if (facts.steps > 0 || Math.floor(facts.durationS) >= 1 || facts.steered) {
 		return false;
@@ -729,14 +703,12 @@ function latchedTurnFor(
 	turn: TranscriptTurn,
 	closing: number,
 	spanIds: readonly string[],
-	pinsProse: boolean,
 ): LatchedTurn {
-	const spanRows = rowsBetween(entries, turn, closing, pinsProse);
+	const spanRows = rowsBetween(entries, turn, closing);
 	const last = entries[Math.min(closing, turn.end + 1) - 1];
 	return {
 		facts: factsOverRows(spanRows),
 		hiddenIds: spanIds,
-		...(pinsProse ? { pinsProse: true } : {}),
 		canonicalIds: spanRows.map(canonicalRowKey),
 		...(last !== undefined ? { spanEndKey: canonicalRowKey(last) } : {}),
 	};
@@ -773,11 +745,11 @@ function extendLatchedTurn(
 	const known = new Set(latched.canonicalIds ?? latched.hiddenIds);
 	const isKnown = (row: TranscriptEntry): boolean =>
 		known.has(canonicalRowKey(row)) || latched.hiddenIds.includes(row.id);
-	// The turn's kind is frozen with the latch: a prose turn that a continuation
-	// gives tool work keeps its prose on screen (a bar never swallows what the
-	// reader already saw), and a tool turn never starts pinning mid-life.
-	const pinsProse = latched.pinsProse === true;
-	const spanRows = rowsBetween(entries, turn, closing, pinsProse);
+	// The span re-scans from the opening row, so the PREVIOUS closing answer is
+	// inside it now; `rowsBetween` keeps it out (handover prose is never
+	// hidden), which is what stops a continuation from swallowing an answer the
+	// reader has already seen.
+	const spanRows = rowsBetween(entries, turn, closing);
 	const added = spanRows.filter((row) => !isKnown(row));
 	if (added.length === 0) return null;
 	const presentCount = spanRows.length - added.length;
@@ -794,7 +766,6 @@ function extendLatchedTurn(
 	return {
 		facts,
 		hiddenIds,
-		...(pinsProse ? { pinsProse: true } : {}),
 		canonicalIds,
 		...(last !== undefined ? { spanEndKey: canonicalRowKey(last) } : {}),
 	};
@@ -815,13 +786,12 @@ function rowsBetween(
 	entries: readonly TranscriptEntry[],
 	turn: TranscriptTurn,
 	closing: number,
-	pinsProse: boolean,
 ): TranscriptEntry[] {
 	const rows: TranscriptEntry[] = [];
 	const limit = Math.min(closing, turn.end + 1);
 	for (let at = turn.start + 1; at < limit; at += 1) {
 		const row = entries[at];
-		if (row === undefined || staysVisibleOutsideTurnBar(row, pinsProse)) {
+		if (row === undefined || staysVisibleOutsideTurnBar(row)) {
 			continue;
 		}
 		rows.push(row);
@@ -835,6 +805,12 @@ function factsOverRows(rows: readonly TranscriptEntry[]): TurnBarFacts {
 	let failed = 0;
 	let steered = false;
 	for (const entry of rows) {
+		// Unreachable from `condensePlan` today: `rowsBetween` skips user/steer
+		// rows (`staysVisibleOutsideTurnBar`), so a fresh latch never sets
+		// `steered` and the bar's "Steered" label no longer paints — the steers
+		// are on screen beside the bar instead. Kept deliberately, as web V3
+		// keeps its label arm: `barPhrases` is a public contract and a caller
+		// passing user rows still gets a truthful fact. Do not "fix" it back.
 		if (entry.kind === "steer" || entry.kind === "user") {
 			steered = true;
 			continue;

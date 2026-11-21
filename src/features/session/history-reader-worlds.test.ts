@@ -238,8 +238,12 @@ describe("the mock worlds the S5 cells open, through the production reader", () 
 		const { reader, projection, asked } = await open("idle");
 		reader.accept(projection);
 		const held = reader.visibleRows.map((row) => row.id);
+		// The opening read is the newest durable page even with a frame held
+		// (history-window.ts, "THE OPENING READ IS THE NEWEST PAGE TOO"); the
+		// older read after it names the oldest row.
 		await reader.load(true);
-		expect(asked).toEqual([reader.cursor]);
+		await reader.load();
+		expect(asked).toEqual([undefined, reader.cursor]);
 		expect(reader.olderState).toBe("end");
 		expect(reader.visibleRows.map((row) => row.id)).toEqual(held);
 	});

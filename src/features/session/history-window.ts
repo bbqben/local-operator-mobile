@@ -62,6 +62,78 @@ export interface HistoryWindowOptions {
 	now?: () => number;
 }
 
+/**
+ * Re-seat the rows a durable page carries into the page's (journal) order,
+ * leaving every other held row exactly where it is.
+ *
+ * WHY. The merge keeps a held row where it was first shown (`mergeTranscript`
+ * never reorders, so a frame landing cannot jump the list), and the first place
+ * a row is shown is usually the LIVE frame. The live fold and the journal
+ * disagree about one thing in practice: a steer is painted when it is SENT and
+ * written when it is DELIVERED, rows later (Core `projection.py`
+ * `note_user_message`). Without this the phone kept the send-time order
+ * forever, while the desktop, a reload and every `/history` page showed the
+ * delivery order — the user's messages bunched together with the agent's
+ * replies after them instead of between them.
+ *
+ * HOW, AND WHY IT CANNOT DROP OR DUPLICATE. Only the SLOTS already occupied by
+ * page rows are reassigned: the page rows are sorted by their page position and
+ * written back into those same slots in ascending order. The row count, the set
+ * of rows and the position of every row the page does not carry (live-only
+ * reasoning, fold-minted notices, rows outside the page's window) are
+ * unchanged. Rows are matched by `rowIdentity` AND occurrence, because wire
+ * ids are not guaranteed unique. Both sides count occurrences FROM THE SAME
+ * EDGE — the edge the page sits at in the held list. A newest page (`edge`
+ * "newest") is the tail: its k copies of an identity are the LAST k held
+ * copies, so both lists count from the end; an older page counts from the
+ * start. Counting the held list from the start but the page within itself
+ * paired an older-history copy with the page's rank and moved page rows up
+ * into older history (PR #356 R2). Already-ordered input returns the same
+ * array, so a page that agrees with the screen changes nothing.
+ */
+export function adoptPageOrder(
+	rows: TranscriptEntry[],
+	page: readonly TranscriptEntry[],
+	edge: "newest" | "oldest" = "newest",
+): TranscriptEntry[] {
+	const keyed = (list: readonly TranscriptEntry[]): string[] => {
+		const seen = new Map<string, number>();
+		const keys: string[] = new Array(list.length);
+		const count = (at: number) => {
+			const row = list[at];
+			if (row === undefined) return;
+			const id = rowIdentity(row);
+			const n = seen.get(id) ?? 0;
+			seen.set(id, n + 1);
+			keys[at] = `${n}:${id}`;
+		};
+		if (edge === "newest")
+			for (let at = list.length - 1; at >= 0; at -= 1) count(at);
+		else for (let at = 0; at < list.length; at += 1) count(at);
+		return keys;
+	};
+	const pageAt = new Map(keyed(page).map((key, at) => [key, at]));
+	const slots: number[] = [];
+	const ranks: number[] = [];
+	keyed(rows).forEach((key, at) => {
+		const rank = pageAt.get(key);
+		if (rank === undefined) return;
+		slots.push(at);
+		ranks.push(rank);
+	});
+	if (ranks.every((rank, at) => at === 0 || (ranks[at - 1] ?? -1) < rank))
+		return rows;
+	const moved = slots
+		.map((slot, at) => ({ row: rows[slot], rank: ranks[at] ?? 0 }))
+		.sort((a, b) => a.rank - b.rank);
+	const next = [...rows];
+	slots.forEach((slot, at) => {
+		const row = moved[at]?.row;
+		if (row !== undefined) next[slot] = row;
+	});
+	return next;
+}
+
 /** A screen-owned reader, not a second transcript store. Capped projections are
  * not deletion signals: keep accepted server rows until this reader is retired.
  * The wire has no retention generation, so unseen prunes cannot be inferred. */
@@ -398,8 +470,24 @@ export class HistoryWindow {
 		if (this.pending) return this.pending;
 		// After a failed newest read `read` is "failed"; its retry must still ask
 		// for the newest page, not the older page at `cursor`.
+		//
+		// THE OPENING READ IS THE NEWEST PAGE TOO (`read === "unknown"`), even
+		// when a live frame landed first and seeded the cursor. The frame is the
+		// relay's LIVE fold, and its rows are not always the journal's: Core paints
+		// a phone steer at SEND time and upgrades it in place when the session
+		// delivers it at a later tool boundary (`projection.py`
+		// `note_user_message` / `absorb_user_event`), while the journal — what the
+		// desktop and every `/history` page show — records it at delivery. Paging
+		// OLDER from the frame's oldest row skipped the newest durable page
+		// entirely, so a row the frame placed below its own window edge was held
+		// by neither read and never shown, and every displaced steer kept its
+		// send-time position for the life of the screen (TestFlight 1411 report:
+		// "not all messages load … sometimes they load out of order").
 		const before =
-			refresh && (this.read === "ok" || this.errorScope === "newest")
+			refresh &&
+			(this.read === "ok" ||
+				this.read === "unknown" ||
+				this.errorScope === "newest")
 				? undefined
 				: this.cursor;
 		const lease = this.lease;
@@ -531,7 +619,17 @@ export class HistoryWindow {
 									spine,
 								).rows
 							: this.insertOlder(authoritative, held, before);
-				this.rows = [...this.detached, ...joined];
+				// A durable page states JOURNAL order for the rows it carries; a live
+				// frame may have placed some of them elsewhere (see the opening-read
+				// note above). Re-seat those rows in the page's order.
+				this.rows = [
+					...this.detached,
+					...adoptPageOrder(
+						joined,
+						authoritative,
+						before === undefined ? "newest" : "oldest",
+					),
+				];
 				if (before !== undefined) {
 					this.cursor = next ?? before;
 					if (next) this.cursors.add(next);
@@ -601,7 +699,13 @@ export class HistoryWindow {
 		// Re-seed from the current stream frame, not the retired page islands.
 		// This also preserves a known pinned-head exclusion during rare fallback.
 		this.accept(currentTail);
-		return this.load();
+		// The NEWEST durable page, not an older one: `read` is "unknown" here, so
+		// this takes the opening-read arm. Paging older from the frame's oldest
+		// row skipped the newest page, so a steer the live frame painted below
+		// its window edge was never fetched — Reload history, the user's recovery
+		// action, lost the row for the life of the screen (PR #356 R1). Older
+		// paging stays on scroll (`loadOlder`).
+		return this.load(true);
 	}
 
 	activate(): void {
