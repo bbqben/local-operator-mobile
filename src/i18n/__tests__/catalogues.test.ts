@@ -772,6 +772,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_TAG_EXAMPLE,
 		"mobile.projects.create.description":
 			"Description is the same French word for the project description field, not English fallback.",
@@ -859,6 +861,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
 		"mobile.schedules.head.overdue":
@@ -912,6 +916,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
 		/* ASCII example, not an untranslated value */
@@ -943,6 +949,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
@@ -977,6 +985,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
