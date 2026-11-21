@@ -289,7 +289,7 @@ const NAMESPACES = [
 		name: "mobile.sidebar",
 		messages: sidebar,
 		context: sidebarContext,
-		expected: 42, // O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
+		expected: 51, // O3-c +9: the row's five status words (row_status.*) and four screen-reader label fragments (row_label.*) (42 + 9 = 51, counted over the en JSON). O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
 	},
 	{
 		/* This app's own short chrome words the relay has no key for: the sidebar
@@ -565,6 +565,9 @@ describe("the English catalogues", () => {
 		 * all 25 merged en catalogue files (mobile.common 15, mobile.projects 59,
 		 * mobile.sidebar 42, mobile.team_bridge 160); every shipped locale also
 		 * sums to 1101. */
+		/* O3-c (English-first): +9 mobile.sidebar (5 row_status, 4 row_label):
+		 * 1101 + 9 = 1110, derived by summing the keys of all 25 en catalogue
+		 * files (mobile.sidebar 51). */
 		/* feat/bridge-mention-suggestions (#305) adds the nine
 		 * mobile.team_bridge.mentions.* keys for @-mention suggestions; merged with
 		 * main's 1101: 1101 + 9 = 1110, derived by summing the keys of all 25 merged
@@ -588,6 +591,10 @@ describe("the English catalogues", () => {
 		 * #292 Pele diagrams +8, #305 mentions +9): all chains kept; main's 1128
 		 * + ADR 0010's 5 = 1133, as `generate.ts --check` reports for the merged
 		 * tree. */
+		/* Convergence of PR #313 (O3-c) with main 2e975773: both chains kept;
+		 * main's 1133 + O3-c's 9 mobile.sidebar keys = 1142, derived by summing
+		 * the keys of all 25 merged en catalogue files (mobile.sidebar 51,
+		 * mobile.team_bridge 179). */
 		// feat/community: +140 mobile.community.* (the public community client)
 		// and +10 more from its review round 1 remediation, on main's 1133
 		// (ADR 0010 chain above) = 1283, re-derived over the rebased tree.
@@ -611,7 +618,12 @@ describe("the English catalogues", () => {
 		/* Attach camera (Take Photo): mobile.composer_input.attach.library,
 		 * camera, files, paste, choose_image, camera_denied, camera_refused,
 		 * open_settings, camera_unavailable, camera_error: 1325 + 10 = 1335. */
-		expect(total).toBe(1335);
+		/* Convergence #2 of PR #313 (O3-c) with main e1888bd6 (#355): both
+		 * chains above kept; main's 1335 + O3-c's 9 mobile.sidebar keys = 1344,
+		 * derived by summing the keys of all 26 merged en catalogue files
+		 * (mobile.sidebar 51, mobile.team_bridge 220); every shipped locale also
+		 * sums to 1344. */
+		expect(total).toBe(1344);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -792,6 +804,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"« Message » is the French noun, spelled as in English (as « Messages » for relay.transcript.label.messages); the fr audit passed it (i18n/audits/evidence/fr/mobile.notifications/o3a-fr-b3177c/).",
 		"mobile.settings.section.notifications":
 			"« Notifications » is the French plural, spelled as in English (as mobile.notifications.title); the fr audit passed this Settings section header (i18n/audits/evidence/fr/mobile.settings/o3a-fr-b3177c/).",
+		"mobile.sidebar.row_status.question":
+			"« question » is the French noun too, the row's waiting-on-a-question status chip paired with « approbation »; the O3-c fr audit passed it as is (i18n/audits/evidence/fr/mobile.sidebar/o3c-fr-f99d15/), not an English fallback.",
 		"mobile.community.approvals.agent":
 			"Agent is also the French term for a software agent; this approval badge is the same idiomatic cognate as mobile.team_bridge.profile.badge_agent, not an English fallback.",
 		"mobile.community.conversation.agent":

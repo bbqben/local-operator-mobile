@@ -33,6 +33,7 @@ import {
 	useConnection,
 	useConnectionState,
 	useListState,
+	useLocaleFrame,
 } from "@/features/auth/connection-provider";
 import { libraryEnabled } from "@/features/library/library-model";
 import {
@@ -466,6 +467,9 @@ export const ConversationsPane = ({
 	);
 	const capabilities = useListState((state) => state.capabilities);
 	const route = useConnectionState((state) => state.route);
+	/* The resolved language, subscribed so a config frame re-renders this pane;
+	 *  see the `items` memo below for why it is also a dependency there. */
+	const language = useLocaleFrame();
 	const destinationInk = useTokenColor("ink-muted");
 	const workspaceDrawer = useOptionalWorkspaceDrawer();
 	const dockedBridgeAdapter = !onClose
@@ -584,7 +588,15 @@ export const ConversationsPane = ({
 		() => arrangeSidebar(filtered, sidebarView, now),
 		[filtered, sidebarView, now],
 	);
-	const items = useMemo(() => buildItems(groups), [groups]);
+	/* `language` is a dependency because these items hold RENDERED COPY: each
+	 *  section header's label is a `t()` reading taken inside `buildItems`, at call
+	 *  time. The subscription re-renders the pane on a language frame, and the
+	 *  dependency makes the memo re-run; without both, the headers kept the old
+	 *  language until the minute tick moved `groups` (PR #302 design D2). biome
+	 *  cannot see the link — the body never mentions `language` — so it is a
+	 *  TRIGGER, silenced with this reason as `home.tsx` does. */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `language` is a TRIGGER: the header labels read the locale live, so it must re-run the memo (see above)
+	const items = useMemo(() => buildItems(groups), [groups, language]);
 	/* The view's own explanations (PR #255 review round 1). `emptiedByView`: rows
 	 *  exist but the view draws none, which must not read "No sessions yet" (M1).
 	 *  `hiddenSections`: the desktop's quiet "N sections hidden" line, so a

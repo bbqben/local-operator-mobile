@@ -40,5 +40,14 @@
 	"mobile.sidebar.row.asks": "{count, plural, one {# سوال} other {# سوالات}}",
 	"mobile.sidebar.row.asks_not_blocker": "{asks}، رکاوٹ نہیں — ایجنٹ کام جاری رکھے ہوئے ہے",
 	"mobile.sidebar.row.agents": "{count, plural, one {# ایجنٹ} other {# ایجنٹس}}",
-	"mobile.sidebar.row.todos": "{count, plural, one {# کام} other {# کام}}"
+	"mobile.sidebar.row.todos": "{count, plural, one {# کام} other {# کام}}",
+	"mobile.sidebar.row_status.approval": "منظوری",
+	"mobile.sidebar.row_status.question": "سوال",
+	"mobile.sidebar.row_status.not_reachable": "پہنچ سے باہر",
+	"mobile.sidebar.row_status.ended": "ختم شدہ",
+	"mobile.sidebar.row_status.not_answering": "جواب نہیں دے رہی",
+	"mobile.sidebar.row_label.waiting": "{kind, select, approval {منظوری زیر التوا} other {سوال زیر التوا}}",
+	"mobile.sidebar.row_label.working": "کام جاری",
+	"mobile.sidebar.row_label.on_device": "ڈیوائس {device} پر",
+	"mobile.sidebar.row_label.open": "کھلی ہوئی"
 }

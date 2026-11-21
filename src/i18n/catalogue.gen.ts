@@ -1046,6 +1046,15 @@ export type CatalogueKey =
 	| "mobile.sidebar.row.asks_not_blocker"
 	| "mobile.sidebar.row.new"
 	| "mobile.sidebar.row.todos"
+	| "mobile.sidebar.row_label.on_device"
+	| "mobile.sidebar.row_label.open"
+	| "mobile.sidebar.row_label.waiting"
+	| "mobile.sidebar.row_label.working"
+	| "mobile.sidebar.row_status.approval"
+	| "mobile.sidebar.row_status.ended"
+	| "mobile.sidebar.row_status.not_answering"
+	| "mobile.sidebar.row_status.not_reachable"
+	| "mobile.sidebar.row_status.question"
 	| "mobile.sidebar.section.older"
 	| "mobile.sidebar.section.pinned"
 	| "mobile.sidebar.section.running"
@@ -2235,6 +2244,13 @@ export type NoParamKey =
 	| "mobile.sidebar.outbox_failed"
 	| "mobile.sidebar.outbox_sending"
 	| "mobile.sidebar.row.new"
+	| "mobile.sidebar.row_label.open"
+	| "mobile.sidebar.row_label.working"
+	| "mobile.sidebar.row_status.approval"
+	| "mobile.sidebar.row_status.ended"
+	| "mobile.sidebar.row_status.not_answering"
+	| "mobile.sidebar.row_status.not_reachable"
+	| "mobile.sidebar.row_status.question"
 	| "mobile.sidebar.section.older"
 	| "mobile.sidebar.section.pinned"
 	| "mobile.sidebar.section.running"
@@ -3535,6 +3551,15 @@ export type MessageParams = {
 	"mobile.sidebar.row.asks_not_blocker": { asks: string | number };
 	"mobile.sidebar.row.new": NoParams;
 	"mobile.sidebar.row.todos": { count: number };
+	"mobile.sidebar.row_label.on_device": { device: string | number };
+	"mobile.sidebar.row_label.open": NoParams;
+	"mobile.sidebar.row_label.waiting": { kind: string };
+	"mobile.sidebar.row_label.working": NoParams;
+	"mobile.sidebar.row_status.approval": NoParams;
+	"mobile.sidebar.row_status.ended": NoParams;
+	"mobile.sidebar.row_status.not_answering": NoParams;
+	"mobile.sidebar.row_status.not_reachable": NoParams;
+	"mobile.sidebar.row_status.question": NoParams;
 	"mobile.sidebar.section.older": NoParams;
 	"mobile.sidebar.section.pinned": NoParams;
 	"mobile.sidebar.section.running": NoParams;
@@ -4915,6 +4940,15 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.sidebar.row.asks_not_blocker": "{asks}, not a blocker",
 	"mobile.sidebar.row.new": "new",
 	"mobile.sidebar.row.todos": "{count, plural, one {# todo} other {# todos}}",
+	"mobile.sidebar.row_label.on_device": "on {device}",
+	"mobile.sidebar.row_label.open": "open",
+	"mobile.sidebar.row_label.waiting": "{kind, select, approval {approval waiting} other {question waiting}}",
+	"mobile.sidebar.row_label.working": "working",
+	"mobile.sidebar.row_status.approval": "approval",
+	"mobile.sidebar.row_status.ended": "ended",
+	"mobile.sidebar.row_status.not_answering": "not answering",
+	"mobile.sidebar.row_status.not_reachable": "not reachable",
+	"mobile.sidebar.row_status.question": "question",
 	"mobile.sidebar.section.older": "Older",
 	"mobile.sidebar.section.pinned": "Pinned",
 	"mobile.sidebar.section.running": "Running",
@@ -6280,6 +6314,15 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.sidebar.row.asks_not_blocker": { role: "meta", note: "Screen-reader name of the asks chip. {asks} is the already-formatted count (mobile.sidebar.row.asks, e.g. \"2 asks\"); \"not a blocker\" says the agent keeps working, it is NOT waiting. Keep the placeholder." },
 	"mobile.sidebar.row.new": { role: "status", note: "Accent marker on a conversation row with unread activity. One lowercase word, keep under ~8 characters (sits in a crowded meta strip). No placeholders." },
 	"mobile.sidebar.row.todos": { role: "meta", note: "Count chip on a conversation row: open todo items in the conversation's task list. Monospace meta strip that yields at large text; keep each arm under ~10 characters. ICU plural with `#` for the number; keep the `one` and `other` arms and add the locale's own CLDR arms (few/many) where it has them." },
+	"mobile.sidebar.row_label.on_device": { role: "meta", note: "Fragment of a conversation row's screen-reader name for a conversation on another device: {device} is that device's name as the reader set it (e.g. \"on Studio Mac\"). Fragments are joined with commas. Keep the placeholder; never translate the name." },
+	"mobile.sidebar.row_label.open": { role: "status", note: "Fragment of a conversation row's screen-reader name, read last when this conversation is the one currently open on screen. Fragments are joined with commas. Lowercase, no placeholders." },
+	"mobile.sidebar.row_label.waiting": { role: "status", note: "Fragment of a conversation row's screen-reader name, read after the title when the agent is waiting on the reader: an approval or an answer to a question. Fragments are joined with commas (\"Payments, approval waiting, open\"). Keep the select and both arms; translate each arm as a whole phrase, never by composing the status word." },
+	"mobile.sidebar.row_label.working": { role: "status", note: "Fragment of a conversation row's screen-reader name, read after the title while the agent's turn is running. Fragments are joined with commas. Lowercase, no placeholders." },
+	"mobile.sidebar.row_status.approval": { role: "status", note: "The one status word on a conversation row whose agent is waiting for the reader to approve an action. Painted in the danger colour in a crowded meta strip; one lowercase word, keep under ~10 characters. No placeholders." },
+	"mobile.sidebar.row_status.ended": { role: "status", note: "Muted status word on a row whose conversation has ended (a receipt, not an error). Also read in the row's screen-reader name. One lowercase word, keep under ~10 characters. No placeholders." },
+	"mobile.sidebar.row_status.not_answering": { role: "status", note: "Muted status word on a row whose conversation's runtime is up but has stopped answering (a receipt, not an error). Also read in the row's screen-reader name. Lowercase, keep under ~14 characters. No placeholders." },
+	"mobile.sidebar.row_status.not_reachable": { role: "status", note: "Muted status word on a row for a conversation on ANOTHER device that the mesh can no longer reach, so the row is stale as a whole. Also read in the row's screen-reader name after the device. Lowercase, keep under ~14 characters; not an error. No placeholders." },
+	"mobile.sidebar.row_status.question": { role: "status", note: "The one status word on a conversation row whose agent asked the reader a question and is waiting for the answer. Painted in the danger colour in a crowded meta strip; one lowercase word, keep under ~10 characters. No placeholders." },
 	"mobile.sidebar.section.older": { role: "heading", note: "Drawer section heading for everything older than this week. Desktop: ui.chat.sidebar_view.section.older." },
 	"mobile.sidebar.section.pinned": { role: "heading", note: "Drawer section heading for conversations the reader pinned; also the switch label that shows or hides it. Desktop: ui.chat.sidebar_view.section.pinned." },
 	"mobile.sidebar.section.running": { role: "heading", note: "Drawer section heading for conversations with a turn in flight or waiting on the reader. Desktop: ui.chat.sidebar_view.section.running." },
@@ -7659,6 +7702,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}, sin bloqueo",
 		"mobile.sidebar.row.new": "nueva",
 		"mobile.sidebar.row.todos": "{count, plural, one {# tarea} many {# de tareas} other {# tareas}}",
+		"mobile.sidebar.row_label.on_device": "en {device}",
+		"mobile.sidebar.row_label.open": "abierta",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {aprobación pendiente} other {pregunta pendiente}}",
+		"mobile.sidebar.row_label.working": "trabajando",
+		"mobile.sidebar.row_status.approval": "aprobación",
+		"mobile.sidebar.row_status.ended": "finalizada",
+		"mobile.sidebar.row_status.not_answering": "no responde",
+		"mobile.sidebar.row_status.not_reachable": "sin conexión",
+		"mobile.sidebar.row_status.question": "pregunta",
 		"mobile.sidebar.section.older": "Anteriores",
 		"mobile.sidebar.section.pinned": "Fijadas",
 		"mobile.sidebar.section.running": "En curso",
@@ -9022,6 +9074,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}, sans blocage",
 		"mobile.sidebar.row.new": "nouvelle",
 		"mobile.sidebar.row.todos": "{count, plural, one {# tâche} many {# de tâches} other {# tâches}}",
+		"mobile.sidebar.row_label.on_device": "sur {device}",
+		"mobile.sidebar.row_label.open": "ouverte",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {approbation en attente} other {question en attente}}",
+		"mobile.sidebar.row_label.working": "en cours",
+		"mobile.sidebar.row_status.approval": "approbation",
+		"mobile.sidebar.row_status.ended": "terminée",
+		"mobile.sidebar.row_status.not_answering": "ne répond pas",
+		"mobile.sidebar.row_status.not_reachable": "injoignable",
+		"mobile.sidebar.row_status.question": "question",
 		"mobile.sidebar.section.older": "Plus anciennes",
 		"mobile.sidebar.section.pinned": "Épinglées",
 		"mobile.sidebar.section.running": "En cours",
@@ -10385,6 +10446,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}, एजेंट रुका नहीं है",
 		"mobile.sidebar.row.new": "नई",
 		"mobile.sidebar.row.todos": "{count, plural, one {# कार्य} other {# कार्य}}",
+		"mobile.sidebar.row_label.on_device": "{device} पर",
+		"mobile.sidebar.row_label.open": "खुली",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {स्वीकृति का इंतज़ार} other {सवाल के जवाब का इंतज़ार}}",
+		"mobile.sidebar.row_label.working": "कार्यरत",
+		"mobile.sidebar.row_status.approval": "स्वीकृति",
+		"mobile.sidebar.row_status.ended": "समाप्त",
+		"mobile.sidebar.row_status.not_answering": "उत्तर नहीं दे रही",
+		"mobile.sidebar.row_status.not_reachable": "पहुँच से बाहर",
+		"mobile.sidebar.row_status.question": "सवाल",
 		"mobile.sidebar.section.older": "पुराने",
 		"mobile.sidebar.section.pinned": "पिन किए हुए",
 		"mobile.sidebar.section.running": "चल रहे",
@@ -11748,6 +11818,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}, агент продолжает работу",
 		"mobile.sidebar.row.new": "новая",
 		"mobile.sidebar.row.todos": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}",
+		"mobile.sidebar.row_label.on_device": "на {device}",
+		"mobile.sidebar.row_label.open": "открыта",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {ждёт одобрения} other {ждёт ответа на вопрос}}",
+		"mobile.sidebar.row_label.working": "работает",
+		"mobile.sidebar.row_status.approval": "одобрение",
+		"mobile.sidebar.row_status.ended": "завершена",
+		"mobile.sidebar.row_status.not_answering": "не отвечает",
+		"mobile.sidebar.row_status.not_reachable": "недоступна",
+		"mobile.sidebar.row_status.question": "вопрос",
 		"mobile.sidebar.section.older": "Раньше",
 		"mobile.sidebar.section.pinned": "Закреплённые",
 		"mobile.sidebar.section.running": "В работе",
@@ -13111,6 +13190,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}، رکاوٹ نہیں — ایجنٹ کام جاری رکھے ہوئے ہے",
 		"mobile.sidebar.row.new": "نئی",
 		"mobile.sidebar.row.todos": "{count, plural, one {# کام} other {# کام}}",
+		"mobile.sidebar.row_label.on_device": "ڈیوائس {device} پر",
+		"mobile.sidebar.row_label.open": "کھلی ہوئی",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {منظوری زیر التوا} other {سوال زیر التوا}}",
+		"mobile.sidebar.row_label.working": "کام جاری",
+		"mobile.sidebar.row_status.approval": "منظوری",
+		"mobile.sidebar.row_status.ended": "ختم شدہ",
+		"mobile.sidebar.row_status.not_answering": "جواب نہیں دے رہی",
+		"mobile.sidebar.row_status.not_reachable": "پہنچ سے باہر",
+		"mobile.sidebar.row_status.question": "سوال",
 		"mobile.sidebar.section.older": "پرانے",
 		"mobile.sidebar.section.pinned": "پن شدہ",
 		"mobile.sidebar.section.running": "جاری",
@@ -14474,6 +14562,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}, tác nhân vẫn chạy tiếp",
 		"mobile.sidebar.row.new": "mới",
 		"mobile.sidebar.row.todos": "{count, plural, other {# tác vụ}}",
+		"mobile.sidebar.row_label.on_device": "trên {device}",
+		"mobile.sidebar.row_label.open": "đang xem",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {đang chờ phê duyệt} other {đang chờ trả lời}}",
+		"mobile.sidebar.row_label.working": "đang làm việc",
+		"mobile.sidebar.row_status.approval": "phê duyệt",
+		"mobile.sidebar.row_status.ended": "đã kết thúc",
+		"mobile.sidebar.row_status.not_answering": "không phản hồi",
+		"mobile.sidebar.row_status.not_reachable": "mất kết nối",
+		"mobile.sidebar.row_status.question": "câu hỏi",
 		"mobile.sidebar.section.older": "Cũ hơn",
 		"mobile.sidebar.section.pinned": "Đã ghim",
 		"mobile.sidebar.section.running": "Đang chạy",
@@ -15837,6 +15934,15 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.sidebar.row.asks_not_blocker": "{asks}，不阻塞智能体工作",
 		"mobile.sidebar.row.new": "新",
 		"mobile.sidebar.row.todos": "{count, plural, other {# 项任务}}",
+		"mobile.sidebar.row_label.on_device": "在{device}上",
+		"mobile.sidebar.row_label.open": "当前已打开",
+		"mobile.sidebar.row_label.waiting": "{kind, select, approval {等待你批准} other {等待你回答问题}}",
+		"mobile.sidebar.row_label.working": "工作中",
+		"mobile.sidebar.row_status.approval": "待审批",
+		"mobile.sidebar.row_status.ended": "已结束",
+		"mobile.sidebar.row_status.not_answering": "未响应",
+		"mobile.sidebar.row_status.not_reachable": "无法连接",
+		"mobile.sidebar.row_status.question": "待回答",
 		"mobile.sidebar.section.older": "更早",
 		"mobile.sidebar.section.pinned": "已置顶",
 		"mobile.sidebar.section.running": "运行中",

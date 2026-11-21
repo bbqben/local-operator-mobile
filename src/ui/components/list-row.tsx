@@ -18,7 +18,7 @@ import {
 	metaPathBox,
 	rowAccessibilityLabel,
 } from "@/ui/components/list-row-meta";
-import { listRowStatus } from "@/ui/components/list-row-status";
+import { listRowStatus, ROW_STATUS_KEY } from "@/ui/components/list-row-status";
 import { Shimmer } from "@/ui/components/shimmer";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { LARGE_TEXT_SCALE } from "@/ui/text-scale";
@@ -289,7 +289,7 @@ export const ListRow = ({
 						pending ? "text-danger" : "text-ink-dim"
 					}`}
 				>
-					{statusWord}
+					{t(ROW_STATUS_KEY[statusWord])}
 				</Text>
 			) : null}
 			{unread ? (

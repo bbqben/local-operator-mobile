@@ -40,5 +40,14 @@
 	"mobile.sidebar.row.asks": "{count, plural, one {# ask} other {# asks}}",
 	"mobile.sidebar.row.asks_not_blocker": "{asks}, not a blocker",
 	"mobile.sidebar.row.agents": "{count, plural, one {# agent} other {# agents}}",
-	"mobile.sidebar.row.todos": "{count, plural, one {# todo} other {# todos}}"
+	"mobile.sidebar.row.todos": "{count, plural, one {# todo} other {# todos}}",
+	"mobile.sidebar.row_status.approval": "approval",
+	"mobile.sidebar.row_status.question": "question",
+	"mobile.sidebar.row_status.not_reachable": "not reachable",
+	"mobile.sidebar.row_status.ended": "ended",
+	"mobile.sidebar.row_status.not_answering": "not answering",
+	"mobile.sidebar.row_label.waiting": "{kind, select, approval {approval waiting} other {question waiting}}",
+	"mobile.sidebar.row_label.working": "working",
+	"mobile.sidebar.row_label.on_device": "on {device}",
+	"mobile.sidebar.row_label.open": "open"
 }

@@ -230,9 +230,9 @@ export const useListState = <T,>(selector: (state: ListSnapshot) => T): T =>
  * the language in the memo's dependency list so the memo re-runs. Home's composer
  * is the surface that needed this (review M3): its controls and chips are memoised
  * over pure copy readers, so a language change while mounted kept the old
- * sentences until some unrelated state moved. `home.tsx` calls `useLocaleFrame()`
- * and lists the value in those memos' dependency arrays; nothing else reads the
- * config store directly.
+ * sentences until some unrelated state moved. Every screen that memoises copy
+ * (home, conversations pane, notifications, …) calls `useLocaleFrame()` and lists
+ * the value in those memos' dependency arrays; nothing reads the config store directly.
  */
 export const useLocaleFrame = (): string | null =>
 	useStore(configStore, (state: ConfigSnapshot) => state.language);
