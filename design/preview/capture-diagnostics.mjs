@@ -31,6 +31,20 @@ export const rendererFacts = (version = {}, info = {}) => ({
 	).map((key) => [key, info.gpu.auxAttributes[key]])),
 });
 
+/** The four-part Chrome version in either spelling the job sees it: CDP's
+ * `product` ("HeadlessChrome/157.0.8103.80") or the binary's `--version`
+ * ("Google Chrome 157.0.8103.80"). Null when there is none to compare. */
+export const rendererVersion = (text) => /\b(\d+\.\d+\.\d+\.\d+)\b/.exec(String(text ?? ""))?.[1] ?? null;
+
+/** The one `renderer:` line every `capture.mjs --check` prints. Never throws:
+ * anything short of a product string is "unavailable", so a CDP hiccup is
+ * visible in the log without being able to change the gate's verdict. */
+export const rendererLine = (facts) => {
+	const version = rendererVersion(facts?.product);
+	if (!facts || facts.unavailable || !version) return "renderer: unavailable";
+	return `renderer: ${facts.product} skiaBackendType=${facts.graphics?.skiaBackendType ?? "unknown"}`;
+};
+
 /** Artifact I/O is observational: never turn a stale verdict into an exception,
  * nor change a passing verdict if the diagnostic disk/decoder is unavailable. */
 export const retainSafely = (retain, evidence, warn = console.warn) => {
