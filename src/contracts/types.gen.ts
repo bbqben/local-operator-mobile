@@ -694,6 +694,11 @@ export interface Capabilities {
 		durable_idempotency?: boolean;
 		receipt_capacity?: number;
 		effort?: boolean;
+		/** local-operator #4367: license the `agent`/`team` start fields and
+		 *  `GET /api/start-targets`. Absent = an older relay, which DROPS the
+		 *  fields on an unkeyed start — never assume them. */
+		agent?: boolean;
+		team?: boolean;
 	};
 }
 
@@ -864,6 +869,33 @@ export interface ModelsResponse {
 	models: ModelEntry[];
 	/** `null` = the computer resolved no default; absent = an older daemon. */
 	default?: ModelDefault | null;
+}
+
+/** `GET /api/start-targets` rows (local-operator #4367, `mobile/daemon.py`
+ *  `_start_targets_payload`). */
+export interface StartTargetAgent {
+	name: string;
+	label?: string;
+	kind?: string | null;
+	source?: string | null;
+	description?: string;
+	agent_id?: string | null;
+	avatar_sha256?: string | null;
+}
+
+export interface StartTargetTeam {
+	name: string;
+	label?: string;
+	description?: string;
+	manager?: string;
+	member_count?: number;
+}
+
+/** `degraded: true` = the registries were unreadable (lists empty). */
+export interface StartTargetsResponse {
+	agents: StartTargetAgent[];
+	teams: StartTargetTeam[];
+	degraded: boolean;
 }
 
 export interface Directories {

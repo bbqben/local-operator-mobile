@@ -87,6 +87,18 @@ export interface StartSessionRequest {
 	 *  (an older relay refuses it on a keyed start, drops it on an unkeyed one).
 	 *  Absent means the computer's configured default. */
 	effort?: string;
+	/** Bind the new chat to this agent profile (local-operator #4367). Mutually
+	 *  exclusive with `team` — the relay refuses both (`invalid_start_target`).
+	 *  Sent ONLY when the reader chose one AND the relay advertises
+	 *  `capabilities.session_start.agent`: an older relay's unkeyed start drops
+	 *  the field and would start an UNBOUND chat while the pill named the agent.
+	 *  The relay writes the session's `attachment.json` before the child spawns,
+	 *  so the first turn already runs as the agent. Never changes the model. */
+	agent?: string;
+	/** Bind the new chat to this team: the session becomes the team's manager
+	 *  with its brief and roster. Same exclusivity and capability rule as
+	 *  `agent` (`capabilities.session_start.team`). */
+	team?: string;
 }
 
 /**
@@ -1297,6 +1309,17 @@ export class RelayEndpoints {
 			signal: options?.signal,
 		});
 		return { status, text };
+	}
+
+	/** The new-chat target picker's roster: the agents and teams a start may
+	 *  name (local-operator #4367). Licensed by `capabilities.session_start.agent`
+	 *  / `.team`; a relay without them has no such route, so callers check the
+	 *  capability first rather than reading a 404 as "none". */
+	async startTargets(): Promise<Payload<"startTargets">> {
+		return this.http.json("startTargets", {
+			method: "GET",
+			path: "/api/start-targets",
+		});
 	}
 
 	/** The new-session directory picker's data. `tmp` is the RESOLVED temp dir the

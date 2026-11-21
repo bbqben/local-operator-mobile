@@ -225,7 +225,14 @@ export class StartupCoordinator {
 				 *  `effort` goes with the model, for the same reason: it was chosen
 				 *  against a ladder, a capability and a computer this restore cannot
 				 *  re-check before `resume()` replays the queue, and an effort the relay no
-				 *  longer licenses is a refused keyed start. */
+				 *  longer licenses is a refused keyed start.
+				 *
+				 *  `agent`/`team` are deliberately KEPT (contract "PR 2"): the app never
+				 *  invents one, so a record naming a team is the reader's own choice, and
+				 *  dropping it would start the queued message as the default agent while
+				 *  they meant the team. It is re-gated where the bytes leave instead —
+				 *  `gatedStart` refuses it locally unless the relay's live frame licensed
+				 *  it — so a relay that lost the capability gets no field. */
 				if (this.record.selection !== null) {
 					const {
 						provider: _provider,

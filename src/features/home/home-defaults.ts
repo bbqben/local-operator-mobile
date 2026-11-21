@@ -12,6 +12,11 @@
  * not have caught them, so the decisions live here and their tests assert the BODY.
  */
 import type { ModelEntry, Payload } from "@/contracts";
+import {
+	type StartTarget,
+	type StartTargetSupport,
+	startTargetField,
+} from "@/features/home/start-targets";
 import type { ModelReading } from "@/features/session/chip-labels";
 import type { ResumeClock } from "@/features/session/resume-hold";
 import { insideResumeWindow } from "@/features/session/resume-plan";
@@ -153,12 +158,18 @@ export const homeStartSelection = (input: {
 	chosenEffort?: string | null;
 	/** `capabilities.session_start.effort`: the relay accepts `effort`. */
 	effortSupported?: boolean;
+	/** The agent or team the reader chose to start as, `null` for the default. */
+	target?: StartTarget | null;
+	/** `capabilities.session_start.agent/team`; `null` while unread. Without the
+	 *  target's own flag no field is sent (`startTargetField`). */
+	targetSupport?: StartTargetSupport | null;
 }): StartSessionRequest | null => {
 	if (input.cwd === null) return null;
 	return {
 		cwd: input.cwd,
 		...modelFields(input.chosenModel),
 		...effortField(input.chosenEffort ?? null, input.effortSupported ?? false),
+		...startTargetField(input.target ?? null, input.targetSupport ?? null),
 	};
 };
 
@@ -184,6 +195,16 @@ const effortField = (
 	supported: boolean,
 ): Pick<StartSessionRequest, "effort"> =>
 	effort !== null && supported ? { effort } : {};
+
+/** The record's own `agent`/`team`, copied as it stands. */
+const storedTargetField = (
+	stored: StartSessionRequest,
+): Pick<StartSessionRequest, "agent" | "team"> =>
+	stored.agent !== undefined
+		? { agent: stored.agent }
+		: stored.team !== undefined
+			? { team: stored.team }
+			: {};
 
 /**
  * What the home must WRITE INTO a restored record, or `null` when the record
@@ -234,6 +255,10 @@ export const restoredSupersede = (input: {
 	/** Whether the reader has applied a folder on this computer since the screen
 	 *  mounted. Once they have, the record is THEIR choice, not a restored one. */
 	readerApplied: boolean;
+	/** The target the home will start as — the reader's pick, else the one the
+	 *  record restored — and the relay's licence for it (`null` while unread). */
+	target?: StartTarget | null;
+	targetSupport?: StartTargetSupport | null;
 }): StartSessionRequest | null => {
 	const { stored, folders, chosenModel, readerApplied } = input;
 	if (stored === null) return null;
@@ -252,12 +277,24 @@ export const restoredSupersede = (input: {
 		...(cwd !== undefined ? { cwd } : {}),
 		...modelFields(chosenModel),
 		...effortField(input.chosenEffort ?? null, input.effortSupported ?? false),
+		/* A RESTORED TARGET IS KEPT, unlike a restored model (contract "PR 2"):
+		 *  the app never invents one, so a record naming a team is the reader's
+		 *  choice from before the relaunch. It is re-gated, not trusted: once the
+		 *  relay is KNOWN not to license it the field is stripped, and while the
+		 *  capabilities are still UNREAD (`null`) the record's own field is left
+		 *  exactly as it is — stripping on a race with the list frame would drop
+		 *  the reader's choice, and the send-time gate in `home.tsx`
+		 *  (`startTargetLicensed`) is what keeps an unread licence off the wire. */
+		...(input.targetSupport === null
+			? storedTargetField(stored)
+			: startTargetField(input.target ?? null, input.targetSupport ?? null)),
 	};
 	/* Key order matters to this comparison: `next` is built just above and `stored`
 	 *  comes from the coordinator's record (written by `homeStartSelection` or a
 	 *  picker's commit, then round-tripped through its JSON `copy`), and every one
 	 *  of those writers emits `cwd`, then `provider`, then `model_id`, then
-	 *  `effort` — the pickers commit through `homeStartSelection` itself. */
+	 *  `effort`, then `agent`/`team` — the pickers commit through
+	 *  `homeStartSelection` itself. */
 	return JSON.stringify(next) === JSON.stringify(stored) ? null : next;
 };
 

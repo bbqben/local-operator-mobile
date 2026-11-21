@@ -55,6 +55,7 @@ export type CatalogueKey =
 	| "mobile.chrome.composer.queued"
 	| "mobile.chrome.composer.row_cost"
 	| "mobile.chrome.composer.row_effort"
+	| "mobile.chrome.composer.row_identity"
 	| "mobile.chrome.composer.row_model"
 	| "mobile.chrome.composer.row_questions"
 	| "mobile.chrome.composer.row_queue"
@@ -474,6 +475,31 @@ export type CatalogueKey =
 	| "mobile.home.folders_read_failed"
 	| "mobile.home.folders_read_sign_in"
 	| "mobile.home.greeting"
+	| "mobile.home.identity.announce_picked"
+	| "mobile.home.identity.band_agents"
+	| "mobile.home.identity.band_recent"
+	| "mobile.home.identity.band_teams"
+	| "mobile.home.identity.default_agent"
+	| "mobile.home.identity.empty"
+	| "mobile.home.identity.no_matches"
+	| "mobile.home.identity.pill_label"
+	| "mobile.home.identity.read_failed"
+	| "mobile.home.identity.refused_fallback"
+	| "mobile.home.identity.refused_registry"
+	| "mobile.home.identity.refused_unknown"
+	| "mobile.home.identity.refused_unlicensed"
+	| "mobile.home.identity.refused_unsaved"
+	| "mobile.home.identity.row_agent"
+	| "mobile.home.identity.row_agent_described"
+	| "mobile.home.identity.row_team"
+	| "mobile.home.identity.row_team_led"
+	| "mobile.home.identity.search"
+	| "mobile.home.identity.sheet_title"
+	| "mobile.home.identity.starting_with"
+	| "mobile.home.identity.team_led_by"
+	| "mobile.home.identity.team_members"
+	| "mobile.home.identity.team_subtitle"
+	| "mobile.home.identity.unsupported"
 	| "mobile.home.models_read_failed"
 	| "mobile.home.options.default_model"
 	| "mobile.home.options.fixed"
@@ -1392,6 +1418,7 @@ export type NoParamKey =
 	| "mobile.chrome.composer.open_queue"
 	| "mobile.chrome.composer.row_cost"
 	| "mobile.chrome.composer.row_effort"
+	| "mobile.chrome.composer.row_identity"
 	| "mobile.chrome.composer.row_model"
 	| "mobile.chrome.composer.row_questions"
 	| "mobile.chrome.composer.row_queue"
@@ -1739,6 +1766,16 @@ export type NoParamKey =
 	| "mobile.home.folders_read_failed"
 	| "mobile.home.folders_read_sign_in"
 	| "mobile.home.greeting"
+	| "mobile.home.identity.band_agents"
+	| "mobile.home.identity.band_recent"
+	| "mobile.home.identity.band_teams"
+	| "mobile.home.identity.default_agent"
+	| "mobile.home.identity.empty"
+	| "mobile.home.identity.read_failed"
+	| "mobile.home.identity.refused_registry"
+	| "mobile.home.identity.search"
+	| "mobile.home.identity.sheet_title"
+	| "mobile.home.identity.unsupported"
 	| "mobile.home.models_read_failed"
 	| "mobile.home.options.default_model"
 	| "mobile.home.options.fixed"
@@ -2507,6 +2544,7 @@ export type MessageParams = {
 	"mobile.chrome.composer.queued": { count: number };
 	"mobile.chrome.composer.row_cost": NoParams;
 	"mobile.chrome.composer.row_effort": NoParams;
+	"mobile.chrome.composer.row_identity": NoParams;
 	"mobile.chrome.composer.row_model": NoParams;
 	"mobile.chrome.composer.row_questions": NoParams;
 	"mobile.chrome.composer.row_queue": NoParams;
@@ -2926,6 +2964,31 @@ export type MessageParams = {
 	"mobile.home.folders_read_failed": NoParams;
 	"mobile.home.folders_read_sign_in": NoParams;
 	"mobile.home.greeting": NoParams;
+	"mobile.home.identity.announce_picked": { name: string | number };
+	"mobile.home.identity.band_agents": NoParams;
+	"mobile.home.identity.band_recent": NoParams;
+	"mobile.home.identity.band_teams": NoParams;
+	"mobile.home.identity.default_agent": NoParams;
+	"mobile.home.identity.empty": NoParams;
+	"mobile.home.identity.no_matches": { query: string | number };
+	"mobile.home.identity.pill_label": { target: string | number };
+	"mobile.home.identity.read_failed": NoParams;
+	"mobile.home.identity.refused_fallback": { name: string | number };
+	"mobile.home.identity.refused_registry": NoParams;
+	"mobile.home.identity.refused_unknown": { name: string | number };
+	"mobile.home.identity.refused_unlicensed": { name: string | number };
+	"mobile.home.identity.refused_unsaved": { name: string | number };
+	"mobile.home.identity.row_agent": { name: string | number };
+	"mobile.home.identity.row_agent_described": { description: string | number; name: string | number };
+	"mobile.home.identity.row_team": { name: string | number };
+	"mobile.home.identity.row_team_led": { manager: string | number; name: string | number };
+	"mobile.home.identity.search": NoParams;
+	"mobile.home.identity.sheet_title": NoParams;
+	"mobile.home.identity.starting_with": { name: string | number };
+	"mobile.home.identity.team_led_by": { manager: string | number };
+	"mobile.home.identity.team_members": { count: number };
+	"mobile.home.identity.team_subtitle": { manager: string | number; count: number };
+	"mobile.home.identity.unsupported": NoParams;
 	"mobile.home.models_read_failed": NoParams;
 	"mobile.home.options.default_model": NoParams;
 	"mobile.home.options.fixed": NoParams;
@@ -3861,6 +3924,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.chrome.composer.queued": "{count, plural, one {# queued message} other {# queued messages}}",
 	"mobile.chrome.composer.row_cost": "Cost",
 	"mobile.chrome.composer.row_effort": "Effort",
+	"mobile.chrome.composer.row_identity": "Agent or team",
 	"mobile.chrome.composer.row_model": "Model",
 	"mobile.chrome.composer.row_questions": "Questions",
 	"mobile.chrome.composer.row_queue": "Queue",
@@ -4280,6 +4344,31 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.home.folders_read_failed": "We couldn't read this computer's folders just now.",
 	"mobile.home.folders_read_sign_in": "This computer asked you to sign in again, so its folders couldn't be read.",
 	"mobile.home.greeting": "What can I help you with today?",
+	"mobile.home.identity.announce_picked": "This chat will start with {name}",
+	"mobile.home.identity.band_agents": "Agents",
+	"mobile.home.identity.band_recent": "Recent",
+	"mobile.home.identity.band_teams": "Teams",
+	"mobile.home.identity.default_agent": "Default agent",
+	"mobile.home.identity.empty": "No agents or teams on this computer yet. Create one in the desktop app.",
+	"mobile.home.identity.no_matches": "Nothing matches “{query}”.",
+	"mobile.home.identity.pill_label": "Start this chat with {target}. Choose an agent or team",
+	"mobile.home.identity.read_failed": "We couldn't read this computer's agents and teams just now.",
+	"mobile.home.identity.refused_fallback": "{name} couldn't be started on this computer. Choose another, or use the default agent.",
+	"mobile.home.identity.refused_registry": "This computer couldn't read its agents and teams just now, so nothing was started. Try again, or use the default agent.",
+	"mobile.home.identity.refused_unknown": "{name} isn't available on this computer any more. Choose another, or use the default agent.",
+	"mobile.home.identity.refused_unlicensed": "This computer can't start a chat with {name} right now. Choose the default agent to send.",
+	"mobile.home.identity.refused_unsaved": "This computer couldn't save {name} for the new chat, so nothing was started. Try again.",
+	"mobile.home.identity.row_agent": "{name}, agent",
+	"mobile.home.identity.row_agent_described": "{name}, agent. {description}",
+	"mobile.home.identity.row_team": "{name}, team",
+	"mobile.home.identity.row_team_led": "{name}, team, led by {manager}",
+	"mobile.home.identity.search": "Search agents and teams",
+	"mobile.home.identity.sheet_title": "Start this chat with",
+	"mobile.home.identity.starting_with": "Starting with {name}…",
+	"mobile.home.identity.team_led_by": "Led by {manager}",
+	"mobile.home.identity.team_members": "{count, plural, one {# member} other {# members}}",
+	"mobile.home.identity.team_subtitle": "Led by {manager} · {count, plural, one {# member} other {# members}}",
+	"mobile.home.identity.unsupported": "This computer's Local Operator is too old to start a chat with an agent or team. Update it to choose one here.",
 	"mobile.home.models_read_failed": "We couldn't read this computer's model list just now.",
 	"mobile.home.options.default_model": "Use this computer's default model",
 	"mobile.home.options.fixed": "This conversation's starting options are fixed. Use Conversation details for its live controls.",
@@ -5200,6 +5289,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.chrome.composer.queued": { role: "button", note: "Build389 shared composer context strip / exclusive home presentation. Preserve {count} plural and {host} parameters where present." },
 	"mobile.chrome.composer.row_cost": { role: "meta", note: "Row label in the composer's More sheet for the conversation's spend; the amount is shown at the other end of the same row. A noun, no colon." },
 	"mobile.chrome.composer.row_effort": { role: "meta", note: "Row label in the composer's More sheet; the reasoning-effort level is shown at the other end of the same row. A noun, no colon." },
+	"mobile.chrome.composer.row_identity": { role: "meta", note: "Row label in the composer's More sheet for which agent or team the new chat starts as; its value is that name or \"Default agent\". Short. New in the new-chat identity picker; the non-English text awaits the translation audit." },
 	"mobile.chrome.composer.row_model": { role: "meta", note: "Row label in the composer's More sheet; the model's name is shown at the other end of the same row. A noun, no colon." },
 	"mobile.chrome.composer.row_questions": { role: "meta", note: "Row label in the composer's More sheet for the agent's questions to the user (including ones that timed out); the count is shown at the other end of the same row and tapping the row opens the questions sheet. A plural noun, no colon." },
 	"mobile.chrome.composer.row_queue": { role: "meta", note: "Row label in the composer's More sheet for messages waiting to be sent; the count is shown at the other end of the same row. A noun, no colon." },
@@ -5619,6 +5709,31 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.home.folders_read_failed": { role: "status", note: "Failure sentence for the folder read, shared verbatim with the /new screen so one failure has one voice. No placeholder; never append an error code." },
 	"mobile.home.folders_read_sign_in": { role: "status", note: "Failure sentence for the folder read when the computer answered that the credential is no longer accepted. Names the CAUSE so Retry is not offered as the fix; the sign-in surface is one tap away. No placeholder." },
 	"mobile.home.greeting": { role: "heading", note: "The home's first line, verbatim from the desktop app. A sentence, not a question the app answers itself." },
+	"mobile.home.identity.announce_picked": { role: "status", note: "Announced to screen readers after a pick closes the sheet. {name} is the chosen agent or team, or \"Default agent\". New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.band_agents": { role: "heading", note: "Heading over the list of agents in the picker. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.band_recent": { role: "heading", note: "Heading over up to three agents or teams the reader picked recently on this computer. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.band_teams": { role: "heading", note: "Heading over the list of teams in the picker. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.default_agent": { role: "button", note: "The choice that starts the chat with no particular agent or team: the computer's own default agent. Also the pill's label when nothing is chosen. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.empty": { role: "status", note: "The computer answered and has no agents or teams a chat can start as. Points at where they are created. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.no_matches": { role: "status", note: "Shown when the search matches nothing. {query} is what the reader typed; keep the quotation marks around it. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.pill_label": { role: "help", note: "Spoken label of the home screen's pill under the greeting. {target} is the chosen agent or team name, or \"Default agent\". Two sentences: the state, then what tapping does. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.read_failed": { role: "status", note: "The list of agents and teams could not be read (the computer's registries were unreadable or the request failed). Shown with a Retry button. Not the same as having none. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.refused_fallback": { role: "status", note: "The computer refused to start the chat as the chosen agent or team for another reason (for example, the team's roster is invalid). {name} is the chosen name. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.refused_registry": { role: "status", note: "The computer could not read its agent and team registries, so it could not start the chat as the chosen one. Nothing was started; the draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.refused_unknown": { role: "status", note: "The computer refused the start because the chosen agent or team (or one of the team's members) no longer exists there. {name} is the chosen name. The draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.refused_unlicensed": { role: "status", note: "Shown instead of sending when the draft names an agent or team but the connected computer cannot (yet, or any more) accept one — sending would start a chat WITHOUT it. {name} is the chosen name. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.refused_unsaved": { role: "status", note: "The computer could not save the chosen agent or team for the new chat, so it started nothing. {name} is the chosen name. The draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.row_agent": { role: "help", note: "Spoken label of an agent row. {name} is the agent's name. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.row_agent_described": { role: "help", note: "Spoken label of an agent row that has a description. {name} is the agent's name; {description} is its one-line description, in whatever language the owner wrote it. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.row_team": { role: "help", note: "Spoken label of a team row. {name} is the team's name. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.row_team_led": { role: "help", note: "Spoken label of a team row that names its manager. {name} is the team, {manager} its manager agent. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.search": { role: "help", note: "Label of the search field in the picker, shown only on a long list. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.sheet_title": { role: "heading", note: "Title of the sheet that chooses which agent or team a NEW chat starts as. Mirrors the desktop's \"Start this chat with\" menu heading. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.starting_with": { role: "status", note: "Shown while the first message is starting a chat bound to an agent or team. {name} is that agent or team. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.team_led_by": { role: "meta", note: "Second line of a team row when the computer did not say how many members the team has. {manager} is the team manager's agent name. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.team_members": { role: "meta", note: "Second line of a team row when the computer did not name its manager. {count} counts the team's members. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.team_subtitle": { role: "meta", note: "Second line of a team row. {manager} is the team manager's agent name; {count} counts the team's members. New in the new-chat identity picker; the non-English text awaits the translation audit." },
+	"mobile.home.identity.unsupported": { role: "help", note: "The connected computer runs a Local Operator too old to start a chat as an agent or team, so the picker offers nothing. \"Local Operator\" is the product name; do not translate it. New in the new-chat identity picker; the non-English text awaits the translation audit." },
 	"mobile.home.models_read_failed": { role: "status", note: "Failure sentence for the model-catalogue read on the home, shown with a Retry action. Must stay a read failure, never a claim about which model is running — the computer's default is still in effect. No placeholder." },
 	"mobile.home.options.default_model": { role: "button", note: "Row at the top of the model picker, shown only while the computer names no default model: it clears the chosen model, so the start names no model and the computer applies its own configured default. Sentence case, no final full stop." },
 	"mobile.home.options.fixed": { role: "help", note: "Explains why the pickers are read-only once the conversation has started. \"Conversation details\" names another screen in this app: keep it matching that screen's title." },
@@ -6553,6 +6668,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, one {# mensaje en cola} other {# mensajes en cola}}",
 		"mobile.chrome.composer.row_cost": "Costo",
 		"mobile.chrome.composer.row_effort": "Esfuerzo",
+		"mobile.chrome.composer.row_identity": "Agente o equipo",
 		"mobile.chrome.composer.row_model": "Modelo",
 		"mobile.chrome.composer.row_questions": "Preguntas",
 		"mobile.chrome.composer.row_queue": "Cola",
@@ -6972,6 +7088,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "Ahora mismo no hemos podido leer las carpetas de esta máquina.",
 		"mobile.home.folders_read_sign_in": "Esta máquina ha pedido que vuelvas a iniciar sesión, así que no hemos podido leer sus carpetas.",
 		"mobile.home.greeting": "¿En qué te puedo ayudar hoy?",
+		"mobile.home.identity.announce_picked": "Este chat empezará con {name}",
+		"mobile.home.identity.band_agents": "Agentes",
+		"mobile.home.identity.band_recent": "Recientes",
+		"mobile.home.identity.band_teams": "Equipos",
+		"mobile.home.identity.default_agent": "Agente predeterminado",
+		"mobile.home.identity.empty": "Todavía no hay agentes ni equipos en este ordenador. Crea uno en la aplicación de escritorio.",
+		"mobile.home.identity.no_matches": "Nada coincide con «{query}».",
+		"mobile.home.identity.pill_label": "Iniciar este chat con {target}. Elige un agente o un equipo",
+		"mobile.home.identity.read_failed": "No hemos podido leer los agentes y equipos de este ordenador ahora mismo.",
+		"mobile.home.identity.refused_fallback": "No se ha podido iniciar {name} en este ordenador. Elige otro o usa el agente predeterminado.",
+		"mobile.home.identity.refused_registry": "Este ordenador no ha podido leer sus agentes y equipos ahora mismo, así que no se ha iniciado nada. Vuelve a intentarlo o usa el agente predeterminado.",
+		"mobile.home.identity.refused_unknown": "{name} ya no está disponible en este ordenador. Elige otro o usa el agente predeterminado.",
+		"mobile.home.identity.refused_unlicensed": "Este ordenador no puede iniciar un chat con {name} ahora mismo. Elige el agente predeterminado para enviar.",
+		"mobile.home.identity.refused_unsaved": "Este ordenador no ha podido guardar {name} para el nuevo chat, así que no se ha iniciado nada. Vuelve a intentarlo.",
+		"mobile.home.identity.row_agent": "{name}, agente",
+		"mobile.home.identity.row_agent_described": "{name}, agente. {description}",
+		"mobile.home.identity.row_team": "{name}, equipo",
+		"mobile.home.identity.row_team_led": "{name}, equipo, dirigido por {manager}",
+		"mobile.home.identity.search": "Buscar agentes y equipos",
+		"mobile.home.identity.sheet_title": "Iniciar este chat con",
+		"mobile.home.identity.starting_with": "Iniciando con {name}…",
+		"mobile.home.identity.team_led_by": "Dirigido por {manager}",
+		"mobile.home.identity.team_members": "{count, plural, one {# miembro} other {# miembros}}",
+		"mobile.home.identity.team_subtitle": "Dirigido por {manager} · {count, plural, one {# miembro} other {# miembros}}",
+		"mobile.home.identity.unsupported": "El Local Operator de este ordenador es demasiado antiguo para iniciar un chat con un agente o un equipo. Actualízalo para elegir uno aquí.",
 		"mobile.home.models_read_failed": "Ahora mismo no hemos podido leer la lista de modelos de esta máquina.",
 		"mobile.home.options.default_model": "Usar el modelo predeterminado de esta máquina",
 		"mobile.home.options.fixed": "Las opciones iniciales de esta conversación son fijas. Usa Detalles de la conversación para los controles en vivo.",
@@ -7890,6 +8031,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, one {# message en attente} other {# messages en attente}}",
 		"mobile.chrome.composer.row_cost": "Coût",
 		"mobile.chrome.composer.row_effort": "Effort",
+		"mobile.chrome.composer.row_identity": "Agent ou équipe",
 		"mobile.chrome.composer.row_model": "Modèle",
 		"mobile.chrome.composer.row_questions": "Questions",
 		"mobile.chrome.composer.row_queue": "File d’attente",
@@ -8309,6 +8451,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "Impossible de lire les dossiers de cet ordinateur pour le moment.",
 		"mobile.home.folders_read_sign_in": "Cet ordinateur vous a demandé de vous reconnecter ; impossible donc de lire ses dossiers.",
 		"mobile.home.greeting": "Comment puis-je vous aider aujourd’hui ?",
+		"mobile.home.identity.announce_picked": "Cette conversation démarrera avec {name}",
+		"mobile.home.identity.band_agents": "Agents",
+		"mobile.home.identity.band_recent": "Récents",
+		"mobile.home.identity.band_teams": "Équipes",
+		"mobile.home.identity.default_agent": "Agent par défaut",
+		"mobile.home.identity.empty": "Aucun agent ni aucune équipe sur cet ordinateur pour l’instant. Créez-en un dans l’application de bureau.",
+		"mobile.home.identity.no_matches": "Aucun résultat pour « {query} ».",
+		"mobile.home.identity.pill_label": "Démarrer cette conversation avec {target}. Choisir un agent ou une équipe",
+		"mobile.home.identity.read_failed": "Impossible de lire les agents et les équipes de cet ordinateur pour le moment.",
+		"mobile.home.identity.refused_fallback": "Impossible de démarrer {name} sur cet ordinateur. Choisissez-en un autre ou utilisez l’agent par défaut.",
+		"mobile.home.identity.refused_registry": "Cet ordinateur n’a pas pu lire ses agents et équipes pour le moment ; rien n’a été démarré. Réessayez ou utilisez l’agent par défaut.",
+		"mobile.home.identity.refused_unknown": "{name} n’est plus disponible sur cet ordinateur. Choisissez-en un autre ou utilisez l’agent par défaut.",
+		"mobile.home.identity.refused_unlicensed": "Cet ordinateur ne peut pas démarrer de conversation avec {name} pour le moment. Choisissez l’agent par défaut pour envoyer.",
+		"mobile.home.identity.refused_unsaved": "Cet ordinateur n’a pas pu enregistrer {name} pour la nouvelle conversation ; rien n’a été démarré. Réessayez.",
+		"mobile.home.identity.row_agent": "{name}, agent",
+		"mobile.home.identity.row_agent_described": "{name}, agent. {description}",
+		"mobile.home.identity.row_team": "{name}, équipe",
+		"mobile.home.identity.row_team_led": "{name}, équipe, dirigée par {manager}",
+		"mobile.home.identity.search": "Rechercher des agents et des équipes",
+		"mobile.home.identity.sheet_title": "Démarrer cette conversation avec",
+		"mobile.home.identity.starting_with": "Démarrage avec {name}…",
+		"mobile.home.identity.team_led_by": "Dirigée par {manager}",
+		"mobile.home.identity.team_members": "{count, plural, one {# membre} other {# membres}}",
+		"mobile.home.identity.team_subtitle": "Dirigée par {manager} · {count, plural, one {# membre} other {# membres}}",
+		"mobile.home.identity.unsupported": "Le Local Operator de cet ordinateur est trop ancien pour démarrer une conversation avec un agent ou une équipe. Mettez-le à jour pour en choisir un ici.",
 		"mobile.home.models_read_failed": "Impossible de lire la liste des modèles de cet ordinateur pour le moment.",
 		"mobile.home.options.default_model": "Utiliser le modèle par défaut de cet ordinateur",
 		"mobile.home.options.fixed": "Les options initiales de cette conversation sont figées. Utilisez Détails de la conversation pour accéder aux commandes de la conversation en cours.",
@@ -9227,6 +9394,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, one {# संदेश कतार में} other {# संदेश कतार में}}",
 		"mobile.chrome.composer.row_cost": "लागत",
 		"mobile.chrome.composer.row_effort": "प्रयास",
+		"mobile.chrome.composer.row_identity": "एजेंट या टीम",
 		"mobile.chrome.composer.row_model": "मॉडल",
 		"mobile.chrome.composer.row_questions": "प्रश्न",
 		"mobile.chrome.composer.row_queue": "कतार",
@@ -9646,6 +9814,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "हम अभी इस कंप्यूटर के फ़ोल्डर नहीं पढ़ सके।",
 		"mobile.home.folders_read_sign_in": "इस कंप्यूटर ने दोबारा साइन इन करने को कहा है, इसलिए इसके फ़ोल्डर नहीं पढ़े जा सके।",
 		"mobile.home.greeting": "आज मैं आपकी किस बात में मदद करूँ?",
+		"mobile.home.identity.announce_picked": "यह चैट {name} के साथ शुरू होगी",
+		"mobile.home.identity.band_agents": "एजेंट",
+		"mobile.home.identity.band_recent": "हाल के",
+		"mobile.home.identity.band_teams": "टीमें",
+		"mobile.home.identity.default_agent": "डिफ़ॉल्ट एजेंट",
+		"mobile.home.identity.empty": "इस कंप्यूटर पर अभी कोई एजेंट या टीम नहीं है। डेस्कटॉप ऐप में एक बनाएँ।",
+		"mobile.home.identity.no_matches": "“{query}” से कुछ मेल नहीं खाता।",
+		"mobile.home.identity.pill_label": "यह चैट {target} के साथ शुरू करें। कोई एजेंट या टीम चुनें",
+		"mobile.home.identity.read_failed": "हम अभी इस कंप्यूटर के एजेंट और टीमें नहीं पढ़ सके।",
+		"mobile.home.identity.refused_fallback": "{name} इस कंप्यूटर पर शुरू नहीं हो सका। कोई दूसरा चुनें, या डिफ़ॉल्ट एजेंट का उपयोग करें।",
+		"mobile.home.identity.refused_registry": "यह कंप्यूटर अभी अपने एजेंट और टीमें नहीं पढ़ सका, इसलिए कुछ शुरू नहीं हुआ। फिर से कोशिश करें, या डिफ़ॉल्ट एजेंट का उपयोग करें।",
+		"mobile.home.identity.refused_unknown": "{name} अब इस कंप्यूटर पर उपलब्ध नहीं है। कोई दूसरा चुनें, या डिफ़ॉल्ट एजेंट का उपयोग करें।",
+		"mobile.home.identity.refused_unlicensed": "यह कंप्यूटर अभी {name} के साथ चैट शुरू नहीं कर सकता। भेजने के लिए डिफ़ॉल्ट एजेंट चुनें।",
+		"mobile.home.identity.refused_unsaved": "यह कंप्यूटर नई चैट के लिए {name} सहेज नहीं सका, इसलिए कुछ शुरू नहीं हुआ। फिर से कोशिश करें।",
+		"mobile.home.identity.row_agent": "{name}, एजेंट",
+		"mobile.home.identity.row_agent_described": "{name}, एजेंट। {description}",
+		"mobile.home.identity.row_team": "{name}, टीम",
+		"mobile.home.identity.row_team_led": "{name}, टीम, {manager} के नेतृत्व में",
+		"mobile.home.identity.search": "एजेंट और टीमें खोजें",
+		"mobile.home.identity.sheet_title": "यह चैट इसके साथ शुरू करें",
+		"mobile.home.identity.starting_with": "{name} के साथ शुरू हो रहा है…",
+		"mobile.home.identity.team_led_by": "{manager} के नेतृत्व में",
+		"mobile.home.identity.team_members": "{count, plural, one {# सदस्य} other {# सदस्य}}",
+		"mobile.home.identity.team_subtitle": "{manager} के नेतृत्व में · {count, plural, one {# सदस्य} other {# सदस्य}}",
+		"mobile.home.identity.unsupported": "इस कंप्यूटर का Local Operator किसी एजेंट या टीम के साथ चैट शुरू करने के लिए बहुत पुराना है। यहाँ चुनने के लिए इसे अपडेट करें।",
 		"mobile.home.models_read_failed": "हम अभी इस कंप्यूटर की मॉडल सूची नहीं पढ़ सके।",
 		"mobile.home.options.default_model": "इस कंप्यूटर का डिफ़ॉल्ट मॉडल इस्तेमाल करें",
 		"mobile.home.options.fixed": "इस बातचीत के शुरुआती विकल्प तय हैं। इसके लाइव नियंत्रणों के लिए “बातचीत का विवरण” देखें।",
@@ -10564,6 +10757,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, one {# сообщение в очереди} few {# сообщения в очереди} many {# сообщений в очереди} other {# сообщения в очереди}}",
 		"mobile.chrome.composer.row_cost": "Стоимость",
 		"mobile.chrome.composer.row_effort": "Усилие",
+		"mobile.chrome.composer.row_identity": "Агент или команда",
 		"mobile.chrome.composer.row_model": "Модель",
 		"mobile.chrome.composer.row_questions": "Вопросы",
 		"mobile.chrome.composer.row_queue": "Очередь",
@@ -10983,6 +11177,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "Не удалось прочитать папки этого компьютера.",
 		"mobile.home.folders_read_sign_in": "Этот компьютер попросил войти снова, поэтому его папки прочитать не удалось.",
 		"mobile.home.greeting": "Чем помочь сегодня?",
+		"mobile.home.identity.announce_picked": "Этот чат начнётся с {name}",
+		"mobile.home.identity.band_agents": "Агенты",
+		"mobile.home.identity.band_recent": "Недавние",
+		"mobile.home.identity.band_teams": "Команды",
+		"mobile.home.identity.default_agent": "Агент по умолчанию",
+		"mobile.home.identity.empty": "На этом компьютере пока нет агентов и команд. Создайте их в настольном приложении.",
+		"mobile.home.identity.no_matches": "Ничего не найдено по запросу «{query}».",
+		"mobile.home.identity.pill_label": "Начать этот чат с {target}. Выберите агента или команду",
+		"mobile.home.identity.read_failed": "Сейчас не удалось прочитать агентов и команды этого компьютера.",
+		"mobile.home.identity.refused_fallback": "Не удалось запустить {name} на этом компьютере. Выберите другой вариант или агента по умолчанию.",
+		"mobile.home.identity.refused_registry": "Компьютер сейчас не смог прочитать своих агентов и команды, поэтому ничего не запущено. Повторите попытку или используйте агента по умолчанию.",
+		"mobile.home.identity.refused_unknown": "{name} больше недоступен на этом компьютере. Выберите другой вариант или агента по умолчанию.",
+		"mobile.home.identity.refused_unlicensed": "Этот компьютер сейчас не может начать чат с {name}. Чтобы отправить, выберите агента по умолчанию.",
+		"mobile.home.identity.refused_unsaved": "Компьютеру не удалось сохранить {name} для нового чата, поэтому ничего не запущено. Повторите попытку.",
+		"mobile.home.identity.row_agent": "{name}, агент",
+		"mobile.home.identity.row_agent_described": "{name}, агент. {description}",
+		"mobile.home.identity.row_team": "{name}, команда",
+		"mobile.home.identity.row_team_led": "{name}, команда, руководитель {manager}",
+		"mobile.home.identity.search": "Поиск агентов и команд",
+		"mobile.home.identity.sheet_title": "Начать этот чат с",
+		"mobile.home.identity.starting_with": "Запуск с {name}…",
+		"mobile.home.identity.team_led_by": "Руководитель: {manager}",
+		"mobile.home.identity.team_members": "{count, plural, one {# участник} few {# участника} many {# участников} other {# участника}}",
+		"mobile.home.identity.team_subtitle": "Руководитель: {manager} · {count, plural, one {# участник} few {# участника} many {# участников} other {# участника}}",
+		"mobile.home.identity.unsupported": "Local Operator на этом компьютере слишком старый, чтобы начать чат с агентом или командой. Обновите его, чтобы выбирать здесь.",
 		"mobile.home.models_read_failed": "Не удалось прочитать список моделей этого компьютера.",
 		"mobile.home.options.default_model": "Использовать модель по умолчанию на этом компьютере",
 		"mobile.home.options.fixed": "Стартовые параметры этой беседы зафиксированы. Текущие настройки — в разделе «Детали беседы».",
@@ -11901,6 +12120,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, one {# پیغام قطار میں} other {# پیغامات قطار میں}}",
 		"mobile.chrome.composer.row_cost": "لاگت",
 		"mobile.chrome.composer.row_effort": "شدت",
+		"mobile.chrome.composer.row_identity": "ایجنٹ یا ٹیم",
 		"mobile.chrome.composer.row_model": "ماڈل",
 		"mobile.chrome.composer.row_questions": "سوالات",
 		"mobile.chrome.composer.row_queue": "قطار",
@@ -12320,6 +12540,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "ہم ابھی اس کمپیوٹر کے فولڈرز نہیں پڑھ سکے۔",
 		"mobile.home.folders_read_sign_in": "اس کمپیوٹر نے دوبارہ سائن اِن کرنے کو کہا ہے، اسی لیے اس کے فولڈرز نہیں پڑھے جا سکے۔",
 		"mobile.home.greeting": "آج میں آپ کی کیا مدد کروں؟",
+		"mobile.home.identity.announce_picked": "یہ چیٹ {name} کے ساتھ شروع ہوگی",
+		"mobile.home.identity.band_agents": "ایجنٹس",
+		"mobile.home.identity.band_recent": "حالیہ",
+		"mobile.home.identity.band_teams": "ٹیمیں",
+		"mobile.home.identity.default_agent": "ڈیفالٹ ایجنٹ",
+		"mobile.home.identity.empty": "اس کمپیوٹر پر ابھی کوئی ایجنٹ یا ٹیم نہیں ہے۔ ڈیسک ٹاپ ایپ میں ایک بنائیں۔",
+		"mobile.home.identity.no_matches": "“{query}” سے کچھ میل نہیں کھاتا۔",
+		"mobile.home.identity.pill_label": "یہ چیٹ {target} کے ساتھ شروع کریں۔ کوئی ایجنٹ یا ٹیم منتخب کریں",
+		"mobile.home.identity.read_failed": "ہم ابھی اس کمپیوٹر کے ایجنٹس اور ٹیمیں نہیں پڑھ سکے۔",
+		"mobile.home.identity.refused_fallback": "{name} اس کمپیوٹر پر شروع نہیں ہو سکا۔ کوئی اور منتخب کریں، یا ڈیفالٹ ایجنٹ استعمال کریں۔",
+		"mobile.home.identity.refused_registry": "یہ کمپیوٹر ابھی اپنے ایجنٹس اور ٹیمیں نہیں پڑھ سکا، اس لیے کچھ شروع نہیں ہوا۔ دوبارہ کوشش کریں، یا ڈیفالٹ ایجنٹ استعمال کریں۔",
+		"mobile.home.identity.refused_unknown": "{name} اب اس کمپیوٹر پر دستیاب نہیں ہے۔ کوئی اور منتخب کریں، یا ڈیفالٹ ایجنٹ استعمال کریں۔",
+		"mobile.home.identity.refused_unlicensed": "یہ کمپیوٹر ابھی {name} کے ساتھ چیٹ شروع نہیں کر سکتا۔ بھیجنے کے لیے ڈیفالٹ ایجنٹ منتخب کریں۔",
+		"mobile.home.identity.refused_unsaved": "یہ کمپیوٹر نئی چیٹ کے لیے {name} محفوظ نہیں کر سکا، اس لیے کچھ شروع نہیں ہوا۔ دوبارہ کوشش کریں۔",
+		"mobile.home.identity.row_agent": "{name}، ایجنٹ",
+		"mobile.home.identity.row_agent_described": "{name}، ایجنٹ۔ {description}",
+		"mobile.home.identity.row_team": "{name}، ٹیم",
+		"mobile.home.identity.row_team_led": "{name}، ٹیم، {manager} کی قیادت میں",
+		"mobile.home.identity.search": "ایجنٹس اور ٹیمیں تلاش کریں",
+		"mobile.home.identity.sheet_title": "یہ چیٹ اس کے ساتھ شروع کریں",
+		"mobile.home.identity.starting_with": "{name} کے ساتھ شروع ہو رہا ہے…",
+		"mobile.home.identity.team_led_by": "{manager} کی قیادت میں",
+		"mobile.home.identity.team_members": "{count, plural, one {# رکن} other {# اراکین}}",
+		"mobile.home.identity.team_subtitle": "{manager} کی قیادت میں · {count, plural, one {# رکن} other {# اراکین}}",
+		"mobile.home.identity.unsupported": "اس کمپیوٹر کا Local Operator کسی ایجنٹ یا ٹیم کے ساتھ چیٹ شروع کرنے کے لیے بہت پرانا ہے۔ یہاں انتخاب کے لیے اسے اپ ڈیٹ کریں۔",
 		"mobile.home.models_read_failed": "ہم ابھی اس کمپیوٹر کی ماڈل فہرست نہیں پڑھ سکے۔",
 		"mobile.home.options.default_model": "اس کمپیوٹر کا ڈیفالٹ ماڈل استعمال کریں",
 		"mobile.home.options.fixed": "اس گفتگو کے ابتدائی اختیارات طے ہو چکے ہیں۔ اس کے لائیو کنٹرولز کے لیے “گفتگو کی تفصیلات” دیکھیں۔",
@@ -13238,6 +13483,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, other {# tin nhắn trong hàng đợi}}",
 		"mobile.chrome.composer.row_cost": "Chi phí",
 		"mobile.chrome.composer.row_effort": "Mức suy luận",
+		"mobile.chrome.composer.row_identity": "Tác nhân hoặc nhóm",
 		"mobile.chrome.composer.row_model": "Mô hình",
 		"mobile.chrome.composer.row_questions": "Câu hỏi",
 		"mobile.chrome.composer.row_queue": "Hàng đợi",
@@ -13657,6 +13903,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "Vừa rồi không đọc được thư mục trên máy tính này.",
 		"mobile.home.folders_read_sign_in": "Máy tính này yêu cầu bạn đăng nhập lại, nên không đọc được thư mục của nó.",
 		"mobile.home.greeting": "Hôm nay tôi có thể giúp gì?",
+		"mobile.home.identity.announce_picked": "Cuộc trò chuyện này sẽ bắt đầu với {name}",
+		"mobile.home.identity.band_agents": "Tác nhân",
+		"mobile.home.identity.band_recent": "Gần đây",
+		"mobile.home.identity.band_teams": "Nhóm",
+		"mobile.home.identity.default_agent": "Tác nhân mặc định",
+		"mobile.home.identity.empty": "Máy tính này chưa có tác nhân hoặc nhóm nào. Hãy tạo trong ứng dụng máy tính.",
+		"mobile.home.identity.no_matches": "Không có kết quả cho “{query}”.",
+		"mobile.home.identity.pill_label": "Bắt đầu cuộc trò chuyện này với {target}. Chọn một tác nhân hoặc nhóm",
+		"mobile.home.identity.read_failed": "Hiện không thể đọc tác nhân và nhóm của máy tính này.",
+		"mobile.home.identity.refused_fallback": "Không thể bắt đầu {name} trên máy tính này. Hãy chọn mục khác hoặc dùng tác nhân mặc định.",
+		"mobile.home.identity.refused_registry": "Máy tính này hiện không đọc được tác nhân và nhóm, nên chưa có gì được bắt đầu. Hãy thử lại hoặc dùng tác nhân mặc định.",
+		"mobile.home.identity.refused_unknown": "{name} không còn trên máy tính này. Hãy chọn mục khác hoặc dùng tác nhân mặc định.",
+		"mobile.home.identity.refused_unlicensed": "Máy tính này hiện không thể bắt đầu trò chuyện với {name}. Hãy chọn tác nhân mặc định để gửi.",
+		"mobile.home.identity.refused_unsaved": "Máy tính này không lưu được {name} cho cuộc trò chuyện mới, nên chưa có gì được bắt đầu. Hãy thử lại.",
+		"mobile.home.identity.row_agent": "{name}, tác nhân",
+		"mobile.home.identity.row_agent_described": "{name}, tác nhân. {description}",
+		"mobile.home.identity.row_team": "{name}, nhóm",
+		"mobile.home.identity.row_team_led": "{name}, nhóm, do {manager} dẫn dắt",
+		"mobile.home.identity.search": "Tìm tác nhân và nhóm",
+		"mobile.home.identity.sheet_title": "Bắt đầu cuộc trò chuyện này với",
+		"mobile.home.identity.starting_with": "Đang bắt đầu với {name}…",
+		"mobile.home.identity.team_led_by": "Do {manager} dẫn dắt",
+		"mobile.home.identity.team_members": "{count, plural, other {# thành viên}}",
+		"mobile.home.identity.team_subtitle": "Do {manager} dẫn dắt · {count, plural, other {# thành viên}}",
+		"mobile.home.identity.unsupported": "Local Operator trên máy tính này quá cũ để bắt đầu trò chuyện với tác nhân hoặc nhóm. Hãy cập nhật để chọn tại đây.",
 		"mobile.home.models_read_failed": "Vừa rồi không đọc được danh sách mô hình trên máy tính này.",
 		"mobile.home.options.default_model": "Dùng mô hình mặc định của máy tính này",
 		"mobile.home.options.fixed": "Tùy chọn khởi đầu của cuộc trò chuyện này đã cố định. Mở Chi tiết cuộc trò chuyện để dùng các điều khiển trực tiếp.",
@@ -14575,6 +14846,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.chrome.composer.queued": "{count, plural, other {# 条排队消息}}",
 		"mobile.chrome.composer.row_cost": "费用",
 		"mobile.chrome.composer.row_effort": "推理强度",
+		"mobile.chrome.composer.row_identity": "智能体或团队",
 		"mobile.chrome.composer.row_model": "模型",
 		"mobile.chrome.composer.row_questions": "问题",
 		"mobile.chrome.composer.row_queue": "队列",
@@ -14994,6 +15266,31 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.home.folders_read_failed": "刚才无法读取此电脑的文件夹。",
 		"mobile.home.folders_read_sign_in": "此电脑要求重新登录，因此无法读取其文件夹。",
 		"mobile.home.greeting": "今天想让我帮你做点什么？",
+		"mobile.home.identity.announce_picked": "此对话将以 {name} 开始",
+		"mobile.home.identity.band_agents": "智能体",
+		"mobile.home.identity.band_recent": "最近",
+		"mobile.home.identity.band_teams": "团队",
+		"mobile.home.identity.default_agent": "默认智能体",
+		"mobile.home.identity.empty": "这台电脑上还没有智能体或团队。请在桌面应用中创建。",
+		"mobile.home.identity.no_matches": "没有与“{query}”匹配的结果。",
+		"mobile.home.identity.pill_label": "用 {target} 开始此对话。选择智能体或团队",
+		"mobile.home.identity.read_failed": "暂时无法读取这台电脑的智能体和团队。",
+		"mobile.home.identity.refused_fallback": "无法在这台电脑上以 {name} 开始。请另选一个，或使用默认智能体。",
+		"mobile.home.identity.refused_registry": "这台电脑暂时无法读取其智能体和团队，因此未开始任何对话。请重试，或使用默认智能体。",
+		"mobile.home.identity.refused_unknown": "{name} 在这台电脑上已不可用。请另选一个，或使用默认智能体。",
+		"mobile.home.identity.refused_unlicensed": "这台电脑现在无法以 {name} 开始对话。请选择默认智能体后发送。",
+		"mobile.home.identity.refused_unsaved": "这台电脑无法为新对话保存 {name}，因此未开始任何对话。请重试。",
+		"mobile.home.identity.row_agent": "{name}，智能体",
+		"mobile.home.identity.row_agent_described": "{name}，智能体。{description}",
+		"mobile.home.identity.row_team": "{name}，团队",
+		"mobile.home.identity.row_team_led": "{name}，团队，由 {manager} 负责",
+		"mobile.home.identity.search": "搜索智能体和团队",
+		"mobile.home.identity.sheet_title": "用以下身份开始此对话",
+		"mobile.home.identity.starting_with": "正在以 {name} 开始…",
+		"mobile.home.identity.team_led_by": "由 {manager} 带领",
+		"mobile.home.identity.team_members": "{count, plural, other {# 名成员}}",
+		"mobile.home.identity.team_subtitle": "由 {manager} 负责 · {count, plural, other {# 名成员}}",
+		"mobile.home.identity.unsupported": "这台电脑上的 Local Operator 版本过旧，无法以智能体或团队开始对话。请更新后在此选择。",
 		"mobile.home.models_read_failed": "刚才无法读取此电脑的模型列表。",
 		"mobile.home.options.default_model": "使用此电脑的默认模型",
 		"mobile.home.options.fixed": "此对话的起始选项已固定。实时控制项可在“对话详情”中调整。",

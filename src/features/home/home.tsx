@@ -3,6 +3,7 @@ import { Bell, BellDot } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TextInput } from "react-native";
 import {
+	AccessibilityInfo,
 	Keyboard,
 	Platform,
 	Pressable,
@@ -51,6 +52,7 @@ import { HomeStateMarkers } from "@/features/home/home-markers";
 import {
 	EffortPicker,
 	FolderPicker,
+	IdentityPicker,
 	ModelPicker,
 } from "@/features/home/home-pickers";
 import { homeRecoveryKind } from "@/features/home/home-recovery";
@@ -64,7 +66,9 @@ import {
 	homeFolderChip,
 } from "@/features/home/picker-model";
 import { signedOutLanding } from "@/features/home/signed-out-landing";
+import type { StartTarget } from "@/features/home/start-targets";
 import { useHomeDrawer } from "@/features/home/use-home-drawer";
+import { useStartTarget } from "@/features/home/use-start-target";
 import { startupEchoes } from "@/features/new-session/startup-echoes";
 import {
 	StartupPreview,
@@ -206,15 +210,17 @@ export default function Home({
 	 *  on an unkeyed one, so without it the effort picker explains and offers
 	 *  nothing. */
 	const effortSupported = capabilities?.session_start?.effort === true;
+	const liveFrameAt = useListState((state) => state.liveFrameAt);
 	const _showToast = useUiStore((state) => state.showToast);
 
 	const workspaceDrawer = useWorkspaceDrawer();
 	const { close: closeDrawer, newChatRequest } = workspaceDrawer;
 	useHomeDrawer(forcePanelOpen, split);
-	/** Which of the three pickers is open — one at a time, each its own sheet. */
-	const [picker, setPicker] = useState<"folder" | "model" | "effort" | null>(
-		null,
-	);
+	/** Which picker is open — one at a time, each its own sheet. `identity` is
+	 *  the "Start this chat with" sheet (agent or team). */
+	const [picker, setPicker] = useState<
+		"folder" | "model" | "effort" | "identity" | null
+	>(null);
 	const [queueOpen, setQueueOpen] = useState(false);
 	const [running, setRunning] = useState(false);
 	const [models, setModels] = useState<ModelEntry[]>([]);
@@ -287,6 +293,16 @@ export default function Home({
 	/** The level the reader picked in the effort picker, and nothing else: `null`
 	 *  sends no effort and the computer applies its configured one. */
 	const [chosenEffort, setChosenEffort] = useState<string | null>(null);
+	/* The agent or team the chat starts as (local-operator #4367): licence,
+	 *  pick, roster and recents (`use-start-target.ts`). The roster is read only
+	 *  once the sheet opens. */
+	const target = useStartTarget({
+		computer: tunnelId,
+		client: relay(),
+		capabilities,
+		liveFrameAt,
+		sheetOpen: picker === "identity",
+	});
 	const selection = useMemo(
 		() =>
 			homeStartSelection({
@@ -294,8 +310,17 @@ export default function Home({
 				chosenModel,
 				chosenEffort,
 				effortSupported,
+				target: target.picked ?? null,
+				targetSupport: target.support,
 			}),
-		[homeDirectory, chosenModel, chosenEffort, effortSupported],
+		[
+			homeDirectory,
+			chosenModel,
+			chosenEffort,
+			effortSupported,
+			target.picked,
+			target.support,
+		],
 	);
 	/* The model picker's rows, derived rather than inline so the "a tap never
 	 *  reflows the list" guarantee is asserted in a test (design D1). */
@@ -318,6 +343,24 @@ export default function Home({
 	);
 	const defaultEffort = defaultEffortFor(chosenModel, catalogueDefault);
 	const startup = useStartup(selection);
+	const identity = target.resolve(startup.snapshot.selection);
+	/* Held by VALUE: `resolve` builds a fresh object each render, and this is a
+	 *  dependency of the supersede effect below — an identity that changed every
+	 *  render would re-run that write on every render. */
+	const resolvedKind = identity.chosen?.kind ?? null;
+	const resolvedName = identity.chosen?.name ?? null;
+	const resolvedLabel = identity.chosen?.label ?? null;
+	const chosenTarget = useMemo<StartTarget | null>(
+		() =>
+			resolvedKind === null || resolvedName === null
+				? null
+				: {
+						kind: resolvedKind,
+						name: resolvedName,
+						label: resolvedLabel ?? resolvedName,
+					},
+		[resolvedKind, resolvedName, resolvedLabel],
+	);
 
 	/* A record written by a build that invented a model still names it, and the
 	 * coordinator deliberately KEEPS a restored selection rather than replacing it —
@@ -335,6 +378,8 @@ export default function Home({
 			chosenEffort,
 			effortSupported,
 			readerApplied,
+			target: chosenTarget,
+			targetSupport: target.support,
 		});
 		if (next === null) return;
 		void startup.configure(next);
@@ -346,12 +391,29 @@ export default function Home({
 		chosenEffort,
 		effortSupported,
 		readerApplied,
+		chosenTarget,
+		target.support,
 	]);
 	const draft = startup.snapshot.draft.text;
 	const images = startup.snapshot.draft.images;
 	const setDraft = startup.setText;
 	const setImages = startup.setImages;
 	const starting = startup.snapshot.phase === "starting";
+	/* D-S18: once a start LANDS, the next draft starts at the default. The
+	 *  record is past `draft` by then, so the reset cannot rewrite what was sent. */
+	const resetTarget = target.reset;
+	const adopted = startup.snapshot.sessionId !== null;
+	useEffect(() => {
+		if (adopted) resetTarget();
+	}, [adopted, resetTarget]);
+	/* D-S20: a refused start KEEPS the draft and the selection, and the roster
+	 *  is re-read on the next open — the refused name may have been removed. */
+	const invalidateRoster = target.invalidate;
+	const refusedWithTarget =
+		startup.snapshot.phase === "refused" && chosenTarget !== null;
+	useEffect(() => {
+		if (refusedWithTarget) invalidateRoster();
+	}, [refusedWithTarget, invalidateRoster]);
 	/* The reader's sent-but-not-yet-transcribed messages, as rows on screen from
 	 *  the moment the outbox holds them (`startup-echoes.ts`). Memoised on the
 	 *  three coordinator fields it reads, which change only on a real transition,
@@ -756,6 +818,8 @@ export default function Home({
 		cwd?: string;
 		model?: ModelEntry | null;
 		effort?: string | null;
+		/** The agent/team sheet's pick; `null` is "Default agent". */
+		target?: StartTarget | null;
 	}) => {
 		const cwd = next.cwd ?? startup.snapshot.selection?.cwd ?? homeDirectory;
 		const model = next.model !== undefined ? next.model : chosenModel;
@@ -766,11 +830,15 @@ export default function Home({
 		}
 		setChosenModel(model);
 		setChosenEffort(effort);
+		const nextTarget = next.target !== undefined ? next.target : chosenTarget;
+		if (next.target !== undefined) target.choose(next.target);
 		const body = homeStartSelection({
 			cwd,
 			chosenModel: model,
 			chosenEffort: effort,
 			effortSupported,
+			target: nextTarget,
+			targetSupport: target.support,
 		});
 		if (body !== null) void startup.configure(body);
 	};
@@ -819,8 +887,13 @@ export default function Home({
 	 * consumes each New-chat intent once, including across route remounts. */
 	const newConversationRef = useRef(startup.newConversation);
 	newConversationRef.current = startup.newConversation;
+	/* A team is a heavyweight target, so a New chat starts at the default
+	 *  (D-S18); held in a ref so the memoised callback keeps its one dep. */
+	const resetTargetRef = useRef(target.reset);
+	resetTargetRef.current = target.reset;
 	const newChat = useCallback(() => {
 		closeDrawer();
+		resetTargetRef.current();
 		void newConversationRef
 			.current()
 			.then(() => requestAnimationFrame(() => fieldRef.current?.focus()))
@@ -908,6 +981,20 @@ export default function Home({
 						onConnect={() => router.push("/tunnels")}
 						starting={starting}
 						focusRequest={heroFocus}
+						identity={
+							target.offered
+								? {
+										label: identity.label,
+										kind: chosenTarget?.kind ?? "default",
+										agentId: identity.avatar?.agentId ?? null,
+										avatarSha256: identity.avatar?.avatarSha256 ?? null,
+										chosen: chosenTarget !== null,
+										/* D-S10: not connected, or the start is in flight or done. */
+										disabled: !connected || !selectionEditable,
+										onPress: () => setPicker("identity"),
+									}
+								: null
+						}
 					/>
 				) : null}
 			</View>
@@ -1114,6 +1201,18 @@ export default function Home({
 				effortChip={chips.effort}
 				onOpenModels={() => setPicker("model")}
 				onOpenEffort={() => setPicker("effort")}
+				identityRow={
+					target.moreRow
+						? {
+								value: identity.label,
+								accessibilityLabel: t("mobile.home.identity.pill_label", {
+									target: identity.label,
+								}),
+								disabled: !connected,
+								onPress: () => setPicker("identity"),
+							}
+						: null
+				}
 				slashQuery={null}
 				slashSheet={null}
 				fieldRef={fieldRef}
@@ -1262,6 +1361,29 @@ export default function Home({
 						),
 					})
 				}
+			/>
+			<IdentityPicker
+				visible={picker === "identity"}
+				onClose={() => setPicker(null)}
+				supported={target.offered}
+				roster={target.roster}
+				loading={target.loading}
+				failure={target.failure}
+				onRetry={target.retry}
+				retrying={target.retrying}
+				recents={target.recents}
+				chosen={chosenTarget}
+				editable={selectionEditable}
+				onPick={(next) => {
+					commit({ target: next });
+					/* The sheet closes and the changed pill is not focused, so say what
+					 *  changed (D-S22). */
+					AccessibilityInfo.announceForAccessibility(
+						t("mobile.home.identity.announce_picked", {
+							name: next?.label ?? t("mobile.home.identity.default_agent"),
+						}),
+					);
+				}}
 			/>
 			<EffortPicker
 				visible={picker === "effort"}
