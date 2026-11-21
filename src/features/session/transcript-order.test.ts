@@ -207,6 +207,26 @@ describe("A: the reader shows every journal row, in journal order", () => {
 		);
 	});
 
+	// PR #356 R1: Reload history re-seeded from the frame and then paged OLDER
+	// from its oldest row, skipping the newest durable page exactly as the
+	// opening read used to, so the steer was gone for the life of the screen.
+	it("Reload history reads the newest page and keeps every row in journal order", async () => {
+		const journal = journalOf(120);
+		journal[45] = steer("s045");
+		const frame = cappedFrame(liveOrder(journal, 45, 7));
+		const asked: Array<string | undefined> = [];
+		const reader = new HistoryWindow(durablePager(journal, asked), () => {});
+		reader.activate();
+		reader.accept(frame);
+		await reader.reload();
+		expect(asked).toEqual([undefined]);
+		expect(reader.visibleRows.map((entry) => entry.id)).toContain("s045");
+		await reader.load();
+		expect(reader.visibleRows.map(rowIdentity)).toEqual(
+			journal.map(rowIdentity),
+		);
+	});
+
 	it("re-seats a steer the live frame painted early into its delivered position", async () => {
 		const journal = journalOf(120);
 		journal[60] = steer("s060");
@@ -264,5 +284,30 @@ describe("adoptPageOrder", () => {
 		]);
 		expect(out.map((entry) => entry.text)).toEqual(["", "first", "second"]);
 		expect(out).toHaveLength(3);
+	});
+
+	// PR #356 R2 (reviewer's reproduction): one `m` in older history, another
+	// in the newest page. Counting held copies from the start paired m(OLD)
+	// with the page's `m`, pulling p1 above `b` into older history.
+	it("pairs a newest page's repeated id with the newest held copy", () => {
+		const mOld = row({ id: "m", kind: "assistant", text: "old" });
+		const mNew = row({ id: "m", kind: "assistant", text: "new" });
+		const held = [
+			tool("a"),
+			mOld,
+			tool("b"),
+			tool("p1"),
+			tool("p2"),
+			mNew,
+			tool("p3"),
+		];
+		const page = [tool("p1"), tool("p2"), mNew, tool("p3")];
+		expect(adoptPageOrder(held, page)).toBe(held);
+		// An older page pairs from the start: same input, the oldest edge.
+		const older = [mOld, tool("b")];
+		const heldOlder = [tool("b"), mOld, tool("p1"), mNew];
+		expect(
+			adoptPageOrder(heldOlder, older, "oldest").map((entry) => entry.text),
+		).toEqual(["old", "", "", "new"]);
 	});
 });

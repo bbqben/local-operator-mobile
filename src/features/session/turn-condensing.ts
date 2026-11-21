@@ -46,9 +46,12 @@
  *     a hub reply, a wake, the todo guardrail's "stop, then more work" — used to
  *     fold its FIRST answer into the bar, and a merged/extended latch swallowed
  *     replies the reader had already seen (operator report on TestFlight 1411:
- *     "final responses are being tucked into condensed messages"). The relay
- *     web client's partition keeps the same rows (`partitionRun` V5,
- *     `isFinalResponse`, `condense-segments.ts` in local-operator).
+ *     "final responses are being tucked into condensed messages"). This is a
+ *     SUPERSET of the relay web client's partition (`partitionRun` V3/V5,
+ *     `isFinalResponse`, `condense-segments.ts` in local-operator), not a
+ *     match: web pins a final response only inside a RESPONSE cycle, while
+ *     this rule has no cycle scoping and pins every handover. Showing more is
+ *     the safe direction for the report above.
  *   - every `user` / `steer` row inside the span: the one row in a turn the
  *     READER wrote (`partitionRun` V3). A mid-turn steer used to vanish under
  *     the bar with the work it steered, together with the answers to it.
@@ -802,6 +805,12 @@ function factsOverRows(rows: readonly TranscriptEntry[]): TurnBarFacts {
 	let failed = 0;
 	let steered = false;
 	for (const entry of rows) {
+		// Unreachable from `condensePlan` today: `rowsBetween` skips user/steer
+		// rows (`staysVisibleOutsideTurnBar`), so a fresh latch never sets
+		// `steered` and the bar's "Steered" label no longer paints — the steers
+		// are on screen beside the bar instead. Kept deliberately, as web V3
+		// keeps its label arm: `barPhrases` is a public contract and a caller
+		// passing user rows still gets a truthful fact. Do not "fix" it back.
 		if (entry.kind === "steer" || entry.kind === "user") {
 			steered = true;
 			continue;

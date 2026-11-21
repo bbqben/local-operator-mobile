@@ -148,7 +148,8 @@ it("pages authenticated synthetic history through production HTTP and retries re
 		expect(missingBefore).toBe(221);
 		retainedCount = 1500;
 		await window.reload();
-		expect(cursors.at(-1)).toBe("message-1421");
+		// The newest durable page (PR #356 R1), not an older page from the frame.
+		expect(cursors.at(-1)).toBeNull();
 		expect(window.visibleRows.at(-1)?.id).toBe("message-1499");
 		while (window.hasMore && !window.error) await window.load();
 		expect(window.rows.map((entry) => entry.id)).toEqual(

@@ -81,23 +81,36 @@ export interface HistoryWindowOptions {
  * written back into those same slots in ascending order. The row count, the set
  * of rows and the position of every row the page does not carry (live-only
  * reasoning, fold-minted notices, rows outside the page's window) are
- * unchanged. Rows are matched by `rowIdentity` AND occurrence (the n-th held
- * copy of an identity is the n-th page copy), the rule `mergeTranscript` uses,
- * because wire ids are not guaranteed unique. Already-ordered input returns
- * the same array, so a page that agrees with the screen changes nothing.
+ * unchanged. Rows are matched by `rowIdentity` AND occurrence, because wire
+ * ids are not guaranteed unique. Both sides count occurrences FROM THE SAME
+ * EDGE — the edge the page sits at in the held list. A newest page (`edge`
+ * "newest") is the tail: its k copies of an identity are the LAST k held
+ * copies, so both lists count from the end; an older page counts from the
+ * start. Counting the held list from the start but the page within itself
+ * paired an older-history copy with the page's rank and moved page rows up
+ * into older history (PR #356 R2). Already-ordered input returns the same
+ * array, so a page that agrees with the screen changes nothing.
  */
 export function adoptPageOrder(
 	rows: TranscriptEntry[],
 	page: readonly TranscriptEntry[],
+	edge: "newest" | "oldest" = "newest",
 ): TranscriptEntry[] {
 	const keyed = (list: readonly TranscriptEntry[]): string[] => {
 		const seen = new Map<string, number>();
-		return list.map((row) => {
+		const keys: string[] = new Array(list.length);
+		const count = (at: number) => {
+			const row = list[at];
+			if (row === undefined) return;
 			const id = rowIdentity(row);
 			const n = seen.get(id) ?? 0;
 			seen.set(id, n + 1);
-			return `${n}:${id}`;
-		});
+			keys[at] = `${n}:${id}`;
+		};
+		if (edge === "newest")
+			for (let at = list.length - 1; at >= 0; at -= 1) count(at);
+		else for (let at = 0; at < list.length; at += 1) count(at);
+		return keys;
 	};
 	const pageAt = new Map(keyed(page).map((key, at) => [key, at]));
 	const slots: number[] = [];
@@ -611,7 +624,11 @@ export class HistoryWindow {
 				// note above). Re-seat those rows in the page's order.
 				this.rows = [
 					...this.detached,
-					...adoptPageOrder(joined, authoritative),
+					...adoptPageOrder(
+						joined,
+						authoritative,
+						before === undefined ? "newest" : "oldest",
+					),
 				];
 				if (before !== undefined) {
 					this.cursor = next ?? before;
@@ -682,7 +699,13 @@ export class HistoryWindow {
 		// Re-seed from the current stream frame, not the retired page islands.
 		// This also preserves a known pinned-head exclusion during rare fallback.
 		this.accept(currentTail);
-		return this.load();
+		// The NEWEST durable page, not an older one: `read` is "unknown" here, so
+		// this takes the opening-read arm. Paging older from the frame's oldest
+		// row skipped the newest page, so a steer the live frame painted below
+		// its window edge was never fetched — Reload history, the user's recovery
+		// action, lost the row for the life of the screen (PR #356 R1). Older
+		// paging stays on scroll (`loadOlder`).
+		return this.load(true);
 	}
 
 	activate(): void {
