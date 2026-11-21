@@ -353,7 +353,12 @@ export const ListRow = ({
 				numberOfLines={1}
 				ellipsizeMode="tail"
 			>
-				On {remote.device}
+				{/* ONE keyed sentence with the name as an argument, never "On " +
+				 *  name: word order around a name differs by language (Hindi and
+				 *  Urdu put the postposition after it), and a translator can only
+				 *  move the placeholder in a sentence they can see whole. The name
+				 *  itself is the reader's own and passes through untranslated. */}
+				{t("mobile.sidebar.row.on_device", { device: remote.device })}
 			</Text>
 		) : meta.cwd || meta.model ? (
 			<View
