@@ -35,7 +35,7 @@ import {
 	STRAY_PIXELS,
 } from "./frame-difference.mjs";
 
-import { createDiagnostics, fontHashes, rendererFacts, retainSafely } from "./capture-diagnostics.mjs";
+import { createDiagnostics, fontHashes, rendererFacts, rendererLine, retainSafely } from "./capture-diagnostics.mjs";
 
 const here = new URL(".", import.meta.url);
 const root = new URL("../", here); // design/
@@ -118,7 +118,13 @@ const findChrome = () => {
 	return null;
 };
 
-const chrome = findChrome();
+/* `CHROME` wins over the candidate list, and it is ONE variable for both the
+ * presence check and the launch. The design-kit job points it at a copy of the
+ * runner's Chrome taken at job start, because GoogleUpdater replaces
+ * /Applications/Google Chrome.app mid-job (two passes of one run rendered with
+ * 156.0.8078.80 and 157.0.8103.80); a launch that quietly fell back to the
+ * /Applications bundle would reopen exactly that hole. */
+const chrome = process.env.CHROME || findChrome();
 if (!chrome) {
 	console.error(
 		"No Chrome or Chromium found. Install Google Chrome, or pass a path in CHROME=…\n" +
@@ -134,7 +140,7 @@ const profile = `${scratch}/profile-${process.pid}-${Date.now()}`;
 mkdirSync(profile, { recursive: true });
 
 const proc = spawn(
-	process.env.CHROME ?? chrome,
+	chrome,
 	[
 		"--headless=new",
 		`--user-data-dir=${profile}`,
@@ -261,13 +267,20 @@ const browserFacts = async () => {
 		socket.close();
 	}
 };
+/* Every `--check` names the renderer that produced its verdict, diagnostics dir
+ * or not: a stale frame is only interpretable next to the Chrome that rendered
+ * it (13 of 78 design-kit runs failed on one stroke edge while the job's Chrome
+ * changed version between passes). Observational only — an unreadable answer
+ * prints "unavailable" and the verdict below is untouched. */
+const renderer = check ? await browserFacts().catch(() => ({ unavailable: true })) : null;
+if (check) console.log(rendererLine(renderer));
 let retainListing = null;
 if (check && process.env.CAPTURE_DIAGNOSTICS_DIR && ["all", "frames"].includes(target)) {
 	try {
 		retainListing = createDiagnostics({
 			directory: process.env.CAPTURE_DIAGNOSTICS_DIR,
 			invocation: target,
-			renderer: await browserFacts().catch(() => ({ unavailable: true })),
+			renderer,
 			fonts: fontHashes(new URL("fonts/", root).pathname),
 			makeDifference: (fresh, reference, output) => execFileSync(alphaTool(), [
 				fresh, reference, "-alpha", "off", "-compose", "difference", "-composite", `PNG24:${output}`,

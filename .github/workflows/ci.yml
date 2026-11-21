@@ -553,6 +553,52 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Freeze the capture renderer for the whole job
+        # The runner's /Applications/Google Chrome.app is NOT stable for the length
+        # of a job: GoogleUpdater replaces it while the job runs. The listing
+        # diagnostics showed the `all` and `frames` capture passes on different
+        # builds in 11 of 12 runs on main (e.g. 156.0.8078.80, then 157.0.8103.80;
+        # one failing run printed 157.0.8103.79 at the tools step and 158.0.8127.36
+        # two minutes later), and the listing gate failed in 13 of 78 recent runs
+        # with one signature on the caption mark's stroke edge. Rather than widen
+        # a pixel tolerance to absorb a renderer swap, every Chrome launch in this
+        # job runs ONE copy taken here, before anything uses Chrome: the bundle is
+        # self-contained (its framework is versioned inside it), so the updater
+        # replacing /Applications cannot reach the copy. `capture.mjs` and the
+        # stale probe (which inherits this environment) honour `CHROME`.
+        #
+        # Fails closed: no bundle, a copy whose binary will not report a version,
+        # or an updater swap DURING the copy (source version before != after, so
+        # the copy could be a mix of two builds) all stop the job here, by name,
+        # instead of producing a renderer nobody can identify.
+        run: |
+          set -euo pipefail
+          source="/Applications/Google Chrome.app"
+          frozen="$RUNNER_TEMP/chrome-frozen/Google Chrome.app"
+          if [ ! -x "$source/Contents/MacOS/Google Chrome" ]; then
+            echo "::error::no Chrome at $source — the capture gates cannot run without it"
+            exit 1
+          fi
+          before="$("$source/Contents/MacOS/Google Chrome" --version 2>&1 | head -1)"
+          mkdir -p "$(dirname "$frozen")"
+          ditto "$source" "$frozen"
+          after="$("$source/Contents/MacOS/Google Chrome" --version 2>&1 | head -1)"
+          version="$("$frozen/Contents/MacOS/Google Chrome" --version 2>&1 | head -1)" || {
+            echo "::error::the frozen Chrome copy does not run: $version"
+            exit 1
+          }
+          if ! [[ "$version" =~ [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::the frozen Chrome copy reported no version: '$version'"
+            exit 1
+          fi
+          if [ "$before" != "$after" ] || [ "$version" != "$before" ]; then
+            echo "::error::Chrome was replaced while it was being frozen (before: '$before', after: '$after', copy: '$version'); re-run the job"
+            exit 1
+          fi
+          echo "frozen capture renderer: $version at $frozen"
+          echo "CHROME=$frozen/Contents/MacOS/Google Chrome" >> "$GITHUB_ENV"
+          echo "CAPTURE_CHROME_VERSION=$version" >> "$GITHUB_ENV"
+
       # pnpm is here to RUN package scripts, not to install anything: the design
       # gates are plain `node` programs with no dependencies, which is why this
       # job still never runs `pnpm install` and stays cheap on a docs-only pull
@@ -580,10 +626,10 @@ jobs:
               exit 1
             fi
           done
-          echo "chrome: $(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version 2>&1 | head -1)"
+          echo "chrome: $("$CHROME" --version 2>&1 | head -1) (frozen copy: $CHROME)"
 
       - name: Diagnostic retention and metadata allowlists (no browser)
-        run: node --test --test-concurrency=1 design/preview/capture-diagnostics.test.mjs
+        run: node --test --test-concurrency=1 design/preview/capture-diagnostics.test.mjs design/preview/renderer-drift.test.mjs
 
       - name: Styling layer is current with the tokens
         # Through the package script, not a path: the file was `.mjs` when this
@@ -714,6 +760,17 @@ jobs:
         # the tolerance had to absorb at zero tolerance, and the largest channel
         # difference, so the values can be re-derived from the log.
         run: node design/preview/capture.mjs --target frames --check
+
+      - name: The capture renderer did not change mid-job
+        # The other half of the freeze step: proof it held. Both capture passes
+        # above write the Chrome build they rendered with into the diagnostics
+        # directory (renderer.json); this fails, naming every version, if any of
+        # them differs from the frozen copy's. It runs even when the listing gate
+        # failed, because a stale frame next to a renderer swap is a harness
+        # failure, not a design finding. A pass whose renderer could not be read
+        # is a warning only (renderer facts never decide a verdict on their own).
+        if: ${{ !cancelled() }}
+        run: node design/preview/renderer-drift.mjs "$RUNNER_TEMP/listing-render-diagnostics" "$CAPTURE_CHROME_VERSION"
 
       - name: Upload listing renderer diagnostics even when the gate fails
         if: always()
