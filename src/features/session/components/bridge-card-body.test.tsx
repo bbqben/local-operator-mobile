@@ -454,3 +454,40 @@ describe("inbound Team Bridge card body, mounted", () => {
 		expect(load).toHaveBeenLastCalledWith("e-2");
 	});
 });
+
+describe("card receipt context rendering", () => {
+	it("shows localized receipt date/time and thread reply alongside untrusted body", () => {
+		const received_at = "2026-11-21T15:11:44Z";
+		const markup = lines({
+			lines: [{ kind: "body", markdown: "screened body" }],
+			more: 0,
+			card: { received_at, thread_reply: true },
+		});
+		const formatted = new Intl.DateTimeFormat("en", {
+			dateStyle: "medium",
+			timeStyle: "short",
+		}).format(new Date(received_at));
+		expect(markup).toContain(formatted);
+		expect(markup).toContain("Thread reply");
+		expect(markup).toContain("External message · untrusted content");
+		expect(markup.indexOf("Thread reply")).toBeLessThan(
+			markup.indexOf("screened body"),
+		);
+	});
+	it("does not invent a thread marker for a top-level or older-relay card", () => {
+		for (const card of [
+			undefined,
+			{ thread_reply: false },
+			{ received_at: "invalid" },
+		]) {
+			const markup = lines({
+				lines: [{ kind: "body", markdown: "screened body" }],
+				more: 0,
+				card,
+			});
+			expect(markup).not.toContain("Thread reply");
+			expect(markup).not.toContain("Invalid Date");
+			expect(markup).toContain("screened body");
+		}
+	});
+});

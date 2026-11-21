@@ -1777,6 +1777,15 @@ export const bridgeCardBodySchema = z.looseObject({
 	 *  the parse, which the loader reads as "unavailable", rather than being
 	 *  read with v1 meaning (review round 1, M1). */
 	v: z.literal(1),
+	// Additive display-only facts (core ebe4a4103ae2). Bad metadata must not
+	// discard a screened body, and older relays omit this object entirely.
+	card: z
+		.looseObject({
+			received_at: z.iso.datetime().optional().catch(undefined),
+			thread_reply: z.boolean().optional().catch(undefined),
+		})
+		.optional()
+		.catch(undefined),
 	items: z.array(bridgeCardBodyItemSchema),
 	more: z.number().catch(0),
 });

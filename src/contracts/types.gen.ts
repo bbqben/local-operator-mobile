@@ -1000,6 +1000,9 @@ export interface BridgeCardBodyItem {
  *  `more`. Served `Cache-Control: private, no-store` so revocation stays live. */
 export interface BridgeCardBody {
 	v: 1;
+	/** Display facts from the card journal row (core ebe4a4103ae2).
+	 * Optional for older relays; malformed decorative fields are ignored. */
+	card?: { received_at?: string; thread_reply?: boolean };
 	items: BridgeCardBodyItem[];
 	more: number;
 }

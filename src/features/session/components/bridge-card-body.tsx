@@ -19,7 +19,7 @@ import {
 	UserMessageCollapseContext,
 	userMessageClipHeight,
 } from "@/features/session/user-message-clamp";
-import { type NoParamKey, t } from "@/i18n";
+import { activeLocale, type NoParamKey, t } from "@/i18n";
 import { bridgeCardBodyMoreId, ROLE } from "@/ui/a11y";
 import { TOUCH_FLOOR } from "@/ui/layout";
 import { useTextScale } from "@/ui/text-scale-provider";
@@ -107,8 +107,31 @@ export const BridgeCardBodyLines = ({
 		);
 	}
 	const hasBody = view.lines.some((line) => line.kind === "body");
+	// This is receipt time, not sender-authored time. The additive resolver
+	// metadata keeps the transcript lean; an older relay simply has none.
+	const received = view.card?.received_at
+		? new Date(view.card.received_at)
+		: null;
+	const time =
+		received && Number.isFinite(received.getTime())
+			? new Intl.DateTimeFormat(activeLocale(), {
+					dateStyle: "medium",
+					timeStyle: "short",
+				}).format(received)
+			: null;
+	const context = [
+		time,
+		view.card?.thread_reply
+			? t("mobile.team_bridge.card_body.thread_reply")
+			: null,
+	]
+		.filter(Boolean)
+		.join(" · ");
 	return (
 		<View className="mt-1 gap-1" testID={testID}>
+			{context ? (
+				<Text className="text-meta text-ink-dim">{context}</Text>
+			) : null}
 			{/* The framing sits above any third-party text, never above a state
 			 *  sentence: the sentence is the app's own words, not untrusted. */}
 			{hasBody ? (

@@ -1174,6 +1174,7 @@ export type CatalogueKey =
 	| "mobile.team_bridge.card_body.show_less"
 	| "mobile.team_bridge.card_body.show_more"
 	| "mobile.team_bridge.card_body.signed_out"
+	| "mobile.team_bridge.card_body.thread_reply"
 	| "mobile.team_bridge.card_body.unavailable"
 	| "mobile.team_bridge.card_body.untrusted"
 	| "mobile.team_bridge.conversation"
@@ -2356,6 +2357,7 @@ export type NoParamKey =
 	| "mobile.team_bridge.card_body.show_less"
 	| "mobile.team_bridge.card_body.show_more"
 	| "mobile.team_bridge.card_body.signed_out"
+	| "mobile.team_bridge.card_body.thread_reply"
 	| "mobile.team_bridge.card_body.unavailable"
 	| "mobile.team_bridge.card_body.untrusted"
 	| "mobile.team_bridge.conversation"
@@ -3682,6 +3684,7 @@ export type MessageParams = {
 	"mobile.team_bridge.card_body.show_less": NoParams;
 	"mobile.team_bridge.card_body.show_more": NoParams;
 	"mobile.team_bridge.card_body.signed_out": NoParams;
+	"mobile.team_bridge.card_body.thread_reply": NoParams;
 	"mobile.team_bridge.card_body.unavailable": NoParams;
 	"mobile.team_bridge.card_body.untrusted": NoParams;
 	"mobile.team_bridge.conversation": NoParams;
@@ -5074,6 +5077,7 @@ export const ENGLISH_MESSAGES: Readonly<Record<CatalogueKey, string>> = {
 	"mobile.team_bridge.card_body.show_less": "Show less",
 	"mobile.team_bridge.card_body.show_more": "Show more",
 	"mobile.team_bridge.card_body.signed_out": "Sign in to Radient to see this message.",
+	"mobile.team_bridge.card_body.thread_reply": "Thread reply",
 	"mobile.team_bridge.card_body.unavailable": "Message body unavailable.",
 	"mobile.team_bridge.card_body.untrusted": "External message · untrusted content",
 	"mobile.team_bridge.conversation": "Conversation",
@@ -6451,6 +6455,7 @@ export const ENGLISH_CONTEXT: Readonly<Record<CatalogueKey, CatalogueContext>> =
 	"mobile.team_bridge.card_body.show_less": { role: "button", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Toggle that collapses a long message back to its first lines." },
 	"mobile.team_bridge.card_body.show_more": { role: "button", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Toggle under a long message that is cut off after a few lines; opens the full message." },
 	"mobile.team_bridge.card_body.signed_out": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. The body is shown only while signed in. 'Radient' is a product name; do not translate it." },
+	"mobile.team_bridge.card_body.thread_reply": { role: "meta", note: "Inbound card context beside its receipt time and existing sender/conversation caption. This message replies within a conversation thread, not a new top-level message. Short label, no trailing period. Non-English translations are drafts pending independent copy audit." },
 	"mobile.team_bridge.card_body.unavailable": { role: "status", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Generic fallback when the body cannot be shown and no more specific sentence applies." },
 	"mobile.team_bridge.card_body.untrusted": { role: "meta", note: "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Framing line directly above the message body. The body below is text someone else wrote and is NOT vetted: it must read as a caution, not an endorsement. Keep 'untrusted' strong. Same wording as the desktop and terminal apps." },
 	"mobile.team_bridge.conversation": { role: "heading", note: "Team Bridge mobile UI: conversation. Preserve the distinction between a temporary failure, unavailable access and a deliberate read-only state." },
@@ -7842,6 +7847,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "Mostrar menos",
 		"mobile.team_bridge.card_body.show_more": "Mostrar más",
 		"mobile.team_bridge.card_body.signed_out": "Inicia sesión en Radient para ver este mensaje.",
+		"mobile.team_bridge.card_body.thread_reply": "Respuesta en el hilo",
 		"mobile.team_bridge.card_body.unavailable": "Contenido del mensaje no disponible.",
 		"mobile.team_bridge.card_body.untrusted": "Mensaje externo · contenido no fiable",
 		"mobile.team_bridge.conversation": "Conversación",
@@ -9217,6 +9223,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "Afficher moins",
 		"mobile.team_bridge.card_body.show_more": "Afficher plus",
 		"mobile.team_bridge.card_body.signed_out": "Connectez-vous à Radient pour voir ce message.",
+		"mobile.team_bridge.card_body.thread_reply": "Réponse dans le fil",
 		"mobile.team_bridge.card_body.unavailable": "Contenu du message indisponible.",
 		"mobile.team_bridge.card_body.untrusted": "Message externe · contenu non fiable",
 		"mobile.team_bridge.conversation": "Conversation",
@@ -10592,6 +10599,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "कम दिखाएँ",
 		"mobile.team_bridge.card_body.show_more": "और दिखाएँ",
 		"mobile.team_bridge.card_body.signed_out": "यह संदेश देखने के लिए Radient में साइन इन करें।",
+		"mobile.team_bridge.card_body.thread_reply": "थ्रेड में जवाब",
 		"mobile.team_bridge.card_body.unavailable": "संदेश का पाठ उपलब्ध नहीं है।",
 		"mobile.team_bridge.card_body.untrusted": "बाहरी संदेश · अविश्वसनीय सामग्री",
 		"mobile.team_bridge.conversation": "बातचीत",
@@ -11967,6 +11975,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "Показать меньше",
 		"mobile.team_bridge.card_body.show_more": "Показать больше",
 		"mobile.team_bridge.card_body.signed_out": "Войдите в Radient, чтобы увидеть это сообщение.",
+		"mobile.team_bridge.card_body.thread_reply": "Ответ в ветке",
 		"mobile.team_bridge.card_body.unavailable": "Текст сообщения недоступен.",
 		"mobile.team_bridge.card_body.untrusted": "Внешнее сообщение · недоверенное содержимое",
 		"mobile.team_bridge.conversation": "Переписка",
@@ -13342,6 +13351,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "کم دکھائیں",
 		"mobile.team_bridge.card_body.show_more": "مزید دکھائیں",
 		"mobile.team_bridge.card_body.signed_out": "یہ پیغام دیکھنے کے لیے Radient میں سائن اِن کریں۔",
+		"mobile.team_bridge.card_body.thread_reply": "تھریڈ میں جواب",
 		"mobile.team_bridge.card_body.unavailable": "پیغام کا متن دستیاب نہیں۔",
 		"mobile.team_bridge.card_body.untrusted": "بیرونی پیغام · ناقابلِ اعتماد مواد",
 		"mobile.team_bridge.conversation": "گفتگو",
@@ -14717,6 +14727,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "Thu gọn",
 		"mobile.team_bridge.card_body.show_more": "Xem thêm",
 		"mobile.team_bridge.card_body.signed_out": "Hãy đăng nhập Radient để xem tin nhắn này.",
+		"mobile.team_bridge.card_body.thread_reply": "Trả lời trong luồng",
 		"mobile.team_bridge.card_body.unavailable": "Nội dung tin nhắn không khả dụng.",
 		"mobile.team_bridge.card_body.untrusted": "Tin nhắn bên ngoài · nội dung không đáng tin cậy",
 		"mobile.team_bridge.conversation": "Cuộc trò chuyện",
@@ -16092,6 +16103,7 @@ export const LOCALISED_MESSAGES: Readonly<
 		"mobile.team_bridge.card_body.show_less": "收起",
 		"mobile.team_bridge.card_body.show_more": "显示更多",
 		"mobile.team_bridge.card_body.signed_out": "登录 Radient 以查看此消息。",
+		"mobile.team_bridge.card_body.thread_reply": "话题回复",
 		"mobile.team_bridge.card_body.unavailable": "消息正文不可用。",
 		"mobile.team_bridge.card_body.untrusted": "外部消息 · 不可信内容",
 		"mobile.team_bridge.conversation": "会话",
