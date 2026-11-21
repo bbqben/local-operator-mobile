@@ -398,11 +398,7 @@ describe("the row's spoken name is keyed (O3-c)", () => {
 				remoteDevice: undefined,
 			}),
 		).toBe(
-			joinFor(
-				"Payments",
-				renderFor("mobile.sidebar.row.new", {}, "ur"),
-				"ur",
-			),
+			joinFor("Payments", renderFor("mobile.sidebar.row.new", {}, "ur"), "ur"),
 		);
 	});
 
