@@ -133,6 +133,7 @@ async function mountRemoteRow(direction?: "ltr" | "rtl"): Promise<void> {
 	const { ListRow } = await import("@/ui/components/list-row");
 	const { DirectionProvider } = await import("@/ui/direction");
 	const row = createElement(ListRow, {
+		testID: "remote-row",
 		title: "Payments",
 		remote: {
 			device: DEVICE,
