@@ -6,7 +6,8 @@ import {
 	type SessionProjection,
 	type TranscriptEntry,
 } from "@/contracts";
-import { HistoryWindow } from "./history-window";
+import { createListStore } from "@/state/list-store";
+import { HistoryWindow, releaseDeliveredSteers } from "./history-window";
 import { rowIdentity } from "./runtime";
 import { steerJournalOrderDeclared } from "./steer-journal-order";
 
@@ -116,6 +117,42 @@ describe("steer journal order: the declaration", () => {
 		).toBe(false);
 	});
 
+	it("never promotes a cached advertisement through a flagless live frame or reconnect", () => {
+		const store = createListStore();
+		const advertised = {
+			sessions: [],
+			degraded: [],
+			capabilities: capabilitiesSchema.parse({
+				steer_journal_order: { available: true },
+				remote_sessions: { available: true },
+				stt: { available: true, path: "/api/stt" },
+			}),
+		};
+		store.getState().applyFrame(advertised, 1, undefined, "cache");
+		expect(steerJournalOrderDeclared(store.getState())).toBe(false);
+		store.getState().applyFrame({ sessions: [], degraded: [] }, 2);
+		expect(steerJournalOrderDeclared(store.getState())).toBe(false);
+		expect(store.getState().capabilities.remote_sessions).toBeUndefined();
+		expect(store.getState().capabilities.stt).toEqual({
+			available: true,
+			path: "/api/stt",
+		});
+		store.getState().applyFrame(advertised, 3);
+		expect(steerJournalOrderDeclared(store.getState())).toBe(true);
+		store.getState().markStale();
+		store.getState().applyFrame({ sessions: [], degraded: [] }, 4);
+		expect(steerJournalOrderDeclared(store.getState())).toBe(false);
+		store.getState().applyFrame(advertised, 5);
+		store
+			.getState()
+			.applyFrame({ sessions: [], degraded: [], capabilities: {} }, 6);
+		expect(steerJournalOrderDeclared(store.getState())).toBe(false);
+		store.getState().reset();
+		store.getState().applyFrame(advertised, 7, undefined, "cache");
+		store.getState().applyFrame({ sessions: [], degraded: [] }, 8);
+		expect(steerJournalOrderDeclared(store.getState())).toBe(false);
+	});
+
 	it("parses the capability loosely and leaves an older frame without it", () => {
 		const parsed: Capabilities = capabilitiesSchema.parse({
 			steer_journal_order: { available: true, later_field: 2 },
@@ -129,6 +166,69 @@ describe("steer journal order: the declaration", () => {
 });
 
 describe("steer journal order: the held row moves once, at delivery", () => {
+	it("seats a delivered steer after predecessors coalesced into the delivery frame", () => {
+		const reader = new HistoryWindow(noPages, () => {});
+		reader.accept(frame(u1, steer("s1", "also check X"), t1));
+		reader.accept(frame(u1, t1, t2, user("s1", "also check X")));
+		expect(keys(reader.visibleRows)).toEqual(
+			keys([u1, t1, t2, user("s1", "also check X")]),
+		);
+		reader.accept(frame(u1, t1, t2, user("s1", "also check X"), t3));
+		expect(keys(reader.visibleRows)).toEqual(
+			keys([u1, t1, t2, user("s1", "also check X"), t3]),
+		);
+	});
+
+	it("keeps send order when several tools and steers arrive in one delivery snapshot", () => {
+		const reader = new HistoryWindow(noPages, () => {});
+		reader.accept(frame(u1, steer("s1", "one"), t1, steer("s2", "two")));
+		const delivered = [u1, t1, t2, t3, user("s1", "one"), user("s2", "two")];
+		reader.accept(frame(...delivered));
+		expect(keys(reader.visibleRows)).toEqual(keys(delivered));
+		reader.accept(frame(...delivered, t4));
+		expect(keys(reader.visibleRows)).toEqual(keys([...delivered, t4]));
+	});
+
+	it("does not release ambiguous movers, ambiguous anchors, hole boundaries or unanchored chains", () => {
+		const s = steer("s1", "one");
+		const delivered = user("s1", "one");
+		const spine = [u1, s, t1];
+		for (const [previous, incoming, boundaries] of [
+			[[u1, s, s, t1], [u1, t1, t2, delivered], new Set<string>()],
+			[spine, [u1, t1, t2, delivered, delivered], new Set<string>()],
+			[spine, [t1, t1, t2, delivered], new Set<string>()],
+			[[u1, s, t1, t1], [t1, t2, delivered], new Set<string>()],
+			[spine, [u1, t1, t2, delivered], new Set(["s1"])],
+			[spine, [t2, t3, delivered], new Set<string>()],
+		] satisfies [TranscriptEntry[], TranscriptEntry[], Set<string>][]) {
+			expect(releaseDeliveredSteers(previous, incoming, boundaries)).toBe(
+				previous,
+			);
+		}
+	});
+
+	it("keeps a delivered steer that bounds a reconnect hole in its existing slot", async () => {
+		const reader = new HistoryWindow(
+			async () => ({ entries: [u1, t1], has_more: false }),
+			() => {},
+		);
+		reader.accept(frame(u1, t1));
+		await reader.load();
+		reader.accept({
+			...frame(u1, steer("s1", "one"), t2),
+			transcript_head_pinned: true,
+		});
+		expect(reader.gapBefore).toBe("s1");
+		reader.accept({
+			...frame(u1, t2, t3, user("s1", "one")),
+			transcript_head_pinned: true,
+		});
+		expect(keys(reader.visibleRows)).toEqual(
+			keys([u1, t1, user("s1", "one"), t2, t3]),
+		);
+		expect(reader.gapBefore).toBe("s1");
+	});
+
 	it("a declaring stream's delivered steer takes its journal slot on screen", () => {
 		const reader = new HistoryWindow(noPages, () => {});
 		reader.accept(held);

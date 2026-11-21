@@ -157,10 +157,11 @@ export function adoptPageOrder(
  * WHY IT CANNOT DROP, DUPLICATE OR INVENT A SLOT. A row is released only when
  * the frame carries it exactly once and the held list holds it exactly once, so
  * the merge re-adds the one copy it removed. It is released only when the
- * nearest frame row before it (skipping other released steers, so steers drained
- * at one boundary keep their send order) is itself held — that is the anchor
- * `mergeTranscript` seats it after. Without such an anchor (the core leaves a
- * steer whose anchor fell outside a capped frame in place) it keeps its slot. A
+ * preceding frame chain reaches a unique held anchor (skipping other released
+ * steers). Coalesced snapshots can introduce tool rows AND delivery together:
+ * those new predecessors are safe because `mergeTranscript` inserts the chain
+ * after that anchor. Ambiguous identities break the chain; without an anchor
+ * (for example outside a capped frame) the steer keeps its slot. A
  * steer that bounds a hole (`boundaries`) stays put, because the hole's merge
  * locates the boundary by id.
  */
@@ -184,22 +185,27 @@ export function releaseDeliveredSteers(
 		held.filter((row) => row.kind === "steer").map(rowIdentity),
 	);
 	const released = new Set<string>();
-	let anchor: string | undefined;
+	let anchored = false;
 	for (const row of frame) {
 		const id = rowIdentity(row);
+		// A duplicate cannot establish a trustworthy insertion chain. A later
+		// unique held row may re-establish it; wholly new rows cannot.
+		if (frameCount.get(id) !== 1 || (heldCount.get(id) ?? 0) > 1) {
+			anchored = false;
+			continue;
+		}
 		if (
 			row.kind === "user" &&
 			heldSteers.has(id) &&
 			heldCount.get(id) === 1 &&
 			frameCount.get(id) === 1 &&
 			!boundaries.has(id) &&
-			anchor !== undefined &&
-			heldCount.has(anchor)
+			anchored
 		) {
 			released.add(id);
 			continue;
 		}
-		anchor = id;
+		if (heldCount.get(id) === 1) anchored = true;
 	}
 	if (released.size === 0) return held;
 	return held.filter((row) => !released.has(rowIdentity(row)));
