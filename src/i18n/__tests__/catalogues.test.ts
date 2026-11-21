@@ -625,7 +625,9 @@ describe("the English catalogues", () => {
 		 * sums to 1344. */
 		/* On-device slice (English-first): +2 mobile.sidebar (row.on_device,
 		 * row_label.join): 1344 + 2 = 1346, derived by summing the keys of all
-		 * 26 en catalogue files (mobile.sidebar 53). */
+		 * 26 en catalogue files (mobile.sidebar 53). With the translations
+		 * every shipped locale also sums to 1346 (counted over each locale's
+		 * 26 JSON files). */
 		expect(total).toBe(1346);
 	});
 
