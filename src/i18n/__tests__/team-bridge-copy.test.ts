@@ -106,6 +106,7 @@ describe("Team Bridge copy", () => {
 				"mobile.team_bridge.card_body.show_less",
 				"mobile.team_bridge.card_body.show_more",
 				"mobile.team_bridge.card_body.signed_out",
+				"mobile.team_bridge.card_body.thread_reply",
 				"mobile.team_bridge.card_body.unavailable",
 				"mobile.team_bridge.card_body.untrusted",
 			]);
@@ -127,7 +128,7 @@ describe("Team Bridge copy", () => {
 		// sample, sample_none, sample_notice, show_less, show_more, you_reacted;
 		// reply_thread.last_reply. Counted in all eight merged JSON catalogues:
 		// 211 + 9 = 220. Keep the literal count so unrelated additions still fail.
-		expect(keys).toHaveLength(220);
+		expect(keys).toHaveLength(221);
 		expect(keys.sort()).toEqual(
 			Object.keys(CATALOGUES.en)
 				.filter((key) => key.startsWith("mobile.team_bridge."))

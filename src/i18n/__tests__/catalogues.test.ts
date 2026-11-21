@@ -89,7 +89,7 @@ const NAMESPACES = [
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 220, // +9 #348: eight reaction-inspection keys + reply_thread.last_reply (211 + 9), counted in merged JSON. 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON. Merged with #344: + sixteen card_body.* (inbound card body states, framing, show more/less, more count): 184 + 16 = 200, counted over the merged en JSON + eleven reaction keys (reactions slice PR b: actions.a11y_react + ten reactions.*) = 211.
+		expected: 221, // +1 card_body.thread_reply (inline received-card context); +9 #348: eight reaction-inspection keys + reply_thread.last_reply (211 + 9), counted in merged JSON. 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON. Merged with #344: + sixteen card_body.* (inbound card body states, framing, show more/less, more count): 184 + 16 = 200, counted over the merged en JSON + eleven reaction keys (reactions slice PR b: actions.a11y_react + ten reactions.*) = 211.
 	},
 	{
 		name: "mobile.signin",
@@ -636,11 +636,12 @@ describe("the English catalogues", () => {
 		 * composer.row_identity and 26 mobile.home.identity.* keys (25, plus
 		 * refused_connecting from its round-1 remediation): 1344 + 27 = 1371, as
 		 * the suite's own sum over the tree merged with main 29cbbef2 reports. */
-		/* Convergence of both slices: 1344 + 2 sidebar + 27 identity-picker
-		 * keys = 1373, counted over all 26 JSON catalogues in each of the eight
-		 * shipped locales (sidebar 53, home 92, chrome 28). Keep this explicit
-		 * total as an independent guard against an accidentally dropped key. */
-		expect(total).toBe(1373);
+		/* Convergence retains both upstream sidebar keys and the inline
+		 * received-card context: 1373 + card_body.thread_reply = 1374,
+		 * counted over all 26 English JSON catalogues (sidebar 53, home 92,
+		 * chrome 28, team_bridge 221). Keep this explicit total as an
+		 * independent guard against an accidentally dropped key. */
+		expect(total).toBe(1374);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

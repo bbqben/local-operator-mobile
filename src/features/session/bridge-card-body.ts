@@ -64,6 +64,7 @@ export type BridgeBodyLine =
 /** The card's body region: one line per item, plus the count of messages the
  *  relay did not itemise (`more`; it caps an answer at 20). */
 export interface BridgeBodyView {
+	card?: BridgeCardBody["card"];
 	lines: BridgeBodyLine[];
 	more: number;
 }
@@ -126,5 +127,9 @@ export function bridgeBodyView(answer: BridgeCardBody | null): BridgeBodyView {
 		Number.isFinite(answer.more) && answer.more > 0
 			? Math.floor(answer.more)
 			: 0;
-	return { lines: answer.items.map(bridgeBodyLine), more };
+	return {
+		lines: answer.items.map(bridgeBodyLine),
+		more,
+		...(answer.card ? { card: answer.card } : {}),
+	};
 }

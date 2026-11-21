@@ -173,3 +173,34 @@ describe("bridgeCardBodySchema", () => {
 		]);
 	});
 });
+
+describe("additive card context", () => {
+	it("preserves receipt time and thread marker with the screened body", () => {
+		const card = { received_at: "2026-11-21T15:11:44Z", thread_reply: true };
+		const answer = bridgeCardBodySchema.parse({
+			v: 1,
+			items: [{ state: "admitted", body: "screened" }],
+			more: 0,
+			card,
+		});
+		expect(bridgeBodyView(answer).card).toEqual(card);
+	});
+	it.each([
+		undefined,
+		null,
+		"bad",
+		{ received_at: "bad", thread_reply: "yes" },
+	])("ignores absent or malformed decorative context: %j", (card) => {
+		const answer = bridgeCardBodySchema.parse({
+			v: 1,
+			items: [{ state: "admitted", body: "screened" }],
+			more: 0,
+			card,
+		});
+		expect(bridgeBodyView(answer).lines).toEqual([
+			{ kind: "body", markdown: "screened" },
+		]);
+		expect(answer.card?.received_at).toBeUndefined();
+		expect(answer.card?.thread_reply).toBeUndefined();
+	});
+});
