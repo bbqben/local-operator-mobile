@@ -222,8 +222,12 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 *  This is sha256 of relay.ts exactly as committed in 24d93a0d, unchanged at
 	 *  this head; the tool's own reader (snapshotContent) reports the same value.
 	 *  The fixture moved, the U-08 scene did not. Not rendered evidence. */
+	/* Re-pinned 2026-11-21 for PR #358 (new-chat identity picker) with --print:
+	 *  the mock relay gains the `start-targets*` worlds, `GET /api/start-targets`
+	 *  and the start route's `agent`/`team` handling. Source identity only — no
+	 *  U-08 scene, assertion or threshold changed here; not rendered evidence. */
 	"tools/mock-relay/relay.ts":
-		"1bcbec5c8e80d2a5eb39eeecba8f19bb0fee10dd992941f50624cd1aba0ecfba",
+		"ec4fcc4a6157d2e3a8da0c3e16295ff03356bb9e12393836992bb2e979b3a10c",
 	/* Re-pinned 2026-10-29 after merging main's session-health work into the French
 	 * wave: `src` and `app` carry that surface plus the French catalogues and the
 	 * per-render copy modules, and the readiness/matrix/scenario helpers moved with
@@ -246,8 +250,12 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 *  to main (JSON SHA256 prefixes: long-transcript 11bfa6d3e7b72831,
 	 *  long-transcript-history 0d14585cb17662c9, idle 1d1ed4063acae06d on
 	 *  both), so the U-08 scene did not move. */
+	/* Re-pinned 2026-11-21 for PR #358 (new-chat identity picker) with --print:
+	 *  the mock relay gains the `start-targets*` worlds, `GET /api/start-targets`
+	 *  and the start route's `agent`/`team` handling. Source identity only — no
+	 *  U-08 scene, assertion or threshold changed here; not rendered evidence. */
 	"tools/mock-relay/scenarios.ts":
-		"84c742389d35a490a401a839b132cc12d77c0030a03984c85c90354696503ee5",
+		"dd89609b1d545f9bc77a7626dba2631a91349500a3c06fc0a022b464434476b2",
 	"tools/mock-relay/shape.ts":
 		"0ef0c342578ffaf4a7067d4427f10a999740152d6a56ec2da63d75697f08fb5b",
 	/* The startup evidence helper the fixture's relay imports. It has been loaded by
@@ -263,8 +271,12 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 		"cc51e9866607ea4d97bef75d2179fbed2c65e75389e12d5957b7643db10f98c1",
 	"tools/mock-relay/transcribe.ts":
 		"59d078b6838376b15af5efa7815221684755b917a9992a0e1dac663da1e4c945",
+	/* Re-pinned 2026-11-21 for PR #358 (new-chat identity picker) with --print:
+	 *  the mock relay gains the `start-targets*` worlds, `GET /api/start-targets`
+	 *  and the start route's `agent`/`team` handling. Source identity only — no
+	 *  U-08 scene, assertion or threshold changed here; not rendered evidence. */
 	"tools/mock-relay/wire.ts":
-		"08bf0c314c525ecaaf04f5404bf573ed6335774769b4d36cddb4eb2b93754a00",
+		"4845a78e359da33ac28e5b2886d372641dfb5c33e4e5db552eb8ea05f62d8c66",
 	/* Re-pinned 2026-11-08 for PR #195's round-1 remediation with --print from the
 	 * staged tree: one cell name added to the iphone-15-landscape
 	 * IDENTICAL_FRAME_EXEMPTIONS entry (`S5/rail-building`) and that entry's reason

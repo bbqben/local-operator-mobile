@@ -94,6 +94,7 @@ import {
 	setCookieHeader,
 	sseFrame,
 	startEffortAdmitted,
+	startTargetRefusal,
 	syntheticSessionId,
 	verifyCookie,
 } from "./wire.ts";
@@ -1319,6 +1320,16 @@ export function createRelay(options: RelayOptions = {}) {
 				if (world.sessionTags !== undefined) {
 					capabilities.session_tags = { available: true };
 				}
+				/* `agent`/`team` license the start fields AND the roster route
+				 *  (local-operator #4367); advertised only when the scenario serves
+				 *  a roster, so every other scenario stays an older relay. */
+				if (world.startTargets !== undefined) {
+					capabilities.session_start = {
+						...(capabilities.session_start ?? {}),
+						agent: true,
+						team: true,
+					};
+				}
 				if (world.remoteSessions === true) {
 					capabilities.remote_sessions = {
 						available: true,
@@ -2530,6 +2541,20 @@ export function createRelay(options: RelayOptions = {}) {
 				);
 				return;
 			}
+			/* `agent`/`team` (local-operator #4367), in the relay's order: shape and
+			 *  mutual exclusion first (`start_target`), then whether the name
+			 *  resolves (`_resolve_start_target` → 404 `unknown_start_target`),
+			 *  both before anything is created. A scenario with no roster is an
+			 *  OLDER relay, whose unkeyed start reads fields with `body.get` and
+			 *  silently drops these — mirrored, so a phone that skipped its
+			 *  capability gate would look "fine" here exactly as it would there. */
+			if (world.startTargets !== undefined) {
+				const refusal = startTargetRefusal(body, world.startTargets);
+				if (refusal !== null) {
+					sendJson(res, refusal.status, errorBody(refusal.code, refusal.code));
+					return;
+				}
+			}
 			if (typeof body.cwd === "string" && body.cwd.startsWith("/etc")) {
 				sendFixture(res, "start-bad-cwd");
 				return;
@@ -2705,6 +2730,16 @@ export function createRelay(options: RelayOptions = {}) {
 				return;
 			}
 			sendFixture(res, "directories");
+			return;
+		}
+		if (pathname === "/api/start-targets" && method === "GET") {
+			/* Absent from an older relay: its route table has no such path, so
+			 *  the phone must never read a 404 here as "no agents". */
+			if (world.startTargets === undefined) {
+				sendJson(res, 404, errorBody("not found"));
+				return;
+			}
+			sendJson(res, 200, world.startTargets);
 			return;
 		}
 		if (pathname === "/api/models" && method === "GET") {

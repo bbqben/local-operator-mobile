@@ -690,6 +690,14 @@ export const CONTROL = {
 	homeModelPickerRetry: "home-model-picker-retry",
 	homeModelSearch: "home-model-search",
 	homeEffortPicker: "home-effort-picker",
+	/** The "Start this chat with" sheet (agent or team) and its parts. */
+	homeIdentityPicker: "home-identity-picker",
+	homeIdentityPill: "home-identity-pill",
+	homeIdentitySearch: "home-identity-search",
+	homeIdentityDefault: "home-identity-default",
+	homeIdentityRetry: "home-identity-retry",
+	/** The composer More sheet's "Agent or team" row (home only). */
+	composerContextIdentity: "composer-context-identity",
 	/** The home composer strip's folder chip (the strip's first chip). */
 	homeFolderChip: "home-folder-chip",
 	sidebarNewChat: "sidebar-new-chat",
@@ -2563,6 +2571,17 @@ export const todosRowId = (index: number): string => `todos-row-${index}`;
  *  so the screen cannot spell a stable id — the index is the one name a flow has. */
 export const homeFolderRowId = (index: number): string =>
 	`home-folder-row-${index}`;
+
+/** One agent or team row of the identity picker. Names are the relay's slugs
+ *  (`[a-z0-9-_]`), and an agent and a team may share one, so the kind is part of
+ *  the id. A Recent repeat gets its own band prefix so one frame never names an
+ *  id twice. */
+export const homeIdentityRowId = (
+	kind: "agent" | "team",
+	name: string,
+	band: "recent" | "main" = "main",
+): string =>
+	`home-identity-${band === "recent" ? "recent-" : ""}${kind}-${name}`;
 
 /** One question of a multi-question ask: `ask-question-<n>-of-<total>`. */
 export const askQuestionId = (index: number, total: number): string =>

@@ -131,8 +131,11 @@ const NAMESPACES = [
 		 *  effort names and the pickers' copy, and 2 from its round-1 remediation
 		 *  ("Default effort" on the chip, "This computer's level" in the sheet).
 		 *  66 with the startup transcript's compact "Needs your answer" row
-		 *  (TestFlight 906, replacing two hard-coded sentences). */
-		expected: 66,
+		 *  (TestFlight 906, replacing two hard-coded sentences).
+		 *  92 with the new-chat identity picker (PR #358): 25 `identity.*` keys
+		 *  for the pill, the "Start this chat with" sheet and its refusals, and 1
+		 *  from its round-1 remediation (`refused_connecting`, F2): 66 + 26. */
+		expected: 92,
 	},
 	{
 		name: "mobile.projects",
@@ -301,8 +304,9 @@ const NAMESPACES = [
 		messages: chrome,
 		context: chromeContext,
 		// +5: the More sheet's row labels (visual audit D5); +1 its Questions row
-		// (build 753); +1 the search pill's "Clear search" (TestFlight 906).
-		expected: 27,
+		// (build 753); +1 the search pill's "Clear search" (TestFlight 906);
+		// +1 its "Agent or team" row (new-chat identity picker, PR #358).
+		expected: 28,
 	},
 	{
 		/* The shared date/time words (O3-a): inbox and Team Bridge day buckets,
@@ -623,7 +627,11 @@ describe("the English catalogues", () => {
 		 * derived by summing the keys of all 26 merged en catalogue files
 		 * (mobile.sidebar 51, mobile.team_bridge 220); every shipped locale also
 		 * sums to 1344. */
-		expect(total).toBe(1344);
+		/* New-chat identity picker (PR #358): + mobile.chrome
+		 * composer.row_identity and 26 mobile.home.identity.* keys (25, plus
+		 * refused_connecting from its round-1 remediation): 1344 + 27 = 1371, as
+		 * the suite's own sum over the tree merged with main 29cbbef2 reports. */
+		expect(total).toBe(1371);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -723,6 +731,12 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"French uses Image followed by the image number and a separately localized state; this template contains no English prose.",
 		"mobile.chrome.drawer.agents":
 			"Agents is also the French plural for software agents; the drawer mode names the agent conversations, not an English fallback.",
+		"mobile.home.identity.band_agents":
+			"Agents is also the French plural for software agents (as mobile.chrome.drawer.agents); the identity sheet's band heading over the agent rows, not an English fallback.",
+		"mobile.home.identity.row_agent":
+			"Screen-reader row name `{name}, agent`: the name is a display name (never translated) and « agent » is the French noun for a software agent (as mobile.team_bridge.profile.badge_agent), so the French line is spelled as the English one.",
+		"mobile.home.identity.row_agent_described":
+			"`{name}, agent. {description}`: both arguments are relay-supplied display text (never translated) and « agent » is the French noun, as in mobile.home.identity.row_agent; the template carries no other prose.",
 		"mobile.team_bridge.profile.name_with_owner":
 			"Placeholder-only identity template `{agent} ({owner})`: both arguments are current display names, which are never translated; the parentheses contain no prose.",
 		"mobile.team_bridge.profile.badge_agent":

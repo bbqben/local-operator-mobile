@@ -83,3 +83,23 @@ export const heroHeldInset = (live: number, held: number): number =>
  * composer below is untouched.
  */
 export const HERO_MARK_SIZE = 32;
+
+/** The identity pill's largest mark, in pt: the spec's cap for marks beside
+ *  scaled text (identity-picker D-S26). */
+export const IDENTITY_PILL_MARK_CAP_PT = 28;
+
+/**
+ * The identity pill's leading mark and chevron for a text scale (PR #358 D5).
+ *
+ * WHY. They were fixed at 20 / 14 pt while the label grew with the reader's
+ * text size, so at 200 % a 28 px label sat beside a 14 pt chevron — and the
+ * chevron is the only sign the line opens something. An icon is geometry, not a
+ * font, so it multiplies on every platform (`scaledMarkBox`'s rule), capped so
+ * a mark never outgrows the label's line.
+ */
+export const identityPillMarks = (
+	scale: number,
+): Readonly<{ mark: number; chevron: number }> => ({
+	mark: Math.min(IDENTITY_PILL_MARK_CAP_PT, Math.round(20 * scale)),
+	chevron: Math.min(IDENTITY_PILL_MARK_CAP_PT, Math.round(14 * scale)),
+});

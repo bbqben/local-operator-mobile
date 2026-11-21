@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react-native";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
 	AccessibilityInfo,
@@ -18,10 +18,12 @@ import {
 	heroHeldInset,
 	heroMeasured,
 	heroTopInset,
+	identityPillMarks,
 } from "@/features/home/hero-layout";
 import { startingLine, suggestionSlotFor } from "@/features/home/home-copy";
+import { IdentityMark } from "@/features/home/home-pickers";
 import { t } from "@/i18n";
-import { ROLE, SURFACE } from "@/ui/a11y";
+import { CONTROL, ROLE, SURFACE, state } from "@/ui/a11y";
 import { useTokenColor } from "@/ui/appearance";
 import { Button } from "@/ui/components/button";
 import { NavigationMark } from "@/ui/components/navigation-mark";
@@ -74,6 +76,95 @@ export type HomeSplashProps = {
 	 *  Retry the reader pressed succeeds, because the alert that held focus
 	 *  unmounts. 0 / unchanged never moves anything. */
 	focusRequest?: number;
+	/** The "Start this chat with" pill under the greeting (identity-picker spec
+	 *  D-S1/D-S5), or `null` when the relay licenses no agent/team start —
+	 *  hidden, never disabled, because a dead control on the screen's focal line
+	 *  is clutter (D-S15). */
+	identity?: HeroIdentity | null;
+};
+
+/** What the hero pill shows and does. */
+export type HeroIdentity = Readonly<{
+	/** The chosen name (painted label), or "Default agent". */
+	label: string;
+	kind: "agent" | "team" | "default";
+	agentId?: string | null;
+	avatarSha256?: string | null;
+	/** Something other than the default is chosen: the pill gains its border. */
+	chosen: boolean;
+	/** Not connected, or a start in flight (D-S10): the pill does not open. */
+	disabled: boolean;
+	onPress: () => void;
+}>;
+
+/**
+ * The identity pill (D-S5..D-S10): mark → label → chevron in one 44 pt
+ * capsule, hugging its content and centred under the greeting.
+ *
+ * QUIET AT DEFAULT, PRESENT WHEN CHOSEN (D-S7). At default it is muted text
+ * with no fill or border — it reads as the second half of the greeting, not as
+ * a button competing with the suggestions. Chosen, the label steps to `ink`
+ * and the capsule gains the 1 pt `border-control` ring the hero mark already
+ * uses (the 3:1 non-text token). No Liquid Glass: glass on this screen is the
+ * composer's chrome, and the hero is content. Disabled steps the COLOUR to
+ * `ink-disabled` (never opacity, desktop design D-1).
+ */
+const IdentityPill = ({
+	identity,
+	largeText,
+	scale,
+}: {
+	identity: HeroIdentity;
+	largeText: boolean;
+	/** The effective text scale: the mark and chevron grow with the label (D5). */
+	scale: number;
+}) => {
+	const marks = identityPillMarks(scale);
+	const muted = useTokenColor("ink-muted");
+	const disabledInk = useTokenColor("ink-disabled");
+	const ink = useTokenColor("ink");
+	const tone = identity.disabled ? disabledInk : identity.chosen ? ink : muted;
+	return (
+		<Pressable
+			accessibilityRole={ROLE.button}
+			accessibilityLabel={t("mobile.home.identity.pill_label", {
+				target: identity.label,
+			})}
+			accessibilityState={state({ disabled: identity.disabled })}
+			disabled={identity.disabled}
+			onPress={identity.onPress}
+			testID={CONTROL.homeIdentityPill}
+			style={{ minHeight: TOUCH_FLOOR, maxWidth: "100%" }}
+			className={cx(
+				"mt-2 flex-row items-center gap-1.5 rounded-full px-3",
+				identity.chosen ? "border border-border-control" : null,
+			)}
+		>
+			<IdentityMark
+				kind={identity.kind}
+				agentId={identity.agentId}
+				avatarSha256={identity.avatarSha256}
+				size={marks.mark}
+			/>
+			<Text
+				className="min-w-0 shrink text-body-sm"
+				style={{ color: tone }}
+				/* One line with an end ellipsis; two at large text, where one line
+				 *  would cut most names (D-S9/D-S26). */
+				numberOfLines={largeText ? 2 : 1}
+			>
+				{identity.label}
+			</Text>
+			{/* `flexShrink: 0`: an ellipsised name squeezed the chevron to 9.9 pt
+			 *  at 320 pt (D8). */}
+			<ChevronDown
+				size={marks.chevron}
+				color={tone}
+				style={{ flexShrink: 0 }}
+				aria-hidden
+			/>
+		</Pressable>
+	);
 };
 
 /** One suggestion row: the `quiet` variant's language at full width.
@@ -204,6 +295,7 @@ export const HomeSplash = ({
 	onPick,
 	starting,
 	focusRequest = 0,
+	identity = null,
 }: HomeSplashProps) => {
 	const { width } = useWindowDimensions();
 	const { effectiveScale } = useTextScale();
@@ -321,8 +413,25 @@ export const HomeSplash = ({
 						)}
 						testID={starting ? SURFACE.homeStarting : SURFACE.homeGreeting}
 					>
-						{starting ? startingLine() : t("mobile.chrome.home.greeting")}
+						{starting
+							? identity?.chosen
+								? t("mobile.home.identity.starting_with", {
+										name: identity.label,
+									})
+								: startingLine()
+							: t("mobile.chrome.home.greeting")}
 					</Text>
+					{/* Directly under the greeting, inside the measured hero block, so
+					 *  the centring maths counts it and the composer below never moves
+					 *  (D-S6/D-S8). It never yields: it is content, and it scrolls
+					 *  with the greeting. */}
+					{identity !== null ? (
+						<IdentityPill
+							identity={identity}
+							largeText={effectiveScale > LARGE_TEXT_SCALE}
+							scale={effectiveScale}
+						/>
+					) : null}
 					{rows.length ? (
 						/* `space.6` under the greeting, `space.2` between the rows. */
 						<View

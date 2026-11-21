@@ -366,6 +366,17 @@ export type ComposerProps = {
 	effortChip?: ComposerChip | null;
 	onOpenModels: () => void;
 	onOpenEffort: () => void;
+	/** The home's "Agent or team" row, FIRST in More (identity-picker spec
+	 *  D-S2): the second door to the start-target sheet, the one that still
+	 *  works when the hero pill has scrolled away at large text, and the place an
+	 *  older relay explains itself (D-S15). A session composer passes nothing —
+	 *  re-addressing a running chat stays `/agent` and `/team`. */
+	identityRow?: {
+		value: string;
+		accessibilityLabel: string;
+		disabled: boolean;
+		onPress: () => void;
+	} | null;
 	/** A leading `/` opens the sheet; `null` keeps it shut. */
 	slashQuery: string | null;
 	slashSheet: React.ReactNode;
@@ -725,6 +736,7 @@ export const Composer = ({
 	effortChip,
 	onOpenModels,
 	onOpenEffort,
+	identityRow = null,
 	slashQuery,
 	slashSheet,
 	fieldRef,
@@ -2543,6 +2555,19 @@ export const Composer = ({
 				title={t("mobile.chrome.composer.more")}
 				testID={CONTROL.composerContextSheet}
 			>
+				{identityRow ? (
+					<ContextRow
+						label={t("mobile.chrome.composer.row_identity")}
+						value={identityRow.value}
+						accessibilityLabel={identityRow.accessibilityLabel}
+						disabled={identityRow.disabled}
+						onPress={() => {
+							setContextOpen(false);
+							identityRow.onPress();
+						}}
+						testID={CONTROL.composerContextIdentity}
+					/>
+				) : null}
 				<ContextRow
 					label={t("mobile.chrome.composer.row_model")}
 					value={chipRowValue(modelChip)}

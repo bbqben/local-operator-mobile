@@ -97,6 +97,7 @@ import type {
 	SessionSummary,
 	SessionTagsResponse,
 	SlashCommand,
+	StartTargetsResponse,
 	SttCapability,
 	SubagentDetail,
 	SubagentRow,
@@ -1278,6 +1279,13 @@ export const sessionStartCapabilitySchema = z.looseObject({
 	durable_idempotency: z.boolean().optional(),
 	receipt_capacity: z.number().int().optional(),
 	effort: z.boolean().optional(),
+	/** `agent`/`team` (local-operator #4367): each licenses BOTH that optional
+	 *  start field AND `GET /api/start-targets`. Never defaulted to `true`: an
+	 *  older relay's UNKEYED start silently drops an unknown field, so a phone
+	 *  that assumed the licence would start an unbound chat while its pill named
+	 *  a team. Absent reads as "this relay cannot". */
+	agent: z.boolean().optional(),
+	team: z.boolean().optional(),
 });
 
 export const capabilitiesSchema = z.looseObject({
@@ -1658,6 +1666,47 @@ export const modelsResponseSchema = z.looseObject({
 	 *  one. Kept as two readings rather than defaulted, because the home chip says
 	 *  different things for them. */
 	default: modelDefaultSchema.nullable().optional(),
+});
+
+/** One agent `GET /api/start-targets` offers (local-operator #4367,
+ *  `mobile/daemon.py` `_start_targets_payload`). Projected from the desktop's
+ *  own `profile_catalogue`, so `name` is exactly what the start route accepts
+ *  and `label` is already painted by the shared display rules — the phone shows
+ *  it rather than re-deriving one. Only `name` is load-bearing: every other
+ *  field is decoration a later relay may drop, so each is optional and loose. */
+export const startTargetAgentSchema = z.looseObject({
+	name: nonEmpty,
+	label: z.string().optional(),
+	/** `role` | `specialist`. */
+	kind: z.string().nullable().optional(),
+	/** `builtin` | `installed` | `custom`; the picker hides `builtin` rows, the
+	 *  desktop menu's `draftTargetRoster` rule. */
+	source: z.string().nullable().optional(),
+	description: z.string().optional(),
+	/** With `avatar_sha256`, the key to the existing
+	 *  `/v1/agents/{agent_id}/avatar` route; either `null` draws the glyph. */
+	agent_id: z.string().nullable().optional(),
+	avatar_sha256: z.string().nullable().optional(),
+});
+
+/** One team the start route can bind. Teams carry no picture of their own
+ *  (`Team` has no avatar field), so the row draws a team glyph. */
+export const startTargetTeamSchema = z.looseObject({
+	name: nonEmpty,
+	label: z.string().optional(),
+	description: z.string().optional(),
+	/** The manager's profile name; `""` when the relay could not say. */
+	manager: z.string().optional(),
+	member_count: z.number().int().nonnegative().optional(),
+});
+
+/** `GET /api/start-targets`. `degraded: true` arrives with EMPTY lists when the
+ *  registries could not be read, so "could not read" and "you have none" stay
+ *  two readings the sheet words differently. Absent `degraded` is `false`. */
+export const startTargetsResponseSchema = z.looseObject({
+	agents: z.array(startTargetAgentSchema),
+	teams: z.array(startTargetTeamSchema),
+	degraded: z.boolean().default(false),
 });
 
 export const directoriesSchema = z.looseObject({
@@ -2254,6 +2303,8 @@ export const SCHEMAS = {
 	 *  captured from `/api/models`, so it is validated element by element. */
 	modelEntry: modelEntrySchema,
 	directories: directoriesSchema,
+	/** The new-chat target picker's roster (local-operator #4367). */
+	startTargets: startTargetsResponseSchema,
 	apiError: apiErrorSchema,
 	commandAck: commandAckSchema,
 	/** `GET /api/sessions/{id}/supplements/{digest}/document` — a component's
@@ -2432,6 +2483,7 @@ type WireMirror = {
 	commands: CommandsResponse;
 	models: ModelsResponse;
 	directories: Directories;
+	startTargets: StartTargetsResponse;
 	apiError: ApiError;
 	commandAck: CommandAck;
 	seen: SeenResponse;
@@ -2690,6 +2742,7 @@ export type {
 	SessionSummary,
 	SessionTagsResponse,
 	SlashCommand,
+	StartTargetsResponse,
 	SttCapability,
 	SubagentDetail,
 	SubagentRow,
