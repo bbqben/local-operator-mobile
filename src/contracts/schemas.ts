@@ -1326,6 +1326,15 @@ export const capabilitiesSchema = z.looseObject({
 	 *  drops it on an unkeyed one, which would start at the configured default
 	 *  while the phone said otherwise. */
 	session_start: sessionStartCapabilitySchema.optional(),
+	/** local-operator #4395 (docs/mobile.md "Steer journal order"): a stream
+	 *  that sends `?steer_journal_order=1` gets each delivered phone steer at
+	 *  its journal slot, repainted as `kind: "user"` with the same id — the
+	 *  order `/history` and a fresh mount show. Optional and never defaulted:
+	 *  absence is an older relay, and the client sends the parameter only when
+	 *  this says `available: true`. Loose, so a later field never fails a frame. */
+	steer_journal_order: z
+		.looseObject({ available: z.boolean().optional() })
+		.optional(),
 });
 
 /** The frame-level unread aggregate (push/ack-sync S1, ADR 0006 §1.1).

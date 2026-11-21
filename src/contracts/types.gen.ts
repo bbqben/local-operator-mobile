@@ -700,6 +700,11 @@ export interface Capabilities {
 		agent?: boolean;
 		team?: boolean;
 	};
+	/** local-operator #4395: the session stream moves a delivered phone steer to
+	 *  its journal slot (as `kind: "user"`, same id) for a stream that sends
+	 *  `?steer_journal_order=1`. Absent = an older relay, which must not be sent
+	 *  the parameter. */
+	steer_journal_order?: { available?: boolean; [key: string]: unknown };
 }
 
 export interface SessionListFrame {

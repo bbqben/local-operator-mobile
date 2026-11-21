@@ -1748,14 +1748,28 @@ export class RelayEndpoints {
 
 	/** `GET /api/sessions/{id}/events`: one session's projection stream. The relay
 	 *  sends the current projection as the seed frame, which is what makes
-	 *  reconnect-and-resync work without a replay protocol. */
+	 *  reconnect-and-resync work without a replay protocol.
+	 *
+	 *  `steerJournalOrder` declares `?steer_journal_order=1` (local-operator
+	 *  #4395): the relay then moves a delivered phone steer from its send-time
+	 *  slot to its journal slot, so the live order matches `/history`. The relay
+	 *  reads it once per connection, so it is a per-stream flag like
+	 *  `include_peers`. Pass it ONLY when the live capabilities advertise
+	 *  `steer_journal_order.available` — left off, the URL is byte-for-byte what
+	 *  every older build asked an older relay for. */
 	sessionStream(
 		sessionId: string,
-		options: Omit<SseConnectionOptions, "open"> & { signal?: AbortSignal },
+		options: Omit<SseConnectionOptions, "open"> & {
+			signal?: AbortSignal;
+			steerJournalOrder?: boolean;
+		},
 	): RelayStream {
+		const { steerJournalOrder, ...connection } = options;
 		return this.stream(
-			`/api/sessions/${encodeURIComponent(sessionId)}/events`,
-			options,
+			`/api/sessions/${encodeURIComponent(sessionId)}/events${query({
+				steer_journal_order: steerJournalOrder ? "1" : undefined,
+			})}`,
+			connection,
 		);
 	}
 

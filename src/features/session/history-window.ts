@@ -134,6 +134,77 @@ export function adoptPageOrder(
 	return next;
 }
 
+/**
+ * Let go of each held phone steer the frame now reports DELIVERED, so the merge
+ * seats it at the frame's (journal) position instead of its send-time slot.
+ *
+ * WHY. `mergeTranscript` keeps every held row where it was first shown, and a
+ * phone steer is first shown when it is SENT; the journal — `/history`, a
+ * reload, the desktop — records it when it is DELIVERED, rows later. Until a
+ * durable page ran `adoptPageOrder`, the screen read `steer, tool, tool` while
+ * every other surface read `tool, tool, user` (operator: "sometimes they load
+ * out of order"). A stream that declared `?steer_journal_order=1`
+ * (local-operator #4395, `steer-journal-order.ts`) moves the delivered steer in
+ * the frame and repaints it `kind: "user"` with the same id; this applies that
+ * move to the held list.
+ *
+ * WHEN, EXACTLY. On the one frame where a held row is still `kind: "steer"` and
+ * the frame's copy of the same id is `kind: "user"` — the delivery transition.
+ * Afterwards the held copy is the frame's (`user`), so the row moves once and
+ * then stays put like every other held row. A legacy (undeclared) stream keeps
+ * `kind: "steer"` in place, so an older relay never triggers this.
+ *
+ * WHY IT CANNOT DROP, DUPLICATE OR INVENT A SLOT. A row is released only when
+ * the frame carries it exactly once and the held list holds it exactly once, so
+ * the merge re-adds the one copy it removed. It is released only when the
+ * nearest frame row before it (skipping other released steers, so steers drained
+ * at one boundary keep their send order) is itself held — that is the anchor
+ * `mergeTranscript` seats it after. Without such an anchor (the core leaves a
+ * steer whose anchor fell outside a capped frame in place) it keeps its slot. A
+ * steer that bounds a hole (`boundaries`) stays put, because the hole's merge
+ * locates the boundary by id.
+ */
+export function releaseDeliveredSteers(
+	held: TranscriptEntry[],
+	frame: readonly TranscriptEntry[],
+	boundaries: ReadonlySet<string>,
+): TranscriptEntry[] {
+	const count = (rows: readonly TranscriptEntry[]) => {
+		const seen = new Map<string, number>();
+		for (const row of rows) {
+			const id = rowIdentity(row);
+			seen.set(id, (seen.get(id) ?? 0) + 1);
+		}
+		return seen;
+	};
+	if (!held.some((row) => row.kind === "steer")) return held;
+	const heldCount = count(held);
+	const frameCount = count(frame);
+	const heldSteers = new Set(
+		held.filter((row) => row.kind === "steer").map(rowIdentity),
+	);
+	const released = new Set<string>();
+	let anchor: string | undefined;
+	for (const row of frame) {
+		const id = rowIdentity(row);
+		if (
+			row.kind === "user" &&
+			heldSteers.has(id) &&
+			heldCount.get(id) === 1 &&
+			frameCount.get(id) === 1 &&
+			!boundaries.has(id) &&
+			anchor !== undefined &&
+			heldCount.has(anchor)
+		) {
+			released.add(id);
+			continue;
+		}
+		anchor = id;
+	}
+	if (released.size === 0) return held;
+	return held.filter((row) => !released.has(rowIdentity(row)));
+}
+
 /** A screen-owned reader, not a second transcript store. Capped projections are
  * not deletion signals: keep accepted server rows until this reader is retired.
  * The wire has no retention generation, so unseen prunes cannot be inferred. */
@@ -307,7 +378,15 @@ export class HistoryWindow {
 			...this.detached,
 			...(disjoint
 				? this.appendAfterHole(spine, frame)
-				: this.mergeNewest(spine, frame, head ? rowIdentity(head) : undefined)),
+				: this.mergeNewest(
+						releaseDeliveredSteers(
+							spine,
+							frame,
+							new Set(this.holes.map((hole) => hole.before)),
+						),
+						frame,
+						head ? rowIdentity(head) : undefined,
+					)),
 		];
 	}
 
