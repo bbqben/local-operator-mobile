@@ -292,7 +292,7 @@ const NAMESPACES = [
 		name: "mobile.sidebar",
 		messages: sidebar,
 		context: sidebarContext,
-		expected: 51, // O3-c +9: the row's five status words (row_status.*) and four screen-reader label fragments (row_label.*) (42 + 9 = 51, counted over the en JSON). O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
+		expected: 53, // On-device slice +2: the remote row's device line (row.on_device) and the screen-reader label separator (row_label.join) (51 + 2 = 53, counted over the en JSON). O3-c +9: the row's five status words (row_status.*) and four screen-reader label fragments (row_label.*) (42 + 9 = 51, counted over the en JSON). O3-b +15: the Tags sheet and row tag announcement (10) and the row's new marker and plural counts (5) (27 + 15 = 42, counted over the en JSON). PR #275 +2: the conversation row's outbox lines, sending and stopped (25 + 2 = 27)
 	},
 	{
 		/* This app's own short chrome words the relay has no key for: the sidebar
@@ -627,11 +627,20 @@ describe("the English catalogues", () => {
 		 * derived by summing the keys of all 26 merged en catalogue files
 		 * (mobile.sidebar 51, mobile.team_bridge 220); every shipped locale also
 		 * sums to 1344. */
+		/* On-device slice (English-first): +2 mobile.sidebar (row.on_device,
+		 * row_label.join): 1344 + 2 = 1346, derived by summing the keys of all
+		 * 26 en catalogue files (mobile.sidebar 53). With the translations
+		 * every shipped locale also sums to 1346 (counted over each locale's
+		 * 26 JSON files). */
 		/* New-chat identity picker (PR #358): + mobile.chrome
 		 * composer.row_identity and 26 mobile.home.identity.* keys (25, plus
 		 * refused_connecting from its round-1 remediation): 1344 + 27 = 1371, as
 		 * the suite's own sum over the tree merged with main 29cbbef2 reports. */
-		expect(total).toBe(1371);
+		/* Convergence of both slices: 1344 + 2 sidebar + 27 identity-picker
+		 * keys = 1373, counted over all 26 JSON catalogues in each of the eight
+		 * shipped locales (sidebar 53, home 92, chrome 28). Keep this explicit
+		 * total as an independent guard against an accidentally dropped key. */
+		expect(total).toBe(1373);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -763,6 +772,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_TAG_EXAMPLE,
 		"mobile.projects.create.description":
 			"Description is the same French word for the project description field, not English fallback.",
@@ -850,6 +861,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
 		"mobile.schedules.head.overdue":
@@ -903,6 +916,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
 		/* ASCII example, not an untranslated value */
@@ -934,6 +949,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
@@ -968,6 +985,8 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 		"mobile.computers.transport.radient":
 			"Radient is the product's name, and every shipped catalogue already keeps it in Latin script inside translated sentences (e.g. the switcher's own section heading); there is no word to translate.",
 		"mobile.session.highlights.withheld_reasons_join":
+			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
+		"mobile.sidebar.row_label.join":
 			"Placeholder-only list separator, `{first}, {second}` — this locale enumerates with the Latin comma; there is no prose to translate.",
 		...PROJECT_NAME_EXAMPLE,
 		...PROJECT_TAG_EXAMPLE,
