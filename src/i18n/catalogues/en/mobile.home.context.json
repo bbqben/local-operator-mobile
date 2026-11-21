@@ -341,15 +341,15 @@
 	},
 	"mobile.home.identity.refused_unknown": {
 		"role": "status",
-		"note": "The computer refused the start because the chosen agent or team (or one of the team's members) no longer exists there. {name} is the chosen name. The draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit."
+		"note": "The computer refused the start because the chosen agent or team (or one of the team's members) no longer exists there. {name} is the chosen name. The draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit. Picking another row (or the default agent) sends the queued message at once, which the second sentence says."
 	},
 	"mobile.home.identity.refused_registry": {
 		"role": "status",
-		"note": "The computer could not read its agent and team registries, so it could not start the chat as the chosen one. Nothing was started; the draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit."
+		"note": "The computer could not read its agent and team registries, so it could not start the chat as the chosen one. Nothing was started; the draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit. 'Tap your message' is the 'not sent — tap to put back' bubble; picking the default agent sends the queued message at once."
 	},
 	"mobile.home.identity.refused_unsaved": {
 		"role": "status",
-		"note": "The computer could not save the chosen agent or team for the new chat, so it started nothing. {name} is the chosen name. The draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit."
+		"note": "The computer could not save the chosen agent or team for the new chat, so it started nothing. {name} is the chosen name. The draft is kept. New in the new-chat identity picker; the non-English text awaits the translation audit. 'Tap your message' is the 'not sent — tap to put back' bubble, the only retry route."
 	},
 	"mobile.home.identity.refused_fallback": {
 		"role": "status",
@@ -358,6 +358,10 @@
 	"mobile.home.identity.refused_unlicensed": {
 		"role": "status",
 		"note": "Shown instead of sending when the draft names an agent or team but the connected computer cannot (yet, or any more) accept one — sending would start a chat WITHOUT it. {name} is the chosen name. New in the new-chat identity picker; the non-English text awaits the translation audit."
+	},
+	"mobile.home.identity.refused_connecting": {
+		"role": "status",
+		"note": "Shown instead of sending when the draft names an agent or team but this computer's live connection has not reported yet whether it accepts one (just after a reconnect or a cold start) — sending now could start a chat WITHOUT it. Not final: a resend a moment later usually goes through, so it must not tell the reader to give up the agent or team. {name} is the chosen name. 'Tap your message' is the 'not sent — tap to put back' bubble."
 	},
 	"mobile.home.identity.announce_picked": {
 		"role": "status",

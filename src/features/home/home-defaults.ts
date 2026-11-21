@@ -14,7 +14,6 @@
 import type { ModelEntry, Payload } from "@/contracts";
 import {
 	type StartTarget,
-	type StartTargetSupport,
 	startTargetField,
 } from "@/features/home/start-targets";
 import type { ModelReading } from "@/features/session/chip-labels";
@@ -158,18 +157,17 @@ export const homeStartSelection = (input: {
 	chosenEffort?: string | null;
 	/** `capabilities.session_start.effort`: the relay accepts `effort`. */
 	effortSupported?: boolean;
-	/** The agent or team the reader chose to start as, `null` for the default. */
+	/** The agent or team the reader chose to start as, `null` for the default.
+	 *  Written whatever the relay's licence says: `gatedStart` decides what
+	 *  leaves (`startTargetField`, PR #358 F1). */
 	target?: StartTarget | null;
-	/** `capabilities.session_start.agent/team`; `null` while unread. Without the
-	 *  target's own flag no field is sent (`startTargetField`). */
-	targetSupport?: StartTargetSupport | null;
 }): StartSessionRequest | null => {
 	if (input.cwd === null) return null;
 	return {
 		cwd: input.cwd,
 		...modelFields(input.chosenModel),
 		...effortField(input.chosenEffort ?? null, input.effortSupported ?? false),
-		...startTargetField(input.target ?? null, input.targetSupport ?? null),
+		...startTargetField(input.target ?? null),
 	};
 };
 
@@ -195,16 +193,6 @@ const effortField = (
 	supported: boolean,
 ): Pick<StartSessionRequest, "effort"> =>
 	effort !== null && supported ? { effort } : {};
-
-/** The record's own `agent`/`team`, copied as it stands. */
-const storedTargetField = (
-	stored: StartSessionRequest,
-): Pick<StartSessionRequest, "agent" | "team"> =>
-	stored.agent !== undefined
-		? { agent: stored.agent }
-		: stored.team !== undefined
-			? { team: stored.team }
-			: {};
 
 /**
  * What the home must WRITE INTO a restored record, or `null` when the record
@@ -256,9 +244,8 @@ export const restoredSupersede = (input: {
 	 *  mounted. Once they have, the record is THEIR choice, not a restored one. */
 	readerApplied: boolean;
 	/** The target the home will start as — the reader's pick, else the one the
-	 *  record restored — and the relay's licence for it (`null` while unread). */
+	 *  record restored. */
 	target?: StartTarget | null;
-	targetSupport?: StartTargetSupport | null;
 }): StartSessionRequest | null => {
 	const { stored, folders, chosenModel, readerApplied } = input;
 	if (stored === null) return null;
@@ -279,15 +266,12 @@ export const restoredSupersede = (input: {
 		...effortField(input.chosenEffort ?? null, input.effortSupported ?? false),
 		/* A RESTORED TARGET IS KEPT, unlike a restored model (contract "PR 2"):
 		 *  the app never invents one, so a record naming a team is the reader's
-		 *  choice from before the relaunch. It is re-gated, not trusted: once the
-		 *  relay is KNOWN not to license it the field is stripped, and while the
-		 *  capabilities are still UNREAD (`null`) the record's own field is left
-		 *  exactly as it is — stripping on a race with the list frame would drop
-		 *  the reader's choice, and the send-time gate in `home.tsx`
-		 *  (`startTargetLicensed`) is what keeps an unread licence off the wire. */
-		...(input.targetSupport === null
-			? storedTargetField(stored)
-			: startTargetField(input.target ?? null, input.targetSupport ?? null)),
+		 *  choice from before the relaunch. It is never stripped here — not while
+		 *  the licence is unread, not when the relay is known not to license it —
+		 *  because a stripped field is a start that goes out UNBOUND with the
+		 *  screen still naming the team (PR #358 F1/U2). `gatedStart`, where the
+		 *  bytes leave, refuses it visibly instead. */
+		...startTargetField(input.target ?? null),
 	};
 	/* Key order matters to this comparison: `next` is built just above and `stored`
 	 *  comes from the coordinator's record (written by `homeStartSelection` or a

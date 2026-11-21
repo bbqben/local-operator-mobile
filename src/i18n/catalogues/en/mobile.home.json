@@ -84,10 +84,11 @@
 	"mobile.home.identity.read_failed": "We couldn't read this computer's agents and teams just now.",
 	"mobile.home.identity.unsupported": "This computer's Local Operator is too old to start a chat with an agent or team. Update it to choose one here.",
 	"mobile.home.identity.starting_with": "Starting with {name}…",
-	"mobile.home.identity.refused_unknown": "{name} isn't available on this computer any more. Choose another, or use the default agent.",
-	"mobile.home.identity.refused_registry": "This computer couldn't read its agents and teams just now, so nothing was started. Try again, or use the default agent.",
-	"mobile.home.identity.refused_unsaved": "This computer couldn't save {name} for the new chat, so nothing was started. Try again.",
+	"mobile.home.identity.refused_unknown": "{name} isn't available on this computer any more. Pick another, or the default agent, to send your message.",
+	"mobile.home.identity.refused_registry": "This computer couldn't read its agents and teams just now, so nothing was started. Tap your message to put it back and send it again, or pick the default agent to send it now.",
+	"mobile.home.identity.refused_unsaved": "This computer couldn't save {name} for the new chat, so nothing was started. Tap your message to put it back, then send it again.",
 	"mobile.home.identity.refused_fallback": "{name} couldn't be started on this computer. Choose another, or use the default agent.",
 	"mobile.home.identity.refused_unlicensed": "This computer can't start a chat with {name} right now. Choose the default agent to send.",
+	"mobile.home.identity.refused_connecting": "This computer is still connecting, so nothing was started yet. Tap your message to put it back, then send it again in a moment to start with {name}.",
 	"mobile.home.identity.announce_picked": "This chat will start with {name}"
 }

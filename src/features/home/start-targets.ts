@@ -13,10 +13,15 @@
  * THE ONE HAZARD. Both are licensed by `capabilities.session_start.agent/team`.
  * A relay older than #4367 reads the UNKEYED start (the one this app sends) with
  * `body.get` and silently DROPS an unknown field, so a phone that sent `team`
- * blind would start an UNBOUND chat while its pill said "Lopdev". Every function
- * here that can put a field on the wire therefore takes the support reading and
- * emits nothing without it — and `null` (the capabilities frame not read yet) is
- * its own reading, never "supported".
+ * blind would start an UNBOUND chat while its pill said "Lopdev". So the
+ * reader's pick is ALWAYS written into the start record (`startTargetField`),
+ * and the ONE place that decides whether it may leave is `gatedStart`, where the
+ * bytes go out: it refuses, locally and visibly, a target this relay has not
+ * licensed. `null` (no live capabilities frame yet) is its own reading — never
+ * "supported", and never "unsupported" either (PR #358 round 1, F1/F2: an
+ * earlier build dropped the field from the body while the licence was unread,
+ * so a pick made just after a reconnect started a default-agent chat under a
+ * pill that named the team).
  *
  * Pure (no React Native), so the rules are asserted in Node
  * (`start-targets.test.ts`); `home-pickers.tsx` only lays the sheet out.
@@ -74,18 +79,55 @@ export const startTargetLicensed = (
 	support: StartTargetSupport | null,
 ): boolean => support?.[target.kind] === true;
 
-/** The start body's target field: `{agent}` or `{team}`, never both (the relay
- *  refuses both with `invalid_start_target`), and nothing unless the reader
- *  chose one AND this relay licenses its kind (D-S16). Absent keeps the body
- *  byte-identical to a pre-#4367 start. */
+/** The start RECORD's target field: `{agent}` or `{team}`, never both (the
+ *  relay refuses both with `invalid_start_target`), and nothing unless the
+ *  reader chose one (D-S16) — absent keeps the body byte-identical to a
+ *  pre-#4367 start.
+ *
+ *  WHY NOT GATED HERE. The licence is deliberately NOT consulted: the record is
+ *  what the reader asked for, and `gatedStart` is the gate on what leaves. A
+ *  field dropped here while the licence was unread (every reconnect resets it)
+ *  or withdrawn (an older relay) made the start go out UNBOUND with nothing on
+ *  screen saying so (PR #358 F1/U2); kept, it is refused with a sentence. */
 export const startTargetField = (
 	target: StartTarget | null,
-	support: StartTargetSupport | null,
 ): Pick<StartSessionRequest, "agent" | "team"> => {
-	if (target === null || !startTargetLicensed(target, support)) return {};
+	if (target === null) return {};
 	return target.kind === "agent"
 		? { agent: target.name }
 		: { team: target.name };
+};
+
+/**
+ * The target the home shows and starts as (`use-start-target.ts`'s `resolve`).
+ *
+ * - DRAFT: the reader's pick on this computer, else what a restored record names.
+ * - ADOPTED (the start landed, `fixed`): the RECORD's target — that is what the
+ *   conversation is bound to. An earlier build reset the pick the moment the
+ *   start landed and then showed "Default agent ✓" for a team chat (PR #358
+ *   U1/D1); the record is the truth, and the pick only lends it its label.
+ *
+ * The label comes from the roster row when it has one, else the pick's own (a
+ * record carries only the wire name), else the name.
+ */
+export const resolveStartTarget = (input: {
+	/** The pick made on this computer: `undefined` = none this mount. */
+	picked: StartTarget | null | undefined;
+	record: StartSessionRequest | null | undefined;
+	fixed: boolean;
+	roster: IdentityRoster | null;
+}): StartTarget | null => {
+	const fromRecord = targetFromSelection(input.record);
+	const base =
+		input.fixed || input.picked === undefined ? fromRecord : input.picked;
+	if (base === null) return null;
+	const row = (
+		base.kind === "team" ? input.roster?.teams : input.roster?.agents
+	)?.find((candidate) => candidate.name === base.name);
+	if (row !== undefined) return { ...base, label: row.label };
+	if (input.picked && sameTarget(input.picked, base))
+		return { ...base, label: input.picked.label };
+	return base;
 };
 
 /** The target a coordinator record names, or `null`. Used to show a restored
@@ -332,11 +374,14 @@ const refusalSentence = (code: string, name: string): string => {
 export const startTargetRefusal = (
 	failure: unknown,
 	selection: StartSessionRequest,
+	label?: string,
 ): RelayError | null => {
 	if (!isRelayError(failure)) return null;
 	const code = failure.code;
 	if (code === undefined || !START_TARGET_CODES.has(code)) return null;
-	const name = selection.team ?? selection.agent ?? "";
+	/* The name the reader picked, not the wire slug (PR #358 U4/D3): the pill
+	 *  says "Growth", so the sentence must too. */
+	const name = label ?? selection.team ?? selection.agent ?? "";
 	const sentence = refusalSentence(code, name);
 	return new RelayError("rejected", sentence, {
 		status: failure.status,
@@ -348,11 +393,27 @@ export const startTargetRefusal = (
 	});
 };
 
-/** The sentence for a target the connected relay does not (or not yet) license. */
-const unlicensedRefusal = (target: StartTarget): RelayError => {
-	const sentence = t("mobile.home.identity.refused_unlicensed", {
-		name: target.label,
-	});
+/**
+ * The local refusal for a target the relay has not licensed.
+ *
+ * `null` and `false` are DIFFERENT readings (PR #358 F2). `false` is a live
+ * frame saying this Local Operator cannot bind a chat: final, and the sentence
+ * points at the default agent. `null` is no live frame YET — every reconnect
+ * and every cold start begins there, and a second later the same relay may
+ * license it — so that sentence says "still connecting" and asks for a resend,
+ * never "give up the team". It is a refusal rather than a wait on purpose: a
+ * wait needs a bound, and there is no measured time-to-first-frame to set one
+ * by (delivery guide, "Measure before you cap"); a definitive refusal keeps the
+ * message and the pick, and nothing was created.
+ */
+const unlicensedRefusal = (
+	label: string,
+	support: StartTargetSupport | null,
+): RelayError => {
+	const sentence =
+		support === null
+			? t("mobile.home.identity.refused_connecting", { name: label })
+			: t("mobile.home.identity.refused_unlicensed", { name: label });
 	return new RelayError("rejected", sentence, {
 		detail: sentence,
 		envelope: "clear",
@@ -376,6 +437,28 @@ const unlicensedRefusal = (target: StartTarget): RelayError => {
  */
 const licences = new WeakMap<object, StartTargetSupport>();
 
+/** The painted label of each target the home has shown for a client, so a
+ *  refusal names what the pill named (U4/D3) even for a restored record, which
+ *  carries only the wire name. Keyed like `licences`, and weak for the same
+ *  reason. */
+const labels = new WeakMap<object, Map<string, string>>();
+const labelKey = (target: Pick<StartTarget, "kind" | "name">) =>
+	`${target.kind}:${target.name}`;
+
+/** Remember the label the screen shows for `target` on `client`. */
+export const noteStartTargetLabel = (
+	client: object,
+	target: StartTarget | null,
+): void => {
+	if (target === null) return;
+	let held = labels.get(client);
+	if (held === undefined) {
+		held = new Map();
+		labels.set(client, held);
+	}
+	held.set(labelKey(target), target.label);
+};
+
 /** Record what `client`'s relay licenses; `null` forgets it (no live frame). */
 export const noteStartTargetSupport = (
 	client: object,
@@ -397,14 +480,36 @@ export const gatedStart = async <T>(
 	selection: StartSessionRequest,
 ): Promise<T> => {
 	const target = targetFromSelection(selection);
-	if (
-		target !== null &&
-		!startTargetLicensed(target, licences.get(client) ?? null)
-	)
-		throw unlicensedRefusal(target);
+	const label =
+		target === null
+			? undefined
+			: (labels.get(client)?.get(labelKey(target)) ?? target.label);
+	if (target !== null && label !== undefined) {
+		const support = licences.get(client) ?? null;
+		if (!startTargetLicensed(target, support))
+			throw unlicensedRefusal(label, support);
+	}
 	try {
 		return await client.startSession(selection);
 	} catch (failure) {
-		throw startTargetRefusal(failure, selection) ?? failure;
+		throw startTargetRefusal(failure, selection, label) ?? failure;
 	}
+};
+
+/**
+ * The working line's words. The live activity wins; before it, a chat started
+ * with an agent or team says so — "Starting with Lopdev…" — HERE, on the line
+ * a start actually draws. The splash's own "Starting with" line is replaced by
+ * the reader's bubble ~50 ms after Send, so it was never seen (PR #358 D2/U1);
+ * this is the one place the binding is visible while the chat starts.
+ */
+export const startupWorkingLabel = (
+	running: boolean,
+	activity: string,
+	startingAs: string | null,
+): string => {
+	if (running && activity.length > 0) return activity;
+	if (!running && startingAs !== null)
+		return t("mobile.home.identity.starting_with", { name: startingAs });
+	return t("relay.chrome.session.subtitle.working_plain");
 };

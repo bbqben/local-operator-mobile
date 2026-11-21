@@ -9,11 +9,11 @@ import {
 	pushRecent,
 	recentsFrom,
 	recentsKey,
+	resolveStartTarget,
 	type StartTarget,
 	type StartTargetSupport,
 	startTargetSupport,
 	startTargetsOffered,
-	targetFromSelection,
 } from "@/features/home/start-targets";
 import { t } from "@/i18n";
 import type { RelayEndpoints, StartSessionRequest } from "@/relay/endpoints";
@@ -78,25 +78,29 @@ export function useStartTarget(input: {
 	const failed = heldOn(rosterFailed, computer) !== null;
 
 	/**
-	 * The target the home starts as: the reader's pick on this computer, else
-	 * the one the coordinator's record restored (a reader's choice from before a
-	 * relaunch — kept, and re-gated by `gatedStart`). Labelled and pictured from
-	 * the roster when the roster has the row, since a record carries only the
-	 * wire name. A function of the record because the record is the
-	 * coordinator's, read by the screen AFTER this hook feeds `useStartup`.
+	 * The target the home starts as — or, once the start has landed (`fixed`),
+	 * the one the conversation IS bound to: `resolveStartTarget` holds the rule
+	 * (PR #358 U1/D1). Labelled and pictured from the roster when the roster has
+	 * the row, since a record carries only the wire name. A function of the
+	 * record because the record is the coordinator's, read by the screen AFTER
+	 * this hook feeds `useStartup`.
 	 */
-	const resolve = (recordSelection: StartSessionRequest | null) => {
-		const base = pickedHere
-			? choice.value
-			: targetFromSelection(recordSelection);
+	const resolve = (
+		recordSelection: StartSessionRequest | null,
+		fixed: boolean,
+	) => {
+		const chosen = resolveStartTarget({
+			picked: pickedHere ? choice.value : undefined,
+			record: recordSelection,
+			fixed,
+			roster: heldRoster,
+		});
 		const row =
-			base === null || heldRoster === null
+			chosen === null || heldRoster === null
 				? undefined
-				: (base.kind === "team" ? heldRoster.teams : heldRoster.agents).find(
-						(candidate) => candidate.name === base.name,
+				: (chosen.kind === "team" ? heldRoster.teams : heldRoster.agents).find(
+						(candidate) => candidate.name === chosen.name,
 					);
-		const chosen: StartTarget | null =
-			base !== null && row !== undefined ? { ...base, label: row.label } : base;
 		return {
 			chosen,
 			avatar:
@@ -171,7 +175,8 @@ export function useStartTarget(input: {
 		[computer],
 	);
 
-	/** Back to Default (New chat, or a start that landed — D-S18). */
+	/** Back to Default for the NEXT draft (New chat, or the home returning to
+	 *  a fresh draft after an adopted conversation — D-S18). */
 	const reset = useCallback(() => {
 		setChoice({ computer, value: null });
 	}, [computer]);

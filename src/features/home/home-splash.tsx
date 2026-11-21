@@ -18,6 +18,7 @@ import {
 	heroHeldInset,
 	heroMeasured,
 	heroTopInset,
+	identityPillMarks,
 } from "@/features/home/hero-layout";
 import { startingLine, suggestionSlotFor } from "@/features/home/home-copy";
 import { IdentityMark } from "@/features/home/home-pickers";
@@ -111,10 +112,14 @@ export type HeroIdentity = Readonly<{
 const IdentityPill = ({
 	identity,
 	largeText,
+	scale,
 }: {
 	identity: HeroIdentity;
 	largeText: boolean;
+	/** The effective text scale: the mark and chevron grow with the label (D5). */
+	scale: number;
 }) => {
+	const marks = identityPillMarks(scale);
 	const muted = useTokenColor("ink-muted");
 	const disabledInk = useTokenColor("ink-disabled");
 	const ink = useTokenColor("ink");
@@ -139,7 +144,7 @@ const IdentityPill = ({
 				kind={identity.kind}
 				agentId={identity.agentId}
 				avatarSha256={identity.avatarSha256}
-				size={20}
+				size={marks.mark}
 			/>
 			<Text
 				className="min-w-0 shrink text-body-sm"
@@ -150,7 +155,14 @@ const IdentityPill = ({
 			>
 				{identity.label}
 			</Text>
-			<ChevronDown size={14} color={tone} aria-hidden />
+			{/* `flexShrink: 0`: an ellipsised name squeezed the chevron to 9.9 pt
+			 *  at 320 pt (D8). */}
+			<ChevronDown
+				size={marks.chevron}
+				color={tone}
+				style={{ flexShrink: 0 }}
+				aria-hidden
+			/>
 		</Pressable>
 	);
 };
@@ -417,6 +429,7 @@ export const HomeSplash = ({
 						<IdentityPill
 							identity={identity}
 							largeText={effectiveScale > LARGE_TEXT_SCALE}
+							scale={effectiveScale}
 						/>
 					) : null}
 					{rows.length ? (

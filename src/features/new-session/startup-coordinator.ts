@@ -312,23 +312,26 @@ export class StartupCoordinator {
 		 * reader is correcting a request that never happened. It is therefore treated
 		 * as editable and returns to `draft` — otherwise the copy told them to check
 		 * the folder while every control that could change it stayed disabled (QA). */
-		const editable =
-			this.record.phase === "draft" || this.record.phase === "refused";
-		if (
-			this.record.sessionId !== null ||
-			!editable ||
-			(!replace && this.record.selection !== null) ||
-			JSON.stringify(this.record.selection) === JSON.stringify(selection)
-		)
-			return;
-		if (
-			await this.persist((record) => ({
-				...record,
-				phase: "draft",
-				selection: copy(selection),
-			}))
-		)
-			this.kick();
+		const applies = (record: StartupRecord) =>
+			record.sessionId === null &&
+			(record.phase === "draft" || record.phase === "refused") &&
+			(replace || record.selection === null) &&
+			JSON.stringify(record.selection) !== JSON.stringify(selection);
+		if (!applies(this.record)) return;
+		/* Decided AGAIN inside the write, against the record as it stands when the
+		 * write runs. Two configures with the same body can be issued in one tick
+		 * (the home's picker commit, then its supersede effect on the next render):
+		 * both passed the check above against the not-yet-saved record, both
+		 * persisted, and the second's `kick` landed on the first's flight as a
+		 * `pendingKick` — which re-drained the record after a refusal and sent the
+		 * same refused start a second time, 20-50 ms later (PR #358 QA Q2). */
+		let applied = false;
+		const saved = await this.persist((record) => {
+			if (!applies(record)) return record;
+			applied = true;
+			return { ...record, phase: "draft", selection: copy(selection) };
+		});
+		if (saved && applied) this.kick();
 	}
 
 	async enqueue(onAccepted?: () => void) {

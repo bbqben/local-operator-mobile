@@ -84,10 +84,11 @@
 	"mobile.home.identity.read_failed": "Impossible de lire les agents et les équipes de cet ordinateur pour le moment.",
 	"mobile.home.identity.unsupported": "Le Local Operator de cet ordinateur est trop ancien pour démarrer une conversation avec un agent ou une équipe. Mettez-le à jour pour en choisir un ici.",
 	"mobile.home.identity.starting_with": "Démarrage avec {name}…",
-	"mobile.home.identity.refused_unknown": "{name} n’est plus disponible sur cet ordinateur. Choisissez-en un autre ou utilisez l’agent par défaut.",
-	"mobile.home.identity.refused_registry": "Cet ordinateur n’a pas pu lire ses agents et équipes pour le moment ; rien n’a été démarré. Réessayez ou utilisez l’agent par défaut.",
-	"mobile.home.identity.refused_unsaved": "Cet ordinateur n’a pas pu enregistrer {name} pour la nouvelle conversation ; rien n’a été démarré. Réessayez.",
+	"mobile.home.identity.refused_unknown": "{name} n’est plus disponible sur cet ordinateur. Choisissez-en un autre, ou l’agent par défaut, pour envoyer votre message.",
+	"mobile.home.identity.refused_registry": "Cet ordinateur n’a pas pu lire ses agents et équipes pour le moment ; rien n’a été démarré. Touchez votre message pour le récupérer et l’envoyer à nouveau, ou choisissez l’agent par défaut pour l’envoyer maintenant.",
+	"mobile.home.identity.refused_unsaved": "Cet ordinateur n’a pas pu enregistrer {name} pour la nouvelle conversation ; rien n’a été démarré. Touchez votre message pour le récupérer, puis envoyez-le à nouveau.",
 	"mobile.home.identity.refused_fallback": "Impossible de démarrer {name} sur cet ordinateur. Choisissez-en un autre ou utilisez l’agent par défaut.",
 	"mobile.home.identity.refused_unlicensed": "Cet ordinateur ne peut pas démarrer de conversation avec {name} pour le moment. Choisissez l’agent par défaut pour envoyer.",
+	"mobile.home.identity.refused_connecting": "Cet ordinateur est encore en cours de connexion ; rien n’a encore été démarré. Touchez votre message pour le récupérer, puis renvoyez-le dans un instant pour démarrer avec {name}.",
 	"mobile.home.identity.announce_picked": "Cette conversation démarrera avec {name}"
 }

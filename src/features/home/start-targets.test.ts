@@ -10,23 +10,32 @@ import {
 	gatedStart,
 	identityRoster,
 	identitySheet,
+	noteStartTargetLabel,
 	noteStartTargetSupport,
 	pushRecent,
 	RECENT_BAND_MIN_ROSTER,
 	recentsFrom,
+	resolveStartTarget,
 	START_TARGET_SEARCH_THRESHOLD,
 	type StartTarget,
 	startTargetLicensed,
 	startTargetRefusal,
 	startTargetSupport,
+	startupWorkingLabel,
 	targetFromSelection,
 } from "@/features/home/start-targets";
 import {
+	classifyFailure,
 	StartupCoordinator,
 	type StartupRecord,
 } from "@/features/new-session/startup-coordinator";
+import { t } from "@/i18n";
 import type { StartSessionRequest } from "@/relay/endpoints";
 import { RelayError } from "@/relay/errors";
+
+const OPENS_WITH_LABEL = /^Growth /;
+const SAYS_PICK_SENDS = /to send your message/;
+const SAYS_TAP_OR_PICK = /Tap your message .*send it now/;
 
 /**
  * Starting a new chat as an agent or a team (operator: "There doesn't seem to be
@@ -84,39 +93,25 @@ describe("the capability gate (absent → no picker, no field)", () => {
 describe("the start body for agent, team and none", () => {
 	const base = { cwd: "/tmp", chosenModel: null };
 
-	it("names the team when the reader chose one and the relay licenses it", () => {
-		expect(
-			homeStartSelection({ ...base, target: LOPDEV, targetSupport: BOTH }),
-		).toStrictEqual({ cwd: "/tmp", team: "lopdev" });
+	it("names the team the reader chose", () => {
+		expect(homeStartSelection({ ...base, target: LOPDEV })).toStrictEqual({
+			cwd: "/tmp",
+			team: "lopdev",
+		});
 	});
 
-	it("names the agent when the reader chose one and the relay licenses it", () => {
-		expect(
-			homeStartSelection({ ...base, target: CODER, targetSupport: BOTH }),
-		).toStrictEqual({ cwd: "/tmp", agent: "coder" });
+	it("names the agent the reader chose", () => {
+		expect(homeStartSelection({ ...base, target: CODER })).toStrictEqual({
+			cwd: "/tmp",
+			agent: "coder",
+		});
 	});
 
 	it("is byte-identical to today's body when nothing is chosen", () => {
-		const body = homeStartSelection({
-			...base,
-			target: null,
-			targetSupport: BOTH,
-		});
+		const body = homeStartSelection({ ...base, target: null });
 		expect(JSON.stringify(body)).toBe(JSON.stringify(homeStartSelection(base)));
 		expect(body).not.toHaveProperty("agent");
 		expect(body).not.toHaveProperty("team");
-	});
-
-	it("never sends a field to a relay that did not advertise it", () => {
-		for (const support of [NEITHER, null, { agent: true, team: false }]) {
-			const body = homeStartSelection({
-				...base,
-				target: LOPDEV,
-				targetSupport: support,
-			});
-			expect(body).not.toHaveProperty("team");
-			expect(body).not.toHaveProperty("agent");
-		}
 	});
 
 	it("names at most one of agent and team (mutual exclusion)", () => {
@@ -124,7 +119,6 @@ describe("the start body for agent, team and none", () => {
 			const body = homeStartSelection({
 				...base,
 				target,
-				targetSupport: BOTH,
 			}) as StartSessionRequest;
 			const named = ["agent", "team"].filter((key) => key in body);
 			expect(named).toHaveLength(1);
@@ -143,7 +137,6 @@ describe("the start body for agent, team and none", () => {
 			chosenEffort: "high",
 			effortSupported: true,
 			target: LOPDEV,
-			targetSupport: BOTH,
 		});
 		expect(Object.keys(body ?? {})).toStrictEqual([
 			"cwd",
@@ -155,44 +148,107 @@ describe("the start body for agent, team and none", () => {
 	});
 });
 
-describe("a restored target (kept, re-gated)", () => {
-	const SCOPE = "authorization-a/server-a";
+/** A coordinator whose `start` is the production gate over a recording relay,
+ *  so every test below asserts the bytes that would leave the phone. */
+const SCOPE = "authorization-a/server-a";
+const gatedHarness = (stored: StartSessionRequest | null) => {
+	let disk: StartupRecord | null =
+		stored === null
+			? null
+			: {
+					version: 1,
+					scope: SCOPE,
+					phase: "draft",
+					sessionId: null,
+					selection: stored,
+					draft: { text: "", images: [] },
+					queue: [],
+				};
+	const relay = {
+		sent: [] as StartSessionRequest[],
+		answer: null as RelayError | null,
+		startSession: async (request: StartSessionRequest) => {
+			relay.sent.push(request);
+			if (relay.answer !== null) throw relay.answer;
+			return { ok: true as const, pid: 1, session_id: "session-a" };
+		},
+	};
+	const coordinator = new StartupCoordinator(SCOPE, {
+		store: {
+			load: async () => (disk === null ? null : structuredClone(disk)),
+			save: async (record) => {
+				disk = structuredClone(record);
+			},
+		},
+		start: (selection) => gatedStart(relay, selection),
+		send: async () => undefined,
+		isCurrent: () => true,
+		uuid: () => "00000000-0000-4000-8000-000000000001",
+	});
+	return { relay, coordinator };
+};
 
+describe("a pick made before the live licence is read (PR #358 F1/F2)", () => {
+	it("keeps the target in the body, so Send refuses it rather than starting unbound", async () => {
+		/* The reconnect path: `liveFrameAt` is null, so the home's licence is
+		 *  `null` while the cached roster still lets the reader pick. RED before
+		 *  the fix: the commit wrote `{cwd}` with no team, and the relay started a
+		 *  DEFAULT-agent chat under a pill that read "Lopdev". */
+		const { relay, coordinator } = gatedHarness(null);
+		coordinator.resume();
+		await coordinator.ready;
+		const body = homeStartSelection({
+			cwd: "/tmp",
+			chosenModel: null,
+			target: LOPDEV,
+		});
+		expect(body).toStrictEqual({ cwd: "/tmp", team: "lopdev" });
+		await coordinator.configure(body as StartSessionRequest, true);
+		coordinator.edit("hello", []);
+		await coordinator.enqueue();
+		await coordinator.quiesce();
+		expect(relay.sent).toStrictEqual([]);
+		expect(coordinator.snapshot().phase).toBe("refused");
+		// Not the final "choose the default agent" refusal: still connecting.
+		expect(coordinator.snapshot().error).toBe(
+			t("mobile.home.identity.refused_connecting", { name: "lopdev" }),
+		);
+
+		// The live frame lands; the same message goes out BOUND.
+		noteStartTargetSupport(relay, BOTH);
+		await coordinator.configure({ cwd: "/tmp", agent: "coder" }, true);
+		await coordinator.quiesce();
+		expect(relay.sent).toStrictEqual([{ cwd: "/tmp", agent: "coder" }]);
+	});
+
+	it("tells an unread licence apart from a refused one", async () => {
+		const unread = { startSession: async () => ({ session_id: "s" }) };
+		const old = { startSession: async () => ({ session_id: "s" }) };
+		noteStartTargetSupport(old, NEITHER);
+		const message = async (client: object & typeof unread) =>
+			(
+				(await gatedStart(client, { cwd: "/tmp", team: "lopdev" }).catch(
+					(error: unknown) => error,
+				)) as RelayError
+			).displayableMessage;
+		expect(await message(unread)).toBe(
+			t("mobile.home.identity.refused_connecting", { name: "lopdev" }),
+		);
+		expect(await message(old)).toBe(
+			t("mobile.home.identity.refused_unlicensed", { name: "lopdev" }),
+		);
+		expect(await message(unread)).not.toBe(await message(old));
+	});
+});
+
+describe("a restored target (kept, re-gated where the bytes leave)", () => {
 	const startBody = async (input: {
 		stored: StartSessionRequest;
 		target: StartTarget | null;
-		targetSupport: { agent: boolean; team: boolean } | null;
-	}): Promise<StartSessionRequest> => {
-		let disk: StartupRecord | null = {
-			version: 1,
-			scope: SCOPE,
-			phase: "draft",
-			sessionId: null,
-			selection: input.stored,
-			draft: { text: "", images: [] },
-			queue: [],
-		};
-		const started: StartSessionRequest[] = [];
-		let reached!: () => void;
-		const arrived = new Promise<void>((resolve) => {
-			reached = resolve;
-		});
-		const coordinator = new StartupCoordinator(SCOPE, {
-			store: {
-				load: async () => (disk === null ? null : structuredClone(disk)),
-				save: async (record) => {
-					disk = structuredClone(record);
-				},
-			},
-			start: async (selection) => {
-				started.push(selection);
-				reached();
-				return { session_id: "session-a" };
-			},
-			send: async () => undefined,
-			isCurrent: () => true,
-			uuid: () => "00000000-0000-4000-8000-000000000001",
-		});
+		support: { agent: boolean; team: boolean } | null;
+	}) => {
+		const { relay, coordinator } = gatedHarness(input.stored);
+		noteStartTargetSupport(relay, input.support);
 		await coordinator.ready;
 		const next = restoredSupersede({
 			stored: coordinator.snapshot().selection,
@@ -200,38 +256,44 @@ describe("a restored target (kept, re-gated)", () => {
 			chosenModel: null,
 			readerApplied: false,
 			target: input.target,
-			targetSupport: input.targetSupport,
 		});
 		if (next !== null) await coordinator.configure(next, true);
+		coordinator.resume();
 		coordinator.edit("hello", []);
 		await coordinator.enqueue();
-		await arrived;
-		return started[0] as StartSessionRequest;
+		await coordinator.quiesce();
+		return { relay, coordinator };
 	};
 
 	it("survives the coordinator's restore (unlike an invented model)", async () => {
-		expect(
-			await startBody({
-				stored: { cwd: "/tmp", team: "lopdev" },
-				target: LOPDEV,
-				targetSupport: BOTH,
-			}),
-		).toStrictEqual({ cwd: "/tmp", team: "lopdev" });
+		const { relay } = await startBody({
+			stored: { cwd: "/tmp", team: "lopdev" },
+			target: LOPDEV,
+			support: BOTH,
+		});
+		expect(relay.sent).toStrictEqual([{ cwd: "/tmp", team: "lopdev" }]);
 	});
 
-	it("is stripped once the relay is known not to license it", async () => {
-		expect(
-			await startBody({
-				stored: { cwd: "/tmp", team: "lopdev" },
-				target: LOPDEV,
-				targetSupport: NEITHER,
-			}),
-		).toStrictEqual({ cwd: "/tmp" });
+	it("is refused with a sentence, never sent unbound, once the relay stops licensing it (U2)", async () => {
+		/* RED before the fix: the supersede stripped the field, so Send went out
+		 *  as `{cwd}` — a default-agent chat — while the More row named the team. */
+		const { relay, coordinator } = await startBody({
+			stored: { cwd: "/tmp", team: "lopdev" },
+			target: LOPDEV,
+			support: NEITHER,
+		});
+		expect(relay.sent).toStrictEqual([]);
+		expect(coordinator.snapshot().phase).toBe("refused");
+		expect(coordinator.snapshot().selection).toStrictEqual({
+			cwd: "/tmp",
+			team: "lopdev",
+		});
+		expect(coordinator.snapshot().error).toBe(
+			t("mobile.home.identity.refused_unlicensed", { name: "lopdev" }),
+		);
 	});
 
 	it("is left alone while the capability is still unread", () => {
-		// Stripping on `null` would lose the reader's choice to a race with the
-		// list frame; the send-time gate (`startTargetLicensed`) covers the wire.
 		expect(
 			restoredSupersede({
 				stored: { cwd: "/tmp", team: "lopdev" },
@@ -239,7 +301,6 @@ describe("a restored target (kept, re-gated)", () => {
 				chosenModel: null,
 				readerApplied: false,
 				target: LOPDEV,
-				targetSupport: null,
 			}),
 		).toBeNull();
 	});
@@ -257,6 +318,104 @@ describe("a restored target (kept, re-gated)", () => {
 		});
 		expect(targetFromSelection({ cwd: "/tmp" })).toBeNull();
 		expect(targetFromSelection(null)).toBeNull();
+	});
+});
+
+describe("what a started conversation says it is bound to (PR #358 U1/D1)", () => {
+	const ROSTER = identityRoster(
+		parsePayload("startTargets", {
+			agents: [],
+			teams: [{ name: "lopdev", label: "Lopdev" }],
+			degraded: false,
+		}),
+	);
+
+	it("reads the RECORD once the start landed, even after the draft pick was reset", () => {
+		/* RED before the fix: the pick was reset to `null` on adoption and
+		 *  `resolve` preferred it, so the More row said "Default agent ✓". */
+		expect(
+			resolveStartTarget({
+				picked: null,
+				record: { cwd: "/tmp", team: "lopdev" },
+				fixed: true,
+				roster: ROSTER,
+			}),
+		).toStrictEqual(LOPDEV);
+		expect(
+			resolveStartTarget({
+				picked: undefined,
+				record: { cwd: "/tmp", team: "lopdev" },
+				fixed: true,
+				roster: null,
+			}),
+		).toStrictEqual({ kind: "team", name: "lopdev", label: "lopdev" });
+	});
+
+	it("reads the pick while drafting, labelled from the roster or the pick", () => {
+		expect(
+			resolveStartTarget({
+				picked: null,
+				record: { cwd: "/tmp", team: "lopdev" },
+				fixed: false,
+				roster: ROSTER,
+			}),
+		).toBeNull();
+		expect(
+			resolveStartTarget({
+				picked: CODER,
+				record: { cwd: "/tmp", agent: "coder" },
+				fixed: true,
+				roster: null,
+			}),
+		).toStrictEqual(CODER);
+	});
+
+	it("names the target on the working line a start actually draws (D2)", () => {
+		expect(startupWorkingLabel(false, "", "Lopdev")).toBe(
+			t("mobile.home.identity.starting_with", { name: "Lopdev" }),
+		);
+		expect(startupWorkingLabel(false, "", null)).toBe(
+			t("relay.chrome.session.subtitle.working_plain"),
+		);
+		// The turn's own activity wins once it reports one.
+		expect(startupWorkingLabel(true, "Reading files", "Lopdev")).toBe(
+			"Reading files",
+		);
+	});
+});
+
+describe("one start per refused re-pick (PR #358 QA Q2)", () => {
+	it("sends one start when the commit and the supersede configure the same body in one tick", async () => {
+		const { relay, coordinator } = gatedHarness(null);
+		noteStartTargetSupport(relay, BOTH);
+		relay.answer = new RelayError("rejected", "unknown_start_target", {
+			status: 404,
+			code: "unknown_start_target",
+			serverError: "unknown_start_target",
+		});
+		coordinator.resume();
+		await coordinator.ready;
+		await coordinator.configure({ cwd: "/tmp", agent: "writer" }, true);
+		coordinator.edit("hello", []);
+		await coordinator.enqueue();
+		await coordinator.quiesce();
+		expect(relay.sent).toHaveLength(1);
+		expect(coordinator.snapshot().phase).toBe("refused");
+
+		/* The re-pick: the home's `commit` and its supersede effect both write
+		 *  the new body before either save lands. RED before the fix: both
+		 *  persisted, the second `kick` became a `pendingKick`, and the refused
+		 *  record was drained again — two identical starts ~45 ms apart. */
+		const body = { cwd: "/tmp", agent: "planner" };
+		await Promise.all([
+			coordinator.configure(body, true),
+			coordinator.configure({ ...body }, true),
+		]);
+		await coordinator.quiesce();
+		expect(relay.sent).toStrictEqual([
+			{ cwd: "/tmp", agent: "writer" },
+			{ cwd: "/tmp", agent: "planner" },
+		]);
 	});
 });
 
@@ -495,6 +654,8 @@ describe("refusal mapping", () => {
 		// Definitive: nothing was created, so the draft stays correctable rather
 		// than sitting in the "may have started" HOLD a 503 would otherwise get.
 		expect(mapped?.envelope).toBe("clear");
+		// The property that matters, read the way the coordinator reads it (F4).
+		expect(classifyFailure(mapped)).toBe("definitive");
 		expect(mapped?.code).toBe(code);
 		expect(mapped?.displayableMessage).not.toContain("_");
 		expect(mapped?.displayableMessage.length).toBeGreaterThan(10);
@@ -507,6 +668,59 @@ describe("refusal mapping", () => {
 				team: "lopdev",
 			})?.displayableMessage,
 		).toContain("lopdev");
+	});
+
+	it("names the label the reader picked, not the wire slug (U4/D3)", async () => {
+		expect(
+			startTargetRefusal(
+				refusal(404, "unknown_start_target"),
+				{ cwd: "/tmp", team: "growth" },
+				"Growth",
+			)?.displayableMessage,
+		).toBe(t("mobile.home.identity.refused_unknown", { name: "Growth" }));
+		/* Through the gate, for a record that carries only the slug: the label
+		 *  the home noted for this client is the one the sentence uses. RED
+		 *  before the fix: "growth isn't available…" under a pill reading Growth. */
+		const relay = {
+			startSession: async () => {
+				throw refusal(404, "unknown_start_target");
+			},
+		};
+		noteStartTargetSupport(relay, BOTH);
+		noteStartTargetLabel(relay, {
+			kind: "team",
+			name: "growth",
+			label: "Growth",
+		});
+		const failure = (await gatedStart(relay, {
+			cwd: "/tmp",
+			team: "growth",
+		}).catch((error: unknown) => error)) as RelayError;
+		expect(failure.displayableMessage).toMatch(OPENS_WITH_LABEL);
+		const unlicensed = {
+			startSession: async () => ({ session_id: "s" }),
+		};
+		noteStartTargetSupport(unlicensed, NEITHER);
+		noteStartTargetLabel(unlicensed, CODER);
+		const local = (await gatedStart(unlicensed, {
+			cwd: "/tmp",
+			agent: "coder",
+		}).catch((error: unknown) => error)) as RelayError;
+		expect(local.displayableMessage).toBe(
+			t("mobile.home.identity.refused_unlicensed", { name: "Coder" }),
+		);
+	});
+
+	it("says that picking another row sends the message (U3)", () => {
+		/* After a refusal, a pick re-sends the queued message at once (the
+		 *  coordinator's `configure` from `refused`, the folder precedent); the
+		 *  sentence must set that expectation rather than read as advice. */
+		expect(
+			t("mobile.home.identity.refused_unknown", { name: "Growth" }),
+		).toMatch(SAYS_PICK_SENDS);
+		expect(t("mobile.home.identity.refused_registry")).toMatch(
+			SAYS_TAP_OR_PICK,
+		);
 	});
 
 	it("leaves every other failure to the existing taxonomy", () => {

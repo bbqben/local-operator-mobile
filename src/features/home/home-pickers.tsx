@@ -699,7 +699,16 @@ const IdentityOptionRow = ({
 						{row.label}
 					</Text>
 					{subtitle !== null ? (
-						<Text className="text-meta text-ink-muted" numberOfLines={2}>
+						/* Steps down with the title when the row is inert (D10), and one
+						 *  line so rows keep one rhythm (D9); the title keeps two, which is
+						 *  what tells two long names with one prefix apart. */
+						<Text
+							className={cx(
+								"text-meta",
+								disabled ? "text-ink-disabled" : "text-ink-muted",
+							)}
+							numberOfLines={1}
+						>
 							{subtitle}
 						</Text>
 					) : null}
@@ -742,8 +751,9 @@ export type IdentityPickerProps = {
 	editable: boolean;
 	/** `null` is "Default agent": the start then names no target. */
 	onPick: (target: StartTarget | null) => void;
-	/** The control that opened the sheet, which takes focus back on close. */
-	returnFocusTestID?: string;
+	/** The control that opened the sheet, which takes focus back on close; a
+	 *  list is a fallback order (`Sheet`). */
+	returnFocusTestID?: string | readonly string[];
 };
 
 /**
@@ -787,6 +797,36 @@ export const IdentityPicker = ({
 		label: row.label,
 	});
 	const searchable = supported && sheet.searchable;
+	const defaultRow = (selected: boolean) => (
+		<Pressable
+			accessibilityRole={ROLE.button}
+			accessibilityLabel={t("mobile.home.identity.default_agent")}
+			accessibilityState={state({
+				selected: selected,
+				disabled: !editable,
+			})}
+			disabled={!editable}
+			onPress={() => pick(null)}
+			testID={CONTROL.homeIdentityDefault}
+		>
+			<View className="min-h-11 flex-row items-center gap-3 px-3 py-1.5">
+				<IdentityMark kind="default" />
+				<Text
+					className={cx(
+						"min-w-0 flex-1 text-body-sm",
+						editable ? "text-ink" : "text-ink-disabled",
+					)}
+				>
+					{t("mobile.home.identity.default_agent")}
+				</Text>
+				{selected ? (
+					<Text className="shrink-0 text-accent" aria-hidden>
+						✓
+					</Text>
+				) : null}
+			</View>
+		</Pressable>
+	);
 	const lead = (
 		<>
 			{!editable ? <FixedLine /> : null}
@@ -828,42 +868,22 @@ export const IdentityPicker = ({
 			returnFocusTestID={returnFocusTestID}
 		>
 			{!supported ? (
-				<Text className="px-3 pb-2 text-body-sm text-ink-muted">
-					{t("mobile.home.identity.unsupported")}
-				</Text>
+				<>
+					<Text className="px-3 pb-2 text-body-sm text-ink-muted">
+						{t("mobile.home.identity.unsupported")}
+					</Text>
+					{/* A pick held from before the relay stopped licensing it (an older
+					 *  build restarted mid-draft, a restored record) is refused at Send
+					 *  with "choose the default agent" — so this sheet must offer that
+					 *  way out (PR #358 U2). With no pick there is nothing to clear. */}
+					{chosen !== null ? defaultRow(false) : null}
+				</>
 			) : (
 				<>
 					{searchable ? null : lead}
-					{sheet.defaultRow !== null ? (
-						<Pressable
-							accessibilityRole={ROLE.button}
-							accessibilityLabel={t("mobile.home.identity.default_agent")}
-							accessibilityState={state({
-								selected: sheet.defaultRow.selected,
-								disabled: !editable,
-							})}
-							disabled={!editable}
-							onPress={() => pick(null)}
-							testID={CONTROL.homeIdentityDefault}
-						>
-							<View className="min-h-11 flex-row items-center gap-3 px-3 py-1.5">
-								<IdentityMark kind="default" />
-								<Text
-									className={cx(
-										"min-w-0 flex-1 text-body-sm",
-										editable ? "text-ink" : "text-ink-disabled",
-									)}
-								>
-									{t("mobile.home.identity.default_agent")}
-								</Text>
-								{sheet.defaultRow.selected ? (
-									<Text className="shrink-0 text-accent" aria-hidden>
-										✓
-									</Text>
-								) : null}
-							</View>
-						</Pressable>
-					) : null}
+					{sheet.defaultRow !== null
+						? defaultRow(sheet.defaultRow.selected)
+						: null}
 					{sheet.recent.length > 0 ? (
 						<View>
 							<BandHeading label={t("mobile.home.identity.band_recent")} />

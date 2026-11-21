@@ -84,10 +84,11 @@
 	"mobile.home.identity.read_failed": "No hemos podido leer los agentes y equipos de este ordenador ahora mismo.",
 	"mobile.home.identity.unsupported": "El Local Operator de este ordenador es demasiado antiguo para iniciar un chat con un agente o un equipo. Actualízalo para elegir uno aquí.",
 	"mobile.home.identity.starting_with": "Iniciando con {name}…",
-	"mobile.home.identity.refused_unknown": "{name} ya no está disponible en este ordenador. Elige otro o usa el agente predeterminado.",
-	"mobile.home.identity.refused_registry": "Este ordenador no ha podido leer sus agentes y equipos ahora mismo, así que no se ha iniciado nada. Vuelve a intentarlo o usa el agente predeterminado.",
-	"mobile.home.identity.refused_unsaved": "Este ordenador no ha podido guardar {name} para el nuevo chat, así que no se ha iniciado nada. Vuelve a intentarlo.",
+	"mobile.home.identity.refused_unknown": "{name} ya no está disponible en este ordenador. Elige otro, o el agente predeterminado, para enviar tu mensaje.",
+	"mobile.home.identity.refused_registry": "Este ordenador no ha podido leer sus agentes y equipos ahora mismo, así que no se ha iniciado nada. Toca tu mensaje para recuperarlo y volver a enviarlo, o elige el agente predeterminado para enviarlo ya.",
+	"mobile.home.identity.refused_unsaved": "Este ordenador no ha podido guardar {name} para el nuevo chat, así que no se ha iniciado nada. Toca tu mensaje para recuperarlo y vuelve a enviarlo.",
 	"mobile.home.identity.refused_fallback": "No se ha podido iniciar {name} en este ordenador. Elige otro o usa el agente predeterminado.",
 	"mobile.home.identity.refused_unlicensed": "Este ordenador no puede iniciar un chat con {name} ahora mismo. Elige el agente predeterminado para enviar.",
+	"mobile.home.identity.refused_connecting": "Este ordenador aún se está conectando, así que todavía no se ha iniciado nada. Toca tu mensaje para recuperarlo y vuelve a enviarlo en un momento para iniciar con {name}.",
 	"mobile.home.identity.announce_picked": "Este chat empezará con {name}"
 }

@@ -66,7 +66,10 @@ import {
 	homeFolderChip,
 } from "@/features/home/picker-model";
 import { signedOutLanding } from "@/features/home/signed-out-landing";
-import type { StartTarget } from "@/features/home/start-targets";
+import {
+	noteStartTargetLabel,
+	type StartTarget,
+} from "@/features/home/start-targets";
 import { useHomeDrawer } from "@/features/home/use-home-drawer";
 import { useStartTarget } from "@/features/home/use-start-target";
 import { startupEchoes } from "@/features/new-session/startup-echoes";
@@ -311,16 +314,8 @@ export default function Home({
 				chosenEffort,
 				effortSupported,
 				target: target.picked ?? null,
-				targetSupport: target.support,
 			}),
-		[
-			homeDirectory,
-			chosenModel,
-			chosenEffort,
-			effortSupported,
-			target.picked,
-			target.support,
-		],
+		[homeDirectory, chosenModel, chosenEffort, effortSupported, target.picked],
 	);
 	/* The model picker's rows, derived rather than inline so the "a tap never
 	 *  reflows the list" guarantee is asserted in a test (design D1). */
@@ -343,7 +338,11 @@ export default function Home({
 	);
 	const defaultEffort = defaultEffortFor(chosenModel, catalogueDefault);
 	const startup = useStartup(selection);
-	const identity = target.resolve(startup.snapshot.selection);
+	/* Once the start lands, the conversation's binding is the RECORD's target,
+	 *  not the draft pick (PR #358 U1/D1): the More row and the fixed sheet say
+	 *  what this chat is with. */
+	const adopted = startup.snapshot.sessionId !== null;
+	const identity = target.resolve(startup.snapshot.selection, adopted);
 	/* Held by VALUE: `resolve` builds a fresh object each render, and this is a
 	 *  dependency of the supersede effect below — an identity that changed every
 	 *  render would re-run that write on every render. */
@@ -379,7 +378,6 @@ export default function Home({
 			effortSupported,
 			readerApplied,
 			target: chosenTarget,
-			targetSupport: target.support,
 		});
 		if (next === null) return;
 		void startup.configure(next);
@@ -392,20 +390,29 @@ export default function Home({
 		effortSupported,
 		readerApplied,
 		chosenTarget,
-		target.support,
 	]);
 	const draft = startup.snapshot.draft.text;
 	const images = startup.snapshot.draft.images;
 	const setDraft = startup.setText;
 	const setImages = startup.setImages;
 	const starting = startup.snapshot.phase === "starting";
-	/* D-S18: once a start LANDS, the next draft starts at the default. The
-	 *  record is past `draft` by then, so the reset cannot rewrite what was sent. */
+	/* D-S18: the NEXT draft starts at the default — reset when the home leaves
+	 *  an adopted conversation for a fresh draft, by whichever path. Not on
+	 *  adoption itself: the conversation still on screen is bound to the target,
+	 *  and resetting then made the More row say "Default agent" for a team chat
+	 *  (PR #358 U1/D1). New chat also resets directly (`newChat`). */
 	const resetTarget = target.reset;
-	const adopted = startup.snapshot.sessionId !== null;
+	const wasAdopted = useRef(adopted);
 	useEffect(() => {
-		if (adopted) resetTarget();
+		if (wasAdopted.current && !adopted) resetTarget();
+		wasAdopted.current = adopted;
 	}, [adopted, resetTarget]);
+	/* The refusal sentence names what the pill names, not the wire slug
+	 *  (U4/D3); `gatedStart` reads it from this register. */
+	const startClient = relay();
+	useEffect(() => {
+		if (startClient !== null) noteStartTargetLabel(startClient, chosenTarget);
+	}, [startClient, chosenTarget]);
 	/* D-S20: a refused start KEEPS the draft and the selection, and the roster
 	 *  is re-read on the next open — the refused name may have been removed. */
 	const invalidateRoster = target.invalidate;
@@ -838,7 +845,6 @@ export default function Home({
 			chosenEffort: effort,
 			effortSupported,
 			target: nextTarget,
-			targetSupport: target.support,
 		});
 		if (body !== null) void startup.configure(body);
 	};
@@ -966,12 +972,17 @@ export default function Home({
 						echoes={echoes}
 						onWitness={witnessStartup}
 						onPutBack={putBackStartup}
+						startingAs={chosenTarget?.label ?? null}
 					/>
 				) : echoes.length > 0 && homeRecovery === null ? (
 					/* Before the start has answered there is no session to adopt, but
 					 *  the reader has sent: show what they sent, not the splash
 					 *  (operator, TestFlight 906). */
-					<StartupPreview echoes={echoes} onPutBack={putBackStartup} />
+					<StartupPreview
+						echoes={echoes}
+						onPutBack={putBackStartup}
+						startingAs={chosenTarget?.label ?? null}
+					/>
 				) : homeRecovery === null ? (
 					<HomeSplash
 						draft={draft}
@@ -1374,6 +1385,11 @@ export default function Home({
 				recents={target.recents}
 				chosen={chosenTarget}
 				editable={selectionEditable}
+				/* Back to the door that opened it (U5): the pill's focus is restored
+				 *  by the platform, but the More door's row unmounts with its sheet,
+				 *  so focus fell to the page — the More button takes it, else the
+				 *  pill. Only acts when nothing else holds focus (`Sheet`). */
+				returnFocusTestID={[CONTROL.composerContext, CONTROL.homeIdentityPill]}
 				onPick={(next) => {
 					commit({ target: next });
 					/* The sheet closes and the changed pill is not focused, so say what

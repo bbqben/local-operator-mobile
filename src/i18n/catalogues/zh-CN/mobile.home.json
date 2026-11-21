@@ -84,10 +84,11 @@
 	"mobile.home.identity.read_failed": "暂时无法读取这台电脑的智能体和团队。",
 	"mobile.home.identity.unsupported": "这台电脑上的 Local Operator 版本过旧，无法以智能体或团队开始对话。请更新后在此选择。",
 	"mobile.home.identity.starting_with": "正在以 {name} 开始…",
-	"mobile.home.identity.refused_unknown": "{name} 在这台电脑上已不可用。请另选一个，或使用默认智能体。",
-	"mobile.home.identity.refused_registry": "这台电脑暂时无法读取其智能体和团队，因此未开始任何对话。请重试，或使用默认智能体。",
-	"mobile.home.identity.refused_unsaved": "这台电脑无法为新对话保存 {name}，因此未开始任何对话。请重试。",
+	"mobile.home.identity.refused_unknown": "{name} 在这台电脑上已不可用。另选一个或选择默认智能体，即可发送你的消息。",
+	"mobile.home.identity.refused_registry": "这台电脑暂时无法读取其智能体和团队，因此未开始任何对话。点按你的消息将其取回后重新发送，或选择默认智能体立即发送。",
+	"mobile.home.identity.refused_unsaved": "这台电脑无法为新对话保存 {name}，因此未开始任何对话。点按你的消息将其取回，然后重新发送。",
 	"mobile.home.identity.refused_fallback": "无法在这台电脑上以 {name} 开始。请另选一个，或使用默认智能体。",
 	"mobile.home.identity.refused_unlicensed": "这台电脑现在无法以 {name} 开始对话。请选择默认智能体后发送。",
+	"mobile.home.identity.refused_connecting": "这台电脑仍在连接，因此尚未开始任何对话。点按你的消息将其取回，稍后重新发送即可以 {name} 开始。",
 	"mobile.home.identity.announce_picked": "此对话将以 {name} 开始"
 }
