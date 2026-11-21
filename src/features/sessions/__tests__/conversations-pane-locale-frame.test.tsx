@@ -140,7 +140,8 @@ vi.mock("@/features/auth/connection-provider", () => ({
 	useLocaleFrame: () => useStore(host.store, (state) => state.language),
 	useConnection: () => ({
 		refreshList: () => undefined,
-		relay: null,
+		// A function, not null: since 9e1a2ac3 the pane calls relay() during render.
+		relay: () => null,
 		busy: false,
 		streamHealth: "live",
 		lastError: null,
