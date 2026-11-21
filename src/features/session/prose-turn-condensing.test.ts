@@ -17,8 +17,11 @@ import {
  * painted the long reply as one `Turn condensed` bar — no tool row to count, so
  * nothing but the fallback label — and the message read as lost.
  *
- * The contract kept: a turn that did tool work condenses exactly as before
- * (the tool-turn contract, `docs/design/native-interaction-guidelines.md`).
+ * Widened by the TestFlight 1411 report ("final responses are being tucked into
+ * condensed messages"): a turn that did tool work keeps its handover messages
+ * on screen too — the bar stands for the tool rows and the narration that
+ * declared calls, never for what the agent handed over (relay `partitionRun`
+ * V5). See `turn-condensing.ts`, "THE BAR STANDS FOR WORK".
  */
 
 const row = (
@@ -151,7 +154,9 @@ describe("a prose turn keeps its long assistant message on screen", () => {
 			latch: new Map(),
 			live: false,
 		});
-		expect(one.latch.get("u1")?.pinsProse).toBe(true);
+		expect(one.turns.find((t) => t.key === "u1")?.hiddenIds).not.toContain(
+			"a1",
+		);
 		const later = [
 			...early,
 			tool("t2"),
@@ -172,10 +177,12 @@ describe("a prose turn keeps its long assistant message on screen", () => {
 	});
 });
 
-describe("the tool-turn contract is untouched", () => {
-	// Opening message, a stretch of tool work, a handover-shaped message BETWEEN
-	// tool calls, more work, then the closing answer. Before and after this fix
-	// the bar stands for every row between the opening message and the answer.
+describe("a tool turn condenses its work and keeps its handovers", () => {
+	// Opening message, a stretch of tool work, a handover message BETWEEN tool
+	// calls (no `calls_tools`: the agent stopped and answered, then the harness
+	// continued), more work, then the closing answer. The bar stands for the
+	// tool rows and the narration that declared calls; `mid` is an answer the
+	// reader is owed and stays on screen, in its place after the bar.
 	const toolTurn = [
 		user("u1"),
 		tool("t1"),
@@ -187,20 +194,21 @@ describe("the tool-turn contract is untouched", () => {
 		prose("a9", "All fixed."),
 	];
 
-	it("hides the same rows and states the same counts as before", () => {
+	it("hides the work, keeps the mid-turn answer, and states the same counts", () => {
 		const turn = first(settled(toolTurn));
 		expect(turn.condensed).toBe(true);
-		expect(turn.hiddenIds).toEqual(["t1", "t2", "t3", "mid", "t4", "n1"]);
+		expect(turn.hiddenIds).toEqual(["t1", "t2", "t3", "t4", "n1"]);
 		expect(turn.bar).toEqual({ steps: 4, durationS: 8 });
 		expect(barPhrases(turn.bar ?? { steps: 0, durationS: 0 })).toEqual([
 			"Took 8s",
 			"4 actions",
 		]);
-		expect(entryIds(settled(toolTurn).items)).toEqual(["u1", "a9", "next"]);
-	});
-
-	it("does not freeze a pinsProse flag into a tool turn's latch", () => {
-		expect(settled(toolTurn).latch.get("u1")?.pinsProse).toBeUndefined();
+		expect(entryIds(settled(toolTurn).items)).toEqual([
+			"u1",
+			"mid",
+			"a9",
+			"next",
+		]);
 	});
 
 	it("the Tier A fold keeps exactly the tool run and never takes prose", () => {

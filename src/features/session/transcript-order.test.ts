@@ -1,0 +1,268 @@
+import { describe, expect, it } from "vitest";
+import type {
+	HistoryResponse,
+	SessionProjection,
+	TranscriptEntry,
+} from "@/contracts";
+import { adoptPageOrder, HistoryWindow } from "./history-window";
+import { rowIdentity } from "./runtime";
+import { condensePlan } from "./turn-condensing";
+
+/*
+ * TestFlight 1411 (operator report, 2026-11-20): "not all messages load on
+ * mobile and sometimes they load out of order … sometimes final responses are
+ * being tucked into condensed messages". His screenshot showed consecutive user
+ * bubbles with none of the agent's replies between them, where the desktop
+ * showed a reply after each.
+ *
+ * Two causes, pinned here:
+ *
+ *  A. ORDER / LOSS. Core's live fold paints a phone steer when it is SENT and
+ *     the journal writes it when it is DELIVERED (rows later). The reader kept
+ *     the live position forever, and when the steer's send-time slot fell below
+ *     the frame's window edge the opening read — which paged OLDER from the
+ *     frame instead of reading the newest durable page — never fetched it.
+ *  B. FOLDING. `condensePlan` hid every handover message of a tool turn except
+ *     the last, hid a steer with the work it steered, and grew a latched turn
+ *     over a continuation by swallowing the answer the reader had already seen.
+ */
+
+const row = (
+	over: Partial<TranscriptEntry> & Pick<TranscriptEntry, "id" | "kind">,
+): TranscriptEntry => ({
+	text: over.id,
+	tool_call_id: "",
+	tool_name: "",
+	tool_state: "done",
+	summary: "",
+	intent: "",
+	diff_added: 0,
+	diff_removed: 0,
+	elapsed_s: 0,
+	error: "",
+	details: {},
+	images: [],
+	final: true,
+	text_complete: true,
+	...over,
+});
+const user = (id: string) => row({ id, kind: "user" });
+const steer = (id: string) => row({ id, kind: "steer" });
+const tool = (id: string) =>
+	row({ id, kind: "tool", tool_name: "bash", text: "", elapsed_s: 2 });
+/** Mid-turn narration: declares calls, so it is work the bar may stand for. */
+const narration = (id: string) =>
+	row({ id, kind: "assistant", calls_tools: true } as Partial<TranscriptEntry> &
+		Pick<TranscriptEntry, "id" | "kind">);
+/** A handover: text, no calls — what the reader is owed. */
+const reply = (id: string) => row({ id, kind: "assistant" });
+
+/** Prompts, steers, replies and the next prompt — what the reader must see. */
+const READER_FACING = /^[usr]\d|^next$/;
+/** Narration and tool rows — the work the bar stands for. */
+const WORK_ROW = /^[nt]\d/;
+
+const visibleIds = (entries: TranscriptEntry[], live = false) =>
+	condensePlan({ entries, expanded: new Set(), latch: new Map(), live })
+		.items.filter((item) => item.kind === "entry")
+		.map((item) => item.id);
+
+describe("B: a condensed turn never hides the reader's messages or the agent's answers", () => {
+	// The screenshot's shape on the live wire: one prompt, then steers sent
+	// while the agent worked, each answered before the next work began.
+	const steered = [
+		user("u1"),
+		narration("n1"),
+		tool("t1"),
+		steer("s2"),
+		narration("n2"),
+		tool("t2"),
+		reply("r1"),
+		steer("s3"),
+		narration("n3"),
+		tool("t3"),
+		reply("r2"),
+		steer("s4"),
+		narration("n4"),
+		tool("t4"),
+		reply("r3"),
+	];
+
+	it("keeps user, reply, user, reply … visible and in order once the turn settles", () => {
+		const shown = visibleIds([...steered, user("next")]);
+		expect(shown.filter((id) => READER_FACING.test(id))).toEqual([
+			"u1",
+			"s2",
+			"r1",
+			"s3",
+			"r2",
+			"s4",
+			"r3",
+			"next",
+		]);
+		// The work still condenses: no narration or tool row is on screen.
+		expect(shown.some((id) => WORK_ROW.test(id))).toBe(false);
+	});
+
+	it("keeps the same rows visible on the durable wire, where steers read as `user`", () => {
+		const durable = steered.map((entry) =>
+			entry.kind === "steer" ? { ...entry, kind: "user" as const } : entry,
+		);
+		const shown = visibleIds([...durable, user("next")]);
+		expect(shown.filter((id) => READER_FACING.test(id))).toEqual([
+			"u1",
+			"s2",
+			"r1",
+			"s3",
+			"r2",
+			"s4",
+			"r3",
+			"next",
+		]);
+	});
+
+	it("does not swallow an answer already on screen when a continuation extends the latch", () => {
+		const first = [user("u1"), narration("n1"), tool("t1"), reply("r1")];
+		const idle = condensePlan({
+			entries: first,
+			expanded: new Set(),
+			latch: new Map(),
+			live: false,
+		});
+		expect(idle.items.map((item) => item.id)).toContain("r1");
+		// A wake/hub reply resumes the same turn with more work and a new answer.
+		const continued = [...first, narration("n2"), tool("t2"), reply("r2")];
+		const settled = condensePlan({
+			entries: continued,
+			expanded: new Set(),
+			latch: idle.latch,
+			live: false,
+		});
+		const shown = settled.items
+			.filter((item) => item.kind === "entry")
+			.map((item) => item.id);
+		expect(shown).toEqual(["u1", "r1", "r2"]);
+		expect(settled.turns[0]?.hiddenIds).toEqual(["n1", "t1", "n2", "t2"]);
+	});
+});
+
+/* ------------------------------------------------------------------ A */
+
+/** A journal of `count` rows: an opening prompt, then tool/assistant work. */
+const journalOf = (count: number): TranscriptEntry[] =>
+	Array.from({ length: count }, (_, at) =>
+		at === 0
+			? user("j000")
+			: at % 3 === 0
+				? reply(`j${String(at).padStart(3, "0")}`)
+				: tool(`j${String(at).padStart(3, "0")}`),
+	);
+/** The live fold's order: the steer at journal index `from` painted `by` rows
+ *  earlier (send time), everything else in journal order. */
+const liveOrder = (journal: TranscriptEntry[], from: number, by: number) => {
+	const live = [...journal];
+	const [moved] = live.splice(from, 1);
+	if (moved !== undefined) live.splice(from - by, 0, moved);
+	return live;
+};
+/** Core's capped frame: the opener pinned, then the newest 79 rows. */
+const cappedFrame = (live: TranscriptEntry[]): SessionProjection =>
+	({
+		session_id: "s",
+		transcript: [live[0], ...live.slice(-79)],
+		transcript_head_pinned: true,
+	}) as unknown as SessionProjection;
+const durablePager =
+	(journal: TranscriptEntry[], asked: Array<string | undefined>) =>
+	async (before?: string): Promise<HistoryResponse> => {
+		asked.push(before);
+		const end =
+			before === undefined
+				? journal.length
+				: journal.findIndex((entry) => entry.id === before);
+		const start = Math.max(0, end - 80);
+		return { entries: journal.slice(start, end), has_more: start > 0 };
+	};
+
+describe("A: the reader shows every journal row, in journal order", () => {
+	it("fetches a steer the live frame placed below its own window edge", async () => {
+		const journal = journalOf(120);
+		// Journal index 45 is inside the newest 79 rows (41..119); its send-time
+		// slot, 7 rows earlier, is outside the frame's tail.
+		journal[45] = steer("s045");
+		const live = liveOrder(journal, 45, 7);
+		const frame = cappedFrame(live);
+		expect(frame.transcript.map((entry) => entry.id)).not.toContain("s045");
+
+		const asked: Array<string | undefined> = [];
+		const reader = new HistoryWindow(durablePager(journal, asked), () => {});
+		reader.accept(frame);
+		await reader.load(true);
+		// The opening read is the NEWEST durable page, not the older one.
+		expect(asked[0]).toBeUndefined();
+		expect(reader.visibleRows.map((entry) => entry.id)).toContain("s045");
+		await reader.load();
+		expect(reader.visibleRows.map(rowIdentity)).toEqual(
+			journal.map(rowIdentity),
+		);
+	});
+
+	it("re-seats a steer the live frame painted early into its delivered position", async () => {
+		const journal = journalOf(120);
+		journal[60] = steer("s060");
+		const live = liveOrder(journal, 60, 5);
+		const reader = new HistoryWindow(durablePager(journal, []), () => {});
+		reader.accept(cappedFrame(live));
+		const before = reader.visibleRows.map((entry) => entry.id);
+		expect(before.indexOf("s060")).toBeLessThan(before.indexOf("j055"));
+		await reader.load(true);
+		await reader.load();
+		expect(reader.visibleRows.map(rowIdentity)).toEqual(
+			journal.map(rowIdentity),
+		);
+		// A later live frame in send-time order does not move it back.
+		reader.accept(cappedFrame([...live, tool("j120")]));
+		const after = reader.visibleRows.map((entry) => entry.id);
+		expect(after.indexOf("s060")).toBe(after.indexOf("j059") + 1);
+		expect(after.at(-1)).toBe("j120");
+	});
+});
+
+describe("adoptPageOrder", () => {
+	it("reassigns only the slots the page's rows occupy", () => {
+		const held = [
+			tool("a"),
+			steer("s"),
+			row({ id: "rz-1", kind: "reasoning" }),
+			tool("b"),
+			tool("c"),
+		];
+		const page = [tool("a"), tool("b"), steer("s")];
+		expect(adoptPageOrder(held, page).map((entry) => entry.id)).toEqual([
+			"a",
+			"b",
+			"rz-1",
+			"s",
+			"c",
+		]);
+	});
+
+	it("returns the same array when the page agrees with the screen", () => {
+		const held = [tool("a"), tool("b"), tool("c")];
+		expect(adoptPageOrder(held, [tool("b"), tool("c")])).toBe(held);
+	});
+
+	it("matches repeated ids by occurrence, never dropping or duplicating a copy", () => {
+		const held = [
+			row({ id: "m", kind: "assistant", text: "first" }),
+			tool("x"),
+			row({ id: "m", kind: "assistant", text: "second" }),
+		];
+		const out = adoptPageOrder(held, [
+			tool("x"),
+			...held.filter((e) => e.id === "m"),
+		]);
+		expect(out.map((entry) => entry.text)).toEqual(["", "first", "second"]);
+		expect(out).toHaveLength(3);
+	});
+});
