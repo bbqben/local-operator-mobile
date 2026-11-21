@@ -201,7 +201,7 @@
 	},
 	"mobile.team_bridge.card_body.held": {
 		"role": "status",
-		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Content screening held the message; it was not shown to the agent. Never mention a reason or category; only the outcome. "
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Content screening held the message for review; it was not shown to the agent and may still be released or refused later. Never mention a reason or category; only the outcome."
 	},
 	"mobile.team_bridge.card_body.held_transient": {
 		"role": "status",
@@ -225,7 +225,7 @@
 	},
 	"mobile.team_bridge.card_body.offline": {
 		"role": "status",
-		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Radient could not be reached while loading the body. The phone card has no close action: the retry is to leave the conversation and open it again, which reloads the message. 'Radient' is a product name; do not translate it."
+		"note": "Inbound Team Bridge card in a conversation transcript: a message another person or agent sent to the user's agent. Radient could not be reached while loading the body. The card retries by itself while it is on screen, so the sentence states that a retry is under way; it asks nothing of the reader. 'Radient' is a product name; do not translate it."
 	},
 	"mobile.team_bridge.card_body.other_account": {
 		"role": "status",

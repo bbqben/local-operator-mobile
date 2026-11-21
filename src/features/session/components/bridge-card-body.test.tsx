@@ -1,8 +1,20 @@
-import { createElement } from "react";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { type TranscriptEntry, transcriptEntrySchema } from "@/contracts";
+import {
+	type BridgeCardBody,
+	type TranscriptEntry,
+	transcriptEntrySchema,
+} from "@/contracts";
+import { type DomShim, installDomShim } from "@/testing/dom-shim";
+
+/* The region subscribes to `AppState` to re-read on return to the foreground;
+ * the listeners are captured so a test can play that return. */
+const appState = vi.hoisted(() => ({
+	listeners: new Set<(next: string) => void>(),
+}));
 
 /**
  * The inbound Team Bridge card (local-operator #4238): rendered through the
@@ -35,6 +47,13 @@ vi.mock("react-native", async (importOriginal) => {
 		Text: host("span"),
 		Pressable: host("div"),
 		ScrollView: host("div"),
+		AppState: {
+			currentState: "active",
+			addEventListener: (_type: string, fn: (next: string) => void) => {
+				appState.listeners.add(fn);
+				return { remove: () => appState.listeners.delete(fn) };
+			},
+		},
 	};
 });
 
@@ -245,12 +264,12 @@ describe("inbound Team Bridge card", () => {
 	});
 
 	it.each([
-		["held", "Held by moderation."],
+		["held", "Held for review."],
 		["held_transient", "Waiting for screening — not shown to your agent yet."],
 		["refused", "Refused by moderation."],
 		["pending", "Waiting to be delivered to your agent."],
 		["deleted", "This message was deleted."],
-		["offline", "Couldn't reach Radient — reopen the conversation to retry."],
+		["offline", "Couldn't reach Radient — retrying."],
 		["unavailable", "Message body unavailable."],
 	] as const)("says %s in words, with no untrusted framing", (state, copy) => {
 		const markup = lines({ lines: [{ kind: "state", state }], more: 0 });
@@ -275,5 +294,163 @@ describe("inbound Team Bridge card", () => {
 			}),
 		);
 		expect(markup).toContain("Loading message…");
+	});
+});
+
+/**
+ * The fetching shell, MOUNTED (effects run): the regression for a card read
+ * once while `pending` that never showed the body delivered later. Fake
+ * timers drive the backoff (`bridge-card-reread.ts`); the text is read off the
+ * DOM shim the reconciler renders into.
+ */
+describe("inbound Team Bridge card body, mounted", () => {
+	let dom: DomShim | null = null;
+	let root: ReturnType<typeof createRoot> | null = null;
+
+	type Node = {
+		nodeType: number;
+		nodeValue?: string | null;
+		textContent?: string | null;
+		childNodes: Node[];
+	};
+	const textOf = (node: Node): string =>
+		node.nodeType === 3
+			? (node.nodeValue ?? "")
+			: node.childNodes.length === 0
+				? (node.textContent ?? "")
+				: node.childNodes.map(textOf).join("|");
+	const shown = () => textOf(dom?.container as Node);
+
+	const body = (...items: BridgeCardBody["items"]): BridgeCardBody => ({
+		v: 1,
+		items,
+		more: 0,
+	});
+	const PENDING = body({ state: "pending" });
+	const ADMITTED = body({ state: "admitted", body: "the screened body" });
+
+	const mount = (props: {
+		entryId: string;
+		load: (id: string) => Promise<BridgeCardBody | null>;
+	}) =>
+		act(async () => root?.render(createElement(BridgeCardBodyRegion, props)));
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+		dom = installDomShim();
+		root = createRoot(dom.container as Element);
+		appState.listeners.clear();
+	});
+	afterEach(async () => {
+		await act(async () => root?.unmount());
+		root = null;
+		dom?.dispose();
+		dom = null;
+		vi.unstubAllGlobals();
+		vi.useRealTimers();
+	});
+
+	it("shows the body once a pending card is delivered, while it stays open", async () => {
+		const queue = [PENDING, PENDING, ADMITTED];
+		const load = vi.fn(async (_id: string) => queue.shift() ?? ADMITTED);
+		await mount({ entryId: "e-1", load });
+		expect(shown()).toContain("Waiting to be delivered to your agent.");
+		await act(async () => vi.advanceTimersByTimeAsync(5_000));
+		expect(load).toHaveBeenCalledTimes(2);
+		expect(shown()).toContain("Waiting to be delivered to your agent.");
+		await act(async () => vi.advanceTimersByTimeAsync(10_000));
+		expect(load).toHaveBeenCalledTimes(3);
+		expect(shown()).toContain("the screened body");
+		expect(shown()).toContain("External message · untrusted content");
+		expect(shown()).not.toContain("Waiting to be delivered");
+		// Final: the backoff stops.
+		await act(async () => vi.advanceTimersByTimeAsync(60 * 60_000));
+		expect(load).toHaveBeenCalledTimes(3);
+		expect(load.mock.calls.every(([id]) => id === "e-1")).toBe(true);
+	});
+
+	it("keeps the last answer on screen during a re-read (no flash to Loading)", async () => {
+		let release: (value: BridgeCardBody) => void = () => {};
+		const load = vi
+			.fn<(id: string) => Promise<BridgeCardBody | null>>()
+			.mockResolvedValueOnce(PENDING)
+			.mockImplementationOnce(
+				() =>
+					new Promise((r) => {
+						release = r;
+					}),
+			);
+		await mount({ entryId: "e-1", load });
+		await act(async () => vi.advanceTimersByTimeAsync(5_000));
+		expect(load).toHaveBeenCalledTimes(2);
+		// The second read is in flight: the pending sentence stays.
+		expect(shown()).toContain("Waiting to be delivered to your agent.");
+		expect(shown()).not.toContain("Loading message");
+		await act(async () => release(ADMITTED));
+		expect(shown()).toContain("the screened body");
+	});
+
+	it.each([
+		["refused", body({ state: "refused" }), "Refused by moderation."],
+		[
+			"a review hold, until it is refused",
+			body({ state: "held", hold: { class: "awaiting_review" } }),
+			"Held for review.",
+		],
+	])(
+		"says %s in words, never 'still being delivered'",
+		async (_l, first, copy) => {
+			const load = vi.fn(async () => first);
+			await mount({ entryId: "e-1", load });
+			expect(shown()).toContain(copy);
+			expect(shown()).not.toContain("Waiting to be delivered");
+		},
+	);
+
+	it("re-reads a review hold until it settles as refused, then stops", async () => {
+		const queue = [
+			body({ state: "held", hold: { class: "awaiting_review" } }),
+			body({ state: "refused" }),
+		];
+		const load = vi.fn(async () => queue.shift() ?? body({ state: "refused" }));
+		await mount({ entryId: "e-1", load });
+		expect(shown()).toContain("Held for review.");
+		await act(async () => vi.advanceTimersByTimeAsync(5_000));
+		expect(shown()).toContain("Refused by moderation.");
+		await act(async () => vi.advanceTimersByTimeAsync(60 * 60_000));
+		expect(load).toHaveBeenCalledTimes(2);
+	});
+
+	it("stops re-reading on unmount", async () => {
+		const load = vi.fn(async () => PENDING);
+		await mount({ entryId: "e-1", load });
+		await act(async () => root?.unmount());
+		root = null;
+		await vi.advanceTimersByTimeAsync(60 * 60_000);
+		expect(load).toHaveBeenCalledTimes(1);
+		expect(appState.listeners.size).toBe(0);
+	});
+
+	it("re-reads at once when the app returns to the foreground", async () => {
+		const queue = [PENDING, ADMITTED];
+		const load = vi.fn(async () => queue.shift() ?? ADMITTED);
+		await mount({ entryId: "e-1", load });
+		await act(async () => {
+			for (const fn of appState.listeners) fn("active");
+		});
+		expect(load).toHaveBeenCalledTimes(2);
+		expect(shown()).toContain("the screened body");
+	});
+
+	it("starts over for a new entry and never shows the old card's answer", async () => {
+		const load = vi.fn(async (id: string) =>
+			id === "e-1" ? ADMITTED : PENDING,
+		);
+		await mount({ entryId: "e-1", load });
+		expect(shown()).toContain("the screened body");
+		await mount({ entryId: "e-2", load });
+		expect(shown()).not.toContain("the screened body");
+		expect(load).toHaveBeenLastCalledWith("e-2");
 	});
 });

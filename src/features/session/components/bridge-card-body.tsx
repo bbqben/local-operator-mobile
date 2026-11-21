@@ -1,11 +1,18 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { type LayoutChangeEvent, Pressable, Text, View } from "react-native";
+import {
+	AppState,
+	type LayoutChangeEvent,
+	Pressable,
+	Text,
+	View,
+} from "react-native";
 import type { BridgeCardBody } from "@/contracts";
 import {
 	type BridgeBodyState,
 	type BridgeBodyView,
 	bridgeBodyView,
 } from "@/features/session/bridge-card-body";
+import { startBridgeBodyReread } from "@/features/session/bridge-card-reread";
 import { Markdown } from "@/features/session/components/markdown";
 import {
 	needsUserMessageClamp,
@@ -47,6 +54,12 @@ const STATE_KEY: Record<BridgeBodyState, NoParamKey> = {
  * scroll into its window, so the read is already lazy; keeping the answer in
  * this component (never a store or disk cache) is what keeps revocation live —
  * a message deleted or a membership left is gone on the next mount.
+ *
+ * RE-READ WHILE MOUNTED. A `pending` / `held` / offline answer is not final:
+ * the body can arrive minutes or hours later (`bridge-card-reread.ts` carries
+ * the measured delay and the backoff). The region keeps the last answer on
+ * screen while it reads again — no flash back to "Loading" — and re-reads at
+ * once when the app returns to the foreground.
  */
 export const BridgeCardBodyRegion = ({
 	entryId,
@@ -59,18 +72,19 @@ export const BridgeCardBodyRegion = ({
 }) => {
 	const [view, setView] = useState<BridgeBodyView | null>(null);
 	useEffect(() => {
-		let live = true;
+		// A new entry (or a new session's loader) starts from "Loading": the
+		// previous card's answer must never stand in for this one.
 		setView(null);
-		load(entryId).then(
-			(answer) => {
-				if (live) setView(bridgeBodyView(answer));
-			},
-			() => {
-				if (live) setView(bridgeBodyView(null));
-			},
+		const reread = startBridgeBodyReread(
+			() => load(entryId),
+			(answer) => setView(bridgeBodyView(answer)),
 		);
+		const subscription = AppState.addEventListener("change", (next) => {
+			if (next === "active") reread.wake();
+		});
 		return () => {
-			live = false;
+			reread.stop();
+			subscription.remove();
 		};
 	}, [entryId, load]);
 	return <BridgeCardBodyLines view={view} testID={testID} />;
