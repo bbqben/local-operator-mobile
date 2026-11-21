@@ -46,12 +46,14 @@ import {
 	isAuthFailure,
 	restoredSupersede,
 } from "@/features/home/home-defaults";
+import { sendFromHome } from "@/features/home/home-dictation-send";
 import { HomeStateMarkers } from "@/features/home/home-markers";
 import {
 	EffortPicker,
 	FolderPicker,
 	ModelPicker,
 } from "@/features/home/home-pickers";
+import { homeRecoveryKind } from "@/features/home/home-recovery";
 import { HomeRecovery, HomeSplash } from "@/features/home/home-splash";
 import {
 	type CatalogueDefault,
@@ -70,16 +72,16 @@ import {
 } from "@/features/new-session/startup-transcript";
 import { useStartup } from "@/features/new-session/use-startup";
 import { notificationsEnabled } from "@/features/notifications/notifications-model";
-import {
-	pasteImage,
-	pickImageFromFiles,
-	pickImageFromLibrary,
-	readWebImageFile,
-} from "@/features/session/attach";
+import { readImageFrom, readWebImageFile } from "@/features/session/attach";
+import { createAttachLatch } from "@/features/session/attach-latch";
 import type { AttachSource, PasteVia } from "@/features/session/attach-rule";
 import { Composer } from "@/features/session/components/composer";
 import type { ComposerControls } from "@/features/session/composer";
-import { composerCopy, pasteNothingLine } from "@/features/session/composer";
+import {
+	attachFailureLine,
+	composerCopy,
+	pasteNothingLine,
+} from "@/features/session/composer";
 import { heldTimer } from "@/features/session/resume-hold";
 import { deviceOnline } from "@/features/session/runtime";
 import { useHomeDictation } from "@/features/session/use-dictation";
@@ -222,6 +224,9 @@ export default function Home({
 	const [catalogueDefault, setCatalogueDefault] =
 		useState<CatalogueDefault>(undefined);
 	const [attaching, setAttaching] = useState(false);
+	/* Busy from a pick's start until it settles; only a pick the attach
+	 *  handoff's fallback launched can be released early (`attach-latch.ts`). */
+	const attachLatch = useRef(createAttachLatch(setAttaching)).current;
 	const [editing, setEditing] = useState(false);
 	const [composerError, setComposerError] = useState<string | null>(null);
 	/** The folder the next start names: the reader's pick in the sheet, else the
@@ -417,18 +422,15 @@ export default function Home({
 	const connected = routed && client !== null;
 	const offline = deviceOnline() === false;
 	const viewport = useWindowDimensions();
-	const homeRecovery =
-		busy || !coldStartSettled
-			? "restoring"
-			: refusal?.kind === "sign-in" || refusal?.kind === "account-mismatch"
-				? "auth"
-				: offline
-					? "offline"
-					: refusal !== null
-						? "error"
-						: !connected
-							? "no-host"
-							: null;
+	/* Derived from the live route, not from `busy` alone: an attempt can publish
+	 *  the route and still be awaiting startup admission (`home-recovery.ts`). */
+	const homeRecovery = homeRecoveryKind({
+		busy,
+		coldStartSettled,
+		connected,
+		offline,
+		refusal,
+	});
 	const namedRefusal = homeNamedRefusal(homeRecovery, refusal);
 
 	/* The computer's two reads, each kept as the state it really is.
@@ -624,15 +626,13 @@ export default function Home({
 	const attach = useCallback(
 		(source: AttachSource, via: PasteVia = "sheet") => {
 			void (async () => {
-				setAttaching(true);
+				const endAttach = attachLatch.begin();
 				setComposerError(null);
 				try {
-					const image =
-						source === "library"
-							? await pickImageFromLibrary()
-							: source === "paste"
-								? await pasteImage()
-								: await pickImageFromFiles();
+					const image = await readImageFrom(source);
+					/* Abandoned by an Attach press, or superseded by a newer pick
+					 *  (`attach-latch.ts`, R1): the reader has moved on. */
+					if (!endAttach.current()) return;
 					if (image !== null) {
 						setImages((current) => [...current, image]);
 					} else if (source === "paste") {
@@ -641,14 +641,15 @@ export default function Home({
 						setComposerError(pasteNothingLine(via, Platform.OS));
 					}
 				} catch {
+					if (!endAttach.current()) return;
 					/* Said, never swallowed — the composer's own error line. */
-					setComposerError(composerCopy().attachError);
+					setComposerError(attachFailureLine(source));
 				} finally {
-					setAttaching(false);
+					endAttach();
 				}
 			})();
 		},
-		[setImages],
+		[attachLatch, setImages],
 	);
 
 	/** The web paste event's image file: same strip, same failure line as the
@@ -775,22 +776,22 @@ export default function Home({
 	};
 
 	// The coordinator freezes the submitted bytes; later typing stays editable.
-	const send = () => {
+	// `onAccepted` runs on admission only (a resting mic line ends there; see
+	// `home-dictation-send.ts`).
+	const send = (onAccepted?: () => void) => {
 		const firstSend =
 			startup.snapshot.sessionId === null &&
 			startup.snapshot.queue.length === 0;
-		startup.send(
-			firstSend
-				? () => {
-						// Only durable admission yields the keyboard. Rejected taps retain the
-						// focused draft; no timer or animation await delays dispatch. The same
-						// mounted input becomes the conversation composer without autofocus.
-						if (!ownsKeyboard.current) return;
-						fieldRef.current?.blur();
-						Keyboard.dismiss();
-					}
-				: undefined,
-		);
+		startup.send(() => {
+			onAccepted?.();
+			if (!firstSend) return;
+			// Only durable admission yields the keyboard. Rejected taps retain the
+			// focused draft; no timer or animation await delays dispatch. The same
+			// mounted input becomes the conversation composer without autofocus.
+			if (!ownsKeyboard.current) return;
+			fieldRef.current?.blur();
+			Keyboard.dismiss();
+		});
 	};
 
 	/* The home's mic (TestFlight 578): the same dictation machine as a session's,
@@ -803,6 +804,15 @@ export default function Home({
 		setDraft,
 		onError: setComposerError,
 	});
+	/* The reader's OWN draft writes — typing and a suggestion pick — end a resting
+	 *  mic line (#323). A pick fills exactly the empty draft a failed start leaves,
+	 *  so it must not keep the line under the text (round 3). The transcript
+	 *  append stays on the bare `setDraft` above: it is what "Transcript added"
+	 *  announces. */
+	const editDraft = (text: string) => {
+		voice.clearOutcome();
+		setDraft(text);
+	};
 
 	/* Keep the latest coordinator behind a stable callback: a pending drawer
 	 * dismissal must not focus an old draft after Home re-renders. The provider
@@ -894,7 +904,7 @@ export default function Home({
 						draft={draft}
 						editing={editing}
 						connected={connected}
-						onPick={setDraft}
+						onPick={editDraft}
 						onConnect={() => router.push("/tunnels")}
 						starting={starting}
 						focusRequest={heroFocus}
@@ -1037,7 +1047,7 @@ export default function Home({
 				suppressDisabledHint={homeRecovery !== null}
 				controls={controls}
 				draft={draft}
-				onDraftChange={setDraft}
+				onDraftChange={editDraft}
 				images={images}
 				onRemoveImage={(index) =>
 					setImages((current) => current.filter((_, at) => at !== index))
@@ -1045,12 +1055,11 @@ export default function Home({
 				onAttach={attach}
 				onPasteFile={pasteFile}
 				attaching={attaching}
-				onSend={() => {
-					/* A send takes the composer: a take still live is dropped and said
-					 *  (design §2.5/U2), the session composer's rule. */
-					voice.cancelForSend();
-					void send();
-				}}
+				onAttachOpen={attachLatch.abandon}
+				/* A send takes the composer: a take still live is dropped and said at
+				 *  the tap (design §2.5/U2); a resting mic line ends only once the
+				 *  message is admitted (#323, round 1 m1). */
+				onSend={() => sendFromHome(voice, send)}
 				voice={voice}
 				onStop={() => {
 					const sid = startup.snapshot.sessionId;

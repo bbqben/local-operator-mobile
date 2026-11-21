@@ -46,13 +46,14 @@ import Animated, {
 import type { PromptImage } from "@/contracts";
 import { useClipboardImageOffer } from "@/features/session/attach-clipboard";
 import { createAttachmentSheetHandoff } from "@/features/session/attach-handoff";
+import { attachLocksWhilePicking } from "@/features/session/attach-latch";
 import {
 	type AttachSource,
-	attachActions,
 	type PasteVia,
 	pasteOfferComposing,
 } from "@/features/session/attach-rule";
 import type { ComposerChip } from "@/features/session/chip-labels";
+import { AttachSheet } from "@/features/session/components/attach-sheet";
 import { ComposerStateMarkers } from "@/features/session/components/state-markers";
 import {
 	attachmentLabel,
@@ -104,7 +105,6 @@ import { t } from "@/i18n";
 import { formatDuration } from "@/stt/dictation";
 import { MIC_HINT, micLabel } from "@/stt/dictation-machine";
 import {
-	attachOptionId,
 	CONTROL,
 	composerAttachmentId,
 	LIVE_REGION,
@@ -268,6 +268,11 @@ export type ComposerProps = {
 	 *  the listener that reads it lives here, the read lives with the host. */
 	onPasteFile: (file: File) => void;
 	attaching?: boolean;
+	/** Called on every Attach press, before the sheet opens. The owner abandons
+	 *  a pick still in flight: on native Attach stays pressable while picking,
+	 *  because a press that lands means the picker is not on screen
+	 *  (`attachLocksWhilePicking`, PR #354 R1). */
+	onAttachOpen?: () => void;
 	/** The voice mic's state. `null`/absent means this surface shows no mic. Both
 	 *  hosts pass one now — the session view and the home (TestFlight 578: the
 	 *  new-conversation page had no mic). A relay without `capabilities.stt`
@@ -691,6 +696,7 @@ export const Composer = ({
 	onAttach,
 	onPasteFile,
 	attaching = false,
+	onAttachOpen,
 	voice = null,
 	onSend,
 	onClearDraft,
@@ -2048,17 +2054,21 @@ export const Composer = ({
 			testID={CONTROL.composerPasteImage}
 		/>
 	) : null;
+	/* Web only: a native press on Attach proves the pick in flight is not on
+	 *  screen, and recovers it (`attachLocksWhilePicking`). */
+	const attachLocked = attaching && attachLocksWhilePicking(Platform.OS);
 	const attach = (
 		<Pressable
 			style={{ minWidth: TOUCH_FLOOR, minHeight: TOUCH_FLOOR }}
 			className="items-center justify-center"
 			accessibilityRole={ROLE.button}
 			accessibilityLabel="Attach an image"
-			accessibilityState={state({ busy: attaching, disabled: attaching })}
-			disabled={attaching}
+			accessibilityState={state({ busy: attaching, disabled: attachLocked })}
+			disabled={attachLocked}
 			/* Explicit reopen is the only re-admission point for a fresh choice;
 			 *  a stale latch from the previous open must not survive it. */
 			onPress={() => {
+				onAttachOpen?.();
 				attachmentHandoff.cancel();
 				setAttachSheetOpen(true);
 			}}
@@ -2216,44 +2226,23 @@ export const Composer = ({
 	/* One attach sheet instance, rendered once by the shell: the dock's two rows
 	 *  are layout, so the sheet must not be mounted twice. */
 	const attachSheet = (
-		<Sheet
+		<AttachSheet
 			visible={attachSheetOpen}
 			onClose={() => setAttachSheetOpen(false)}
 			onDismiss={attachmentHandoff.dismissed}
-			/* Keyed with the lower-case English it already shipped; Title-casing it
-			 * like the other `sheet_title.*` keys (visual audit D14) is a copy
-			 * decision left to design, not part of keying it. */
+			onHidden={attachmentHandoff.hidden}
+			/* Title case, like the Model and Effort sheets (#248; visual audit D14). */
 			title={t("mobile.session.sheet_title.attach")}
-			testID={SURFACE.attachSheet}
-		>
-			<View className="py-1">
-				{attachActions(Platform.OS === "web" ? "web" : "native").map(
-					(action) => (
-						<Pressable
-							key={action.source}
-							accessibilityRole={ROLE.button}
-							accessibilityLabel={action.label}
-							onPress={() => {
-								/* Closed first: the picker opens over a dismissed sheet, never
-								 *  under one — a system picker presented from behind a modal is
-								 *  how a cancel lands back on a sheet nobody reopened. */
-								setAttachSheetOpen(false);
-								// The handoff waits for native dismissal; state alone is not that acknowledgement.
-								attachmentHandoff.choose(
-									() => onAttach(action.source),
-									Platform.OS,
-								);
-							}}
-							testID={attachOptionId(action.source)}
-						>
-							<View className="min-h-11 flex-row items-center px-3">
-								<Text className="text-body-sm text-ink">{action.label}</Text>
-							</View>
-						</Pressable>
-					),
-				)}
-			</View>
-		</Sheet>
+			onChoose={(source) => {
+				/* Closed first: the picker opens over a dismissed sheet, never
+				 *  under one — a system picker presented from behind a modal is
+				 *  how a cancel lands back on a sheet nobody reopened. The sheet
+				 *  marks this close as a hand-off (no iOS exit animation). */
+				setAttachSheetOpen(false);
+				// The handoff waits for native dismissal; state alone is not that acknowledgement.
+				attachmentHandoff.choose(() => onAttach(source), Platform.OS);
+			}}
+		/>
 	);
 
 	const main = (

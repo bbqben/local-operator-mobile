@@ -117,21 +117,44 @@ export interface SetProjectMilestoneRequest {
 }
 
 /**
+ * The `audio` part for a native recording, as bytes.
+ *
+ * Exists because React Native's `{ uri, name, type }` descriptor is NOT
+ * uploadable here: SDK 57's global `fetch` is `expo/fetch`, whose multipart
+ * encoder reads a string, a `Blob`, or anything with `bytes()`, and throws
+ * `Unsupported FormDataPart implementation` for the descriptor before a request
+ * is sent. `stt/recorder.ts` reads the file and builds this.
+ */
+export interface TranscribeAudioBytesPart {
+	/** The multipart part's filename. */
+	name: string;
+	/** The container type, from the recording's extension. */
+	type: string;
+	/** Read lazily — the encoder calls this once, on the upload's own turn, so
+	 *  building a part never touches the file. */
+	bytes: () => Promise<Uint8Array>;
+}
+
+/**
  * One audio recording for `POST /api/transcribe`.
  *
- * Two shapes, because the runtime's `FormData` and the browser's are different
- * at the file part: React Native appends a `{ uri, name, type }` descriptor and
- * reads the file itself, while the web/Node targets append a `Blob` with a
- * filename. `audio` is unioned so ONE endpoint call serves both, decided at the
- * call site by the recorder (see `stt/recorder.ts`).
+ * Three shapes, because the runtime's `FormData` and the browser's are different
+ * at the file part: React Native's own `fetch` reads a `{ uri, name, type }`
+ * descriptor, the web/Node targets append a `Blob` with a filename, and
+ * `expo/fetch` reads `TranscribeAudioBytesPart`. `audio` is unioned so ONE
+ * endpoint call serves all of them, decided at the call site by the recorder
+ * (see `stt/recorder.ts`).
  *
  * `language`, `prompt` and `model` are forward-compat passthroughs (contract
  * §4.10 lists them as optional); nothing in this app sets them yet.
  */
 export interface TranscribeUpload {
-	audio: Blob | { uri: string; name: string; type: string };
-	/** The multipart filename, for the Blob arm. Ignored for the `{ uri }` arm,
-	 *  which carries its own `name`. */
+	audio:
+		| Blob
+		| { uri: string; name: string; type: string }
+		| TranscribeAudioBytesPart;
+	/** The multipart filename, for the Blob arm. Ignored for the other arms,
+	 *  which carry their own `name`. */
 	filename?: string;
 	language?: string;
 	prompt?: string;
@@ -151,14 +174,12 @@ export interface TranscribeResponse {
  *  the shared reload rule, and the transport's own taxonomy must raise it. */
 const TRANSCRIBE_READ_STATUSES = [402, 413, 422, 500, 502, 503] as const;
 
-/** True for the RN file descriptor shape (`{ uri }`) rather than a `Blob`. A
- *  `Blob` answers `arrayBuffer`; the RN descriptor does not — that is the whole
- *  discrimination, and it is why this is not a `typeof` check on a class name
- *  that the two runtimes spell differently. */
-function isNativeFilePart(
-	audio: TranscribeUpload["audio"],
-): audio is { uri: string; name: string; type: string } {
-	return typeof (audio as Blob).arrayBuffer !== "function";
+/** True for a `Blob`, the one arm that wants a filename argument. A `Blob`
+ *  answers `arrayBuffer`; the RN descriptor and the bytes part do not — that is
+ *  the whole discrimination, and it is why this is not a `typeof` check on a
+ *  class name that the runtimes spell differently. */
+function isBlobPart(audio: TranscribeUpload["audio"]): audio is Blob {
+	return typeof (audio as Blob).arrayBuffer === "function";
 }
 
 /** Builds the multipart body. The file part's FIELD NAME must be `audio` — the
@@ -166,11 +187,14 @@ function isNativeFilePart(
  *  `422 audio file is required` rather than a silent success. */
 export function transcribeForm(upload: TranscribeUpload): FormData {
 	const form = new FormData();
-	if (isNativeFilePart(upload.audio)) {
-		/* React Native's convention; `fetch` reads the URI and streams the file. */
-		form.append("audio", upload.audio as unknown as Blob);
-	} else {
+	if (isBlobPart(upload.audio)) {
 		form.append("audio", upload.audio, upload.filename ?? "recording.bin");
+	} else {
+		/* Appended as given: the runtime's `FormData` keeps the part, and its own
+		 * encoder decides how to read it. RN's `fetch` reads the `{ uri }` descriptor;
+		 * `expo/fetch` reads `{ name, type, bytes() }` and cannot read a `{ uri }` one
+		 * (see `TranscribeAudioBytesPart`). */
+		form.append("audio", upload.audio as unknown as Blob);
 	}
 	if (upload.language !== undefined) form.append("language", upload.language);
 	if (upload.prompt !== undefined) form.append("prompt", upload.prompt);
@@ -1112,6 +1136,26 @@ export class RelayEndpoints {
 		return this.http.json("supplementDocument", {
 			method: "GET",
 			path: `/api/sessions/${encodeURIComponent(sessionId)}/supplements/${encodeURIComponent(digest)}/document`,
+		});
+	}
+
+	/**
+	 * The admitted bodies behind one inbound Team Bridge card (local-operator
+	 * #4238, design §4), keyed by the transcript ROW the phone already reads —
+	 * never by a message id, so this cannot probe arbitrary messages.
+	 *
+	 * Only call it when the relay advertises `features.team_bridge_card_body`
+	 * (`bridgeCardBodyServed`): an older relay has no route. The answer is
+	 * `private, no-store` and the caller must not cache it either, so a revoked
+	 * or deleted message disappears on the next read.
+	 */
+	async bridgeCardBody(
+		sessionId: string,
+		entryId: string,
+	): Promise<Payload<"bridgeCardBody">> {
+		return this.http.json("bridgeCardBody", {
+			method: "GET",
+			path: `/api/sessions/${encodeURIComponent(sessionId)}/bridge-cards/${encodeURIComponent(entryId)}/body`,
 		});
 	}
 

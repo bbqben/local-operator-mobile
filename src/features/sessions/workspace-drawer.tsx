@@ -16,6 +16,10 @@ import {
 import { MENU_BADGE_INSET } from "@/features/home/header-fit";
 import { countLabel } from "@/features/notifications/notifications-model";
 import { ConversationsDrawer } from "@/features/sessions/conversations-drawer";
+import {
+	type ModeBarSegmentMode,
+	useModeBarFit,
+} from "@/features/sessions/mode-bar-fit";
 import { unreadBadgeCount } from "@/features/sessions/session-projection";
 import type {
 	WorkspaceDrawerBridgeAdapter,
@@ -62,8 +66,9 @@ export const useOptionalWorkspaceDrawer = () =>
 	useContext(WorkspaceDrawerContext);
 
 /**
- * The mode track's layout, by text scale. Exported so the arithmetic below is
- * pinned in a unit test (Node has no layout engine to measure it).
+ * The mode track's layout, by text scale and by whether both labels fit an
+ * equal half (`segments`, from `useModeBarFit`). Exported so the arithmetic
+ * below is pinned in a unit test (Node has no layout engine to measure it).
  *
  * BELOW `LARGE_TEXT_SCALE`: ONE row, always, and the unread count costs NO
  * layout. The panel at 320 pt is `sidebarWidthFor(320, 48)` = 272 pt; the
@@ -77,10 +82,24 @@ export const useOptionalWorkspaceDrawer = () =>
  * "Team Bridge" wrapped to two lines, the bar grew 48 → 54.6 pt and the
  * drawer and the segment divider moved whenever an unread arrived (PR #222 UX U2-1/U2-2, design D2-2). The
  * count is therefore an out-of-flow corner overlay (`badge: "overlay"`): adding
- * or clearing "7" / "99+" changes zero layout pixels. Segments size from their
- * content (`grow`, basis auto) and share only the slack (D1-2/U1-1/Q1-2).
+ * or clearing "7" / "99+" changes zero layout pixels.
  *
- * AT AND ABOVE IT: the track wraps (PR #212 QA Q1-1) so "Team Bridge" breaks
+ * EQUAL HALVES WHEN BOTH LABELS FIT (issue #324, the operator's decision; it
+ * supersedes D1-2/D2-1 for that case only). Content-sized segments read as
+ * lopsided on a roomy phone — 125 vs 157 pt on a 402 pt iPhone — so when
+ * `2 × (the wider segment + 1 pt margin) + gap ≤ the inner track` the segments
+ * are `flex-1` halves (141 pt each there). The 1 pt (`MODE_FIT_MARGIN`)
+ * absorbs measurement rounding: without it a measured exact fit wrapped the
+ * selected "Team Bridge" at 322 px on web (PR #333 QA Q1-1). When it does not
+ * hold — 320 pt Android, where 2 × (97 + 1) + 4 = 200 pt against a 196 pt
+ * track, or a long translation — they keep sizing from their content (`grow`,
+ * basis auto) and share only the slack (D1-2/U1-1/Q1-2), so at 100 % text
+ * "Team Bridge" still stays on one line there. The widths are
+ * MEASURED (`mode-bar-fit.ts`), never assumed: the proportional split is the
+ * fallback and the layout until the measurement lands.
+ *
+ * AT AND ABOVE IT, unchanged by #324 and never measured: the track wraps (PR
+ * #212 QA Q1-1) so "Team Bridge" breaks
  * onto its own row instead of truncating at 200 %+ / Urdu RTL. Segments are
  * content-proportioned (`grow shrink`, basis auto), NOT `flex-1` halves: equal
  * halves of the (then) 190 pt track gave each label a 73 pt inner box, narrower than
@@ -96,7 +115,10 @@ export const useOptionalWorkspaceDrawer = () =>
  * (`content-center`) rather than top-aligning one label above the other
  * (UX U1-2).
  */
-export const modeBarLayout = (largeText: boolean) =>
+export const modeBarLayout = (
+	largeText: boolean,
+	segments: ModeBarSegmentMode = "proportional",
+) =>
 	largeText
 		? ({
 				track:
@@ -109,7 +131,8 @@ export const modeBarLayout = (largeText: boolean) =>
 		: ({
 				track:
 					"min-w-0 flex-1 flex-row flex-nowrap content-center items-stretch gap-1 rounded-md bg-sunken p-1",
-				segment: "min-w-0 grow shrink",
+				segment:
+					segments === "equal" ? "min-w-0 flex-1" : "min-w-0 grow shrink",
 				content: "flex-nowrap px-2",
 				label: "text-center text-body-sm",
 				badge: "overlay",
@@ -154,7 +177,16 @@ export const WorkspaceModeBar = ({
 	onClose?: () => void;
 }) => {
 	const { effectiveScale } = useTextScale();
-	const layout = modeBarLayout(effectiveScale > LARGE_TEXT_SCALE);
+	const largeText = effectiveScale > LARGE_TEXT_SCALE;
+	const agentsLabel = t("mobile.chrome.drawer.agents");
+	const bridgeLabel = t("mobile.team_bridge.title");
+	const fit = useModeBarFit(
+		!largeText,
+		/* The drawer's bar (with Close) and the docked pane's are different
+		 *  tracks, so their fits are remembered apart (PR #333 R1-2). */
+		`${onClose ? "drawer" : "docked"}\u0000${effectiveScale}\u0000${agentsLabel}\u0000${bridgeLabel}`,
+	);
+	const layout = modeBarLayout(largeText, fit.mode);
 	const agentsSelected = mode === "agents";
 	const bridgeSelected = mode === "team-bridge";
 	const showCount =
@@ -170,7 +202,43 @@ export const WorkspaceModeBar = ({
 			 *  wraps, and a segment that does not fit takes its own row so its
 			 *  label breaks between words instead of ellipsizing. Below large
 			 *  text it stays one row instead (`modeBarLayout`). */}
-			<View className={layout.track}>
+			<View className={layout.track} onLayout={fit.onTrackLayout}>
+				{/* THE MEASURER (issue #324). Both labels at their natural width,
+				 *  in the selected weight (the wider one, so selecting a segment
+				 *  never changes the answer), laid out where nothing constrains
+				 *  them: absolute, so out of the flex row and its gap, and a
+				 *  column, so neither label shares a line with the other. A live
+				 *  label cannot be measured instead — once the halves are equal
+				 *  its box is the half, not the word. Invisible, untouchable and
+				 *  hidden from assistive technology: it is a ruler, not copy. It comes
+				 *  FIRST so it paints beneath the segments it measures, and the
+				 *  transparency sits on each label itself, not on the wrapper:
+				 *  the web audit's U-08 overlap check reads a node's OWN opacity,
+				 *  and with it on the wrapper it counted the ruler as painted text
+				 *  on top of the Agents segment. `selectable={false}` keeps the
+				 *  duplicate labels out of a web text selection (PR #333 Q1-3). */}
+				{largeText ? null : (
+					<View
+						aria-hidden
+						pointerEvents="none"
+						className="absolute start-0 top-0 items-start"
+					>
+						<Text
+							className={cx(layout.label, "font-semibold text-ink opacity-0")}
+							onLayout={fit.onAgentsLabelLayout}
+							selectable={false}
+						>
+							{agentsLabel}
+						</Text>
+						<Text
+							className={cx(layout.label, "font-semibold text-ink opacity-0")}
+							onLayout={fit.onBridgeLabelLayout}
+							selectable={false}
+						>
+							{bridgeLabel}
+						</Text>
+					</View>
+				)}
 				<Pressable
 					testID={CONTROL.workspaceDrawerAgents}
 					accessibilityRole={ROLE.button}

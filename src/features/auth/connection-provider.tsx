@@ -2532,9 +2532,18 @@ export const ConnectionProvider = ({
 		const client = clientRef.current;
 		if (!client) return;
 		const listGeneration = listStore.getState().connectionGeneration;
+		// A refresh can outlive a computer/account switch. Fence errors and busy
+		// ownership as well as list bytes: an old 401 must not refuse the NEW route.
+		const admission = liveAdmissionRef.current;
+		const ownsRefresh = () =>
+			mountedRef.current &&
+			clientRef.current === client &&
+			admission?.isCurrent() &&
+			listStore.getState().connectionGeneration === listGeneration;
 		setBusy(true);
 		try {
 			const frame = await client.sessions({ includePeers: true });
+			if (!ownsRefresh()) return;
 			listStore.getState().applyFrame(
 				{
 					sessions: frame.sessions,
@@ -2547,6 +2556,7 @@ export const ConnectionProvider = ({
 				listGeneration,
 			);
 		} catch (error) {
+			if (!ownsRefresh()) return;
 			if (error instanceof RelayError) {
 				/* Keep the ROUTE retry when the route has one (PR #261 U3-1). A
 				 *  refresh fails for the same cause the live list stream refuses on
@@ -2574,7 +2584,7 @@ export const ConnectionProvider = ({
 			}
 			throw error;
 		} finally {
-			if (mountedRef.current) setBusy(false);
+			if (ownsRefresh()) setBusy(false);
 		}
 	}, [noteError]);
 

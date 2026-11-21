@@ -336,13 +336,14 @@ export const ModelPicker = ({
 		onPick(model);
 		close();
 	};
-	return (
-		<Sheet
-			visible={visible}
-			onClose={close}
-			title={t("mobile.home.picker.model_title")}
-			testID={CONTROL.homeModelPicker}
-		>
+	/* What leads the sheet: the source line, a refusal, and the search field.
+	 *  With a search field it is PINNED above the scrolling rows (TestFlight
+	 *  1295: with the keyboard up the body is a few rows tall, and a field that
+	 *  scrolls with its results left the reader typing into nothing). The line and
+	 *  the alert travel with the field so the reading order is unchanged; a short
+	 *  list has no field and keeps everything in the body, as before. */
+	const lead = (
+		<>
 			{!editable ? <FixedLine /> : <SourceLine chosen={chosen} />}
 			{failure !== null ? (
 				<View className="px-3 pb-2">
@@ -370,6 +371,17 @@ export const ModelPicker = ({
 					/>
 				</View>
 			) : null}
+		</>
+	);
+	return (
+		<Sheet
+			visible={visible}
+			onClose={close}
+			title={t("mobile.home.picker.model_title")}
+			testID={CONTROL.homeModelPicker}
+			pinned={searchable ? lead : undefined}
+		>
+			{searchable ? null : lead}
 			{/* No default named (an older daemon, or none resolved): the explicit
 			 *  "use this computer's default" row is the way back to sending no model
 			 *  (#174, D1). With a named default its own row carries that meaning. */}

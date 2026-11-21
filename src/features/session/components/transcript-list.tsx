@@ -19,6 +19,7 @@ import {
 
 import type { TranscriptEntry } from "@/contracts";
 import { anchorBottomVisible } from "@/features/session/completion-visibility";
+import type { BridgeBodyLoader } from "@/features/session/components/bridge-card-body";
 import { FoldBar } from "@/features/session/components/fold-bar";
 import { GroupGuides } from "@/features/session/components/group-guides";
 import { OlderHistoryEdge } from "@/features/session/components/older-history-edge";
@@ -79,6 +80,7 @@ import {
 	type QuietGroup,
 	type TranscriptItem,
 } from "@/features/session/turn-condensing";
+import { useUnderflowFill } from "@/features/session/use-underflow-fill";
 import {
 	collapseScrollOffset,
 	UserMessageCollapseContext,
@@ -157,6 +159,10 @@ export type TranscriptListProps = {
 	historyErrorScope?: "newest" | "older" | null;
 	loadingOlder?: boolean;
 	hasOlder?: boolean;
+	/** `olderFillReady`: the list may page older on its own while its first
+	 *  window is shorter than the viewport or shows no conversation row
+	 *  (`underflow-fill.ts`, issue #322). Off unless the caller passes it. */
+	olderFillReady?: boolean;
 	historyGap?: boolean;
 	/** Entry id of the first row after the newest hole; the gap marker sits there. */
 	historyGapBefore?: string | null;
@@ -182,6 +188,10 @@ export type TranscriptListProps = {
 	/** Opens the full-screen player for a video artifact a generation row
 	 *  carries (threaded to the card; the screen owns the route push). */
 	onOpenVideo?: (entryId: string, index: number) => void;
+	/** Loads an inbound Team Bridge card's body; supplied only when the relay
+	 *  serves the route (`bridgeCardBodyServed`), so an old relay's receipt
+	 *  rows render exactly as before. */
+	loadBridgeBody?: BridgeBodyLoader;
 	/** The turn interrupt, threaded to image-gen cards (the composer's Stop
 	 *  path). `undefined` while no turn is live; resolves whether the request
 	 *  reached the relay (review round 1, F2). */
@@ -349,6 +359,7 @@ export const TranscriptList = ({
 	historyErrorScope = null,
 	loadingOlder = false,
 	hasOlder = false,
+	olderFillReady = false,
 	historyGap = false,
 	historyGapBefore = null,
 	historyError = null,
@@ -358,6 +369,7 @@ export const TranscriptList = ({
 	loadFile,
 	onOpenAgent,
 	onOpenVideo,
+	loadBridgeBody,
 	onCancelTurn,
 	supplements,
 	projectionPid = 0,
@@ -1497,6 +1509,16 @@ export const TranscriptList = ({
 		items: folded.items.length,
 	};
 
+	const underflowMeasured = useUnderflowFill({
+		sessionId,
+		items: folded.items,
+		olderReady: olderFillReady,
+		hasError: historyError !== null,
+		loadOlder,
+		positioned: () => frozenInitialIndexRef.current?.session === sessionId,
+		viewportPt: () => viewportRef.current,
+	});
+
 	/* The offset is restored once, after the first content change: before that there
 	 * is nothing to scroll, and a restore that ran into an empty list would silently
 	 * lose the position (F-6.11 — Back preserves scroll). Keyed on the session so a
@@ -1525,6 +1547,7 @@ export const TranscriptList = ({
 				// Content is the other fact: a list that grew past its viewport has
 				// edges to fade, and one that shrank under it has none.
 				driveFades();
+				underflowMeasured(height);
 				if (restoredFor.current !== sessionId) {
 					restoredFor.current = sessionId;
 					const saved = scrollPlaces.get(sessionId);
@@ -1593,7 +1616,14 @@ export const TranscriptList = ({
 				}
 				recompute();
 			},
-			[driveFades, sessionId, recompute, scrollAnchor, pinTail],
+			[
+				driveFades,
+				underflowMeasured,
+				sessionId,
+				recompute,
+				scrollAnchor,
+				pinTail,
+			],
 		);
 
 	useLayoutEffect(() => {
@@ -1787,6 +1817,7 @@ export const TranscriptList = ({
 							loadFile={loadFile}
 							onOpenAgent={onOpenAgent}
 							onOpenVideo={onOpenVideo}
+							loadBridgeBody={loadBridgeBody}
 							onCancelTurn={onCancelTurn}
 							open={rowOpen.get(canonicalRowKey(item.entry))}
 							onToggleOpen={toggleRowOpen}
@@ -1824,6 +1855,7 @@ export const TranscriptList = ({
 			loadFile,
 			onOpenAgent,
 			onOpenVideo,
+			loadBridgeBody,
 			onCancelTurn,
 			anchorId,
 			measureRow,

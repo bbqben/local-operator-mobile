@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppState } from "react-native";
 import { useStore } from "zustand";
 import type {
+	BridgeCardBody,
 	ModelEntry,
 	SlashCommand,
 	SubagentDetail,
@@ -67,6 +68,7 @@ import {
 	sameProjectionOwner,
 	sessionContent,
 } from "./session-content";
+import { olderFillReady } from "./underflow-fill";
 import { warmCache } from "./warm-store";
 
 /**
@@ -100,6 +102,9 @@ export interface SessionRuntime {
 	loadingOlder: boolean;
 	historyError: string | null;
 	hasOlder: boolean;
+	/** The list may page older on its own to fill a short first window
+	 *  (`olderFillReady`, issue #322). */
+	olderFillReady: boolean;
 	/** A hole the automatic fill could not close; false while it is filling. */
 	historyGap: boolean;
 	/** Entry id of the first row after the newest hole, where the list marks it. */
@@ -137,6 +142,11 @@ export interface SessionRuntime {
 	 *  has the bytes. The caller revokes a web object URL when done with it
 	 *  (`loadVideoSource`'s contract). */
 	loadVideo: (entryId: string, index: number) => Promise<string | null>;
+	/** Loads the admitted body (or the relay's stated outcome) behind one
+	 *  inbound Team Bridge card, or `null` when the read failed. Never cached:
+	 *  each call is a fresh read, so revocation stays live. The screen offers it
+	 *  to rows only when the relay advertises `team_bridge_card_body`. */
+	loadBridgeBody: (entryId: string) => Promise<BridgeCardBody | null>;
 	/** Loads a child's full detail, which the aggregate roster strips. */
 	loadAgent: (jobId: string) => Promise<SubagentDetail | null>;
 	/** Turn supplements (memo §2.4/§3.1 row 18): the projection's newest beat
@@ -944,6 +954,18 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 		[endpoints, sessionId],
 	);
 
+	const loadBridgeBody = useCallback(
+		async (entryId: string): Promise<BridgeCardBody | null> => {
+			if (endpoints === null) return null;
+			try {
+				return await endpoints.bridgeCardBody(sessionId, entryId);
+			} catch {
+				return null;
+			}
+		},
+		[endpoints, sessionId],
+	);
+
 	const loadAgent = useCallback(
 		async (jobId: string): Promise<SubagentDetail | null> => {
 			if (endpoints === null) return null;
@@ -1082,6 +1104,14 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 				? null
 				: historyWindow.error,
 		hasOlder: historyWindow.hasMore,
+		olderFillReady: olderFillReady({
+			read: historyWindow.read,
+			loading: historyWindow.loading,
+			hasMore: historyWindow.hasMore,
+			olderState: historyWindow.olderState,
+			frameRows: projection?.transcript.length ?? 0,
+			frameHeadPinned: projection?.transcript_head_pinned,
+		}),
 		// The notice is for a hole the automatic fill could not close; while the
 		// fill runs the list shows nothing (no flash, no layout jump).
 		historyGap: historyWindow.hasGap && historyWindow.healState !== "healing",
@@ -1096,6 +1126,7 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 		loadImage,
 		loadFile,
 		loadVideo,
+		loadBridgeBody,
 		loadAgent,
 		supplements,
 		projectionPid: projection?.pid ?? 0,

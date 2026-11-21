@@ -20,6 +20,8 @@ import chromeContext from "@/i18n/catalogues/en/mobile.chrome.context.json";
 import chrome from "@/i18n/catalogues/en/mobile.chrome.json";
 import commonContext from "@/i18n/catalogues/en/mobile.common.context.json";
 import common from "@/i18n/catalogues/en/mobile.common.json";
+import communityContext from "@/i18n/catalogues/en/mobile.community.context.json";
+import community from "@/i18n/catalogues/en/mobile.community.json";
 import composerInputContext from "@/i18n/catalogues/en/mobile.composer_input.context.json";
 import composerInput from "@/i18n/catalogues/en/mobile.composer_input.json";
 import computersContext from "@/i18n/catalogues/en/mobile.computers.context.json";
@@ -74,11 +76,20 @@ const JSON_SUFFIX = /\.json$/;
 
 const NAMESPACES = [
 	{
+		name: "mobile.community",
+		messages: community,
+		context: communityContext,
+		// The public community client (RFC v2.4, dark behind EXPO_PUBLIC_COMMUNITY):
+		// 140 keys, +10 in review round 1's remediation = 150, counted over the
+		// en JSON.
+		expected: 150,
+	},
+	{
 		name: "mobile.team_bridge",
 		messages: teamBridge,
 		context: teamBridgeContext,
 		// Current union: endpoint-profile keys plus six delivery/help keys.
-		expected: 179, // 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, counted over the merged en JSON.
+		expected: 220, // +9 #348: eight reaction-inspection keys + reply_thread.last_reply (211 + 9), counted in merged JSON. 159 existing + list.catching_up (#297) + ten reply_thread keys (#303: nine, + reply_thread.more for the continuation, R2) + nine mentions.* (#305): 170 + 9 = 179, + five actions.* (#339: title, reply_in_thread, copy_text, select_text, copied) = 184, counted over the merged en JSON. Merged with #344: + sixteen card_body.* (inbound card body states, framing, show more/less, more count): 184 + 16 = 200, counted over the merged en JSON + eleven reaction keys (reactions slice PR b: actions.a11y_react + ten reactions.*) = 211.
 	},
 	{
 		name: "mobile.signin",
@@ -102,7 +113,7 @@ const NAMESPACES = [
 		name: "mobile.composer_input",
 		messages: composerInput,
 		context: composerInputContext,
-		expected: 14, // +2: the failure notice's short Retry / Dismiss actions (visual audit D6)
+		expected: 24, // +2: the failure notice's short Retry / Dismiss actions (visual audit D6); +10: the attach sheet's row labels and Take Photo's notices/error
 	},
 	{
 		name: "mobile.library",
@@ -217,7 +228,7 @@ const NAMESPACES = [
 		name: "mobile.session",
 		messages: session,
 		context: sessionContext,
-		expected: 99, // feat/pele-diagrams +8: the mermaid diagram block (label, titled label, open hint, copy, copied marker, could-not-draw notice, viewer name, viewer close) (91 + 8 = 99); O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
+		expected: 100, // PR #353 +1: composer.settings_not_applied (99 + 1 = 100); feat/pele-diagrams +8: the mermaid diagram block (label, titled label, open hint, copy, copied marker, could-not-draw notice, viewer name, viewer close) (91 + 8 = 99); O3-a +2: the commands and attach sheet titles; PR #275 +8: background sending (outbox) — waiting / exhausted / discarded captions, Retry, Discard, and three composer hints (wait, stopped, discarding) (81 + 2 + 8 = 91); +3: Title-case sheet titles (visual audit D14); +1: newest-edge gap notice; +1: reload hint; +1: newest-refresh failure copy; +1: explicit history reload; +7: lazy history states; +1: default-closed reasoning disclosure; +1: retry-attempt storage receipt; +1: definitely-not-sent storage receipt; +3: the ended-session chip hints (TestFlight 578); +9: the pending echo; +16: session route literals keyed by the app/ scan (subagent screen, empty states, find, chip errors, retained notice); +2: the user message's Show more / Show less (iOS build 836); +15: scanner-blind expression literals (context tray, scroll cues, video title, fallback names, region labels, back-to labels); +1: the new-conversation "not confirmed" caption (PR #256 Q3)
 	},
 	{
 		/* The relay's own two namespaces, under its own keys. They are here rather
@@ -584,7 +595,35 @@ describe("the English catalogues", () => {
 		 * main's 1133 + O3-c's 9 mobile.sidebar keys = 1142, derived by summing
 		 * the keys of all 25 merged en catalogue files (mobile.sidebar 51,
 		 * mobile.team_bridge 179). */
-		expect(total).toBe(1142);
+		// feat/community: +140 mobile.community.* (the public community client)
+		// and +10 more from its review round 1 remediation, on main's 1133
+		// (ADR 0010 chain above) = 1283, re-derived over the rebased tree.
+		/* PR #339 (Team Bridge message actions sheet): + 5 mobile.team_bridge
+		 * actions.* keys (title, reply_in_thread, copy_text, select_text,
+		 * copied): 1283 + 5 = 1288. */
+		/* Convergence of PR #344 (feat/bridge-card-body) with main ce8ca546
+		 * (#339): both chains kept; main's 1288 + sixteen
+		 * mobile.team_bridge.card_body.* = 1304, as `generate.ts` reports for
+		 * the merged tree. */
+		/* Reactions slice PR b (#345): + actions.a11y_react and ten
+		 * reactions.* keys: 1304 + 11 = 1315. */
+		/* Inspection/thread slice (#348): reactions.details, hint_inspect,
+		 * sample, sample_none, sample_notice, show_less, show_more, you_reacted,
+		 * plus reply_thread.last_reply: 1315 + 9 = 1324. Independently counted
+		 * across the 26 JSON namespaces in each of the eight shipped locales;
+		 * retain an explicit total, not a self-adjusting catalogue expectation. */
+		/* PR #353 (settings refusal after resume): + mobile.session
+		 * composer.settings_not_applied: 1324 + 1 = 1325, as `generate.ts
+		 * --check` reports for the tree merged with main 2c3aee9a. */
+		/* Attach camera (Take Photo): mobile.composer_input.attach.library,
+		 * camera, files, paste, choose_image, camera_denied, camera_refused,
+		 * open_settings, camera_unavailable, camera_error: 1325 + 10 = 1335. */
+		/* Convergence #2 of PR #313 (O3-c) with main e1888bd6 (#355): both
+		 * chains above kept; main's 1335 + O3-c's 9 mobile.sidebar keys = 1344,
+		 * derived by summing the keys of all 26 merged en catalogue files
+		 * (mobile.sidebar 51, mobile.team_bridge 220); every shipped locale also
+		 * sums to 1344. */
+		expect(total).toBe(1344);
 	});
 
 	it("lists every catalogue file this suite checks", () => {
@@ -767,6 +806,14 @@ const IDENTICAL_BY_DESIGN_JUDGED: Readonly<
 			"« Notifications » is the French plural, spelled as in English (as mobile.notifications.title); the fr audit passed this Settings section header (i18n/audits/evidence/fr/mobile.settings/o3a-fr-b3177c/).",
 		"mobile.sidebar.row_status.question":
 			"« question » is the French noun too, the row's waiting-on-a-question status chip paired with « approbation »; the O3-c fr audit passed it as is (i18n/audits/evidence/fr/mobile.sidebar/o3c-fr-f99d15/), not an English fallback.",
+		"mobile.community.approvals.agent":
+			"Agent is also the French term for a software agent; this approval badge is the same idiomatic cognate as mobile.team_bridge.profile.badge_agent, not an English fallback.",
+		"mobile.community.conversation.agent":
+			"Agent is also the French term for a software agent; the author badge on an agent post matches mobile.team_bridge.profile.badge_agent, not an English fallback.",
+		"mobile.community.profile.message":
+			"« Message » is the French noun for the profile contact action, as mobile.team_bridge.profile.message; it sends a DM request, not an English fallback.",
+		"mobile.community.requests.dm":
+			"« Messages » is the French plural, spelled as in English (as relay.transcript.label.messages); the segment names direct-message requests.",
 	},
 	/* Spanish preserves these placeholder-only templates: names and separators
 	 * have no English prose to translate. Each key remains explicitly listed. */

@@ -241,8 +241,13 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * false`. `--print`, staged. */
 	/* PR #207 round 5: omit the false head-pin flag, matching Core's wire.
 	 * Re-derived with --print from the staged tree; no capture assertion moved. */
+	/* Re-pinned 2026-11-18 for issue #322 with --print: one ADDED world,
+	 *  `peer-tail-history`, and its builder. Existing worlds are byte-identical
+	 *  to main (JSON SHA256 prefixes: long-transcript 11bfa6d3e7b72831,
+	 *  long-transcript-history 0d14585cb17662c9, idle 1d1ed4063acae06d on
+	 *  both), so the U-08 scene did not move. */
 	"tools/mock-relay/scenarios.ts":
-		"5b8c61f4d6763d968d9f1b78337b700c7f016a500836a33617efba06c3dbe133",
+		"84c742389d35a490a401a839b132cc12d77c0030a03984c85c90354696503ee5",
 	"tools/mock-relay/shape.ts":
 		"0ef0c342578ffaf4a7067d4427f10a999740152d6a56ec2da63d75697f08fb5b",
 	/* The startup evidence helper the fixture's relay imports. It has been loaded by
@@ -338,8 +343,12 @@ export const RENDER_FILE_PINS: Readonly<Record<string, string>> = {
 	// added one dependency (package.json + pnpm-lock.yaml) without re-pinning
 	// them, so main itself fails this check; re-derived with --print over the
 	// staged merge tree. #305 touches neither file. Not a U-08 web layout input.
+	// --print re-pin (PR #354): the expo-image-picker `cameraPermission`
+	// (NSCameraUsageDescription), the Android CAMERA permission and the
+	// optional-camera `uses-feature` plugin for Take Photo; native build
+	// config, not a U-08 web layout input.
 	"app.config.ts":
-		"d4ebf2193a3ee15a84c765485a6be336022d97c82f3074a1b7bb57b5df81f43a",
+		"6110454ab30ab65bd5971c1325699557051ff09df32bd6d342509963b264c3b0",
 	"metro.config.js":
 		"8969b35b1269818e746e2a8e854f94995f0adbc54b18e8e80c95e90aca1aa707",
 	// --print re-pin (feat/background-push-clear): adds the native module
