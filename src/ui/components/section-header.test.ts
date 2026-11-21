@@ -57,6 +57,46 @@ describe("SectionHeader: a composed label states its paragraph direction", () =>
 	});
 });
 
+describe("SectionHeader: RTL cursive tracking", () => {
+	it("removes tracking from an Urdu label without requiring labelDir", () => {
+		const markup = render(h(SectionHeader, { label: "ترتیبات" }), "rtl");
+		expect(markup).toContain("letter-spacing:0");
+		expect(markup).toContain('dir="auto"');
+	});
+
+	it("also removes tracking when composed copy begins in Latin", () => {
+		const markup = render(h(ComposedHeading, null), "rtl");
+		expect(markup).toContain("letter-spacing:0");
+		expect(markup).toContain('dir="rtl"');
+	});
+
+	it("preserves a native caller's writingDirection while removing tracking", () => {
+		const markup = render(
+			h(SectionHeader, {
+				label: HEADER,
+				labelDir: { style: { writingDirection: "rtl" } },
+			}),
+			"rtl",
+		);
+		expect(markup).toContain("letter-spacing:0");
+		expect(markup).toContain("direction:rtl");
+	});
+
+	it("keeps LTR headings and Latin-only RTL headings on the original token", () => {
+		for (const label of ["Connection", "Connexion", "कनेक्शन", "ترتیبات"]) {
+			expect(render(h(SectionHeader, { label }), "ltr")).not.toContain(
+				"letter-spacing:0",
+			);
+		}
+		expect(
+			render(h(SectionHeader, { label: "Connection" }), "rtl"),
+		).not.toContain("letter-spacing:0");
+		expect(SECTION_HEADER_LABEL_CLASS).toBe(
+			"text-mono-label uppercase text-ink-muted",
+		);
+	});
+});
+
 /* The heading's ink (UX pass, settings): the all-caps mono label was painted
  * `ink-dim`, the CAPTION ink, so at 11 pt it read fainter than the body text it
  * heads. The token source names the role for it — `ink-muted`'s role note lists
