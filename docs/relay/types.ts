@@ -749,6 +749,12 @@ export interface Capabilities {
     durable_idempotency?: boolean;
     receipt_capacity?: number;
     effort?: boolean;
+    /** local-operator #4367 (`start_receipts.CAPABILITY`): each licenses its
+     *  optional start field AND `GET /api/start-targets`. The unkeyed start
+     *  drops unknown fields, so a client sending `team` blind to an older relay
+     *  starts an UNBOUND chat. */
+    agent?: boolean;
+    team?: boolean;
   };
 }
 
@@ -946,6 +952,36 @@ export interface ModelDefault {
   provider: string;
   model_id: string;
   effort: string | null;
+}
+
+/** `GET /api/start-targets` (local-operator #4367, `daemon.py`
+ *  `_start_targets_payload`): the agents and teams a new chat may be bound to,
+ *  projected from the desktop's own `profile_catalogue`/`team_catalogue`.
+ *  `label` is pre-painted (`display_labels.display_form` / `teams.display_form`);
+ *  `avatar_sha256` comes from `agent_avatar.agent_index`. A registry failure
+ *  answers 200 with empty lists and `degraded: true`. */
+export interface StartTargetAgent {
+  name: string;
+  label: string;
+  kind: "role" | "specialist" | null;
+  source: "builtin" | "installed" | "custom" | null;
+  description: string;
+  agent_id: string | null;
+  avatar_sha256: string | null;
+}
+
+export interface StartTargetTeam {
+  name: string;
+  label: string;
+  description: string;
+  manager: string;
+  member_count: number;
+}
+
+export interface StartTargetsResponse {
+  agents: StartTargetAgent[];
+  teams: StartTargetTeam[];
+  degraded: boolean;
 }
 
 /** `GET /api/directories` (`daemon.py:4350-4359`). `tmp` is the RESOLVED temp

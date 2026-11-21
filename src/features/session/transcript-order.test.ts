@@ -5,7 +5,7 @@ import type {
 	TranscriptEntry,
 } from "@/contracts";
 import { adoptPageOrder, HistoryWindow } from "./history-window";
-import { rowIdentity } from "./runtime";
+import { mergeTranscript, rowIdentity } from "./runtime";
 import { condensePlan } from "./turn-condensing";
 
 /*
@@ -245,6 +245,135 @@ describe("A: the reader shows every journal row, in journal order", () => {
 		const after = reader.visibleRows.map((entry) => entry.id);
 		expect(after.indexOf("s060")).toBe(after.indexOf("j059") + 1);
 		expect(after.at(-1)).toBe("j120");
+	});
+});
+
+/*
+ * A HELD ROW THE FRAME HAS MOVED never pulls the rows after it upward.
+ *
+ * Live frames are full repaints, and the merge places a frame row the reader
+ * does not hold after the shared rows that precede it in the frame. Placing it
+ * after only the LAST such row broke whenever a held row sat in a different
+ * relative order in the frame than on screen: the new rows landed between the
+ * moved row and the rows it had been shown before. Two real shapes:
+ *  - Core moving a delivered steer from its send-time slot to its journal
+ *    position (the follow-up core fix the job b653d62f56e1 probe measured):
+ *    the frame becomes `… t1 t2 s1 a1`, the screen still shows `s1 t1 t2`.
+ *  - Today, after `adoptPageOrder` seats a steer in journal order, the next
+ *    live frame is still in send-time order and puts `s1` before `t1 t2`.
+ */
+describe("A: a held row the frame moved never pulls new rows above held ones", () => {
+	const reader = () =>
+		new HistoryWindow(
+			async () => ({ entries: [], has_more: false }),
+			() => {},
+		);
+	const live = (...rows: TranscriptEntry[]) =>
+		({ transcript: rows }) as unknown as SessionProjection;
+	const U = user("u1");
+	const A0 = reply("a0");
+	const S = steer("s1");
+	const T1 = tool("t1");
+	const T2 = tool("t2");
+	const A1 = reply("a1");
+	const A2 = reply("a2");
+	/** The send-time frames the screen saw before delivery: the steer painted
+	 *  at the tail, then the work that ran after it was sent. */
+	const sentThenWorked = () => {
+		const window = reader();
+		window.accept(live(U, A0, S));
+		window.accept(live(U, A0, S, T1));
+		window.accept(live(U, A0, S, T1, T2));
+		return window;
+	};
+
+	it("core-move shape: rows after the moved steer land after the rows held below it", () => {
+		const merged = mergeTranscript(live(U, A0, T1, T2, S, A1, A2), [
+			U,
+			A0,
+			S,
+			T1,
+			T2,
+		]);
+		expect(merged.rows.map((entry) => entry.id)).toEqual([
+			"u1",
+			"a0",
+			"s1",
+			"t1",
+			"t2",
+			"a1",
+			"a2",
+		]);
+	});
+
+	it("today's shape (upgrade in place) is unchanged", () => {
+		const window = sentThenWorked();
+		window.accept(live(U, A0, S, T1, T2));
+		window.accept(live(U, A0, S, T1, T2, A1));
+		window.accept(live(U, A0, S, T1, T2, A1, A2));
+		expect(window.visibleRows.map((entry) => entry.id)).toEqual([
+			"u1",
+			"a0",
+			"s1",
+			"t1",
+			"t2",
+			"a1",
+			"a2",
+		]);
+	});
+
+	it("after adoptPageOrder seats the steer, a send-time frame puts the new row below it", () => {
+		const merged = mergeTranscript(live(U, A0, S, T1, T2, A1), [
+			U,
+			A0,
+			T1,
+			T2,
+			S,
+		]);
+		expect(merged.rows.map((entry) => entry.id)).toEqual([
+			"u1",
+			"a0",
+			"t1",
+			"t2",
+			"s1",
+			"a1",
+		]);
+	});
+
+	it("after adoptPageOrder seats the steer, the production reader keeps it above the next reply", async () => {
+		// Journal order: the steer is written when DELIVERED, after t1 t2.
+		const journal = [U, A0, T1, T2, S];
+		const window = new HistoryWindow(durablePager(journal, []), () => {});
+		window.accept(live(U, A0, S, T1, T2));
+		await window.load(true);
+		expect(window.visibleRows.map((entry) => entry.id)).toEqual([
+			"u1",
+			"a0",
+			"t1",
+			"t2",
+			"s1",
+		]);
+		window.accept(live(U, A0, S, T1, T2, A1));
+		expect(window.visibleRows.map((entry) => entry.id)).toEqual([
+			"u1",
+			"a0",
+			"t1",
+			"t2",
+			"s1",
+			"a1",
+		]);
+	});
+
+	it("probe (job b653d62f56e1) through HistoryWindow: core moves the steer at delivery", () => {
+		const window = sentThenWorked();
+		window.accept(live(U, A0, T1, T2, S));
+		window.accept(live(U, A0, T1, T2, S, A1));
+		window.accept(live(U, A0, T1, T2, S, A1, A2));
+		const shown = window.visibleRows.map((entry) => entry.id);
+		// Held rows never reorder, nothing is dropped or duplicated, and the
+		// replies follow every row already on screen.
+		expect(shown).toEqual(["u1", "a0", "s1", "t1", "t2", "a1", "a2"]);
+		expect(new Set(shown).size).toBe(shown.length);
 	});
 });
 

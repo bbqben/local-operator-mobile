@@ -7,7 +7,13 @@ import {
 	heroHeldInset,
 	heroMeasured,
 	heroTopInset,
+	IDENTITY_PILL_MARK_CAP_PT,
+	identityPillMarks,
 } from "./hero-layout";
+
+const DRAWS_PILL_MARK = /size=\{marks\.mark\}/;
+const DRAWS_PILL_CHEVRON = /size=\{marks\.chevron\}/;
+const FIXED_PILL_CHEVRON = /<ChevronDown size=\{14\}/;
 
 /* Design spec §2: the hero is optically centred in the band between the header
  * and the composer STACK, clamped 24 pt from both ends, on the 4 pt scale. */
@@ -123,5 +129,27 @@ describe("the hero is a centred stack: mark, greeting, rows", () => {
 		/* Design D1: never a growing label, which would pin the chevron to the
 		 *  row's far edge at every size. */
 		expect(SPLASH).not.toMatch(/min-w-0 flex-1 text-body/);
+	});
+});
+
+describe("the identity pill's mark and chevron (PR #358 D5)", () => {
+	it("grow with the reader's text size, capped at the spec's 28 pt", () => {
+		expect(identityPillMarks(1)).toStrictEqual({ mark: 20, chevron: 14 });
+		// RED before the fix: 20 / 14 at every scale, a speck beside a 28 px label.
+		expect(identityPillMarks(1.5)).toStrictEqual({ mark: 28, chevron: 21 });
+		expect(identityPillMarks(2)).toStrictEqual({
+			mark: IDENTITY_PILL_MARK_CAP_PT,
+			chevron: IDENTITY_PILL_MARK_CAP_PT,
+		});
+	});
+
+	it("are what the pill draws", () => {
+		const splash = readFileSync(
+			new URL("./home-splash.tsx", import.meta.url),
+			"utf8",
+		);
+		expect(splash).toMatch(DRAWS_PILL_MARK);
+		expect(splash).toMatch(DRAWS_PILL_CHEVRON);
+		expect(splash).not.toMatch(FIXED_PILL_CHEVRON);
 	});
 });

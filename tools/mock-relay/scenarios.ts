@@ -153,6 +153,13 @@ export interface ScenarioWorld {
 	 *  naming no model or effort runs. `undefined` omits the key, as an older
 	 *  daemon does; `null` is a computer that resolved no default. */
 	modelDefault?: Json | null;
+	/** `GET /api/start-targets`'s body (local-operator #4367). PRESENT means a
+	 *  relay that advertises `session_start.agent/team`, serves this roster and
+	 *  validates the start fields against it; ABSENT is an older relay — no flag,
+	 *  no route, and a start body's `agent`/`team` silently dropped, exactly the
+	 *  hazard the phone's capability gate exists for. Opt-in, like tags, so no
+	 *  existing scenario changes shape. */
+	startTargets?: Json;
 	/** `GET /api/directories`'s body. `undefined` serves the corpus capture
 	 *  (home `~`, no recents, no default), which every existing scenario reads. */
 	directories?: Json;
@@ -3562,6 +3569,87 @@ export function buildScenarios(fix: FixtureCorpus): ScenarioRegistry {
 				],
 				tmp: "/private/tmp",
 			},
+		}),
+	);
+
+	/* The new-chat agent/team picker (local-operator #4367). Synthetic names,
+	 *  not a capture: two teams, three installed agents, and one builtin the
+	 *  phone must hide (the desktop menu's rule). */
+	const startTargetRoster = {
+		agents: [
+			{
+				name: "default",
+				label: "Default",
+				kind: "role",
+				source: "builtin",
+				description: "The packaged default agent.",
+				agent_id: null,
+				avatar_sha256: null,
+			},
+			{
+				name: "coder",
+				label: "Coder",
+				kind: "role",
+				source: "installed",
+				description: "Implements one bounded slice and reports what changed.",
+				agent_id: null,
+				avatar_sha256: null,
+			},
+			{
+				name: "reviewer",
+				label: "Reviewer",
+				kind: "role",
+				source: "installed",
+				description: "Reviews a diff for defects.",
+				agent_id: null,
+				avatar_sha256: null,
+			},
+			{
+				name: "research-analyst",
+				label: "Research Analyst",
+				kind: "specialist",
+				source: "custom",
+				description: "",
+				agent_id: null,
+				avatar_sha256: null,
+			},
+		],
+		teams: [
+			{
+				name: "lopdev",
+				label: "Lopdev",
+				description: "Builds and ships Local Operator.",
+				manager: "manager",
+				member_count: 7,
+			},
+			{
+				name: "support",
+				label: "Support",
+				description: "",
+				manager: "triage",
+				member_count: 1,
+			},
+		],
+		degraded: false,
+	};
+	add(
+		"start-targets",
+		"The new-chat agent/team picker: a relay that advertises `session_start.agent/team`, serves two teams and three installed agents (plus one builtin the phone hides), and binds a start to one of them.",
+		/* NO CELL, for the pickers' reason: the sheet opens from the hero pill, and
+		 *  nothing on the wire opens it. This is the world a rendered pass runs in. */
+		[],
+		() => ({
+			startTargets: startTargetRoster,
+			models: pickerModels,
+		}),
+	);
+	add(
+		"start-targets-degraded",
+		"The agent/team picker when the computer could not read its registries: the capability is advertised, and the roster answers `degraded: true` with empty lists.",
+		[],
+		() => ({
+			startTargets: { agents: [], teams: [], degraded: true },
+			models: pickerModels,
 		}),
 	);
 
