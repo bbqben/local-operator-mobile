@@ -11,6 +11,7 @@ import type {
 import {
 	configStore,
 	currentWarmScope,
+	listStore,
 	useConnection,
 	useConnectionState,
 } from "@/features/auth/connection-provider";
@@ -68,6 +69,7 @@ import {
 	sameProjectionOwner,
 	sessionContent,
 } from "./session-content";
+import { steerJournalOrderDeclared } from "./steer-journal-order";
 import { olderFillReady } from "./underflow-fill";
 import { warmCache } from "./warm-store";
 
@@ -441,6 +443,9 @@ export const useSessionRuntime = (sessionId: string): SessionRuntime => {
 			sessions.getState().beginStream(sessionId);
 			setError(null);
 			const stream = endpoints.sessionStream(sessionId, {
+				// Read per connect, not per effect: a stream opened before the first
+				// live list frame declares on its next reconnect (`steer-journal-order.ts`).
+				steerJournalOrder: steerJournalOrderDeclared(listStore.getState()),
 				onFrame: (frame) => {
 					if (
 						!active ||
