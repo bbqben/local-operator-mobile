@@ -1104,6 +1104,7 @@ function Session() {
 					historyGapBefore={runtime.historyGapBefore}
 					footer={transcriptNotice}
 					pending={pendingRows}
+					sendMark={composer.sendMark}
 					streamingRowId={runtime.streamingRowId}
 					loadImage={runtime.loadImage}
 					loadFile={runtime.loadFile}
