@@ -1696,7 +1696,7 @@ describe("issue #247 — the sheet draws the rows the app already holds", () => 
 		expect(drawn).toHaveLength(0);
 	});
 
-	it("keeps the frame rows WHOLE on a failed read — the lapsed ask's Dismiss lives there", () => {
+	it("keeps the frame rows WHOLE before the first successful read — the lapsed ask's Dismiss lives there", () => {
 		// A failed opening read never sets the rows and never sets `aggregateRead`:
 		// the sheet stays up, so what it is up for stays whole (round 2, U9) — the
 		// outstanding filter above is only for a frame standing beside a READ

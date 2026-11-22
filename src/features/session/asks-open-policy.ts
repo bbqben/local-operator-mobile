@@ -727,10 +727,14 @@ export const shownExpansion = (
  *    Frame rows carry no `session_id`, and the answer path is
  *    `client.command(sessionId, ...)`: an unstamped row would settle against the
  *    empty id and the sheet would refuse its own answer.
- *  * A FAILED or absent read keeps the frame rows WHOLE, not merely the
- *    outstanding ones - the old seed contract (round 2, U9). The failure keeps
- *    the sheet up, so the rows it is up for must stay, and a lapsed ask's only
- *    control lives in exactly that list.
+ *  * BEFORE THE FIRST SUCCESSFUL READ the frame rows are kept WHOLE, not merely
+ *    the outstanding ones - the old seed contract (round 2, U9). The failure
+ *    keeps the sheet up, so the rows it is up for must stay, and a lapsed ask's
+ *    only control lives in exactly that list. `aggregateRead` marks the first
+ *    SUCCESS, not the last read: after one success a later failed RE-read keeps
+ *    the last good aggregate (the sheet only replaces its rows on a success)
+ *    and the outstanding-only filter above applies, so that failure does not
+ *    re-admit a lapsed frame row.
  *  * `settled` - ids this sheet has already answered, declined or dismissed - are
  *    suppressed from the FRAME side. The settle request lands before the next
  *    frame does, so without it a stale frame row would put the question the
