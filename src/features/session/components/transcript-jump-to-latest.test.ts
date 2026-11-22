@@ -51,13 +51,22 @@ const host = vi.hoisted(() => ({
 	},
 	/** Rows mounted with their content top, so the anchor arithmetic is real. */
 	rows: [] as { id: string; contentTop: number }[],
-	/** Every `scrollTop` assignment the list made (i.e. the web anchor). */
+	/** Every MOVE of the fake scroller's `scrollTop`: the list's own writes and
+	 *  the reader's wheel alike, since a browser has already moved the scroller by
+	 *  the time `onScroll` fires. Only a change is recorded — a write that leaves
+	 *  the position where it was cannot pull a reader. */
 	writes: [] as number[],
 }));
 vi.mock("react-native", async () => {
 	const React = await import("react");
 	const passthrough = ({ children }: { children?: React.ReactNode }) =>
 		children ?? null;
+	/* A row's position in the content comes from its index in the data, the way
+	 *  the real rows stack. The mocked list provides it; the mount counter this
+	 *  used to read put every row of one commit at content top 0, so no row ever
+	 *  overlapped the viewport and `captureWebAnchor` could never hold an anchor
+	 *  (code review round 2, M1 — the test for it passed without the fix). */
+	const RowIndex = React.createContext<number | null>(null);
 	return {
 		Platform: { OS: "web" },
 		View: React.forwardRef(
@@ -73,9 +82,9 @@ vi.mock("react-native", async () => {
 				/* One fake node per mounted view. The list's web anchor reads
 				 *  `isConnected` and the node's on-screen top, so the node answers both
 				 *  from the content offset and the scroller's current `scrollTop` — the
-				 *  same arithmetic the browser does. */
-				const top = React.useMemo(() => host.rows.length * 44, []);
-				const index = React.useMemo(() => host.rows.length, []);
+				 *  same arithmetic the browser does. Rows stand 44 pt apart. */
+				const index = React.useContext(RowIndex);
+				const top = (index ?? 0) * 44;
 				const node = React.useMemo(
 					() => ({
 						isConnected: true,
@@ -95,7 +104,7 @@ vi.mock("react-native", async () => {
 				);
 				React.useImperativeHandle(ref, () => node as never, [node]);
 				React.useEffect(() => {
-					if (index < 64)
+					if (index !== null && index < 64)
 						host.rows[index] = { id: `view-${index}`, contentTop: top };
 					props.onLayout?.({
 						nativeEvent: { layout: { height: host.rowHeight } },
@@ -130,7 +139,11 @@ vi.mock("react-native", async () => {
 					createElement(
 						React.Fragment,
 						{ key: item.id },
-						props.renderItem?.({ item, index }) ?? null,
+						createElement(
+							RowIndex.Provider,
+							{ value: index },
+							props.renderItem?.({ item, index }) ?? null,
+						),
 					),
 				);
 				return createElement(
@@ -246,7 +259,11 @@ async function render(entries: TranscriptEntry[], options: RenderOptions = {}) {
 		),
 	);
 }
-const scrollTo = (offsetY: number, content = CONTENT) =>
+const scrollTo = (offsetY: number, content = CONTENT) => {
+	/* A browser moves the scroller before it fires `onScroll`; the fake must agree
+	 * with the offset it reports, or the web anchor is captured against a position
+	 * the reader is not at. */
+	if (host.scroller) host.scroller.scrollTop = offsetY;
 	props().onScroll({
 		nativeEvent: {
 			contentOffset: { y: offsetY },
@@ -254,6 +271,7 @@ const scrollTo = (offsetY: number, content = CONTENT) =>
 			layoutMeasurement: { height: VIEWPORT },
 		},
 	});
+};
 /** Mount the list settled at the tail, the state a fresh open lands in. */
 async function openAtTail(
 	entries: TranscriptEntry[],
@@ -391,11 +409,28 @@ describe("the jump-to-latest chip", () => {
 	 * (`holdWebAnchor`). Sending then snapped the list to the end, and the held
 	 * anchor's next restore put `scrollTop` back on that row: measured on the web
 	 * target, 103 → `-28` (clamped to 0) 18 ms later, the sent message below the
-	 * fold and no chip. A deliberate move to the end ends the anchor's claim. */
+	 * fold and no chip. A deliberate move to the end ends the anchor's claim.
+	 *
+	 * WHAT MAKES THIS FAIL WITHOUT THE FIX (code review round 2, M1: it used to
+	 * pass either way). The scroller's `scrollTop` is an accessor, so every MOVE is
+	 * recorded and clamped like the DOM's, and the reader's own wheel moves it, so
+	 * a row really is under the viewport when `captureWebAnchor` looks and an
+	 * anchor is HELD. Without the release, that anchor restores the reader's old
+	 * place in the same flush as the snap (measured here: back to 0, tail 900), and
+	 * the `overflow-anchor` the hold took from the browser is never handed back. */
 	it("sending from away drops the web anchor, so the snap is not undone", async () => {
+		let position = 0;
 		host.scroller = {
 			style: {},
-			scrollTop: 0,
+			get scrollTop() {
+				return position;
+			},
+			set scrollTop(next: number) {
+				const clamped = Math.max(0, Math.min(next, CONTENT - VIEWPORT));
+				if (clamped === position) return;
+				position = clamped;
+				host.writes.push(clamped);
+			},
 			getBoundingClientRect: () => ({
 				top: 0,
 				left: 0,
@@ -406,8 +441,7 @@ describe("the jump-to-latest chip", () => {
 			}),
 		};
 		host.scroll.mockImplementation(({ offset }: { offset: number }) => {
-			if (host.scroller)
-				host.scroller.scrollTop = Math.min(offset, CONTENT - VIEWPORT);
+			if (host.scroller) host.scroller.scrollTop = offset;
 		});
 		const loadOlder = vi.fn(async () => {});
 		const options = { loadOlder, hasOlder: true };
@@ -422,11 +456,18 @@ describe("the jump-to-latest chip", () => {
 			offset: TAIL_CLAMP_OFFSET_PT,
 			animated: false,
 		});
+		/* The snap LANDS and stays landed: a held anchor restores its row in the
+		 *  same flush, which left the reader at 0 while the tail is 900. */
+		expect(host.scroller?.scrollTop).toBe(CONTENT - VIEWPORT);
 		const afterSnap = host.writes.length;
-		/* The echo lands and every row re-measures; nothing may pull the reader
-		 *  back to the anchored row. */
+		/* The echo lands and every row re-measures — the commit the stale anchor also
+		 *  wrote on. */
+		await render(rows(20), { ...options, sendMark: 1 });
 		await act(async () => props().onContentSizeChange(320, CONTENT + 40));
 		expect(host.writes.slice(afterSnap)).toEqual([]);
+		/* The anchor is gone: the browser's own anchoring is back, which only
+		 *  `releaseWebAnchor` with a HELD anchor does. */
+		expect(host.scroller?.style).toMatchObject({ overflowAnchor: "" });
 	});
 
 	it("snaps to the end when the reader sends, without waiting for the echo", async () => {
@@ -439,13 +480,24 @@ describe("the jump-to-latest chip", () => {
 		});
 	});
 
-	/* Code review round 1, R2: `sending` is also true for Approve/Deny, an ask
-	 * answer, a retry and a slash TAP. None of those is a message leaving. */
-	it("does not move a reader who is away when something other than a send is in flight", async () => {
+	/* Code review round 1, R2 / round 2, m1. The mark is a CHANGE, not a state:
+	 * Approve/Deny, an ask answer, a retry and a slash TAP all set `sending` — the
+	 * flag this list used to read — and none of them is a message leaving. Which
+	 * of them touch `sendMark` is pinned against the real hook
+	 * (`use-composer-echo.test.ts`, "the send mark"); what the list can prove is
+	 * that a render carrying the SAME mark is not another send, even after one. */
+	it("does not move a reader who is away on a render that carries no new send", async () => {
 		await openAtTail(rows(20));
 		await scrollAway();
+		await render(rows(20), { sendMark: 1 });
+		expect(host.scroll).toHaveBeenCalledWith({
+			offset: TAIL_CLAMP_OFFSET_PT,
+			animated: false,
+		});
+		host.scroll.mockClear();
+		await scrollAway();
 		// The same accepted-send mark, re-rendered: not a new send.
-		await render(rows(20), { sendMark: 0 });
+		await render(rows(20), { sendMark: 1 });
 		expect(host.scroll).not.toHaveBeenCalled();
 	});
 
