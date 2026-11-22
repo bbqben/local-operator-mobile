@@ -1104,6 +1104,7 @@ function Session() {
 					historyGapBefore={runtime.historyGapBefore}
 					footer={transcriptNotice}
 					pending={pendingRows}
+					sendMark={composer.sendMark}
 					streamingRowId={runtime.streamingRowId}
 					loadImage={runtime.loadImage}
 					loadFile={runtime.loadFile}
@@ -2088,7 +2089,7 @@ function Session() {
 				visible={asksOpen}
 				onClose={asksSheet.close}
 				initialOpenAsk={asksSheet.initialOpenAsk}
-				seedRows={asksSheet.seedRows}
+				frameRows={asksSheet.frameRows}
 				onReadFailed={asksSheet.readFailed}
 				client={runtime.source.endpoints}
 				currentSessionId={sessionId}
