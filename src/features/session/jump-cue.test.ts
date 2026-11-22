@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
 	BOTTOM_GROWTH_PT,
 	bottomArrival,
+	contentArrival,
 	JUMP_CUE_ARRIVED,
 	JUMP_CUE_AT_TAIL,
 	JUMP_CUE_AWAY,
 	jumpCueShown,
 	NO_BOTTOM,
+	NO_TAIL_CONTENT,
 	nextBottomMark,
 	withArrival,
 	withAtTail,
@@ -142,5 +144,39 @@ describe("bottomArrival", () => {
 
 	it("does not count the first content of a mount", () => {
 		expect(bottomArrival(NO_BOTTOM, { id: "row-a", height: 40 })).toBe(false);
+	});
+});
+
+/**
+ * The WIRE mark, for the reader whose streaming row is unmounted (QA round 1,
+ * Q1): no layout exists to read, so the projection's own last row is the signal.
+ */
+describe("contentArrival", () => {
+	it("counts a message arriving at the bottom", () => {
+		expect(
+			contentArrival({ id: "row-b", size: 12 }, { id: "row-c", size: 4 }),
+		).toBe(true);
+	});
+
+	it("counts the streamed answer growing under an unchanged id", () => {
+		expect(
+			contentArrival({ id: "row-b", size: 12 }, { id: "row-b", size: 140 }),
+		).toBe(true);
+	});
+
+	it("never counts an older-history insert above the reader", () => {
+		/* The last row is untouched by a prepend: same id, same text. */
+		expect(
+			contentArrival({ id: "row-b", size: 40 }, { id: "row-b", size: 40 }),
+		).toBe(false);
+	});
+
+	it("ignores a shrink and a first observation", () => {
+		expect(
+			contentArrival({ id: "row-b", size: 140 }, { id: "row-b", size: 12 }),
+		).toBe(false);
+		expect(contentArrival(NO_TAIL_CONTENT, { id: "row-b", size: 40 })).toBe(
+			false,
+		);
 	});
 });

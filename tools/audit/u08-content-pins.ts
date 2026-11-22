@@ -286,14 +286,8 @@ export const INSTRUMENT_PINS: Readonly<Record<string, string>> = {
 	 * (`identical-states.ts`, `matchDeclared`), never by the plan or a readiness
 	 * probe, so no cell and no planned frame changes. */
 	// PR #207 CI remediation: the `m-conv-…` fixture-id rename, nothing else.
-	/* Re-pinned 2026-11-21 for feat/jump-to-latest with --print from the staged tree:
-	 *  one `path:` cell added (`?lo-scroll=away/jump-to-latest`) so the "Jump to
-	 *  latest" chip has a frame at all. That IS a plan input: the new cell is a
-	 *  capture the harness will render; no existing cell, rule, probe, matcher or
-	 *  threshold moved, and the new cell declares no opener. Source identity only —
-	 *  not rendered U-08 evidence. */
 	"tools/visual/matrix.ts":
-		"80f23ebe45807a895c6739d8d7b53e89dfa0539d99292653ce8eb58b95e50769",
+		"c94eea1f1fbdcb18835ea3d8fa98b408ab705f66142c30f42654c993f01c25e4",
 	"e2e/fixtures/audit-canary/index.html":
 		"96085343f6aaa34a3162c979d536208a32f897beba9bbc3633d6f3d0e37a5403",
 };

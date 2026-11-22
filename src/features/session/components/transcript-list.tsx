@@ -51,13 +51,16 @@ import {
 } from "@/features/session/history-scroll";
 import {
 	bottomArrival,
+	contentArrival,
 	JUMP_CUE_ARRIVED,
 	JUMP_CUE_AT_TAIL,
 	JUMP_CUE_AWAY,
 	type JumpCue,
 	jumpCueShown,
 	NO_BOTTOM,
+	NO_TAIL_CONTENT,
 	nextBottomMark,
+	type TailContent,
 	withArrival,
 	withAtTail,
 } from "@/features/session/jump-cue";
@@ -224,11 +227,13 @@ export type TranscriptListProps = {
 	 *  so the footer stays the notice alone, and outside `data` so a send leaves
 	 *  every memoised row untouched. An element so the screen can memoise it. */
 	pending?: React.ReactElement | null;
-	/** A send is in flight (`useComposer().sending`). SENDING snaps the list to
-	 *  the end; typing does not. The screen owns the composer, so this is the
-	 *  screen's fact, not one the list can infer from its rows: the pending echo
-	 *  is a footer row and ack/retry can move it without a send. */
-	sending?: boolean;
+	/** An ACCEPTED send's mark (`useComposer().sendMark`). When it changes the list
+	 *  snaps to the end; typing does not move it. A send-only mark, not
+	 *  `sending`: that flag is also true while Approve/Deny, an ask answer, a retry
+	 *  or a slash TAP is in flight, and none of those is a message leaving this
+	 *  composer (code review round 1, R2). The screen owns the composer, so this is
+	 *  the screen's fact, not one the list can infer from its rows. */
+	sendMark?: number;
 	/** The entry id whose BOTTOM the ack gate watches — the completion
 	 *  attention's `anchor_id` (ADR 0006 §3.1). `null` when nothing is being
 	 *  watched. */
@@ -396,7 +401,7 @@ export const TranscriptList = ({
 	header,
 	footer,
 	pending,
-	sending = false,
+	sendMark = 0,
 	anchorId = null,
 	onAnchorVisible,
 	highlightId = null,
@@ -475,10 +480,26 @@ export const TranscriptList = ({
 	 *  test that distinguishes new output from an older page inserted above. */
 	const bottomMark = useRef(NO_BOTTOM);
 	const lastItemId = useRef<string | null>(null);
+	/** The same question read off the WIRE (last id + its text length), for a
+	 *  reader far enough up that the streaming row is unmounted and produces no
+	 *  layout at all (QA round 1, Q1). Carries the session it was read from, so a
+	 *  switch is not an arrival whichever effect runs first. */
+	const tailContent = useRef<{ session: string; content: TailContent }>({
+		session: "",
+		content: NO_TAIL_CONTENT,
+	});
 	/** A jump to the end is in flight: content that arrives mid-glide must not
 	 *  raise the chip on the way down. Cleared on landing or when the reader
 	 *  takes the list back (`onScrollBeginDrag`). */
 	const snapArriving = useRef(false);
+	/** Announce an arrival the list just observed — from a height or from the wire.
+	 *  Both paths call this, so the rules (never while following, never mid-jump)
+	 *  live in one place and a doubled observation is harmless: `withArrival` hands
+	 *  back the SAME cue for an arrival already marked. */
+	const noteArrival = useCallback(() => {
+		if (atTail.current || snapArriving.current) return;
+		applyCue(withArrival(jumpCueRef.current));
+	}, [applyCue]);
 	/** Every place that answers "is this reader following the end?" writes through
 	 *  here, so the ref and the chip cannot disagree about it. Leaving the end also
 	 *  ends any jump still in flight: a programmatic move the reader has overridden
@@ -1027,10 +1048,23 @@ export const TranscriptList = ({
 			heightsRef.current.set(id, height);
 			// Invalidates the cached offset table (`getItemLayout`'s, review NIT-2).
 			heightsVersionRef.current += 1;
+			/* THE MARK IS REFRESHED WHERE THE HEIGHT LANDS (QA round 1, Q2). A streamed
+			 *  row's new height reaches `heightsRef` through ITS own `onLayout`, which
+			 *  can run AFTER the content-size event that carried the same growth. The
+			 *  content-size path then read the previous height, and the next content
+			 *  change of any kind — an older page inserted above the reader — read as
+			 *  bottom growth and raised the chip (measured 2/2 runs). Recording here as
+			 *  well means the mark is current whichever event arrives first, so only
+			 *  growth nothing has seen yet announces. */
+			if (id === lastItemId.current) {
+				const next = nextBottomMark(bottomMark.current, id, height);
+				if (bottomArrival(bottomMark.current, next)) noteArrival();
+				bottomMark.current = next;
+			}
 			restoreWebAnchor();
 			scheduleRecompute();
 		},
-		[scheduleRecompute, restoreWebAnchor],
+		[noteArrival, scheduleRecompute, restoreWebAnchor],
 	);
 
 	/* A session switch starts the geometry over: heights belong to the rows that
@@ -1453,6 +1487,16 @@ export const TranscriptList = ({
 	 * what reduced-motion readers asked not to get.
 	 */
 	const snapToTail = useCallback(() => {
+		/* A HELD WEB ANCHOR IS DROPPED (UX round 1, U1). The anchor belongs to an
+		 *  older-page insert that is keeping the reader's row still; a deliberate move
+		 *  to the end supersedes it. Left held, `restoreWebAnchor` recomputed on every
+		 *  commit (and on every row measure) wrote the anchored row's position back
+		 *  over the snap — measured on the web target, 320×568: snap to 103, then
+		 *  `scrollTop = -28` (browser-clamped to 0) 18 ms later, the sent row below
+		 *  the fold and no chip, because the cue believed the reader was at the tail.
+		 *  The anchor's own scroll event, which would have released it, arrives after
+		 *  that write. */
+		releaseWebAnchor();
 		/* Suppress arrivals only when there is a glide to protect: a snap from an
 		 *  already-following list may raise no scroll event at all, and a flag left
 		 *  set would silence every future announcement. */
@@ -1462,16 +1506,19 @@ export const TranscriptList = ({
 			offset: TAIL_CLAMP_OFFSET_PT,
 			animated: false,
 		});
-	}, [markAtTail]);
+	}, [markAtTail, releaseWebAnchor]);
 	/* SENDING IS A SNAP (operator, 2026-11-21): the reader who just pressed send
-	 *  is done reading where they were. Typing never moves the list. `sending`
-	 *  flips true only after the composer's own guards admit the message, so a
-	 *  refused or duplicate press cannot move a reader who was scrolled up. */
-	const sentInFlight = useRef(false);
+	 *  is done reading where they were. Typing never moves the list. The mark
+	 *  changes only when the composer admits a message (a prompt, or a typed slash
+	 *  op), never for an approval/ask answer, a retry or a slash TAP — those set
+	 *  `sending` too (code review round 1, R2), and none of them is a message
+	 *  leaving. */
+	const sentMark = useRef(sendMark);
 	useEffect(() => {
-		if (sending && !sentInFlight.current) snapToTail();
-		sentInFlight.current = sending;
-	}, [sending, snapToTail]);
+		if (sendMark === sentMark.current) return;
+		sentMark.current = sendMark;
+		snapToTail();
+	}, [sendMark, snapToTail]);
 	restRef.current = () => {
 		const facts = factsRef.current;
 		const atEnd = restsAtTail({
@@ -1734,12 +1781,8 @@ export const TranscriptList = ({
 					bottomId,
 					bottomId === null ? null : (heightsRef.current.get(bottomId) ?? null),
 				);
-				if (
-					!atTail.current &&
-					!snapArriving.current &&
-					bottomArrival(bottomMark.current, nextBottom)
-				) {
-					applyCue(withArrival(jumpCueRef.current));
+				if (bottomArrival(bottomMark.current, nextBottom)) {
+					noteArrival();
 				}
 				bottomMark.current = nextBottom;
 				if (atTail.current) {
@@ -1766,9 +1809,36 @@ export const TranscriptList = ({
 				scrollAnchor,
 				pinTail,
 				markAtTail,
-				applyCue,
+				noteArrival,
 			],
 		);
+
+	/* NEW OUTPUT SEEN FROM THE DATA, NOT THE LAYOUT (QA round 1, Q1).
+	 *
+	 * A reader several screens up unmounts the streaming row: the list measures
+	 * nothing there and the content height does not move (measured: the answer
+	 * went `pass 2` → `pass 77` while `scrollH` stayed 2354, and no chip ever
+	 * appeared). The projection still grows, so the last item's id and its text
+	 * length are what announce an arrival for that reader. It runs on every
+	 * commit and always records, so the mark is current the moment the reader
+	 * leaves; only a change against a KNOWN session's mark can announce. */
+	useEffect(() => {
+		const last = folded.items[folded.items.length - 1];
+		const next: TailContent =
+			last === undefined
+				? NO_TAIL_CONTENT
+				: {
+						id: last.id,
+						size: last.kind === "entry" ? last.entry.text.length : 0,
+					};
+		const previous = tailContent.current;
+		tailContent.current = { session: sessionId, content: next };
+		/* A session switch and a fold the reader opened are not arrivals; the
+		 *  mark is still advanced above so the next real change is measured
+		 *  against it. */
+		if (previous.session !== sessionId || foldResizeRef.current) return;
+		if (contentArrival(previous.content, next)) noteArrival();
+	});
 
 	useLayoutEffect(() => {
 		restoreWebAnchor();
@@ -2176,6 +2246,16 @@ export const TranscriptList = ({
 	return (
 		<UserMessageCollapseContext.Provider value={keepCollapsedTopInView}>
 			<View className="flex-1 min-h-0">
+				{/* The way back that is not a yank (operator, 2026-11-21). An
+				 *  overlay above the fades, so it adds no layout and its press
+				 *  cannot reach anything but itself. Declared BEFORE the list so the
+				 *  reading (and Tab) order reaches it first instead of after every
+				 *  mounted row (UX round 1, U2); `zIndex` keeps it painted above them.
+				 *  It is handed this viewport's height and hides itself when that is
+				 *  too short to hold it above the fade (design round 1, D1). */}
+				{jumpCueShown(jumpCue) ? (
+					<JumpToLatestChip onPress={snapToTail} viewportPt={viewportPt} />
+				) : null}
 				<FlatList
 					ref={listRef}
 					testID={testID}
@@ -2242,12 +2322,6 @@ export const TranscriptList = ({
 				/>
 				{/* The two edge fades: a picture of the cut edge, never a control. */}
 				<TranscriptEdgeFades ref={fadesRef} />
-				{/* The way back that is not a yank (operator, 2026-11-21). An
-				 *  overlay above the fades, so it adds no layout and its press
-				 *  cannot reach anything but itself. */}
-				{jumpCueShown(jumpCue) ? (
-					<JumpToLatestChip onPress={snapToTail} />
-				) : null}
 			</View>
 		</UserMessageCollapseContext.Provider>
 	);

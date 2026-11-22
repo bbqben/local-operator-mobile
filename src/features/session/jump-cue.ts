@@ -93,6 +93,44 @@ export const nextBottomMark = (
 };
 
 /**
+ * What the LAST row carries on the wire, independent of whether it is rendered.
+ *
+ * WHY A SECOND MARK (QA round 1, Q1). `BottomMark` reads the row's MEASURED
+ * height, and a reader several screens up is exactly where the list unmounts the
+ * streaming row: no `onLayout`, no content-size change, so a height mark cannot
+ * see the answer grow (measured: the answer went `pass 2` → `pass 77` with the
+ * content height unchanged at 2354 pt, chip never raised). The projection does
+ * still change — the streaming row's text grows, and a newly arrived message
+ * changes the last item's id — so the data, not the layout, is the signal a far
+ * reader can be given. Ids and text lengths are O(1) to compare, and an older
+ * page inserted above leaves both alone.
+ */
+export type TailContent = {
+	id: string | null;
+	/** Characters the last row carries: the streaming answer's text length. */
+	size: number;
+};
+
+/** No rows: an empty list, or a list between sessions. */
+export const NO_TAIL_CONTENT: TailContent = { id: null, size: 0 };
+
+/**
+ * Whether the WIRE put new output at the bottom.
+ *
+ * The same equivalence `bottomArrival` states, read from data instead of
+ * geometry: a changed last id is a message arriving, a longer last row is the
+ * streamed answer growing. A shrink is not an arrival, and a first observation
+ * (no previous row) is never one.
+ */
+export const contentArrival = (
+	previous: TailContent,
+	next: TailContent,
+): boolean => {
+	if (previous.id === null || next.id === null) return false;
+	return previous.id !== next.id || next.size > previous.size;
+};
+
+/**
  * Whether this content change put NEW OUTPUT at the bottom.
  *
  * A changed last item id is a message or a turn bar arriving; a taller last row

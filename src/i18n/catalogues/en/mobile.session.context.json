@@ -303,6 +303,10 @@
 		"role": "button",
 		"note": "The visible form of mobile.session.jump_to_latest on phones narrower than 360 pt, where the full sentence crowds the row beside it. Keep the leading down arrow; one or two words at most. The accessible name stays the full sentence, so this label may be an abbreviation."
 	},
+	"mobile.session.jump_to_latest_name": {
+		"role": "button",
+		"note": "The ACCESSIBLE name of the floating \"jump to latest\" chip: the same sentence as mobile.session.jump_to_latest WITHOUT the leading down arrow, because a screen reader would read the glyph as \"down arrow\". Imperative, sentence case, no final full stop. Shown visually only by screen readers, never on the chip itself."
+	},
 	"mobile.session.video.title_fallback": {
 		"role": "heading",
 		"note": "Header title of the video screen while the transcript row that names the clip is not loaded yet. One word, Title case if the language uses it."
