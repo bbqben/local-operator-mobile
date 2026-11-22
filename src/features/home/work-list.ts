@@ -55,6 +55,27 @@ export type WorkList = {
 export const workListBudget = (scale: number): number =>
 	scale >= 2 ? 2 : scale >= 1.3 ? 3 : 4;
 
+/** A row's section in the list: the `section` key `SessionRow` is handed. */
+export type WorkListSection = "needs-you" | "running" | "recent";
+
+/**
+ * How a row spends its lines at a text scale (design D2). The title is the
+ * content of a work list, so past `WRAP_TITLE_ABOVE` it wraps to two lines
+ * instead of cutting at one; from `DROP_META_FROM` the folder line goes from
+ * running and recent rows to pay for it. A needs-you row keeps its folder: the
+ * reader has to act on it, and its approval/question word is on that line.
+ * The 4/3/2 row budget is untouched; whatever still overflows scrolls.
+ */
+export const WRAP_TITLE_ABOVE = 1.3;
+export const DROP_META_FROM = 1.5;
+export const workRowShape = (
+	scale: number,
+	section: WorkListSection,
+): { titleLines: 1 | 2; showFolder: boolean } => ({
+	titleLines: scale > WRAP_TITLE_ABOVE ? 2 : 1,
+	showFolder: section === "needs-you" || scale < DROP_META_FROM,
+});
+
 /** A row this list may show at all. */
 const eligible = (session: SessionSummary): boolean =>
 	!isRemoteRow(session) && !(session.ended === true && !rowIsRunning(session));

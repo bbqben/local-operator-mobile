@@ -130,9 +130,9 @@ export const suggestionCharBudget = (locale: ShippedLocale): number =>
 
 /**
  * The mobile suggestion pool's KEYS, pinned head first: a brand-new account's
- * TRY rows are the head,
- * deterministically (a reproducible frame — the desktop's own device), and a sampler over the tail is a follow-up rather than a reason for the first
- * frame to differ per run.
+ * TRY rows are the head, deterministically (a reproducible frame — the
+ * desktop's own device), and a sampler over the tail is a follow-up rather than
+ * a reason for the first frame to differ per run.
  *
  * The KEYS are what is exported as the pool (with `homeSuggestions()` rendering
  * them) because the pool is asserted per SHIPPED locale, not only in English:

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
 	HERO_EDGE,
+	HERO_LIST_MIN_GAP,
 	HERO_MARK_BLOCK,
 	HERO_MARK_SIZE,
 	HERO_OPTICAL_NUDGE,
@@ -11,6 +12,7 @@ import {
 	heroTopInsetAbove,
 	IDENTITY_PILL_MARK_CAP_PT,
 	identityPillMarks,
+	listNaturalHeight,
 	WORK_LIST_GAP,
 	workListYield,
 } from "./hero-layout";
@@ -243,5 +245,112 @@ describe("workListYield: the mark goes first, then the rows, then the region scr
 		expect(
 			workListYield({ band: 500, hero: BLOCK, mark: HERO_MARK_BLOCK, list: 0 }),
 		).toBe(0);
+	});
+});
+
+describe("the yield level settles (review r1 #1)", () => {
+	// A work list of 2 running + 1 recent and the footer, as the splash measures
+	// it: level 2 drops the second running row and the whole Recent section,
+	// header included.
+	const ROW = 56;
+	const HEADER = 30;
+	const FOOTER = 44;
+	const FULL = HEADER + 2 * ROW + (HEADER + ROW) + FOOTER;
+	const TRIMMED = HEADER + ROW + FOOTER;
+	const TRIMMABLE = 2;
+
+	type Natural = (input: {
+		measured: number;
+		level: 0 | 1 | 2;
+		full: number;
+	}) => number;
+	/** The splash's loop: level from the natural heights, the list drawn at that
+	 *  level, its layout measured, the natural height derived from it. */
+	const run = (band: number, natural: Natural): (0 | 1 | 2)[] => {
+		let list = 0;
+		let full = 0;
+		const levels: (0 | 1 | 2)[] = [];
+		for (let frame = 0; frame < 12; frame++) {
+			const level = workListYield({
+				band,
+				hero: BLOCK,
+				mark: HERO_MARK_BLOCK,
+				list,
+			});
+			const measured = level === 2 ? TRIMMED : FULL;
+			if (level < 2) full = measured;
+			list = natural({ measured, level, full });
+			levels.push(level);
+		}
+		return levels;
+	};
+	const shipped: Natural = ({ measured, level, full }) =>
+		listNaturalHeight({
+			measured,
+			level,
+			full,
+			trimmable: TRIMMABLE,
+			rowHeight: ROW,
+		});
+	// What the splash did before: rows rebuilt from the first row's height.
+	const rowEstimate: Natural = ({ measured, level }) =>
+		measured + (level === 2 ? TRIMMABLE * ROW : 0);
+
+	const bands = Array.from({ length: 400 }, (_, i) => 300 + i);
+
+	it("negative control: the row-height estimate flips level in a band one header tall", () => {
+		const flipping = bands.filter((band) => {
+			const tail = run(band, rowEstimate).slice(-4);
+			return new Set(tail).size > 1;
+		});
+		expect(flipping.length).toBe(HEADER);
+	});
+
+	it("settles in every band from short to tall, within a few frames", () => {
+		for (const band of bands) {
+			const tail = run(band, shipped).slice(-6);
+			expect(new Set(tail).size, `band ${band}`).toBe(1);
+		}
+	});
+
+	it("walks 0 -> 1 -> 2 as the band shrinks, with no band answering out of order", () => {
+		const settled = bands.map((band) => run(band, shipped).at(-1) as number);
+		for (let i = 1; i < settled.length; i++)
+			expect(settled[i]).toBeLessThanOrEqual(settled[i - 1] ?? 2);
+		expect(new Set(settled)).toEqual(new Set([0, 1, 2]));
+	});
+
+	it("uses the full height at level 2, and the row estimate only when none is known", () => {
+		const input = { measured: TRIMMED, trimmable: TRIMMABLE, rowHeight: ROW };
+		expect(listNaturalHeight({ ...input, level: 2, full: FULL })).toBe(FULL);
+		expect(listNaturalHeight({ ...input, level: 2, full: 0 })).toBe(
+			TRIMMED + TRIMMABLE * ROW,
+		);
+		expect(listNaturalHeight({ ...input, level: 1, full: FULL })).toBe(TRIMMED);
+	});
+});
+
+describe("the hero keeps off the first section header (design D4)", () => {
+	it("floors the layout gap at 16 pt, below the 24 pt a fitting hero keeps", () => {
+		expect(HERO_LIST_MIN_GAP).toBe(16);
+		expect(HERO_LIST_MIN_GAP).toBeLessThanOrEqual(HERO_EDGE);
+	});
+
+	it("is the spacer's minHeight in the splash, so the scrolling region keeps it", () => {
+		const splash = readFileSync(
+			new URL("./home-splash.tsx", import.meta.url),
+			"utf8",
+		);
+		expect(splash).toContain("flexGrow: 1, minHeight: HERO_LIST_MIN_GAP");
+	});
+
+	it("keeps the yield level while an empty composer holds focus (review r1 #2)", () => {
+		const splash = readFileSync(
+			new URL("./home-splash.tsx", import.meta.url),
+			"utf8",
+		);
+		expect(splash).toContain(
+			"hasList ? listLevel : holding ? lastLevel.current : 0",
+		);
 	});
 });

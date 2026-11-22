@@ -14,12 +14,14 @@ import {
 import type { SessionSummary } from "@/contracts";
 import { focusLatch } from "@/features/home/hero-focus";
 import {
+	HERO_LIST_MIN_GAP,
 	HERO_MARK_BLOCK,
 	HERO_MARK_SIZE,
 	heroHeldInset,
 	heroMeasured,
 	heroTopInsetAbove,
 	identityPillMarks,
+	listNaturalHeight,
 	WORK_LIST_GAP,
 	workListYield,
 } from "@/features/home/hero-layout";
@@ -44,9 +46,10 @@ import { cx } from "@/ui/variants";
  *
  * It is the answer to the one question this screen exists for — "what can this
  * do?" — under a composer that is ready for the answer. Composed from the
- * spec's anatomy: mark, greeting, suggestions, tip, then the composer below (the
- * composer is NOT this component's child; the home composes them, and that is
- * what keeps the composer's foot position invariant in every yield below).
+ * spec's anatomy: mark, greeting, the work list (or a new account's TRY rows),
+ * then the composer below (the composer is NOT this component's child; the home
+ * composes them, and that is what keeps the composer's foot position invariant
+ * in every yield below).
  *
  * **The work list.** Above the composer the band also holds the home's work
  * list (`work-list.ts` decides whether and what; `work-list-view.tsx` draws
@@ -54,28 +57,23 @@ import { cx } from "@/ui/variants";
  * the space the list leaves (`heroTopInsetAbove`), and when even that is too
  * short the mark gives way first, then the running/recent rows beyond the first
  * (`workListYield`), then the region scrolls. While the reader types, the list
- * steps away and the hero keeps the inset it had (`heroHeldInset`).
+ * steps away and the hero keeps the inset it had (`heroHeldInset`) and the
+ * yield level it had, so a hidden mark is not redrawn before a key is typed.
  *
  * **The yield order.** When the free area cannot hold the splash, the splash
- * gives pieces up rather than growing into the composer: the tip goes first, then
- * the mark, then the third suggestion row, and only then does the region scroll
- * (the spec's order, at the sizes it names: the tip is −34 pt at 200 % and the
- * difference between fitting at 348 of 352 and not). The rule behind the order:
- * the greeting and the suggestions are the screen's content; the mark and the tip
- * are its decoration, and decoration yields first.
+ * gives pieces up rather than growing into the composer: the mark first, then
+ * the running/recent rows beyond the first, and only then does the region
+ * scroll. The rule behind the order: the greeting and the rows are the
+ * screen's content; the mark is its decoration, and decoration yields first.
  *
- * The measurement is two `onLayout`s — the region's box and the content's
- * natural height — and the levels re-run from zero whenever the region changes
- * (rotation, a text-scale change, the keyboard opening), because a yield
- * computed for one box is wrong for the next. Nothing here can move the
- * composer: it is a sibling, and every yield only makes this region shorter.
- *
- * **The tip rotates on twelve seconds and is not announced** (`home-copy.ts`
- * has the pool and the reasons). Its presence is a function of the region's
- * height and the pool at large — never of the current entry's length — and its
- * reserve is fixed for the scale (one `meta` line, two at large text, where the
- * line would otherwise paint wider than the phone and be cut at both ends —
- * review round 3, D2), so a rotation never moves anything below it.
+ * The measurement is the region's box and two `onLayout`s for the content's
+ * natural height (hero, list), and the levels follow the region whenever it
+ * changes (rotation, a text-scale change, the keyboard opening), because a
+ * yield computed for one box is wrong for the next. Both heights are NATURAL
+ * (nothing yielded) so the level cannot flip on its own layout; at level 2 the
+ * list's natural height is the last full-list measurement (`listNaturalHeight`).
+ * Nothing here can move the composer: it is a sibling, and every yield only
+ * makes this region shorter.
  */
 export type HomeSplashProps = {
 	draft: string;
@@ -88,7 +86,6 @@ export type HomeSplashProps = {
 	onOpenSession: (session: SessionSummary) => void;
 	homeDirectory?: string | null;
 	basis?: SidebarBasis;
-	onConnect: () => void;
 	/** The first send is in flight: the splash yields to one line. */
 	starting: boolean;
 	/** Bump to move focus to the greeting (UX U5): the home asks after a
@@ -240,8 +237,26 @@ export const HomeSplash = ({
 	const [listNatural, setListNatural] = useState(0);
 	const [rowHeight, setRowHeight] = useState(0);
 	const levelRef = useRef<0 | 1 | 2>(0);
+	/* The last FULL-list height (measured below level 2) and the list it was
+	 *  measured for. Level 2 trims the list, so its own measurement is short by
+	 *  the dropped rows AND their section header; this is what it reuses
+	 *  (`listNaturalHeight`). Keyed by the row counts and the scale so a changed
+	 *  list never reuses a stale height. */
+	const fullList = useRef({ height: 0, key: "" });
+	const listKey =
+		workList.kind === "list"
+			? [
+					workList.list.needsYou.length,
+					workList.list.running.length,
+					workList.list.recent.length,
+					effectiveScale,
+				].join("/")
+			: workList.kind;
 	const hasList = workList.kind !== "none";
-	const level = hasList
+	/* The level in force when the list last drew, kept while the list is away
+	 *  because the reader is typing in an empty composer (see `holding`). */
+	const lastLevel = useRef<0 | 1 | 2>(0);
+	const listLevel = hasList
 		? workListYield({
 				band,
 				hero: heroNatural,
@@ -249,6 +264,12 @@ export const HomeSplash = ({
 				list: listNatural,
 			})
 		: 0;
+	const holding = Boolean(editing) && !draft.length && !starting;
+	/* Focusing an empty composer removes the list, and with it the reason the
+	 *  mark was hidden; redrawing it would grow the hero ~50 pt while the held
+	 *  inset stays, dropping the greeting before a key is typed. */
+	const level = hasList ? listLevel : holding ? lastLevel.current : 0;
+	lastLevel.current = level;
 	levelRef.current = level;
 	/* Rows the second yield takes: running/recent beyond one. Needs-you rows are
 	 *  never given up. */
@@ -259,10 +280,12 @@ export const HomeSplash = ({
 					workList.list.running.length + workList.list.recent.length - 1,
 				)
 			: 0;
-	const shown: WorkListSlot =
-		workList.kind === "list" && level === 2
-			? { kind: "list", list: trimWorkList(workList.list, 1) }
-			: workList;
+	const shown: Exclude<WorkListSlot, { kind: "none" }> | null =
+		workList.kind === "none"
+			? null
+			: workList.kind === "list" && level === 2
+				? { kind: "list", list: trimWorkList(workList.list, 1) }
+				: workList;
 	const listHeight = hasList ? listMeasured : 0;
 	/* `title` while the home IS the page, `heading` once there is a draft or a
 	 *  send in flight and it is a heading over other content. ONE STEP DOWN the
@@ -278,7 +301,6 @@ export const HomeSplash = ({
 	 *  space the list gave back. `restInset` is the last inset painted outside
 	 *  that state. */
 	const live = heroTopInsetAbove(band, block, listHeight);
-	const holding = Boolean(editing) && !draft.length && !starting;
 	const restInset = useRef(live);
 	if (!holding) restInset.current = live;
 	const painted = heroMeasured(band, block) && (!hasList || listMeasured > 0);
@@ -408,15 +430,30 @@ export const HomeSplash = ({
 						/>
 					) : null}
 				</View>
-				{hasList && shown.kind !== "none" ? (
+				{shown !== null ? (
 					<>
-						<View style={{ flexGrow: 1 }} />
+						{/* Grows to push the list to the band's foot; never below
+						 *  `HERO_LIST_MIN_GAP`, so a band too short for both (large
+						 *  text, scrolling) still keeps the greeting off the first
+						 *  header (design D4). */}
+						<View style={{ flexGrow: 1, minHeight: HERO_LIST_MIN_GAP }} />
 						<View
 							onLayout={(event) => {
 								const height = Math.ceil(event.nativeEvent.layout.height);
+								const at = levelRef.current;
+								if (at < 2) fullList.current = { height, key: listKey };
 								setListMeasured(height);
 								setListNatural(
-									height + (levelRef.current === 2 ? trimmable * rowHeight : 0),
+									listNaturalHeight({
+										measured: height,
+										level: at,
+										full:
+											fullList.current.key === listKey
+												? fullList.current.height
+												: 0,
+										trimmable,
+										rowHeight,
+									}),
 								);
 							}}
 							style={{ opacity: painted ? 1 : 0 }}

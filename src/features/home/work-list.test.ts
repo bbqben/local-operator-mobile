@@ -1,14 +1,24 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-
+import { TunnelSessionError } from "@/connection/tunnel-session";
 import type { SessionSummary } from "@/contracts";
 import {
+	homeNamedRefusal,
+	refusalFromError,
+	tunnelSessionRelayError,
+} from "@/features/auth/refusal";
+import { homeRecoveryKind } from "@/features/home/home-recovery";
+import {
+	DROP_META_FROM,
 	TRY_ROW_COUNT,
 	trimWorkList,
 	type WorkListSlotInput,
+	WRAP_TITLE_ABOVE,
 	workListBudget,
 	workListFor,
 	workListRowCount,
 	workListSlot,
+	workRowShape,
 } from "@/features/home/work-list";
 
 /**
@@ -268,5 +278,119 @@ describe("workListSlot — the decision", () => {
 		const slot = workListSlot({ ...base, sessions: [row("a"), row("b")] });
 		expect(slot.kind).toBe("list");
 		if (slot.kind === "list") expect(ids(slot.list.recent)).toEqual(["a", "b"]);
+	});
+});
+
+describe("a phone-access-off refusal keeps the list away through the real chain", () => {
+	// The same chain home.tsx runs: the provider's refusal -> homeRecoveryKind ->
+	// homeNamedRefusal -> `recovery` into the slot decision. No hand-set flag.
+	const phoneAccessOff = () => {
+		const error = tunnelSessionRelayError(
+			new TunnelSessionError("disabled", "tunnel is unavailable", 403),
+		);
+		return refusalFromError({
+			error,
+			surface: error.surface,
+			detail: error.detail ?? null,
+			retryAfterMs: null,
+			subject: "Studio Mac",
+			computer: {
+				billing: { active: false, eligible: null, message: null },
+				rawStatus: "active",
+			},
+		});
+	};
+
+	it("yields a recovery kind and a named refusal, and the slot is none with five waiting", () => {
+		const refusal = phoneAccessOff();
+		expect(refusal?.copy?.cause).toBe("phone-access-off");
+		// A refused tunnel is not a live route: `connected` is false.
+		const kind = homeRecoveryKind({
+			busy: false,
+			coldStartSettled: true,
+			connected: false,
+			offline: false,
+			refusal,
+		});
+		expect(kind).toBe("error");
+		const named = homeNamedRefusal(kind, refusal);
+		expect(named).not.toBeNull();
+		const five = [1, 2, 3, 4, 5].map((n) => waiting(`w${n}`));
+		// Even if the route were somehow live, the recovery state alone hides it.
+		for (const connected of [false, true]) {
+			expect(
+				workListSlot({
+					...base,
+					connected,
+					sessions: five,
+					recovery: kind !== null || named !== null,
+				}).kind,
+			).toBe("none");
+		}
+	});
+});
+
+describe("workRowShape: titles wrap, then the folder goes, at large text (design D2)", () => {
+	it("keeps one line and the folder through 1.3×", () => {
+		for (const scale of [1, 1.15, WRAP_TITLE_ABOVE]) {
+			for (const section of ["needs-you", "running", "recent"] as const) {
+				expect(workRowShape(scale, section)).toEqual({
+					titleLines: 1,
+					showFolder: true,
+				});
+			}
+		}
+	});
+
+	it("wraps every title to two lines above 1.3× and keeps the folder below 1.5×", () => {
+		for (const section of ["needs-you", "running", "recent"] as const) {
+			expect(workRowShape(1.4, section)).toEqual({
+				titleLines: 2,
+				showFolder: true,
+			});
+		}
+	});
+
+	it("drops the folder from running and recent rows from 1.5×, never from needs-you", () => {
+		for (const scale of [DROP_META_FROM, 2]) {
+			expect(workRowShape(scale, "needs-you")).toEqual({
+				titleLines: 2,
+				showFolder: true,
+			});
+			for (const section of ["running", "recent"] as const) {
+				expect(workRowShape(scale, section)).toEqual({
+					titleLines: 2,
+					showFolder: false,
+				});
+			}
+		}
+	});
+});
+
+describe("the work list's wiring (source pins; Node cannot render these)", () => {
+	const read = (name: string) =>
+		readFileSync(new URL(name, import.meta.url), "utf8");
+
+	it("hands the rows a stable open callback, so SessionRow's memo holds", () => {
+		const home = read("./home.tsx");
+		expect(home).toContain("onOpenSession={openWorkListSession}");
+		expect(home).toContain("const openWorkListSession = useCallback(");
+	});
+
+	it("opens the drawer on Agents from the footer, as the header button does", () => {
+		expect(read("./work-list-view.tsx")).toContain(
+			'drawer.open({ returnFocus, mode: "agents" })',
+		);
+	});
+
+	it("does not take or pass the dead onConnect prop", () => {
+		// The splash's own props never name it; only HomeRecovery's call remains.
+		const splash = read("./home-splash.tsx");
+		const props = splash.slice(
+			splash.indexOf("export type HomeSplashProps"),
+			splash.indexOf("/** What the hero pill shows"),
+		);
+		expect(props).not.toContain("onConnect");
+		expect(read("./home.tsx").split("onConnect=").length - 1).toBe(1);
 	});
 });

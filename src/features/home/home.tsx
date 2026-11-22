@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import type { ModelEntry } from "@/contracts";
+import type { ModelEntry, SessionSummary } from "@/contracts";
 import { HeaderComputerChip } from "@/features/auth/computer-entry-points";
 import {
 	useConnection,
@@ -453,6 +453,16 @@ export default function Home({
 	restoreQueueRef.current = startup.restoreQueueToDraft;
 	const putBackStartup = useCallback(() => {
 		void restoreQueueRef.current();
+	}, []);
+	/* STABLE for the work list's memoised `SessionRow`s (session-row.tsx):
+	 *  Home re-renders on every keystroke and stream tick, and an inline closure
+	 *  would re-render every row each time. `router` is read through a ref. */
+	const routerRef = useRef(router);
+	routerRef.current = router;
+	const openWorkListSession = useCallback((session: SessionSummary) => {
+		routerRef.current.navigate(
+			sessionLocation(session) as `/session/${string}`,
+		);
 	}, []);
 	const witnessRef = useRef(startup.witness);
 	witnessRef.current = startup.witness;
@@ -1029,12 +1039,9 @@ export default function Home({
 						editing={editing}
 						workList={workListSlotNow}
 						onPick={editDraft}
-						onOpenSession={(session) =>
-							router.navigate(sessionLocation(session) as `/session/${string}`)
-						}
+						onOpenSession={openWorkListSession}
 						homeDirectory={homeDirectory}
 						basis={sidebarView.basis}
-						onConnect={() => router.push("/tunnels")}
 						starting={starting}
 						focusRequest={heroFocus}
 						identity={

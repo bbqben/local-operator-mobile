@@ -8,7 +8,11 @@ import {
 	useListState,
 	useLocaleFrame,
 } from "@/features/auth/connection-provider";
-import type { WorkListSlot } from "@/features/home/work-list";
+import {
+	type WorkListSection,
+	type WorkListSlot,
+	workRowShape,
+} from "@/features/home/work-list";
 import { countLabel } from "@/features/notifications/notifications-model";
 import { unreadBadgeCount } from "@/features/sessions/session-projection";
 import { SessionRow } from "@/features/sessions/session-row";
@@ -151,7 +155,9 @@ export const WorkListView = ({
 	// One shared left edge when any row draws a picture (the drawer's rule).
 	const reserveLeading = all.some((session) => avatarRefOf(session) !== null);
 	const firstId = all[0]?.session_id;
-	const rows = (list: SessionSummary[], section: string) =>
+	const shape = (section: WorkListSection) =>
+		workRowShape(effectiveScale, section);
+	const rows = (list: SessionSummary[], section: WorkListSection) =>
 		list.map((session) => (
 			<View
 				key={session.session_id}
@@ -172,10 +178,16 @@ export const WorkListView = ({
 					homeDirectory={homeDirectory}
 					tagsAssignable={false}
 					onActivate={onOpenSession}
+					titleLines={shape(section).titleLines}
+					showFolder={shape(section).showFolder}
 				/>
 			</View>
 		));
-	const section = (label: string, list: SessionSummary[], key: string) =>
+	const section = (
+		label: string,
+		list: SessionSummary[],
+		key: WorkListSection,
+	) =>
 		list.length > 0 ? (
 			<View key={key}>
 				<View className="px-4">
@@ -196,7 +208,9 @@ export const WorkListView = ({
 			<LinkRow
 				label={t("mobile.home.work.all_conversations")}
 				accessibilityLabel={allLabel}
-				onPress={(returnFocus) => drawer.open({ returnFocus })}
+				/* The header's own button opens Agents; without `mode` the footer
+				 *  would reopen whichever pane the drawer last showed (Team Bridge). */
+				onPress={(returnFocus) => drawer.open({ returnFocus, mode: "agents" })}
 				testID={SURFACE.homeWorkAll}
 				trailing={
 					newCount !== null && newCount > 0 ? (

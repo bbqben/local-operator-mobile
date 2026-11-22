@@ -48,6 +48,12 @@ export type SessionRowProps = {
 	 *  drawer's menu is state of the pane, which Home does not own). The row then
 	 *  neither handles nor announces a long press. */
 	onLongPress?: (session: SessionSummary) => void;
+	/** Title lines (default 1). Only the home's work list passes 2 at large
+	 *  text; the drawer passes nothing, so its rows are unchanged. */
+	titleLines?: 1 | 2;
+	/** Leave the folder line out (default shown). Only the home's work list
+	 *  passes false, at the largest text; the row's approval word stays. */
+	showFolder?: boolean;
 };
 
 /**
@@ -90,6 +96,8 @@ export const SessionRow = memo(function SessionRow({
 	tagsAssignable,
 	onActivate,
 	onLongPress,
+	titleLines,
+	showFolder = true,
 }: SessionRowProps) {
 	/* A late backend language frame must repaint this row's keyed copy (PR #302
 	 *  R1/Q2): the "new" marker, the count chips and their accessible names, and
@@ -142,8 +150,9 @@ export const SessionRow = memo(function SessionRow({
 			reserveLeading={reserveLeading}
 			surfaceClassName={surfaceClassName}
 			title={session.conversation_name.trim() || "untitled"}
+			titleLines={titleLines}
 			cwd={
-				remote
+				remote || !showFolder
 					? undefined
 					: homeDirectory
 						? homeShortened(session.cwd, homeDirectory)

@@ -62,6 +62,15 @@ export const heroMeasured = (band: number, block: number): boolean =>
 export const WORK_LIST_GAP = 12;
 
 /**
+ * The least layout gap between the hero block and the work list's top, kept
+ * even when the band is too short for both and the region scrolls (design D4:
+ * at 200 % text the greeting sat 8 pt above the first section header and read
+ * as part of the list). The splash's flexible spacer carries it as a
+ * `minHeight`; with room to spare the spacer grows past it, as before.
+ */
+export const HERO_LIST_MIN_GAP = 16;
+
+/**
  * The hero's top inset when a work list sits at the band's bottom.
  *
  * The hero centres in the space the list LEAVES: the band less the list and its
@@ -107,6 +116,32 @@ export const workListYield = (input: {
 	const fits = (h: number) => band >= h + list + WORK_LIST_GAP + 2 * HERO_EDGE;
 	if (fits(hero)) return 0;
 	return fits(hero - mark) ? 1 : 2;
+};
+
+/**
+ * The list's NATURAL height (the full list, no yield taken) from one layout.
+ *
+ * At levels 0 and 1 the list on screen IS the full list, so the measurement is
+ * the answer. At level 2 the list is trimmed, and `full` — the last full-list
+ * height measured at a lower level — stands in for it. Rebuilding it as
+ * `measured + dropped rows * row height` missed the dropped rows' section
+ * header (and any row that is taller than the first), so in a band about one
+ * header tall level 2 estimated a list that fit, level 1 painted the full one
+ * that did not, and the level flipped on every layout (review r1 #1). With no
+ * full height known yet (the first layout landed already trimmed) the row-height
+ * estimate is the fallback, never zero.
+ */
+export const listNaturalHeight = (input: {
+	measured: number;
+	level: WorkListYield;
+	/** The last full-list height measured below level 2; 0 when unknown. */
+	full: number;
+	trimmable: number;
+	rowHeight: number;
+}): number => {
+	const { measured, level, full, trimmable, rowHeight } = input;
+	if (level < 2) return measured;
+	return full > 0 ? full : measured + trimmable * rowHeight;
 };
 
 /**
