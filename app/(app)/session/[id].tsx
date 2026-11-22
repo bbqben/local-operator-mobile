@@ -2089,7 +2089,7 @@ function Session() {
 				visible={asksOpen}
 				onClose={asksSheet.close}
 				initialOpenAsk={asksSheet.initialOpenAsk}
-				seedRows={asksSheet.seedRows}
+				frameRows={asksSheet.frameRows}
 				onReadFailed={asksSheet.readFailed}
 				client={runtime.source.endpoints}
 				currentSessionId={sessionId}
