@@ -920,6 +920,12 @@ export const CELL_OPENERS: Record<string, Affordance[]> = {
 	"path:/session/{sessionId}/imagegen-cancel": [
 		{ click: imagegenCancelId("tc-img-running-determinate") },
 	],
+	/* The "Jump to latest" chip (operator, 2026-11-21). Its state is two events —
+	 *  the reader leaves the end, then new output arrives below them — and the
+	 *  harness drives no scroll gestures, so the app's one capture hook names the
+	 *  state instead (`lo-scroll=away`, `src/features/session/scroll-hook.ts`).
+	 *  No opener: the URL is the whole cell. */
+	"path:/session/{sessionId}?lo-scroll=away/jump-to-latest": [],
 	/* The same press on a QUEUED card: the hold that replaced a call which
 	 *  never generated. This is the frame the F3 guard exists for — it must
 	 *  show the word alone, with no generating frame or bar the card never
