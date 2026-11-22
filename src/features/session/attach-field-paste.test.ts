@@ -2,26 +2,30 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { pasteTempRoots, pastedImageUris } from "./attach-rule";
+import { pastedImageUris, pasteTempRoots } from "./attach-rule";
 import { isOwnedPasteFile } from "./picker-privacy";
 
 const read = (relative: string) =>
 	readFileSync(fileURLToPath(new URL(relative, import.meta.url)), "utf8");
 
-const cache = "file:///private/var/mobile/Containers/Data/Application/A1/Library/Caches/";
+const cache =
+	"file:///private/var/mobile/Containers/Data/Application/A1/Library/Caches/";
 const tmp = "file:///private/var/mobile/Containers/Data/Application/A1/tmp/";
 
 describe("pasting an image INTO the message field (Ben, 2026-11-22)", () => {
 	it("takes the image URIs of an images payload and nothing else", () => {
 		expect(
-			pastedImageUris({ type: "images", uris: ["file:///a.png", "file:///b.png"] }),
+			pastedImageUris({
+				type: "images",
+				uris: ["file:///a.png", "file:///b.png"],
+			}),
 		).toEqual(["file:///a.png", "file:///b.png"]);
 		// A text paste is the field's own; an unsupported one attaches nothing.
 		expect(pastedImageUris({ type: "text", value: "hello" })).toEqual([]);
 		expect(pastedImageUris({ type: "unsupported" })).toEqual([]);
-		expect(pastedImageUris({ type: "images", uris: ["", "file:///a.png"] })).toEqual(
-			["file:///a.png"],
-		);
+		expect(
+			pastedImageUris({ type: "images", uris: ["", "file:///a.png"] }),
+		).toEqual(["file:///a.png"]);
 	});
 
 	it("derives iOS's tmp/ from the cache directory and keeps the cache directory for Android", () => {
@@ -51,9 +55,13 @@ describe("pasting an image INTO the message field (Ben, 2026-11-22)", () => {
 describe("how the field paste is wired", () => {
 	it("wraps the message field's TextInput, only when a host asked for it", () => {
 		const textarea = read("../../ui/components/textarea.tsx");
-		expect(textarea).toContain("<PasteImageField onPasteImages={onPasteImages}>");
+		expect(textarea).toContain(
+			"<PasteImageField onPasteImages={onPasteImages}>",
+		);
 		const field = read("../../ui/components/paste-image-field.tsx");
-		expect(field).toContain("if (onPasteImages === undefined || Platform.OS === \"web\") return children;");
+		expect(field).toContain(
+			'if (onPasteImages === undefined || Platform.OS === "web") return children;',
+		);
 		expect(field).toContain("pastedImageUris(payload)");
 	});
 
