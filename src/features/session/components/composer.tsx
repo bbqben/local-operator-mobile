@@ -267,6 +267,10 @@ export type ComposerProps = {
 	/** A web paste event's image file. Only the web build can raise the event;
 	 *  the listener that reads it lives here, the read lives with the host. */
 	onPasteFile: (file: File) => void;
+	/** Images pasted INTO the message field on iOS/Android: `file://` copies the
+	 *  field's native wrapper wrote (`paste-image-field.tsx`). The read lives with
+	 *  the host, like `onAttach`'s. */
+	onPasteImages: (uris: string[]) => void;
 	attaching?: boolean;
 	/** Called on every Attach press, before the sheet opens. The owner abandons
 	 *  a pick still in flight: on native Attach stays pressable while picking,
@@ -706,6 +710,7 @@ export const Composer = ({
 	onRemoveImage,
 	onAttach,
 	onPasteFile,
+	onPasteImages,
 	attaching = false,
 	onAttachOpen,
 	voice = null,
@@ -2314,6 +2319,7 @@ export const Composer = ({
 							if (canSendRef.current) sendRef.current();
 						}}
 						fieldRef={inputRef}
+						onPasteImages={onPasteImages}
 						onFocus={() => setFocused(true)}
 						onBlur={() => setFocused(false)}
 						testID={CONTROL.composerInput}

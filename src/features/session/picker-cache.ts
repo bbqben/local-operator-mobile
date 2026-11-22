@@ -1,4 +1,9 @@
-import { isOwnedPickerCacheFile, pickerPrivacy } from "./picker-privacy";
+import { pasteTempRoots } from "./attach-rule";
+import {
+	isOwnedPasteFile,
+	isOwnedPickerCacheFile,
+	pickerPrivacy,
+} from "./picker-privacy";
 
 export async function removePickedCacheCopy(
 	uri: string | undefined,
@@ -24,6 +29,24 @@ export async function removePickedCacheCopy(
  * The drain is bounded (`PickerPrivacy`): sweeps chain on `sweeping`, so an
  * unbounded wait on one never-settling picker held every later sweep — and
  * every startup admission gated on it — for the life of the process. */
+/**
+ * Delete the file `expo-paste-input` wrote for a pasted image, once its bytes
+ * are in memory. Same contract as `removePickedCacheCopy`: only a file directly
+ * in the app's own cache or `tmp/` directory is touched, and a copy that cannot
+ * be verified gone fails the attachment rather than lingering after sign-out.
+ */
+export async function removePastedCopy(uri: string | undefined): Promise<void> {
+	try {
+		const { File, Paths } = await import("expo-file-system");
+		if (!uri || !isOwnedPasteFile(uri, pasteTempRoots(Paths.cache.uri)))
+			throw new Error("unowned image copy");
+		const file = new File(uri);
+		if (file.info().exists) file.delete();
+		if (file.info().exists) throw new Error("image copy remains");
+	} catch {
+		throw new Error("the image could not be read");
+	}
+}
 let sweeping: Promise<void> = Promise.resolve();
 export function clearNativePickerCache(): Promise<void> {
 	const next = sweeping

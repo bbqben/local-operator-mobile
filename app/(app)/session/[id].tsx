@@ -1925,6 +1925,7 @@ function Session() {
 						onRemoveImage={composer.removeImage}
 						onAttach={composer.attach}
 						onPasteFile={composer.pasteFile}
+						onPasteImages={composer.pasteImages}
 						attaching={composer.attaching}
 						onAttachOpen={composer.abandonAttach}
 						voice={composer.voice}
