@@ -135,7 +135,7 @@ const NAMESPACES = [
 		 *  92 with the new-chat identity picker (PR #358): 25 `identity.*` keys
 		 *  for the pill, the "Start this chat with" sheet and its refusals, and 1
 		 *  from its round-1 remediation (`refused_connecting`, F2): 66 + 26. */
-		expected: 92,
+		expected: 95,
 	},
 	{
 		name: "mobile.projects",
@@ -641,7 +641,10 @@ describe("the English catalogues", () => {
 		 * counted over all 26 English JSON catalogues (sidebar 53, home 92,
 		 * chrome 28, team_bridge 221). Keep this explicit total as an
 		 * independent guard against an accidentally dropped key. */
-		expect(total).toBe(1374);
+		/* The home work list: +5 mobile.home.work.* keys, −2 pool chips
+		 * (suggestion.phone_access, suggestion.last_turn): 1374 + 3 = 1377,
+		 * home 92 → 95. */
+		expect(total).toBe(1377);
 	});
 
 	it("lists every catalogue file this suite checks", () => {

@@ -2,13 +2,17 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
 	HERO_EDGE,
+	HERO_MARK_BLOCK,
 	HERO_MARK_SIZE,
 	HERO_OPTICAL_NUDGE,
 	heroHeldInset,
 	heroMeasured,
 	heroTopInset,
+	heroTopInsetAbove,
 	IDENTITY_PILL_MARK_CAP_PT,
 	identityPillMarks,
+	WORK_LIST_GAP,
+	workListYield,
 } from "./hero-layout";
 
 const DRAWS_PILL_MARK = /size=\{marks\.mark\}/;
@@ -118,17 +122,31 @@ describe("the hero is a centred stack: mark, greeting, rows", () => {
 		expect(splash).not.toContain("text-display");
 	});
 
-	it("keeps the rows full-width targets, centred on the same line", () => {
-		expect(block).toContain('className="mt-6 gap-2 self-stretch"');
-		expect(SPLASH).toContain(
-			'"-mx-3 min-h-11 flex-row items-center gap-1 rounded-sm px-3", largeText ? "justify-start" : "justify-center",',
+	it("draws no suggestion rows in the hero: the bottom of the band is the work list's", () => {
+		expect(block).not.toContain("SuggestionRow");
+		expect(block).not.toContain("SURFACE.homeSuggestions");
+	});
+});
+
+describe("the work list's rows (footer and TRY)", () => {
+	const VIEW = readFileSync(
+		new URL("./work-list-view.tsx", import.meta.url),
+		"utf8",
+	).replace(/\s+/g, " ");
+
+	it("are full-width 44 pt targets on the hero's 16 pt rail", () => {
+		// The container pulls out by the screen's 16 pt; each row brings its own.
+		expect(VIEW).toContain('className="-mx-4" testID={SURFACE.homeWorkList}');
+		expect(VIEW).toContain('"min-h-11 flex-row items-center gap-2 px-4"');
+		expect(VIEW).toContain("style={{ minHeight: TOUCH_FLOOR }}");
+	});
+
+	it("reuse the drawer's row and offer no long-press menu", () => {
+		expect(VIEW).toContain("<SessionRow");
+		expect(VIEW).not.toContain("onLongPress");
+		expect(VIEW).toContain(
+			'section(t("mobile.sidebar.section.running"), running, "running")',
 		);
-		expect(SPLASH).toContain(
-			'"min-w-0 flex-shrink text-body", largeText ? "text-start" : "text-center",',
-		);
-		/* Design D1: never a growing label, which would pin the chevron to the
-		 *  row's far edge at every size. */
-		expect(SPLASH).not.toMatch(/min-w-0 flex-1 text-body/);
 	});
 });
 
@@ -151,5 +169,79 @@ describe("the identity pill's mark and chevron (PR #358 D5)", () => {
 		expect(splash).toMatch(DRAWS_PILL_MARK);
 		expect(splash).toMatch(DRAWS_PILL_CHEVRON);
 		expect(splash).not.toMatch(FIXED_PILL_CHEVRON);
+	});
+});
+
+describe("heroTopInsetAbove: the hero centres in the space the list leaves", () => {
+	it("is heroTopInset exactly when there is no list", () => {
+		expect(heroTopInsetAbove(652, BLOCK, 0)).toBe(heroTopInset(652, BLOCK));
+	});
+
+	it("centres in the band less the list and its 12 pt gap, on the 4 pt grid", () => {
+		const band = 652;
+		const list = 250;
+		const top = heroTopInsetAbove(band, BLOCK, list);
+		expect(top).toBe(heroTopInset(band - list - WORK_LIST_GAP, BLOCK));
+		expect(top % 4).toBe(0);
+		// Higher than the no-list centre: the hero sits in the smaller space.
+		expect(top).toBeLessThan(heroTopInset(band, BLOCK));
+		// The list's foot is the band's foot less the gap, so the hero's bottom
+		// stays at least 24 pt above the list's top.
+		expect(band - list - WORK_LIST_GAP - (top + BLOCK)).toBeGreaterThanOrEqual(
+			HERO_EDGE,
+		);
+	});
+
+	it("falls back to the 24 pt anchor when the space cannot hold the block", () => {
+		expect(heroTopInsetAbove(400, BLOCK, 250)).toBe(HERO_EDGE);
+	});
+
+	it("keeps the held-inset rule: focus drops the list and the hero does not move", () => {
+		const rest = heroTopInsetAbove(652, BLOCK, 250);
+		const live = heroTopInsetAbove(652, BLOCK, 0);
+		expect(heroHeldInset(live, rest)).toBe(rest);
+	});
+});
+
+describe("workListYield: the mark goes first, then the rows, then the region scrolls", () => {
+	const need = (hero: number, list: number) =>
+		hero + list + WORK_LIST_GAP + 2 * HERO_EDGE;
+
+	it("keeps everything when it fits", () => {
+		expect(
+			workListYield({
+				band: need(BLOCK, 250),
+				hero: BLOCK,
+				mark: HERO_MARK_BLOCK,
+				list: 250,
+			}),
+		).toBe(0);
+	});
+
+	it("drops the mark when that is enough", () => {
+		const band = need(BLOCK - HERO_MARK_BLOCK, 250);
+		expect(
+			workListYield({ band, hero: BLOCK, mark: HERO_MARK_BLOCK, list: 250 }),
+		).toBe(1);
+		expect(
+			workListYield({
+				band: band - 1,
+				hero: BLOCK,
+				mark: HERO_MARK_BLOCK,
+				list: 250,
+			}),
+		).toBe(2);
+	});
+
+	it("answers 0 until everything is measured", () => {
+		expect(
+			workListYield({ band: 0, hero: BLOCK, mark: HERO_MARK_BLOCK, list: 250 }),
+		).toBe(0);
+		expect(
+			workListYield({ band: 500, hero: 0, mark: HERO_MARK_BLOCK, list: 250 }),
+		).toBe(0);
+		expect(
+			workListYield({ band: 500, hero: BLOCK, mark: HERO_MARK_BLOCK, list: 0 }),
+		).toBe(0);
 	});
 });

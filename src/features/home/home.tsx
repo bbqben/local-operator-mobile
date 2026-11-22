@@ -72,6 +72,7 @@ import {
 } from "@/features/home/start-targets";
 import { useHomeDrawer } from "@/features/home/use-home-drawer";
 import { useStartTarget } from "@/features/home/use-start-target";
+import { workListSlot } from "@/features/home/work-list";
 import { startupEchoes } from "@/features/new-session/startup-echoes";
 import {
 	StartupPreview,
@@ -93,7 +94,9 @@ import { heldTimer } from "@/features/session/resume-hold";
 import { deviceOnline } from "@/features/session/runtime";
 import { useHomeDictation } from "@/features/session/use-dictation";
 import { ConversationsPane } from "@/features/sessions/conversations-pane";
+import { sessionLocation } from "@/features/sessions/session-navigation";
 import { inboxBadgeCount } from "@/features/sessions/session-projection";
+import { useSidebarView } from "@/features/sessions/use-sidebar-view";
 import {
 	useWorkspaceDrawer,
 	WorkspaceDrawerButton,
@@ -214,6 +217,11 @@ export default function Home({
 	 *  nothing. */
 	const effortSupported = capabilities?.session_start?.effort === true;
 	const liveFrameAt = useListState((state) => state.liveFrameAt);
+	const listStale = useListState((state) => state.stale);
+	/* This computer's conversations, off the frame the drawer paints from — no
+	 *  request of the home's own. `workListSlot` decides whether they show. */
+	const sessions = useListState((state) => state.sessions);
+	const { view: sidebarView } = useSidebarView();
 	const _showToast = useUiStore((state) => state.showToast);
 
 	const workspaceDrawer = useWorkspaceDrawer();
@@ -501,6 +509,38 @@ export default function Home({
 		refusal,
 	});
 	const namedRefusal = homeNamedRefusal(homeRecovery, refusal);
+	/* The work list above the composer. `recovery` is the refusal and recovery
+	 *  states together: they render INSTEAD of the splash below, and the decision
+	 *  refuses them again by itself so the list can never be drawn behind one
+	 *  (phone access off is a refusal — `refusal.ts`). */
+	const workListSlotNow = useMemo(
+		() =>
+			workListSlot({
+				connected,
+				recovery: homeRecovery !== null || namedRefusal !== null,
+				draft,
+				editing,
+				starting,
+				frameLive: liveFrameAt !== null,
+				stale: listStale,
+				sessions,
+				scale: effectiveScale,
+				basis: sidebarView.basis,
+			}),
+		[
+			connected,
+			homeRecovery,
+			namedRefusal,
+			draft,
+			editing,
+			starting,
+			liveFrameAt,
+			listStale,
+			sessions,
+			effectiveScale,
+			sidebarView.basis,
+		],
+	);
 
 	/* The computer's two reads, each kept as the state it really is.
 	 *
@@ -987,8 +1027,13 @@ export default function Home({
 					<HomeSplash
 						draft={draft}
 						editing={editing}
-						connected={connected}
+						workList={workListSlotNow}
 						onPick={editDraft}
+						onOpenSession={(session) =>
+							router.navigate(sessionLocation(session) as `/session/${string}`)
+						}
+						homeDirectory={homeDirectory}
+						basis={sidebarView.basis}
 						onConnect={() => router.push("/tunnels")}
 						starting={starting}
 						focusRequest={heroFocus}

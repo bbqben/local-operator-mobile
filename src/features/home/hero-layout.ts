@@ -58,6 +58,57 @@ export const heroTopInset = (band: number, block: number): number => {
 export const heroMeasured = (band: number, block: number): boolean =>
 	band > 0 && block > 0;
 
+/** The gap between the work list's last row and the composer stack's top. */
+export const WORK_LIST_GAP = 12;
+
+/**
+ * The hero's top inset when a work list sits at the band's bottom.
+ *
+ * The hero centres in the space the list LEAVES: the band less the list and its
+ * gap, run through the same rule as `heroTopInset` (4 pt grid, −8 pt nudge,
+ * 24 pt minimum, fall back to the top anchor when the space cannot hold the
+ * block). No list (`listHeight` 0, unmeasured or absent) is exactly
+ * `heroTopInset`, so a band without a list is laid out as it always was.
+ */
+export const heroTopInsetAbove = (
+	band: number,
+	block: number,
+	listHeight: number,
+): number =>
+	listHeight > 0
+		? heroTopInset(band - listHeight - WORK_LIST_GAP, block)
+		: heroTopInset(band, block);
+
+/** What the splash gives up, in order, before its region scrolls. */
+export type WorkListYield = 0 | 1 | 2;
+
+/**
+ * Which pieces give way when the band cannot hold hero + list (spec: the mark
+ * first, then the running/recent rows beyond the first, then the region
+ * scrolls). All inputs are NATURAL heights — hero with its mark, list with every
+ * row — so the answer cannot oscillate: hiding the mark does not change what is
+ * compared next frame.
+ *
+ *  - `0` everything fits with the 24 pt edges the hero keeps;
+ *  - `1` it fits once the mark (`mark` pt, its margin included) is hidden;
+ *  - `2` it does not: the mark is hidden and the list is trimmed to its needs-you
+ *    rows plus one more; whatever still overflows scrolls.
+ *
+ * Unmeasured (a 0) answers `0`, like `heroTopInset`'s top anchor.
+ */
+export const workListYield = (input: {
+	band: number;
+	hero: number;
+	mark: number;
+	list: number;
+}): WorkListYield => {
+	const { band, hero, mark, list } = input;
+	if (band <= 0 || hero <= 0 || list <= 0) return 0;
+	const fits = (h: number) => band >= h + list + WORK_LIST_GAP + 2 * HERO_EDGE;
+	if (fits(hero)) return 0;
+	return fits(hero - mark) ? 1 : 2;
+};
+
 /**
  * The inset while the reader focuses an EMPTY composer (UX U1 / review R4).
  * The suggestion rows step away on focus, the block shrinks, and a re-centred
@@ -83,6 +134,11 @@ export const heroHeldInset = (live: number, held: number): number =>
  * composer below is untouched.
  */
 export const HERO_MARK_SIZE = 32;
+
+/** What the mark adds to the hero block's height: the disc, its 1 pt ring on
+ *  both sides and the `space.4` (16 pt) margin under it. `workListYield` takes
+ *  this off the block when the mark gives way. */
+export const HERO_MARK_BLOCK = HERO_MARK_SIZE + 2 + 16;
 
 /** The identity pill's largest mark, in pt: the spec's cap for marks beside
  *  scaled text (identity-picker D-S26). */
