@@ -1621,7 +1621,14 @@ export const Composer = ({
 			    is read before the control that is pressed. */}
 			{images.length > 0 ? (
 				<View className="pb-2">
-					<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+					{/* "handled": with the keyboard up (a field paste leaves it up) the
+					    first tap on a chip's remove badge dismissed the keyboard and only
+					    the second removed the chip (QA round 2, Q1). */}
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						keyboardShouldPersistTaps="handled"
+					>
 						<View className="flex-row gap-1.5">
 							{images.map((image, index) => (
 								<View key={`${index}-${image.mime_type}`} className="relative">
