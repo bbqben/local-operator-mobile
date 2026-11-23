@@ -36,6 +36,28 @@ describe("pasting an image INTO the message field (Ben, 2026-11-22)", () => {
 		]);
 	});
 
+	it("matches on a real device, where the cache URI is /var and tmp/ is /private/var", () => {
+		// expo-file-system reports file:///var/mobile/… on hardware; the module's
+		// FileManager.temporaryDirectory is file:///private/var/mobile/….
+		const deviceCache =
+			"file:///var/mobile/Containers/Data/Application/A1/Library/Caches/";
+		const roots = pasteTempRoots(deviceCache);
+		expect(isOwnedPasteFile(`${tmp}1730000000000-0.png`, roots)).toBe(true);
+		expect(
+			isOwnedPasteFile(
+				"file:///var/mobile/Containers/Data/Application/A1/tmp/x.png",
+				roots,
+			),
+		).toBe(true);
+		// A different container is still refused.
+		expect(
+			isOwnedPasteFile(
+				"file:///private/var/mobile/Containers/Data/Application/B2/tmp/x.png",
+				roots,
+			),
+		).toBe(false);
+	});
+
 	it("owns only a file directly in the app's cache or tmp directory", () => {
 		const roots = pasteTempRoots(cache);
 		expect(isOwnedPasteFile(`${tmp}1730000000000-0.png`, roots)).toBe(true);

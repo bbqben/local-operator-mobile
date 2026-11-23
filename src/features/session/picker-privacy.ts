@@ -17,8 +17,18 @@ export function isOwnedPickerCacheFile(uri: string, cacheUri: string): boolean {
  *  The roots are passed in (the caller reads them from expo-file-system) so the
  *  rule stays testable in Node. */
 export function isOwnedPasteFile(uri: string, rootUris: string[]): boolean {
-	return rootUris.some((root) => isDirectChildOf(uri, root, undefined));
+	const plain = withoutPrivatePrefix(uri);
+	return rootUris.some((root) =>
+		isDirectChildOf(plain, withoutPrivatePrefix(root), undefined),
+	);
 }
+
+/** On a device expo-file-system spells the app container `file:///var/mobile/…`
+ *  while `FileManager.temporaryDirectory` (what the paste module writes to) is
+ *  `file:///private/var/mobile/…`: the same directory, two spellings. Compare
+ *  both sides without the `/private` so the real-device spelling matches. */
+const withoutPrivatePrefix = (uri: string): string =>
+	uri.replace(/^file:\/\/\/private\/(var|tmp)\//, "file:///$1/");
 
 function isDirectChildOf(
 	uri: string,

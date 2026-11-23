@@ -23,12 +23,6 @@ export async function removePickedCacheCopy(
 		throw new Error("the image could not be read");
 	}
 }
-/** A process can die inside the native picker before JS receives an asset URI.
- * After draining active pickers, sweep ONLY Expo's dedicated cache/ImagePicker,
- * never a Photos source, a document-provider URI or the whole cache/sentinel.
- * The drain is bounded (`PickerPrivacy`): sweeps chain on `sweeping`, so an
- * unbounded wait on one never-settling picker held every later sweep — and
- * every startup admission gated on it — for the life of the process. */
 /**
  * Delete the file `expo-paste-input` wrote for a pasted image, once its bytes
  * are in memory. Same contract as `removePickedCacheCopy`: only a file directly
@@ -47,6 +41,12 @@ export async function removePastedCopy(uri: string | undefined): Promise<void> {
 		throw new Error("the image could not be read");
 	}
 }
+/** A process can die inside the native picker before JS receives an asset URI.
+ * After draining active pickers, sweep ONLY Expo's dedicated cache/ImagePicker,
+ * never a Photos source, a document-provider URI or the whole cache/sentinel.
+ * The drain is bounded (`PickerPrivacy`): sweeps chain on `sweeping`, so an
+ * unbounded wait on one never-settling picker held every later sweep — and
+ * every startup admission gated on it — for the life of the process. */
 let sweeping: Promise<void> = Promise.resolve();
 export function clearNativePickerCache(): Promise<void> {
 	const next = sweeping
